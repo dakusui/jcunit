@@ -367,7 +367,7 @@ public class IPO {
 		//     3.2 [Uncovered pairs] Compute the set U of all uncovered pairs
 		//         formed by pairing parameters Fi, 1 <= i <= k-1 and parameter
 		//         Fk.
-			Set<ValuePair> U = computeSetU(T, Fk); 
+		Set<ValuePair> U = computeSetU(T, Fk); 
 		//     3.3 [Vertical growth] If U is empty, then terminate this step,
 		//         else continue. For each uncovered pair u = (vj, vk) <E> U,
 		//         add a run (v1, v2, ..., vj,..., vk-1, vk) to T. Here, vj
@@ -398,7 +398,7 @@ public class IPO {
 				for (Object s : this.space.domainOf(Fk)) {
 					if (Fi == Fk) continue;
 					ValuePair p = new ValuePair(Fi, r, Fk, s);
-					ret.add(p);
+					if (lookUp(lookUp(T, Fi, r), Fk, s).size() == 0) ret.add(p);
 				}
 			}
 		}

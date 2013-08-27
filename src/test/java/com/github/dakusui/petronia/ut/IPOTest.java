@@ -161,6 +161,25 @@ public class IPOTest {
 		runTest(space);
 	}
 
+	@Test
+	public void ipo_08() {
+		TestSpace space = new TestSpace(
+			new Object[][]{
+				{
+					"A1", "A2", "A3"
+				},
+				{
+					"B1", "B2", "B3", "B4"
+				},
+				{
+					"C1", "C2", "C3", "C4", "C5"
+				}
+			}
+		);
+		
+		runTest(space);
+	}
+
 	private void runTest(TestSpace space) {
 		IPO ipo = new IPO(space);
 		TestRunSet testRunSet = ipo.ipo();

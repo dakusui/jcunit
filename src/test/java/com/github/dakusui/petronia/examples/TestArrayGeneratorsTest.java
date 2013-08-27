@@ -24,7 +24,7 @@ public class TestArrayGeneratorsTest {
 		for (Failure f: result.getFailures()) {
 			System.out.println(f);
 		}
-		assertEquals(119,    result.getRunCount());
-		assertEquals( 10 + 1,result.getFailureCount());
+		assertEquals(  97,    result.getRunCount());
+		assertEquals(  4 + 1, result.getFailureCount());
 	}
 }
