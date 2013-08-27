@@ -327,7 +327,7 @@ public class IPO {
 	public TestRunSet ipo() {
 		TestRunSet CA;
 		int n = this.space.numDomains();
-		assert n > 2;
+		assert n >= 2;
 
 		////
 		// Step 1.  [Initialize] Generate all pairs for parameters F1 and F2. 
@@ -409,7 +409,7 @@ public class IPO {
 
 
 	/*
-	 *  Input:  (a) A set of m >= runs of the kind R = (v1, v2,..., vk-1),
+	 *  Input:  (a) A set of m >= 1 runs of the kind R = (v1, v2,..., vk-1),
 	 *             k > 2, where vi, 1 <= i <= (k-1) is a value of parameter Fi.
 	 *         (b) Parameter F != Fi, 1 <= i <= (k - 1).
 	 * Output: T': A set of runs (v1, v2,..., vk-1), k > 2 obtained by extending
@@ -419,7 +419,7 @@ public class IPO {
 	 */
 	private TestRunSet hg(TestRunSet R, int F) {
 		int m = R.size();
-		assert m > 2;
+		assert m >= 1;
 		/*
 
 		D(F) = {l1, l2,..., lq}, q ≥ 1.
