@@ -26,6 +26,7 @@ import com.github.dakusui.petronia.ut.MaxMinTest;
 import com.github.dakusui.petronia.ut.NumCastTest;
 import com.github.dakusui.petronia.ut.NumericFuncTest;
 import com.github.dakusui.petronia.ut.NumericTest;
+import com.github.dakusui.petronia.ut.PairwiseTestArrayGeneratorTest;
 import com.github.dakusui.petronia.ut.PrognTest;
 import com.github.dakusui.petronia.ut.QuoteTest;
 import com.github.dakusui.petronia.ut.RuleSetTest;
@@ -60,6 +61,7 @@ import com.github.dakusui.petronia.ut.WhenTest;
 		NumCastTest.class,
 		NumericFuncTest.class,
 		NumericTest.class,
+		PairwiseTestArrayGeneratorTest.class,
 		PrognTest.class,
 		QuoteTest.class,
 		RuleSetTest.class,

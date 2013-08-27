@@ -625,14 +625,22 @@ public class IPO {
 			//             t = (dc1, dc2,..., dci-1, r, dci+1,..., dck-1, s), 
 			//             1 <= i < k
 			//         Add t to T'
-			int k = T.width();
-			Run r = new Run(k);
-			for (int i = 1; i <= k; i++) {
-				r.set(i, DC);
+			// ***
+			// ***     Additional 'if' statement to the original algorithm.
+			// ***     Before trying to add a new run based on uncovered pairs,
+			// ***     we should check if it is already covered by T'. Because
+			// ***     previous executions of this loop maybe covered it.
+			// ***
+			if (lookUp(lookUp(T$, pair.A, pair.r), pair.B, pair.s).size() == 0) { 
+				int k = T.width();
+				Run r = new Run(k);
+				for (int i = 1; i <= k; i++) {
+					r.set(i, DC);
+				}
+				r.set(pair.A, pair.r);
+				r.set(pair.B, pair.s);
+				T$.add(r);
 			}
-			r.set(pair.A, pair.r);
-			r.set(pair.B, pair.s);
-			T$.add(r);
 		}
 		// Step 3. For each run t <E> T', replace any don't care entry by an arbitrarily
 		//         selected value of the corresponding parameter. Instead, one

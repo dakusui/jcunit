@@ -19,6 +19,7 @@ import com.github.dakusui.jcunit.enumerator.TestArrayGenerator;
 public abstract class TestArrayGeneratorTest {
 	@Test
 	public void makeSureAllThePossibleValuesOfEachFieldAreCovered() {
+		System.out.println("*** Making sure all the possible values of each field are coverd ***");
 		TestArrayGenerator<String, String> generator = createTestArrayGenerator(); 
 		
 		Map<String, String[]> d = new TreeMap<String, String[]>();
@@ -34,6 +35,7 @@ public abstract class TestArrayGeneratorTest {
 		// generated test cases.
 		while (generator.hasNext()) {
 			Map<String, String> arr = generator.next();
+			System.out.println("*** " + arr);
 			if (results.contains(arr.toString())) fail(
 				String.format("The combination '%s' appeared more than once in the test array.", arr.toString())
 			);
@@ -54,6 +56,7 @@ public abstract class TestArrayGeneratorTest {
 				fail(String.format("Value '%s' isn't covered.", cur));
 			}
 		}
+		System.out.println("********************************************************************");
 	}
 	
 	protected abstract TestArrayGenerator<String, String> createTestArrayGenerator();
