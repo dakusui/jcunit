@@ -14,7 +14,7 @@ public abstract class BaseTestArrayGenerator<T, U> implements TestArrayGenerator
 	/**
 	 * A logger object.
 	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(CartesianTestArrayGenerator.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BaseTestArrayGenerator.class);
 
 	protected Map<T, U[]> domains = null;
 	protected long size = -1;
