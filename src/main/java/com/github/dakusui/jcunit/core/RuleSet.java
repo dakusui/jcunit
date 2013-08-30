@@ -181,6 +181,8 @@ public class RuleSet implements MethodRule {
 				LOGGER.error("");
 				LOGGER.error("  FAIL:{}", failedReason());
 				LOGGER.error("");
+				writer.writeLine(0, "* EXCEPTIONS *");
+				dumpExceptions(writer, this.outValues);
 			}
 		}
 		return ret;
@@ -198,6 +200,28 @@ public class RuleSet implements MethodRule {
 		for (Field key : keys) {
 			Object v = values.get(key);
 			writer.writeLine(2, String.format("%s:%s(%s)", key.getName(), v, key.getType().getName()));
+		}
+	}
+	
+	protected void dumpExceptions(ReportWriter writer, Map<Field, Object> values) {
+		List<Field> keys = new ArrayList<Field>(values.keySet());
+		Collections.sort(keys, new Comparator<Field>() {
+			@Override
+			public int compare(Field o1, Field o2) {
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
+		for (Field key : keys) {
+			Object v = values.get(key);
+			if (v instanceof Throwable) {
+				Throwable t = (Throwable)v;
+				writer.writeLine(1, String.format("%s:%s(%s)", key.getName(), v, key.getType().getName()));
+				writer.writeLine(2, t.getMessage());
+				for (StackTraceElement ste : t.getStackTrace()) {
+					writer.writeLine(3, ste.toString());
+				}
+				writer.writeLine(1, "");
+			}
 		}
 	}
 	
