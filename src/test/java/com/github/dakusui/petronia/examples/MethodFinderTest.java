@@ -14,7 +14,7 @@ import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.enumerator.SimpleTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 
 public class MethodFinderTest extends DefaultRuleSetBuilder {
 	@RunWith(JCUnit.class)

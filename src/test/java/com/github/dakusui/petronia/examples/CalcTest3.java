@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
-import com.github.dakusui.jcunit.enumerator.PairwiseTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.PairwiseTestArrayGenerator;
 import com.github.dakusui.petronia.examples.Calc.Op;
 
 /**

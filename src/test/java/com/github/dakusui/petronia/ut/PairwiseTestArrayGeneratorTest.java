@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
-import com.github.dakusui.jcunit.enumerator.PairwiseTestArrayGenerator;
-import com.github.dakusui.jcunit.enumerator.TestArrayGenerator;
+import com.github.dakusui.jcunit.generators.PairwiseTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 
 public class PairwiseTestArrayGeneratorTest extends TestArrayGeneratorTest {
 	@Override

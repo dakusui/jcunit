@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.core;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import com.github.dakusui.jcunit.enumerator.TestArrayGenerator;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 
 
 @Retention(RetentionPolicy.RUNTIME)

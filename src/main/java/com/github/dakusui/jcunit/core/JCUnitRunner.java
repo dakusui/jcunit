@@ -42,7 +42,6 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 		Map<Field, Object> values = JCUnit.cast(computeParams());
 		Utils.initializeObjectUnderTest(ret, values);
 		for (RuleSet cur : getRuleSets(ret)) {
-			cur.setTestIndex(this.fParameterSetNumber);
 			cur.setInValues(values);
 		}
 		return ret;
@@ -54,6 +53,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 			Object v = Utils.getFieldValue(cut, f);
 			if (v != null && v instanceof RuleSet && f.getAnnotation(Rule.class) != null) {
 				ret.add((RuleSet) v);
+				((RuleSet)v).setTarget(cut);
 			}
 		}
 		return ret.toArray(new RuleSet[]{});

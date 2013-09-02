@@ -14,18 +14,20 @@ import java.util.Map.Entry;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
+import org.junit.ClassRule;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 
-public class RuleSet implements MethodRule {
+public class RuleSet implements TestRule {
 	public static class ReportWriter {
 		public void writeLine(int indentLevel, String str) {
 			String indent = "";
@@ -54,14 +56,17 @@ public class RuleSet implements MethodRule {
 	public class Report {
 		int indent = 0;
 		private ReportWriter writer;
+		private List<RuleSetReport> ruleSetReport;
 		public Report(int indentLevel, ReportWriter writer) {
 			this.indent = indentLevel;
 			this.writer = writer;
 		}
 		public boolean check(Object cond, boolean result) {
 			if (result) {
+				for (RuleSetReport r : this.ruleSetReport) r.matched(cond);
 				writeLine(this.indent, "MATCHED:" + Basic.tostr(cond));
 			} else {
+				for (RuleSetReport r : this.ruleSetReport) r.notMatched(cond);
 				writeLine(this.indent, "NOT MATCHED:" + Basic.tostr(cond));
 			}
 			if (result) this.indent ++;
@@ -69,6 +74,7 @@ public class RuleSet implements MethodRule {
 		}
 		public boolean expect(Object nested, boolean result) {
 			if (result) {
+				
 				writeLine(this.indent, "PASS:" + Basic.tostr(nested));
 			} else {
 				writeLine(this.indent, "FAIL:" + Basic.tostr(nested));
@@ -111,15 +117,34 @@ public class RuleSet implements MethodRule {
 	private String failedReason = null;
 
 	private Map<Field, Object> outValues;
+	private Object target;
+	private LinkedList<RuleSetReport> ruleSetReports;
 
-	private int testIndex = -1;
-	
 	public RuleSet(Context context) {
+		////
+		// On what conditions can context and target be different? 
 		this.context = context;
 	}
-	
+
 	@Override
-	public Statement apply(final Statement base, final FrameworkMethod method, final Object target) {
+	public Statement apply(final Statement base, final Description desc) {
+		for (Field f : this.target.getClass().getFields()) {
+			if (f.getAnnotation(ClassRule.class) instanceof RuleSetReport) {
+				try {
+					ruleSetReports.add((RuleSetReport) f.get(this.target));
+				} catch (IllegalArgumentException e) {
+					assert false;
+					throw new RuntimeException();
+				} catch (IllegalAccessException e) {
+					String msg = String.format(
+							"The field '%s' of class '%s' must be public.", 
+							f.getName(), 
+							this.target.getClass()
+					);
+					throw new ObjectUnderFrameworkException(msg, e);
+				}
+			}
+		}
 		return new Statement() {
 			@Override
 			public void evaluate() throws Throwable {
@@ -133,10 +158,9 @@ public class RuleSet implements MethodRule {
 					writer.writeLine(0, "");
 					writer.writeLine(0, "* TEST NAME *");
 					writer.writeLine(1, String.format(
-							"'%s.%s[%s]'", 
-							target.getClass().getName(),
-							method.getName(), 
-							RuleSet.this.testIndex)
+							"'%s.%s'",
+							desc.getClassName(),
+							desc.getMethodName())
 					);
 					writer.writeLine(0, "");
 					
@@ -170,6 +194,7 @@ public class RuleSet implements MethodRule {
 		boolean ret = false;
 		writer.writeLine(0, "* RULES *");
 		Report report = new Report(1, writer);
+		report.ruleSetReport = this.ruleSetReports;
 		try {
 			ret = this.apply(report);
 			if (!ret) failedReason("Rule matched but failed.");
@@ -249,10 +274,6 @@ public class RuleSet implements MethodRule {
 		}
 		return ret;
 		
-	}
-
-	public void setTestIndex(int testIndex) {
-		this.testIndex = testIndex;
 	}
 
 	/**
@@ -399,5 +420,9 @@ public class RuleSet implements MethodRule {
 		}
 		String ret = map.toString();
 		return ret;
+	}
+
+	public void setTarget(Object cut) {
+		this.target = cut;
 	}
 }

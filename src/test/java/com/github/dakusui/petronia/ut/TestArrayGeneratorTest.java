@@ -13,8 +13,8 @@ import java.util.TreeMap;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.enumerator.SimpleTestArrayGenerator;
-import com.github.dakusui.jcunit.enumerator.TestArrayGenerator;
+import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 
 public abstract class TestArrayGeneratorTest {
 	@Test

@@ -3,8 +3,8 @@ package com.github.dakusui.petronia.ut;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.github.dakusui.jcunit.enumerator.CartesianTestArrayGenerator;
-import com.github.dakusui.jcunit.enumerator.TestArrayGenerator;
+import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 
 public class CartesianTestArrayGeneratorTest extends TestArrayGeneratorTest {
 

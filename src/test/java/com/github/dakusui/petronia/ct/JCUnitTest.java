@@ -19,7 +19,7 @@ import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.enumerator.BaseTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.BaseTestArrayGenerator;
 
 public class JCUnitTest extends DefaultRuleSetBuilder {
 	@RunWith(JCUnit.class)

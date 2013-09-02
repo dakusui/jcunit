@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.enumerator.CartesianTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
 import com.github.dakusui.petronia.examples.Calc.Op;
 
 /**

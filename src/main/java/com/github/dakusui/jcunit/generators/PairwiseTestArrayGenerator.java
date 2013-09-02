@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.enumerator;
+package com.github.dakusui.jcunit.generators;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -6,10 +6,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.github.dakusui.jcunit.enumerator.ipo.IPO;
-import com.github.dakusui.jcunit.enumerator.ipo.IPO.Run;
-import com.github.dakusui.jcunit.enumerator.ipo.IPO.TestRunSet;
-import com.github.dakusui.jcunit.enumerator.ipo.IPO.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPO;
+import com.github.dakusui.jcunit.generators.ipo.IPO.Run;
+import com.github.dakusui.jcunit.generators.ipo.IPO.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.IPO.TestSpace;
 
 public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, U> {
 	private TestRunSet testRunSet;

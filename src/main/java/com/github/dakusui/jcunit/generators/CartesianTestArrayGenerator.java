@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.enumerator;
+package com.github.dakusui.jcunit.generators;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

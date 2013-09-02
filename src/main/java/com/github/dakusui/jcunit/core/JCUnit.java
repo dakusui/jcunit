@@ -14,12 +14,12 @@ import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.TestClass;
 
-import com.github.dakusui.jcunit.enumerator.SimpleTestArrayGenerator;
-import com.github.dakusui.jcunit.enumerator.TestArrayGenerator;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
+import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 
 public class JCUnit extends Suite {
 	private final ArrayList<Runner> runners= new ArrayList<Runner>();

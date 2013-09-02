@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.enumerator.ipo;
+package com.github.dakusui.jcunit.generators.ipo;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
