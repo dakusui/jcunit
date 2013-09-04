@@ -57,9 +57,10 @@ public class RuleSet implements TestRule {
 		int indent = 0;
 		private ReportWriter writer;
 		private List<RuleSetReport> ruleSetReport;
-		public Report(int indentLevel, ReportWriter writer) {
+		public Report(int indentLevel, ReportWriter writer, List<RuleSetReport> ruleSetReport) {
 			this.indent = indentLevel;
 			this.writer = writer;
+			this.ruleSetReport = ruleSetReport;
 		}
 		public boolean check(Object cond, boolean result) {
 			if (result) {
@@ -74,9 +75,10 @@ public class RuleSet implements TestRule {
 		}
 		public boolean expect(Object nested, boolean result) {
 			if (result) {
-				
+				for (RuleSetReport r : this.ruleSetReport) r.passed(nested);
 				writeLine(this.indent, "PASS:" + Basic.tostr(nested));
 			} else {
+				for (RuleSetReport r : this.ruleSetReport) r.failed(nested);
 				writeLine(this.indent, "FAIL:" + Basic.tostr(nested));
 			}
 			return result;
@@ -118,16 +120,15 @@ public class RuleSet implements TestRule {
 
 	private Map<Field, Object> outValues;
 	private Object target;
-	private LinkedList<RuleSetReport> ruleSetReports;
+	private List<RuleSetReport> ruleSetReports;
 
-	public RuleSet(Context context) {
+	public RuleSet(Context context, Object target) {
 		////
 		// On what conditions can context and target be different? 
 		this.context = context;
-	}
+		this.target = target;
 
-	@Override
-	public Statement apply(final Statement base, final Description desc) {
+		this.ruleSetReports = new LinkedList<RuleSetReport>();
 		for (Field f : this.target.getClass().getFields()) {
 			if (f.getAnnotation(ClassRule.class) instanceof RuleSetReport) {
 				try {
@@ -145,6 +146,10 @@ public class RuleSet implements TestRule {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Statement apply(final Statement base, final Description desc) {
 		return new Statement() {
 			@Override
 			public void evaluate() throws Throwable {
@@ -193,8 +198,7 @@ public class RuleSet implements TestRule {
 
 		boolean ret = false;
 		writer.writeLine(0, "* RULES *");
-		Report report = new Report(1, writer);
-		report.ruleSetReport = this.ruleSetReports;
+		Report report = new Report(1, writer, this.ruleSetReports);
 		try {
 			ret = this.apply(report);
 			if (!ret) failedReason("Rule matched but failed.");
@@ -420,9 +424,5 @@ public class RuleSet implements TestRule {
 		}
 		String ret = map.toString();
 		return ret;
-	}
-
-	public void setTarget(Object cut) {
-		this.target = cut;
 	}
 }

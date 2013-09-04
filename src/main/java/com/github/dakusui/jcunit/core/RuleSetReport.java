@@ -29,5 +29,13 @@ public class RuleSetReport implements TestRule {
 		
 	}
 
-	
+	public void failed(Object nested) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void passed(Object nested) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -148,10 +148,15 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 	
 	@Override
 	public RuleSet ruleSet() {
-		RuleSet ret = new RuleSet(this);
+		return ruleSet(this);
+	}
+
+	@Override
+	public RuleSet ruleSet(Object target) {
+		RuleSet ret = new RuleSet(this, target);
 		return ret;
 	}
-	
+
 	@Override
 	public Object and(Object... args) {
 		return form("and").bind(args);
