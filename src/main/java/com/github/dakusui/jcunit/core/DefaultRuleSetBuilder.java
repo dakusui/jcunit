@@ -153,7 +153,7 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 
 	@Override
 	public RuleSet ruleSet(Object target) {
-		RuleSet ret = new RuleSet(this, target);
+		RuleSet ret = new RuleSet("/", this, target);
 		return ret;
 	}
 

@@ -1,5 +1,6 @@
 package com.github.dakusui.petronia.examples;
 
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.core.In.Domain;
+import com.github.dakusui.jcunit.core.Summarizer;
 
 @RunWith(JCUnit.class)
 public class Example extends DefaultRuleSetBuilder {
@@ -28,8 +30,10 @@ public class Example extends DefaultRuleSetBuilder {
 			or(is(get("x"), add(get("a"),get("b"))), is(get("x"), 0))
 	);
 	
+	@ClassRule
+	public static Summarizer report = new Summarizer(); 
+	
 	static int[] a() {
-		//throw new Error("helo!");
 		return new int[]{0, 1, 2};
 	}
 	
