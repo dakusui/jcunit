@@ -5,13 +5,14 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.WeakHashMap;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 public class Basic {
 	public static final Object NIL = new Object[0];
@@ -290,7 +291,11 @@ public class Basic {
 	
 	private static int nextObjectId = 1;
 	
-	private static final Map<Object, Integer> objectMap = new WeakHashMap<Object, Integer>();
+	private static final Map<Object, Integer> objectMap = CacheBuilder.newBuilder().weakKeys().build(new CacheLoader<Object,Integer>(){
+		@Override
+		public Integer load(Object key) throws Exception {
+			return nextObjectId++;
+		}}).asMap();
 	
 	private static int objectId(Object obj) {
 		if (obj == null) return 0;
