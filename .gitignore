@@ -7,3 +7,4 @@ target/
 /.classpath
 /.project
 >>>>>>> 9d2874451b5a7535fd0e843730229ebab8c83878
+/.djunitplugin
