@@ -89,7 +89,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 					LOGGER.info(line);
 				}
 				LOGGER.info("");
-				LOGGER.info("      T/  F");
+				LOGGER.info("  #   T/  F");
 				ruleSet.printOut();
 			}
 		};
