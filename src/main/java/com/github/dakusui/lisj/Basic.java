@@ -3,6 +3,7 @@ package com.github.dakusui.lisj;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -10,6 +11,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 public class Basic {
 	public static final Object NIL = new Object[0];
@@ -243,13 +246,17 @@ public class Basic {
 	}
 	
 	public static String tostr(Object obj) {
+		return tostr(obj, false);
+	}
+	
+	public static String tostr(Object obj, boolean suppressObjectId) {
 		if (obj == null) return "null";
 		if (eq(obj, NIL)) return "NIL";
-		if (atom(obj)) return toString(obj);
+		if (atom(obj)) return toString(obj, suppressObjectId);
 
 		StringBuilder builder = new StringBuilder(1024);
 		Object[] cons = (Object[]) obj;
-		tostr(cons, builder, true);
+		tostr(cons, builder, true, suppressObjectId);
 		return builder.toString();
 	}
 
@@ -260,17 +267,21 @@ public class Basic {
 	 * And 'obj' is null, null itself will be returned.
 	 * Otherwise, the result of 'obj.toString()' will be returned.
 	 */
-	private static String toString(Object obj) {
+	private static String toString(Object obj, boolean suppressObjectId) {
 		if (obj == null) return null;
+		if (obj instanceof Class)
+			return ((Class<?>)obj).getSimpleName() + ".class";
 		try {
 			Method objToString = obj.getClass().getMethod("toString");
 			////
 			// Checking if 'toString' method is overridden or not.
 			Class<?> declaringClass = objToString.getDeclaringClass();
  			if (declaringClass == Object.class) {
-				return obj.getClass().getSimpleName() + "@" + System.identityHashCode(obj);
-			} else if (declaringClass == Class.class) {
-				return "class " + obj.getClass().getSimpleName();
+ 				String simpleName = obj.getClass().getSimpleName();
+ 				if (suppressObjectId) {
+ 					return simpleName + ".obj";
+ 				}
+				return simpleName + "@" + objectId(obj);
 			}
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
@@ -278,24 +289,40 @@ public class Basic {
 		return obj.toString();
 	}
 	
-	private static void tostr(Object[] cons, StringBuilder builder, boolean withParentheses) {
+	private static int nextObjectId = 1;
+	
+	private static final Map<Object, Integer> objectMap = CacheBuilder.newBuilder().weakKeys().build(new CacheLoader<Object,Integer>(){
+		@Override
+		public Integer load(Object key) throws Exception {
+			return nextObjectId++;
+		}}).asMap();
+	
+	private static int objectId(Object obj) {
+		if (obj == null) return 0;
+		if (!objectMap.containsKey(obj)) {
+			objectMap.put(obj, nextObjectId++);
+		}
+		return objectMap.get(obj);
+	}
+	
+	private static void tostr(Object[] cons, StringBuilder builder, boolean withParentheses, boolean suppressObjectId) {
 		if (withParentheses) builder.append("(");
 		try {
 			for (int i = 0; i < cons.length; i++) {
 				Object cur = cons[i];
 				if (cons.length == 1 || i != cons.length - 1) {
 					if (!atom(cur)) {
-						tostr((Object[])cur, builder, true);
+						tostr((Object[])cur, builder, true, suppressObjectId);
 					} else {
-						builder.append(tostr(cur)); 
+						builder.append(tostr(cur, suppressObjectId)); 
 					}
 					if (i != cons.length -1) builder.append(",");
 				} else if (atom(cur)) { 
 					if (eq(cur, NIL)) builder.append("NIL");
-					else builder.append(cur); 
+					else builder.append(tostr(cur, suppressObjectId));
 				} else {
 					// cur is a cons at the end of the cons.
-					tostr((Object[]) cur, builder, false);
+					tostr((Object[]) cur, builder, false, suppressObjectId);
 				}
 			}
 		} finally {

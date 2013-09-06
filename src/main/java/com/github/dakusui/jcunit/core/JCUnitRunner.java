@@ -53,7 +53,6 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 			Object v = Utils.getFieldValue(cut, f);
 			if (v != null && v instanceof RuleSet && f.getAnnotation(Rule.class) != null) {
 				ret.add((RuleSet) v);
-				((RuleSet)v).setTarget(cut);
 			}
 		}
 		return ret.toArray(new RuleSet[]{});

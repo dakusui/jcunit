@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.petronia.examples.Calc.Op;
 
 @RunWith(JCUnit.class)
-public class CalcTest extends DefaultRuleSetBuilder {
+public class CalcTest1 extends DefaultRuleSetBuilder {
 	@In
 	public int a;
 	@In

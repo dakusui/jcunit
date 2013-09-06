@@ -9,7 +9,7 @@ import org.junit.runner.notification.Failure;
 
 public class TestArrayGeneratorsTest {
 	@Test public void simpleTestArrayGenerator() throws Exception {
-		Result result = JUnitCore.runClasses(CalcTest.class);
+		Result result = JUnitCore.runClasses(CalcTest1.class);
 		assertEquals(0, result.getFailureCount());
 	}
 	
