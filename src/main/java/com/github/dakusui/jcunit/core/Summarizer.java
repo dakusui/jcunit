@@ -13,4 +13,12 @@ public interface Summarizer extends TestRule {
 	int passes(int objId);
 
 	int fails(int objId);
+
+	void error(String methodName);
+
+	void ok(String methodName);
+
+	void ng(String methodName);
+
+	void error(String string, int idOf);
 }

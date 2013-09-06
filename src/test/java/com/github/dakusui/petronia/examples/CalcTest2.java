@@ -59,17 +59,16 @@ public class CalcTest2 extends DefaultRuleSetBuilder {
 		.incase(is(get("op"), Op.minus), is(get("r"), sub(get("a"), get("b"))))
 		.incase(is(get("op"), Op.multiply), is(get("r"), mul(get("a"), get("b"))))
 		.incase(is(get("op"), Op.divide), is(get("r"), div(get("a"), get("b"))))
-		.summarizer(report);
+		.summarizer(summarizer);
 	
 	@ClassRule
-	public static Summarizer report = new BasicSummarizer();
+	public static Summarizer summarizer = new BasicSummarizer();
 	
 	@Test
 	public void test() {
 		try {
 			Calc calc = new Calc();
 			r = calc.calc(op, a, b);
-			// LOGGER.info("result:" + (r) + " = " + a + " " + op.str() + " " + b);
 		} catch (RuntimeException e) {
 			t = e;
 		}

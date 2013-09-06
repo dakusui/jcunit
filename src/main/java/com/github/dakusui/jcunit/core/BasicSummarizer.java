@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,7 +13,7 @@ import org.junit.runners.model.Statement;
 
 public class BasicSummarizer implements TestRule, Summarizer {
 	private static Logger LOGGER = Logger.getLogger(BasicSummarizer.class);
-	
+	private Set<String> errorObjects = new HashSet<String>();
 	private static class Matrix {
 		Map<String, Map<Integer, Boolean>> map = new LinkedHashMap<String, Map<Integer, Boolean>>();
 		////
@@ -22,11 +23,14 @@ public class BasicSummarizer implements TestRule, Summarizer {
 		Set<Integer> objIds = new HashSet<Integer>();
 		
 		public void set(String testName, int objId, boolean result) {
+			add(testName);
+			map.get(testName).put(objId, result);
+			objIds.add(objId);
+		}
+		public void add(String testName) {
 			if (!map.containsKey(testName)) {
 				map.put(testName, new LinkedHashMap<Integer, Boolean>());
 			}
-			map.get(testName).put(objId, result);
-			objIds.add(objId);
 		}
 		public boolean hasEntry(String testName, int objId) {
 			if (map.containsKey(testName))
@@ -55,8 +59,15 @@ public class BasicSummarizer implements TestRule, Summarizer {
 		}
 	}
 	
+	static enum Result {
+		OK,
+		NG,
+		ABT, 
+		ERR
+	}
 	Matrix matrix = new Matrix();
 	private RuleSet ruleSet;
+	private Map<String, Result> resultMap = new HashMap<String, Result>();
 	
 	public Statement apply(Statement base, Description description) {
 		return statement(base);
@@ -68,29 +79,71 @@ public class BasicSummarizer implements TestRule, Summarizer {
 			public void evaluate() throws Throwable {
 				base.evaluate();
 
+				writeHeader();
+				LOGGER.info("");
+				writeResultMatrix();
+				LOGGER.info("");
+				writeAllRules();
+			}
+
+			protected void writeAllRules() {
+				LOGGER.info("* ALL TEST RULES *");
+				LOGGER.info("  #   T/  F");
+				ruleSet.printOut();
+			}
+
+			protected void writeResultMatrix() {
+				LOGGER.info("* TEST RESULT MATRIX *");
 				int registeredIds = ruleSet.registeredIds();
-				String header = String.format("%-20s", "");
-				for (int j = 0; j < registeredIds; j++) {
-					header += String.format("%02d ", j);
+				String[] headers = new String[ruleSet.maxLevel() + 1];
+				for (int i = 0; i < headers.length; i++) {
+					headers[i] = String.format("     %-20s", "");
 				}
-				LOGGER.info(header);
+				for (int j = 0; j < registeredIds; j++) {
+					for (int i = 0; i < headers.length; i++) {
+						if (i == ruleSet.levelOf(j))
+						    headers[i] += String.format("%02d ", j);
+						else
+							headers[i] += "   ";
+					}
+				}
+				for (String h : headers)
+					LOGGER.info(h);
 				String line; 
 				for (String testName : matrix.testNames()) {
-					line = String.format("%-20s", testName);
+					line = String.format("[%-3s]%-20s", getResultType(testName), testName);
 					for (int objId = 0; objId < registeredIds; objId++) {
 						String f;
-						if (matrix.hasEntry(testName, objId)) {
-							f = matrix.get(testName, objId) ? "T" : "F";
+						if (isError(testName, objId)) {
+							f = "E";
 						} else {
-							f = "-";
+							if (matrix.hasEntry(testName, objId)) {
+								f = matrix.get(testName, objId) ? "T" : "F";
+							} else {
+								f = "-";
+							}
 						}
-						line += String.format(" %s ", f);
+						if (ruleSet.isLeaf(objId) && !"-".equals(f) && !"T".equals(f)) {
+							line += String.format("<%s>", f);
+						} else {
+							line += String.format(" %s ", f);
+						}
 					}
 					LOGGER.info(line);
 				}
-				LOGGER.info("");
-				LOGGER.info("  #   T/  F");
-				ruleSet.printOut();
+			}
+
+			protected Result getResultType(String testName) {
+				if (!resultMap.containsKey(testName)) return Result.ERR;
+				return resultMap.get(testName);
+			}
+
+			protected void writeHeader() {
+				LOGGER.info("***********************************************");
+				LOGGER.info("***                                         ***");
+				LOGGER.info("***          T E S T S U M M A R Y          ***");
+				LOGGER.info("***                                         ***");
+				LOGGER.info("***********************************************");
 			}
 		};
 	}
@@ -115,5 +168,32 @@ public class BasicSummarizer implements TestRule, Summarizer {
 	@Override
 	public int fails(int objId) {
 		return this.matrix.count(objId, false);
+	}
+
+	@Override
+	public void error(String methodName) {
+		this.matrix.add(methodName);
+		this.resultMap.put(methodName, Result.ABT);
+	}
+
+	@Override
+	public void ok(String methodName) {
+		this.matrix.add(methodName);
+		this.resultMap.put(methodName, Result.OK);
+	}
+
+	@Override
+	public void ng(String methodName) {
+		this.matrix.add(methodName);
+		this.resultMap.put(methodName, Result.NG);
+	}
+
+	@Override
+	public void error(String testName, int objId) {
+		this.errorObjects.add(testName + ":" + objId);
+	}
+	
+	private boolean isError(String testName, int objId) {
+		return this.errorObjects.contains(testName + ":" + objId);
 	}
 }
