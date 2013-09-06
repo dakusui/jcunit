@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -234,7 +235,10 @@ public class RuleSet implements TestRule {
 		this.summarizer = summarizer;
 		this.idMap = idMap;
 		this.levelMap = levelMap;
-		for (Pair p : this.rules) {
+		List<Pair> rules = new LinkedList<Pair>();
+		rules.addAll(this.rules);
+		if (this.otherwise != null) rules.add(this.otherwise);
+		for (Pair p : rules) {
 			levelMap .put(p.cond, j);
 			idMap.put(p.cond, i++);
 			if (p.nested instanceof RuleSet) {
@@ -395,7 +399,7 @@ public class RuleSet implements TestRule {
 	public RuleSet otherwise(Object expect) {
 		if (this.rules.size() < 1) throw new IllegalStateException("FRIENDLY MESSAGE!");
 		if (this.otherwise != null) throw new IllegalStateException("FRIENDLY MESSAGE!");
-		this.otherwise = new Pair(true, expect, false);
+		this.otherwise = new Pair(new String("(otherwise)"), expect, false);
 		return this;
 	}
 	
@@ -432,7 +436,7 @@ public class RuleSet implements TestRule {
 			return passed;
 		} else {
 			if (this.otherwise != null) {
-				report.check(testName, "(otherwise)", true);
+				report.check(testName, this.otherwise.cond, true);
 				if (this.otherwise.nested instanceof RuleSet) {
 					matchedAtLeastOnce = true;
 					RuleSet nested = (RuleSet) this.otherwise.nested;
@@ -500,7 +504,7 @@ public class RuleSet implements TestRule {
 					this.summarizer.passes(idOf(p.cond)),
 					this.summarizer.fails(idOf(p.cond)),
 					spaces(levelOf(p.cond)), 
-					Basic.tostr(p.cond)
+					Basic.tostr(p.cond, true)
 			));
 			if (p.nested instanceof RuleSet)
 				((RuleSet)p.nested).printOut();
@@ -512,7 +516,7 @@ public class RuleSet implements TestRule {
 						this.summarizer.passes(idOf(p.nested)),
 						this.summarizer.fails(idOf(p.nested)),
 						spaces(levelOf(p.nested) + 1), 
-						Basic.tostr(p.nested)
+						Basic.tostr(p.nested, true)
 			));
 		}
 	}
