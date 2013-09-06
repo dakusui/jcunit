@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
-import com.github.dakusui.jcunit.core.Summarizer;
+import com.github.dakusui.jcunit.core.BasicSummarizer;
 import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
@@ -57,10 +57,12 @@ public class CalcTest3 extends DefaultRuleSetBuilder {
 		)
 		.incase(is(get("op"), Op.minus), is(get("r"), sub(get("a"), get("b"))))
 		.incase(is(get("op"), Op.multiply), is(get("r"), mul(get("a"), get("b"))))
-		.incase(is(get("op"), Op.divide), is(get("r"), div(get("a"), get("b"))));
+		.incase(is(get("op"), Op.divide), is(get("r"), div(get("a"), get("b"))))
+		.summarizer(summarizer);
+	
 	
 	@ClassRule
-	public static Summarizer report = new Summarizer();
+	public static BasicSummarizer summarizer = new BasicSummarizer();
 		
 	@Test
 	public void test() {
