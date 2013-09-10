@@ -10,6 +10,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
@@ -173,5 +175,41 @@ public class Utils {
 				obj,
 				obj == null ? null : obj.getClass().getName()
 		);
+	}
+	
+	private static final Pattern methodPattern = Pattern.compile("[a-zA-Z$_][0-9a-zA-Z$_]*");
+
+
+	public static Object invokeMethod(Object obj, String methodId,
+			Object[] params) throws JCUnitException {
+		if (obj == null) throw new NullPointerException();
+		try {
+			Method m = obj.getClass().getMethod(getMethodName(methodId), getParameterTypes(methodId));
+			return m.invoke(obj, params);
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} catch (IllegalAccessException e) {
+			throw new JCUnitException(e.getMessage(), e);
+		} catch (InvocationTargetException e) {
+			throw new JCUnitException(e.getMessage(), e.getCause());
+		} catch (SecurityException e) {
+			throw new JCUnitException(e.getMessage(), e);
+		} catch (NoSuchMethodException e) {
+			throw new JCUnitException(e.getMessage(), e);
+		}
+	}
+
+	private static Class<?>[] getParameterTypes(String methodId) {
+		return new Class<?>[]{};
+	}
+
+	private static String getMethodName(String methodId) throws JCUnitException {
+		Matcher m = methodPattern.matcher(methodId); 
+		if (m.find()) return m.group(0); 
+		throw new JCUnitException(String.format("Specified method wasn't found:%s", methodId), null);
+	}
+	
+	public static void main(String[] args) {
+		System.out.println(methodPattern.matcher("getImage").group(0));
 	}
 }

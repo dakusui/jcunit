@@ -13,6 +13,7 @@ import com.github.dakusui.lisj.Form;
 import com.github.dakusui.lisj.Symbol;
 import com.github.dakusui.lisj.func.io.Print;
 import com.github.dakusui.lisj.func.java.Get;
+import com.github.dakusui.lisj.func.java.Invoke;
 import com.github.dakusui.lisj.func.java.IsInstanceOf;
 import com.github.dakusui.lisj.func.java.Set;
 import com.github.dakusui.lisj.func.math.Add;
@@ -75,6 +76,7 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 		registerPresetForm(new Get());
 		registerPresetForm(new Gt());
 		registerPresetForm(NumCast.intValue());
+		registerPresetForm(new Invoke());
 		registerPresetForm(new IsOneOf(), "is", "isoneof");
 		registerPresetForm(new Lambda());
 		registerPresetForm(new Not() { 
@@ -237,6 +239,7 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 		return form("get").bind(obj, attrName);
 	}
 	
+
 	@Override
 	public Object gt(Object obj, Object another) {
 		Object ret = (Object[]) form("gt").bind(obj, another);
@@ -248,6 +251,14 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 		return form("intValue").bind(num);
 	}
 	
+	public Object invoke(Object obj, String methodId) {
+		return form("invoke").bind(obj, methodId);
+	}
+
+	public Object invoke(String methodId) {
+		return invoke(this, methodId);
+	}
+
 	@Override
 	public Object eq(Object obj, Object arg) {
 		Object[] ret = (Object[]) form("eq").bind(new Object[]{obj, arg});

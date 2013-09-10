@@ -213,18 +213,32 @@ public class RuleSet implements TestRule {
 						writer.writeLine(0, "* INPUT VALUES *");
 						dumpValues(writer, RuleSet.this.inValues);
 						writer.writeLine(0, "");
-						writer.writeLine(0, "* OUTPUT VALUES *");
-						RuleSet.this.setOutValues(composeOutValues(target));
-						dumpValues(writer, RuleSet.this.outValues);
-						writer.writeLine(0, "");
 					}
 					if (throwable == null) {
-						boolean ok = verify(target, RuleSet.this, desc.getMethodName());
-						writer.writeLine(0, "");
-						String msg = "Test:" + RuleSet.summarize(inValues) + " was failed. (" + failedReason() + ")";
-						if (ok) RuleSet.this.summarizer.ok(desc.getMethodName());
-						else RuleSet.this.summarizer.ng(desc.getMethodName());
-						TestCase.assertTrue(msg, ok);
+						boolean verified = false;
+						boolean ok = false;
+						try {
+							ok = verify(target, RuleSet.this, desc.getMethodName());
+							verified = true;
+						} finally {
+							writer.writeLine(0, "");
+							writer.writeLine(0, "* OUTPUT VALUES *");
+							RuleSet.this.setOutValues(composeOutValues(target));
+							dumpValues(writer, RuleSet.this.outValues);
+							writer.writeLine(0, "");
+							String msg = "Test:" + RuleSet.summarize(inValues) + " was failed. (" + failedReason() + ")";
+							if (ok) RuleSet.this.summarizer.ok(desc.getMethodName());
+							else RuleSet.this.summarizer.ng(desc.getMethodName());
+							if (!verified) {
+								LOGGER.error("");
+								String failedReason = failedReason();
+								LOGGER.error("  FAIL:{}", failedReason == null ? "(not available)" : failedReason);
+								LOGGER.error("");
+								writer.writeLine(0, "* EXCEPTIONS *");
+								dumpExceptions(writer, RuleSet.this.outValues);
+							}
+							TestCase.assertTrue(msg, ok);
+						}
 					} else {
 						dumpException(throwable);
 						writer.writeLine(0, "");
@@ -255,15 +269,6 @@ public class RuleSet implements TestRule {
 		} catch (RuleIgnored e) {
 			failedReason("No rule matched with this test.");
 			return false;
-		} finally {
-			if (!ret) {
-				LOGGER.error("");
-				String failedReason = failedReason();
-				LOGGER.error("  FAIL:{}", failedReason == null ? "(not available)" : failedReason);
-				LOGGER.error("");
-				writer.writeLine(0, "* EXCEPTIONS *");
-				dumpExceptions(writer, this.outValues);
-			}
 		}
 		return ret;
 	}
@@ -335,7 +340,7 @@ public class RuleSet implements TestRule {
 		});
 		for (Field key : keys) {
 			Object v = values.get(key);
-			writer.writeLine(2, String.format("%s:%s(%s)", key.getName(), v, key.getType().getName()));
+			writer.writeLine(2, String.format("%s:%s(%s)", key.getName(), ArrayUtils.toString(v), key.getType().getName()));
 		}
 	}
 	
@@ -566,7 +571,9 @@ public class RuleSet implements TestRule {
 	}
 
 	public void printOut() {
-		for (Pair  p : this.rules) {
+		List<Pair> pairs = new ArrayList<Pair>(this.rules);
+		if (this.otherwise != null) pairs.add(this.otherwise);
+		for (Pair  p : pairs) {
 			LOGGER.info(
 					String.format(
 					"[%02d]%3d/%3d - %s%s", 
@@ -594,5 +601,9 @@ public class RuleSet implements TestRule {
 	private String spaces(int i) {
 		if (i == 0) return "";
 		return String.format("%" + (i*2) + "s", "");
+	}
+
+	public Object getTargetObject() {
+		return this.target;
 	}
 }

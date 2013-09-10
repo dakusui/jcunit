@@ -6,13 +6,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BasicSummarizer implements TestRule, Summarizer {
-	private static Logger LOGGER = Logger.getLogger(BasicSummarizer.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(BasicSummarizer.class);
 	private Set<String> errorObjects = new HashSet<String>();
 	private static class Matrix {
 		Map<String, Map<Integer, Boolean>> map = new LinkedHashMap<String, Map<Integer, Boolean>>();
@@ -81,6 +82,8 @@ public class BasicSummarizer implements TestRule, Summarizer {
 
 				writeHeader();
 				LOGGER.info("");
+				writeClassName();
+				LOGGER.info("");
 				writeResultMatrix();
 				LOGGER.info("");
 				writeAllRules();
@@ -88,7 +91,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 
 			protected void writeAllRules() {
 				LOGGER.info("* ALL TEST RULES *");
-				LOGGER.info("  #   T/  F");
+				LOGGER.info("  #   T/  F   PREDICATE");
 				ruleSet.printOut();
 			}
 
@@ -97,7 +100,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 				int registeredIds = ruleSet.registeredIds();
 				String[] headers = new String[ruleSet.maxLevel() + 1];
 				for (int i = 0; i < headers.length; i++) {
-					headers[i] = String.format("     %-20s", "");
+					headers[i] = String.format("     %-30s", "LEVEL " + i + " PREDICATE");
 				}
 				for (int j = 0; j < registeredIds; j++) {
 					for (int i = 0; i < headers.length; i++) {
@@ -111,7 +114,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 					LOGGER.info(h);
 				String line; 
 				for (String testName : matrix.testNames()) {
-					line = String.format("[%-3s]%-20s", getResultType(testName), testName);
+					line = String.format("[%-3s]%-30s", getResultType(testName), testName);
 					for (int objId = 0; objId < registeredIds; objId++) {
 						String f;
 						if (isError(testName, objId)) {
@@ -144,6 +147,11 @@ public class BasicSummarizer implements TestRule, Summarizer {
 				LOGGER.info("***          T E S T S U M M A R Y          ***");
 				LOGGER.info("***                                         ***");
 				LOGGER.info("***********************************************");
+			}
+			
+			protected void writeClassName(){
+				LOGGER.info("* TEST CLASS *");
+				LOGGER.info("  '{}'", ruleSet.getTargetObject().getClass());
 			}
 		};
 	}

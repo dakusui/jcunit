@@ -58,6 +58,7 @@ public class CalcTest3 extends DefaultRuleSetBuilder {
 		.incase(is(get("op"), Op.minus), is(get("r"), sub(get("a"), get("b"))))
 		.incase(is(get("op"), Op.multiply), is(get("r"), mul(get("a"), get("b"))))
 		.incase(is(get("op"), Op.divide), is(get("r"), div(get("a"), get("b"))))
+		.otherwise(false)
 		.summarizer(summarizer);
 	
 	
