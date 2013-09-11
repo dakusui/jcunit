@@ -170,7 +170,7 @@ public class JCUnit extends Suite {
 			}
 			assert tmpvalues != null;
 			// if the field isn't a primitive, null is added as a possible value.
-			if (!inFieldType.isPrimitive()) {
+			if (!inFieldType.isPrimitive() && inField.getAnnotation(In.class).includeNull()) {
 				Object[] values2 = new Object[tmpvalues.length + 1];
 				System.arraycopy(tmpvalues, 0, values2, 0, tmpvalues.length);
 				values2[tmpvalues.length] = null;

@@ -15,4 +15,6 @@ public @interface In {
 	}
 	
 	public Domain domain() default Domain.Default;
+
+	public boolean includeNull() default true;
 }
