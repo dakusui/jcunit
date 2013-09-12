@@ -219,8 +219,10 @@ public class RuleSet implements TestRule {
 					if (throwable == null) {
 						boolean verified = false;
 						boolean ok = false;
+						boolean verificationExecuted = false;
 						try {
 							ok = verify(target, RuleSet.this, desc.getMethodName());
+							verificationExecuted = true;
 							verified = true;
 						} finally {
 							writer.writeLine(0, "");
@@ -239,7 +241,9 @@ public class RuleSet implements TestRule {
 								writer.writeLine(0, "* EXCEPTIONS *");
 								dumpExceptions(writer, RuleSet.this.outValues);
 							}
-							TestCase.assertTrue(msg, ok);
+							if (verificationExecuted) {
+								TestCase.assertTrue(msg, ok);
+							}
 						}
 					} else {
 						dumpException(throwable);
