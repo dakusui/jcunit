@@ -29,6 +29,7 @@ import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 
 public class RuleSet implements TestRule {
+	private static final String OTHERWISECLAUSE_FORMAT = "(otherwise-%d)";
 	private static final Summarizer DUMMYSUMMARIZER = new Summarizer() {
 		@Override
 		public void passed(String testName, int id) {
@@ -167,6 +168,7 @@ public class RuleSet implements TestRule {
 	private Summarizer summarizer = DUMMYSUMMARIZER;
 	private int maxLevel;
 	private Set<Integer> leaves;
+
 	public RuleSet(String id, Context context, Object target) {
 		////
 		// On what conditions can context and target be different?
@@ -282,6 +284,9 @@ public class RuleSet implements TestRule {
 		rules.addAll(this.rules);
 		if (this.otherwise != null) rules.add(this.otherwise);
 		for (Pair p : rules) {
+			if (OTHERWISECLAUSE_FORMAT.equals(p.cond)) {
+				p.cond = String.format(p.cond.toString(), i);
+			}
 			levelMap .put(p.cond, j);
 			idMap.put(p.cond, i++);
 			if (p.nested instanceof RuleSet) {
@@ -460,7 +465,7 @@ public class RuleSet implements TestRule {
 	public RuleSet otherwise(Object expect) {
 		if (this.rules.size() < 1) throw new IllegalStateException("FRIENDLY MESSAGE!");
 		if (this.otherwise != null) throw new IllegalStateException("FRIENDLY MESSAGE!");
-		this.otherwise = new Pair(new String("(otherwise)"), expect, false);
+		this.otherwise = new Pair("(otherwise-%d)", expect, false);
 		return this;
 	}
 	private boolean evalp(Object p, String testName) throws JCUnitException, CUT {
