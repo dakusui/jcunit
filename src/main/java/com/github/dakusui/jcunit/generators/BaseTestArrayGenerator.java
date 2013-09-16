@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.generators;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -65,10 +66,32 @@ public abstract class BaseTestArrayGenerator<T, U> implements TestArrayGenerator
 		this.cur = -1;
 	}
 
-	protected abstract Map<T, U> get(long cur);
-
 	@Override
-	public Map<T, U[]> getDomains() {
-		return this.domains;
+	public Map<T, U> get(long cur) {
+		Map<T, U> ret = new LinkedHashMap<T, U>();
+		for (T f : this.domains.keySet()) {
+			U[] values = domains.get(f);
+			ret.put(f, values[getIndex(f, cur)]);
+		}
+		return ret;
+	}
+	
+	@Override
+	public U[] getDomain(T key) {
+		return this.domains.get(key);
+	}
+	
+	public List<T> getKeys() {
+		List<T> ret = new ArrayList<T>(this.domains.size());
+		for (T k : this.domains.keySet()) {
+			ret.add(k);
+		}
+		return ret;
+	}
+	
+	@Override
+	public long size() {
+		if (this.size < 0) throw new IllegalStateException();
+		return this.size;
 	}
 }

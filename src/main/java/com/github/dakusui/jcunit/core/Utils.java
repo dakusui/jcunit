@@ -99,7 +99,7 @@ public class Utils {
 		return obj;
 	}
 	
-	public static void initializeObjectUnderTest(Object out, Map<Field, Object> values) {
+	public static void initializeTestObject(Object out, Map<Field, Object> values) {
 		for (Field f : values.keySet()) {
 			setFieldValue(out, f, values.get(f));
 		}

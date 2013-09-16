@@ -1,5 +1,6 @@
 package com.github.dakusui.petronia.ut;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -74,8 +75,10 @@ public abstract class TestArrayGeneratorTest {
 		SimpleTestArrayGenerator<String, String> generator = 
 				new SimpleTestArrayGenerator<String, String>();
 		generator.init(domains);
-		
-		assertTrue(domains.equals(generator.getDomains()));
+		for (String key : domains.keySet()) {
+			assertTrue(Arrays.equals(domains.get(key), generator.getDomain(key)));
+		}
+		assertEquals(domains.keySet().size(), generator.getKeys().size());
 	}
 
 }

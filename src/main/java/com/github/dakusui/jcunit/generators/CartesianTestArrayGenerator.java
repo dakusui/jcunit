@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.generators;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class CartesianTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, U> {
@@ -19,16 +18,16 @@ public class CartesianTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T,
 	}
 
 	@Override
-	protected Map<T, U> get(long cur) {
-		Map<T, U> ret = new LinkedHashMap<T, U>();
+	public int getIndex(T key, long cur) {
 		long div = cur;
 		for (T f : this.domains.keySet()) {
 			U[] values = domains.get(f);
 			int index = (int) (div % values.length);
-			ret.put(f, values[index]);
+			if (key.equals(f)) return index; 
 			
 			div = div / values.length;
 		}
-		return ret;
+		assert false;
+		return -1;
 	}
 }

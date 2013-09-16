@@ -13,6 +13,8 @@ import java.util.Map;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.TestClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -22,6 +24,8 @@ import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 
 public class JCUnit extends Suite {
+	private static final Logger LOGGER = LoggerFactory.getLogger(JCUnit.class);
+	
 	private final ArrayList<Runner> runners= new ArrayList<Runner>();
 
 	/**
@@ -198,11 +202,11 @@ public class JCUnit extends Suite {
 	@SuppressWarnings("unchecked")
 	public
 	static TestArrayGenerator<Field, Object> newTestArrayGenerator(
-			@SuppressWarnings("rawtypes") Class<? extends TestArrayGenerator> enumeratorClass,
+			@SuppressWarnings("rawtypes") Class<? extends TestArrayGenerator> generatorClass,
 			Map<Field, Object[]> domains) {
 		TestArrayGenerator<Field, Object> ret = null;
 		try {
-			ret = (TestArrayGenerator<Field, Object>) enumeratorClass.newInstance();
+			ret = (TestArrayGenerator<Field, Object>) generatorClass.newInstance();
 			ret.init(domains);
 		} catch (InstantiationException e) {
 			throw new JCUnitPluginException(e.getMessage(), e);
@@ -230,11 +234,65 @@ public class JCUnit extends Suite {
 		
 		List<Object> ret = new ArrayList<Object>();
 		
-		TestArrayGenerator<Field, Object> patternEnumerator = JCUnit.newTestArrayGenerator(generatorClass, domains);
-		for (Map<Field, Object> pattern : patternEnumerator) {
+		TestArrayGenerator<Field, Object> testArrayGenerator = JCUnit.newTestArrayGenerator(generatorClass, domains);
+		for (Map<Field, Object> pattern : testArrayGenerator) {
 			ret.add(pattern);
 		}
+		
+		reportTestArray(testArrayGenerator);
 		return ret;
+	}
+
+	private static void reportTestArray(
+			TestArrayGenerator<Field, Object> testArrayGenerator) {
+		LOGGER.info("* DOMAINS *");
+		printOutDomains(testArrayGenerator);
+		LOGGER.info("");
+		LOGGER.info("* MATRIX *");
+		printOutMatrix(testArrayGenerator);
+		LOGGER.info("");
+	}
+
+	protected static void printOutDomains(
+			TestArrayGenerator<Field, Object> testArrayGenerator) {
+		char keyCode = 'A';
+		for (Field key : testArrayGenerator.getKeys()) {
+			////
+			// print out header
+			String domainHeader = String.format("%s:%s(%s)", keyCode, key.getName(), key.getType());
+			LOGGER.info("  " + domainHeader);
+			Object[] d = testArrayGenerator.getDomain(key);
+			for (int i = 0; i < d.length; i++) {
+				String l = String.format("%02d:'%s'", i, d[i]);
+				LOGGER.info("    " + l);
+			}
+			keyCode++;
+		}
+	}
+
+	protected static void printOutMatrix(
+			TestArrayGenerator<Field, Object> testArrayGenerator) {
+		String header = String.format("%22s", "");
+		int numKeys = testArrayGenerator.getKeys().size();
+		boolean firstTime = true;
+		char keyCode = 'A';
+		for (int i = 0; i < numKeys; i++) {
+			if (firstTime) firstTime = false; else header += ",";
+			header += String.format("%-2s", keyCode);
+			keyCode ++;
+		}
+		LOGGER.info(header);
+		long size = testArrayGenerator.size();
+		for (int i = 0; i < size; i++) {
+			String line = String.format("%-20s", String.format("testrun[%d]:", i));
+			firstTime = true;
+			for (Field key : testArrayGenerator.getKeys()) {
+				int valueCode = testArrayGenerator.getIndex(key, i);
+				if (firstTime) firstTime = false; else line += ",";
+				line += String.format("%02d", valueCode);
+			}
+			LOGGER.info("  "  + line);
+		}
 	}
 
 	@SuppressWarnings("rawtypes")

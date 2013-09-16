@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.generators;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -21,7 +20,6 @@ public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, 
 		Object[][] testSpaceDomains = new Object[this.domains.size()][];
 		int i = 0;
 		for (T cur: this.domains.keySet()) {
-			System.out.println("--- " + cur);
 			testSpaceDomains[i++] = this.domains.get(cur);
 			indexToKeyMap.put(i, cur); // since i is already incremented, put it as is. 
 		}
@@ -35,14 +33,34 @@ public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	protected Map<T, U> get(long cur) {
+	public int getIndex(T key, long cur) {
 		Run run = this.testRunSet.get((int) cur);
-		Map<T, U> ret = new LinkedHashMap<T, U>();
 		// IPO classes provide 1-origin methods!
 		for (int i = 1; i <= run.width(); i++) {
-			ret.put(indexToKeyMap.get(i), (U) run.get(i));
+			T k = indexToKeyMap.get(i);
+			if (key.equals(k)) {
+				U[] domainOf_i = findDomain(k);
+				return indexOf((U) run.get(i), domainOf_i);
+			}
 		}
-		return ret;
+		assert false;
+		return -1;
 	}
 
+	private U[] findDomain(T key) {
+		return this.domains.get(key);
+	}
+	
+	/*
+	 * returns an index of specified value by using '==' operator not by using
+	 * 'equals' method.
+	 */
+	private int indexOf(U u, U[] domain) {
+		int i = 0;
+		for (Object obj : domain) {
+			if (obj == u) return i;
+			i++;
+		}
+		return -1;
+	}
 }

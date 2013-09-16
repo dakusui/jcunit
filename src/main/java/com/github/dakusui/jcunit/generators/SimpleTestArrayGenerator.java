@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.generators;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SimpleTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, U>{
@@ -19,23 +18,19 @@ public class SimpleTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, U>
 	}
 
 	@Override
-	protected Map<T, U> get(long cur) {
-		Map<T, U> ret = new LinkedHashMap<T, U>();
+	public int getIndex(T key, long cur) {
 		////
 		// Initialize the returned map with the default values.
-		for (T f : this.domains.keySet()) {
-			U[] values = domains.get(f);
-			////
-			// if 'None' domain is specified, the size of the values array will be 0.
-			if (values.length > 0) ret.put(f,  values[0]);
-		}
-		if (cur == 0) return ret;
+		int ret = 0;
+		////
+		// If cur is 0, the returned value should always be 0.
+		if (cur == 0) return 0;
 		cur--;
 		for (T f : this.domains.keySet()) {
 			long index = cur;
 			U[] d = domains.get(f);
 			if ((cur -= (d.length - 1)) < 0) {
-				ret.put(f, d[(int)index + 1]);
+				if (key.equals(f)) ret = (int)(index + 1) ;
 				break;
 			}
 		}

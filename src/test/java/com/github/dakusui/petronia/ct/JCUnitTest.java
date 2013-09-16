@@ -1,9 +1,6 @@
 package com.github.dakusui.petronia.ct;
 
 import static org.junit.Assert.assertEquals;
-
-import java.util.Map;
-
 import junit.framework.Assert;
 
 import org.junit.Rule;
@@ -12,13 +9,13 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
+import com.github.dakusui.jcunit.core.In.Domain;
+import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
-import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.generators.BaseTestArrayGenerator;
 
 public class JCUnitTest extends DefaultRuleSetBuilder {
@@ -298,8 +295,8 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
 	public static class BadGenerator_ConstructorWithParameters<T,U> extends BaseTestArrayGenerator<T, U> {
 		public BadGenerator_ConstructorWithParameters(Object dummy1, Object dummy2){}
 		@Override
-		protected Map<T, U> get(long cur) {
-			return null;
+		public int getIndex(T key, long cur) {
+			return -1;
 		}
 	}
 	@RunWith(JCUnit.class)
@@ -312,8 +309,8 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
 	public static class BadGenerator_PrivateConstructor<T,U> extends BaseTestArrayGenerator<T, U> {
 		private BadGenerator_PrivateConstructor(){}
 		@Override
-		protected Map<T, U> get(long cur) {
-			return null;
+		public int getIndex(T key, long cur) {
+			return -1;
 		}
 	}
 	@RunWith(JCUnit.class)
