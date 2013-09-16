@@ -245,16 +245,25 @@ public class JCUnit extends Suite {
 
 	private static void reportTestArray(
 			TestArrayGenerator<Field, Object> testArrayGenerator) {
-		LOGGER.info("* DOMAINS *");
-		printOutDomains(testArrayGenerator);
+		writeHeader();
 		LOGGER.info("");
-		LOGGER.info("* MATRIX *");
-		printOutMatrix(testArrayGenerator);
+		writeDomains(testArrayGenerator);
+		LOGGER.info("");
+		writeMatrix(testArrayGenerator);
 		LOGGER.info("");
 	}
+	
+	private static void writeHeader() {
+		LOGGER.info("***********************************************");
+		LOGGER.info("***                                         ***");
+		LOGGER.info("***          T E S T   M A T R I X          ***");
+		LOGGER.info("***                                         ***");
+		LOGGER.info("***********************************************");
+	}
 
-	protected static void printOutDomains(
+	protected static void writeDomains(
 			TestArrayGenerator<Field, Object> testArrayGenerator) {
+		LOGGER.info("* DOMAINS *");
 		char keyCode = 'A';
 		for (Field key : testArrayGenerator.getKeys()) {
 			////
@@ -270,8 +279,9 @@ public class JCUnit extends Suite {
 		}
 	}
 
-	protected static void printOutMatrix(
+	protected static void writeMatrix(
 			TestArrayGenerator<Field, Object> testArrayGenerator) {
+		LOGGER.info("* MATRIX *");
 		String header = String.format("%22s", "");
 		int numKeys = testArrayGenerator.getKeys().size();
 		boolean firstTime = true;

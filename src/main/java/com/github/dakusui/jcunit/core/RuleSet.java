@@ -349,7 +349,13 @@ public class RuleSet implements TestRule {
 		});
 		for (Field key : keys) {
 			Object v = values.get(key);
-			writer.writeLine(2, String.format("%s:%s(%s)", key.getName(), ArrayUtils.toString(v), key.getType().getName()));
+			writer.writeLine(
+					2, 
+					String.format(
+							"%s:%s(%s)", 
+							key.getName(), 
+							v == null ? null : ArrayUtils.toString(v), 
+							key.getType().getName()));
 		}
 	}
 	
