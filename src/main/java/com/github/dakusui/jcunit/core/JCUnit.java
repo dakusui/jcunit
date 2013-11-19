@@ -88,6 +88,29 @@ public class JCUnit extends Suite {
 		return ret;
 	}
 
+	static Method assertMethod(Class<?> cut, Field outField) {
+		Method ret;
+		try {
+			try {
+				ret = cut.getMethod(outField.getName(), outField.getType(), outField.getType());
+			} catch (NoSuchMethodException e) {
+				ret = cut.getDeclaredMethod(outField.getName());
+			} 
+		} catch (SecurityException e) {
+			String msg = String.format("JCUnit cannot be run in this environment. (%s:%s)", e.getClass().getName(), e.getMessage());
+			throw new JCUnitEnvironmentException(msg, e);
+		} catch (NoSuchMethodException e) {
+			String msg = String.format("Method to generate a domain for '%s' isn't defined in class '%s' or not visible.", outField, cut);
+			throw new ObjectUnderFrameworkException(msg, e);
+		}
+		if (!validateAssertMethod(outField, ret)) {
+			String msg = String.format("Assertion method '%s' isn't compatible with field '%s'", ret, outField);
+			throw new IllegalArgumentException(msg, null);
+		}
+		
+		return ret;
+	}
+	
 	public static boolean checkIfStatic(Method domainMethod) {
 		return Modifier.isStatic(domainMethod.getModifiers());
 	}
@@ -109,6 +132,17 @@ public class JCUnit extends Suite {
 
 	private static boolean checkIfReturnTypeIsArray(Method domainMethod) {
 		return domainMethod.getReturnType().isArray();
+	}
+
+	private static boolean checkIfReturnTypeIsBoolean(Method assertMethod) {
+		return Boolean.TRUE.equals(assertMethod.getReturnType());
+	}
+
+	private static boolean validateAssertMethod(Field outField, Method assertMethod) {
+		boolean ret = true;
+		ret &= JCUnit.checkIfStatic(assertMethod);
+		ret &= JCUnit.checkIfReturnTypeIsBoolean(assertMethod);
+		return ret;
 	}
 
 	private static boolean validateDomainMethod(Field inField, Method domainMethod) {
@@ -306,13 +340,13 @@ public class JCUnit extends Suite {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static Class<? extends TestArrayGenerator> getTestArrayGeneratorClass(Class<? extends Object> ouf) {
-		Generator an = ouf.getAnnotation(Generator.class);
+	private static Class<? extends TestArrayGenerator> getTestArrayGeneratorClass(Class<? extends Object> cuf) {
+		Generator an = cuf.getAnnotation(Generator.class);
 		Class<? extends TestArrayGenerator> ret =  an != null ? an.value() : null;
 		if (ret != null) {
 			return ret;
 		} else {
-			Class<? extends Object> superClass = ouf.getSuperclass();
+			Class<? extends Object> superClass = cuf.getSuperclass();
 			if  (superClass == null) {
 				return null;
 			}
