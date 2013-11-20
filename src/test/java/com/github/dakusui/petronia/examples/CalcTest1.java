@@ -27,6 +27,10 @@ public class CalcTest1 extends DefaultRuleSetBuilder {
 	public int r;
 	@Out
 	public Throwable t;
+	
+	@Rule
+	public RuleSet rules2 = ruleSet().incase(true, progn(print("*** H E L L O ***"), true)).summarizer(summarizer);
+
 	@Rule
 	public RuleSet rules = ruleSet()
 		.incase(is(get("op"), null), isinstanceof(get("t"), NullPointerException.class))
@@ -40,7 +44,7 @@ public class CalcTest1 extends DefaultRuleSetBuilder {
 		.incase(is(get("op"), Op.minus), is(get("r"), sub(get("a"), get("b"))))
 		.incase(is(get("op"), Op.multiply), is(get("r"), mul(get("a"), get("b"))))
 		.incase(is(get("op"), Op.divide), is(get("r"), div(get("a"), get("b")))).summarizer(summarizer);
-	
+
 	@ClassRule
 	public static Summarizer summarizer = new BasicSummarizer();
 	
