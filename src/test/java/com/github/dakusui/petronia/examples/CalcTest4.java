@@ -15,18 +15,23 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
+import com.github.dakusui.jcunit.core.BasicSummarizer;
 import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.jcunit.core.RuleSet;
+import com.github.dakusui.jcunit.core.Summarizer;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+import com.github.dakusui.petronia.examples.Calc.Op;
 
 @RunWith(JCUnit.class)
 public class CalcTest4 extends DefaultRuleSetBuilder {
@@ -44,16 +49,34 @@ public class CalcTest4 extends DefaultRuleSetBuilder {
 	@In
 	public int b;
 	
-	@Out(store=true)
+	@In
+	public Op op;
+
+	@Out
 	public int r;
 
-	@Out(store=true)
+	@Out
 	public int s;
 
+	@Out
+	public Throwable t;
+	
+	@Rule
+	public RuleSet rules = ruleSet()
+		.incase(any()).expect(any())
+		.summarizer(summarizer);
+
+	@ClassRule
+	public static Summarizer summarizer = new BasicSummarizer();
+
 	@Test
-	public void testCalcTest() {
-		r = a + b;
-		s = a - b;
+	public void test() {
+		try {
+			Calc calc = new Calc();
+			r = calc.calc(op, a, b);
+		} catch (RuntimeException e) {
+			t = e;
+		}
 	}
 	
 	@BeforeClass
