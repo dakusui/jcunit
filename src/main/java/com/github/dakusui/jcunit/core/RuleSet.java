@@ -431,6 +431,10 @@ public class RuleSet implements TestRule {
 		return this;
 	}
 	
+	public RuleSet auto() {
+		return this;
+	}
+	
 	public RuleSet incase(Object condition) {
 		if (this.otherwise != null) throw new IllegalStateException("FRIENDLY MESSAGE!");
 		if (this.rules.size() > 0) {
@@ -478,6 +482,7 @@ public class RuleSet implements TestRule {
 		this.otherwise = new Pair("(otherwise-%d)", expect, false);
 		return this;
 	}
+	
 	private boolean evalp(Object p, String testName) throws JCUnitException, CUT {
 		try {
 			return Basic.evalp(context, p);

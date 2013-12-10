@@ -97,10 +97,6 @@ public abstract class BaseForm implements Form {
 				params[params.length - 1] = Basic.cons(params[params.length - 1], Basic.NIL);
 		}
 		Object ret;
-		/*/
-		if (params.length == 1) ret = Basic.cons(this, params[0]);
-		else ret = Basic.cons(this, params);
-		/*/
 		ret = Basic.cons(this, params);
 		return ret;
 	}
