@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.github.dakusui.jcunit.auto.Auto;
+import com.github.dakusui.jcunit.auto.OutFieldNames;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.BaseForm;
 import com.github.dakusui.lisj.Context;
@@ -351,6 +352,15 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 	@Override
 	public Object sub(Object... params) {
 		return form("sub").bind(params);
+	}
+	
+	public Object outFieldNames() throws SymbolNotFoundException {
+		return outFieldNames(this);
+	}
+
+	@Override
+	public Object outFieldNames(Object obj) {
+		return form("outfieldnames").bind(obj);
 	}
 
 	@Override

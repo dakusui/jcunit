@@ -112,4 +112,6 @@ public interface Context extends Cloneable {
 	Object eq(Object obj, Object arg);
 
 	Object concat(Object separator, Object... args);
+
+	Object outFieldNames(Object obj);
 }

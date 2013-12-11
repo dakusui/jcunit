@@ -1,7 +1,8 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.auto;
 
 import java.lang.reflect.Field;
 
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
@@ -23,9 +24,10 @@ public class OutFieldNames extends BaseFunc {
 		FormResult ret = lastResult;
 		Field[] outFields = Utils.getOutFieldsFromClassUnderTest(Basic.get(evaluatedParams, 0).getClass());
 		////
-		// outFields can be neither null nor an array whose length is 0 since
-		// 'checkParams' guarantees it.
-		if (outFields.length == 1) {
+		// outFields can never be null since 'checkParams' guarantees it.
+		if (outFields.length == 0) {
+			ret.value(Basic.NIL);
+		} else if (outFields.length == 1) {
 			ret.value(outFields[0].getName());
 		} else {
 			Object last = null;
