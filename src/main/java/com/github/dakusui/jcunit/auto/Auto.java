@@ -30,7 +30,6 @@ public class Auto extends BaseFunc {
      * Serial version UID.
      */
     private static final long serialVersionUID = -2402014565260025741L;
-	private String testName;
 
     /**
      * This function takes one and only one parameter, which is a name of a field.
@@ -58,7 +57,7 @@ public class Auto extends BaseFunc {
          * We can use the first and second elements without a check since 'checkParams'
          * method guarantees that the array has two and only two elements. 
          */
-        Object obj       = evaluatedParams[0].toString();
+        Object obj       = evaluatedParams[0];
         String fieldName = evaluatedParams[1].toString();
         if (isAlreadyStored(obj, fieldName)) {
             store(obj, fieldName);
@@ -79,10 +78,6 @@ public class Auto extends BaseFunc {
         return null;
     }
     
-    public void testName(String testName) {
-    	this.testName = testName;
-    }
-
     private Field field(Class<?> clazz, String fieldName) throws JCUnitException {
         Field ret = null;
         try {
