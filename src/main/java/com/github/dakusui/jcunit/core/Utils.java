@@ -41,18 +41,24 @@ public class Utils {
 		return v;
 	}
 	
-	public static Field getField(Object obj, String name) {
+	public static Field getField(Object obj, String fieldName) {
 		if (obj == null) throw new NullPointerException();
+		Class<?> clazz = obj.getClass();
+		Field ret = getFieldFromClass(clazz, fieldName);
+		return ret;
+	}
+	
+	public static Field getFieldFromClass(Class<?> clazz, String fieldName) {
 		Field ret;
 		try {
-			ret = obj.getClass().getField(name);
+			ret = clazz.getField(fieldName);
 			if (!ret.isAnnotationPresent(In.class) && !ret.isAnnotationPresent(Out.class))
 				throw new NoSuchFieldException();
 		} catch (SecurityException e) {
 			String msg = String.format("JCUnit cannot be run in this environment. (%s:%s)", e.getClass().getName(), e.getMessage());
 			throw new JCUnitEnvironmentException(msg, e);
 		} catch (NoSuchFieldException e) {
-			String msg = String.format("Field '%s' isn't defined in class '%s' or not annotated.", name, obj.getClass());
+			String msg = String.format("Field '%s' isn't defined in class '%s' or not annotated.", fieldName, clazz);
 			throw new IllegalArgumentException(msg, e);
 		}
 		return ret;
