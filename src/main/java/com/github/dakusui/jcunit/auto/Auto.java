@@ -63,14 +63,14 @@ public class Auto extends BaseFunc {
 		 * method guarantees that the array has three and only three elements. 
 		 */
 		TestName testName = (TestName) evaluatedParams[0]; 
-		Object obj        = evaluatedParams[1].toString();
+		Object obj        = evaluatedParams[1];
 		String fieldName  = evaluatedParams[2].toString();
 		Object eq = null;
 		if (evaluatedParams.length == 4) {
 			eq = evaluatedParams[3];
 		}
 		
-		if (isAlreadyStored(obj, fieldName, testName)) {
+		if (!isAlreadyStored(obj, fieldName, testName)) {
 			store(obj, fieldName, testName);
 			ret.value(false);
 		} else {

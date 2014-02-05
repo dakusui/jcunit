@@ -9,9 +9,6 @@ import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Form;
 
 public class OutFieldNamesTest extends FormTestBase {
-	@Out
-	public String test2;
-
 	@Override
 	protected Form createForm() {
 		return new OutFieldNames();
@@ -19,6 +16,10 @@ public class OutFieldNamesTest extends FormTestBase {
 
 	@Test
 	public void test1() throws JCUnitException, CUT {
-		System.out.println(eval(this));
+		System.out.println(eval(new Object() {
+			@SuppressWarnings("unused")
+			@Out
+			public String test2;
+		}));
 	}
 }
