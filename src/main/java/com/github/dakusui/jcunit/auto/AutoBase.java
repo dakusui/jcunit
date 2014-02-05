@@ -22,7 +22,7 @@ import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.func.BaseFunc;
 
-public class Auto extends BaseFunc {
+public abstract class AutoBase extends BaseFunc {
 
 	/**
 	 * Serial version UID.
@@ -127,11 +127,11 @@ public class Auto extends BaseFunc {
 		return Basic.evalp(context, Basic.quote(eq, previous, current));
 	}
 
-	private Object load(Class<?> clazz, String fieldName, TestName testName) throws JCUnitException {
+	protected Object load(Class<?> clazz, String fieldName, TestName testName) throws JCUnitException {
 		return readObjectFromFile(fileForField(baseDir(), testName, field(clazz, fieldName)));
 	}
 
-	private void store(Object obj, String fieldName, TestName testName) throws JCUnitException {
+	protected void store(Object obj, String fieldName, TestName testName) throws JCUnitException {
 		Field field = field(obj.getClass(), fieldName);
 		Object value;
 		try {
@@ -152,7 +152,7 @@ public class Auto extends BaseFunc {
 		}
 	}
 
-	private boolean isAlreadyStored(Object obj, String fieldName, TestName testName) throws JCUnitException {
+	protected boolean isAlreadyStored(Object obj, String fieldName, TestName testName) throws JCUnitException {
 		return fileForField(baseDir(), testName, field(obj.getClass(), fieldName)).exists();
 	}
 	

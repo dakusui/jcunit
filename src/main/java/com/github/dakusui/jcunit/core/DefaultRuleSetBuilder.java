@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.github.dakusui.jcunit.auto.Auto;
 import com.github.dakusui.jcunit.auto.OutFieldNames;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.BaseForm;
@@ -131,7 +130,6 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 		registerPresetForm(new When());
 		registerPresetForm(new IsInstanceOf());
 		registerPresetForm(new Concat());
-		registerPresetForm(new Auto());
 		registerPresetForm(new OutFieldNames());
 	}
 	
