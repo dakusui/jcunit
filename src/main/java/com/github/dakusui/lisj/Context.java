@@ -27,8 +27,6 @@ public interface Context extends Cloneable {
 	
 	Object any();
 
-	Object auto(Object obj, Object... fields);
-
 	Object bigDecimal(Object num);
 
 	Object bigInteger(Object num);

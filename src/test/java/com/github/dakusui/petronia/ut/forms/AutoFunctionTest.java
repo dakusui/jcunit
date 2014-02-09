@@ -9,6 +9,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.lisj.Form;
 
 public abstract class AutoFunctionTest extends FormTestBase {
 	public static class Example {
@@ -25,5 +26,11 @@ public abstract class AutoFunctionTest extends FormTestBase {
 	@Before
 	public void removeWorkingDirectory() throws IOException {
 		FileUtils.deleteDirectory(new File(".jcunit"));
+	}
+
+	@Override
+	protected Form createForm() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
