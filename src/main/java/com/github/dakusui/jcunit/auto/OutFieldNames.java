@@ -30,18 +30,13 @@ public class OutFieldNames extends BaseFunc {
 		} else if (outFields.length == 1) {
 			ret.value(Basic.cons(outFields[0].getName(), Basic.NIL));
 		} else {
-			Object last = null;
+			Object[] fieldNames = new Object[outFields.length];
+			int i = 0;
 			for (Field f : outFields) {
-				//// 
-				// 'last' can be null only when this path is executed first time
-				// in this loop.
-				if (last == null) {
-					last = f.getName();
-				} else {
-					ret.value(Basic.cons(last, f.getName()));
-					last = ret.value();
-				}
+				fieldNames[i] = f.getName();
+				i++;
 			}
+			ret.value(fieldNames);
 		}
 		return ret;
 	}

@@ -58,11 +58,11 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 					Object fieldName = Basic.get(fields, i);
 					if (isStored(fieldName)) {
 						incase(
+								c.any(),
 								c.eq(
 										load(fieldName), 
 										c.get(this.getTargetObject(), fieldName)
-								), 
-								true
+								) 
 						);
 					} else {
 						////
@@ -72,7 +72,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 						// and failed, 
 						// the following rules ('incase' clauses and 'otherwise' clause)
 						// will be evaluated.
-						incase(true, new Store().bind(getTestName(), this.getTargetObject(), fieldName));
+						incase(c.any(), new Store().bind(getTestName(), this.getTargetObject(), fieldName));
 					}
 				}
 				////

@@ -25,10 +25,15 @@ public class AutoTest extends DefaultRuleSetBuilder {
 	public int a;
 	
 	@Out
-	public int test = 123;
+	public int test1 = 123;
+
+	@Out
+	public int test2 = 456;
+	
+	@Out
+	public int test3 = 789;
 
 	@Test
 	public void test() {
-		this.test--; 
 	}
 }
