@@ -55,7 +55,7 @@ public class Basic {
 		return ArrayUtils.subarray(vars, 1, vars.length);
 	}
 	
-	/*
+	/**
 	 * Returns the length of a given <code>obj</code> as an S-expression.
 	 * If <code>obj</code> is an atom and not NIL, <code>IllegalArgumentException</code> 
 	 * will be thrown.
@@ -188,7 +188,7 @@ public class Basic {
 				} else {
 					cur = 1;
 					target = last;
-					return ((Object[])last)[0];						
+					return ((Object[])last)[0];	
 				}
 			}
 			return ((Object[])target)[cur++];
