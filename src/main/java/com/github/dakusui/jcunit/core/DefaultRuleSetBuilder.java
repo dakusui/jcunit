@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.github.dakusui.jcunit.auto.AutoRuleSet;
 import com.github.dakusui.jcunit.auto.OutFieldNames;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.BaseForm;
@@ -157,7 +158,7 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 
 	@Override
 	public RuleSet ruleSet(Object target) {
-		RuleSet ret = new RuleSet("/", this, target);
+		RuleSet ret = new RuleSet(this, target);
 		return ret;
 	}
 
@@ -169,15 +170,6 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 	@Override
 	public Object any() {
 		return form("any").bind();
-	}
-	
-	@Override
-	public Object auto(Object obj, Object... fieldNames) {
-		return form("auto").bind(fieldNames);
-	}
-
-	public Object auto(Object... fieldNames) {
-		return form("auto").bind();
 	}
 
 	@Override
@@ -488,5 +480,10 @@ public class DefaultRuleSetBuilder implements RuleSetBuilder, Context {
 	@Override
 	public MathContext bigDecimalMathContext() {
 		return MathContext.DECIMAL128;
+	}
+
+	@Override
+	public RuleSet autoRuleSet(Object obj, String... fields) {
+		return new AutoRuleSet(this, obj, fields);
 	}
 }

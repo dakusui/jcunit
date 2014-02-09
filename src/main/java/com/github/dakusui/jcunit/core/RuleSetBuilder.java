@@ -6,4 +6,6 @@ public interface RuleSetBuilder extends Context {
 	RuleSet ruleSet();
 
 	RuleSet ruleSet(Object target);
+	
+	RuleSet autoRuleSet(Object obj, String... fields);
 }

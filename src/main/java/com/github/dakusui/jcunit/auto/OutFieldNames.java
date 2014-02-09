@@ -28,7 +28,7 @@ public class OutFieldNames extends BaseFunc {
 		if (outFields.length == 0) {
 			ret.value(Basic.NIL);
 		} else if (outFields.length == 1) {
-			ret.value(outFields[0].getName());
+			ret.value(Basic.cons(outFields[0].getName(), Basic.NIL));
 		} else {
 			Object last = null;
 			for (Field f : outFields) {

@@ -28,6 +28,13 @@ import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 
+/**
+ * A class that represents a set of test rules.
+ * 
+ * 
+ * @author hiroshi
+ *
+ */
 public class RuleSet implements TestRule {
 	private static final String OTHERWISECLAUSE_FORMAT = "(otherwise-%d)";
 	private static final Summarizer DUMMYSUMMARIZER = new Summarizer() {
@@ -169,7 +176,7 @@ public class RuleSet implements TestRule {
 	private int maxLevel;
 	private Set<Integer> leaves;
 
-	public RuleSet(String id, Context context, Object target) {
+	public RuleSet(Context context, Object target) {
 		////
 		// On what conditions can context and target be different?
 		this.context = context;
@@ -625,5 +632,9 @@ public class RuleSet implements TestRule {
 
 	public Object getTargetObject() {
 		return this.target;
+	}
+	
+	public Context getContext() {
+		return this.context;
 	}
 }
