@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 
 import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
@@ -47,7 +49,9 @@ public class OutFieldNamesTest extends DefaultRuleSetBuilder {
 			@Out
 			public Object test1;
 		};
-		assertEquals("test1", Basic.eval(this, this.outFieldNames(obj)));
+		Object v = Basic.eval(this, this.outFieldNames(obj));
+		Assert.assertEquals(1, Basic.length(v));
+		Assert.assertEquals("test1", Basic.get(v, 0));
 	}
 	@Test
 	public void test01b() throws SymbolNotFoundException, JCUnitException, CUT {
@@ -58,8 +62,11 @@ public class OutFieldNamesTest extends DefaultRuleSetBuilder {
 			@SuppressWarnings("unused")
 			public int dummy;
 		};
-		assertEquals("test1", Basic.eval(this, this.outFieldNames(obj)));
+		Object v = Basic.eval(this, this.outFieldNames(obj));
+		Assert.assertEquals(1, Basic.length(v));
+		Assert.assertEquals("test1", Basic.get(v, 0));
 	}
+	
 	@Test
 	public void test02a() throws SymbolNotFoundException, JCUnitException, CUT {
 		Object obj = new Object()  {
