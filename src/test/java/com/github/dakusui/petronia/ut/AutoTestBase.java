@@ -14,7 +14,7 @@ import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.core.Summarizer;
 
 @RunWith(JCUnit.class)
-public class AutoTest extends DefaultRuleSetBuilder {
+public class AutoTestBase extends DefaultRuleSetBuilder {
 	@Rule
 	public RuleSet rules = autoRuleSet(this).summarizer(summarizer);
 	
