@@ -5,9 +5,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 
+import com.github.dakusui.jcunit.auto.encoder.ObjectEncoder;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
@@ -38,7 +39,7 @@ public class Store extends AutoBase {
 		Object value;
 		try {
 			value = field.get(obj);
-			saveObjectToFile(fileForField(baseDir(), testName, field), value); 
+			saveObjectToFile(fileForField(baseDir(), testName, field), field.getDeclaringClass(), value); 
 		} catch (IllegalArgumentException e) {
 			////
 			// This clause shouldn't be executed since method 'field' should return
@@ -54,17 +55,18 @@ public class Store extends AutoBase {
 		}
 	}
 	
-	private void saveObjectToFile(File f, Object value) {
+	private void saveObjectToFile(File f, Class<?> clazz, Object value) {
 		try {
 			if (!f.getParentFile().isDirectory() && !f.getParentFile().mkdirs()) {
 				String msg = String.format("Failed to create a directory '%s'", f.getParentFile());
 				throw new JCUnitRuntimeException(msg, null);
 			}
-			ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(f)));
+			ObjectEncoder objEncoder = getObjectEncoder(clazz);
+			OutputStream os = new BufferedOutputStream(new FileOutputStream(f));
 			try {
-				oos.writeObject(value);
+				objEncoder.encodeObject(os, value);
 			} finally {
-				oos.close();
+				os.close();
 			}
 		} catch (FileNotFoundException e) {
 			String msg = String.format("Failed to find a file (%s)", f);

@@ -3,6 +3,8 @@ package com.github.dakusui.jcunit.auto;
 import java.io.File;
 import java.lang.reflect.Field;
 
+import com.github.dakusui.jcunit.auto.encoder.ObjectEncoder;
+import com.github.dakusui.jcunit.auto.encoder.ObjectEncoders;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
@@ -80,5 +82,11 @@ public abstract class AutoBase extends BaseFunc {
 
 	protected File fileForField(File baseDir, String testName, Field out) {
 		return new File(baseDir, testName + "/" + out.getDeclaringClass().getCanonicalName() + "/" + out.getName());
+	}
+	
+	protected ObjectEncoder getObjectEncoder(Class<?> clazz) {
+		ObjectEncoder ret = null;
+		ret = ObjectEncoders.createXStreamEncoder();
+		return ret;
 	}
 }

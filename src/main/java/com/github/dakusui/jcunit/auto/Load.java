@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Field;
 
+import com.github.dakusui.jcunit.auto.encoder.ObjectEncoder;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
@@ -23,22 +25,21 @@ public class Load extends AutoBase {
 	}
 	
 	private Object load(Class<?> clazz, String fieldName, String testName) throws JCUnitException {
-		return readObjectFromFile(fileForField(baseDir(), testName, field(clazz, fieldName)));
+		Field f = field(clazz, fieldName);
+		return readObjectFromFile(fileForField(baseDir(), testName, f), clazz);
 	}
 	
-	private Object readObjectFromFile(File f) {
+	private Object readObjectFromFile(File f, Class<?> clazz) {
+		ObjectEncoder encoder = getObjectEncoder(clazz);
 		Object ret;
 		
 		try {
-			ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)));
+			InputStream is = new BufferedInputStream(new FileInputStream(f));
 			try {
-				ret = ois.readObject();
+				ret = encoder.decodeObject(is);
 			} finally {
-				ois.close();
+				is.close();
 			}
-		} catch (ClassNotFoundException e) {
-			String msg = String.format("Failed to deserialize an object in a file (%s)", f);
-			throw new JCUnitRuntimeException(msg, e);
 		} catch (FileNotFoundException e) {
 			String msg = String.format("Failed to find a file (%s)", f);
 			throw new JCUnitRuntimeException(msg, e);
