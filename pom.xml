@@ -3,7 +3,7 @@
 
   <groupId>com.github.dakusui</groupId>
   <artifactId>jcunit</artifactId>
-  <version>0.1.4-SNAPSHOT</version>
+  <version>0.1.4</version>
   <description>Automated combinatorial testing framework on top of JUnit</description>
   <packaging>jar</packaging>
 
