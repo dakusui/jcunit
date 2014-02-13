@@ -1,5 +1,6 @@
 package com.github.dakusui.petronia.examples;
 
+
 public class Calc {
 	public static enum Op {
 		plus {
@@ -52,7 +53,7 @@ public class Calc {
 
 		abstract public String str();
 	}
-	int calc(Op op, int a, int b) {
+	public int calc(Op op, int a, int b) {
 		return op.calc(a, b);
 	}
 }

@@ -1,4 +1,4 @@
-package com.github.dakusui.petronia.ut;
+package com.github.dakusui.jcunit.tutorial.session01;
 
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -12,27 +12,24 @@ import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.core.Summarizer;
-import com.github.dakusui.petronia.examples.Calc;
 
 @RunWith(JCUnit.class)
-public class AutoTestBase extends DefaultRuleSetBuilder {
+public class CalcTest1 {
+	@In
+	public int a;
+	@In
+	public int b;
+	@Out
+	public int c;
+	
 	@Rule
-	public RuleSet rules = autoRuleSet(this).summarizer(summarizer);
+	public RuleSet rules = new DefaultRuleSetBuilder().autoRuleSet(this).summarizer(summarizer);
 	
 	@ClassRule
 	public static Summarizer summarizer = new BasicSummarizer();
-
-	@In
-	public int a;
 	
-	@In
-	public int b;
-	
-	@Out
-	public int c = 123;
-
 	@Test
 	public void test() {
-		this.c = new Calc().calc(Calc.Op.plus, this.a, this.b);
+		this.c = new Calc().calc(this.a, this.b);
 	}
 }
