@@ -6,6 +6,6 @@ A combinatorial testing framework on top of JUnit. pom.xml file fragment is like
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.0.2</version>
+      <version>0.1.4</version>
     </dependency>
 
