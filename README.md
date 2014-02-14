@@ -93,7 +93,7 @@ Below is the example for this function.
 
 The values returned by the method will be picked up and assigned to the field 'a' by the framework one by one.
 
-## Tip 2: Doing pairwise test or customizing coverage.
+## Tip 2: Doing pairwise tests or customizing coverage.
 Add annotation '@Generator(PairwiseTestArrayGenerator.class)' to CalcTest.java
 
 ```
@@ -103,6 +103,9 @@ public class CalcTest {
 ```
 
 Since there are only two parameters in this test class now (members a and b only), the test will automatically be exhaustive.
+
+You can also specify CartesianTestArrayGenerator, which does exhausitive combinatorial tests always and takes long (sometimes too long and not practical), or SimpleTestArrayGenerator, which is default and has less coverage than Pairwise.
+
 
 # Copyright and license #
 
