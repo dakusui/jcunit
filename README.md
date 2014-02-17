@@ -3,6 +3,7 @@ JCUnit is a framework to perform combinatorial testing framework using 'pairwise
 
 # First test with JCUnit
 Below is jcunit's most basic example 'Calc.java'. Gist is also available at https://gist.github.com/dakusui/8980728
+
 Just by running CalcTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@In' annotations, and will store the output of Calc based on '@Out' annotation at the first time. 
 From then on, in other words from the second run, you will be able to verify if Calc#calc's output is unchanged just by running CalcTest as a JUnit test.
 
@@ -75,8 +76,8 @@ Below is a pom.xml fragment to describe jcunit's dependency.
 ```
 
 ## Tip 1: Customizing domains of @In fields
-JCUnit creates combinations based on types. For example, if a memeber is annotated with '@In' and its type is int, jcunit will pick up values {0, -1, 100, -100, 2147483647, -2147483648, 1}.
-But this set is just a default set and you can customize it by using 'domain' paramter of '@In' annotation and creating a static method whose name is the same as the input field name's.
+JCUnit creates combinations based on types. For example, if a memeber is annotated with '@In' and its type is int, jcunit will pick up values from a set {0, -1, 100, -100, 2147483647, -2147483648, 1}.
+But this set is just a 'default' and you can customize it by using 'domain' paramter of '@In' annotation and creating a static method whose name is the same as the input field name's.
 The method mustn't have any parameters and its return value must be an array of the field's type.
 
 Below is the example for this function.
