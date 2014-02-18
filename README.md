@@ -7,7 +7,7 @@ Below is jcunit's most basic example 'Calc.java'. Gist is also available at http
 Just by running CalcTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@In' annotations, and will store the output of Calc based on '@Out' annotation at the first time. 
 From then on, in other words from the second run, you will be able to verify if Calc#calc's output is unchanged just by running CalcTest as a JUnit test.
 
-And the values of '@Out' annotated fields are stored in '.jcunit/' under current directory you can remove it when you want to record new values of your SUT.
+And the values of '@Out' annotated fields are stored in '.jcunit/' under current directory. You can remove it when you want to record new values of your SUT.
 
 ## Calc.java example
 ### Calc.java (Main class, SUT)
