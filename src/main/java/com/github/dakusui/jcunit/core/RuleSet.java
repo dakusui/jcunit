@@ -206,7 +206,7 @@ public class RuleSet implements TestRule {
 					writer.writeLine(0, "");
 					writer.writeLine(0, "* TEST NAME *");
 					writer.writeLine(1, String.format(
-							"'%s.%s'",
+							"'%s#%s'",
 							desc.getClassName(),
 							desc.getMethodName())
 					);
