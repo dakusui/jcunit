@@ -3,6 +3,7 @@ package com.github.dakusui.petronia.suites;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import com.github.dakusui.lisj.basic.ToStrTest;
 import com.github.dakusui.petronia.ut.AlwaysTrueTest;
 import com.github.dakusui.petronia.ut.AssignTest;
 import com.github.dakusui.petronia.ut.CartesianTestArrayGeneratorTest;
@@ -38,6 +39,9 @@ import com.github.dakusui.petronia.ut.WhenTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+		/*
+		 * Tests for functions and predicates.
+		 */
 		AlwaysTrueTest.class,
 		AssignTest.class,
 		CartesianTestArrayGeneratorTest.class,
@@ -66,9 +70,13 @@ import com.github.dakusui.petronia.ut.WhenTest;
 		QuoteTest.class,
 		RuleSetTest.class,
 		SimpleTestArrayGeneratorTest.class,
-		StrTest.class,
 		SymbolTest.class,
-		UtilsTest.class,
-		WhenTest.class
+		WhenTest.class,
+		/*
+		 * Tests for utilities
+		 */
+		StrTest.class,
+		ToStrTest.class,
+		UtilsTest.class
 })
 public class UnitTests {}

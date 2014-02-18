@@ -29,5 +29,6 @@ public class All {
 		for (Object klass : modules) {
 			System.out.println("    " + klass);
 		}
+		System.out.println("----");
 	}
 }

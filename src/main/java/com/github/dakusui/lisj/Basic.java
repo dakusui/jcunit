@@ -272,21 +272,53 @@ public class Basic {
 		if (obj instanceof Class)
 			return ((Class<?>)obj).getSimpleName() + ".class";
 		try {
-			Method objToString = obj.getClass().getMethod("toString");
-			////
-			// Checking if 'toString' method is overridden or not.
-			Class<?> declaringClass = objToString.getDeclaringClass();
- 			if (declaringClass == Object.class) {
- 				String simpleName = obj.getClass().getSimpleName();
- 				if (suppressObjectId) {
- 					return simpleName + ".obj";
- 				}
-				return simpleName + "@" + objectId(obj);
+			if (obj instanceof String) {
+				String str = (String) obj;
+				////
+				// if str looks an FQCN, make it compact.
+				return makeFqcnLikeStringCompact(str);
+			} else {
+				Method objToString = obj.getClass().getMethod("toString");
+				////
+				// Checking if 'toString' method is overridden or not.
+				Class<?> declaringClass = objToString.getDeclaringClass();
+	 			if (declaringClass == Object.class) {
+	 				String simpleName = obj.getClass().getSimpleName();
+	 				if (suppressObjectId) {
+	 					return simpleName + ".obj";
+	 				}
+					return simpleName + "@" + objectId(obj);
+				}
 			}
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}
 		return obj.toString();
+	}
+
+	/**
+	 * If a given string looks like an FQCN, this method creates and returns a 
+	 * compact version of it. Otherwise it return the original string itself.
+	 * 
+	 * @param str A string
+	 * @return A compact version of <code>str</code> or <code>str</code> itself.
+	 */
+	private static String makeFqcnLikeStringCompact(String str) {
+		int i;
+		////
+		// If it doesn't start or end with a dot and two or more dots are found in the
+		// string, this method considers that it looks like an FQCN.
+		if (str.endsWith(".")) return str;
+		////
+		// Also if it contains a white space, this method doesn't consider it is
+		// an FQCN.
+		if (str.contains(" ")) return str;
+		if ((i = str.indexOf('.')) > 0) {
+			if ((str.indexOf('.', i + 1)) > i) {
+				return str.substring(str.lastIndexOf('.') + 1);
+			}
+		}
+		return str;
 	}
 	
 	private static int nextObjectId = 1;

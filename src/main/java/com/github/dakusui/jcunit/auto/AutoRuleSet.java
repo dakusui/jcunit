@@ -46,7 +46,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	 */
 	@Override
 	public Statement apply(final Statement base, final Description desc) {
-		this.testName = desc.getClassName() + "." + desc.getMethodName();
+		this.testName = desc.getClassName() + "#" + desc.getMethodName();
 		try {
 			Object fields = fieldNames.length == 0 ? outFieldNames() : fieldNames;
 			Context c = getContext(); 
@@ -129,7 +129,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	 * @throws CUT Operation is cut. Usually not thrown.
 	 */
 	protected Object load(Object fieldName) throws JCUnitException, CUT {
-		return Basic.eval(this.getContext(), new Load().bind(this.getTestName(), this.getTargetObject(), fieldName));
+		return new Load().bind(this.getTestName(), this.getTargetObject(), fieldName);
 	}
 
 	/**
