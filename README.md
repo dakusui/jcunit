@@ -1,5 +1,5 @@
 # jcunit
-JCUnit is a framework to perform combinatorial testing framework using 'pairwise' technique.
+JCUnit is a framework to perform combinatorial tests using 'pairwise' technique.
 
 # First test with JCUnit
 Below is jcunit's most basic example 'Calc.java'. Gist is also available at https://gist.github.com/dakusui/8980728
