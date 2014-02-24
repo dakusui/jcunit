@@ -73,6 +73,11 @@ public abstract class AutoBase extends BaseFunc {
 	abstract protected Object autoBaseExec(String testName, Object obj, String fieldName)
 			throws JCUnitException;
 
+	/**
+	 * Returns base directory to output the values of '@Out' annotated fields.
+	 * 
+	 * @return The base directory.
+	 */
 	protected File baseDir() {
 		return SystemProperties.jcunitBaseDir();
 	}
@@ -82,7 +87,10 @@ public abstract class AutoBase extends BaseFunc {
 	}
 
 	protected File fileForField(File baseDir, String testName, Field out) {
-		return new File(baseDir, testName + "/" + out.getDeclaringClass().getCanonicalName() + "/" + out.getName());
+		////
+		// Since only fields in test class can be treated as 'output' fields,
+		// we don't need to include its class name in the directory name.
+		return new File(baseDir, testName + "/" + out.getName());
 	}
 	
 	protected ObjectEncoder getObjectEncoder(Class<?> clazz) {
