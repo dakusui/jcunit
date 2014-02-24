@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 
 import com.github.dakusui.jcunit.auto.encoder.ObjectEncoder;
 import com.github.dakusui.jcunit.auto.encoder.ObjectEncoders;
+import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
@@ -73,7 +74,7 @@ public abstract class AutoBase extends BaseFunc {
 			throws JCUnitException;
 
 	protected File baseDir() {
-		return new File(".jcunit");
+		return SystemProperties.jcunitBaseDir();
 	}
 
 	protected Field field(Class<?> clazz, String fieldName) throws JCUnitException {
