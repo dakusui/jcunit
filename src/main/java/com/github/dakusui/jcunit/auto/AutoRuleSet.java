@@ -1,15 +1,22 @@
 package com.github.dakusui.jcunit.auto;
 
+import java.lang.reflect.Field;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.jcunit.core.Out.Verifier;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
+import com.github.dakusui.lisj.Form;
+import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.pred.BasePredicate;
 
 /**
  * 
@@ -46,7 +53,12 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	 */
 	@Override
 	public Statement apply(final Statement base, final Description desc) {
-		this.testName = desc.getClassName() + "#" + desc.getMethodName();
+		////
+		// Since the number of test cases in one test class can be very big,
+		// I would like to create one directory for one class and then store
+		// all the test cases in it as sub directories.
+		// So, now I'm using '/' instead of '#'.
+		this.testName = desc.getClassName() + "/" + desc.getMethodName();
 		try {
 			Object fields = fieldNames.length == 0 ? outFieldNames() : fieldNames;
 			Context c = getContext(); 
@@ -59,9 +71,10 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 					if (isStored(fieldName)) {
 						incase(
 								c.any(),
-								c.eq(
+								verify().bind(
 										load(fieldName), 
-										c.get(this.getTargetObject(), fieldName)
+										c.get(this.getTargetObject(), fieldName),
+										verifierForField(fieldName)
 								) 
 						);
 					} else {
@@ -96,6 +109,46 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 		return super.apply(base, desc);
 	}
 
+	/*
+	 * Returns a verifier object for the specified field.
+	 */
+	private Verifier verifierForField(Object fieldName) {
+		if (fieldName == null) throw new NullPointerException();
+		String s = fieldName.toString();
+		Verifier ret = null;
+		try {
+			Field f = this.getTargetObject().getClass().getField(s);
+			Out out = f.getAnnotation(Out.class);
+			Class<? extends Verifier> klazz = out.verifier();
+			try {
+				ret = klazz.newInstance();
+			} catch (InstantiationException e) {
+				String msg = String.format(
+						"'%s' must have public constructor with no parameter.", 
+						klazz.getCanonicalName()
+				);
+				throw new RuntimeException(msg, e); 
+			} catch (IllegalAccessException e) {
+				String msg = String.format(
+						"'%s' must have public constructor with no parameter.", 
+						klazz.getCanonicalName()
+				);
+				throw new RuntimeException(msg, e); 
+			} 
+		} catch (SecurityException e) {
+			////
+			// Since only valid field name is passed as 'fieldName' this path
+			// shouldn't be executed.
+			throw new RuntimeException(e); 
+		} catch (NoSuchFieldException e) {
+			////
+			// Since only valid field name is passed as 'fieldName' this path
+			// shouldn't be executed.
+			throw new RuntimeException(e); 
+		}
+		return ret;
+	}
+	
 	/**
 	 * Returns a S expression list of field names in the target object.
 	 * 
@@ -117,6 +170,29 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	 */
 	protected boolean isStored(Object fieldName) throws JCUnitException, CUT {
 		return Basic.evalp(this.getContext(), new IsStored().bind(this.getTestName(), this.getTargetObject(), fieldName));
+	}
+	
+	protected Form verify() {
+		Form ret = new BasePredicate() {
+			private static final long serialVersionUID = 3468222886217602972L;
+			
+			@Override
+			protected FormResult evaluateLast(Context context,
+					Object[] evaluatedParams, FormResult lastResult)
+					throws JCUnitException, CUT {
+				Object expected = Basic.get(evaluatedParams, 0);
+				Object actual = Basic.get(evaluatedParams, 1);
+				Verifier v = (Verifier) Basic.get(evaluatedParams, 2);
+				lastResult.value(v.verify(expected, actual));
+				return lastResult;
+			}
+			
+			@Override
+			public String name() {
+				return "verify";
+			}
+		};
+		return ret;
 	}
 
 	/**
