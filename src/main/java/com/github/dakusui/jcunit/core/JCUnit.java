@@ -22,6 +22,7 @@ import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.lisj.Basic;
 
 public class JCUnit extends Suite {
 	private static final Logger LOGGER = LoggerFactory.getLogger(JCUnit.class);
@@ -306,7 +307,7 @@ public class JCUnit extends Suite {
 			LOGGER.info("  " + domainHeader);
 			Object[] d = testArrayGenerator.getDomain(key);
 			for (int i = 0; i < d.length; i++) {
-				String l = String.format("%02d:'%s'", i, d[i]);
+				String l = String.format("%02d:'%s'", i, Basic.tostr(d[i]));
 				LOGGER.info("    " + l);
 			}
 			keyCode++;
