@@ -20,8 +20,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
@@ -75,15 +73,6 @@ public class RuleSet implements TestRule {
 		public void error(String string, int id) {
 		}
 	};
-	public static class ReportWriter {
-		public void writeLine(int indentLevel, String str) {
-			String indent = "";
-			for (int i = 0; i < indentLevel; i++) {
-				indent += "  ";
-			}
-			LOGGER.info(indent + str);
-		}
-	}
 	public static class RuleIgnored extends JCUnitException {
 		/**
 		 * A serial version UID.
@@ -103,19 +92,21 @@ public class RuleSet implements TestRule {
 	public class Report {
 		int indent = 0;
 		private ReportWriter writer;
-		public Report(int indentLevel, ReportWriter writer) {
+		private Description desc;
+		public Report(Description desc, int indentLevel, ReportWriter writer) {
 			this.indent = indentLevel;
 			this.writer = writer;
+			this.desc = desc;
 		}
 		public boolean check(String testName, Object cond, boolean result) {
 			String id = String.format("[%02d]", idOf(cond));
 			Summarizer s = RuleSet.this.summarizer;
 			if (result) {
 				s.passed(testName, idOf(cond));
-				writeLine(this.indent, id + "MATCHED:" + Basic.tostr(cond));
+				writeLine(this.desc, this.indent, id + "MATCHED:" + Basic.tostr(cond));
 			} else {
 				s.failed(testName, idOf(cond));
-				writeLine(this.indent, id + "NOT MATCHED:" + Basic.tostr(cond));
+				writeLine(this.desc, this.indent, id + "NOT MATCHED:" + Basic.tostr(cond));
 			}
 			if (result) this.indent ++;
 			return result;
@@ -125,16 +116,16 @@ public class RuleSet implements TestRule {
 			Summarizer s = RuleSet.this.summarizer;
 			if (result) {
 				s.passed(testName, idOf(nested));
-				writeLine(this.indent, id + "PASS:" + Basic.tostr(nested));
+				writeLine(this.desc, this.indent, id + "PASS:" + Basic.tostr(nested));
 			} else {
 				s.failed(testName, idOf(nested));
-				writeLine(this.indent, id + "FAIL:" + Basic.tostr(nested));
+				writeLine(this.desc, this.indent, id + "FAIL:" + Basic.tostr(nested));
 			}
 			return result;
 		}
 		
-		public void writeLine(int indentLevel, String str) {
-			writer.writeLine(indentLevel, str);
+		public void writeLine(Description desc, int indentLevel, String str) {
+			writer.writeLine(this.desc, indentLevel, str);
 		}
 	}
 	
@@ -159,7 +150,7 @@ public class RuleSet implements TestRule {
 	/**
 	 * A logger object.
 	 */
-	private static final Logger LOGGER = LoggerFactory.getLogger(RuleSet.class);
+//	static final Logger LOGGER = LoggerFactory.getLogger(RuleSet.class);
 	
 	private static final ReportWriter writer = new ReportWriter();
 
@@ -198,19 +189,19 @@ public class RuleSet implements TestRule {
 			public void evaluate() throws Throwable {
 				Throwable throwable = null;
 				try {
-					writer.writeLine(0, "***********************************************");
-					writer.writeLine(0, "***                                         ***");
-					writer.writeLine(0, "***           T E S T R E P O R T           ***");
-					writer.writeLine(0, "***                                         ***");
-					writer.writeLine(0, "***********************************************");
-					writer.writeLine(0, "");
-					writer.writeLine(0, "* TEST NAME *");
-					writer.writeLine(1, String.format(
-							"'%s#%s'",
+					writer.writeLine(desc, 0, "***********************************************");
+					writer.writeLine(desc, 0, "***                                         ***");
+					writer.writeLine(desc, 0, "***           T E S T R E P O R T           ***");
+					writer.writeLine(desc, 0, "***                                         ***");
+					writer.writeLine(desc, 0, "***********************************************");
+					writer.writeLine(desc, 0, "");
+					writer.writeLine(desc, 0, "* TEST NAME *");
+					writer.writeLine(desc, 1, String.format(
+							"'%s/%s'",
 							desc.getClassName(),
 							desc.getMethodName())
 					);
-					writer.writeLine(0, "");
+					writer.writeLine(desc, 0, "");
 					try {
 						base.evaluate();
 					} catch (Throwable t) {
@@ -218,35 +209,33 @@ public class RuleSet implements TestRule {
 						throw t;
 					}
 				} finally {
-					if (LOGGER.isInfoEnabled()) {
-						writer.writeLine(0, "* INPUT VALUES *");
-						dumpValues(writer, RuleSet.this.inValues);
-						writer.writeLine(0, "");
-					}
+					writer.writeLine(desc, 0, "* INPUT VALUES *");
+					dumpValues(desc, writer, RuleSet.this.inValues);
+					writer.writeLine(desc, 0, "");
 					if (throwable == null) {
 						boolean verified = false;
 						boolean ok = false;
 						boolean verificationExecuted = false;
 						try {
-							ok = verify(target, RuleSet.this, desc.getMethodName());
+							ok = verify(desc, target, RuleSet.this, desc.getMethodName());
 							verificationExecuted = true;
 							verified = true;
 						} finally {
-							writer.writeLine(0, "");
-							writer.writeLine(0, "* OUTPUT VALUES *");
+							writer.writeLine(desc, 0, "");
+							writer.writeLine(desc, 0, "* OUTPUT VALUES *");
 							RuleSet.this.setOutValues(composeOutValues(target));
-							dumpValues(writer, RuleSet.this.outValues);
-							writer.writeLine(0, "");
+							dumpValues(desc, writer, RuleSet.this.outValues);
+							writer.writeLine(desc, 0, "");
 							String msg = "Test:" + RuleSet.summarize(inValues) + " was failed. (" + failedReason() + ")";
 							if (ok) RuleSet.this.summarizer.ok(desc.getMethodName());
 							else RuleSet.this.summarizer.ng(desc.getMethodName());
 							if (!verified) {
-								LOGGER.error("");
+								writer.writeErrorLine(desc, 0, "");
 								String failedReason = failedReason();
-								LOGGER.error("  FAIL:{}", failedReason == null ? "(not available)" : failedReason);
-								LOGGER.error("");
-								writer.writeLine(0, "* EXCEPTIONS *");
-								dumpExceptions(writer, RuleSet.this.outValues);
+								writer.writeErrorLine(desc, 0, String.format("  FAIL:%s", failedReason == null ? "(not available)" : failedReason));
+								writer.writeErrorLine(desc, 0, "");
+								writer.writeLine(desc, 0, "* EXCEPTIONS *");
+								dumpExceptions(desc, writer, RuleSet.this.outValues);
 							}
 							if (verificationExecuted) {
 								TestCase.assertTrue(msg, ok);
@@ -254,28 +243,28 @@ public class RuleSet implements TestRule {
 						}
 					} else {
 						dumpException(throwable);
-						writer.writeLine(0, "");
+						writer.writeLine(desc, 0, "");
 						RuleSet.this.summarizer.error(desc.getMethodName());
 					}
 				}
 			}
 
 			protected void dumpException(Throwable t) {
-				LOGGER.error("* TEST ABORTED *");
-				writer.writeLine(1, String.format("%s", t));
+				writer.writeErrorLine(desc, 0, "* TEST ABORTED *");
+				writer.writeLine(desc, 1, String.format("%s", t));
 				for (StackTraceElement ste : t.getStackTrace()) {
-					writer.writeLine(2, ste.toString());
+					writer.writeLine(desc, 2, ste.toString());
 				}
 			}
 		};
 	}
 
-	protected boolean verify(Object target, RuleSet ruleSet, String testName) throws JCUnitException, CUT {
+	protected boolean verify(Description desc, Object target, RuleSet ruleSet, String testName) throws JCUnitException, CUT {
 		assert this.inValues != null;
 		
 		boolean ret = false;
-		writer.writeLine(0, "* RULES *");
-		Report report = new Report(1, writer);
+		writer.writeLine(desc, 0, "* RULES *");
+		Report report = new Report(desc, 1, writer);
 		try {
 			ret = this.apply(report, testName);
 			if (!ret) failedReason("Rule matched but failed.");
@@ -345,8 +334,8 @@ public class RuleSet implements TestRule {
 		return this.leaves.contains(objectId);
 	}
 
-	protected void dumpValues(ReportWriter writer, Map<Field, Object> values) {
-		writer.writeLine(1, String.format("VALUES(%d)", values.size()));
+	protected void dumpValues(Description desc, ReportWriter writer, Map<Field, Object> values) {
+		writer.writeLine(desc, 1, String.format("VALUES(%d)", values.size()));
 		List<Field> keys = new ArrayList<Field>(values.keySet());
 		Collections.sort(keys, new Comparator<Field>() {
 			@Override
@@ -357,6 +346,7 @@ public class RuleSet implements TestRule {
 		for (Field key : keys) {
 			Object v = values.get(key);
 			writer.writeLine(
+					desc, 
 					2, 
 					String.format(
 							"%s:%s(%s)", 
@@ -366,7 +356,7 @@ public class RuleSet implements TestRule {
 		}
 	}
 	
-	protected void dumpExceptions(ReportWriter writer, Map<Field, Object> values) {
+	protected void dumpExceptions(Description desc, ReportWriter writer, Map<Field, Object> values) {
 		List<Field> keys = new ArrayList<Field>(values.keySet());
 		Collections.sort(keys, new Comparator<Field>() {
 			@Override
@@ -379,17 +369,17 @@ public class RuleSet implements TestRule {
 			Object v = values.get(key);
 			if (v instanceof Throwable) {
 				Throwable t = (Throwable)v;
-				writer.writeLine(1, String.format("%s:%s(%s)", key.getName(), v, key.getType().getName()));
-				writer.writeLine(2, t.getMessage());
+				writer.writeLine(desc, 1, String.format("%s:%s(%s)", key.getName(), v, key.getType().getName()));
+				writer.writeLine(desc, 2, t.getMessage());
 				for (StackTraceElement ste : t.getStackTrace()) {
-					writer.writeLine(3, ste.toString());
+					writer.writeLine(desc, 3, ste.toString());
 				}
-				writer.writeLine(1, "");
+				writer.writeLine(desc, 1, "");
 				atLeastOneException = true;
 			}
 		}
 		if (!atLeastOneException) {
-			writer.writeLine(1, "(none)");
+			writer.writeLine(desc, 1, "(none)");
 		}
 	}
 	
@@ -597,11 +587,11 @@ public class RuleSet implements TestRule {
 		return this;
 	}
 
-	public void printOut() {
+	public void printOutClassLevelResult(Class<?> klazz) {
 		List<Pair> pairs = new ArrayList<Pair>(this.rules);
 		if (this.otherwise != null) pairs.add(this.otherwise);
 		for (Pair  p : pairs) {
-			LOGGER.info(
+			writer.writeLine(klazz, 0, 
 					String.format(
 					"[%02d]%3d/%3d - %s%s", 
 					idOf(p.cond), 
@@ -611,9 +601,9 @@ public class RuleSet implements TestRule {
 					Basic.tostr(p.cond, true)
 			));
 			if (p.nested instanceof RuleSet)
-				((RuleSet)p.nested).printOut();
+				((RuleSet)p.nested).printOutClassLevelResult(klazz);
 			else
-				LOGGER.info(
+				writer.writeLine(klazz, 0, 
 						String.format(
 						"[%02d]%3d/%3d - %s%s", 
 						idOf(p.nested),

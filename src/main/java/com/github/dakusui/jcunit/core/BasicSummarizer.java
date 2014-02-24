@@ -76,27 +76,28 @@ public class BasicSummarizer implements TestRule, Summarizer {
 
 	private Statement statement(final Statement base) {
 		return new Statement() {
+			ReportWriter writer = new ReportWriter();
 			@Override
 			public void evaluate() throws Throwable {
 				base.evaluate();
 
 				writeHeader();
-				LOGGER.info("");
+				writeLine("");
 				writeClassName();
-				LOGGER.info("");
+				writeLine("");
 				writeResultMatrix();
-				LOGGER.info("");
+				writeLine("");
 				writeAllRules();
 			}
 
 			protected void writeAllRules() {
-				LOGGER.info("* ALL TEST RULES *");
-				LOGGER.info("  #   T/  F   PREDICATE");
-				ruleSet.printOut();
+				writeLine("* ALL TEST RULES *");
+				writeLine("  #   T/  F   PREDICATE");
+				ruleSet.printOutClassLevelResult(klazz());
 			}
 
 			protected void writeResultMatrix() {
-				LOGGER.info("* TEST RESULT MATRIX *");
+				writeLine("* TEST RESULT MATRIX *");
 				int registeredIds = ruleSet.registeredIds();
 				String[] headers = new String[ruleSet.maxLevel() + 1];
 				for (int i = 0; i < headers.length; i++) {
@@ -111,7 +112,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 					}
 				}
 				for (String h : headers)
-					LOGGER.info(h);
+					writeLine(h);
 				String line; 
 				for (String testName : matrix.testNames()) {
 					line = String.format("[%-3s]%-30s", getResultType(testName), testName);
@@ -132,7 +133,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 							line += String.format(" %s ", f);
 						}
 					}
-					LOGGER.info(line);
+					writeLine(line);
 				}
 			}
 
@@ -142,16 +143,25 @@ public class BasicSummarizer implements TestRule, Summarizer {
 			}
 
 			protected void writeHeader() {
-				LOGGER.info("***********************************************");
-				LOGGER.info("***                                         ***");
-				LOGGER.info("***          T E S T S U M M A R Y          ***");
-				LOGGER.info("***                                         ***");
-				LOGGER.info("***********************************************");
+				writeLine("***********************************************");
+				writeLine("***                                         ***");
+				writeLine("***          T E S T S U M M A R Y          ***");
+				writeLine("***                                         ***");
+				writeLine("***********************************************");
 			}
 			
 			protected void writeClassName(){
-				LOGGER.info("* TEST CLASS *");
-				LOGGER.info("  '{}'", ruleSet.getTargetObject().getClass());
+				writeLine("* TEST CLASS *");
+				writeLine("  '{}'", ruleSet.getTargetObject().getClass());
+			}
+			
+			private Class<?> klazz() {
+				return ruleSet.getTargetObject().getClass();
+			}
+			
+			private void writeLine(String s, Object... params) {
+				LOGGER.info(s, params);
+				this.writer.writeLine(klazz(), 0, String.format(s.replaceAll("\\{\\}", "%s"), params));
 			}
 		};
 	}
