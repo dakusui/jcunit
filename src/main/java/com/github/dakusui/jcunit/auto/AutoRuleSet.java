@@ -1,11 +1,5 @@
 package com.github.dakusui.jcunit.auto;
 
-import java.lang.reflect.Field;
-
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.Out.Verifier;
 import com.github.dakusui.jcunit.core.RuleSet;
@@ -18,12 +12,20 @@ import com.github.dakusui.lisj.Form;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.pred.BasePredicate;
 
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 
  * * Working directory.
  * 
  * @author hiroshi
- *
+ * 
  */
 public class AutoRuleSet extends RuleSet implements TestRule {
 	/**
@@ -31,7 +33,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	 */
 	private String testName;
 	private String[] fieldNames;
-	
+
 	/**
 	 * Creates an object of this class.
 	 * 
@@ -45,8 +47,8 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	public AutoRuleSet(Context context, Object target, String... fieldNames) {
 		super(context, target);
 		this.fieldNames = fieldNames;
+
 	}
-	
 
 	/**
 	 * {@inheritDoc}
@@ -61,22 +63,21 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 		this.testName = desc.getClassName() + "/" + desc.getMethodName();
 		try {
 			Object fields = fieldNames.length == 0 ? outFieldNames() : fieldNames;
-			Context c = getContext(); 
-			int numFields = Basic.length(fields); 
+			Context c = getContext();
+			int numFields = Basic.length(fields);
 			if (numFields == 0) {
-				incase(true, c.progn(String.format("*** NO FIELD IS SPECIFIED BY TEST %s ***", this.testName), false));
+				this.incase(true, c.progn(String.format("*** NO FIELD IS SPECIFIED BY TEST %s ***", this.testName), false));
 			} else {
 				for (int i = 0; i < Basic.length(fields); i++) {
 					Object fieldName = Basic.get(fields, i);
 					if (isStored(fieldName)) {
-						incase(
+						this.incase(
 								c.any(),
 								verify().bind(
-										load(fieldName), 
+										load(fieldName),
 										c.get(this.getTargetObject(), fieldName),
 										verifierForField(fieldName)
-								) 
-						);
+										));
 					} else {
 						////
 						// If a field isn't stored yet, the value of it will be stored,
@@ -85,7 +86,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 						// and failed, 
 						// the following rules ('incase' clauses and 'otherwise' clause)
 						// will be evaluated.
-						incase(c.any(), new Store().bind(getTestName(), this.getTargetObject(), fieldName));
+						this.incase(c.any(), new Store().bind(getTestName(), this.getTargetObject(), fieldName));
 					}
 				}
 				////
@@ -97,23 +98,55 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 			String msg = String.format(
 					"A cut, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
 					cut.getMessage()
-			);
+					);
 			throw new JCUnitRuntimeException(msg, cut);
 		} catch (JCUnitException e) {
 			String msg = String.format(
 					"A JCUnitException, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
 					e.getMessage()
-			);
+					);
 			throw new JCUnitRuntimeException(msg, e);
 		}
-		return super.apply(base, desc);
+		final Statement statementFromSuper = super.apply(base, desc);
+		return new Statement() {
+			@Override
+			public void evaluate() throws Throwable {
+				try {
+					statementFromSuper.evaluate();
+				} finally {
+					writer.writeLine(desc, 0, "* STORED VALUES *");
+					dumpValues(desc, writer, composePreviousOutValues());
+				}
+			}
+		};
+	}
+
+	private Map<Field, Object> composePreviousOutValues() {
+		Map<Field, Object> ret = new HashMap<Field, Object>();
+		for (Field f : getOutFields()) {
+			try {
+				ret.put(f, Basic.eval(this.getContext(), load(f.getName())));
+			} catch (JCUnitException e) {
+				////
+				// Since we are using valid values for 'load' as parameters,
+				// this path shouldn't be executed.
+				throw new RuntimeException(e.getMessage(), e);
+			} catch (CUT e) {
+				////
+				// Since we know that 'load' shouldn't thrown CUT,
+				// this path shouldn't be executed.
+				throw new RuntimeException(e.getMessage(), e);
+			}
+		}
+		return ret;
 	}
 
 	/*
 	 * Returns a verifier object for the specified field.
 	 */
 	private Verifier verifierForField(Object fieldName) {
-		if (fieldName == null) throw new NullPointerException();
+		if (fieldName == null)
+			throw new NullPointerException();
 		String s = fieldName.toString();
 		Verifier ret = null;
 		try {
@@ -124,31 +157,31 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 				ret = klazz.newInstance();
 			} catch (InstantiationException e) {
 				String msg = String.format(
-						"'%s' must have public constructor with no parameter.", 
+						"'%s' must have public constructor with no parameter.",
 						klazz.getCanonicalName()
-				);
-				throw new RuntimeException(msg, e); 
+						);
+				throw new RuntimeException(msg, e);
 			} catch (IllegalAccessException e) {
 				String msg = String.format(
-						"'%s' must have public constructor with no parameter.", 
+						"'%s' must have public constructor with no parameter.",
 						klazz.getCanonicalName()
-				);
-				throw new RuntimeException(msg, e); 
-			} 
+						);
+				throw new RuntimeException(msg, e);
+			}
 		} catch (SecurityException e) {
 			////
 			// Since only valid field name is passed as 'fieldName' this path
 			// shouldn't be executed.
-			throw new RuntimeException(e); 
+			throw new RuntimeException(e);
 		} catch (NoSuchFieldException e) {
 			////
 			// Since only valid field name is passed as 'fieldName' this path
 			// shouldn't be executed.
-			throw new RuntimeException(e); 
+			throw new RuntimeException(e);
 		}
 		return ret;
 	}
-	
+
 	/**
 	 * Returns a S expression list of field names in the target object.
 	 * 
@@ -159,7 +192,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	protected Object outFieldNames() throws JCUnitException, CUT {
 		return Basic.eval(this.getContext(), new OutFieldNames().bind(this.getTargetObject()));
 	}
-	
+
 	/**
 	 * Checks if the specified field is already stored in the working directory.
 	 * 
@@ -171,11 +204,11 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	protected boolean isStored(Object fieldName) throws JCUnitException, CUT {
 		return Basic.evalp(this.getContext(), new IsStored().bind(this.getTestName(), this.getTargetObject(), fieldName));
 	}
-	
+
 	protected Form verify() {
 		Form ret = new BasePredicate() {
 			private static final long serialVersionUID = 3468222886217602972L;
-			
+
 			@Override
 			protected FormResult evaluateLast(Context context,
 					Object[] evaluatedParams, FormResult lastResult)
@@ -186,7 +219,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 				lastResult.value(v.verify(expected, actual));
 				return lastResult;
 			}
-			
+
 			@Override
 			public String name() {
 				return "verify";
@@ -210,7 +243,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 
 	/**
 	 * Stores value of the field specified by <code>fieldName</code> to a working directory.
-	 *  
+	 * 
 	 * @param fieldName Name of the field.
 	 * @throws JCUnitException Failed to store the value.
 	 * @throws CUT Operation is cut. Usually not thrown.
@@ -218,7 +251,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
 	protected void store(Object fieldName) throws JCUnitException, CUT {
 		Basic.eval(this.getContext(), new Store().bind(this.getTestName(), this.getTargetObject(), fieldName));
 	}
-	
+
 	/**
 	 * Returns test method name currently being executed.
 	 * 
