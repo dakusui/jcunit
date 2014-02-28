@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.report.ReportWriter;
+
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
-import com.github.dakusui.jcunit.report.ReportWriter;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -102,6 +102,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 		return resultMap.get(testName);
 	}
 
+	/* done */
 	protected void writeClassLevelHeader() {
 		writeLine("***********************************************");
 		writeLine("***                                         ***");
@@ -111,12 +112,14 @@ public class BasicSummarizer implements TestRule, Summarizer {
 		writeLine("");
 	}
 
+	/* done */
 	protected void writeClassName() {
 		writeLine("* TEST CLASS *");
 		writeLine("  '{}'", klazz());
 		writeLine("");
 	}
 
+	/* done */
 	private void writeLine(String s, Object... params) {
 		this.writer.writeLine(klazz(), 0, String.format(s.replaceAll("\\{\\}", "%s"), params));
 	}

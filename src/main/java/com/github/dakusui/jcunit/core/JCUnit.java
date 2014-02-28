@@ -286,10 +286,12 @@ public class JCUnit extends Suite {
 	 */
 	private static ReportWriter writer = new ReportWriter();
 
+	/* DONE */
 	protected void initClassLevelReport(Class<?> targetClass) {
 		writer.deleteReport(targetClass);
 	}
 
+	/* DONE */
 	private void writeMatrixHeader(Class<?> targetClass) {
 		writer.writeLine(targetClass, 0, "***********************************************");
 		writer.writeLine(targetClass, 0, "***                                         ***");
@@ -299,6 +301,7 @@ public class JCUnit extends Suite {
 		writer.writeLine(targetClass, 0, "");
 	}
 
+	/* DONE */
 	protected static void writeDomains(
 			Class<?> targetClass,
 			TestArrayGenerator<Field, Object> testArrayGenerator) {
@@ -319,6 +322,7 @@ public class JCUnit extends Suite {
 		writer.writeLine(targetClass, 0, "");
 	}
 
+	/* DONE */
 	protected static void writeMatrix(
 			Class<?> targetClass,
 			TestArrayGenerator<Field, Object> testArrayGenerator) {
