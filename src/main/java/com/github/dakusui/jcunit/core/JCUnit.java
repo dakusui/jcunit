@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.report.ReportWriter;
 import com.github.dakusui.lisj.Basic;
 
 import org.junit.runner.Runner;

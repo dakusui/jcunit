@@ -4,6 +4,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
+import com.github.dakusui.jcunit.report.ReportWriter;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -111,7 +113,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
 
 	protected void writeClassName() {
 		writeLine("* TEST CLASS *");
-		writeLine("  '{}'", ruleSet.getTargetObject().getClass());
+		writeLine("  '{}'", klazz());
 		writeLine("");
 	}
 

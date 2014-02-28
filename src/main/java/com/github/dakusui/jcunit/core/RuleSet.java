@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.report.ReportWriter;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;

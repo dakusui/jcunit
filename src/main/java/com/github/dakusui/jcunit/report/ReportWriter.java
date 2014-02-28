@@ -1,8 +1,10 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.report;
 
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.dakusui.jcunit.core.SystemProperties;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,7 +26,7 @@ public class ReportWriter {
 	/**
 	 * Creates an object of this class.
 	 */
-	ReportWriter() {
+	public ReportWriter() {
 	}
 
 	/**
