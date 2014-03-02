@@ -33,7 +33,8 @@ public class JCUnit extends Suite {
     super(klass, Collections.<Runner> emptyList());
     List<Object> parametersList = getParametersList(getTestClass());
     for (int i = 0; i < parametersList.size(); i++)
-      runners.add(new JCUnitRunner(getTestClass().getJavaClass(), parametersList, i));
+      runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
+          parametersList, i));
   }
 
   @SuppressWarnings("unchecked")
@@ -48,7 +49,8 @@ public class JCUnit extends Suite {
 
   private List<Object> getParametersList(TestClass klass) throws Throwable {
     @SuppressWarnings("rawtypes")
-    Class<? extends TestArrayGenerator> generatorClass = getTestArrayGeneratorClass(klass.getJavaClass());
+    Class<? extends TestArrayGenerator> generatorClass = getTestArrayGeneratorClass(klass
+        .getJavaClass());
     if (generatorClass == null) {
       generatorClass = SimpleTestArrayGenerator.class;
     }
@@ -64,16 +66,20 @@ public class JCUnit extends Suite {
         ret = cut.getDeclaredMethod(inField.getName());
       }
     } catch (SecurityException e) {
-      String msg = String.format("JCUnit cannot be run in this environment. (%s:%s)", e.getClass().getName(),
-          e.getMessage());
+      String msg = String.format(
+          "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
+              .getName(), e.getMessage());
       throw new JCUnitEnvironmentException(msg, e);
     } catch (NoSuchMethodException e) {
-      String msg = String.format("Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
-          inField, cut);
+      String msg = String
+          .format(
+              "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
+              inField, cut);
       throw new ObjectUnderFrameworkException(msg, e);
     }
     if (!validateDomainMethod(inField, ret)) {
-      String msg = String.format("Domain method '%s' isn't compatible with field '%s'", ret, inField);
+      String msg = String.format(
+          "Domain method '%s' isn't compatible with field '%s'", ret, inField);
       throw new IllegalArgumentException(msg, null);
     }
     return ret;
@@ -83,21 +89,27 @@ public class JCUnit extends Suite {
     Method ret;
     try {
       try {
-        ret = cut.getMethod(outField.getName(), outField.getType(), outField.getType());
+        ret = cut.getMethod(outField.getName(), outField.getType(),
+            outField.getType());
       } catch (NoSuchMethodException e) {
         ret = cut.getDeclaredMethod(outField.getName());
       }
     } catch (SecurityException e) {
-      String msg = String.format("JCUnit cannot be run in this environment. (%s:%s)", e.getClass().getName(),
-          e.getMessage());
+      String msg = String.format(
+          "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
+              .getName(), e.getMessage());
       throw new JCUnitEnvironmentException(msg, e);
     } catch (NoSuchMethodException e) {
-      String msg = String.format("Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
-          outField, cut);
+      String msg = String
+          .format(
+              "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
+              outField, cut);
       throw new ObjectUnderFrameworkException(msg, e);
     }
     if (!validateAssertMethod(outField, ret)) {
-      String msg = String.format("Assertion method '%s' isn't compatible with field '%s'", ret, outField);
+      String msg = String.format(
+          "Assertion method '%s' isn't compatible with field '%s'", ret,
+          outField);
       throw new IllegalArgumentException(msg, null);
     }
 
@@ -108,7 +120,8 @@ public class JCUnit extends Suite {
     return Modifier.isStatic(domainMethod.getModifiers());
   }
 
-  private static boolean checkIfTypeCompatible(Field inField, Method domainMethod) {
+  private static boolean checkIfTypeCompatible(Field inField,
+      Method domainMethod) {
     if (!domainMethod.getReturnType().isArray()) {
       return false;
     }
@@ -130,7 +143,8 @@ public class JCUnit extends Suite {
     return Boolean.TRUE.equals(assertMethod.getReturnType());
   }
 
-  private static boolean validateAssertMethod(Field outField, Method assertMethod) {
+  private static boolean validateAssertMethod(Field outField,
+      Method assertMethod) {
     boolean ret = true;
     ret &= JCUnit.checkIfStatic(assertMethod);
     ret &= JCUnit.checkIfReturnTypeIsBoolean(assertMethod);
@@ -163,21 +177,27 @@ public class JCUnit extends Suite {
       Class<?> inFieldType = inField.getType();
       Object[] tmpvalues = null;
       if (inFieldType == Integer.TYPE || inFieldType == Integer.class) {
-        tmpvalues = new Object[] { 1, 0, -1, 100, -100, Integer.MAX_VALUE, Integer.MIN_VALUE };
+        tmpvalues = new Object[] { 1, 0, -1, 100, -100, Integer.MAX_VALUE,
+            Integer.MIN_VALUE };
       } else if (inFieldType == Long.TYPE || inFieldType == Long.class) {
-        tmpvalues = new Object[] { 1L, 0L, -1L, 100L, -100L, Long.MAX_VALUE, Long.MIN_VALUE };
+        tmpvalues = new Object[] { 1L, 0L, -1L, 100L, -100L, Long.MAX_VALUE,
+            Long.MIN_VALUE };
       } else if (inFieldType == Short.TYPE || inFieldType == Short.class) {
-        tmpvalues = new Object[] { (short) 1, (short) 0, (short) -1, (short) 100, (short) -100, Short.MAX_VALUE,
-            Short.MIN_VALUE };
+        tmpvalues = new Object[] { (short) 1, (short) 0, (short) -1,
+            (short) 100, (short) -100, Short.MAX_VALUE, Short.MIN_VALUE };
       } else if (inFieldType == Byte.TYPE || inFieldType == Byte.class) {
-        tmpvalues = new Object[] { (byte) 1, (byte) 0, (byte) -1, (byte) 100, (byte) -100, Byte.MAX_VALUE,
-            Byte.MIN_VALUE };
+        tmpvalues = new Object[] { (byte) 1, (byte) 0, (byte) -1, (byte) 100,
+            (byte) -100, Byte.MAX_VALUE, Byte.MIN_VALUE };
       } else if (inFieldType == Float.TYPE || inFieldType == Float.class) {
-        tmpvalues = new Object[] { 1.0f, 0f, -1.0f, 100.0f, -100.0f, Float.MAX_VALUE, Float.MIN_VALUE };
+        tmpvalues = new Object[] { 1.0f, 0f, -1.0f, 100.0f, -100.0f,
+            Float.MAX_VALUE, Float.MIN_VALUE };
       } else if (inFieldType == Double.TYPE || inFieldType == Double.class) {
-        tmpvalues = new Object[] { 1.0d, 0d, -1.0d, 100.0d, -100.0d, Double.MAX_VALUE, Double.MIN_VALUE };
-      } else if (inFieldType == Character.TYPE || inFieldType == Character.class) {
-        tmpvalues = new Object[] { 'a', 'あ', (char) 1, Character.MAX_VALUE, Character.MIN_VALUE };
+        tmpvalues = new Object[] { 1.0d, 0d, -1.0d, 100.0d, -100.0d,
+            Double.MAX_VALUE, Double.MIN_VALUE };
+      } else if (inFieldType == Character.TYPE
+          || inFieldType == Character.class) {
+        tmpvalues = new Object[] { 'a', 'あ', (char) 1, Character.MAX_VALUE,
+            Character.MIN_VALUE };
       } else if (inFieldType == Boolean.TYPE || inFieldType == Boolean.class) {
         tmpvalues = new Object[] { true, false };
       } else if (inFieldType == String.class) {
@@ -192,14 +212,17 @@ public class JCUnit extends Suite {
         } catch (NoSuchMethodException e) {
         }
       } else {
-        String msg = String.format("Only primitive type fields and fields whose class are wrappers "
-            + "of primitive types can use 'Default' domain type. (field:%s, type:%s)", inField.getName(),
-            inFieldType.getName());
+        String msg = String
+            .format(
+                "Only primitive type fields and fields whose class are wrappers "
+                    + "of primitive types can use 'Default' domain type. (field:%s, type:%s)",
+                inField.getName(), inFieldType.getName());
         throw new IllegalArgumentException(msg);
       }
       assert tmpvalues != null;
       // if the field isn't a primitive, null is added as a possible value.
-      if (!inFieldType.isPrimitive() && inField.getAnnotation(In.class).includeNull()) {
+      if (!inFieldType.isPrimitive()
+          && inField.getAnnotation(In.class).includeNull()) {
         Object[] values2 = new Object[tmpvalues.length + 1];
         System.arraycopy(tmpvalues, 0, values2, 0, tmpvalues.length);
         values2[tmpvalues.length] = null;
@@ -224,14 +247,24 @@ public class JCUnit extends Suite {
     return ret;
   }
 
+  /**
+   * 
+   * @param generatorClass
+   *          A generator class to be used for <code>cut</code>
+   * @param params
+   *          TODO
+   * @param domains
+   *          Domain definitions for all the fields.
+   * @return
+   */
   @SuppressWarnings("unchecked")
   public static TestArrayGenerator<Field, Object> newTestArrayGenerator(
       @SuppressWarnings("rawtypes") Class<? extends TestArrayGenerator> generatorClass,
-      LinkedHashMap<Field, Object[]> domains) {
+      GeneratorParameters.Value[] params, LinkedHashMap<Field, Object[]> domains) {
     TestArrayGenerator<Field, Object> ret = null;
     try {
       ret = (TestArrayGenerator<Field, Object>) generatorClass.newInstance();
-      ret.init(domains);
+      ret.init(params, domains);
     } catch (InstantiationException e) {
       throw new JCUnitPluginException(e.getMessage(), e);
     } catch (IllegalAccessException e) {
@@ -240,14 +273,30 @@ public class JCUnit extends Suite {
     return ret;
   }
 
-  public List<Object> composeTestArray(Class<? extends Object> cut,
-      @SuppressWarnings("rawtypes") Class<? extends TestArrayGenerator> generatorClass) throws JCUnitException {
+  /*
+   * Composes the test array.
+   */
+  public List<Object> composeTestArray(
+      Class<? extends Object> cut,
+      @SuppressWarnings("rawtypes") Class<? extends TestArrayGenerator> generatorClass)
+      throws JCUnitException {
     if (generatorClass == null)
       throw new NullPointerException();
 
-    Field[] fields = Utils.getInFieldsFromClassUnderTest(cut);
+    // //
+    // Load parameters from class definition. If it isn't present, an empty
+    // array will be given.
+    GeneratorParameters paramsAnnotation = cut
+        .getAnnotation(GeneratorParameters.class);
+    GeneratorParameters.Value[] params = new GeneratorParameters.Value[0];
+    if (paramsAnnotation != null) {
+      params = paramsAnnotation.value();
+    }
 
     // //
+    // Initialize the domains for every '@In' annotated field.
+    Field[] fields = Utils.getInFieldsFromClassUnderTest(cut);
+
     // Intentionally using concrete class name 'LinkedHashMap' to express
     // this variable needs to have predictable order in listing keys.
     LinkedHashMap<Field, Object[]> domains = new LinkedHashMap<Field, Object[]>();
@@ -259,18 +308,26 @@ public class JCUnit extends Suite {
       }
     }
 
-    List<Object> ret = new ArrayList<Object>();
+    // //
+    // Instantiates the test array generator.
+    TestArrayGenerator<Field, Object> testArrayGenerator = JCUnit
+        .newTestArrayGenerator(generatorClass, params, domains);
 
-    TestArrayGenerator<Field, Object> testArrayGenerator = JCUnit.newTestArrayGenerator(generatorClass, domains);
+    // //
+    // Compose an array to be returned to the caller.
+    List<Object> ret = new ArrayList<Object>();
     for (Map<Field, Object> pattern : testArrayGenerator) {
       ret.add(pattern);
     }
 
+    // //
+    // Print the test array definition.
     reportTestArray(cut, testArrayGenerator);
     return ret;
   }
 
-  private void reportTestArray(Class<?> targetClass, TestArrayGenerator<Field, Object> testArrayGenerator) {
+  private void reportTestArray(Class<?> targetClass,
+      TestArrayGenerator<Field, Object> testArrayGenerator) {
     initClassLevelReport(targetClass);
     writeMatrixHeader(targetClass);
     writeDomains(targetClass, testArrayGenerator);
@@ -289,22 +346,29 @@ public class JCUnit extends Suite {
 
   /* DONE */
   private void writeMatrixHeader(Class<?> targetClass) {
-    writer.writeLine(targetClass, 0, "***********************************************");
-    writer.writeLine(targetClass, 0, "***                                         ***");
-    writer.writeLine(targetClass, 0, "***          T E S T   M A T R I X          ***");
-    writer.writeLine(targetClass, 0, "***                                         ***");
-    writer.writeLine(targetClass, 0, "***********************************************");
+    writer.writeLine(targetClass, 0,
+        "***********************************************");
+    writer.writeLine(targetClass, 0,
+        "***                                         ***");
+    writer.writeLine(targetClass, 0,
+        "***          T E S T   M A T R I X          ***");
+    writer.writeLine(targetClass, 0,
+        "***                                         ***");
+    writer.writeLine(targetClass, 0,
+        "***********************************************");
     writer.writeLine(targetClass, 0, "");
   }
 
   /* DONE */
-  protected static void writeDomains(Class<?> targetClass, TestArrayGenerator<Field, Object> testArrayGenerator) {
+  protected static void writeDomains(Class<?> targetClass,
+      TestArrayGenerator<Field, Object> testArrayGenerator) {
     writer.writeLine(targetClass, 0, "* DOMAINS *");
     char keyCode = 'A';
     for (Field key : testArrayGenerator.getKeys()) {
       // //
       // print out header
-      String domainHeader = String.format("%s:%s(%s)", keyCode, key.getName(), key.getType());
+      String domainHeader = String.format("%s:%s(%s)", keyCode, key.getName(),
+          key.getType());
       writer.writeLine(targetClass, 1, domainHeader);
       Object[] d = testArrayGenerator.getDomain(key);
       for (int i = 0; i < d.length; i++) {
@@ -317,7 +381,8 @@ public class JCUnit extends Suite {
   }
 
   /* DONE */
-  protected static void writeMatrix(Class<?> targetClass, TestArrayGenerator<Field, Object> testArrayGenerator) {
+  protected static void writeMatrix(Class<?> targetClass,
+      TestArrayGenerator<Field, Object> testArrayGenerator) {
     writer.writeLine(targetClass, 0, "* MATRIX *");
     String header = String.format("%22s", "");
     int numKeys = testArrayGenerator.getKeys().size();
@@ -350,7 +415,8 @@ public class JCUnit extends Suite {
   }
 
   @SuppressWarnings("rawtypes")
-  private static Class<? extends TestArrayGenerator> getTestArrayGeneratorClass(Class<? extends Object> cuf) {
+  private static Class<? extends TestArrayGenerator> getTestArrayGeneratorClass(
+      Class<? extends Object> cuf) {
     Generator an = cuf.getAnnotation(Generator.class);
     Class<? extends TestArrayGenerator> ret = an != null ? an.value() : null;
     if (ret != null) {

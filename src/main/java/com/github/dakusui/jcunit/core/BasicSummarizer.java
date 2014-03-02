@@ -80,12 +80,14 @@ public class BasicSummarizer implements TestRule, Summarizer {
     OK, NG, ABT, ERR
   }
 
-  ResultMatrix          matrix = new ResultMatrix();
-  private RuleSet ruleSet;
+  ResultMatrix     matrix = new ResultMatrix();
+  private RuleSet  ruleSet;
 
-  ReportWriter    writer = new ReportWriter();
+  ReportWriter     writer = new ReportWriter();
+  private Class<?> klazz;
 
   public Statement apply(Statement base, Description description) {
+    this.klazz = description.getTestClass();
     return statement(base);
   }
 
@@ -122,7 +124,8 @@ public class BasicSummarizer implements TestRule, Summarizer {
 
   /* done */
   private void writeLine(String s, Object... params) {
-    this.writer.writeLine(klazz(), 0, String.format(s.replaceAll("\\{\\}", "%s"), params));
+    this.writer.writeLine(klazz(), 0,
+        String.format(s.replaceAll("\\{\\}", "%s"), params));
   }
 
   protected void writeAllRules() {
@@ -151,7 +154,8 @@ public class BasicSummarizer implements TestRule, Summarizer {
       writeLine(h);
     String line;
     for (String testName : matrix.testNames()) {
-      line = String.format("[%-3s]%-30s", this.matrix.getResultType(testName), testName);
+      line = String.format("[%-3s]%-30s", this.matrix.getResultType(testName),
+          testName);
       for (int objId = 0; objId < registeredIds; objId++) {
         String f;
         if (this.matrix.isError(testName, objId)) {
@@ -187,7 +191,7 @@ public class BasicSummarizer implements TestRule, Summarizer {
   }
 
   private Class<?> klazz() {
-    return ruleSet.getTargetObject().getClass();
+    return this.klazz;
   }
 
   @Override
