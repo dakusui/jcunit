@@ -360,7 +360,7 @@ public class RuleSet implements TestRule {
     return levelMap.get(obj);
   }
 
-  int levelOf(int objectId) {
+  public int levelOf(int objectId) {
     return levelOf(obj(objectId));
   }
 
