@@ -3,8 +3,6 @@ package com.github.dakusui.jcunit.generators;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.github.dakusui.jcunit.generators.ipo.IPO;
 import com.github.dakusui.jcunit.generators.ipo.TestRun;
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
@@ -23,7 +21,6 @@ public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, 
 			testSpaceDomains[i++] = this.domains.get(cur);
 			indexToKeyMap.put(i, cur); // since i is already incremented, put it as is. 
 		}
-		System.out.println(ArrayUtils.toString(testSpaceDomains));
 		TestSpace space = new TestSpace(testSpaceDomains);
 		IPO ipo = new IPO(space);
 		this.testRunSet = ipo.ipo();
