@@ -11,10 +11,10 @@ import org.junit.Test;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Enumerator;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.IPO.Run;
-import com.github.dakusui.jcunit.generators.ipo.IPO.TestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.IPO.TestSpace;
-import com.github.dakusui.jcunit.generators.ipo.IPO.ValuePair;
+import com.github.dakusui.jcunit.generators.ipo.TestRun;
+import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.ValuePair;
 
 public class IPOTest {
 	@Test
@@ -184,7 +184,7 @@ public class IPOTest {
 		IPO ipo = new IPO(space);
 		TestRunSet testRunSet = ipo.ipo();
 		int i = 1;
-		for (Run r : testRunSet) {
+		for (TestRun r : testRunSet) {
 			System.out.printf("%03d:%s\n", i++, r);
 		}
 		TestCase.assertTrue(examineTestRunSetContains(testRunSet, allPossibleValuePairs(space.domains())));
@@ -194,7 +194,7 @@ public class IPOTest {
 	private boolean examineTestRunSetContains(TestRunSet testRunSet, List<ValuePair> valuePairs) {
 		boolean ret = true;
 		for (ValuePair pair : valuePairs) {
-			List<Run> matchingRuns = IPO.lookUp(IPO.lookUp(testRunSet, pair.A(), pair.r()), pair.B(), pair.s());
+			List<TestRun> matchingRuns = IPO.lookUp(IPO.lookUp(testRunSet, pair.A(), pair.r()), pair.B(), pair.s());
 			System.out.printf("%s: %d hits %s\n", pair, matchingRuns.size(), matchingRuns.size() == 0 ? "ERR!" : "");
 			ret &= matchingRuns.size() > 0;
 		}
@@ -203,7 +203,7 @@ public class IPOTest {
 	
 	private boolean examineAllTestRunsDontViolateParameterDomains(TestRunSet testRunSet, Object[][] domains) {
 		boolean ret = true;
-		for (Run run : testRunSet) {
+		for (TestRun run : testRunSet) {
 			for (int i = 1; i <= run.width(); i++) {
 				boolean validValue = false;
 				ret &= (validValue = ArrayUtils.contains(domains[i - 1], run.get(i)));

@@ -6,9 +6,9 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.IPO.Run;
-import com.github.dakusui.jcunit.generators.ipo.IPO.TestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.IPO.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.TestRun;
+import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 
 public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, U> {
 	private TestRunSet testRunSet;
@@ -34,7 +34,7 @@ public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, 
 	@SuppressWarnings("unchecked")
 	@Override
 	public int getIndex(T key, long cur) {
-		Run run = this.testRunSet.get((int) cur);
+		TestRun run = this.testRunSet.get((int) cur);
 		// IPO classes provide 1-origin methods!
 		for (int i = 1; i <= run.width(); i++) {
 			T k = indexToKeyMap.get(i);
