@@ -1,228 +1,229 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.report.ReportWriter;
-
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+
+import com.github.dakusui.jcunit.report.ReportWriter;
+
 public class BasicSummarizer implements TestRule, Summarizer {
-	private Set<String> errorObjects = new HashSet<String>();
 
-	private static class Matrix {
-		Map<String, Map<Integer, Boolean>> map = new LinkedHashMap<String, Map<Integer, Boolean>>();
-		////
-		// The order where object id's are coming in isn't sort, the client
-		// side needs to sort it again either way. So, I don't use LinkedHashSet
-		// here.
-		Set<Integer> objIds = new HashSet<Integer>();
+  public static class ResultMatrix {
+    private Set<String>                errorObjects = new HashSet<String>();
+    private Map<String, Result>        resultMap    = new HashMap<String, Result>();
+    Map<String, Map<Integer, Boolean>> map          = new LinkedHashMap<String, Map<Integer, Boolean>>();
+    // //
+    // The order where object id's are coming in isn't sort, the client
+    // side needs to sort it again either way. So, I don't use LinkedHashSet
+    // here.
+    Set<Integer>                       objIds       = new HashSet<Integer>();
 
-		public void set(String testName, int objId, boolean result) {
-			add(testName);
-			map.get(testName).put(objId, result);
-			objIds.add(objId);
-		}
+    public void set(String testName, int objId, boolean result) {
+      add(testName);
+      map.get(testName).put(objId, result);
+      objIds.add(objId);
+    }
 
-		public void add(String testName) {
-			if (!map.containsKey(testName)) {
-				map.put(testName, new LinkedHashMap<Integer, Boolean>());
-			}
-		}
+    public void add(String testName) {
+      if (!map.containsKey(testName)) {
+        map.put(testName, new LinkedHashMap<Integer, Boolean>());
+      }
+    }
 
-		public boolean hasEntry(String testName, int objId) {
-			if (map.containsKey(testName))
-				if (map.get(testName).containsKey(objId))
-					return true;
-			return false;
-		}
+    public boolean hasEntry(String testName, int objId) {
+      if (map.containsKey(testName))
+        if (map.get(testName).containsKey(objId))
+          return true;
+      return false;
+    }
 
-		public boolean get(String testName, int objId) {
-			if (!map.containsKey(testName))
-				throw new RuntimeException();
-			if (!map.get(testName).containsKey(objId))
-				throw new RuntimeException();
-			return map.get(testName).get(objId);
-		}
+    public boolean get(String testName, int objId) {
+      if (!map.containsKey(testName))
+        throw new RuntimeException();
+      if (!map.get(testName).containsKey(objId))
+        throw new RuntimeException();
+      return map.get(testName).get(objId);
+    }
 
-		public Set<String> testNames() {
-			return map.keySet();
-		}
+    public Set<String> testNames() {
+      return map.keySet();
+    }
 
-		public int count(int objId, boolean b) {
-			int ret = 0;
-			for (String testName : testNames()) {
-				if (hasEntry(testName, objId) && (get(testName, objId) == b)) {
-					ret++;
-				}
-			}
-			return ret;
-		}
-	}
+    public Result getResultType(String testName) {
+      if (!this.resultMap.containsKey(testName))
+        return Result.ERR;
+      return this.resultMap.get(testName);
+    }
 
-	static enum Result {
-		OK,
-		NG,
-		ABT,
-		ERR
-	}
+    public int count(int objId, boolean b) {
+      int ret = 0;
+      for (String testName : testNames()) {
+        if (hasEntry(testName, objId) && (get(testName, objId) == b)) {
+          ret++;
+        }
+      }
+      return ret;
+    }
 
-	Matrix matrix = new Matrix();
-	private RuleSet ruleSet;
-	private Map<String, Result> resultMap = new HashMap<String, Result>();
+    public boolean isError(String testName, int objId) {
+      return this.errorObjects.contains(testName + ":" + objId);
+    }
+  }
 
-	ReportWriter writer = new ReportWriter();
+  static enum Result {
+    OK, NG, ABT, ERR
+  }
 
-	public Statement apply(Statement base, Description description) {
-		return statement(base);
-	}
+  ResultMatrix     matrix = new ResultMatrix();
+  private RuleSet  ruleSet;
 
-	private Statement statement(final Statement base) {
-		return new Statement() {
+  ReportWriter     writer = new ReportWriter();
+  private Class<?> klazz;
 
-			@Override
-			public void evaluate() throws Throwable {
-				base.evaluate();
-				writeClassLevelHeader();
-				writeClassName();
-				writeResultMatrix();
-				writeAllRules();
-			}
-		};
-	}
+  public Statement apply(Statement base, Description description) {
+    this.klazz = description.getTestClass();
+    return statement(base);
+  }
 
-	protected Result getResultType(String testName) {
-		if (!resultMap.containsKey(testName))
-			return Result.ERR;
-		return resultMap.get(testName);
-	}
+  private Statement statement(final Statement base) {
+    return new Statement() {
 
-	/* done */
-	protected void writeClassLevelHeader() {
-		writeLine("***********************************************");
-		writeLine("***                                         ***");
-		writeLine("***          T E S T S U M M A R Y          ***");
-		writeLine("***                                         ***");
-		writeLine("***********************************************");
-		writeLine("");
-	}
+      @Override
+      public void evaluate() throws Throwable {
+        base.evaluate();
+        writeClassLevelHeader();
+        writeClassName();
+        writeResultMatrix();
+        writeAllRules();
+      }
+    };
+  }
 
-	/* done */
-	protected void writeClassName() {
-		writeLine("* TEST CLASS *");
-		writeLine("  '{}'", klazz());
-		writeLine("");
-	}
+  /* done */
+  protected void writeClassLevelHeader() {
+    writeLine("***********************************************");
+    writeLine("***                                         ***");
+    writeLine("***          T E S T S U M M A R Y          ***");
+    writeLine("***                                         ***");
+    writeLine("***********************************************");
+    writeLine("");
+  }
 
-	/* done */
-	private void writeLine(String s, Object... params) {
-		this.writer.writeLine(klazz(), 0, String.format(s.replaceAll("\\{\\}", "%s"), params));
-	}
+  /* done */
+  protected void writeClassName() {
+    writeLine("* TEST CLASS *");
+    writeLine("  '{}'", klazz());
+    writeLine("");
+  }
 
-	protected void writeAllRules() {
-		writeLine("* ALL TEST RULES *");
-		writeLine("  #   T/  F   PREDICATE");
-		ruleSet.printOutClassLevelResult(klazz());
-		writeLine("");
-	}
+  /* done */
+  private void writeLine(String s, Object... params) {
+    this.writer.writeLine(klazz(), 0,
+        String.format(s.replaceAll("\\{\\}", "%s"), params));
+  }
 
-	protected void writeResultMatrix() {
-		writeLine("* TEST RESULT MATRIX *");
-		int registeredIds = ruleSet.registeredIds();
-		String[] headers = new String[ruleSet.maxLevel() + 1];
-		for (int i = 0; i < headers.length; i++) {
-			headers[i] = String.format("     %-30s", "LEVEL " + i + " PREDICATE");
-		}
-		for (int j = 0; j < registeredIds; j++) {
-			for (int i = 0; i < headers.length; i++) {
-				if (i == ruleSet.levelOf(j))
-					headers[i] += String.format("%02d ", j);
-				else
-					headers[i] += "   ";
-			}
-		}
-		for (String h : headers)
-			writeLine(h);
-		String line;
-		for (String testName : matrix.testNames()) {
-			line = String.format("[%-3s]%-30s", getResultType(testName), testName);
-			for (int objId = 0; objId < registeredIds; objId++) {
-				String f;
-				if (isError(testName, objId)) {
-					f = "E";
-				} else {
-					if (matrix.hasEntry(testName, objId)) {
-						f = matrix.get(testName, objId) ? "T" : "F";
-					} else {
-						f = "-";
-					}
-				}
-				if (ruleSet.isLeaf(objId) && !"-".equals(f) && !"T".equals(f)) {
-					line += String.format("<%s>", f);
-				} else {
-					line += String.format(" %s ", f);
-				}
-			}
-			writeLine(line);
-		}
-		writeLine("");
-	}
+  protected void writeAllRules() {
+    writeLine("* ALL TEST RULES *");
+    writeLine("  #   T/  F   PREDICATE");
+    ruleSet.printOutClassLevelResult(klazz());
+    writeLine("");
+  }
 
-	public void failed(String testName, int objId) {
-		matrix.set(testName, objId, false);
-	}
+  protected void writeResultMatrix() {
+    writeLine("* TEST RESULT MATRIX *");
+    int registeredIds = ruleSet.registeredIds();
+    String[] headers = new String[ruleSet.maxLevel() + 1];
+    for (int i = 0; i < headers.length; i++) {
+      headers[i] = String.format("     %-30s", "LEVEL " + i + " PREDICATE");
+    }
+    for (int j = 0; j < registeredIds; j++) {
+      for (int i = 0; i < headers.length; i++) {
+        if (i == ruleSet.levelOf(j))
+          headers[i] += String.format("%02d ", j);
+        else
+          headers[i] += "   ";
+      }
+    }
+    for (String h : headers)
+      writeLine(h);
+    String line;
+    for (String testName : matrix.testNames()) {
+      line = String.format("[%-3s]%-30s", this.matrix.getResultType(testName),
+          testName);
+      for (int objId = 0; objId < registeredIds; objId++) {
+        String f;
+        if (this.matrix.isError(testName, objId)) {
+          f = "E";
+        } else {
+          if (matrix.hasEntry(testName, objId)) {
+            f = matrix.get(testName, objId) ? "T" : "F";
+          } else {
+            f = "-";
+          }
+        }
+        if (ruleSet.isLeaf(objId) && !"-".equals(f) && !"T".equals(f)) {
+          line += String.format("<%s>", f);
+        } else {
+          line += String.format(" %s ", f);
+        }
+      }
+      writeLine(line);
+    }
+    writeLine("");
+  }
 
-	public void passed(String testName, int objId) {
-		matrix.set(testName, objId, true);
-	}
+  public void failed(String testName, int objId) {
+    matrix.set(testName, objId, false);
+  }
 
-	public void setRuleSet(RuleSet ruleSet) {
-		this.ruleSet = ruleSet;
-	}
+  public void passed(String testName, int objId) {
+    matrix.set(testName, objId, true);
+  }
 
-	private Class<?> klazz() {
-		return ruleSet.getTargetObject().getClass();
-	}
+  public void setRuleSet(RuleSet ruleSet) {
+    this.ruleSet = ruleSet;
+  }
 
-	@Override
-	public int passes(int objId) {
-		return this.matrix.count(objId, true);
-	}
+  private Class<?> klazz() {
+    return this.klazz;
+  }
 
-	@Override
-	public int fails(int objId) {
-		return this.matrix.count(objId, false);
-	}
+  @Override
+  public int passes(int objId) {
+    return this.matrix.count(objId, true);
+  }
 
-	@Override
-	public void error(String methodName) {
-		this.matrix.add(methodName);
-		this.resultMap.put(methodName, Result.ABT);
-	}
+  @Override
+  public int fails(int objId) {
+    return this.matrix.count(objId, false);
+  }
 
-	@Override
-	public void ok(String methodName) {
-		this.matrix.add(methodName);
-		this.resultMap.put(methodName, Result.OK);
-	}
+  @Override
+  public void error(String methodName) {
+    this.matrix.add(methodName);
+    this.matrix.resultMap.put(methodName, Result.ABT);
+  }
 
-	@Override
-	public void ng(String methodName) {
-		this.matrix.add(methodName);
-		this.resultMap.put(methodName, Result.NG);
-	}
+  @Override
+  public void ok(String methodName) {
+    this.matrix.add(methodName);
+    this.matrix.resultMap.put(methodName, Result.OK);
+  }
 
-	@Override
-	public void error(String testName, int objId) {
-		this.errorObjects.add(testName + ":" + objId);
-	}
+  @Override
+  public void ng(String methodName) {
+    this.matrix.add(methodName);
+    this.matrix.resultMap.put(methodName, Result.NG);
+  }
 
-	private boolean isError(String testName, int objId) {
-		return this.errorObjects.contains(testName + ":" + objId);
-	}
+  @Override
+  public void error(String testName, int objId) {
+    this.matrix.errorObjects.add(testName + ":" + objId);
+  }
 }

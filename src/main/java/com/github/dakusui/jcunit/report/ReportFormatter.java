@@ -1,41 +1,49 @@
 package com.github.dakusui.jcunit.report;
 
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
-import com.github.dakusui.jcunit.report.Reporter.Domain;
+import java.lang.reflect.Field;
 
 import org.junit.runner.Description;
 
-import java.lang.reflect.Field;
-import java.util.Map;
+import com.github.dakusui.jcunit.core.BasicSummarizer.ResultMatrix;
+import com.github.dakusui.jcunit.core.RuleSet;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.report.Reporter.Domain;
+import com.github.dakusui.jcunit.report.Reporter.FieldSet;
 
 public interface ReportFormatter {
-	public void beginTestClassHeader(ReportWriter writer, Class<?> klazz);
+  public void beginTestCase(ReportWriter writer, Description desc);
 
-	public void endTestClassHeader(ReportWriter writer, Class<?> klazz);
+  public void endTestCase(ReportWriter writer, Description desc);
 
-	public void beginDomainsSection(ReportWriter writer, Class<?> klazz);
+  public void beginTestClassHeader(ReportWriter writer, Class<?> klazz);
 
-	public void endDomainsSection(ReportWriter writer, Class<?> klazz);
+  public void endTestClassHeader(ReportWriter writer, Class<?> klazz);
 
-	public void beginTestClassFooter(ReportWriter writer, Class<?> klazz);
+  public void beginDomainsSection(ReportWriter writer, Class<?> klazz);
 
-	public void endTestClassFooter(ReportWriter writer, Class<?> klazz);
+  public void endDomainsSection(ReportWriter writer, Class<?> klazz);
 
-	public void beginConditionMatrixSection(ReportWriter writer, Class<?> klazz);
+  public void beginTestClassFooter(ReportWriter writer, Class<?> klazz);
 
-	public void endConditionMatrixSection(ReportWriter writer, Class<?> klazz);
+  public void endTestClassFooter(ReportWriter writer, Class<?> klazz);
 
-	public void formatValues(ReportWriter writer, String category, Description desc, Map<Field, Object> values);
+  public void beginConditionMatrixSection(ReportWriter writer, Class<?> klazz);
 
-	public void formatRules(ReportWriter writer);
+  public void endConditionMatrixSection(ReportWriter writer, Class<?> klazz);
 
-	public void formatResult(ReportWriter writer);
+  public void formatValues(ReportWriter writer, Description desc, FieldSet fields);
 
-	public void formatResultMatrix(ReportWriter writer, Class<?> klazz);
+  public void formatRuleSet(ReportWriter writer, Description desc, RuleSet ruleSet);
 
-	public void formatRulesResult(ReportWriter writer, Class<?> klazz);
+  public void formatResult(ReportWriter writer, Description desc, boolean ok);
 
-	public void formatDomain(ReportWriter writer, Class<?> testClass, Domain domain);
+  public void formatResultMatrix(ReportWriter writer, Class<?> klazz, RuleSet ruleSet, ResultMatrix matrix);
 
-	public void formatConditionMatrix(ReportWriter writer, Class<?> testClass, TestArrayGenerator<Field, Object> testArrayGenerator);
+  public void formatRulesResult(ReportWriter writer, Class<?> klazz);
+
+  public void formatDomain(ReportWriter writer, Class<?> testClass, Domain domain);
+
+  public void formatConditionMatrix(ReportWriter writer, Class<?> testClass,
+      TestArrayGenerator<Field, Object> testArrayGenerator);
+
 }
