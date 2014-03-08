@@ -8,13 +8,40 @@ import com.github.dakusui.jcunit.generators.ipo.TestRun;
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 
+/**
+ * This class doesn't guarantee that the generated covering array is the smallest one.
+ * 
+ * @see BaseTestArrayGenerator
+ * @see TestArrayGenerator
+ * 
+ * @author hiroshi
+ *
+ * @param <T> Type of keys
+ * @param <U> Type of values
+ */
 public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, U> {
+	/**
+	 * A set of test runs.
+	 */
 	private TestRunSet testRunSet;
+	
+	/**
+	 * A map which associates IPO's indices (1-origin) to keys.
+	 */
 	private Map<Integer, T> indexToKeyMap = new HashMap<Integer, T>();
 	
 	@Override
 	public void init(Map<T, U[]> domains) {
 		super.init(domains);
+		this.testRunSet = this.composeTestRunSet(indexToKeyMap);
+		this.size = this.testRunSet.size();
+		this.cur = 0;
+	}
+
+	/**
+	 * Composes and returns test run set.
+	 */
+	protected TestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
 		Object[][] testSpaceDomains = new Object[this.domains.size()][];
 		int i = 0;
 		for (T cur: this.domains.keySet()) {
@@ -23,9 +50,7 @@ public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, 
 		}
 		TestSpace space = new TestSpace(testSpaceDomains);
 		IPO ipo = new IPO(space);
-		this.testRunSet = ipo.ipo();
-		this.size = this.testRunSet.size();
-		this.cur = 0;
+		return ipo.ipo();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -15,22 +15,22 @@ import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
-import com.github.dakusui.jcunit.generators.PairwiseTestArrayGenerator;
+import com.github.dakusui.jcunit.generators.BestPairwiseTestArrayGenerator;
 import com.github.dakusui.petronia.examples.Calc.Op;
 
 /**
  * Since <code>Calc</code> has some intentional bugs, this test class will produce the
  * results below with this version of JCUnit.
  * <pre>
- * - Failures  :   3 (Overflow isn't reported/rounding errors)
+ * - Failures  :   6 (Overflow isn't reported/rounding errors)
  * - Errors    :   1 (Division by zero)  
- * - Total runs:  73
+ * - Total runs:  71
  * </pre>
  * @author hiroshi
  */
 @RunWith(JCUnit.class)
-@Generator(PairwiseTestArrayGenerator.class)
-public class CalcTest3 extends DefaultRuleSetBuilder {
+@Generator(BestPairwiseTestArrayGenerator.class)
+public class CalcTest3_2 extends DefaultRuleSetBuilder {
 	@Rule
 	@In(domain=Domain.None)
 	public TestName name = new TestName();

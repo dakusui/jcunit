@@ -27,6 +27,11 @@ public class TestSpace {
 		this.domains = domains;
 	}
 	
+	/**
+	 * Retruns a number of domains handled by this object.
+	 * 
+	 * @return A number of domains.
+	 */
 	int numDomains() {
 		return domains.length;
 	}

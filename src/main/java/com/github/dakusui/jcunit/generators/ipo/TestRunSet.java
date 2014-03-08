@@ -40,7 +40,7 @@ public class TestRunSet extends ArrayList<TestRun> {
 	}
 	
 	/**
-	 * Returns an array of parameter ID's by which you can get call as 
+	 * Returns an array of parameter IDs by which you can get call as 
 	 * <code>F</code> in <code>valueOf(int F, int i)</code>.
 	 *  
 	 * @return An array of parameter ID's.
