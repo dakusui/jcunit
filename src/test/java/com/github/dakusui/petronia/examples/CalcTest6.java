@@ -21,38 +21,34 @@ import com.github.dakusui.petronia.examples.Calc.Op;
 
 @RunWith(JCUnit.class)
 @Generator(CustomTestArrayGenerator.class)
-@GeneratorParameters({
-    @Value(type = Type.IntArray, intArrayValue = { 0, 1, 2 }),
-    @Value(type = Type.IntArray, intArrayValue = { 1, 2, 3 }) })
+@GeneratorParameters({ @Value(
+    type = Type.IntArray, intArrayValue = { 0, 1, 2 }), @Value(
+    type = Type.IntArray, intArrayValue = { 1, 2, 3 }) })
 public class CalcTest6 extends DefaultRuleSetBuilder {
   @In
-  public int               a;
+  public int a;
   @In
-  public int               b;
+  public int b;
   @In
-  public Op                op;
+  public Op op;
   @Out
-  public int               r;
+  public int r;
   @Out
-  public Throwable         t;
+  public Throwable t;
 
   @ClassRule
   public static Summarizer summarizer = new BasicSummarizer();
 
   @Rule
-  public RuleSet           rules2     = ruleSet()
-                                          .incase(
-                                              any(),
-                                              progn(print("*** H E L L O ***"),
-                                                  true)).otherwise(true)
-                                          .summarizer(summarizer);
+  public RuleSet rules2 = ruleSet()
+      .incase(any(), progn(print("*** H E L L O ***"), true)).otherwise(true)
+      .summarizer(summarizer);
 
   @Test
   public void test() {
     try {
       Calc calc = new Calc();
       r = calc.calc(op, a, b);
-      // LOGGER.info("result:" + (r) + " = " + a + " " + op.str() + " " + b);
     } catch (RuntimeException e) {
       t = e;
     }

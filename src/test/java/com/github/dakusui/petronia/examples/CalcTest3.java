@@ -22,9 +22,9 @@ import com.github.dakusui.petronia.examples.Calc.Op;
  * Since <code>Calc</code> has some intentional bugs, this test class will produce the
  * results below with this version of JCUnit.
  * <pre>
- * - Failures  :  10 (Overflow isn't reported/rounding errors)
+ * - Failures  :   3 (Overflow isn't reported/rounding errors)
  * - Errors    :   1 (Division by zero)  
- * - Total runs: 119
+ * - Total runs:  73
  * </pre>
  * @author hiroshi
  */
