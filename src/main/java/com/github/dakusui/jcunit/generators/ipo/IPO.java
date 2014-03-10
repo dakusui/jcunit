@@ -160,11 +160,11 @@ public class IPO {
     //
     // What is AP?
     // int k_1 = R.width(); // k_1 denotes 'k-1'.
-    int k_1 = R.width();
     Set<ValuePair> AP = new LinkedHashSet<ValuePair>();
-    for (int i = 1; i <= k_1; i++) {
+    {
+      int k_1 = R.width();
       int k = k_1 + 1;
-      if (i != k) {
+      for (int i = 1; i <= k_1; i++) {
         for (Object r : space.domainOf(i)) {
           for (Object s : space.domainOf(k)) {
             ValuePair pair = new ValuePair(i, r, k, s);

@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,34 +50,36 @@ public class IPOTest {
 
   @Test
   public void test3_3() {
-    System.out.println(new IPO(createTestSpace(task(3, 3))).ipo().size());
+    assertEquals(9, new IPO(createTestSpace(task(3, 3))).ipo().size());
   }
 
   @Test
   public void test3_13() {
-    System.out.println(new IPO(createTestSpace(task(3, 13))).ipo().size());
+    assertEquals(27, new IPO(createTestSpace(task(3, 13))).ipo().size());
   }
 
   @Test
   public void test4_15$3_17$2_20() {
-    System.out.println(new IPO(createTestSpace(task(4, 15), task(3, 17),
-        task(2, 20))).ipo().size());
+    assertEquals(73,
+        new IPO(createTestSpace(task(4, 15), task(3, 17), task(2, 20))).ipo()
+            .size());
   }
 
   @Test
   public void test4_1$3_20$2_35() {
-    System.out.println(new IPO(createTestSpace(task(4, 15), task(3, 17),
-        task(2, 20))).ipo().size());
+    assertEquals(73,
+        new IPO(createTestSpace(task(4, 15), task(3, 17), task(2, 20))).ipo()
+            .size());
   }
 
   @Test
   public void test2_100() {
-    System.out.println(new IPO(createTestSpace(task(2, 100))).ipo().size());
+    assertEquals(22, new IPO(createTestSpace(task(2, 100))).ipo().size());
   }
 
   @Test
   public void test10_20() {
-    System.out.println(new IPO(createTestSpace(task(10, 20))).ipo().size());
+    assertEquals(286, new IPO(createTestSpace(task(10, 20))).ipo().size());
   }
 
 }
