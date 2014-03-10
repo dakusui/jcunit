@@ -30,8 +30,8 @@ public class TestArrayGeneratorsTest {
     for (Failure f : result.getFailures()) {
       System.out.println(f);
     }
-    assertEquals(73, result.getRunCount());
-    assertEquals(1 + 3, result.getFailureCount());
+    assertEquals(49, result.getRunCount());
+    assertEquals(3 + 6, result.getFailureCount());
   }
 
   @Test
@@ -40,8 +40,8 @@ public class TestArrayGeneratorsTest {
     for (Failure f : result.getFailures()) {
       System.out.println(f);
     }
-    assertEquals(71, result.getRunCount());
-    assertEquals(1 + 6, result.getFailureCount());
+    assertEquals(49, result.getRunCount());
+    assertEquals(3 + 6, result.getFailureCount());
   }
 
   @Test

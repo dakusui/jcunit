@@ -8,11 +8,11 @@ package com.github.dakusui.jcunit.generators.ipo;
  * @author hiroshi
  */
 public class ValuePair {
-	int    A;
+	int A;
 	Object r;
-	int    B;
+	int B;
 	Object s;
-	
+
 	/**
 	 * Creates an object of this class.
 	 * 
@@ -22,7 +22,8 @@ public class ValuePair {
 	 * @param s
 	 */
 	public ValuePair(int A, Object r, int B, Object s) {
-		if (A == B) throw new IllegalArgumentException();
+		if (A == B)
+			throw new IllegalArgumentException();
 		if (A < B) {
 			this.A = A;
 			this.r = r;
@@ -35,21 +36,21 @@ public class ValuePair {
 			this.s = r;
 		}
 	}
-	
+
 	/**
 	 * Returns the hashCode of this object.
 	 */
 	public int hashCode() {
 		return this.A + ((this.r == null) ? 0 : this.r.hashCode())
-			+   this.B + ((this.s == null) ? 0 : this.s.hashCode());
+				+ this.B + ((this.s == null) ? 0 : this.s.hashCode());
 	}
-	
+
 	/**
 	 * Checks if the given object is <code>equals</code> to this object.
 	 * Note that since the intention of IPO algorithm is to generate all the
 	 * possible pairs in the test space, the order of A.r and B.s must be
 	 * ignored. That is if we swap the values of <code>A</code> and </code>B</code>,
-	 * and also <code>r</code> and <code>s</code>, it should still remain 
+	 * and also <code>r</code> and <code>s</code>, it should still remain
 	 * equal to the original object.
 	 * 
 	 * @return true - anotherObject is equal to this object / false - otherwise.
@@ -62,25 +63,31 @@ public class ValuePair {
 			return false;
 		}
 		ValuePair another = (ValuePair) anotherObject;
-		if (this.A != another.A) return false;
-		if (this.B != another.B) return false;
+		if (this.A != another.A)
+			return false;
+		if (this.B != another.B)
+			return false;
 		if (this.r == null) {
-			if (another.r != null) 	return false;
+			if (another.r != null)
+				return false;
 		} else {
-			if (!this.r.equals(another.r)) return false;
+			if (!this.r.equals(another.r))
+				return false;
 		}
 		if (this.s == null) {
-			if (another.s != null) return false;
+			if (another.s != null)
+				return false;
 		} else {
-			if (!this.s.equals(another.s)) return false;
+			if (!this.s.equals(another.s))
+				return false;
 		}
 		return true;
 	}
-	
+
 	public Object r() {
 		return this.r;
 	}
-	
+
 	public Object s() {
 		return this.s;
 	}
@@ -92,7 +99,7 @@ public class ValuePair {
 	public int B() {
 		return this.B;
 	}
-	
+
 	public String toString() {
 		return String.format("(F%d=%s,F%d=%s)", A, r, B, s);
 	}

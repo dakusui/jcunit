@@ -6,68 +6,80 @@ package com.github.dakusui.jcunit.generators.ipo;
  * @author hiroshi
  */
 public class TestRun implements Cloneable {
-	/**
-	 * A field which represents values of parameters.
-	 */
-	Object[] v;
+  /**
+   * A field which represents values of parameters.
+   */
+  Object[] v;
 
-	/**
-	 * Creates an object of this class.
-	 * @param width the width of the object.
-	 */
-	public TestRun(int width) {
-		this.v = new Object[width];
-	}
+  /**
+   * Creates an object of this class.
+   * 
+   * @param width
+   *          the width of the object.
+   */
+  public TestRun(int width) {
+    this.v = new Object[width];
+  }
 
-	/**
-	 * Sets a value <code>v</code> to the parameter F<code>i</code>.
-	 * @param i ID of parameter.
-	 * @param v The value to set.
-	 */
-	public void set(int i, Object v) {
-		if (i == 0) throw new IllegalArgumentException();
-		this.v[i - 1] = v;
-	}
-	
-	/**
-	 * Returns a value of the parameter F<code>i</code>.
-	 * @param i ID of the parameter.
-	 * @return The value of parameter F<code>i</code> in this test run.
-	 */
-	public Object get(int i) {
-		if (i ==0) throw new IllegalArgumentException();
-		return this.v[i - 1];
-	}
-	
-	/**
-	 * Returns the number of parameters in this test run.
-	 * @return Number of parameters.
-	 */
-	public int width() {
-		return this.v.length;
-	}
-	
-	/**
-	 * Returns a new <code>Run</code> object whose length is incremented
-	 * from this object. The values are copied to the new object.
-	 * @return A new <code>Run</code> object.
-	 */
-	public TestRun grow() {
-		TestRun ret = new TestRun(this.width() + 1);
-		System.arraycopy(this.v, 0, ret.v, 0, this.v.length);
-		return ret;
-	}
-	
-	/**
-	 * Returns a <code>String</code> representation of this object.
-	 */
-	public String toString() {
-		String ret = "";
-		String sep = "";
-		for (Object obj : this.v) {
-			ret += sep + obj;
-			sep = ",";
-		}
-		return ret;
-	}
+  /**
+   * Sets a value <code>v</code> to the parameter F<code>i</code>.
+   * 
+   * @param i
+   *          ID of parameter.
+   * @param v
+   *          The value to set.
+   */
+  public void set(int i, Object v) {
+    if (i == 0)
+      throw new IllegalArgumentException();
+    this.v[i - 1] = v;
+  }
+
+  /**
+   * Returns a value of the parameter F<code>i</code>.
+   * 
+   * @param i
+   *          ID of the parameter.
+   * @return The value of parameter F<code>i</code> in this test run.
+   */
+  public Object get(int i) {
+    if (i == 0)
+      throw new IllegalArgumentException();
+    return this.v[i - 1];
+  }
+
+  /**
+   * Returns the number of parameters in this test run.
+   * 
+   * @return Number of parameters.
+   */
+  public int width() {
+    return this.v.length;
+  }
+
+  /**
+   * Returns a new <code>Run</code> object whose length is incremented from this
+   * object. The values are copied to the new object.
+   * 
+   * @return A new <code>Run</code> object.
+   */
+  public TestRun grow() {
+    TestRun ret = new TestRun(this.width() + 1);
+    System.arraycopy(this.v, 0, ret.v, 0, this.v.length);
+    return ret;
+  }
+
+  /**
+   * Returns a <code>String</code> representation of this object.
+   */
+  @Override
+  public String toString() {
+    String ret = "";
+    String sep = "";
+    for (Object obj : this.v) {
+      ret += sep + obj;
+      sep = ",";
+    }
+    return ret;
+  }
 }
