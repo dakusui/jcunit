@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.ut.ipo;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,6 +36,18 @@ public class IPOTest {
   }
 
   private static TestSpace createTestSpace(Task... tasks) {
+    List<Object[]> work = composeTestDomain(tasks);
+    return new TestSpace(work.toArray(new Object[][] {}));
+  }
+
+  private static TestSpace createRandomizedTestSpace(Task... tasks) {
+    List<Object[]> work = composeTestDomain(tasks);
+    Collections.shuffle(work);
+    TestSpace ret = new TestSpace(work.toArray(new Object[][] {}));
+    return ret;
+  }
+
+  private static List<Object[]> composeTestDomain(Task... tasks) {
     List<Object[]> work = new LinkedList<Object[]>();
     for (Task task : tasks) {
       for (int i = 0; i < task.numFactors; i++) {
@@ -45,7 +58,7 @@ public class IPOTest {
         work.add(tmp);
       }
     }
-    return new TestSpace(work.toArray(new Object[][] {}));
+    return work;
   }
 
   @Test
@@ -67,8 +80,8 @@ public class IPOTest {
 
   @Test
   public void test4_1$3_20$2_35() {
-    assertEquals(73,
-        new IPO(createTestSpace(task(4, 15), task(3, 17), task(2, 20))).ipo()
+    assertEquals(74,
+        new IPO(createTestSpace(task(4, 15), task(3, 17), task(2, 35))).ipo()
             .size());
   }
 
@@ -82,4 +95,18 @@ public class IPOTest {
     assertEquals(286, new IPO(createTestSpace(task(10, 20))).ipo().size());
   }
 
+  @Test
+  public void test10_20_random() {
+    System.out.println("----");
+    int min = Integer.MAX_VALUE;
+    for (int i = 0; i < 100; i++) {
+      int cur = new IPO(createRandomizedTestSpace(task(4, 15), task(3, 17),
+          task(2, 35))).ipo().size();
+      if (cur < min)
+        min = cur;
+      System.out.println(cur);
+    }
+    System.out.println("---");
+    System.out.println(min);
+  }
 }
