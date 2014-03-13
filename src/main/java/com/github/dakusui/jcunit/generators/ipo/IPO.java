@@ -9,6 +9,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.dakusui.jcunit.generators.ipo.TestRunSet.Info;
+import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
+
 /**
  * This class provides an implementation of the algorithm described in the book
  * "Foundations of Software Testing: Fundamental Algorithms and Techniques".
@@ -25,7 +28,12 @@ public class IPO {
   /**
    * The 'Don't care value', used in 'vg'(vertical growth) procedure.
    */
-  static final Object DC = new Object();
+  static final Object DC = new Object() {
+    @Override
+    public String toString() {
+      return "D/C";
+    }
+  };
 
   /**
    * The test space.
@@ -49,6 +57,9 @@ public class IPO {
    * pairs of values are covers at least once.
    */
   public TestRunSet ipo() {
+    // ///
+    TestRunSet.Info info = new TestRunSet.Info();
+
     TestRunSet CA;
     int n = this.space.numDomains();
     assert n >= 2;
@@ -57,7 +68,10 @@ public class IPO {
     // Step 1. [Initialize] Generate all pairs for parameters F1 and F2.
     // Set T = {(r,s) | for all r <E> D(f1) and s <E> D(F2)}.
     // # <E> means 'exists in'.
-    TestRunSet T = new TestRunSet(2);
+    LOGGER.debug("Creating triples");
+    Set<ValueTriple> createdTriples = space.createAllTriples();
+    LOGGER.debug("Triples created:{}", createdTriples.size());
+    TestRunSet T = new TestRunSet(2, createdTriples);
     int Fi = 1;
     for (Object vi : this.space.domainOf(1)) {
       int Fj = 2;
@@ -74,9 +88,9 @@ public class IPO {
     // the algorithm, else continue;
     if (n == 2) {
       CA = T;
+      CA.setInfo(info);
       return CA;
     }
-    ;
 
     // //
     // Step 3. [Add remaining parameters] Repeat the following steps for
@@ -90,7 +104,7 @@ public class IPO {
 
     for (int k = 3; k <= n; k++) {
       int Fk = k;
-      T = hg(T, Fk);
+      T = hg(info, T, Fk);
 
       // 3.2 [Uncovered pairs] Compute the set U of all uncovered pairs
       // formed by pairing parameters Fi, 1 <= i <= k-1 and parameter
@@ -104,12 +118,13 @@ public class IPO {
       // in the function 'vg'.
       if (U.isEmpty())
         continue;
-      T = vg(T, U);
+      T = vg(info, T, U);
     }
 
     // //
     // Return the composed test set.
     CA = T;
+    CA.setInfo(info);
     return CA;
   }
 
@@ -141,7 +156,7 @@ public class IPO {
    * obtained by extending the runs in T that cover the maximum number of pairs
    * between parameter Fi,
    */
-  private TestRunSet hg(TestRunSet R, int F) {
+  private TestRunSet hg(Info info, TestRunSet R, int F) {
     int m = R.size();
     assert m >= 1;
     /*
@@ -178,7 +193,8 @@ public class IPO {
     // Let T' = <0>. T' denotes the set of runs obtained by extending the runs
     // in T in the following steps:
     // # <0> is an empty set.
-    TestRunSet ret /* T' in the book */= new TestRunSet(R.width() + 1);
+    TestRunSet ret /* T' in the book */= new TestRunSet(R.width() + 1,
+        R.uncoveredTriples);
 
     // Step 3.
     // Let C = min(q, m). Here, C is the number of elements in the set T or
@@ -232,6 +248,7 @@ public class IPO {
       // 6.1 Let AP′ = <0>
       Set<ValuePair> AP$ = new HashSet<ValuePair>();
       Object v$ = space.value(F, 1);
+      boolean fallback = true;
       for (int k = 1; k <= space.domainOf(F).length; k++) {
         // and v' = l1.
         // 6.2 In this step, we find a value of F by which to extend run
@@ -258,10 +275,17 @@ public class IPO {
         if (AP$$.size() >= AP$.size()) {
           AP$ = AP$$;
           v$ = v;
+          if (AP$$.size() > AP$.size()) {
+            // If |AP''| > |AP'|, it means fallback value is explicitly
+            // overridden.
+            fallback = false;
+          }
         }
       }
 
       // 6.3 Let = extend(tj, v′). T′ = T′ ∪ .
+      if (fallback)
+        info.numHorizontalFallbacks++;
       tj.set(F, v$);
       ret.add(tj);
 
@@ -309,7 +333,7 @@ public class IPO {
   // selected value of the corresponding parameter. Instead, one
   // could also select a value that maximizes the number of
   // higher-oder tuples such as triples.
-  private TestRunSet replaceDontCareValues(TestRunSet testRunSet) {
+  private TestRunSet replaceDontCareValues(Info info, TestRunSet testRunSet) {
     for (TestRun run : testRunSet) {
       for (int i = 1; i <= run.width(); i++) {
         if (run.get(i) == DC) {
@@ -321,7 +345,26 @@ public class IPO {
           // Task: Mar/07/2014
           // Consider setting other values than the default value, which
           // means coming up an algorithm that gives an index other than '1'.
-          run.set(i, this.space.value(i, 1));
+          // run.set(i, this.space.value(i, 1));
+
+          int coverings = -1;
+          Object v = DC;
+          for (int j = 1; j <= this.space.domainOf(i).length; j++) {
+            run.set(i, this.space.value(i, j));
+            int tmpCoverings = testRunSet.countTriplesNewlyCoveredBy(run);
+            if (tmpCoverings > coverings) {
+              v = this.space.value(i, j);
+            }
+          }
+          if (v == DC) {
+            // If the best value can't be chosen, the first one will be picked
+            // up.
+            run.set(i, this.space.value(i, 1));
+          } else {
+            run.set(i, v);
+          }
+
+          info.numVerticalFallbacks++;
         }
       }
     }
@@ -337,7 +380,7 @@ public class IPO {
    * combining values of parameter Fi, 1 <= i <= (k - 1) with parameter Fk are
    * covered.
    */
-  private TestRunSet vg(TestRunSet T, Set<ValuePair> MP) {
+  private TestRunSet vg(Info info, TestRunSet T, Set<ValuePair> MP) {
     /*
      * D(F) = {l1, l2,..., Lq}, q >= 1 t1, t2,..., tm denote the m >= 1 runs in
      * T. (Ai.r, Bj.s) denotes a pair of values r and s that correspond to
@@ -347,7 +390,7 @@ public class IPO {
      */
 
     // Step 1. Let T' = <0>
-    TestRunSet T$ = new TestRunSet(T.width());
+    TestRunSet T$ = new TestRunSet(T.width(), T.uncoveredTriples);
 
     // Step 2. Add new tests to cover the uncovered pairs.
     // For each missing pair (Fi.r, Fk.s) <E> MP, 1 <= i < k,
@@ -399,7 +442,7 @@ public class IPO {
     // higher-oder tuples such as triples.
 
     printTestRunSet("T'", T$);
-    T$ = replaceDontCareValues(T$);
+    T$ = replaceDontCareValues(info, T$);
     int pos = 0;
     for (TestRun r : T) {
       T$.add(pos, r);

@@ -99,8 +99,7 @@
      <dependency>
        <groupId>com.github.dakusui</groupId>
        <artifactId>enumerator</artifactId>
-       <version>0.0.4</version>
-       <scope>compile</scope>
+       <version>0.0.5-SNAPSHOT</version>
      </dependency>
   </dependencies>
   
