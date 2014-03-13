@@ -7,18 +7,17 @@ import com.github.dakusui.lisj.FormResult;
 
 @SuppressWarnings("serial")
 public abstract class UserFunc extends BaseFunc {
-	@Override
-	protected FormResult evaluateLast(Context context,
-			Object[] evaluatedParams, FormResult lastResult)
-			throws JCUnitException, CUT {
-		lastResult.value(user(evaluatedParams));
-		return lastResult;
-	}
+  @Override
+  protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
+      FormResult lastResult) throws JCUnitException, CUT {
+    lastResult.value(user(evaluatedParams));
+    return lastResult;
+  }
 
-	protected abstract Object user(Object... evaluatedParams);
-	
-	@Override
-	public String name() {
-		return "#user";
-	}
+  protected abstract Object user(Object... evaluatedParams);
+
+  @Override
+  public String name() {
+    return "#user";
+  }
 }

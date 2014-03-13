@@ -21,7 +21,8 @@ import com.github.dakusui.jcunit.generators.BaseTestArrayGenerator;
 public class JCUnitTest extends DefaultRuleSetBuilder {
   @RunWith(JCUnit.class)
   public abstract static class Base extends DefaultRuleSetBuilder {
-    @In(domain = Domain.Method)
+    @In(
+        domain = Domain.Method)
     public int in;
 
     public static int[] in() {
@@ -53,12 +54,14 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
 
   public static class MatchAndPass extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123), is(get("out"), 124));
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123),
+                             is(get("out"), 124));
   }
 
   public static class CutOperatorMakesRuleSetIgnoreFollowingRules extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124)).cut()
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123))
+                             .expect(is(get("out"), 124)).cut()
                              .incase(lt(get("in"), 999)) // Since 'in' is less
                                                          // than 999, this rule
                                                          // matches, too.
@@ -67,9 +70,11 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
                          ;
   }
 
-  public static class CutOperatorMakesRuleSetIgnoreFollowingAndOtherwiseRule extends Base {
+  public static class CutOperatorMakesRuleSetIgnoreFollowingAndOtherwiseRule
+      extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124)).cut()
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123))
+                             .expect(is(get("out"), 124)).cut()
                              .incase(lt(get("in"), 999)) // Since 'in' is less
                                                          // than 999, this rule
                                                          // matches, too.
@@ -80,95 +85,118 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
 
   public static class MatchOneOfRulesAndPass_1 extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124)).incase(gt(get("in"), 999)) // since
-                                                                                                                       // 'in'
-                                                                                                                       // is
-                                                                                                                       // less
-                                                                                                                       // than
-                                                                                                                       // 999,
-                                                                                                                       // this
-                                                                                                                       // DOESNT
-                                                                                                                       // match
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123))
+                             .expect(is(get("out"), 124))
+                             .incase(gt(get("in"), 999)) // since
+                                                         // 'in'
+                                                         // is
+                                                         // less
+                                                         // than
+                                                         // 999,
+                                                         // this
+                                                         // DOESNT
+                                                         // match
                              .expect(is(get("out"), 124));
   }
 
   public static class MatchOneOfRulesAndPass_2 extends Base {
     @Rule
     public RuleSet rules = ruleSet()
-                         // The order of execution is different from the
-                         // other's.
-                             .incase(gt(get("in"), 999)) // since 'in' is less
-                                                         // than 999, this
-                                                         // DOESNT match
-                             .expect(is(get("out"), 124)).incase(is(get("in"), 123)).expect(is(get("out"), 124));
+                             // The order of execution is different from the
+                             // other's.
+                             .incase(gt(get("in"), 999))
+                             // since 'in' is less
+                             // than 999, this
+                             // DOESNT match
+                             .expect(is(get("out"), 124))
+                             .incase(is(get("in"), 123))
+                             .expect(is(get("out"), 124));
   }
 
   public static class MatchNestedAndPass extends Base {
     @Rule
     public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
-                             ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124)));
+                             ruleSet().incase(is(get("in"), 123)).expect(
+                                 is(get("out"), 124)));
   }
 
   public static class MatchNestedAndPassByOtherwise extends Base {
     @Rule
     public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
-                             ruleSet().incase(is(get("in"), 124)).expect(is(get("out"), 999))
+                             ruleSet().incase(is(get("in"), 124))
+                                 .expect(is(get("out"), 999))
                                  .otherwise(is(get("out"), 124)));
   }
 
-  public static class MatchNestedPassAndMakeSureOtherwiseRuleDoesntBreak extends Base {
+  public static class MatchNestedPassAndMakeSureOtherwiseRuleDoesntBreak extends
+      Base {
     @Rule
     public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
-                             ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124))
+                             ruleSet().incase(is(get("in"), 123))
+                                 .expect(is(get("out"), 124))
                                  .otherwise(is(get("out"), 999)));
   }
 
   public static class MatchNoneOfNestedAndFail extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(ruleSet().incase(not(is(get("in"), 123))) // since
-                                                                                                                 // 'in'
-                                                                                                                 // is
-                                                                                                                 // 123,
-                                                                                                                 // this
-                                                                                                                 // doesn't
-                                                                                                                 // match.
-                             .expect(is(get("out"), 124)).incase(gt(get("in"), 999)) // since
-                                                                                     // 'in'
-                                                                                     // is
-                                                                                     // 123,
-                                                                                     // this
-                                                                                     // does
-                                                                                     // neither
-                                                                                     // match.
-                             .expect(is(get("out"), 124)));
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
+                             ruleSet()
+                                 .incase(not(is(get("in"), 123)))
+                                 // since
+                                 // 'in'
+                                 // is
+                                 // 123,
+                                 // this
+                                 // doesn't
+                                 // match.
+                                 .expect(is(get("out"), 124))
+                                 .incase(gt(get("in"), 999)) // since
+                                                             // 'in'
+                                                             // is
+                                                             // 123,
+                                                             // this
+                                                             // does
+                                                             // neither
+                                                             // match.
+                                 .expect(is(get("out"), 124)));
   }
 
   public static class MatchAllNestedAndPass extends Base {
     @Rule
     public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
-                             ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124))
-                                 .incase(lt(get("in"), 999)) // since 'in' is
-                                                             // less than 999,
-                                                             // this also
-                                                             // matches.
-                                 .expect(is(get("out"), 124)).otherwise(is(get("out"), 999)));
+                             ruleSet()
+                                 .incase(is(get("in"), 123))
+                                 .expect(is(get("out"), 124))
+                                 .incase(lt(get("in"), 999))
+                                 // since 'in' is
+                                 // less than 999,
+                                 // this also
+                                 // matches.
+                                 .expect(is(get("out"), 124))
+                                 .otherwise(is(get("out"), 999)));
   }
 
-  public static class MatchAllNestedAndMakeSureOtherwiseRuleDoesntBreak extends Base {
+  public static class MatchAllNestedAndMakeSureOtherwiseRuleDoesntBreak extends
+      Base {
     @Rule
     public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
-                             ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124))
-                                 .incase(lt(get("in"), 999)) // since 'in' is
-                                                             // less than 999,
-                                                             // this also
-                                                             // matches.
-                                 .expect(is(get("out"), 124)).otherwise(is(get("out"), 999)));
+                             ruleSet()
+                                 .incase(is(get("in"), 123))
+                                 .expect(is(get("out"), 124))
+                                 .incase(lt(get("in"), 999))
+                                 // since 'in' is
+                                 // less than 999,
+                                 // this also
+                                 // matches.
+                                 .expect(is(get("out"), 124))
+                                 .otherwise(is(get("out"), 999)));
   }
 
   public static class MatchOneOfNestedAndPass_1 extends Base {
     @Rule
     public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
-                             ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124))
+                             ruleSet().incase(is(get("in"), 123))
+                                 .expect(is(get("out"), 124))
                                  .incase(gt(get("in"), 999)) // since 'in' is
                                                              // less than 999,
                                                              // this DOESNT
@@ -178,61 +206,79 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
 
   public static class MatchOneOfNestedAndPass_2 extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(ruleSet()
-                         // The order of execution is different from the
-                         // other's.
-                             .incase(gt(get("in"), 999)) // since 'in' is less
-                                                         // than 999, this
-                                                         // DOESNT match
-                             .expect(is(get("out"), 124)).incase(is(get("in"), 123)).expect(is(get("out"), 124)));
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(
+                             ruleSet()
+                                 // The order of execution is different from the
+                                 // other's.
+                                 .incase(gt(get("in"), 999))
+                                 // since 'in' is less
+                                 // than 999, this
+                                 // DOESNT match
+                                 .expect(is(get("out"), 124))
+                                 .incase(is(get("in"), 123))
+                                 .expect(is(get("out"), 124)));
   }
 
   public static class MatchButFail extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123), is(get("out"), 456));
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123),
+                             is(get("out"), 456));
   }
 
   public static class NoMatch extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 456), is(get("out"), 124));
+    public RuleSet rules = ruleSet().incase(is(get("in"), 456),
+                             is(get("out"), 124));
 
   }
 
   public static class OnePassOneFail_1 extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 123)).expect(is(get("out"), 124)).incase(lt(get("in"), 999)) // since
-                                                                                                                       // 'in'
-                                                                                                                       // is
-                                                                                                                       // less
-                                                                                                                       // than
-                                                                                                                       // 999,
-                                                                                                                       // this
-                                                                                                                       // also
-                                                                                                                       // matches
+    public RuleSet rules = ruleSet().incase(is(get("in"), 123))
+                             .expect(is(get("out"), 124))
+                             .incase(lt(get("in"), 999)) // since
+                                                         // 'in'
+                                                         // is
+                                                         // less
+                                                         // than
+                                                         // 999,
+                                                         // this
+                                                         // also
+                                                         // matches
                              .expect(is(get("out"), 125));
   }
 
   public static class OnePassOneFail_2 extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(lt(get("in"), 999)) // since 'in' is
-                                                                // less than
-                                                                // 999, this
-                                                                // also matches
-                             .expect(is(get("out"), 125)).incase(is(get("in"), 123)).expect(is(get("out"), 124));
+    public RuleSet rules = ruleSet()
+                             .incase(lt(get("in"), 999))
+                             // since 'in' is
+                             // less than
+                             // 999, this
+                             // also matches
+                             .expect(is(get("out"), 125))
+                             .incase(is(get("in"), 123))
+                             .expect(is(get("out"), 124));
   }
 
   public static class PassByNestedOtherwise extends Base {
     @Rule
-    public RuleSet rules = ruleSet().incase(is(get("in"), 999)).expect(is(get("out"), 124)).incase(gt(get("in"), 999))
+    public RuleSet rules = ruleSet()
+                             .incase(is(get("in"), 999))
+                             .expect(is(get("out"), 124))
+                             .incase(gt(get("in"), 999))
                              // since 'in' is less than 999, this DOESNT match
                              .expect(is(get("out"), 124))
-                             .otherwise(ruleSet().incase(is(get("in"), 123), is(get("out"), 124)));
+                             .otherwise(
+                                 ruleSet().incase(is(get("in"), 123),
+                                     is(get("out"), 124)));
   }
 
   public static class PassWithoutRules extends Base {
   }
 
-  public static class BadGenerator_ConstructorWithParameters<T, U> extends BaseTestArrayGenerator<T, U> {
+  public static class BadGenerator_ConstructorWithParameters<T, U> extends
+      BaseTestArrayGenerator<T, U> {
     public BadGenerator_ConstructorWithParameters(Object dummy1, Object dummy2) {
     }
 
@@ -250,7 +296,8 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
     }
   }
 
-  public static class BadGenerator_PrivateConstructor<T, U> extends BaseTestArrayGenerator<T, U> {
+  public static class BadGenerator_PrivateConstructor<T, U> extends
+      BaseTestArrayGenerator<T, U> {
     private BadGenerator_PrivateConstructor() {
     }
 
@@ -268,7 +315,8 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
     }
   }
 
-  private void runTest(Class<?> testClass, int runCount, int failureCount, int ignoreCount) {
+  private void runTest(Class<?> testClass, int runCount, int failureCount,
+      int ignoreCount) {
     Result result = JUnitCore.runClasses(testClass);
     assertEquals(runCount, result.getRunCount());
     assertEquals(failureCount, result.getFailureCount());
@@ -286,7 +334,8 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
   }
 
   @Test
-  public void matchAllNestedAndMakeSureOtherwiseRuleDoesntBreak() throws Exception {
+  public void matchAllNestedAndMakeSureOtherwiseRuleDoesntBreak()
+      throws Exception {
     runTest(MatchAllNestedAndMakeSureOtherwiseRuleDoesntBreak.class, 1, 0, 0);
   }
 
@@ -306,7 +355,8 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
   }
 
   @Test
-  public void matchNestedPassAndMakeSureOtherwiseRuleDoesntBreak() throws Exception {
+  public void matchNestedPassAndMakeSureOtherwiseRuleDoesntBreak()
+      throws Exception {
     runTest(MatchNestedPassAndMakeSureOtherwiseRuleDoesntBreak.class, 1, 0, 0);
   }
 
@@ -381,7 +431,9 @@ public class JCUnitTest extends DefaultRuleSetBuilder {
   }
 
   @Test
-  public void cutOperatorMakesRuleSetIgnoreFollowingAndOtherwiseRule() throws Exception {
-    runTest(CutOperatorMakesRuleSetIgnoreFollowingAndOtherwiseRule.class, 1, 0, 0);
+  public void cutOperatorMakesRuleSetIgnoreFollowingAndOtherwiseRule()
+      throws Exception {
+    runTest(CutOperatorMakesRuleSetIgnoreFollowingAndOtherwiseRule.class, 1, 0,
+        0);
   }
 }

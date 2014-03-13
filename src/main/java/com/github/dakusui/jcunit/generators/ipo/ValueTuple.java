@@ -5,7 +5,7 @@ import java.util.List;
 
 public class ValueTuple extends HashMap<Integer, Object> {
   public static class Attr {
-    int attributeIndex;
+    int    attributeIndex;
     Object value;
 
     public Attr() {

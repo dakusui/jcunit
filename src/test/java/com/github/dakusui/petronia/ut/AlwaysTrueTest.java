@@ -10,8 +10,8 @@ import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
 public class AlwaysTrueTest extends DefaultRuleSetBuilder {
-	@Test
-	public void alwaysTrue() throws JCUnitException, CUT {
-		assertEquals(true, Basic.eval(this, any()));
-	}
+  @Test
+  public void alwaysTrue() throws JCUnitException, CUT {
+    assertEquals(true, Basic.eval(this, any()));
+  }
 }

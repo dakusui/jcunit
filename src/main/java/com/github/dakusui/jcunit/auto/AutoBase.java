@@ -24,78 +24,81 @@ import com.github.dakusui.lisj.func.BaseFunc;
  * <li>Object obj: An object under the test.</li>
  * <li>String fieldName: A name of a field to be tested.</li>
  * </ol>
- *
- *@author hiroshi
+ * 
+ * @author hiroshi
  */
 public abstract class AutoBase extends BaseFunc {
-	/**
-	 * Serial version UID.
-	 */
-	private static final long serialVersionUID = -2402014565260025741L;
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = -2402014565260025741L;
 
-	/**
-	 * This function takes one and only one parameter, which is a name of a field.
-	 *  
-	 * @see com.github.dakusui.lisj.BaseForm#checkParams(java.lang.Object)
-	 */
-	@Override
-	protected Object checkParams(Object params) {
-		super.checkParams(params);
-		if (Basic.length(params) != 3) throw new IllegalArgumentException();
-		Utils.checknull(Basic.get(params, 0));
-		if (!(Basic.get(params, 0) instanceof String)) {
-			throw new IllegalArgumentException();
-		}
-		Utils.checknull(Basic.get(params, 1));
-		Utils.checknull(Basic.get(params, 2));
-		return params;
-	}
+  /**
+   * This function takes one and only one parameter, which is a name of a field.
+   * 
+   * @see com.github.dakusui.lisj.BaseForm#checkParams(java.lang.Object)
+   */
+  @Override
+  protected Object checkParams(Object params) {
+    super.checkParams(params);
+    if (Basic.length(params) != 3)
+      throw new IllegalArgumentException();
+    Utils.checknull(Basic.get(params, 0));
+    if (!(Basic.get(params, 0) instanceof String)) {
+      throw new IllegalArgumentException();
+    }
+    Utils.checknull(Basic.get(params, 1));
+    Utils.checknull(Basic.get(params, 2));
+    return params;
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	final protected FormResult evaluateLast(Context context,
-			Object[] evaluatedParams, FormResult lastResult)
-			throws JCUnitException, CUT {
-		FormResult ret = lastResult;
-		/*
-		 * We can use the first, second, and third elements without a check since 'checkParams'
-		 * method guarantees that the array has three and only three elements. 
-		 */
-		String testName  = (String) evaluatedParams[0]; 
-		Object obj       = evaluatedParams[1];
-		String fieldName = evaluatedParams[2].toString();
-		ret.value(autoBaseExec(testName, obj, fieldName));
-		return ret;
-	}
-	
-	abstract protected Object autoBaseExec(String testName, Object obj, String fieldName)
-			throws JCUnitException;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  final protected FormResult evaluateLast(Context context,
+      Object[] evaluatedParams, FormResult lastResult) throws JCUnitException,
+      CUT {
+    FormResult ret = lastResult;
+    /*
+     * We can use the first, second, and third elements without a check since
+     * 'checkParams' method guarantees that the array has three and only three
+     * elements.
+     */
+    String testName = (String) evaluatedParams[0];
+    Object obj = evaluatedParams[1];
+    String fieldName = evaluatedParams[2].toString();
+    ret.value(autoBaseExec(testName, obj, fieldName));
+    return ret;
+  }
 
-	/**
-	 * Returns base directory to output the values of '@Out' annotated fields.
-	 * 
-	 * @return The base directory.
-	 */
-	protected File baseDir() {
-		return SystemProperties.jcunitBaseDir();
-	}
+  abstract protected Object autoBaseExec(String testName, Object obj,
+      String fieldName) throws JCUnitException;
 
-	protected Field field(Class<?> clazz, String fieldName) throws JCUnitException {
-		return Utils.getFieldFromClass(clazz, fieldName);
-	}
+  /**
+   * Returns base directory to output the values of '@Out' annotated fields.
+   * 
+   * @return The base directory.
+   */
+  protected File baseDir() {
+    return SystemProperties.jcunitBaseDir();
+  }
 
-	protected File fileForField(File baseDir, String testName, Field out) {
-		////
-		// Since only fields in test class can be treated as 'output' fields,
-		// we don't need to include its class name in the directory name.
-		return new File(baseDir, testName + "/" + out.getName());
-	}
-	
-	protected ObjectEncoder getObjectEncoder(Class<?> clazz) {
-		ObjectEncoder ret = null;
-		ret = ObjectEncoders.createXStreamEncoder();
-		return ret;
-	}
+  protected Field field(Class<?> clazz, String fieldName)
+      throws JCUnitException {
+    return Utils.getFieldFromClass(clazz, fieldName);
+  }
+
+  protected File fileForField(File baseDir, String testName, Field out) {
+    // //
+    // Since only fields in test class can be treated as 'output' fields,
+    // we don't need to include its class name in the directory name.
+    return new File(baseDir, testName + "/" + out.getName());
+  }
+
+  protected ObjectEncoder getObjectEncoder(Class<?> clazz) {
+    ObjectEncoder ret = null;
+    ret = ObjectEncoders.createXStreamEncoder();
+    return ret;
+  }
 }

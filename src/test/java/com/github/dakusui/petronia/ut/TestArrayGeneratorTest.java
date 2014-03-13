@@ -65,7 +65,8 @@ public abstract class TestArrayGeneratorTest {
 
   protected abstract TestArrayGenerator<String, String> createTestArrayGenerator();
 
-  @Test(expected = UnsupportedOperationException.class)
+  @Test(
+      expected = UnsupportedOperationException.class)
   public void makeSureRemoveThrowsIntendedException() {
     SimpleTestArrayGenerator<String, String> generator = new SimpleTestArrayGenerator<String, String>();
     generator.remove();

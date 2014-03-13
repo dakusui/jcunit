@@ -28,7 +28,8 @@ public abstract class Reporter {
     writer.deleteReport(desc);
   }
 
-  public void writeTestClassHeader(Class<?> testClass, TestArrayGenerator<Field, Object> testArrayGenerator) {
+  public void writeTestClassHeader(Class<?> testClass,
+      TestArrayGenerator<Field, Object> testArrayGenerator) {
     this.formatter.beginTestClassHeader(writer, testClass);
     try {
       this.formatter.beginDomainsSection(writer, testClass);
@@ -41,7 +42,8 @@ public abstract class Reporter {
       }
       this.formatter.beginConditionMatrixSection(writer, testClass);
       try {
-        this.formatter.formatConditionMatrix(writer, testClass, testArrayGenerator);
+        this.formatter.formatConditionMatrix(writer, testClass,
+            testArrayGenerator);
       } finally {
         this.formatter.endConditionMatrixSection(writer, testClass);
       }
@@ -50,7 +52,8 @@ public abstract class Reporter {
     }
   }
 
-  public void writeTestCaseReport(Description desc, boolean ok, List<FieldSet> fieldSets) {
+  public void writeTestCaseReport(Description desc, boolean ok,
+      List<FieldSet> fieldSets) {
     this.formatter.beginTestCase(writer, desc);
     try {
       this.formatter.formatResult(writer, desc, ok);
@@ -63,7 +66,8 @@ public abstract class Reporter {
     }
   }
 
-  public void writeTestClassFooter(Class<?> testClass, RuleSet ruleSet, ResultMatrix matrix) {
+  public void writeTestClassFooter(Class<?> testClass, RuleSet ruleSet,
+      ResultMatrix matrix) {
     this.formatter.beginTestClassFooter(writer, testClass);
     try {
       this.formatter.formatResultMatrix(writer, testClass, ruleSet, matrix);
@@ -73,7 +77,8 @@ public abstract class Reporter {
     }
   }
 
-  private List<Domain> domains(TestArrayGenerator<Field, Object> testArrayGenerator) {
+  private List<Domain> domains(
+      TestArrayGenerator<Field, Object> testArrayGenerator) {
     List<Domain> ret = new LinkedList<Domain>();
     for (Field key : testArrayGenerator.getKeys()) {
       Object[] values = testArrayGenerator.getDomain(key);

@@ -7,14 +7,14 @@ import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 
 public abstract class BaseFunc extends BaseForm {
-	/**
-	 * Serial version UID.
-	 */
-	private static final long serialVersionUID = -5433964838210243390L;
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = -5433964838210243390L;
 
-	@Override
-	protected FormResult evaluateEach(Context context,
-			Object currentParam, FormResult lastResult) throws JCUnitException, CUT {
-		return evaluateEachSimply(context, currentParam, lastResult);
-	}
+  @Override
+  protected FormResult evaluateEach(Context context, Object currentParam,
+      FormResult lastResult) throws JCUnitException, CUT {
+    return evaluateEachSimply(context, currentParam, lastResult);
+  }
 }

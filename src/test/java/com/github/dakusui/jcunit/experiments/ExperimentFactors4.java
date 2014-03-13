@@ -14,28 +14,32 @@ import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 
 @RunWith(JCUnit.class)
 public class ExperimentFactors4 {
-  @In(domain = Domain.Method)
+  @In(
+      domain = Domain.Method)
   public int size;
 
   public static int[] size() {
     return new int[] { 10, 11, 13, 17, 20, 25 };
   }
 
-  @In(domain = Domain.Method)
+  @In(
+      domain = Domain.Method)
   public String color;
 
   public static String[] color() {
     return new String[] { "Black", "Red", "Blue", "Yellow" };
   }
 
-  @In(domain = Domain.Method)
+  @In(
+      domain = Domain.Method)
   public String family;
 
   public static String[] family() {
     return new String[] { "Serif", "Gothic", "Arial" };
   }
 
-  @In(domain = Domain.Method)
+  @In(
+      domain = Domain.Method)
   public String weight;
 
   public static String[] weight() {

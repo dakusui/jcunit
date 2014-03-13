@@ -19,21 +19,24 @@ public class WithBestPairwiseExample {
     return new int[] { 10, 11, 13 /* , 17, 20, 25 */};
   }
 
-  @In(domain = Domain.Method)
+  @In(
+      domain = Domain.Method)
   public String color;
 
   public static String[] color() {
     return new String[] { "Black", "Red", "Blue", "Yellow" };
   }
 
-  @In(domain = Domain.Method)
+  @In(
+      domain = Domain.Method)
   public String family;
 
   public static String[] family() {
     return new String[] { "Serif", "Gothic", "Arial", "XYZ" };
   }
 
-  @In(domain = Domain.Method)
+  @In(
+      domain = Domain.Method)
   public String weight;
 
   public static String[] weight() {

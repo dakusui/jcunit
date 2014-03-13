@@ -19,7 +19,7 @@ import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
  */
 public class TestRunSet extends ArrayList<TestRun> {
   private static final Logger LOGGER = LoggerFactory
-      .getLogger(TestRunSet.class);
+                                         .getLogger(TestRunSet.class);
 
   public static class Info {
     public int numHorizontalFallbacks;
@@ -27,9 +27,9 @@ public class TestRunSet extends ArrayList<TestRun> {
   }
 
   private static final long serialVersionUID = 1L;
-  int width;
-  private Info info;
-  public Set<ValueTriple> uncoveredTriples;
+  int                       width;
+  private Info              info;
+  public Set<ValueTriple>   uncoveredTriples;
 
   TestRunSet(int width, Set<ValueTriple> uncoveredTriples) {
     this.width = width;

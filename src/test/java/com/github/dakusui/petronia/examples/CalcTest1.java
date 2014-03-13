@@ -1,4 +1,3 @@
-
 package com.github.dakusui.petronia.examples;
 
 import org.junit.ClassRule;
@@ -17,31 +16,36 @@ import com.github.dakusui.petronia.examples.Calc.Op;
 
 @RunWith(JCUnit.class)
 public class CalcTest1 extends DefaultRuleSetBuilder {
-	@In
-	public int a;
-	@In
-	public int b;
-	@In
-	public Op op;
-	@Out
-	public int r;
-	@Out
-	public Throwable t;
-	
-	@Rule
-	public RuleSet rules2 = ruleSet().incase(any(), progn(print("*** H E L L O ***"), true)).otherwise(true).summarizer(summarizer);
+  @In
+  public int               a;
+  @In
+  public int               b;
+  @In
+  public Op                op;
+  @Out
+  public int               r;
+  @Out
+  public Throwable         t;
 
-	@ClassRule
-	public static Summarizer summarizer = new BasicSummarizer();
-	
-	@Test
-	public void test() {
-		try {
-			Calc calc = new Calc();
-			r = calc.calc(op, a, b);
-			// LOGGER.info("result:" + (r) + " = " + a + " " + op.str() + " " + b);
-		} catch (RuntimeException e) {
-			t = e;
-		}
-	}
+  @Rule
+  public RuleSet           rules2     = ruleSet()
+                                          .incase(
+                                              any(),
+                                              progn(print("*** H E L L O ***"),
+                                                  true)).otherwise(true)
+                                          .summarizer(summarizer);
+
+  @ClassRule
+  public static Summarizer summarizer = new BasicSummarizer();
+
+  @Test
+  public void test() {
+    try {
+      Calc calc = new Calc();
+      r = calc.calc(op, a, b);
+      // LOGGER.info("result:" + (r) + " = " + a + " " + op.str() + " " + b);
+    } catch (RuntimeException e) {
+      t = e;
+    }
+  }
 }

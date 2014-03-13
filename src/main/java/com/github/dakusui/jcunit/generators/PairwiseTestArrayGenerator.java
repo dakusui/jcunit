@@ -11,49 +11,54 @@ import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 
 /**
- * This class doesn't guarantee that the generated covering array is the smallest one.
+ * This class doesn't guarantee that the generated covering array is the
+ * smallest one.
  * 
  * @see BaseTestArrayGenerator
  * @see TestArrayGenerator
  * 
  * @author hiroshi
- *
- * @param <T> Type of keys
- * @param <U> Type of values
+ * 
+ * @param <T>
+ *          Type of keys
+ * @param <U>
+ *          Type of values
  */
-public class PairwiseTestArrayGenerator<T, U> extends BaseTestArrayGenerator<T, U> {
-	/**
-	 * A set of test runs.
-	 */
-	private TestRunSet testRunSet;
-	
-	/**
-	 * A map which associates IPO's indices (1-origin) to keys.
-	 */
-	private Map<Integer, T> indexToKeyMap = new HashMap<Integer, T>();
-	
-	@Override
+public class PairwiseTestArrayGenerator<T, U> extends
+    BaseTestArrayGenerator<T, U> {
+  /**
+   * A set of test runs.
+   */
+  private TestRunSet      testRunSet;
+
+  /**
+   * A map which associates IPO's indices (1-origin) to keys.
+   */
+  private Map<Integer, T> indexToKeyMap = new HashMap<Integer, T>();
+
+  @Override
   public void init(GeneratorParameters.Value[] params,
       LinkedHashMap<T, U[]> domains) {
     super.init(params, domains);
-		this.testRunSet = this.composeTestRunSet(indexToKeyMap);
-		this.size = this.testRunSet.size();
-		this.cur = 0;
-	}
+    this.testRunSet = this.composeTestRunSet(indexToKeyMap);
+    this.size = this.testRunSet.size();
+    this.cur = 0;
+  }
 
-	/**
-	 * Composes and returns test run set.
-	 */
-	protected TestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
-		Object[][] testSpaceDomains = new Object[this.domains.size()][];
-		int i = 0;
-		for (T cur: this.domains.keySet()) {
-			testSpaceDomains[i++] = this.domains.get(cur);
-			indexToKeyMap.put(i, cur); // since i is already incremented, put it as is. 
-		}
-	    TestSpace space = new TestSpace(testSpaceDomains);
-	    IPO ipo = new IPO(space);
-	    return ipo.ipo();
+  /**
+   * Composes and returns test run set.
+   */
+  protected TestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
+    Object[][] testSpaceDomains = new Object[this.domains.size()][];
+    int i = 0;
+    for (T cur : this.domains.keySet()) {
+      testSpaceDomains[i++] = this.domains.get(cur);
+      indexToKeyMap.put(i, cur); // since i is already incremented, put it as
+                                 // is.
+    }
+    TestSpace space = new TestSpace(testSpaceDomains);
+    IPO ipo = new IPO(space);
+    return ipo.ipo();
   }
 
   @SuppressWarnings("unchecked")

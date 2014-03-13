@@ -35,36 +35,68 @@ public class CalcTest3_2 extends DefaultRuleSetBuilder {
   @Rule
   @In(
       domain = Domain.None)
-  public TestName name = new TestName();
+  public TestName               name       = new TestName();
   @In
-  public int a;
+  public int                    a;
   @In
-  public int b;
+  public int                    b;
   @In
-  public Op op;
+  public Op                     op;
   @Out
-  public int r;
+  public int                    r;
   @Out
-  public Throwable t;
+  public Throwable              t;
   @Rule
-  public RuleSet rules = ruleSet()
-      .incase(is(get("op"), null),
-          isinstanceof(get("t"), NullPointerException.class))
-      .incase(
-          is(get("op"), Op.plus),
-          ruleSet()
-              .incase(
-                  not(or(
-                      and(isoneof(Integer.MIN_VALUE, get("a"), get("b")),
-                          lt(max(get("a"), get("b")), 0)),
-                      and(isoneof(Integer.MAX_VALUE, get("a"), get("b")),
-                          gt(min(get("a"), get("b")), 0)))))
-              .expect(is(get("r"), add(get("a"), get("b")))).cut()
-              .otherwise(isinstanceof(get("t"), RuntimeException.class)))
-      .incase(is(get("op"), Op.minus), is(get("r"), sub(get("a"), get("b"))))
-      .incase(is(get("op"), Op.multiply), is(get("r"), mul(get("a"), get("b"))))
-      .incase(is(get("op"), Op.divide), is(get("r"), div(get("a"), get("b"))))
-      .otherwise(false).summarizer(summarizer);
+  public RuleSet                rules      = ruleSet()
+                                               .incase(
+                                                   is(get("op"), null),
+                                                   isinstanceof(
+                                                       get("t"),
+                                                       NullPointerException.class))
+                                               .incase(
+                                                   is(get("op"), Op.plus),
+                                                   ruleSet()
+                                                       .incase(
+                                                           not(or(
+                                                               and(isoneof(
+                                                                   Integer.MIN_VALUE,
+                                                                   get("a"),
+                                                                   get("b")),
+                                                                   lt(max(
+                                                                       get("a"),
+                                                                       get("b")),
+                                                                       0)),
+                                                               and(isoneof(
+                                                                   Integer.MAX_VALUE,
+                                                                   get("a"),
+                                                                   get("b")),
+                                                                   gt(min(
+                                                                       get("a"),
+                                                                       get("b")),
+                                                                       0)))))
+                                                       .expect(
+                                                           is(get("r"),
+                                                               add(get("a"),
+                                                                   get("b"))))
+                                                       .cut()
+                                                       .otherwise(
+                                                           isinstanceof(
+                                                               get("t"),
+                                                               RuntimeException.class)))
+                                               .incase(
+                                                   is(get("op"), Op.minus),
+                                                   is(get("r"),
+                                                       sub(get("a"), get("b"))))
+                                               .incase(
+                                                   is(get("op"), Op.multiply),
+                                                   is(get("r"),
+                                                       mul(get("a"), get("b"))))
+                                               .incase(
+                                                   is(get("op"), Op.divide),
+                                                   is(get("r"),
+                                                       div(get("a"), get("b"))))
+                                               .otherwise(false)
+                                               .summarizer(summarizer);
 
   @ClassRule
   public static BasicSummarizer summarizer = new BasicSummarizer();

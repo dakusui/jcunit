@@ -7,21 +7,21 @@ import java.io.OutputStream;
 import com.thoughtworks.xstream.XStream;
 
 class XStreamEncoder extends BaseObjectEncoder {
-	
-	private XStream xstream;
 
-	XStreamEncoder() {
-		this.xstream = new XStream();
-	}
+  private XStream xstream;
 
-	@Override
-	public void encodeObject(OutputStream os, Object obj) throws IOException {
-		xstream.toXML(obj, os);
-	}
+  XStreamEncoder() {
+    this.xstream = new XStream();
+  }
 
-	@Override
-	public Object decodeObject(InputStream is) throws IOException {
-		return xstream.fromXML(is);
-	}
+  @Override
+  public void encodeObject(OutputStream os, Object obj) throws IOException {
+    xstream.toXML(obj, os);
+  }
+
+  @Override
+  public Object decodeObject(InputStream is) throws IOException {
+    return xstream.fromXML(is);
+  }
 
 }

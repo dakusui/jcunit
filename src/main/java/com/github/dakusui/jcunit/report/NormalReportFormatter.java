@@ -129,7 +129,8 @@ public class NormalReportFormatter implements ReportFormatter {
   }
 
   @Override
-  public void formatResultMatrix(ReportWriter writer, Class<?> klazz, RuleSet ruleSet, ResultMatrix matrix) {
+  public void formatResultMatrix(ReportWriter writer, Class<?> klazz,
+      RuleSet ruleSet, ResultMatrix matrix) {
     writer.writeLine(klazz, 0, "* TEST RESULT MATRIX *");
     int registeredIds = ruleSet.registeredIds();
     String[] headers = new String[ruleSet.maxLevel() + 1];
@@ -148,7 +149,8 @@ public class NormalReportFormatter implements ReportFormatter {
       writer.writeLine(klazz, 0, h);
     String line;
     for (String testName : matrix.testNames()) {
-      line = String.format("[%-3s]%-30s", matrix.getResultType(testName), testName);
+      line = String.format("[%-3s]%-30s", matrix.getResultType(testName),
+          testName);
       for (int objId = 0; objId < registeredIds; objId++) {
         String f;
         if (matrix.isError(testName, objId)) {
@@ -172,7 +174,8 @@ public class NormalReportFormatter implements ReportFormatter {
   }
 
   @Override
-  public void formatRuleSet(ReportWriter writer, Description desc, RuleSet ruleSet) {
+  public void formatRuleSet(ReportWriter writer, Description desc,
+      RuleSet ruleSet) {
     this.identifyObjects(ruleSet, 0, 0);
     writer.writeLine(desc, 0, "* RULES *");
     try {
@@ -186,7 +189,8 @@ public class NormalReportFormatter implements ReportFormatter {
     }
   }
 
-  private boolean apply(ReportWriter writer, Description desc, RuleSet ruleSet, int _indentLevel) throws RuleIgnored {
+  private boolean apply(ReportWriter writer, Description desc, RuleSet ruleSet,
+      int _indentLevel) throws RuleIgnored {
     boolean passed = true;
     boolean matchedAtLeastOnce = false;
 
@@ -211,7 +215,8 @@ public class NormalReportFormatter implements ReportFormatter {
               continue;
           }
         } else {
-          passed &= this.expect(writer, desc, indent, nested, cur.nestedResult());
+          passed &= this.expect(writer, desc, indent, nested,
+              cur.nestedResult());
           if (cur.cut())
             break;
         }
@@ -241,7 +246,8 @@ public class NormalReportFormatter implements ReportFormatter {
     throw new RuleIgnored(ruleSet);
   }
 
-  private boolean check(ReportWriter writer, Description desc, int indent, Object cond, boolean result) {
+  private boolean check(ReportWriter writer, Description desc, int indent,
+      Object cond, boolean result) {
     String id = String.format("[%02d]", idOf(cond));
     // Summarizer s = RuleSet.this.summarizer;
     if (result) {
@@ -254,7 +260,8 @@ public class NormalReportFormatter implements ReportFormatter {
     return result;
   }
 
-  private boolean expect(ReportWriter writer, Description desc, int indent, Object nested, boolean result) {
+  private boolean expect(ReportWriter writer, Description desc, int indent,
+      Object nested, boolean result) {
     String id = String.format("[%02d]", idOf(nested));
     // Summarizer s = RuleSet.this.summarizer;
     if (result) {
@@ -272,8 +279,10 @@ public class NormalReportFormatter implements ReportFormatter {
   }
 
   @Override
-  public void formatValues(ReportWriter writer, Description desc, FieldSet fields) {
-    writer.writeLine(desc, 0, String.format("* %s VALUES *", fields.categoryName()));
+  public void formatValues(ReportWriter writer, Description desc,
+      FieldSet fields) {
+    writer.writeLine(desc, 0,
+        String.format("* %s VALUES *", fields.categoryName()));
     writer.writeLine(desc, 1, String.format("VALUES(%d)", fields.size()));
     List<Field> keys = new ArrayList<Field>(fields.keySet());
     Collections.sort(keys, new Comparator<Field>() {
@@ -284,14 +293,14 @@ public class NormalReportFormatter implements ReportFormatter {
     });
     for (Field key : keys) {
       Object v = fields.get(key);
-      writer
-          .writeLine(desc, 2, String.format("%s:%s(%s)", key.getName(), v == null ? null : ArrayUtils.toString(v), key
-              .getType().getName()));
+      writer.writeLine(desc, 2, String.format("%s:%s(%s)", key.getName(),
+          v == null ? null : ArrayUtils.toString(v), key.getType().getName()));
     }
     this.formatExceptions(writer, desc, fields);
   }
 
-  private void formatExceptions(ReportWriter writer, Description desc, FieldSet fields) {
+  private void formatExceptions(ReportWriter writer, Description desc,
+      FieldSet fields) {
     writer.writeLine(desc, 1, "* EXCEPTIONS *");
     List<Field> keys = new ArrayList<Field>(fields.keySet());
     Collections.sort(keys, new Comparator<Field>() {
@@ -305,7 +314,8 @@ public class NormalReportFormatter implements ReportFormatter {
       Object v = fields.get(key);
       if (v instanceof Throwable) {
         Throwable t = (Throwable) v;
-        writer.writeLine(desc, 2, String.format("%s:%s(%s)", key.getName(), v, key.getType().getName()));
+        writer.writeLine(desc, 2, String.format("%s:%s(%s)", key.getName(), v,
+            key.getType().getName()));
         writer.writeLine(desc, 3, t.getMessage());
         for (StackTraceElement ste : t.getStackTrace()) {
           writer.writeLine(desc, 4, ste.toString());
@@ -324,7 +334,8 @@ public class NormalReportFormatter implements ReportFormatter {
     // //
     // print out header
     Field key = domain.field();
-    String domainHeader = String.format("%s:%s(%s)", this.domainKeycode, key.getName(), key.getType());
+    String domainHeader = String.format("%s:%s(%s)", this.domainKeycode,
+        key.getName(), key.getType());
     writer.writeLine(klazz, 1, domainHeader);
     Object[] d = domain.values();
     for (int i = 0; i < d.length; i++) {
@@ -336,15 +347,21 @@ public class NormalReportFormatter implements ReportFormatter {
 
   @Override
   public void beginTestCase(ReportWriter writer, Description desc) {
-    writer.writeLine(desc, 0, "***********************************************");
-    writer.writeLine(desc, 0, "***                                         ***");
-    writer.writeLine(desc, 0, "***           T E S T R E P O R T           ***");
-    writer.writeLine(desc, 0, "***                                         ***");
-    writer.writeLine(desc, 0, "***********************************************");
+    writer
+        .writeLine(desc, 0, "***********************************************");
+    writer
+        .writeLine(desc, 0, "***                                         ***");
+    writer
+        .writeLine(desc, 0, "***           T E S T R E P O R T           ***");
+    writer
+        .writeLine(desc, 0, "***                                         ***");
+    writer
+        .writeLine(desc, 0, "***********************************************");
     writer.writeLine(desc, 0, "");
 
     writer.writeLine(desc, 0, "* TEST NAME *");
-    writer.writeLine(desc, 1, String.format("'%s/%s'", desc.getClassName(), desc.getMethodName()));
+    writer.writeLine(desc, 1,
+        String.format("'%s/%s'", desc.getClassName(), desc.getMethodName()));
     writer.writeLine(desc, 0, "");
   }
 
@@ -352,8 +369,10 @@ public class NormalReportFormatter implements ReportFormatter {
   public void endTestCase(ReportWriter writer, Description desc) {
   }
 
-  private void writeLine(ReportWriter writer, Class<?> klazz, String s, Object... params) {
-    writer.writeLine(klazz, 0, String.format(s.replaceAll("\\{\\}", "%s"), params));
+  private void writeLine(ReportWriter writer, Class<?> klazz, String s,
+      Object... params) {
+    writer.writeLine(klazz, 0,
+        String.format(s.replaceAll("\\{\\}", "%s"), params));
   }
 
   /**
@@ -386,7 +405,8 @@ public class NormalReportFormatter implements ReportFormatter {
       idMap.put(cond, nextIdTobeUsed++);
       Object nested = p.nested();
       if (nested instanceof RuleSet) {
-        nextIdTobeUsed = identifyObjects((RuleSet) nested, nextIdTobeUsed, level + 1);
+        nextIdTobeUsed = identifyObjects((RuleSet) nested, nextIdTobeUsed,
+            level + 1);
       } else {
         levelMap.put(nested, level + 1);
         leaves.add(nextIdTobeUsed);

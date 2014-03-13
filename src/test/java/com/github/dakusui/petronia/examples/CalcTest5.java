@@ -25,11 +25,12 @@ public class CalcTest5 {
   }
 
   @Out
-  public String out;
+  public String            out;
 
   @Rule
-  public RuleSet rules = new DefaultRuleSetBuilder().autoRuleSet(this)
-      .summarizer(summarizer);
+  public RuleSet           rules      = new DefaultRuleSetBuilder()
+                                          .autoRuleSet(this).summarizer(
+                                              summarizer);
 
   @ClassRule
   public static Summarizer summarizer = new BasicSummarizer();

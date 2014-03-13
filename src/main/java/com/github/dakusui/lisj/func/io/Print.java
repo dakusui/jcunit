@@ -11,24 +11,27 @@ import static com.github.dakusui.lisj.Basic.*;
 
 public class Print extends BaseFunc {
 
-	/**
-	 * Serial version UID.
-	 */
-	private static final long serialVersionUID = -2851340410686011195L;
+  /**
+   * Serial version UID.
+   */
+  private static final long serialVersionUID = -2851340410686011195L;
 
-	@Override
-	protected FormResult evaluateLast(Context context, Object[] evaluatedParams, FormResult lastResult) {
-		FormResult ret = lastResult;
-		PrintStream pw = Utils.cast(PrintStream.class, Utils.checknull(evaluatedParams[0]));
-		String s = Utils.checknull(evaluatedParams[1]).toString();
-		pw.print(s);
-		return ret;
-	}
+  @Override
+  protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
+      FormResult lastResult) {
+    FormResult ret = lastResult;
+    PrintStream pw = Utils.cast(PrintStream.class,
+        Utils.checknull(evaluatedParams[0]));
+    String s = Utils.checknull(evaluatedParams[1]).toString();
+    pw.print(s);
+    return ret;
+  }
 
-	@Override
-	protected Object checkParams(Object params) {
-		if (length(super.checkParams(params)) != 2) throw new IllegalArgumentException();
-		Utils.checknull(get(params, 0));
-		return params;
-	}
+  @Override
+  protected Object checkParams(Object params) {
+    if (length(super.checkParams(params)) != 2)
+      throw new IllegalArgumentException();
+    Utils.checknull(get(params, 0));
+    return params;
+  }
 }

@@ -2,20 +2,20 @@ package com.github.dakusui.jcunit.ut.ipo;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.generators.ipo.IPO;
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 import com.github.dakusui.jcunit.generators.ipo.ValueTuple.Attr;
 import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
+
+import org.apache.commons.lang3.ArrayUtils;
+import org.junit.Test;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 public class IPOTest {
   public static class Task {
@@ -83,7 +83,8 @@ public class IPOTest {
     assertEquals(27, testRunSet.size());
   }
 
-  @Test(timeout = 600 * 1000)
+  @Test(
+      timeout = 600 * 1000)
   public void test4_15$3_17$2_20() {
     TestRunSet testRunSet = createTestRunSet(task(4, 15), task(3, 17),
         task(2, 20));
@@ -98,7 +99,7 @@ public class IPOTest {
     }
   }
 
-  @Test(timeout = 60 * 1000)
+  @Test
   public void test4_1$3_20$2_35() {
     assertEquals(74,
         new IPO(createTestSpace(task(4, 15), task(3, 17), task(2, 35))).ipo()

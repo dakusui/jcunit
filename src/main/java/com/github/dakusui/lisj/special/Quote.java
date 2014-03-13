@@ -8,27 +8,26 @@ import com.github.dakusui.lisj.FormResult;
 
 public class Quote extends BaseForm {
 
-	/**
-	 * Serial version UID
-	 */
-	private static final long serialVersionUID = -7817074688838146836L;
+  /**
+   * Serial version UID
+   */
+  private static final long serialVersionUID = -7817074688838146836L;
 
-	@Override
-	protected FormResult evaluateEach(Context context, Object currentParam,
-			FormResult lastResult) throws JCUnitException, CUT {
-		FormResult ret = lastResult;
-		ret.value(currentParam);
-		ret.incrementPosition();
-		return ret;
-	}
+  @Override
+  protected FormResult evaluateEach(Context context, Object currentParam,
+      FormResult lastResult) throws JCUnitException, CUT {
+    FormResult ret = lastResult;
+    ret.value(currentParam);
+    ret.incrementPosition();
+    return ret;
+  }
 
-	@Override
-	protected FormResult evaluateLast(Context context,
-			Object[] evaluatedParams, FormResult lastResult)
-			throws JCUnitException {
-		FormResult ret = lastResult;
-		ret.value(evaluatedParams);
-		return ret;
-	}
+  @Override
+  protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
+      FormResult lastResult) throws JCUnitException {
+    FormResult ret = lastResult;
+    ret.value(evaluatedParams);
+    return ret;
+  }
 
 }

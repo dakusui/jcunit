@@ -38,51 +38,65 @@ public class RuleSet implements TestRule {
   private static final String     OTHERWISECLAUSE_FORMAT = "(otherwise-%d)";
   private static final Summarizer DUMMYSUMMARIZER        = new Summarizer() {
                                                            @Override
-                                                           public void passed(String testName, int id) {
+                                                           public void passed(
+                                                               String testName,
+                                                               int id) {
                                                            }
 
                                                            @Override
-                                                           public void failed(String testName, int id) {
+                                                           public void failed(
+                                                               String testName,
+                                                               int id) {
                                                            }
 
                                                            @Override
-                                                           public void setRuleSet(RuleSet ruleSet) {
+                                                           public void setRuleSet(
+                                                               RuleSet ruleSet) {
                                                            }
 
                                                            @Override
-                                                           public Statement apply(Statement base,
+                                                           public Statement apply(
+                                                               Statement base,
                                                                Description description) {
                                                              return new Statement() {
                                                                @Override
-                                                               public void evaluate() throws Throwable {
+                                                               public void evaluate()
+                                                                   throws Throwable {
                                                                }
                                                              };
                                                            }
 
                                                            @Override
-                                                           public int passes(int objId) {
+                                                           public int passes(
+                                                               int objId) {
                                                              return -1;
                                                            }
 
                                                            @Override
-                                                           public int fails(int objId) {
+                                                           public int fails(
+                                                               int objId) {
                                                              return -1;
                                                            }
 
                                                            @Override
-                                                           public void error(String methodName) {
+                                                           public void error(
+                                                               String methodName) {
                                                            }
 
                                                            @Override
-                                                           public void ok(String methodName) {
+                                                           public void ok(
+                                                               String methodName) {
                                                            }
 
                                                            @Override
-                                                           public void ng(String methodName) {
+                                                           public void ng(
+                                                               String methodName) {
                                                            }
 
                                                            @Override
-                                                           public void error(String string, int id) {
+                                                           public void error(
+                                                               String string,
+                                                               int id) {
                                                            }
                                                          };
 
@@ -121,7 +135,8 @@ public class RuleSet implements TestRule {
         writeLine(this.desc, this.indent, id + "MATCHED:" + Basic.tostr(cond));
       } else {
         s.failed(testName, idOf(cond));
-        writeLine(this.desc, this.indent, id + "NOT MATCHED:" + Basic.tostr(cond));
+        writeLine(this.desc, this.indent,
+            id + "NOT MATCHED:" + Basic.tostr(cond));
       }
       if (result)
         this.indent++;
@@ -224,7 +239,8 @@ public class RuleSet implements TestRule {
     this.idMap = new IdentityHashMap<Object, Integer>();
     this.levelMap = new HashMap<Object, Integer>();
     this.leaves = new HashSet<Integer>();
-    identifyObjectsAndSetSummarizer(this.summarizer, idMap, 0, levelMap, 0, this.leaves);
+    identifyObjectsAndSetSummarizer(this.summarizer, idMap, 0, levelMap, 0,
+        this.leaves);
     this.maxLevel = 0;
     for (int l : this.levelMap.values()) {
       this.maxLevel = Math.max(this.maxLevel, l);
@@ -257,7 +273,8 @@ public class RuleSet implements TestRule {
               RuleSet.this.setOutValues(composeOutValues());
               writeResult(desc, ok);
               writeOutputValues(desc);
-              String msg = "Test:" + RuleSet.summarize(inValues) + " was failed. (" + failedReason() + ")";
+              String msg = "Test:" + RuleSet.summarize(inValues)
+                  + " was failed. (" + failedReason() + ")";
               if (ok)
                 RuleSet.this.summarizer.ok(desc.getMethodName());
               else
@@ -265,8 +282,8 @@ public class RuleSet implements TestRule {
               if (!verified) {
                 writer.writeErrorLine(desc, 0, "");
                 String failedReason = failedReason();
-                writer.writeErrorLine(desc, 0,
-                    String.format("  FAIL:%s", failedReason == null ? "(not available)" : failedReason));
+                writer.writeErrorLine(desc, 0, String.format("  FAIL:%s",
+                    failedReason == null ? "(not available)" : failedReason));
                 writer.writeErrorLine(desc, 0, "");
                 writer.writeLine(desc, 0, "* EXCEPTIONS *");
                 dumpExceptions(desc, writer, RuleSet.this.outValues);
@@ -298,7 +315,8 @@ public class RuleSet implements TestRule {
     };
   }
 
-  protected boolean verify(Description desc, Object target, RuleSet ruleSet) throws JCUnitException, CUT {
+  protected boolean verify(Description desc, Object target, RuleSet ruleSet)
+      throws JCUnitException, CUT {
     assert this.inValues != null;
 
     boolean ret = false;
@@ -317,8 +335,9 @@ public class RuleSet implements TestRule {
     return ret;
   }
 
-  private int identifyObjectsAndSetSummarizer(Summarizer summarizer, Map<Object, Integer> idMap, int i,
-      Map<Object, Integer> levelMap, int j, Set<Integer> leaves) {
+  private int identifyObjectsAndSetSummarizer(Summarizer summarizer,
+      Map<Object, Integer> idMap, int i, Map<Object, Integer> levelMap, int j,
+      Set<Integer> leaves) {
     this.summarizer = summarizer;
     this.leaves = leaves;
     this.idMap = idMap;
@@ -334,7 +353,8 @@ public class RuleSet implements TestRule {
       levelMap.put(p.cond, j);
       idMap.put(p.cond, i++);
       if (p.nested instanceof RuleSet) {
-        i = ((RuleSet) p.nested).identifyObjectsAndSetSummarizer(summarizer, idMap, i, levelMap, j + 1, leaves);
+        i = ((RuleSet) p.nested).identifyObjectsAndSetSummarizer(summarizer,
+            idMap, i, levelMap, j + 1, leaves);
       } else {
         levelMap.put(p.nested, j + 1);
         leaves.add(i);
@@ -379,7 +399,8 @@ public class RuleSet implements TestRule {
   }
 
   /* DONE */
-  protected void dumpValues(Description desc, ReportWriter writer, Map<Field, Object> values) {
+  protected void dumpValues(Description desc, ReportWriter writer,
+      Map<Field, Object> values) {
     writer.writeLine(desc, 1, String.format("VALUES(%d)", values.size()));
     List<Field> keys = new ArrayList<Field>(values.keySet());
     Collections.sort(keys, new Comparator<Field>() {
@@ -390,13 +411,13 @@ public class RuleSet implements TestRule {
     });
     for (Field key : keys) {
       Object v = values.get(key);
-      writer
-          .writeLine(desc, 2, String.format("%s:%s(%s)", key.getName(), v == null ? null : ArrayUtils.toString(v), key
-              .getType().getName()));
+      writer.writeLine(desc, 2, String.format("%s:%s(%s)", key.getName(),
+          v == null ? null : ArrayUtils.toString(v), key.getType().getName()));
     }
   }
 
-  protected void dumpExceptions(Description desc, ReportWriter writer, Map<Field, Object> values) {
+  protected void dumpExceptions(Description desc, ReportWriter writer,
+      Map<Field, Object> values) {
     List<Field> keys = new ArrayList<Field>(values.keySet());
     Collections.sort(keys, new Comparator<Field>() {
       @Override
@@ -409,7 +430,8 @@ public class RuleSet implements TestRule {
       Object v = values.get(key);
       if (v instanceof Throwable) {
         Throwable t = (Throwable) v;
-        writer.writeLine(desc, 1, String.format("%s:%s(%s)", key.getName(), v, key.getType().getName()));
+        writer.writeLine(desc, 1, String.format("%s:%s(%s)", key.getName(), v,
+            key.getType().getName()));
         writer.writeLine(desc, 2, t.getMessage());
         for (StackTraceElement ste : t.getStackTrace()) {
           writer.writeLine(desc, 3, ste.toString());
@@ -549,7 +571,8 @@ public class RuleSet implements TestRule {
     return this.otherwise;
   }
 
-  private boolean evalp(Pair pair, Object p, String testName) throws JCUnitException, CUT {
+  private boolean evalp(Pair pair, Object p, String testName)
+      throws JCUnitException, CUT {
     try {
       boolean ret = Basic.evalp(context, p);
       if (p == pair.cond) {
@@ -574,7 +597,8 @@ public class RuleSet implements TestRule {
   }
 
   /* DONE */
-  public boolean apply(Report report, String testName) throws JCUnitException, RuleIgnored, CUT {
+  public boolean apply(Report report, String testName) throws JCUnitException,
+      RuleIgnored, CUT {
     boolean passed = true;
     boolean matchedAtLeastOnce = false;
     int indentLevel = report.indent;
@@ -597,7 +621,8 @@ public class RuleSet implements TestRule {
               continue;
           }
         } else {
-          passed &= report.expect(testName, cur.nested, evalp(cur, cur.nested, testName));
+          passed &= report.expect(testName, cur.nested,
+              evalp(cur, cur.nested, testName));
           if (cur.cut())
             break;
         }
@@ -615,7 +640,8 @@ public class RuleSet implements TestRule {
           RuleSet nested = (RuleSet) this.otherwise.nested;
           return nested.apply(report, testName);
         } else if (this.otherwise.nested != null) {
-          return report.expect(testName, this.otherwise.nested, evalp(this.otherwise, this.otherwise.nested, testName));
+          return report.expect(testName, this.otherwise.nested,
+              evalp(this.otherwise, this.otherwise.nested, testName));
         }
       }
     }
@@ -639,7 +665,8 @@ public class RuleSet implements TestRule {
           Object value = e.getValue();
           sb.append(key);
           sb.append('=');
-          value = value instanceof Object[] ? ArrayUtils.toString(value) : value;
+          value = value instanceof Object[] ? ArrayUtils.toString(value)
+              : value;
           sb.append(value == this ? "(this Map)" : value);
           if (!i.hasNext())
             return sb.append('}').toString();
@@ -673,16 +700,16 @@ public class RuleSet implements TestRule {
     if (this.otherwise != null)
       pairs.add(this.otherwise);
     for (Pair p : pairs) {
-      writer.writeLine(
-          klazz,
-          0,
-          String.format("[%02d]%3d/%3d - %s%s", idOf(p.cond), this.summarizer.passes(idOf(p.cond)),
-              this.summarizer.fails(idOf(p.cond)), spaces(levelOf(p.cond)), Basic.tostr(p.cond, true)));
+      writer.writeLine(klazz, 0, String.format("[%02d]%3d/%3d - %s%s",
+          idOf(p.cond), this.summarizer.passes(idOf(p.cond)),
+          this.summarizer.fails(idOf(p.cond)), spaces(levelOf(p.cond)),
+          Basic.tostr(p.cond, true)));
       if (p.nested instanceof RuleSet)
         ((RuleSet) p.nested).printOutClassLevelResult(klazz);
       else
-        writer.writeLine(klazz, 0, String.format("[%02d]%3d/%3d - %s%s", idOf(p.nested),
-            this.summarizer.passes(idOf(p.nested)), this.summarizer.fails(idOf(p.nested)), spaces(levelOf(p.nested)),
+        writer.writeLine(klazz, 0, String.format("[%02d]%3d/%3d - %s%s",
+            idOf(p.nested), this.summarizer.passes(idOf(p.nested)),
+            this.summarizer.fails(idOf(p.nested)), spaces(levelOf(p.nested)),
             Basic.tostr(p.nested, true)));
     }
   }
@@ -717,18 +744,24 @@ public class RuleSet implements TestRule {
 
   /* DONE */
   protected void writeTestCaseLevelHeader(final Description desc) {
-    writer.writeLine(desc, 0, "***********************************************");
-    writer.writeLine(desc, 0, "***                                         ***");
-    writer.writeLine(desc, 0, "***           T E S T R E P O R T           ***");
-    writer.writeLine(desc, 0, "***                                         ***");
-    writer.writeLine(desc, 0, "***********************************************");
+    writer
+        .writeLine(desc, 0, "***********************************************");
+    writer
+        .writeLine(desc, 0, "***                                         ***");
+    writer
+        .writeLine(desc, 0, "***           T E S T R E P O R T           ***");
+    writer
+        .writeLine(desc, 0, "***                                         ***");
+    writer
+        .writeLine(desc, 0, "***********************************************");
     writer.writeLine(desc, 0, "");
   }
 
   /* DONE */
   protected void writeTestCaseId(final Description desc) {
     writer.writeLine(desc, 0, "* TEST NAME *");
-    writer.writeLine(desc, 1, String.format("'%s/%s'", desc.getClassName(), desc.getMethodName()));
+    writer.writeLine(desc, 1,
+        String.format("'%s/%s'", desc.getClassName(), desc.getMethodName()));
     writer.writeLine(desc, 0, "");
   }
 

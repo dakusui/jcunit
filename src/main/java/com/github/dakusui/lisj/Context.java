@@ -6,110 +6,110 @@ import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 
 public interface Context extends Cloneable {
 
-	/*
-     * Throws an exception if the given name isn't registered. 
-	 */
-	Object lookup(Symbol name) throws SymbolNotFoundException;
-	
-	/*
-	 * Unlike Java's <code>HashMap.put</code> method, this method returns the newly 
-	 * registered <code>value</code>. 
-	 */
-	Object bind(Symbol symbol, Object value);
+  /*
+   * Throws an exception if the given name isn't registered.
+   */
+  Object lookup(Symbol name) throws SymbolNotFoundException;
 
-	Context createChild();
-	
-	MathContext bigDecimalMathContext();
+  /*
+   * Unlike Java's <code>HashMap.put</code> method, this method returns the
+   * newly registered <code>value</code>.
+   */
+  Object bind(Symbol symbol, Object value);
 
-	Object add(Object... params);
+  Context createChild();
 
-	Object and(Object... args);
-	
-	Object any();
+  MathContext bigDecimalMathContext();
 
-	Object bigDecimal(Object num);
+  Object add(Object... params);
 
-	Object bigInteger(Object num);
+  Object and(Object... args);
 
-	Object byteValue(Object num);
+  Object any();
 
-	Object same(Object obj, Object another);
+  Object bigDecimal(Object num);
 
-	Object contains(Object obj, String str);
+  Object bigInteger(Object num);
 
-	Object div(Object... params);
+  Object byteValue(Object num);
 
-	Object doubleValue(Object num);
+  Object same(Object obj, Object another);
 
-	Object ne(Object obj, Object another);
+  Object contains(Object obj, String str);
 
-	Object floatValue(Object num);
+  Object div(Object... params);
 
-	Object ge(Object obj, Object another);
+  Object doubleValue(Object num);
 
-	Object get(Object obj, Object attrName);
+  Object ne(Object obj, Object another);
 
-	Object gt(Object obj, Object another);
+  Object floatValue(Object num);
 
-	Object intValue(Object num);
+  Object ge(Object obj, Object another);
 
-	Object is(Object obj, Object arg);
+  Object get(Object obj, Object attrName);
 
-	Object isoneof(Object obj, Object... args);
+  Object gt(Object obj, Object another);
 
-	Object le(Object obj, Object another);
+  Object intValue(Object num);
 
-	Object longValue(Object num);
+  Object is(Object obj, Object arg);
 
-	Object lt(Object obj, Object another);
+  Object isoneof(Object obj, Object... args);
 
-	Object matches(Object attrName, String regex);
+  Object le(Object obj, Object another);
 
-	Object max(Object... params);
+  Object longValue(Object num);
 
-	Object min(Object... params);
+  Object lt(Object obj, Object another);
 
-	Object mul(Object... params);
+  Object matches(Object attrName, String regex);
 
-	Object not(Object target);
+  Object max(Object... params);
 
-	Object or(Object... args);
+  Object min(Object... params);
 
-	Object set(Object obj, Object attrName, Object value);
+  Object mul(Object... params);
 
-	Object shortValue(Object num);
+  Object not(Object target);
 
-	Object sub(Object... params);
+  Object or(Object... args);
 
-	Symbol $(String name);
+  Object set(Object obj, Object attrName, Object value);
 
-	Object cond(Object... whens);
+  Object shortValue(Object num);
 
-	Object when(Object pred, Object... statements);
+  Object sub(Object... params);
 
-	Object assign(Symbol symbol, Object value);
+  Symbol $(String name);
 
-	Object print(Object s);
+  Object cond(Object... whens);
 
-	Object loop(Object cond, Object... forms);
+  Object when(Object pred, Object... statements);
 
-	Object progn(Object... forms);
+  Object assign(Symbol symbol, Object value);
 
-	Object format(Object format, Object... args);
+  Object print(Object s);
 
-	Object lambda(Symbol[] params, Object... funcBody);
+  Object loop(Object cond, Object... forms);
 
-	Object lambda(Symbol param, Object... funcBody);
+  Object progn(Object... forms);
 
-	Symbol[] $(String... names);
+  Object format(Object format, Object... args);
 
-	Object eval(Object... args);
-	
-	Object isinstanceof(Object obj, Object clazz);
+  Object lambda(Symbol[] params, Object... funcBody);
 
-	Object eq(Object obj, Object arg);
+  Object lambda(Symbol param, Object... funcBody);
 
-	Object concat(Object separator, Object... args);
+  Symbol[] $(String... names);
 
-	Object outFieldNames(Object obj);
+  Object eval(Object... args);
+
+  Object isinstanceof(Object obj, Object clazz);
+
+  Object eq(Object obj, Object arg);
+
+  Object concat(Object separator, Object... args);
+
+  Object outFieldNames(Object obj);
 }

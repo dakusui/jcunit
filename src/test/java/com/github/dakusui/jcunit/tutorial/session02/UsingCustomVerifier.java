@@ -14,17 +14,20 @@ import com.github.dakusui.jcunit.core.Summarizer;
 
 @RunWith(JCUnit.class)
 public class UsingCustomVerifier {
-	@Rule
-	public RuleSet rules = new DefaultRuleSetBuilder().autoRuleSet(this).summarizer(summarizer);
+  @Rule
+  public RuleSet           rules      = new DefaultRuleSetBuilder()
+                                          .autoRuleSet(this).summarizer(
+                                              summarizer);
 
-	@ClassRule
-	public static Summarizer summarizer = new BasicSummarizer();
+  @ClassRule
+  public static Summarizer summarizer = new BasicSummarizer();
 
-	@Out(verifier=CustomVerifier.class)
-	public Exception e;
-	
-	@Test
-	public void test() {
-		e = new Exception("Hello");
-	}
+  @Out(
+      verifier = CustomVerifier.class)
+  public Exception         e;
+
+  @Test
+  public void test() {
+    e = new Exception("Hello");
+  }
 }

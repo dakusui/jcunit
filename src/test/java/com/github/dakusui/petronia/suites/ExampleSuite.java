@@ -8,10 +8,7 @@ import com.github.dakusui.petronia.examples.MethodFinderTest;
 import com.github.dakusui.petronia.examples.TestArrayGeneratorsTest;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({
-	Example.class,
-	MethodFinderTest.MethodFinderTest1.class,
-	MethodFinderTest.MethodFinderTest2.class,
-	TestArrayGeneratorsTest.class
-})
-public class ExampleSuite {}
+@Suite.SuiteClasses({ Example.class, MethodFinderTest.MethodFinderTest1.class,
+    MethodFinderTest.MethodFinderTest2.class, TestArrayGeneratorsTest.class })
+public class ExampleSuite {
+}

@@ -1,16 +1,16 @@
 package com.github.dakusui.jcunit.generators.ipo;
 
+import com.github.dakusui.jcunit.generators.ipo.TestRunSet.Info;
+import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet.Info;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
 
 /**
  * This class provides an implementation of the algorithm described in the book
@@ -28,17 +28,17 @@ public class IPO {
   /**
    * The 'Don't care value', used in 'vg'(vertical growth) procedure.
    */
-  static final Object DC = new Object() {
-    @Override
-    public String toString() {
-      return "D/C";
-    }
-  };
+  static final Object         DC     = new Object() {
+                                       @Override
+                                       public String toString() {
+                                         return "D/C";
+                                       }
+                                     };
 
   /**
    * The test space.
    */
-  TestSpace space;
+  TestSpace                   space;
 
   /**
    * Creates an object of this class.
@@ -298,9 +298,9 @@ public class IPO {
 
   private void printTestRunSet(String message, TestRunSet testRunSet) {
     if (LOGGER.isDebugEnabled()) {
-      System.err.println("*** " + message + " ***");
-      System.err.println(testRunSet.toString());
-      System.err.println("*** *** ***");
+      LOGGER.debug("*** " + message + " ***");
+      LOGGER.debug(testRunSet.toString());
+      LOGGER.debug("*** *** ***");
     }
   }
 

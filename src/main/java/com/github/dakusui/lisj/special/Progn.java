@@ -8,22 +8,21 @@ import com.github.dakusui.lisj.FormResult;
 
 public class Progn extends BaseForm {
 
-	/**
-	 * Serial version UID
-	 */
-	private static final long serialVersionUID = 1012273507783010986L;
+  /**
+   * Serial version UID
+   */
+  private static final long serialVersionUID = 1012273507783010986L;
 
-	@Override
-	protected FormResult evaluateEach(Context context, Object currentParam,
-			FormResult lastResult) throws JCUnitException, CUT {
-		return evaluateEachSimply(context, currentParam, lastResult);
-	}
+  @Override
+  protected FormResult evaluateEach(Context context, Object currentParam,
+      FormResult lastResult) throws JCUnitException, CUT {
+    return evaluateEachSimply(context, currentParam, lastResult);
+  }
 
-	@Override
-	protected FormResult evaluateLast(Context context,
-			Object[] evaluatedParams, FormResult lastResult)
-			throws JCUnitException {
-		return lastResult;
-	}
+  @Override
+  protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
+      FormResult lastResult) throws JCUnitException {
+    return lastResult;
+  }
 
 }

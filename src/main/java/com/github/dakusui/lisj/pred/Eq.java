@@ -7,18 +7,17 @@ import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 
 public class Eq extends BinomialPredicate {
-	/**
-	 * Serial version UID
-	 */
-	private static final long serialVersionUID = -4792477732433911082L;
+  /**
+   * Serial version UID
+   */
+  private static final long serialVersionUID = -4792477732433911082L;
 
-	@Override
-	protected FormResult evaluateLast(Context context,
-			Object[] evaluatedParams, FormResult lastResult)
-			throws JCUnitException, CUT {
-		Object obj     = evaluatedParams[0];
-		Object another = evaluatedParams[1];
-		lastResult.value(Basic.eq(obj, another));
-		return lastResult;
-	}
+  @Override
+  protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
+      FormResult lastResult) throws JCUnitException, CUT {
+    Object obj = evaluatedParams[0];
+    Object another = evaluatedParams[1];
+    lastResult.value(Basic.eq(obj, another));
+    return lastResult;
+  }
 }

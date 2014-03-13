@@ -12,25 +12,26 @@ import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.lisj.Form;
 
 public abstract class AutoFunctionTest extends FormTestBase {
-	public static class Example {
-		@Out
-		public int example = 100;
-		public Example(int i) {
-			this.example = i;
-		}
-	}
+  public static class Example {
+    @Out
+    public int example = 100;
 
-	@Rule
-	public TestName testName = new TestName();
-	
-	@Before
-	public void removeWorkingDirectory() throws IOException {
-		FileUtils.deleteDirectory(new File(".jcunit"));
-	}
+    public Example(int i) {
+      this.example = i;
+    }
+  }
 
-	@Override
-	protected Form createForm() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+  @Rule
+  public TestName testName = new TestName();
+
+  @Before
+  public void removeWorkingDirectory() throws IOException {
+    FileUtils.deleteDirectory(new File(".jcunit"));
+  }
+
+  @Override
+  protected Form createForm() {
+    // TODO Auto-generated method stub
+    return null;
+  }
 }

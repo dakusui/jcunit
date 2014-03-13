@@ -10,28 +10,28 @@ import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
 class SerializingEncoder extends BaseObjectEncoder {
 
-	@Override
-	public void encodeObject(OutputStream os, Object obj) throws IOException {
-		ObjectOutputStream oos = new ObjectOutputStream(os);
-		try {
-			oos.writeObject(obj);
-		} finally {
-			oos.close();
-		}
-	}
+  @Override
+  public void encodeObject(OutputStream os, Object obj) throws IOException {
+    ObjectOutputStream oos = new ObjectOutputStream(os);
+    try {
+      oos.writeObject(obj);
+    } finally {
+      oos.close();
+    }
+  }
 
-	@Override
-	public Object decodeObject(InputStream is) throws IOException {
-		Object ret;
-		ObjectInputStream ois = new ObjectInputStream(is);
-		try {
-			ret = ois.readObject();
-		} catch (ClassNotFoundException e) {
-			String msg = createMessage_FailedToDecodeObject(e);
-			throw new JCUnitRuntimeException(msg, e);
-		} finally {
-			ois.close();
-		}
-		return ret;
-	}
+  @Override
+  public Object decodeObject(InputStream is) throws IOException {
+    Object ret;
+    ObjectInputStream ois = new ObjectInputStream(is);
+    try {
+      ret = ois.readObject();
+    } catch (ClassNotFoundException e) {
+      String msg = createMessage_FailedToDecodeObject(e);
+      throw new JCUnitRuntimeException(msg, e);
+    } finally {
+      ois.close();
+    }
+    return ret;
+  }
 }

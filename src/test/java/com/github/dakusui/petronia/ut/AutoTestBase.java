@@ -16,23 +16,24 @@ import com.github.dakusui.petronia.examples.Calc;
 
 @RunWith(JCUnit.class)
 public class AutoTestBase extends DefaultRuleSetBuilder {
-	@Rule
-	public RuleSet rules = autoRuleSet(this).summarizer(summarizer);
-	
-	@ClassRule
-	public static Summarizer summarizer = new BasicSummarizer();
+  @Rule
+  public RuleSet           rules      = autoRuleSet(this)
+                                          .summarizer(summarizer);
 
-	@In
-	public int a;
-	
-	@In
-	public int b;
-	
-	@Out
-	public int c = 123;
+  @ClassRule
+  public static Summarizer summarizer = new BasicSummarizer();
 
-	@Test
-	public void test() {
-		this.c = new Calc().calc(Calc.Op.plus, this.a, this.b);
-	}
+  @In
+  public int               a;
+
+  @In
+  public int               b;
+
+  @Out
+  public int               c          = 123;
+
+  @Test
+  public void test() {
+    this.c = new Calc().calc(Calc.Op.plus, this.a, this.b);
+  }
 }
