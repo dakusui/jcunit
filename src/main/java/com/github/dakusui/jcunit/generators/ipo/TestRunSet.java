@@ -1,16 +1,6 @@
 package com.github.dakusui.jcunit.generators.ipo;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.github.dakusui.enumerator.Combinator;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.Attr;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
 
 /**
  * A class that represents the set of test runs.
@@ -18,9 +8,6 @@ import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
  * @author hiroshi
  */
 public class TestRunSet extends ArrayList<TestRun> {
-  private static final Logger LOGGER = LoggerFactory
-                                         .getLogger(TestRunSet.class);
-
   public static class Info {
     public int numHorizontalFallbacks;
     public int numVerticalFallbacks;
@@ -29,11 +16,9 @@ public class TestRunSet extends ArrayList<TestRun> {
   private static final long serialVersionUID = 1L;
   int                       width;
   private Info              info;
-  public Set<ValueTriple>   uncoveredTriples;
 
-  TestRunSet(int width, Set<ValueTriple> uncoveredTriples) {
+  TestRunSet(int width) {
     this.width = width;
-    this.uncoveredTriples = uncoveredTriples;
   }
 
   /**
@@ -60,46 +45,7 @@ public class TestRunSet extends ArrayList<TestRun> {
       throw new NullPointerException();
     if (run.v.length != this.width)
       throw new IllegalArgumentException();
-    Set<ValueTriple> triplesToBeCovered = triplesCoveredBy(run);
-
-    // int i = 0;
-    // for (ValueTriple cur : triplesToBeCovered) {
-    // LOGGER.debug("    Some known triples:" + cur);
-    // if (i++ >= 10)
-    // break;
-    // }
-
-    this.uncoveredTriples.removeAll(triplesToBeCovered);
-    LOGGER.debug("Remaining uncoveredTriples:{}", this.uncoveredTriples.size());
     return super.add(run);
-  }
-
-  private Set<ValueTriple> triplesCoveredBy(TestRun run) {
-    List<Attr> tmpAttrs = new ArrayList<Attr>();
-    // The index should be 1-origin.
-    for (int i = 1; i <= run.width(); i++) {
-      Attr attr = new Attr(i, run.get(i));
-      if (attr.value != IPO.DC)
-        tmpAttrs.add(attr);
-    }
-    Combinator<Attr> comb = new Combinator<Attr>(tmpAttrs, 3);
-    Set<ValueTriple> triplesToBeCovered = new HashSet<ValueTriple>();
-    for (List<Attr> cur : comb) {
-      ValueTriple triple = new ValueTriple(cur);
-      triplesToBeCovered.add(triple);
-    }
-    LOGGER.trace("Triples to be covered:{}", triplesToBeCovered);
-    return triplesToBeCovered;
-  }
-
-  public int countTriplesNewlyCoveredBy(TestRun run) {
-    int ret = 0;
-    for (ValueTriple cur : triplesCoveredBy(run)) {
-      if (this.uncoveredTriples.contains(cur))
-        ret++;
-    }
-    LOGGER.debug("Triples newly covered by {}:{}", run, ret);
-    return ret;
   }
 
   /**

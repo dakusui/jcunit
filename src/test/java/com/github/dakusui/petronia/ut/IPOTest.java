@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Enumerator;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
+import com.github.dakusui.jcunit.generators.ipo.IPOOptimizer;
 import com.github.dakusui.jcunit.generators.ipo.TestRun;
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
@@ -82,7 +83,7 @@ public class IPOTest {
   }
 
   private void runTest(TestSpace space) {
-    IPO ipo = new IPO(space);
+    IPO ipo = new IPO(space, new IPOOptimizer(space));
     TestRunSet testRunSet = ipo.ipo();
     int i = 1;
     for (TestRun r : testRunSet) {

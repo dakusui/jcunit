@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.github.dakusui.jcunit.core.GeneratorParameters;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
+import com.github.dakusui.jcunit.generators.ipo.IPOOptimizer;
 import com.github.dakusui.jcunit.generators.ipo.TestRun;
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
@@ -57,7 +58,7 @@ public class PairwiseTestArrayGenerator<T, U> extends
                                  // is.
     }
     TestSpace space = new TestSpace(testSpaceDomains);
-    IPO ipo = new IPO(space);
+    IPO ipo = new IPO(space, new IPOOptimizer(space));
     return ipo.ipo();
   }
 

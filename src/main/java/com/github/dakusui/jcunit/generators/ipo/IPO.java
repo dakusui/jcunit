@@ -1,16 +1,15 @@
 package com.github.dakusui.jcunit.generators.ipo;
 
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet.Info;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.github.dakusui.jcunit.generators.ipo.TestRunSet.Info;
 
 /**
  * This class provides an implementation of the algorithm described in the book
@@ -41,14 +40,20 @@ public class IPO {
   TestSpace                   space;
 
   /**
+   * An optimizer object.
+   */
+  private IPOOptimizer        optimizer;
+
+  /**
    * Creates an object of this class.
    * 
    * @param space
    *          the definition of the test space in which the test runs are
    *          executed.
    */
-  public IPO(TestSpace space) {
+  public IPO(TestSpace space, IPOOptimizer optimizer) {
     this.space = space;
+    this.optimizer = optimizer;
   }
 
   /*
@@ -68,10 +73,9 @@ public class IPO {
     // Step 1. [Initialize] Generate all pairs for parameters F1 and F2.
     // Set T = {(r,s) | for all r <E> D(f1) and s <E> D(F2)}.
     // # <E> means 'exists in'.
-    LOGGER.debug("Creating triples");
-    Set<ValueTriple> createdTriples = space.createAllTriples();
-    LOGGER.debug("Triples created:{}", createdTriples.size());
-    TestRunSet T = new TestRunSet(2, createdTriples);
+    optimizer.init();
+
+    TestRunSet T = optimizer.createTestRunSet(2);
     int Fi = 1;
     for (Object vi : this.space.domainOf(1)) {
       int Fj = 2;
@@ -193,8 +197,8 @@ public class IPO {
     // Let T' = <0>. T' denotes the set of runs obtained by extending the runs
     // in T in the following steps:
     // # <0> is an empty set.
-    TestRunSet ret /* T' in the book */= new TestRunSet(R.width() + 1,
-        R.uncoveredTriples);
+    /* ret is T' in the book */
+    TestRunSet ret = optimizer.createTestRunSet(R.width() + 1);
 
     // Step 3.
     // Let C = min(q, m). Here, C is the number of elements in the set T or
@@ -247,44 +251,10 @@ public class IPO {
       }
       // 6.1 Let AP′ = <0>
       Set<ValuePair> AP$ = new HashSet<ValuePair>();
-      Object v$ = space.value(F, 1);
-      boolean fallback = true;
-      for (int k = 1; k <= space.domainOf(F).length; k++) {
-        // and v' = l1.
-        // 6.2 In this step, we find a value of F by which to extend run
-        // tj. The value that adds the maximum pairwise coverage is
-        // selected. Repeat the next two substeps for each v <E> D(F).
-        Set<ValuePair> AP$$ = new HashSet<ValuePair>();
-        // 6.2.1 AP'' = {(r,v)|, where r is a value in run tj}. Here
-        // AP'' is the set of all new pairs formed when run tj is
-        // extended by v.
-        Object v = space.value(F, k);
-        for (int Fi : R.coveredParameters()) {
-          ValuePair p = new ValuePair(Fi, tj.get(Fi), F, v);
-          // AP is 'All pairs yet to cover'.
-          if (AP.contains(p)) {
-            AP$$.add(p);
-          }
-        }
-        // 6.2.2 If |AP''| > |AP′| then AP′ = AP'' and v′ = v.
-        // NOTE: The book says |AP''| > |AP'| is the condition to update the
-        // candidate,
-        // But in my experience, the smallest example like 3^4, this approach
-        // creates a bit bigger test case set. So I'm doing |AP''| >= |AP'|
-        // here.
-        if (AP$$.size() >= AP$.size()) {
-          AP$ = AP$$;
-          v$ = v;
-          if (AP$$.size() > AP$.size()) {
-            // If |AP''| > |AP'|, it means fallback value is explicitly
-            // overridden.
-            fallback = false;
-          }
-        }
-      }
+      Object v$ = optimizeInHG(AP$, R, tj, F, AP);
 
       // 6.3 Let = extend(tj, v′). T′ = T′ ∪ .
-      if (fallback)
+      if (v$ == DC)
         info.numHorizontalFallbacks++;
       tj.set(F, v$);
       ret.add(tj);
@@ -294,6 +264,52 @@ public class IPO {
     }
     printTestRunSet("HG-2", ret);
     return ret /* T' in the book */;
+  }
+
+  /**
+   * Returns the best value for the specified field in the test run. And outputs
+   * the set of pairs newly covered by using the value.
+   * 
+   * @param AP$
+   * @param R
+   * @param tj
+   * @param F
+   * @param AP
+   * @return
+   */
+  private Object optimizeInHG(Set<ValuePair> AP$, TestRunSet R, TestRun tj,
+      int F, Set<ValuePair> AP) {
+    Object v$ = DC; // space.value(F, 1);
+    for (int k = 1; k <= space.domainOf(F).length; k++) {
+      // and v' = l1.
+      // 6.2 In this step, we find a value of F by which to extend run
+      // tj. The value that adds the maximum pairwise coverage is
+      // selected. Repeat the next two substeps for each v <E> D(F).
+      Set<ValuePair> AP$$ = new HashSet<ValuePair>();
+      // 6.2.1 AP'' = {(r,v)|, where r is a value in run tj}. Here
+      // AP'' is the set of all new pairs formed when run tj is
+      // extended by v.
+      Object v = space.value(F, k);
+      for (int Fi : R.coveredParameters()) {
+        ValuePair p = new ValuePair(Fi, tj.get(Fi), F, v);
+        // AP is 'All pairs yet to cover'.
+        if (AP.contains(p)) {
+          AP$$.add(p);
+        }
+      }
+      // 6.2.2 If |AP''| > |AP′| then AP′ = AP'' and v′ = v.
+      // NOTE: The book says |AP''| > |AP'| is the condition to update the
+      // candidate,
+      // But in my experience, the smallest example like 3^4, this approach
+      // creates a bit bigger test case set. So I'm doing |AP''| >= |AP'|
+      // here.
+      if (AP$$.size() >= AP$.size()) {
+        AP$.clear();
+        AP$.addAll(AP$$);
+        v$ = v;
+      }
+    }
+    return v$;
   }
 
   private void printTestRunSet(String message, TestRunSet testRunSet) {
@@ -347,18 +363,10 @@ public class IPO {
           // means coming up an algorithm that gives an index other than '1'.
           // run.set(i, this.space.value(i, 1));
 
-          int coverings = -1;
-          Object v = DC;
-          for (int j = 1; j <= this.space.domainOf(i).length; j++) {
-            run.set(i, this.space.value(i, j));
-            int tmpCoverings = testRunSet.countTriplesNewlyCoveredBy(run);
-            if (tmpCoverings > coverings) {
-              v = this.space.value(i, j);
-            }
-          }
+          Object v = optimizer.optimizeInVG(testRunSet, run, i);
           if (v == DC) {
             // If the best value can't be chosen, the first one will be picked
-            // up.
+            // up. (fallback)
             run.set(i, this.space.value(i, 1));
           } else {
             run.set(i, v);
@@ -390,7 +398,7 @@ public class IPO {
      */
 
     // Step 1. Let T' = <0>
-    TestRunSet T$ = new TestRunSet(T.width(), T.uncoveredTriples);
+    TestRunSet T$ = optimizer.createTestRunSet(T.width);
 
     // Step 2. Add new tests to cover the uncovered pairs.
     // For each missing pair (Fi.r, Fk.s) <E> MP, 1 <= i < k,
