@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.generators.ipo;
+package com.github.dakusui.jcunit.generators.ipo.optimizers;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,19 +9,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.enumerator.Combinator;
+import com.github.dakusui.jcunit.generators.ipo.IPO;
+import com.github.dakusui.jcunit.generators.ipo.TestRun;
+import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 import com.github.dakusui.jcunit.generators.ipo.ValueTuple.Attr;
 import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
 
-public class IPOOptimizer {
+public class GreedyIPOOptimizer extends IPOOptimizer {
   private static final Logger LOGGER = LoggerFactory
-                                         .getLogger(TestRunSet.class);
-  protected TestSpace         space;
+                                         .getLogger(GreedyIPOOptimizer.class);
+
   private Set<ValueTriple>    uncoveredTriples;
 
-  public IPOOptimizer(TestSpace space) {
-    this.space = space;
+  public GreedyIPOOptimizer(TestSpace space) {
+    super(space);
   }
 
+  @Override
+  public void init() {
+    LOGGER.debug("Creating triples");
+    this.uncoveredTriples = space.createAllTriples();
+    LOGGER.debug("Triples created:{}", this.uncoveredTriples.size());
+  }
+
+  @Override
   public TestRunSet createTestRunSet(int width) {
     return new TestRunSet(width) {
       /**
@@ -33,32 +45,18 @@ public class IPOOptimizer {
       public boolean add(TestRun run) {
         Set<ValueTriple> triplesToBeCovered = triplesCoveredBy(run);
 
-        IPOOptimizer.this.uncoveredTriples.removeAll(triplesToBeCovered);
+        GreedyIPOOptimizer.this.uncoveredTriples.removeAll(triplesToBeCovered);
         LOGGER.debug("Remaining uncoveredTriples:{}",
-            IPOOptimizer.this.uncoveredTriples.size());
+            GreedyIPOOptimizer.this.uncoveredTriples.size());
 
         return super.add(run);
       }
     };
   }
 
-  public void init() {
-    LOGGER.debug("Creating triples");
-    this.uncoveredTriples = space.createAllTriples();
-    LOGGER.debug("Triples created:{}", this.uncoveredTriples.size());
-  }
-
+  @Override
   public Object optimizeInVG(TestRunSet currentTestRunSet, TestRun testRun,
       int i) {
-    return optimize(currentTestRunSet, testRun, i);
-  }
-
-  public Object optimizeInHG(TestRunSet currentTestRunSet, TestRun testRun,
-      int i, int[] candidates) {
-    return optimize(currentTestRunSet, testRun, i);
-  }
-
-  private Object optimize(TestRunSet currentTestRunSet, TestRun testRun, int i) {
     Object v = IPO.DC;
     int coverings = -1;
     for (int j = 1; j <= this.space.domainOf(i).length; j++) {
@@ -96,8 +94,30 @@ public class IPOOptimizer {
       if (this.uncoveredTriples.contains(cur))
         ret++;
     }
-    LOGGER.debug("Triples newly covered by {}:{}", run, ret);
+    LOGGER.trace("Triples newly covered by {}:{}", run, ret);
     return ret;
   }
 
+  @Override
+  protected Object bestValueFor(TestRunSet currentTestRunSet, TestRun testRun,
+      int fieldId) {
+    // Object ret = hgCandidates.get(hgCandidates.size() - 1);
+    int maxNumCoveredTriples = -1;
+    TestRun clonedTestRun = testRun.clone();
+    Object ret = IPO.DC;
+    for (Object v : this.hgCandidates) {
+      clonedTestRun.set(fieldId, v);
+      int numCoveredTriples = countTriplesNewlyCoveredBy(clonedTestRun);
+      if (numCoveredTriples >= maxNumCoveredTriples) {
+        ret = v;
+        maxNumCoveredTriples = numCoveredTriples;
+      }
+    }
+    return ret;
+    /*
+     * return hgCandidates.size() != 0 ? hgCandidates.get(0) : IPO.DC;
+     */
+
+    // return ret;
+  }
 }

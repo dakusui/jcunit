@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.enumerator.Permutator;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.IPOOptimizer;
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.optimizers.GreedyIPOOptimizer;
 
 public class BestPairwiseTestArrayGenerator<T, U> extends
     PairwiseTestArrayGenerator<T, U> {
@@ -49,7 +49,7 @@ public class BestPairwiseTestArrayGenerator<T, U> extends
       // //
       // Let IPO generate covering array.
       TestSpace space = new TestSpace(testSpaceDomains);
-      IPO ipo = new IPO(space, new IPOOptimizer(space));
+      IPO ipo = new IPO(space, new GreedyIPOOptimizer(space));
       TestRunSet cand = ipo.ipo();
       if (ret == null || ret.size() > cand.size()) {
         ret = cand;

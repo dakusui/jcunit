@@ -82,4 +82,26 @@ public class TestRun implements Cloneable {
     }
     return ret;
   }
+
+  public TestRun clone() {
+    try {
+      return (TestRun) super.clone();
+    } catch (CloneNotSupportedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public boolean covers(ValuePair pair) {
+    if (pair == null)
+      throw new NullPointerException();
+    if (eq(this.get(pair.A), pair.r))
+      return eq(this.get(pair.B), pair.s);
+    return false;
+  }
+
+  private static boolean eq(Object v, Object w) {
+    if (v == null)
+      return w == null;
+    return v.equals(w);
+  }
 }

@@ -11,11 +11,11 @@ import org.junit.Test;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Enumerator;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.IPOOptimizer;
 import com.github.dakusui.jcunit.generators.ipo.TestRun;
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 import com.github.dakusui.jcunit.generators.ipo.ValuePair;
+import com.github.dakusui.jcunit.generators.ipo.optimizers.GreedyIPOOptimizer;
 
 public class IPOTest {
   @Test
@@ -83,7 +83,7 @@ public class IPOTest {
   }
 
   private void runTest(TestSpace space) {
-    IPO ipo = new IPO(space, new IPOOptimizer(space));
+    IPO ipo = new IPO(space, new GreedyIPOOptimizer(space));
     TestRunSet testRunSet = ipo.ipo();
     int i = 1;
     for (TestRun r : testRunSet) {

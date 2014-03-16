@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.jcunit.generators.ipo.TestRunSet.Info;
+import com.github.dakusui.jcunit.generators.ipo.optimizers.IPOOptimizer;
 
 /**
  * This class provides an implementation of the algorithm described in the book
@@ -27,7 +28,7 @@ public class IPO {
   /**
    * The 'Don't care value', used in 'vg'(vertical growth) procedure.
    */
-  static final Object         DC     = new Object() {
+  public static final Object  DC     = new Object() {
                                        @Override
                                        public String toString() {
                                          return "D/C";
@@ -251,11 +252,9 @@ public class IPO {
       }
       // 6.1 Let AP′ = <0>
       Set<ValuePair> AP$ = new HashSet<ValuePair>();
-      Object v$ = optimizeInHG(AP$, R, tj, F, AP);
+      Object v$ = chooseBestValueForF(info, AP$, R, tj, F, AP);
 
       // 6.3 Let = extend(tj, v′). T′ = T′ ∪ .
-      if (v$ == DC)
-        info.numHorizontalFallbacks++;
       tj.set(F, v$);
       ret.add(tj);
 
@@ -270,16 +269,27 @@ public class IPO {
    * Returns the best value for the specified field in the test run. And outputs
    * the set of pairs newly covered by using the value.
    * 
+   * @param info
+   *          information object to which this method sets how many times
+   *          optimizer works and so on.
    * @param AP$
+   *          Value pairs that newly covered by using returned object as a value
+   *          for Fi.
    * @param R
+   *          Current test run set
    * @param tj
+   *          A test run that is going to be added.
    * @param F
+   *          Index to specify the field for which this method chooses a value.
    * @param AP
-   * @return
+   *          Value pairs yet to be covered.
+   * 
+   * @return The value to be used for Fi.
    */
-  private Object optimizeInHG(Set<ValuePair> AP$, TestRunSet R, TestRun tj,
-      int F, Set<ValuePair> AP) {
+  private Object chooseBestValueForF(Info info, Set<ValuePair> AP$,
+      TestRunSet R, TestRun tj, int F, Set<ValuePair> AP) {
     Object v$ = DC; // space.value(F, 1);
+    this.optimizer.clearHGCandidates();
     for (int k = 1; k <= space.domainOf(F).length; k++) {
       // and v' = l1.
       // 6.2 In this step, we find a value of F by which to extend run
@@ -303,11 +313,16 @@ public class IPO {
       // But in my experience, the smallest example like 3^4, this approach
       // creates a bit bigger test case set. So I'm doing |AP''| >= |AP'|
       // here.
-      if (AP$$.size() >= AP$.size()) {
-        AP$.clear();
-        AP$.addAll(AP$$);
-        v$ = v;
-      }
+      this.optimizer.addHGCandidate(v, AP$$);
+    }
+    if (this.optimizer.numHGCandidates() > 0) {
+      if (optimizer.numHGCandidates() > 1)
+        info.numHorizontalFallbacks++;
+      AP$.clear();
+      v$ = this.optimizer.getBestHGValue(AP$, R, tj, F);
+    } else {
+      // Falls back to the first value in the domain.
+      v$ = space.value(F, 1);
     }
     return v$;
   }
@@ -449,8 +464,8 @@ public class IPO {
     // could also select a value that maximizes the number of
     // higher-oder tuples such as triples.
 
-    printTestRunSet("T'", T$);
     T$ = replaceDontCareValues(info, T$);
+    printTestRunSet("T'", T$);
     int pos = 0;
     for (TestRun r : T) {
       T$.add(pos, r);

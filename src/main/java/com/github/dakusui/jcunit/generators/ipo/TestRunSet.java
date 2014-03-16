@@ -17,7 +17,7 @@ public class TestRunSet extends ArrayList<TestRun> {
   int                       width;
   private Info              info;
 
-  TestRunSet(int width) {
+  public TestRunSet(int width) {
     this.width = width;
   }
 
@@ -92,5 +92,13 @@ public class TestRunSet extends ArrayList<TestRun> {
 
   public Info getInfo() {
     return this.info;
+  }
+
+  public boolean covers(ValuePair p) {
+    for (TestRun cur : this) {
+      if (cur.covers(p))
+        return true;
+    }
+    return false;
   }
 }
