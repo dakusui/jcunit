@@ -19,7 +19,7 @@ import com.github.dakusui.jcunit.generators.ipo.IPOValueTuple.ValueTriple;
  * 
  * @author hiroshi
  */
-public class TestSpace {
+public class IPOTestSpace {
   /**
    * The value domains. Each element of this field represents the domain of each
    * parameter.
@@ -32,7 +32,7 @@ public class TestSpace {
    * @param domains
    *          Domains of the parameters.
    */
-  public TestSpace(Object[][] domains) {
+  public IPOTestSpace(Object[][] domains) {
     if (domains == null)
       throw new NullPointerException();
     if (domains.length < 2)

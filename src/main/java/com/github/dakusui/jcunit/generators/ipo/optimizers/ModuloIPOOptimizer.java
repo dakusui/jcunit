@@ -2,13 +2,13 @@ package com.github.dakusui.jcunit.generators.ipo.optimizers;
 
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
 
 public class ModuloIPOOptimizer extends IPOOptimizer {
 
   private int counter;
 
-  public ModuloIPOOptimizer(TestSpace space) {
+  public ModuloIPOOptimizer(IPOTestSpace space) {
     super(space);
     this.counter = 0;
   }

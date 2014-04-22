@@ -38,7 +38,7 @@ public class IPO {
   /**
    * The test space.
    */
-  TestSpace                   space;
+  IPOTestSpace                   space;
 
   /**
    * An optimizer object.
@@ -52,7 +52,7 @@ public class IPO {
    *          the definition of the test space in which the test runs are
    *          executed.
    */
-  public IPO(TestSpace space, IPOOptimizer optimizer) {
+  public IPO(IPOTestSpace space, IPOOptimizer optimizer) {
     this.space = space;
     this.optimizer = optimizer;
   }

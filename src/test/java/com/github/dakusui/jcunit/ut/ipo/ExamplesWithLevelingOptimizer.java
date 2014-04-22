@@ -1,13 +1,13 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.IPOOptimizer;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.LevelingIPOOptimizer;
 
 public class ExamplesWithLevelingOptimizer extends IPOExamples {
 
   @Override
-  protected IPOOptimizer createOptimizer(TestSpace space) {
+  protected IPOOptimizer createOptimizer(IPOTestSpace space) {
     return new LevelingIPOOptimizer(space);
   }
 

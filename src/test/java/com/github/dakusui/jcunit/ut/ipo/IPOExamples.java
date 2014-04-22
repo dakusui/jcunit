@@ -7,11 +7,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.generators.ipo.ValuePair;
+import com.github.dakusui.jcunit.generators.ipo.IPOValuePair;
 import com.github.dakusui.jcunit.testutils.TestSettings;
 
 public abstract class IPOExamples extends IPOTestBase {
-  private static final List<ValuePair> EMPTY_LIST = new LinkedList<ValuePair>();
+  private static final List<IPOValuePair> EMPTY_LIST = new LinkedList<IPOValuePair>();
 
   protected abstract int expected01$3_3();
 
@@ -74,13 +74,13 @@ public abstract class IPOExamples extends IPOTestBase {
     assertEquals(expected06$10_20(), testRunSet.size());
   }
 
-  private List<ValuePair> pairsNotCovered() {
+  private List<IPOValuePair> pairsNotCovered() {
     if (!TestSettings.isCoveringCheckEnabled()) {
       return EMPTY_LIST;
     }
     System.out.println("All pairs:<" + this.allPairs + ">");
-    List<ValuePair> pairsNotFound = new LinkedList<ValuePair>();
-    for (ValuePair p : this.allPairs) {
+    List<IPOValuePair> pairsNotFound = new LinkedList<IPOValuePair>();
+    for (IPOValuePair p : this.allPairs) {
       if (!testRunSet.covers(p)) {
         pairsNotFound.add(p);
       }

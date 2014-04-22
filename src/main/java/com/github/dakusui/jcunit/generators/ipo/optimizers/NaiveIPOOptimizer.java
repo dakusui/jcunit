@@ -2,11 +2,11 @@ package com.github.dakusui.jcunit.generators.ipo.optimizers;
 
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
 
 public class NaiveIPOOptimizer extends IPOOptimizer {
 
-  public NaiveIPOOptimizer(TestSpace space) {
+  public NaiveIPOOptimizer(IPOTestSpace space) {
     super(space);
   }
 

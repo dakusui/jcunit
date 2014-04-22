@@ -3,13 +3,13 @@ package com.github.dakusui.jcunit.generators.ipo.optimizers;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
 
 public class LevelingIPOOptimizer extends IPOOptimizer {
 
   private int c;
 
-  public LevelingIPOOptimizer(TestSpace space) {
+  public LevelingIPOOptimizer(IPOTestSpace space) {
     super(space);
     this.c = 0;
   }

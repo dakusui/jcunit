@@ -11,19 +11,19 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.generators.ipo.IPOValuePair;
 
 public abstract class IPOOptimizer {
   private static final Logger           LOGGER         = LoggerFactory
                                                            .getLogger(IPOOptimizer.class);
-  protected TestSpace                   space;
+  protected IPOTestSpace                   space;
   protected Map<Object, Set<IPOValuePair>> hgCandidateMap = new HashMap<Object, Set<IPOValuePair>>();
   protected List<Object>                hgCandidates   = new ArrayList<Object>(
                                                            10);
   private int                           sizeKnownBestAP$;
 
-  public IPOOptimizer(TestSpace space) {
+  public IPOOptimizer(IPOTestSpace space) {
     this.space = space;
     LOGGER.debug("{} is instantiated.", this.getClass());
   }

@@ -12,7 +12,7 @@ import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.generators.ipo.IPOValueTuple.Attr;
 import com.github.dakusui.jcunit.generators.ipo.IPOValueTuple.ValueTriple;
 
@@ -22,7 +22,7 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
 
   private Set<ValueTriple>    uncoveredTriples;
 
-  public GreedyIPOOptimizer(TestSpace space) {
+  public GreedyIPOOptimizer(IPOTestSpace space) {
     super(space);
   }
 

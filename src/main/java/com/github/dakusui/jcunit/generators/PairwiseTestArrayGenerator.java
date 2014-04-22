@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.core.GeneratorParameters;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
 import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.GreedyIPOOptimizer;
 
 /**
@@ -57,7 +57,7 @@ public class PairwiseTestArrayGenerator<T, U> extends
       indexToKeyMap.put(i, cur); // since i is already incremented, put it as
                                  // is.
     }
-    TestSpace space = new TestSpace(testSpaceDomains);
+    IPOTestSpace space = new IPOTestSpace(testSpaceDomains);
     IPO ipo = new IPO(space, new GreedyIPOOptimizer(space));
     return ipo.ipo();
   }

@@ -6,9 +6,9 @@ import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.generators.ipo.TestSpace;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.Attr;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
+import com.github.dakusui.jcunit.generators.ipo.IPOValueTuple.Attr;
+import com.github.dakusui.jcunit.generators.ipo.IPOValueTuple.ValueTriple;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.IPOOptimizer;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.LevelingIPOOptimizer;
 
@@ -60,7 +60,7 @@ public class IPOTestSandbox extends IPOTestBase {
   }
 
   @Override
-  protected IPOOptimizer createOptimizer(TestSpace space) {
+  protected IPOOptimizer createOptimizer(IPOTestSpace space) {
     return new LevelingIPOOptimizer(space);
   }
 }
