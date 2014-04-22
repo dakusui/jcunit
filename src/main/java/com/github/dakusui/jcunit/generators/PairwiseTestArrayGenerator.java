@@ -6,8 +6,8 @@ import java.util.Map;
 
 import com.github.dakusui.jcunit.core.GeneratorParameters;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.TestRun;
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.GreedyIPOOptimizer;
 
@@ -30,7 +30,7 @@ public class PairwiseTestArrayGenerator<T, U> extends
   /**
    * A set of test runs.
    */
-  private TestRunSet      testRunSet;
+  private IPOTestRunSet      testRunSet;
 
   /**
    * A map which associates IPO's indices (1-origin) to keys.
@@ -49,7 +49,7 @@ public class PairwiseTestArrayGenerator<T, U> extends
   /**
    * Composes and returns test run set.
    */
-  protected TestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
+  protected IPOTestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
     Object[][] testSpaceDomains = new Object[this.domains.size()][];
     int i = 0;
     for (T cur : this.domains.keySet()) {
@@ -65,7 +65,7 @@ public class PairwiseTestArrayGenerator<T, U> extends
   @SuppressWarnings("unchecked")
   @Override
   public int getIndex(T key, long cur) {
-    TestRun run = this.testRunSet.get((int) cur);
+    IPOTestRun run = this.testRunSet.get((int) cur);
     // IPO classes provide 1-origin methods!
     for (int i = 1; i <= run.width(); i++) {
       T k = indexToKeyMap.get(i);

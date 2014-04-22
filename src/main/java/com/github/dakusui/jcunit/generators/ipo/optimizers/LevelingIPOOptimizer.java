@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.generators.ipo.optimizers;
 
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.TestRun;
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 
 public class LevelingIPOOptimizer extends IPOOptimizer {
@@ -15,7 +15,7 @@ public class LevelingIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  protected Object bestValueFor(TestRunSet currentTestRunSet, TestRun testRun,
+  protected Object bestValueFor(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
       int fieldId) {
     // //
     // In order to make the test run set the same any time (reproducible), we
@@ -26,7 +26,7 @@ public class LevelingIPOOptimizer extends IPOOptimizer {
     if (currentTestRunSet.width() >= fieldId) {
       for (Object v : this.hgCandidates) {
         int c = 0;
-        for (TestRun cur : currentTestRunSet) {
+        for (IPOTestRun cur : currentTestRunSet) {
           if (v == cur.get(fieldId)) {
             c++;
           }
@@ -44,14 +44,14 @@ public class LevelingIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public Object optimizeInVG(TestRunSet currentTestRunSet, TestRun testRun,
+  public Object optimizeInVG(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
       int fieldId) {
     Object[] values = this.space.domainOf(fieldId);
     int numUsed = Integer.MAX_VALUE;
     Object ret = IPO.DC;
     for (Object v : values) {
       int c = 0;
-      for (TestRun cur : currentTestRunSet) {
+      for (IPOTestRun cur : currentTestRunSet) {
         if (v == cur.get(fieldId)) {
           c++;
         }
@@ -65,7 +65,7 @@ public class LevelingIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public TestRunSet createTestRunSet(int width) {
-    return new TestRunSet(width);
+  public IPOTestRunSet createTestRunSet(int width) {
+    return new IPOTestRunSet(width);
   }
 }

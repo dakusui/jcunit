@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.generators.ipo;
 import java.util.HashMap;
 import java.util.List;
 
-public class ValueTuple extends HashMap<Integer, Object> {
+public class IPOValueTuple extends HashMap<Integer, Object> {
   public static class Attr {
     public int    attributeIndex;
     public Object value;
@@ -17,7 +17,7 @@ public class ValueTuple extends HashMap<Integer, Object> {
     }
   }
 
-  public static class ValueTriple extends ValueTuple {
+  public static class ValueTriple extends IPOValueTuple {
 
     /**
      * Serial version UID.
@@ -40,7 +40,7 @@ public class ValueTuple extends HashMap<Integer, Object> {
    */
   private static final long serialVersionUID = 6285756323807101173L;
 
-  public ValueTuple(Attr... attrs) {
+  public IPOValueTuple(Attr... attrs) {
     for (Attr cur : attrs)
       this.put(cur.attributeIndex, cur.value);
   }

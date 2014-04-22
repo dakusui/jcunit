@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.enumerator.Permutator;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.GreedyIPOOptimizer;
 
@@ -19,7 +19,7 @@ public class BestPairwiseTestArrayGenerator<T, U> extends
                                          .getLogger(BestPairwiseTestArrayGenerator.class);
 
   @Override
-  protected TestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
+  protected IPOTestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
     if (this.domains.size() == 0) {
       LOGGER
           .warn("The domains has no member, falling back to PairwiseTestArrayGenerator.");
@@ -29,7 +29,7 @@ public class BestPairwiseTestArrayGenerator<T, U> extends
     domainKeys.addAll(this.domains.keySet());
     Permutator<T> permutator = new Permutator<T>(domainKeys, domainKeys.size());
     long numPermutations = permutator.size();
-    TestRunSet ret = null;
+    IPOTestRunSet ret = null;
     // //
     // Id of domain key list, this should be the only information to be stored
     // in
@@ -50,7 +50,7 @@ public class BestPairwiseTestArrayGenerator<T, U> extends
       // Let IPO generate covering array.
       TestSpace space = new TestSpace(testSpaceDomains);
       IPO ipo = new IPO(space, new GreedyIPOOptimizer(space));
-      TestRunSet cand = ipo.ipo();
+      IPOTestRunSet cand = ipo.ipo();
       if (ret == null || ret.size() > cand.size()) {
         ret = cand;
         domainKeyListId = i;

@@ -5,7 +5,7 @@ package com.github.dakusui.jcunit.generators.ipo;
  * 
  * @author hiroshi
  */
-public class TestRun implements Cloneable {
+public class IPOTestRun implements Cloneable {
   /**
    * A field which represents values of parameters.
    */
@@ -17,7 +17,7 @@ public class TestRun implements Cloneable {
    * @param width
    *          the width of the object.
    */
-  public TestRun(int width) {
+  public IPOTestRun(int width) {
     this.v = new Object[width];
   }
 
@@ -63,8 +63,8 @@ public class TestRun implements Cloneable {
    * 
    * @return A new <code>Run</code> object.
    */
-  public TestRun grow() {
-    TestRun ret = new TestRun(this.width() + 1);
+  public IPOTestRun grow() {
+    IPOTestRun ret = new IPOTestRun(this.width() + 1);
     System.arraycopy(this.v, 0, ret.v, 0, this.v.length);
     return ret;
   }
@@ -83,15 +83,15 @@ public class TestRun implements Cloneable {
     return ret;
   }
 
-  public TestRun clone() {
+  public IPOTestRun clone() {
     try {
-      return (TestRun) super.clone();
+      return (IPOTestRun) super.clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public boolean covers(ValuePair pair) {
+  public boolean covers(IPOValuePair pair) {
     if (pair == null)
       throw new NullPointerException();
     if (eq(this.get(pair.A), pair.r))

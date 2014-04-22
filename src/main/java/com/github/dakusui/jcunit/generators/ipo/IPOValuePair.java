@@ -7,7 +7,7 @@ package com.github.dakusui.jcunit.generators.ipo;
  * 
  * @author hiroshi
  */
-public class ValuePair {
+public class IPOValuePair {
   int    A;
   Object r;
   int    B;
@@ -21,7 +21,7 @@ public class ValuePair {
    * @param B
    * @param s
    */
-  public ValuePair(int A, Object r, int B, Object s) {
+  public IPOValuePair(int A, Object r, int B, Object s) {
     if (A == B)
       throw new IllegalArgumentException();
     if (A < B) {
@@ -56,13 +56,13 @@ public class ValuePair {
    * @return true - anotherObject is equal to this object / false - otherwise.
    */
   public boolean equals(Object anotherObject) {
-    if (!(anotherObject instanceof ValuePair)) {
+    if (!(anotherObject instanceof IPOValuePair)) {
       // //
       // since null is not an instance of any class, anotherObject
       // can't be null later on in this method.
       return false;
     }
-    ValuePair another = (ValuePair) anotherObject;
+    IPOValuePair another = (IPOValuePair) anotherObject;
     if (this.A != another.A)
       return false;
     if (this.B != another.B)

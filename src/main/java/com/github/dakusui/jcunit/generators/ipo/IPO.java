@@ -9,7 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet.Info;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet.Info;
 import com.github.dakusui.jcunit.generators.ipo.optimizers.IPOOptimizer;
 
 /**
@@ -62,11 +62,11 @@ public class IPO {
    * each parameter Output: CA: A set of parameter combinations such that all
    * pairs of values are covers at least once.
    */
-  public TestRunSet ipo() {
+  public IPOTestRunSet ipo() {
     // ///
-    TestRunSet.Info info = new TestRunSet.Info();
+    IPOTestRunSet.Info info = new IPOTestRunSet.Info();
 
-    TestRunSet CA;
+    IPOTestRunSet CA;
     int n = this.space.numDomains();
     assert n >= 2;
 
@@ -76,12 +76,12 @@ public class IPO {
     // # <E> means 'exists in'.
     optimizer.init();
 
-    TestRunSet T = optimizer.createTestRunSet(2);
+    IPOTestRunSet T = optimizer.createTestRunSet(2);
     int Fi = 1;
     for (Object vi : this.space.domainOf(1)) {
       int Fj = 2;
       for (Object vj : this.space.domainOf(2)) {
-        TestRun cur = new TestRun(2);
+        IPOTestRun cur = new IPOTestRun(2);
         cur.set(Fi, vi);
         cur.set(Fj, vj);
         T.add(cur);
@@ -114,7 +114,7 @@ public class IPO {
       // 3.2 [Uncovered pairs] Compute the set U of all uncovered pairs
       // formed by pairing parameters Fi, 1 <= i <= k-1 and parameter
       // Fk.
-      Set<ValuePair> U = computeSetU(T, Fk);
+      Set<IPOValuePair> U = computeSetU(T, Fk);
       // 3.3 [Vertical growth] If U is empty, then terminate this step,
       // else continue. For each uncovered pair u = (vj, vk) <E> U,
       // add a run (v1, v2, ..., vj,..., vk-1, vk) to T. Here, vj
@@ -137,15 +137,15 @@ public class IPO {
    * Assuming T covers all possible pairs with in Fi and Fj, where 1 <= i <= j
    * <= k -1, compute all the possible value pair whose one parameter is Fk.
    */
-  private Set<ValuePair> computeSetU(TestRunSet T, int Fk) {
-    Set<ValuePair> ret = new LinkedHashSet<ValuePair>();
-    for (TestRun t : T) {
+  private Set<IPOValuePair> computeSetU(IPOTestRunSet T, int Fk) {
+    Set<IPOValuePair> ret = new LinkedHashSet<IPOValuePair>();
+    for (IPOTestRun t : T) {
       for (int Fi = 1; Fi <= T.width; Fi++) {
         Object r = t.get(Fi);
         for (Object s : this.space.domainOf(Fk)) {
           if (Fi == Fk)
             continue;
-          ValuePair p = new ValuePair(Fi, r, Fk, s);
+          IPOValuePair p = new IPOValuePair(Fi, r, Fk, s);
           if (lookUp(lookUp(T, Fi, r), Fk, s).size() == 0)
             ret.add(p);
         }
@@ -161,7 +161,7 @@ public class IPO {
    * obtained by extending the runs in T that cover the maximum number of pairs
    * between parameter Fi,
    */
-  private TestRunSet hg(Info info, TestRunSet R, int F) {
+  private IPOTestRunSet hg(Info info, IPOTestRunSet R, int F) {
     int m = R.size();
     assert m >= 1;
     /*
@@ -180,14 +180,14 @@ public class IPO {
     //
     // What is AP?
     // int k_1 = R.width(); // k_1 denotes 'k-1'.
-    Set<ValuePair> AP = new LinkedHashSet<ValuePair>();
+    Set<IPOValuePair> AP = new LinkedHashSet<IPOValuePair>();
     {
       int k_1 = R.width();
       int k = k_1 + 1;
       for (int i = 1; i <= k_1; i++) {
         for (Object r : space.domainOf(i)) {
           for (Object s : space.domainOf(k)) {
-            ValuePair pair = new ValuePair(i, r, k, s);
+            IPOValuePair pair = new IPOValuePair(i, r, k, s);
             AP.add(pair);
           }
         }
@@ -199,7 +199,7 @@ public class IPO {
     // in T in the following steps:
     // # <0> is an empty set.
     /* ret is T' in the book */
-    TestRunSet ret = optimizer.createTestRunSet(R.width() + 1);
+    IPOTestRunSet ret = optimizer.createTestRunSet(R.width() + 1);
 
     // Step 3.
     // Let C = min(q, m). Here, C is the number of elements in the set T or
@@ -214,7 +214,7 @@ public class IPO {
     // Repeat the next two substeps for j = 1 to C.
     for (int j = 1; j <= C; j++) {
       // 4.1 Let t'j= extend(tj, lj).
-      TestRun tj$ = R.getRun(j).grow();
+      IPOTestRun tj$ = R.getRun(j).grow();
       // tj should now be considered t'j since it's extended.
       //
       // Task: Mar/07/2014: Consider the case where space.value(F, j) is
@@ -229,7 +229,7 @@ public class IPO {
       for (int ii = 1; ii <= tj$.width(); ii++) {
         if (F == ii)
           continue;
-        AP.remove(new ValuePair(ii, tj$.get(ii), F, space.value(F, j)));
+        AP.remove(new IPOValuePair(ii, tj$.get(ii), F, space.value(F, j)));
       }
     }
 
@@ -245,13 +245,13 @@ public class IPO {
     // that cover the maximum pairs in AP.
     // Repeat the next four sub steps for j = C + 1 to m.
     for (int j = C + 1; j <= m; j++) {
-      TestRun tj = R.getRun(j);
+      IPOTestRun tj = R.getRun(j);
       if (tj.width() < F) {
         // F is at most width of tj + 1
         tj = tj.grow();
       }
       // 6.1 Let AP′ = <0>
-      Set<ValuePair> AP$ = new HashSet<ValuePair>();
+      Set<IPOValuePair> AP$ = new HashSet<IPOValuePair>();
       Object v$ = chooseBestValueForF(info, AP$, R, tj, F, AP);
 
       // 6.3 Let = extend(tj, v′). T′ = T′ ∪ .
@@ -286,8 +286,8 @@ public class IPO {
    * 
    * @return The value to be used for Fi.
    */
-  private Object chooseBestValueForF(Info info, Set<ValuePair> AP$,
-      TestRunSet R, TestRun tj, int F, Set<ValuePair> AP) {
+  private Object chooseBestValueForF(Info info, Set<IPOValuePair> AP$,
+      IPOTestRunSet R, IPOTestRun tj, int F, Set<IPOValuePair> AP) {
     Object v$ = DC; // space.value(F, 1);
     this.optimizer.clearHGCandidates();
     for (int k = 1; k <= space.domainOf(F).length; k++) {
@@ -295,13 +295,13 @@ public class IPO {
       // 6.2 In this step, we find a value of F by which to extend run
       // tj. The value that adds the maximum pairwise coverage is
       // selected. Repeat the next two substeps for each v <E> D(F).
-      Set<ValuePair> AP$$ = new HashSet<ValuePair>();
+      Set<IPOValuePair> AP$$ = new HashSet<IPOValuePair>();
       // 6.2.1 AP'' = {(r,v)|, where r is a value in run tj}. Here
       // AP'' is the set of all new pairs formed when run tj is
       // extended by v.
       Object v = space.value(F, k);
       for (int Fi : R.coveredParameters()) {
-        ValuePair p = new ValuePair(Fi, tj.get(Fi), F, v);
+        IPOValuePair p = new IPOValuePair(Fi, tj.get(Fi), F, v);
         // AP is 'All pairs yet to cover'.
         if (AP.contains(p)) {
           AP$$.add(p);
@@ -327,7 +327,7 @@ public class IPO {
     return v$;
   }
 
-  private void printTestRunSet(String message, TestRunSet testRunSet) {
+  private void printTestRunSet(String message, IPOTestRunSet testRunSet) {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("*** " + message + " ***");
       LOGGER.debug(testRunSet.toString());
@@ -347,9 +347,9 @@ public class IPO {
    *          the value of F.
    * @return The list of test runs which satisfy the given condition.
    */
-  public static List<TestRun> lookUp(List<TestRun> runList, int F, Object v) {
-    List<TestRun> ret = new LinkedList<TestRun>();
-    for (TestRun cur : runList) {
+  public static List<IPOTestRun> lookUp(List<IPOTestRun> runList, int F, Object v) {
+    List<IPOTestRun> ret = new LinkedList<IPOTestRun>();
+    for (IPOTestRun cur : runList) {
       // //
       // Only object-wise identical ones are considered 'matched'.
       if (cur.get(F) == v) {
@@ -364,8 +364,8 @@ public class IPO {
   // selected value of the corresponding parameter. Instead, one
   // could also select a value that maximizes the number of
   // higher-oder tuples such as triples.
-  private TestRunSet replaceDontCareValues(Info info, TestRunSet testRunSet) {
-    for (TestRun run : testRunSet) {
+  private IPOTestRunSet replaceDontCareValues(Info info, IPOTestRunSet testRunSet) {
+    for (IPOTestRun run : testRunSet) {
       for (int i = 1; i <= run.width(); i++) {
         if (run.get(i) == DC) {
           // //
@@ -403,7 +403,7 @@ public class IPO {
    * combining values of parameter Fi, 1 <= i <= (k - 1) with parameter Fk are
    * covered.
    */
-  private TestRunSet vg(Info info, TestRunSet T, Set<ValuePair> MP) {
+  private IPOTestRunSet vg(Info info, IPOTestRunSet T, Set<IPOValuePair> MP) {
     /*
      * D(F) = {l1, l2,..., Lq}, q >= 1 t1, t2,..., tm denote the m >= 1 runs in
      * T. (Ai.r, Bj.s) denotes a pair of values r and s that correspond to
@@ -413,25 +413,25 @@ public class IPO {
      */
 
     // Step 1. Let T' = <0>
-    TestRunSet T$ = optimizer.createTestRunSet(T.width);
+    IPOTestRunSet T$ = optimizer.createTestRunSet(T.width);
 
     // Step 2. Add new tests to cover the uncovered pairs.
     // For each missing pair (Fi.r, Fk.s) <E> MP, 1 <= i < k,
     // repeat the next two substeps.
-    for (ValuePair pair : MP) {
+    for (IPOValuePair pair : MP) {
       // 2.1 If there exists a run
       // (v1, v2,..., vi-1, *, vi+1,..., vk-1, s) <E> T'
       // then replace it by the run
       // (v1, v2,..., vi-1, r, vi+1,..., vk-1, s)
       // and examine the next missing pair, else go to the next substep
-      List<TestRun> runsWhoseAis_rAndBisDC = lookUp(lookUp(T$, pair.A, pair.r),
+      List<IPOTestRun> runsWhoseAis_rAndBisDC = lookUp(lookUp(T$, pair.A, pair.r),
           pair.B, DC);
       if (runsWhoseAis_rAndBisDC.size() > 0) {
         // Since parameters are processed from left to right, this
         // pass will not be executed under usual conditions.
         runsWhoseAis_rAndBisDC.get(0).set(pair.B, pair.s);
       }
-      List<TestRun> runsWhoseBis_sAndAisDC = lookUp(lookUp(T$, pair.A, DC),
+      List<IPOTestRun> runsWhoseBis_sAndAisDC = lookUp(lookUp(T$, pair.A, DC),
           pair.B, pair.s);
       if (runsWhoseBis_sAndAisDC.size() > 0) {
         runsWhoseBis_sAndAisDC.get(0).set(pair.A, pair.r);
@@ -449,7 +449,7 @@ public class IPO {
       // ***
       if (lookUp(lookUp(T$, pair.A, pair.r), pair.B, pair.s).size() == 0) {
         int k = T.width();
-        TestRun r = new TestRun(k);
+        IPOTestRun r = new IPOTestRun(k);
         for (int i = 1; i <= k; i++) {
           r.set(i, DC);
         }
@@ -467,7 +467,7 @@ public class IPO {
     T$ = replaceDontCareValues(info, T$);
     printTestRunSet("T'", T$);
     int pos = 0;
-    for (TestRun r : T) {
+    for (IPOTestRun r : T) {
       T$.add(pos, r);
       pos++;
     }

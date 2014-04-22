@@ -9,16 +9,16 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.dakusui.jcunit.generators.ipo.TestRun;
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
-import com.github.dakusui.jcunit.generators.ipo.ValuePair;
+import com.github.dakusui.jcunit.generators.ipo.IPOValuePair;
 
 public abstract class IPOOptimizer {
   private static final Logger           LOGGER         = LoggerFactory
                                                            .getLogger(IPOOptimizer.class);
   protected TestSpace                   space;
-  protected Map<Object, Set<ValuePair>> hgCandidateMap = new HashMap<Object, Set<ValuePair>>();
+  protected Map<Object, Set<IPOValuePair>> hgCandidateMap = new HashMap<Object, Set<IPOValuePair>>();
   protected List<Object>                hgCandidates   = new ArrayList<Object>(
                                                            10);
   private int                           sizeKnownBestAP$;
@@ -34,7 +34,7 @@ public abstract class IPOOptimizer {
     this.sizeKnownBestAP$ = -1;
   }
 
-  public final void addHGCandidate(Object v, Set<ValuePair> AP$$) {
+  public final void addHGCandidate(Object v, Set<IPOValuePair> AP$$) {
     if (AP$$.size() >= this.sizeKnownBestAP$) {
       if (AP$$.size() > this.sizeKnownBestAP$) {
         this.clearHGCandidates();
@@ -68,8 +68,8 @@ public abstract class IPOOptimizer {
    * @return The value this method suggests to set to F specified by
    *         <code>fieldId</code>
    */
-  public final Object getBestHGValue(Set<ValuePair> AP$,
-      TestRunSet currentTestRunSet, TestRun testRun, int fieldId) {
+  public final Object getBestHGValue(Set<IPOValuePair> AP$,
+      IPOTestRunSet currentTestRunSet, IPOTestRun testRun, int fieldId) {
     Object ret = bestValueFor(currentTestRunSet, testRun, fieldId);
     AP$.addAll(hgCandidateMap.get(ret));
     return ret;
@@ -79,14 +79,14 @@ public abstract class IPOOptimizer {
     return hgCandidates.size();
   }
 
-  abstract protected Object bestValueFor(TestRunSet currentTestRunSet,
-      TestRun testRun, int fieldId);
+  abstract protected Object bestValueFor(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun, int fieldId);
 
-  abstract public Object optimizeInVG(TestRunSet currentTestRunSet,
-      TestRun testRun, int i);
+  abstract public Object optimizeInVG(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun, int i);
 
   public void init() {
   }
 
-  abstract public TestRunSet createTestRunSet(int width);
+  abstract public IPOTestRunSet createTestRunSet(int width);
 }

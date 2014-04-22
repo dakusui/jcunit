@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.generators.ipo.optimizers;
 
-import com.github.dakusui.jcunit.generators.ipo.TestRun;
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
 
 public class ModuloIPOOptimizer extends IPOOptimizer {
@@ -14,7 +14,7 @@ public class ModuloIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  protected Object bestValueFor(TestRunSet currentTestRunSet, TestRun testRun,
+  protected Object bestValueFor(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
       int fieldId) {
     Object ret = this.hgCandidates.get(this.counter % this.hgCandidates.size());
     this.counter++;
@@ -22,7 +22,7 @@ public class ModuloIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public Object optimizeInVG(TestRunSet currentTestRunSet, TestRun testRun,
+  public Object optimizeInVG(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
       int i) {
     Object[] values = this.space.domainOf(i);
     Object ret = values[this.counter % values.length];
@@ -30,8 +30,8 @@ public class ModuloIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public TestRunSet createTestRunSet(int width) {
-    return new TestRunSet(width);
+  public IPOTestRunSet createTestRunSet(int width) {
+    return new IPOTestRunSet(width);
   }
 
 }

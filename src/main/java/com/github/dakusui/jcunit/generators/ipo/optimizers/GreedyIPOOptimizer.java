@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.TestRun;
-import com.github.dakusui.jcunit.generators.ipo.TestRunSet;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
+import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.generators.ipo.TestSpace;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.Attr;
-import com.github.dakusui.jcunit.generators.ipo.ValueTuple.ValueTriple;
+import com.github.dakusui.jcunit.generators.ipo.IPOValueTuple.Attr;
+import com.github.dakusui.jcunit.generators.ipo.IPOValueTuple.ValueTriple;
 
 public class GreedyIPOOptimizer extends IPOOptimizer {
   private static final Logger LOGGER = LoggerFactory
@@ -34,15 +34,15 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public TestRunSet createTestRunSet(int width) {
-    return new TestRunSet(width) {
+  public IPOTestRunSet createTestRunSet(int width) {
+    return new IPOTestRunSet(width) {
       /**
        * Serial version UID.
        */
       private static final long serialVersionUID = 8227221457493688297L;
 
       @Override
-      public boolean add(TestRun run) {
+      public boolean add(IPOTestRun run) {
         Set<ValueTriple> triplesToBeCovered = triplesCoveredBy(run);
 
         GreedyIPOOptimizer.this.uncoveredTriples.removeAll(triplesToBeCovered);
@@ -55,7 +55,7 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public Object optimizeInVG(TestRunSet currentTestRunSet, TestRun testRun,
+  public Object optimizeInVG(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
       int i) {
     Object v = IPO.DC;
     int coverings = -1;
@@ -70,7 +70,7 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
     return v;
   }
 
-  private Set<ValueTriple> triplesCoveredBy(TestRun run) {
+  private Set<ValueTriple> triplesCoveredBy(IPOTestRun run) {
     List<Attr> tmpAttrs = new ArrayList<Attr>();
     // The index should be 1-origin.
     for (int i = 1; i <= run.width(); i++) {
@@ -88,7 +88,7 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
     return triplesToBeCovered;
   }
 
-  private int countTriplesNewlyCoveredBy(TestRun run) {
+  private int countTriplesNewlyCoveredBy(IPOTestRun run) {
     int ret = 0;
     for (ValueTriple cur : triplesCoveredBy(run)) {
       if (this.uncoveredTriples.contains(cur))
@@ -99,11 +99,11 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  protected Object bestValueFor(TestRunSet currentTestRunSet, TestRun testRun,
+  protected Object bestValueFor(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
       int fieldId) {
     // Object ret = hgCandidates.get(hgCandidates.size() - 1);
     int maxNumCoveredTriples = -1;
-    TestRun clonedTestRun = testRun.clone();
+    IPOTestRun clonedTestRun = testRun.clone();
     Object ret = IPO.DC;
     for (Object v : this.hgCandidates) {
       clonedTestRun.set(fieldId, v);

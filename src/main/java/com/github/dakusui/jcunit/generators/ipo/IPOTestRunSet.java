@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * 
  * @author hiroshi
  */
-public class TestRunSet extends ArrayList<TestRun> {
+public class IPOTestRunSet extends ArrayList<IPOTestRun> {
   public static class Info {
     public int numHorizontalFallbacks;
     public int numVerticalFallbacks;
@@ -17,7 +17,7 @@ public class TestRunSet extends ArrayList<TestRun> {
   int                       width;
   private Info              info;
 
-  public TestRunSet(int width) {
+  public IPOTestRunSet(int width) {
     this.width = width;
   }
 
@@ -38,7 +38,7 @@ public class TestRunSet extends ArrayList<TestRun> {
    *          the value to be added.
    */
   @Override
-  public boolean add(TestRun run) {
+  public boolean add(IPOTestRun run) {
     if (run == null)
       throw new NullPointerException();
     if (run.v == null)
@@ -70,7 +70,7 @@ public class TestRunSet extends ArrayList<TestRun> {
    *          an index to specify test run.
    * @return A <code>i</code>th test run
    */
-  public TestRun getRun(int i) {
+  public IPOTestRun getRun(int i) {
     if (i == 0)
       throw new IllegalArgumentException();
     return super.get(i - 1);
@@ -79,7 +79,7 @@ public class TestRunSet extends ArrayList<TestRun> {
   @Override
   public String toString() {
     StringBuffer buf = new StringBuffer(256);
-    for (TestRun testrun : this) {
+    for (IPOTestRun testrun : this) {
       buf.append(testrun.toString());
       buf.append("\n");
     }
@@ -94,8 +94,8 @@ public class TestRunSet extends ArrayList<TestRun> {
     return this.info;
   }
 
-  public boolean covers(ValuePair p) {
-    for (TestRun cur : this) {
+  public boolean covers(IPOValuePair p) {
+    for (IPOTestRun cur : this) {
       if (cur.covers(p))
         return true;
     }
