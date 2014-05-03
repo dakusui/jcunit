@@ -8,9 +8,9 @@ package com.github.dakusui.jcunit.generators.ipo;
  * @author hiroshi
  */
 public class IPOValuePair {
-  int    A;
+  int A;
   Object r;
-  int    B;
+  int B;
   Object s;
 
   /**
@@ -40,9 +40,9 @@ public class IPOValuePair {
   /**
    * Returns the hashCode of this object.
    */
+  @Override
   public int hashCode() {
-    return this.A + ((this.r == null) ? 0 : this.r.hashCode()) + this.B
-        + ((this.s == null) ? 0 : this.s.hashCode());
+    return this.A + ((this.r == null) ? 0 : this.r.hashCode()) + this.B + ((this.s == null) ? 0 : this.s.hashCode());
   }
 
   /**
@@ -55,6 +55,7 @@ public class IPOValuePair {
    * 
    * @return true - anotherObject is equal to this object / false - otherwise.
    */
+  @Override
   public boolean equals(Object anotherObject) {
     if (!(anotherObject instanceof IPOValuePair)) {
       // //
@@ -100,6 +101,7 @@ public class IPOValuePair {
     return this.B;
   }
 
+  @Override
   public String toString() {
     return String.format("(F%d=%s,F%d=%s)", A, r, B, s);
   }
