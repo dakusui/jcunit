@@ -1,5 +1,13 @@
 package com.github.dakusui.jcunit.auto;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
+
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.Out.Verifier;
 import com.github.dakusui.jcunit.core.RuleSet;
@@ -12,17 +20,21 @@ import com.github.dakusui.lisj.Form;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.pred.BasePredicate;
 
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
+ * A rule set class implementation which performs verification based on the
+ * previous execution result. If a test method is executed with this test rule,
+ * it will fail and leave its <code>@Out</code> annotated field values in the
+ * working directory at the first time.
  * 
- * * Working directory.
+ * From the next time on, <code>AutoRuleSet</code> loads the values, recorded by
+ * the previous run, from the working directory and verifies the values are kept
+ * the same. This procedure happens in 'per-field' basis and if some fields have
+ * recorded values and some do not, fields whose values in previous run are
+ * already recorded will be just verified and the others are recorded. And the
+ * entire test will fail since recording a value forces the test to fail.
+ * 
+ * Note that the values in the directory remain unchanged, and they are updated
+ * only when the results from the previous run are not found.
  * 
  * @author hiroshi
  * 
@@ -31,8 +43,11 @@ public class AutoRuleSet extends RuleSet implements TestRule {
   /**
    * Name of the test run. This member is set by 'apply' method of this class.
    */
-  private String   testName;
-  private String[] fieldNames;
+  private String testName;
+  /**
+   * Names of fields.
+   */
+  private final String[] fieldNames;
 
   /**
    * Creates an object of this class.
@@ -70,16 +85,15 @@ public class AutoRuleSet extends RuleSet implements TestRule {
       Context c = getContext();
       int numFields = Basic.length(fields);
       if (numFields == 0) {
-        this.incase(true, c.progn(String.format(
-            "*** NO FIELD IS SPECIFIED BY TEST %s ***", this.testName), false));
+        this.incase(true,
+            c.lisj().progn(String.format("*** NO FIELD IS SPECIFIED BY TEST %s ***", this.testName), false));
       } else {
         for (int i = 0; i < Basic.length(fields); i++) {
           Object fieldName = Basic.get(fields, i);
           if (isStored(fieldName)) {
             this.incase(
-                c.any(),
-                verify().bind(load(fieldName),
-                    c.get(this.getTargetObject(), fieldName),
+                c.lisj().any(),
+                verify().bind(load(fieldName), c.lisj().get(this.getTargetObject(), fieldName),
                     verifierForField(fieldName)));
           } else {
             // //
@@ -89,8 +103,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
             // and failed,
             // the following rules ('incase' clauses and 'otherwise' clause)
             // will be evaluated.
-            this.incase(c.any(), new Store().bind(getTestName(),
-                this.getTargetObject(), fieldName));
+            this.incase(c.lisj().any(), new Store().bind(getTestName(), this.getTargetObject(), fieldName));
           }
         }
         // //
@@ -99,16 +112,14 @@ public class AutoRuleSet extends RuleSet implements TestRule {
         this.otherwise(false);
       }
     } catch (CUT cut) {
-      String msg = String
-          .format(
-              "A cut, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
-              cut.getMessage());
+      String msg = String.format(
+          "A cut, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
+          cut.getMessage());
       throw new JCUnitRuntimeException(msg, cut);
     } catch (JCUnitException e) {
-      String msg = String
-          .format(
-              "A JCUnitException, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
-              e.getMessage());
+      String msg = String.format(
+          "A JCUnitException, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
+          e.getMessage());
       throw new JCUnitRuntimeException(msg, e);
     }
     final Statement statementFromSuper = super.apply(base, desc);
@@ -160,14 +171,10 @@ public class AutoRuleSet extends RuleSet implements TestRule {
       try {
         ret = klazz.newInstance();
       } catch (InstantiationException e) {
-        String msg = String.format(
-            "'%s' must have public constructor with no parameter.",
-            klazz.getCanonicalName());
+        String msg = String.format("'%s' must have public constructor with no parameter.", klazz.getCanonicalName());
         throw new RuntimeException(msg, e);
       } catch (IllegalAccessException e) {
-        String msg = String.format(
-            "'%s' must have public constructor with no parameter.",
-            klazz.getCanonicalName());
+        String msg = String.format("'%s' must have public constructor with no parameter.", klazz.getCanonicalName());
         throw new RuntimeException(msg, e);
       }
     } catch (SecurityException e) {
@@ -185,7 +192,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
   }
 
   /**
-   * Returns a S expression list of field names in the target object.
+   * Returns an S expression list of field names in the target object.
    * 
    * @return S expression list of field names.
    * @throws JCUnitException
@@ -194,8 +201,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    *           Operation is cut. Usually not thrown.
    */
   protected Object outFieldNames() throws JCUnitException, CUT {
-    return Basic.eval(this.getContext(),
-        new OutFieldNames().bind(this.getTargetObject()));
+    return Basic.eval(this.getContext(), new OutFieldNames().bind(this.getTargetObject()));
   }
 
   /**
@@ -210,17 +216,20 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    *           Operation is cut. Usually not thrown.
    */
   protected boolean isStored(Object fieldName) throws JCUnitException, CUT {
-    return Basic.evalp(this.getContext(), new IsStored().bind(
-        this.getTestName(), this.getTargetObject(), fieldName));
+    return Basic.evalp(this.getContext(), new IsStored().bind(this.getTestName(), this.getTargetObject(), fieldName));
   }
 
+  /**
+   * Returns a form which performs 'verify' procedure.
+   * 
+   * @return A from which performs 'verify'.
+   */
   protected Form verify() {
     Form ret = new BasePredicate() {
       private static final long serialVersionUID = 3468222886217602972L;
 
       @Override
-      protected FormResult evaluateLast(Context context,
-          Object[] evaluatedParams, FormResult lastResult)
+      protected FormResult evaluateLast(Context context, Object[] evaluatedParams, FormResult lastResult)
           throws JCUnitException, CUT {
         Object expected = Basic.get(evaluatedParams, 0);
         Object actual = Basic.get(evaluatedParams, 1);
@@ -250,8 +259,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    *           Operation is cut. Usually not thrown.
    */
   protected Object load(Object fieldName) throws JCUnitException, CUT {
-    return new Load().bind(this.getTestName(), this.getTargetObject(),
-        fieldName);
+    return new Load().bind(this.getTestName(), this.getTargetObject(), fieldName);
   }
 
   /**
@@ -266,9 +274,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    *           Operation is cut. Usually not thrown.
    */
   protected void store(Object fieldName) throws JCUnitException, CUT {
-    Basic
-        .eval(this.getContext(), new Store().bind(this.getTestName(),
-            this.getTargetObject(), fieldName));
+    Basic.eval(this.getContext(), new Store().bind(this.getTestName(), this.getTargetObject(), fieldName));
   }
 
   /**

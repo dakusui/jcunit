@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 
-public class LambdaTest extends DefaultRuleSetBuilder {
+public class LambdaTest extends JCUnitBase {
   @Test
   public void lambda_00() throws Exception {
     /*

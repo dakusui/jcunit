@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
@@ -15,7 +15,7 @@ import com.github.dakusui.jcunit.core.Summarizer;
 import com.github.dakusui.petronia.examples.Calc;
 
 @RunWith(JCUnit.class)
-public class AutoTestBase extends DefaultRuleSetBuilder {
+public class AutoTestBase extends JCUnitBase {
   @Rule
   public RuleSet           rules      = autoRuleSet(this)
                                           .summarizer(summarizer);

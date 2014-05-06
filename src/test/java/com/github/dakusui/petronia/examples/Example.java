@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
@@ -14,7 +14,7 @@ import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.core.BasicSummarizer;
 
 @RunWith(JCUnit.class)
-public class Example extends DefaultRuleSetBuilder {
+public class Example extends JCUnitBase {
   @In(
       domain = Domain.Method)
   public int                    a;

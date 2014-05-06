@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
@@ -32,7 +32,7 @@ import com.github.dakusui.petronia.examples.Calc.Op;
  */
 @RunWith(JCUnit.class)
 @Generator(CartesianTestArrayGenerator.class)
-public class CalcTest2 extends DefaultRuleSetBuilder {
+public class CalcTest2 extends JCUnitBase {
   @Rule
   @In(
       domain = Domain.None)

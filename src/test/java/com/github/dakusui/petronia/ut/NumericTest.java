@@ -5,11 +5,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 
-public class NumericTest extends DefaultRuleSetBuilder {
+public class NumericTest extends JCUnitBase {
   @Test
   public void add_00() throws Exception {
     assertEquals(Utils.bigDecimal(0),

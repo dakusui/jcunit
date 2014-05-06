@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.GeneratorParameters;
 import com.github.dakusui.jcunit.core.GeneratorParameters.Type;
@@ -24,7 +24,7 @@ import com.github.dakusui.petronia.examples.Calc.Op;
 @GeneratorParameters({ @Value(
     type = Type.IntArray, intArrayValue = { 0, 1, 2 }), @Value(
     type = Type.IntArray, intArrayValue = { 1, 2, 3 }) })
-public class CalcTest6 extends DefaultRuleSetBuilder {
+public class CalcTest6 extends JCUnitBase {
   @In
   public int               a;
   @In

@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
@@ -28,7 +28,7 @@ public class CalcTest5 {
   public String            out;
 
   @Rule
-  public RuleSet           rules      = new DefaultRuleSetBuilder()
+  public RuleSet           rules      = new JCUnitBase()
                                           .autoRuleSet(this).summarizer(
                                               summarizer);
 

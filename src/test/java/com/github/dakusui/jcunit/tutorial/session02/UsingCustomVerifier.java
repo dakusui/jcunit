@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
@@ -15,7 +15,7 @@ import com.github.dakusui.jcunit.core.Summarizer;
 @RunWith(JCUnit.class)
 public class UsingCustomVerifier {
   @Rule
-  public RuleSet           rules      = new DefaultRuleSetBuilder()
+  public RuleSet           rules      = new JCUnitBase()
                                           .autoRuleSet(this).summarizer(
                                               summarizer);
 

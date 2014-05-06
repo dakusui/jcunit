@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
@@ -16,7 +16,7 @@ import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 
-public class MethodFinderTest extends DefaultRuleSetBuilder {
+public class MethodFinderTest extends JCUnitBase {
   @RunWith(JCUnit.class)
   @Generator(SimpleTestArrayGenerator.class)
   public static class MethodFinderTest1 extends MethodFinderTest {

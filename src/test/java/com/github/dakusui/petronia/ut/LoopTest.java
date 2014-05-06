@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 import com.github.dakusui.lisj.Basic;
 
-public class LoopTest extends DefaultRuleSetBuilder {
+public class LoopTest extends JCUnitBase {
 
   @Test
   public void loop_01() throws Exception {

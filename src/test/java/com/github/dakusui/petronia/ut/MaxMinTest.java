@@ -4,13 +4,13 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
-public class MaxMinTest extends DefaultRuleSetBuilder {
+public class MaxMinTest extends JCUnitBase {
   @Test
   public void max_01() throws JCUnitException, CUT {
     assertEquals(Utils.bigDecimal(100), Basic.eval(this, max(100)));

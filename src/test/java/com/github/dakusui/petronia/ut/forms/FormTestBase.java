@@ -2,7 +2,7 @@ package com.github.dakusui.petronia.ut.forms;
 
 import org.junit.Before;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
@@ -16,7 +16,7 @@ public abstract class FormTestBase {
   protected abstract Form createForm();
 
   protected Context createContext() {
-    return new DefaultRuleSetBuilder();
+    return new JCUnitBase();
   }
 
   @Before

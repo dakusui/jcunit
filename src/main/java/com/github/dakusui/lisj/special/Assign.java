@@ -1,13 +1,14 @@
 package com.github.dakusui.lisj.special;
 
+import static com.github.dakusui.lisj.Basic.get;
+import static com.github.dakusui.lisj.Basic.length;
+
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.BaseForm;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.Symbol;
-
-import static com.github.dakusui.lisj.Basic.*;
 
 public class Assign extends BaseForm {
 
@@ -17,8 +18,8 @@ public class Assign extends BaseForm {
   private static final long serialVersionUID = 4109334578076480349L;
 
   @Override
-  protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitException, CUT {
+  protected FormResult evaluateEach(Context context, Object currentParam, FormResult lastResult)
+      throws JCUnitException, CUT {
     FormResult ret = lastResult;
 
     if (ret.nextPosition() == 0) {
@@ -32,8 +33,8 @@ public class Assign extends BaseForm {
   }
 
   @Override
-  protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitException {
+  protected FormResult evaluateLast(Context context, Object[] evaluatedParams, FormResult lastResult)
+      throws JCUnitException {
     FormResult ret = lastResult;
 
     Symbol symbol = (Symbol) evaluatedParams[0];

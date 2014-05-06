@@ -4,12 +4,12 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
-public class BasicTest extends DefaultRuleSetBuilder {
+public class BasicTest extends JCUnitBase {
   @Test
   public void evalp_01() throws JCUnitException, CUT {
     TestCase.assertTrue(Basic.evalp(this, Basic.quote($("eq"), "100", "100")));

@@ -11,10 +11,10 @@ import java.util.IllegalFormatException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 
-public class FormatTest extends DefaultRuleSetBuilder {
+public class FormatTest extends JCUnitBase {
   @Test
   public void format_01() throws Exception {
     System.out.println(tostr(eval(this, format("-%s-", intValue(1)))));

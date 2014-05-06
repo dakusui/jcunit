@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.func.math.Add;
@@ -18,7 +18,7 @@ import com.github.dakusui.lisj.func.math.Min;
 import com.github.dakusui.lisj.func.math.Mul;
 import com.github.dakusui.lisj.func.math.Sub;
 
-public class NumericFuncTest extends DefaultRuleSetBuilder {
+public class NumericFuncTest extends JCUnitBase {
   int    intnum    = 1;
   short  shortnum  = 1;
   long   longnum   = 1;

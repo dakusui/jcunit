@@ -9,12 +9,12 @@ import java.util.Set;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Symbol;
 
-public class SymbolTest extends DefaultRuleSetBuilder {
+public class SymbolTest extends JCUnitBase {
   @Test
   public void symbol_01() throws Exception {
     Basic.eval(this, assign($("s1"), "Hello!"));

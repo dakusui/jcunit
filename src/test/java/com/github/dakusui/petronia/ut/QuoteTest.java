@@ -4,10 +4,10 @@ import static org.junit.Assert.assertArrayEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 
-public class QuoteTest extends DefaultRuleSetBuilder {
+public class QuoteTest extends JCUnitBase {
   @Test
   public void quote_00() throws Exception {
     assertArrayEquals(new Object[] {}, (Object[]) (Basic.eval(this, quote())));

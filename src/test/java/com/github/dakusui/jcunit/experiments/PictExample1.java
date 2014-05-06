@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.experiments;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.Constraint;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
 
 @RunWith(JCUnit.class)
 @Generator(CartesianTestArrayGenerator.class)
-public class PictExample1 extends DefaultRuleSetBuilder {
+public class PictExample1 extends JCUnitBase {
   @In(domain = Domain.Method)
   public String edition;
 

@@ -14,9 +14,29 @@ import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 
+/**
+ * A utility class that provides basic functionalities of Lisj. Upon these
+ * functions, Lisj's various forms are implemented.
+ * 
+ * @author hiroshi
+ * 
+ */
 public class Basic {
+  /**
+   * A constant object that represents <code>NIL</code> in Lisj's model.
+   */
   public static final Object NIL = new Object[0];
 
+  /**
+   * Checks if given objects are equal or not.
+   * 
+   * @param a
+   *          The first object to be checked.
+   * @param b
+   *          The second object to be checked.
+   * @return true - <code>a</code> and <code>b</code> are equal / false -
+   *         otherwise.
+   */
   public static boolean eq(Object a, Object b) {
     if (a == b)
       return true;
@@ -97,8 +117,7 @@ public class Basic {
     return length(arr[arr.length - 1], len + arr.length - 1);
   }
 
-  public static Object eval(Context context, Object var)
-      throws JCUnitException, CUT {
+  public static Object eval(Context context, Object var) throws JCUnitException, CUT {
     if (atom(var)) {
       if (var instanceof Symbol) {
         return context.lookup((Symbol) var);
@@ -117,9 +136,7 @@ public class Basic {
         throw new RuntimeException();
       f = (Form) o;
     } else {
-      String msg = String.format(
-          "car(%s) of var(%s) must be a form or a symbol.", tostr(car),
-          tostr(var));
+      String msg = String.format("car(%s) of var(%s) must be a form or a symbol.", tostr(car), tostr(var));
       throw new IllegalArgumentException(msg);
     }
     if (eq(NIL, cdr)) {
@@ -175,19 +192,16 @@ public class Basic {
     return new Object[] { new Symbol(funcName.toString()), args };
   }
 
-  public static boolean evalp(Context context, Object predicate)
-      throws JCUnitException, CUT {
+  public static boolean evalp(Context context, Object predicate) throws JCUnitException, CUT {
     Object value = eval(context, predicate);
     if (value instanceof Boolean) {
       return ((Boolean) value);
     }
-    String message = String.format(
-        "'%s' returned non-boolean value or it is not a predicate", predicate);
+    String message = String.format("'%s' returned non-boolean value or it is not a predicate", predicate);
     throw new ObjectUnderFrameworkException(message, null);
   }
 
-  public static abstract class SexpIterator implements Iterator<Object>,
-      Iterable<Object> {
+  public static abstract class SexpIterator implements Iterator<Object>, Iterable<Object> {
   }
 
   public static class ConsIterator extends SexpIterator {
@@ -202,7 +216,7 @@ public class Basic {
       return this;
     }
 
-    int    cur = 0;
+    int cur = 0;
     Object target;
 
     @Override
@@ -373,20 +387,15 @@ public class Basic {
     return str;
   }
 
-  private static int                        nextObjectId = 1;
+  private static int nextObjectId = 1;
 
-  private static final Map<Object, Integer> objectMap    = CacheBuilder
-                                                             .newBuilder()
-                                                             .weakKeys()
-                                                             .build(
-                                                                 new CacheLoader<Object, Integer>() {
-                                                                   @Override
-                                                                   public Integer load(
-                                                                       Object key)
-                                                                       throws Exception {
-                                                                     return nextObjectId++;
-                                                                   }
-                                                                 }).asMap();
+  private static final Map<Object, Integer> objectMap = CacheBuilder.newBuilder().weakKeys()
+      .build(new CacheLoader<Object, Integer>() {
+        @Override
+        public Integer load(Object key) throws Exception {
+          return nextObjectId++;
+        }
+      }).asMap();
 
   private static int objectId(Object obj) {
     if (obj == null)
@@ -397,8 +406,7 @@ public class Basic {
     return objectMap.get(obj);
   }
 
-  private static void tostr(Object[] cons, StringBuilder builder,
-      boolean withParentheses, boolean suppressObjectId) {
+  private static void tostr(Object[] cons, StringBuilder builder, boolean withParentheses, boolean suppressObjectId) {
     if (withParentheses)
       builder.append("(");
     try {

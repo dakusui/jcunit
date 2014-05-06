@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 
-public class CondTest extends DefaultRuleSetBuilder {
+public class CondTest extends JCUnitBase {
 
   @Test
   public void cond_01() throws Exception {

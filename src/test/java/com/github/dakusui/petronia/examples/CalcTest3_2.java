@@ -7,7 +7,7 @@ import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 import com.github.dakusui.jcunit.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
@@ -31,7 +31,7 @@ import com.github.dakusui.petronia.examples.Calc.Op;
  */
 @RunWith(JCUnit.class)
 @Generator(BestPairwiseTestArrayGenerator.class)
-public class CalcTest3_2 extends DefaultRuleSetBuilder {
+public class CalcTest3_2 extends JCUnitBase {
   @Rule
   @In(
       domain = Domain.None)

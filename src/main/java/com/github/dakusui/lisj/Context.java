@@ -2,114 +2,151 @@ package com.github.dakusui.lisj;
 
 import java.math.MathContext;
 
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 
+/**
+ * This interface represents a naming context, which consists of a set of
+ * name-to-object bindings, and an observer interface to monitor Lisj's
+ * execution behaviors. It contains methods for examining, updating, and
+ * monitoring these bindings and behaviors.
+ */
 public interface Context extends Cloneable {
-
-  /*
-   * Throws an exception if the given name isn't registered.
+  /**
+   * Creates a new context which is a child of this context, which means that
+   * the returned context will take over all the symbols and can also have new
+   * symbols have.
+   * 
+   * But the changes made on the new context will be reflected to the original
+   * context.
+   * 
+   * @return A new context.
    */
-  Object lookup(Symbol name) throws SymbolNotFoundException;
+  public Context createChild();
 
-  /*
-   * Unlike Java's <code>HashMap.put</code> method, this method returns the
-   * newly registered <code>value</code>.
+  /**
+   * A math context object, which should be used for computation of big
+   * decimals.
+   * 
+   * @return A math context object.
    */
-  Object bind(Symbol symbol, Object value);
+  public MathContext bigDecimalMathContext();
 
-  Context createChild();
+  /**
+   * Returns a <code>Lisj</code> object, which creates Lisj's S-expression
+   * objects using this objects as its context.
+   * 
+   * @see Lisj
+   */
+  public Lisj lisj();
 
-  MathContext bigDecimalMathContext();
+  /**
+   * A call back method which is executed when an evaluation procedure for a
+   * given form begins.
+   * 
+   * @param form
+   *          A form which is being evaluated.
+   * @param params
+   *          Parameters given to the form.
+   */
+  public void beginEvaluation(Form form, Object params);
 
-  Object add(Object... params);
+  /**
+   * A call back method which is executed when an evaluation procedure for a
+   * given form ends.
+   * 
+   * @param form
+   *          A form which is being evaluated.
+   * @param ret
+   *          A form result returned by the evaluation process.
+   */
+  public void endEvaluation(Form form, FormResult ret);
 
-  Object and(Object... args);
+  /**
+   * A call back method which is executed when an evaluation procedure for a
+   * given form fails.
+   * 
+   * <code>index</code> gives the position of the <code>form</code>'s parameter
+   * object being evaluated in <code>params</code> given to
+   * <code>beginEvaluation</code> method, if this method is called during
+   * parameter evaluation phase of <code>FormEvaluator</code>. Otherwise it will
+   * be negative number.
+   * 
+   * @param form
+   *          A form which is being evaluated.
+   * @param index
+   *          An index of parameter object.
+   * @param e
+   *          An exception which made the evaluation fail.
+   */
+  public void failEvaluation(Form form, int index, JCUnitException e);
 
-  Object any();
+  /**
+   * A call back method which is executed when an evaluation procedure for a
+   * given form is cut.
+   * 
+   * <code>index</code> gives the position of the <code>form</code>'s parameter
+   * object being evaluated in <code>params</code> given to
+   * <code>beginEvaluation</code> method, if this method is called during
+   * parameter evaluation phase of <code>FormEvaluator</code>. Otherwise it will
+   * be negative number.
+   * 
+   * @param form
+   *          A form which is being evaluated.
+   * @param index
+   *          An index of parameter object.
+   * @param e
+   *          A <code>cut</code> object which cut the evaluation process.
+   */
+  public void cutEvaluation(Form form, int index, CUT e);
 
-  Object bigDecimal(Object num);
+  /**
+   * A call back method which is executed when an evaluation procedure for a
+   * given form's each parameter is evaluated.
+   * 
+   * @param form
+   *          A form which is being evaluated.
+   * @param cur
+   *          A parameter of <code>form</code> which is being processed.
+   * @param ret
+   *          A form result returned by the evaluation process.
+   */
+  public void eachEvaluation(BaseForm form, Object cur, FormResult ret);
 
-  Object bigInteger(Object num);
+  /**
+   * Returns an object bound with given symbol. If no value is bound with the
+   * symbol, an exception will be thrown.
+   * 
+   * @param symbol
+   *          A symbol
+   * @return An object bound with given symbol.
+   * @throws SymbolNotFoundException
+   *           The symbol wasn't bound.
+   */
+  public Object lookup(Symbol symbol) throws SymbolNotFoundException;
 
-  Object byteValue(Object num);
+  /**
+   * Binds a <code>symbol</code> with a <code>value</code>. And unlike Java's
+   * <code>HashMap.put</code> method, this method returns the newly registered
+   * <code>value</code>.
+   * 
+   * @param symbol
+   *          A symbol to be registered to this context.
+   * @param value
+   *          A value to be bound.
+   * @return A bound value.
+   */
+  public Object bind(Symbol symbol, Object value);
 
-  Object same(Object obj, Object another);
-
-  Object contains(Object obj, String str);
-
-  Object div(Object... params);
-
-  Object doubleValue(Object num);
-
-  Object ne(Object obj, Object another);
-
-  Object floatValue(Object num);
-
-  Object ge(Object obj, Object another);
-
-  Object get(Object obj, Object attrName);
-
-  Object gt(Object obj, Object another);
-
-  Object intValue(Object num);
-
-  Object is(Object obj, Object arg);
-
-  Object isoneof(Object obj, Object... args);
-
-  Object le(Object obj, Object another);
-
-  Object longValue(Object num);
-
-  Object lt(Object obj, Object another);
-
-  Object matches(Object attrName, String regex);
-
-  Object max(Object... params);
-
-  Object min(Object... params);
-
-  Object mul(Object... params);
-
-  Object not(Object target);
-
-  Object or(Object... args);
-
-  Object set(Object obj, Object attrName, Object value);
-
-  Object shortValue(Object num);
-
-  Object sub(Object... params);
-
-  Symbol $(String name);
-
-  Object cond(Object... whens);
-
-  Object when(Object pred, Object... statements);
-
-  Object assign(Symbol symbol, Object value);
-
-  Object print(Object s);
-
-  Object loop(Object cond, Object... forms);
-
-  Object progn(Object... forms);
-
-  Object format(Object format, Object... args);
-
-  Object lambda(Symbol[] params, Object... funcBody);
-
-  Object lambda(Symbol param, Object... funcBody);
-
-  Symbol[] $(String... names);
-
-  Object eval(Object... args);
-
-  Object isinstanceof(Object obj, Object clazz);
-
-  Object eq(Object obj, Object arg);
-
-  Object concat(Object separator, Object... args);
-
-  Object outFieldNames(Object obj);
+  /**
+   * Registers the given form to this object as a preset form. If no aliases are
+   * given, <code>Form.name</code> method will be invoked on <code>form</code>
+   * and the returned value will be used as an alias.
+   * 
+   * @param form
+   *          A form to be registered.
+   * @param aliases
+   *          Aliases for the form.
+   */
+  public void register(Form form, String... aliases);
 }

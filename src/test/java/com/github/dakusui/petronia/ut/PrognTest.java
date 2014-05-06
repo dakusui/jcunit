@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 
-public class PrognTest extends DefaultRuleSetBuilder {
+public class PrognTest extends JCUnitBase {
   @Test
   public void progn_01() throws Exception {
     Object value = Basic.eval(this,

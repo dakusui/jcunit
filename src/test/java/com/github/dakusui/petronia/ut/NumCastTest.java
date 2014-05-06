@@ -7,13 +7,13 @@ import java.math.BigInteger;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.func.math.NumCast;
 
-public class NumCastTest extends DefaultRuleSetBuilder {
+public class NumCastTest extends JCUnitBase {
   @Test
   public void intValue() throws JCUnitException, CUT {
     assertEquals((int) 123, Basic.eval(this, intValue(123)));

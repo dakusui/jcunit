@@ -6,12 +6,12 @@ import java.io.Serializable;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
-public class IsInstanceOfTest extends DefaultRuleSetBuilder implements
+public class IsInstanceOfTest extends JCUnitBase implements
     Serializable {
   private static final long serialVersionUID = 1L;
 

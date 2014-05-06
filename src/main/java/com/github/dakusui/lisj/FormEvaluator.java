@@ -2,17 +2,16 @@ package com.github.dakusui.lisj;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
-public class FormEvaluator {
-  private Object     params;
-  private BaseForm   form;
+public final class FormEvaluator {
+  private final Object params;
+  private final BaseForm form;
 
-  private Object[]   evaluatedResult;
-  private Context    context;
-  private FormResult result;
-  private boolean    initialized;
+  private Object[] evaluatedResult;
+  private final Context context;
+  private final FormResult result;
+  private boolean initialized;
 
-  public FormEvaluator(Context context, BaseForm func, Object params,
-      FormResult formResult) {
+  public FormEvaluator(Context context, BaseForm func, Object params, FormResult formResult) {
     this.form = func;
     this.params = params;
     this.context = context;
@@ -21,6 +20,7 @@ public class FormEvaluator {
   }
 
   public FormResult init() {
+    this.context.beginEvaluation(this.form, this.params);
     this.evaluatedResult = new Object[Basic.length(this.params)];
     // //
     // do i really want this System.arraycopy?
@@ -52,15 +52,35 @@ public class FormEvaluator {
 
   public FormResult next(FormResult lastResult) throws CUT, JCUnitException {
     int nextPosition = lastResult.nextPosition();
-    FormResult ret = form.evaluateEach(this.context,
-        Basic.get(params, nextPosition), lastResult);
-    this.evaluatedResult[nextPosition] = ret.value();
-    return ret;
+    FormResult ret = null;
+    try {
+      Object cur = Basic.get(params, nextPosition);
+      ret = form.evaluateEach(this.context, cur, lastResult);
+      this.evaluatedResult[nextPosition] = ret.value();
+      this.context.eachEvaluation(this.form, cur, ret);
+      return ret;
+    } catch (CUT e) {
+      this.context.cutEvaluation(this.form, nextPosition, e);
+      throw e;
+    } catch (JCUnitException e) {
+      this.context.failEvaluation(this.form, nextPosition, e);
+      throw e;
+    }
   }
 
-  public FormResult evaluateLast(FormResult lastResult) throws JCUnitException,
-      CUT {
-    return form.evaluateLast(this.context, this.evaluatedResult, lastResult);
+  public FormResult evaluateLast(FormResult lastResult) throws JCUnitException, CUT {
+    FormResult ret = null;
+    try {
+      ret = form.evaluateLast(this.context, this.evaluatedResult, lastResult);
+      this.context.endEvaluation(this.form, ret);
+      return ret;
+    } catch (CUT e) {
+      this.context.cutEvaluation(this.form, -1, e);
+      throw e;
+    } catch (JCUnitException e) {
+      this.context.failEvaluation(this.form, -1, e);
+      throw e;
+    }
   }
 
   public FormResult result() {

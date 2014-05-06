@@ -4,10 +4,10 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.RuleSet;
 
-public class RuleSetTest extends DefaultRuleSetBuilder {
+public class RuleSetTest extends JCUnitBase {
   @Test(
       expected = IllegalStateException.class)
   public void ruleSet_01() throws Exception {

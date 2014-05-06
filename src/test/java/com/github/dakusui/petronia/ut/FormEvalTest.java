@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 
-public class FormEvalTest extends DefaultRuleSetBuilder {
+public class FormEvalTest extends JCUnitBase {
   @Test
   public void eval01() throws Exception {
     assertEquals("hello", Basic.eval(this, "hello"));

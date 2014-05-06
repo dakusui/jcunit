@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
-public class EqTest extends DefaultRuleSetBuilder {
+public class EqTest extends JCUnitBase {
   @Test
   public void eq_t01() throws JCUnitException, CUT {
     assertEquals(true, Basic.eval(this, eq(1, 1)));

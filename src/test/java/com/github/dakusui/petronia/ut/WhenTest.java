@@ -2,11 +2,11 @@ package com.github.dakusui.petronia.ut;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
-public class WhenTest extends DefaultRuleSetBuilder {
+public class WhenTest extends JCUnitBase {
   @Test
   public void when_01() throws Exception {
     System.out.println(Basic.eval(this, when(true, 100)));

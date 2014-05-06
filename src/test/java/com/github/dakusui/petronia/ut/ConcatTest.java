@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 
-public class ConcatTest extends DefaultRuleSetBuilder {
+public class ConcatTest extends JCUnitBase {
   @Test
   public void concat_00() throws Exception {
     assertEquals("", Basic.eval(this, concat("")));

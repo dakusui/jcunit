@@ -4,12 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
-public class AlwaysTrueTest extends DefaultRuleSetBuilder {
+public class AlwaysTrueTest extends JCUnitBase {
   @Test
   public void alwaysTrue() throws JCUnitException, CUT {
     assertEquals(true, Basic.eval(this, any()));

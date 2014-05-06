@@ -9,7 +9,7 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -17,7 +17,7 @@ import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 
-public class OutFieldNamesTest extends DefaultRuleSetBuilder {
+public class OutFieldNamesTest extends JCUnitBase {
   @Test
   public void test00a() throws SymbolNotFoundException, JCUnitException, CUT {
     Object obj = new Object() {

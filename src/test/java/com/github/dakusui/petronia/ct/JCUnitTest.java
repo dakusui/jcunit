@@ -9,7 +9,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
@@ -18,9 +18,9 @@ import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.generators.BaseTestArrayGenerator;
 
-public class JCUnitTest extends DefaultRuleSetBuilder {
+public class JCUnitTest extends JCUnitBase {
   @RunWith(JCUnit.class)
-  public abstract static class Base extends DefaultRuleSetBuilder {
+  public abstract static class Base extends JCUnitBase {
     @In(
         domain = Domain.Method)
     public int in;
