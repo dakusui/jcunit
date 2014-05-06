@@ -11,7 +11,7 @@ import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 
 public class ConstraintSet<T, U> {
-  Map<AttrValue<T, U>, List<Constraint<T, U>>> invertedIndexForConstraint = new HashMap<AttrValue<T, U>, List<Constraint<T, U>>>();
+  Map<AttrValue<T, U>, List<ConstraintValueTuple<T, U>>> invertedIndexForConstraint = new HashMap<AttrValue<T, U>, List<ConstraintValueTuple<T, U>>>();
   Map<T, Set<AttrValue<T, U>>> remainingValues;
   private final Map<T, List<U>> domains;
 
@@ -32,7 +32,7 @@ public class ConstraintSet<T, U> {
     }
   }
 
-  public void add(Constraint<T, U> constraint) {
+  public void add(ConstraintValueTuple<T, U> constraint) {
     for (T attr : constraint.keySet()) {
       registerConstraintToAttr(constraint, attr);
     }
@@ -46,12 +46,12 @@ public class ConstraintSet<T, U> {
    * @param attr
    *          An attribute on which the constraint is indexed.
    */
-  protected void registerConstraintToAttr(Constraint<T, U> constraint, T attr) {
+  protected void registerConstraintToAttr(ConstraintValueTuple<T, U> constraint, T attr) {
     U value = constraint.get(attr);
     AttrValue<T, U> attrValue = new AttrValue<T, U>(attr, value);
-    List<Constraint<T, U>> constraintsForAttrValue = invertedIndexForConstraint.get(attrValue);
+    List<ConstraintValueTuple<T, U>> constraintsForAttrValue = invertedIndexForConstraint.get(attrValue);
     if (constraintsForAttrValue == null) {
-      constraintsForAttrValue = new LinkedList<Constraint<T, U>>();
+      constraintsForAttrValue = new LinkedList<ConstraintValueTuple<T, U>>();
       this.invertedIndexForConstraint.put(attrValue, constraintsForAttrValue);
     }
     constraintsForAttrValue.add(constraint);
@@ -64,7 +64,7 @@ public class ConstraintSet<T, U> {
     }
   }
 
-  void newCoveringConstraint(Constraint<T, U> constraint, T attr) {
+  void newCoveringConstraint(ConstraintValueTuple<T, U> constraint, T attr) {
     // //
     // Identify value for attr in the newly found constraint.
     U valueCoveredByConstraint = constraint.get(attr);
@@ -73,28 +73,28 @@ public class ConstraintSet<T, U> {
     // corresponding constraints.
     // But constraints for the attribute value covered by the newly covered
     // constraint is excluded.
-    List<AttrValue<AttrValue<T, U>, Constraint<T, U>>> attrValues = new LinkedList<AttrValue<AttrValue<T, U>, Constraint<T, U>>>();
+    List<AttrValue<AttrValue<T, U>, ConstraintValueTuple<T, U>>> attrValues = new LinkedList<AttrValue<AttrValue<T, U>, ConstraintValueTuple<T, U>>>();
     for (U value : this.domains.get(attr)) {
       if (!eq(value, valueCoveredByConstraint)) {
-        for (Constraint<T, U> cur : this.invertedIndexForConstraint.get(attr)) {
-          attrValues.add(new AttrValue<AttrValue<T, U>, Constraint<T, U>>(new AttrValue<T, U>(attr, value), cur));
+        for (ConstraintValueTuple<T, U> cur : this.invertedIndexForConstraint.get(attr)) {
+          attrValues.add(new AttrValue<AttrValue<T, U>, ConstraintValueTuple<T, U>>(new AttrValue<T, U>(attr, value), cur));
         }
       }
     }
     // //
     // Add a value pair for newly found constraint.
-    attrValues.add(new AttrValue<AttrValue<T, U>, Constraint<T, U>>(
+    attrValues.add(new AttrValue<AttrValue<T, U>, ConstraintValueTuple<T, U>>(
         new AttrValue<T, U>(attr, valueCoveredByConstraint), constraint));
 
     // //
     // Iterates over all possible sets that cover all the values of attribute
     // 'attr'.
-    CartesianEnumerator<AttrValue<T, U>, Constraint<T, U>> enumerator = new CartesianEnumerator<AttrValue<T, U>, Constraint<T, U>>(
+    CartesianEnumerator<AttrValue<T, U>, ConstraintValueTuple<T, U>> enumerator = new CartesianEnumerator<AttrValue<T, U>, ConstraintValueTuple<T, U>>(
         attrValues);
-    for (List<AttrValue<AttrValue<T, U>, Constraint<T, U>>> v : enumerator) {
-      Constraint<T, U> next = new Constraint<T, U>();
-      for (AttrValue<AttrValue<T, U>, Constraint<T, U>> w : v) {
-        Constraint<T, U> cur = new Constraint<T, U>();
+    for (List<AttrValue<AttrValue<T, U>, ConstraintValueTuple<T, U>>> v : enumerator) {
+      ConstraintValueTuple<T, U> next = new ConstraintValueTuple<T, U>();
+      for (AttrValue<AttrValue<T, U>, ConstraintValueTuple<T, U>> w : v) {
+        ConstraintValueTuple<T, U> cur = new ConstraintValueTuple<T, U>();
         cur.putAll(w.value());
         cur.remove(attr);
         if ((next = cur.merge(next)) == null)

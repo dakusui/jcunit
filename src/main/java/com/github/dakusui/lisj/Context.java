@@ -1,15 +1,14 @@
 package com.github.dakusui.lisj;
 
 import java.math.MathContext;
+import java.util.List;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 
 /**
  * This interface represents a naming context, which consists of a set of
- * name-to-object bindings, and an observer interface to monitor Lisj's
- * execution behaviors. It contains methods for examining, updating, and
- * monitoring these bindings and behaviors.
+ * name-to-object bindings. It contains methods for examining and updating these
+ * bindings.
  */
 public interface Context extends Cloneable {
   /**
@@ -39,79 +38,6 @@ public interface Context extends Cloneable {
    * @see Lisj
    */
   public Lisj lisj();
-
-  /**
-   * A call back method which is executed when an evaluation procedure for a
-   * given form begins.
-   * 
-   * @param form
-   *          A form which is being evaluated.
-   * @param params
-   *          Parameters given to the form.
-   */
-  public void beginEvaluation(Form form, Object params);
-
-  /**
-   * A call back method which is executed when an evaluation procedure for a
-   * given form ends.
-   * 
-   * @param form
-   *          A form which is being evaluated.
-   * @param ret
-   *          A form result returned by the evaluation process.
-   */
-  public void endEvaluation(Form form, FormResult ret);
-
-  /**
-   * A call back method which is executed when an evaluation procedure for a
-   * given form fails.
-   * 
-   * <code>index</code> gives the position of the <code>form</code>'s parameter
-   * object being evaluated in <code>params</code> given to
-   * <code>beginEvaluation</code> method, if this method is called during
-   * parameter evaluation phase of <code>FormEvaluator</code>. Otherwise it will
-   * be negative number.
-   * 
-   * @param form
-   *          A form which is being evaluated.
-   * @param index
-   *          An index of parameter object.
-   * @param e
-   *          An exception which made the evaluation fail.
-   */
-  public void failEvaluation(Form form, int index, JCUnitException e);
-
-  /**
-   * A call back method which is executed when an evaluation procedure for a
-   * given form is cut.
-   * 
-   * <code>index</code> gives the position of the <code>form</code>'s parameter
-   * object being evaluated in <code>params</code> given to
-   * <code>beginEvaluation</code> method, if this method is called during
-   * parameter evaluation phase of <code>FormEvaluator</code>. Otherwise it will
-   * be negative number.
-   * 
-   * @param form
-   *          A form which is being evaluated.
-   * @param index
-   *          An index of parameter object.
-   * @param e
-   *          A <code>cut</code> object which cut the evaluation process.
-   */
-  public void cutEvaluation(Form form, int index, CUT e);
-
-  /**
-   * A call back method which is executed when an evaluation procedure for a
-   * given form's each parameter is evaluated.
-   * 
-   * @param form
-   *          A form which is being evaluated.
-   * @param cur
-   *          A parameter of <code>form</code> which is being processed.
-   * @param ret
-   *          A form result returned by the evaluation process.
-   */
-  public void eachEvaluation(BaseForm form, Object cur, FormResult ret);
 
   /**
    * Returns an object bound with given symbol. If no value is bound with the
@@ -149,4 +75,32 @@ public interface Context extends Cloneable {
    *          Aliases for the form.
    */
   public void register(Form form, String... aliases);
+
+  /**
+   * Adds an observer to this context.
+   * 
+   * @param observer
+   *          An observer to be added.
+   */
+  public void addObserver(ContextObserver observer);
+
+  /**
+   * Removes an observer from this context.
+   * 
+   * @param observer
+   *          An observer to be removed.
+   */
+  public void removeObserver(ContextObserver observer);
+
+  /**
+   * Returns an unmodifiable version of list of observers that this context has.
+   * 
+   * @return A list of observers.
+   */
+  public List<ContextObserver> observers();
+
+  /**
+   * Clears all the registered observers.
+   */
+  public void clearObservers();
 }

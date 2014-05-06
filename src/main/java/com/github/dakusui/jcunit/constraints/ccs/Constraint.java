@@ -1,54 +1,47 @@
 package com.github.dakusui.jcunit.constraints.ccs;
 
 import com.github.dakusui.jcunit.core.ValueTuple;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.lisj.Basic;
+import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.Context;
+import com.github.dakusui.lisj.Symbol;
 
-public class Constraint<T, U> extends ValueTuple<T, U> {
+public class Constraint<T, U> {
+  private Object then;
+  private Object when;
+  private final Context context;
 
-  /**
-   * Serial Version UID
-   */
-  private static final long serialVersionUID = -5590996290948921892L;
+  public Constraint(Context context) {
+    this.context = context;
+  }
 
-  /**
-   * Returns a new constraint object which is created by merging this object and
-   * <code>another</code> object. If this object and it are not consistent,
-   * <code>null</code> will be returned.
-   * 
-   * @param another
-   *          A constraint object to be merged with this object.
-   * @return A merged constraint object.
-   */
-  public Constraint<T, U> merge(Constraint<T, U> another) {
-    if (another == null)
-      throw new NullPointerException();
-    Constraint<T, U> ret = new Constraint<T, U>();
-    Constraint<T, U> left = this;
-    Constraint<T, U> right = another;
-    if (this.size() > another.size()) {
-      left = another;
-      right = this;
+  public void when(Object when) {
+    this.when = when;
+  }
+
+  public Object when() {
+    return this.when;
+  }
+
+  public void then(Object then) {
+    this.then = then;
+  }
+
+  public Object then() {
+    return this.then;
+  }
+
+  public ConstraintValueTuple<T, U> evaluate(ValueTuple<T, U> values) throws JCUnitException, CUT {
+    Context c = this.context.createChild();
+    for (T key : values.keySet()) {
+      c.bind(new Symbol(key.toString()), values.get(key));
     }
-    if (!check(left, right))
-      return null;
-    ret.putAll(this);
-    ret.putAll(another);
+    if (Basic.evalp(c, this.when)) {
+      if (Basic.evalp(c, this.then))
+        return null;
+    }
+    ConstraintValueTuple<T, U> ret = new ConstraintValueTuple<T, U>();
     return ret;
-  }
-
-  private boolean check(Constraint<T, U> left, Constraint<T, U> right) {
-    for (T key : left.keySet()) {
-      if (!right.containsKey(key))
-        continue;
-      if (eq(left.get(key), right.get(key)))
-        continue;
-      return false;
-    }
-    return true;
-  }
-
-  private boolean eq(U a, U b) {
-    if (a == null)
-      return b == null;
-    return a.equals(b);
   }
 }

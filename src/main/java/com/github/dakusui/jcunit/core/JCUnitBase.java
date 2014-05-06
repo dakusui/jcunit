@@ -1,16 +1,14 @@
 package com.github.dakusui.jcunit.core;
 
 import java.math.MathContext;
+import java.util.List;
 
 import com.github.dakusui.jcunit.auto.AutoRuleSet;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
-import com.github.dakusui.lisj.BaseForm;
-import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.ContextImpl;
+import com.github.dakusui.lisj.ContextObserver;
 import com.github.dakusui.lisj.Form;
-import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.Lisj;
 import com.github.dakusui.lisj.Symbol;
 
@@ -71,31 +69,6 @@ public class JCUnitBase extends Lisj implements RuleSetBuilder, Context {
   }
 
   @Override
-  public void beginEvaluation(Form form, Object params_) {
-    this.context.beginEvaluation(form, params_);
-  }
-
-  @Override
-  public void endEvaluation(Form form, FormResult ret) {
-    this.context.endEvaluation(form, ret);
-  }
-
-  @Override
-  public void failEvaluation(Form form, int index, JCUnitException e) {
-    this.context.failEvaluation(form, index, e);
-  }
-
-  @Override
-  public void cutEvaluation(Form form, int index, CUT e) {
-    this.context.cutEvaluation(form, index, e);
-  }
-
-  @Override
-  public void eachEvaluation(BaseForm form, Object cur, FormResult ret) {
-    this.context.eachEvaluation(form, cur, ret);
-  }
-
-  @Override
   public Object lookup(Symbol symbol) throws SymbolNotFoundException {
     return this.context.lookup(symbol);
   }
@@ -113,5 +86,25 @@ public class JCUnitBase extends Lisj implements RuleSetBuilder, Context {
   @Override
   public Lisj lisj() {
     return this;
+  }
+
+  @Override
+  public void addObserver(ContextObserver observer) {
+    this.context.addObserver(observer);
+  }
+
+  @Override
+  public void removeObserver(ContextObserver observer) {
+    this.context.removeObserver(observer);
+  }
+
+  @Override
+  public List<ContextObserver> observers() {
+    return this.context.observers();
+  }
+
+  @Override
+  public void clearObservers() {
+    this.context.clearObservers();
   }
 }

@@ -1,13 +1,16 @@
 package com.github.dakusui.lisj;
 
 import java.math.MathContext;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 
 public abstract class ContextImpl implements Context {
+  List<ContextObserver> observers = new LinkedList<ContextObserver>();
   private final Map<String, Object> formMap = new HashMap<String, Object>();
 
   @Override
@@ -76,22 +79,22 @@ public abstract class ContextImpl implements Context {
   }
 
   @Override
-  public void beginEvaluation(Form form, Object params_) {
+  public void addObserver(ContextObserver observer) {
+    this.observers.add(observer);
   }
 
   @Override
-  public void endEvaluation(Form form, FormResult ret) {
+  public void removeObserver(ContextObserver observer) {
+    this.observers.remove(observer);
   }
 
   @Override
-  public void failEvaluation(Form form, int index, JCUnitException e) {
+  public List<ContextObserver> observers() {
+    return Collections.unmodifiableList(this.observers);
   }
 
   @Override
-  public void cutEvaluation(Form form, int index, CUT e) {
-  }
-
-  @Override
-  public void eachEvaluation(BaseForm form, Object cur, FormResult ret) {
+  public void clearObservers() {
+    this.observers.clear();
   }
 }

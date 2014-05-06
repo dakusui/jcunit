@@ -1,5 +1,9 @@
 package com.github.dakusui.lisj;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 public final class FormEvaluator {
@@ -20,7 +24,7 @@ public final class FormEvaluator {
   }
 
   public FormResult init() {
-    this.context.beginEvaluation(this.form, this.params);
+    this.beginEvaluation(context, this.form, this.params);
     this.evaluatedResult = new Object[Basic.length(this.params)];
     // //
     // do i really want this System.arraycopy?
@@ -57,13 +61,13 @@ public final class FormEvaluator {
       Object cur = Basic.get(params, nextPosition);
       ret = form.evaluateEach(this.context, cur, lastResult);
       this.evaluatedResult[nextPosition] = ret.value();
-      this.context.eachEvaluation(this.form, cur, ret);
+      this.eachEvaluation(context, this.form, cur, ret);
       return ret;
     } catch (CUT e) {
-      this.context.cutEvaluation(this.form, nextPosition, e);
+      this.cutEvaluation(context, this.form, nextPosition, e);
       throw e;
     } catch (JCUnitException e) {
-      this.context.failEvaluation(this.form, nextPosition, e);
+      this.failEvaluation(context, this.form, nextPosition, e);
       throw e;
     }
   }
@@ -72,13 +76,13 @@ public final class FormEvaluator {
     FormResult ret = null;
     try {
       ret = form.evaluateLast(this.context, this.evaluatedResult, lastResult);
-      this.context.endEvaluation(this.form, ret);
+      this.endEvaluation(context, this.form, ret);
       return ret;
     } catch (CUT e) {
-      this.context.cutEvaluation(this.form, -1, e);
+      this.cutEvaluation(context, this.form, -1, e);
       throw e;
     } catch (JCUnitException e) {
-      this.context.failEvaluation(this.form, -1, e);
+      this.failEvaluation(context, this.form, -1, e);
       throw e;
     }
   }
@@ -87,4 +91,47 @@ public final class FormEvaluator {
     return this.result;
   }
 
+  private void beginEvaluation(Context context, BaseForm form, Object params) {
+    for (ContextObserver o : this.context.observers()) {
+      o.beginEvaluation(form, params);
+    }
+  }
+
+  private void failEvaluation(Context context, BaseForm form, int index, JCUnitException e) {
+    List<ContextObserver> oList = new LinkedList<ContextObserver>();
+    Collections.copy(oList, this.context.observers());
+    Collections.reverse(oList);
+    for (ContextObserver o : oList) {
+      o.failEvaluation(form, index, e);
+    }
+  }
+
+  private void cutEvaluation(Context context, BaseForm form, int index, CUT e) {
+    List<ContextObserver> oList = new LinkedList<ContextObserver>();
+    Collections.copy(oList, this.context.observers());
+    Collections.reverse(oList);
+    for (ContextObserver o : oList) {
+      o.cutEvaluation(form, index, e);
+    }
+
+  }
+
+  private void eachEvaluation(Context context, BaseForm form, Object cur, FormResult ret) {
+    List<ContextObserver> oList = new LinkedList<ContextObserver>();
+    Collections.copy(oList, this.context.observers());
+    Collections.reverse(oList);
+    for (ContextObserver o : oList) {
+      o.eachEvaluation(form, cur, ret);
+    }
+  }
+
+  private void endEvaluation(Context context, BaseForm form, FormResult ret) {
+    List<ContextObserver> oList = new LinkedList<ContextObserver>();
+    Collections.copy(oList, this.context.observers());
+    Collections.reverse(oList);
+    for (ContextObserver o : oList) {
+      o.endEvaluation(form, ret);
+    }
+
+  }
 }
