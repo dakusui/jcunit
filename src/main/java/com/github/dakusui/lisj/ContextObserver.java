@@ -91,5 +91,5 @@ public interface ContextObserver {
    * @param value
    *          The symbol's value.
    */
-  public void symboEvaluationl(Symbol symbol, Object value);
+  public void symboEvaluation(Symbol symbol, Object value);
 }

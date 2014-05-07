@@ -81,7 +81,7 @@ public class ConstraintRule {
       }
 
       @Override
-      public void symboEvaluationl(Symbol symbol, Object value) {
+      public void symboEvaluation(Symbol symbol, Object value) {
         // Pick up relevant parameters only.
         if (given.containsKey(symbol.name()))
           ret.put(symbol.name(), value);
