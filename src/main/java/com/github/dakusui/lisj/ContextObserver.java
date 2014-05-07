@@ -18,7 +18,7 @@ public interface ContextObserver {
    * @param params
    *          Parameters given to the form.
    */
-  public void beginEvaluation(Form form, Object params);
+  public void beginEvaluation(BaseForm form, Object params);
 
   /**
    * A call back method which is executed when an evaluation procedure for a
@@ -29,7 +29,7 @@ public interface ContextObserver {
    * @param ret
    *          A form result returned by the evaluation process.
    */
-  public void endEvaluation(Form form, FormResult ret);
+  public void endEvaluation(BaseForm form, FormResult ret);
 
   /**
    * A call back method which is executed when an evaluation procedure for a
@@ -48,7 +48,7 @@ public interface ContextObserver {
    * @param e
    *          An exception which made the evaluation fail.
    */
-  public void failEvaluation(Form form, int index, JCUnitException e);
+  public void failEvaluation(BaseForm form, int index, JCUnitException e);
 
   /**
    * A call back method which is executed when an evaluation procedure for a
@@ -67,7 +67,7 @@ public interface ContextObserver {
    * @param e
    *          A <code>cut</code> object which cut the evaluation process.
    */
-  public void cutEvaluation(Form form, int index, CUT e);
+  public void cutEvaluation(BaseForm form, int index, CUT e);
 
   /**
    * A call back method which is executed when an evaluation procedure for a
@@ -82,4 +82,14 @@ public interface ContextObserver {
    */
   public void eachEvaluation(BaseForm form, Object cur, FormResult ret);
 
+  /**
+   * A call back method which is executed when an evaluation procedure for a
+   * given symbol is evaluated.
+   * 
+   * @param symbol
+   *          A symbol which is evaluated.
+   * @param value
+   *          The symbol's value.
+   */
+  public void symboEvaluationl(Symbol symbol, Object value);
 }

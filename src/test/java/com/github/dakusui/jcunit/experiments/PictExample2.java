@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.experiments;
 
-import com.github.dakusui.jcunit.core.Constraint;
-import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.constraints.Constraint;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.RuleSet;
 
 public class PictExample2 extends JCUnitBase {

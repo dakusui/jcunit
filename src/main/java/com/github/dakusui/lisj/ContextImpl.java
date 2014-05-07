@@ -15,7 +15,11 @@ public abstract class ContextImpl implements Context {
 
   @Override
   public Object lookup(Symbol symbol) throws SymbolNotFoundException {
-    return lookup(symbol.name());
+    Object ret = lookup(symbol.name());
+    for (ContextObserver o : this.observers) {
+      o.symboEvaluationl(symbol, ret);
+    }
+    return ret;
   }
 
   /*

@@ -2,12 +2,12 @@ package com.github.dakusui.jcunit.experiments;
 
 import org.junit.runner.RunWith;
 
-import com.github.dakusui.jcunit.core.Constraint;
-import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.constraints.Constraint;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.RuleSet;
 import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
 
@@ -68,6 +68,6 @@ public class PictExample1 extends JCUnitBase {
   }
 
   @Constraint
-  public RuleSet constraint = this.ruleSet().incase(eq(get("hd1"), "None"), not(eq(get("hd2"), "None")))
-      .incase(eq(get("hd2"), "None"), not(eq(get("hd1"), "None")));
+  public RuleSet constraint = this.ruleSet().incase(eq($("hd1"), "None"), not(eq($("hd2"), "None")))
+      .incase(eq($("hd2"), "None"), not(eq($("hd1"), "None")));
 }

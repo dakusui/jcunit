@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.constraints.ccs;
 
 import com.github.dakusui.jcunit.core.ValueTuple;
 
-public class ConstraintValueTuple<T, U> extends ValueTuple<T, U> {
+public class CCSValueTuple<T, U> extends ValueTuple<T, U> {
 
   /**
    * Serial Version UID
@@ -18,12 +18,12 @@ public class ConstraintValueTuple<T, U> extends ValueTuple<T, U> {
    *          A constraint object to be merged with this object.
    * @return A merged constraint object.
    */
-  public ConstraintValueTuple<T, U> merge(ConstraintValueTuple<T, U> another) {
+  public CCSValueTuple<T, U> merge(CCSValueTuple<T, U> another) {
     if (another == null)
       throw new NullPointerException();
-    ConstraintValueTuple<T, U> ret = new ConstraintValueTuple<T, U>();
-    ConstraintValueTuple<T, U> left = this;
-    ConstraintValueTuple<T, U> right = another;
+    CCSValueTuple<T, U> ret = new CCSValueTuple<T, U>();
+    CCSValueTuple<T, U> left = this;
+    CCSValueTuple<T, U> right = another;
     if (this.size() > another.size()) {
       left = another;
       right = this;
@@ -35,7 +35,7 @@ public class ConstraintValueTuple<T, U> extends ValueTuple<T, U> {
     return ret;
   }
 
-  private boolean check(ConstraintValueTuple<T, U> left, ConstraintValueTuple<T, U> right) {
+  private boolean check(CCSValueTuple<T, U> left, CCSValueTuple<T, U> right) {
     for (T key : left.keySet()) {
       if (!right.containsKey(key))
         continue;
