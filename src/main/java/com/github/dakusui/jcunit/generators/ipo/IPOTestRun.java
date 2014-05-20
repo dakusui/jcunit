@@ -83,7 +83,7 @@ public class IPOTestRun implements Cloneable {
     return ret;
   }
 
-  public IPOTestRun clone() {
+  final public IPOTestRun clone() {
     try {
       return (IPOTestRun) super.clone();
     } catch (CloneNotSupportedException e) {

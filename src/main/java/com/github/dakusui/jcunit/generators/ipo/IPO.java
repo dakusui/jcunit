@@ -107,8 +107,7 @@ public class IPO {
     // this step are found in procedure HG described in the
     // function 'hg'.
 
-    for (int k = 3; k <= n; k++) {
-      int Fk = k;
+    for (int Fk = 3; Fk <= n; Fk++) {
       T = hg(info, T, Fk);
 
       // 3.2 [Uncovered pairs] Compute the set U of all uncovered pairs
@@ -288,7 +287,7 @@ public class IPO {
    */
   private Object chooseBestValueForF(Info info, Set<IPOValuePair> AP$,
       IPOTestRunSet R, IPOTestRun tj, int F, Set<IPOValuePair> AP) {
-    Object v$ = DC; // space.value(F, 1);
+    Object v$; // space.value(F, 1);
     this.optimizer.clearHGCandidates();
     for (int k = 1; k <= space.domainOf(F).length; k++) {
       // and v' = l1.

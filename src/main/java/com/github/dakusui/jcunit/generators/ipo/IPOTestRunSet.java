@@ -78,7 +78,7 @@ public class IPOTestRunSet extends ArrayList<IPOTestRun> {
 
   @Override
   public String toString() {
-    StringBuffer buf = new StringBuffer(256);
+    StringBuilder buf = new StringBuilder(256);
     for (IPOTestRun testrun : this) {
       buf.append(testrun.toString());
       buf.append("\n");

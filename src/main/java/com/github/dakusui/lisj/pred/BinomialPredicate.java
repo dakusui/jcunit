@@ -3,10 +3,10 @@ package com.github.dakusui.lisj.pred;
 import static com.github.dakusui.lisj.Basic.length;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.lisj.Basic;
-import com.github.dakusui.lisj.Context;
-import com.github.dakusui.lisj.FormEvaluator;
-import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.*;
+
+import java.util.LinkedList;
+import java.util.TreeSet;
 
 public abstract class BinomialPredicate extends BasePredicate {
   /**
@@ -29,7 +29,7 @@ public abstract class BinomialPredicate extends BasePredicate {
      * child context, FormEvaluator is created with incoming context.
      */
     return new FormEvaluator(context, this, checkParams(params),
-        new FormResult(0, Basic.length(params), null));
+        new FormResult(0, Basic.length(params), null, new LinkedList<Symbol>()));
   }
 
 }

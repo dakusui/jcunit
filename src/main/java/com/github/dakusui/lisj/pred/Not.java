@@ -1,11 +1,10 @@
 package com.github.dakusui.lisj.pred;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.lisj.Basic;
-import com.github.dakusui.lisj.CUT;
-import com.github.dakusui.lisj.Context;
-import com.github.dakusui.lisj.FormEvaluator;
-import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.*;
+
+import java.util.LinkedList;
+import java.util.TreeSet;
 
 public class Not extends LogicalPredicate {
   /**
@@ -49,7 +48,7 @@ public class Not extends LogicalPredicate {
      * FormEvaluator is created with incoming context.
      */
     return new FormEvaluator(context, this, checkParams(params),
-        new FormResult(0, Basic.length(params), null));
+        new FormResult(0, Basic.length(params), null, new LinkedList<Symbol>()));
   }
 
   @Override

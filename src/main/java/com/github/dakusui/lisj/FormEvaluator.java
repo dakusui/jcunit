@@ -1,19 +1,20 @@
 package com.github.dakusui.lisj;
 
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import java.util.TreeSet;
 
 public final class FormEvaluator {
-  private final Object params;
+  private final Object   params;
   private final BaseForm form;
 
-  private Object[] evaluatedResult;
-  private final Context context;
+  private       Object[]   evaluatedResult;
+  private final Context    context;
   private final FormResult result;
-  private boolean initialized;
+  private       boolean    initialized;
 
   public FormEvaluator(Context context, BaseForm func, Object params, FormResult formResult) {
     this.form = func;
@@ -38,7 +39,7 @@ public final class FormEvaluator {
     // System.arraycopy(this.params, 0, evaluatedResult, 0,
     // evaluatedResult.length);
 
-    FormResult ret = new FormResult(0, evaluatedResult.length, null);
+    FormResult ret = new FormResult(0, evaluatedResult.length, null, new LinkedList<Symbol>());
     this.initialized = true;
     return ret;
   }

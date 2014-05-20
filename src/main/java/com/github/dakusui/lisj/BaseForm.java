@@ -3,6 +3,9 @@ package com.github.dakusui.lisj;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
+import java.util.LinkedList;
+import java.util.TreeSet;
+
 public abstract class BaseForm implements Form {
   /**
    * Serial version UID.
@@ -52,7 +55,7 @@ public abstract class BaseForm implements Form {
      * by context.createChild method.
      */
     return new FormEvaluator(context.createChild(), this, checkParams(params), new FormResult(0, Basic.length(params),
-        null));
+        null, new LinkedList<Symbol>()));
   }
 
   protected Object checkParams(Object params) {

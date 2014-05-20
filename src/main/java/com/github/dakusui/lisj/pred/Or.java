@@ -15,15 +15,21 @@ public class Or extends LogicalPredicate {
   protected FormResult evaluateEach(Context context, Object currentParam,
       FormResult lastResult) throws JCUnitException, CUT {
 
-    FormResult ret = super.evaluateEach(context, currentParam, lastResult);
-    if (ret.value() instanceof Boolean) {
-      if (((Boolean) ret.value()))
-        cut(true);
-    } else {
-      throw new IllegalArgumentException(msgReturnedTypeMismatch(Boolean.class,
-          ret.value()));
+    lastResult.mark();
+    try {
+      FormResult ret = super.evaluateEach(context, currentParam, lastResult);
+      if (ret.value() instanceof Boolean) {
+        if (((Boolean) ret.value()))
+          cut(true);
+      } else {
+        throw new IllegalArgumentException(msgReturnedTypeMismatch(Boolean.class,
+            ret.value()));
+      }
+      return ret;
+    } catch (CUT cut) {
+      lastResult.reset();
+      throw cut;
     }
-    return ret;
   }
 
   @Override

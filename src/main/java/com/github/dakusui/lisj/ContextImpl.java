@@ -17,7 +17,7 @@ public abstract class ContextImpl implements Context {
   public Object lookup(Symbol symbol) throws SymbolNotFoundException {
     Object ret = lookup(symbol.name());
     for (ContextObserver o : this.observers) {
-      o.symboEvaluation(symbol, ret);
+      o.symbolEvaluation(symbol, ret);
     }
     return ret;
   }

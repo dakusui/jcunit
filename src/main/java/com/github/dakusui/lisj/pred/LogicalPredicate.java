@@ -1,11 +1,10 @@
 package com.github.dakusui.lisj.pred;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.lisj.Basic;
-import com.github.dakusui.lisj.CUT;
-import com.github.dakusui.lisj.Context;
-import com.github.dakusui.lisj.FormEvaluator;
-import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.*;
+
+import java.util.LinkedList;
+import java.util.TreeSet;
 
 public abstract class LogicalPredicate extends BasePredicate {
   /**
@@ -43,7 +42,7 @@ public abstract class LogicalPredicate extends BasePredicate {
      * child context, FormEvaluator is created with incoming context.
      */
     return new FormEvaluator(context, this, checkParams(params),
-        new FormResult(0, Basic.length(params), initialValue()));
+        new FormResult(0, Basic.length(params), initialValue(), new LinkedList<Symbol>()));
   }
 
   /*
