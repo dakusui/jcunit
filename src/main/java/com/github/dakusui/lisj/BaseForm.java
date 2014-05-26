@@ -55,7 +55,7 @@ public abstract class BaseForm implements Form {
      * by context.createChild method.
      */
     return new FormEvaluator(context.createChild(), this, checkParams(params), new FormResult(0, Basic.length(params),
-        null, new LinkedList<Symbol>()));
+        null));
   }
 
   protected Object checkParams(Object params) {

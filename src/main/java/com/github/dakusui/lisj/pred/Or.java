@@ -15,7 +15,6 @@ public class Or extends LogicalPredicate {
   protected FormResult evaluateEach(Context context, Object currentParam,
       FormResult lastResult) throws JCUnitException, CUT {
 
-    lastResult.mark();
     try {
       FormResult ret = super.evaluateEach(context, currentParam, lastResult);
       if (ret.value() instanceof Boolean) {
@@ -27,7 +26,6 @@ public class Or extends LogicalPredicate {
       }
       return ret;
     } catch (CUT cut) {
-      lastResult.reset();
       throw cut;
     }
   }

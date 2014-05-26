@@ -10,14 +10,18 @@ import java.util.Map;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 
 public abstract class ContextImpl implements Context {
-  List<ContextObserver> observers = new LinkedList<ContextObserver>();
+  private final List<ContextObserver> observers = new LinkedList<ContextObserver>();
   private final Map<String, Object> formMap = new HashMap<String, Object>();
 
   @Override
   public Object lookup(Symbol symbol) throws SymbolNotFoundException {
-    Object ret = lookup(symbol.name());
-    for (ContextObserver o : this.observers) {
-      o.symbolEvaluation(symbol, ret);
+    Object ret = null;
+    try {
+      ret = lookup(symbol.name());
+    } finally {
+      for (ContextObserver o : this.observers) {
+        o.symbolEvaluation(symbol, ret);
+      }
     }
     return ret;
   }

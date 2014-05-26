@@ -29,7 +29,7 @@ public abstract class BinomialPredicate extends BasePredicate {
      * child context, FormEvaluator is created with incoming context.
      */
     return new FormEvaluator(context, this, checkParams(params),
-        new FormResult(0, Basic.length(params), null, new LinkedList<Symbol>()));
+        new FormResult(0, Basic.length(params), null));
   }
 
 }

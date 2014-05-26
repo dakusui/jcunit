@@ -39,7 +39,7 @@ public final class FormEvaluator {
     // System.arraycopy(this.params, 0, evaluatedResult, 0,
     // evaluatedResult.length);
 
-    FormResult ret = new FormResult(0, evaluatedResult.length, null, new LinkedList<Symbol>());
+    FormResult ret = new FormResult(0, evaluatedResult.length, null);
     this.initialized = true;
     return ret;
   }
@@ -60,9 +60,9 @@ public final class FormEvaluator {
     FormResult ret = null;
     try {
       Object cur = Basic.get(params, nextPosition);
+      this.eachEvaluation(context, this.form, cur, ret);
       ret = form.evaluateEach(this.context, cur, lastResult);
       this.evaluatedResult[nextPosition] = ret.value();
-      this.eachEvaluation(context, this.form, cur, ret);
       return ret;
     } catch (CUT e) {
       this.cutEvaluation(context, this.form, nextPosition, e);
@@ -100,7 +100,7 @@ public final class FormEvaluator {
 
   private void failEvaluation(Context context, BaseForm form, int index, JCUnitException e) {
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
-    Collections.copy(oList, this.context.observers());
+    oList.addAll(this.context.observers());
     Collections.reverse(oList);
     for (ContextObserver o : oList) {
       o.failEvaluation(form, index, e);
@@ -108,8 +108,9 @@ public final class FormEvaluator {
   }
 
   private void cutEvaluation(Context context, BaseForm form, int index, CUT e) {
+    System.out.println("**    CUT " + form + " **");
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
-    Collections.copy(oList, this.context.observers());
+    oList.addAll(this.context.observers());
     Collections.reverse(oList);
     for (ContextObserver o : oList) {
       o.cutEvaluation(form, index, e);
@@ -119,7 +120,7 @@ public final class FormEvaluator {
 
   private void eachEvaluation(Context context, BaseForm form, Object cur, FormResult ret) {
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
-    Collections.copy(oList, this.context.observers());
+    oList.addAll(this.context.observers());
     Collections.reverse(oList);
     for (ContextObserver o : oList) {
       o.eachEvaluation(form, cur, ret);
@@ -128,7 +129,7 @@ public final class FormEvaluator {
 
   private void endEvaluation(Context context, BaseForm form, FormResult ret) {
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
-    Collections.copy(oList, this.context.observers());
+    oList.addAll(this.context.observers());
     Collections.reverse(oList);
     for (ContextObserver o : oList) {
       o.endEvaluation(form, ret);

@@ -314,7 +314,10 @@ public class Basic {
     if (eq(obj, NIL))
       return "NIL";
     if (atom(obj))
-      return toString(obj, suppressObjectId);
+      if (obj instanceof Symbol)
+        return String.format("$(%s)", ((Symbol)obj).name());
+      else
+        return toString(obj, suppressObjectId);
 
     StringBuilder builder = new StringBuilder(1024);
     Object[] cons = (Object[]) obj;

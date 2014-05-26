@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.*;
 
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 public abstract class LogicalPredicate extends BasePredicate {
   /**
@@ -42,7 +41,7 @@ public abstract class LogicalPredicate extends BasePredicate {
      * child context, FormEvaluator is created with incoming context.
      */
     return new FormEvaluator(context, this, checkParams(params),
-        new FormResult(0, Basic.length(params), initialValue(), new LinkedList<Symbol>()));
+        new FormResult(0, Basic.length(params), initialValue()));
   }
 
   /*
