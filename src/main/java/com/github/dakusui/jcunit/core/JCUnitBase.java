@@ -107,4 +107,8 @@ public class JCUnitBase extends Lisj implements RuleSetBuilder, Context {
   public void clearObservers() {
     this.context.clearObservers();
   }
+
+  @Override public boolean allowsUnboundSymbols() {
+    return true;
+  }
 }

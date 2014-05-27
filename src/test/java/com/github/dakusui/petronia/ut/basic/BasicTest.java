@@ -45,4 +45,11 @@ public class BasicTest extends JCUnitBase {
     TestCase.assertFalse(Basic.evalp(this, Basic.quote($("eq"), null, 100)));
   }
 
+
+  ////
+  // A known bug.
+  // @Test()
+  public void eq_01() throws Exception {
+    TestCase.assertEquals(true, Basic.eq(new Object[]{1, new Object[]{1}}, new Object[]{1, 1}));
+  }
 }

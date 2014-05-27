@@ -103,4 +103,16 @@ public interface Context extends Cloneable {
    * Clears all the registered observers.
    */
   public void clearObservers();
+
+  /**
+   * If this method returns {@code true}, logical multi-nominal predicates,
+   * ({@code And} and {@code Or}, will not throw a symbol not found exception
+   * immediately in case it finds an unbound symbol.
+   *
+   * Instead, it will try the next parameter to determine its value and if it cannot
+   * determine the value, A symbol not found exception will be thrown.
+   *
+   * @return true - allows unbound symbols if it's conceded by short cur / false - always report it immediately.
+   */
+  boolean allowsUnboundSymbols();
 }

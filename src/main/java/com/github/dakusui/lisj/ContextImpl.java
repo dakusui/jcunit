@@ -31,8 +31,7 @@ public abstract class ContextImpl implements Context {
    */
   private Object lookup(String symbolName) throws SymbolNotFoundException {
     if (!formMap.containsKey(symbolName)) {
-      String msg = String.format("The symbol '%s' wasn't found.", symbolName);
-      throw new SymbolNotFoundException(msg, null);
+      throw new SymbolNotFoundException(symbolName, null);
     }
     return this.formMap.get(symbolName);
   }
@@ -104,5 +103,9 @@ public abstract class ContextImpl implements Context {
   @Override
   public void clearObservers() {
     this.observers.clear();
+  }
+
+  @Override public boolean allowsUnboundSymbols() {
+    return true;
   }
 }

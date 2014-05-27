@@ -20,7 +20,7 @@ public abstract class LogicalPredicate extends BasePredicate {
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) {
+      FormResult lastResult) throws JCUnitException {
     return lastResult;
   }
 

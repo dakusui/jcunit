@@ -1,19 +1,21 @@
 package com.github.dakusui.lisj;
 
-import java.util.SortedSet;
-import java.util.TreeSet;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class FormResult {
-  private int    nextPosition;
-  private Object value;
-  private int    numPositions;
-  private int    markedPosition;
-
+  private int                   nextPosition;
+  private Object                value;
+  private int                   numPositions;
+  private List<JCUnitException> ignoredExceptions;
 
   public FormResult(int nextPosition, int numPositions, Object value) {
     this.nextPosition = nextPosition;
     this.numPositions = numPositions;
     this.value = value;
+    this.ignoredExceptions = new LinkedList<JCUnitException>();
   }
 
   public int nextPosition() {
@@ -22,6 +24,18 @@ public class FormResult {
 
   public void nextPosition(int nextPosition) {
     this.nextPosition = nextPosition;
+  }
+
+  public void addIgnoredException(JCUnitException e) {
+    this.ignoredExceptions.add(e);
+  }
+
+  public List<JCUnitException> ignoredExceptions() {
+    return this.ignoredExceptions;
+  }
+
+  public void clearIgnoredExceptions() {
+    this.ignoredExceptions.clear();
   }
 
   public Object value() {

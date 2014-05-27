@@ -110,10 +110,13 @@ public class ConstraintTest extends JCUnitBase {
     rule.when(
         or(
             and(
-                eq($("notEvaluated1"), 1), eq($("notEvaluated2"), 1), eq($("notEvaluated3"), 0)
+                eq($("notEvaluatedX"), 0), eq($("notEvaluated5"), 1)
             ),
             and(
-                eq($("notEvaluated4"), 0), eq($("notEvaluated5"), 1)
+                eq($("notEvaluatedZ"), 1), eq($("notEvaluated2"), 1), eq($("notEvaluated3"), 1)
+            ),
+            and(
+                eq($("notEvaluated1"), 0), eq($("notEvaluated5"), 1)
             ),
             eq($("evaluated1"), 1)
         )

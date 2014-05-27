@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.TreeSet;
 
 public final class FormEvaluator {
   private final Object   params;
@@ -73,6 +72,11 @@ public final class FormEvaluator {
     }
   }
 
+  public FormResult handleException(FormResult result, JCUnitException e)
+      throws JCUnitException {
+    return form.handleException(this.context, e, result);
+  }
+
   public FormResult evaluateLast(FormResult lastResult) throws JCUnitException, CUT {
     FormResult ret = null;
     try {
@@ -134,6 +138,5 @@ public final class FormEvaluator {
     for (ContextObserver o : oList) {
       o.endEvaluation(form, ret);
     }
-
   }
 }

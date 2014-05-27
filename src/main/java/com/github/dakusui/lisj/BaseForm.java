@@ -2,6 +2,7 @@ package com.github.dakusui.lisj;
 
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -31,7 +32,11 @@ public abstract class BaseForm implements Form {
     FormResult result = evaluator.result();
     try {
       while (evaluator.hasNext(result)) {
-        result = evaluator.next(result);
+        try {
+          result = evaluator.next(result);
+        } catch (JCUnitException e) {
+          result = evaluator.handleException(result, e);
+        }
       }
     } catch (CUT e) {
       if (!this.throwsCUT() && e.source() == this)
@@ -40,6 +45,11 @@ public abstract class BaseForm implements Form {
         throw e;
     }
     return evaluator.evaluateLast(result).value();
+  }
+
+  protected FormResult handleException(Context context, JCUnitException e,
+      FormResult result) throws JCUnitException {
+    throw e;
   }
 
   abstract protected FormResult evaluateEach(Context context, Object currentParam, FormResult lastResult)
