@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.constraints;
 
 import com.github.dakusui.jcunit.constraints.ccs.CCSValueTuple;
+import com.github.dakusui.jcunit.constraints.ccs.CCSValueTupleSet;
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.ValueTuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -8,6 +9,11 @@ import com.github.dakusui.lisj.CUT;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hiroshi on 5/23/14.
@@ -51,7 +57,6 @@ public class ConstraintTest extends JCUnitBase {
         )
     );
 
-
     CCSValueTuple<String, Object> result = rule.evaluate(tuple);
     System.out.println(result);
   }
@@ -86,7 +91,6 @@ public class ConstraintTest extends JCUnitBase {
             eq($("evaluated2"), 0)
         )
     );
-
 
     CCSValueTuple<String, Object> result = rule.evaluate(tuple);
     System.out.println(result);
@@ -126,9 +130,24 @@ public class ConstraintTest extends JCUnitBase {
         )
     );
 
-
     CCSValueTuple<String, Object> result = rule.evaluate(tuple);
     System.out.println(result);
+  }
+
+  @Test
+  public void constraintSet() throws Exception {
+    Map<String, List<String>> domains = composeDomains();
+    CCSValueTupleSet valueTupleSet = new CCSValueTupleSet(domains);
+    CCSValueTuple valueTuple = new CCSValueTuple();
+    valueTupleSet.add(valueTuple);
+  }
+
+  private Map<String, List<String>> composeDomains() {
+    Map<String, List<String>> ret = new HashMap<String, List<String>>();
+    ret.put("P1", Arrays.asList("P11", "P12"));
+    ret.put("P2", Arrays.asList("P21", "P22"));
+    ret.put("P3", Arrays.asList("P31", "P32", "P33"));
+    return ret;
   }
 
 }
