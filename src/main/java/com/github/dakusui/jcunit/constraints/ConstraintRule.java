@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.constraints.ccs.CCSValueTuple;
 import com.github.dakusui.jcunit.core.ValueTuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
@@ -8,7 +7,10 @@ import com.github.dakusui.lisj.*;
 import com.github.dakusui.lisj.pred.And;
 import com.github.dakusui.lisj.pred.Or;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class ConstraintRule {
   private       Object  then;
@@ -51,8 +53,8 @@ public class ConstraintRule {
    *                                 <code>values</code>
    * @throws CUT                     Evaluation process is cut.
    */
-  public CCSValueTuple<String, Object> evaluate(final ValueTuple<String, Object> given) throws JCUnitException, CUT {
-    final CCSValueTuple<String, Object> ret = new CCSValueTuple<String, Object>();
+  public ValueTuple<String, Object> evaluate(final ValueTuple<String, Object> given) throws JCUnitException, CUT {
+    final ValueTuple<String, Object> ret = new ValueTuple<String, Object>();
     Context c = this.context.createChild();
     final List<Symbol> involvedSymbols = new LinkedList<Symbol>();
     c.addObserver(new ContextObserver() {
@@ -70,16 +72,18 @@ public class ConstraintRule {
       }
 
       private void removeMarkedPosition(BaseForm form) {
-        if (markedPositions.containsKey(form))
+        if (markedPositions.containsKey(form)) {
           markedPositions.remove(form);
+        }
       }
 
 
       @Override
       public void beginEvaluation(BaseForm form, Object params) {
         System.out.println("** BEGIN **" + form + Basic.tostr(params));
-        if (form instanceof And || form instanceof Or)
+        if (form instanceof And || form instanceof Or) {
           mark(form);
+        }
       }
 
       @Override
@@ -121,11 +125,12 @@ public class ConstraintRule {
       c.bind(new Symbol(key), given.get(key));
     }
     if (Basic.evalp(c, this.when)) {
-      if (!Basic.evalp(c, this.then))
+      if (!Basic.evalp(c, this.then)) {
         return null;
+      }
     }
     for (Symbol s : involvedSymbols) {
-      ret.put(s.name() , given.get(s.name()));
+      ret.put(s.name(), given.get(s.name()));
     }
     return ret;
   }

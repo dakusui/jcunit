@@ -43,7 +43,7 @@ public abstract class NumericFunc extends BaseFunc {
     Iterator<Object> i = iterator(params);
     while (i.hasNext()) {
       Object cur = i.next();
-      Utils.checknull(cur);
+      Utils.checknotnull(cur);
     }
     return params;
   }

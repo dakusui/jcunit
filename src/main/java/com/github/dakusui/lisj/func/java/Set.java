@@ -16,8 +16,8 @@ public class Set extends BaseFunc {
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult) {
     FormResult ret = lastResult;
-    Object obj = Utils.checknull(evaluatedParams[0]);
-    String attrName = Utils.checknull(evaluatedParams[1]).toString();
+    Object obj = Utils.checknotnull(evaluatedParams[0]);
+    String attrName = Utils.checknotnull(evaluatedParams[1]).toString();
     Object valueToSet = evaluatedParams[2];
     Utils.setFieldValue(obj, Utils.getField(obj, attrName), valueToSet);
     ret.value(valueToSet);
@@ -28,8 +28,8 @@ public class Set extends BaseFunc {
     super.checkParams(params);
     if (Basic.length(params) != 3)
       throw new IllegalArgumentException();
-    Utils.checknull(Basic.get(params, 0));
-    Utils.checknull(Basic.get(params, 1));
+    Utils.checknotnull(Basic.get(params, 0));
+    Utils.checknotnull(Basic.get(params, 1));
     return params;
   }
 }

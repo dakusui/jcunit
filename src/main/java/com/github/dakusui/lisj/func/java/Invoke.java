@@ -21,8 +21,8 @@ public class Invoke extends BaseFunc {
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult) throws JCUnitException, CUT {
     FormResult ret = lastResult;
-    Object obj = Utils.checknull(evaluatedParams[0]);
-    String methodId = Utils.checknull(evaluatedParams[1]).toString();
+    Object obj = Utils.checknotnull(evaluatedParams[0]);
+    String methodId = Utils.checknotnull(evaluatedParams[1]).toString();
     Object[] params = ArrayUtils.subarray(evaluatedParams, 2,
         evaluatedParams.length);
     ret.value(Utils.invokeMethod(obj, methodId, params));
@@ -34,8 +34,8 @@ public class Invoke extends BaseFunc {
     super.checkParams(params);
     if (Basic.length(params) < 2)
       throw new IllegalArgumentException();
-    Utils.checknull(Basic.get(params, 0));
-    Utils.checknull(Basic.get(params, 1));
+    Utils.checknotnull(Basic.get(params, 0));
+    Utils.checknotnull(Basic.get(params, 1));
     return params;
   }
 }

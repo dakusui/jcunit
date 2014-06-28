@@ -5,9 +5,6 @@ import static com.github.dakusui.lisj.Basic.length;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.*;
 
-import java.util.LinkedList;
-import java.util.TreeSet;
-
 public abstract class BinomialPredicate extends BasePredicate {
   /**
    * Serial version UID.
@@ -16,7 +13,7 @@ public abstract class BinomialPredicate extends BasePredicate {
 
   @Override
   protected Object checkParams(Object params) {
-    Utils.checknull(params);
+    Utils.checknotnull(params);
     if (length(params) != 2)
       throw new IllegalArgumentException(msgParameterLengthWrong(2, params));
     return params;

@@ -46,7 +46,7 @@ public class OutFieldNames extends BaseFunc {
     super.checkParams(params);
     if (Basic.length(params) != 1)
       throw new IllegalArgumentException();
-    Utils.checknull(Basic.get(params, 0));
+    Utils.checknotnull(Basic.get(params, 0));
     return params;
   }
 }

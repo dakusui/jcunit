@@ -115,11 +115,20 @@ public class Utils {
     }
   }
 
-  public static <T> T checknull(T obj) {
+  public static <T> T checknotnull(T obj) {
     if (obj == null)
       throw new NullPointerException();
     return obj;
   }
+
+  public static void checkcond(boolean b) {
+    if (!b) throw new IllegalArgumentException();
+  }
+
+  public static void checkcond(boolean b, String msg) {
+    if (!b) throw new IllegalArgumentException(msg);
+  }
+
 
   public static void initializeTestObject(Object out, Map<Field, Object> values) {
     for (Field f : values.keySet()) {

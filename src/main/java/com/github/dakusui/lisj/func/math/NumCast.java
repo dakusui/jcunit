@@ -20,7 +20,7 @@ public abstract class NumCast extends BaseFunc {
 
   @Override
   protected Object checkParams(Object params) {
-    Utils.checknull(params);
+    Utils.checknotnull(params);
     if (length(params) != 1) {
       throw new IllegalArgumentException(msgParameterLengthWrong(1, params));
     }

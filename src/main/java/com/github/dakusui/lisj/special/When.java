@@ -52,7 +52,7 @@ public class When extends BaseForm {
   protected Object checkParams(Object params) {
     if (length(super.checkParams(params)) < 1)
       throw new IllegalArgumentException();
-    Utils.checknull(get(params, 0));
+    Utils.checknotnull(get(params, 0));
     return params;
   }
 

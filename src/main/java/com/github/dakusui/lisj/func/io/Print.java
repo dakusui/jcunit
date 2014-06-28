@@ -21,8 +21,8 @@ public class Print extends BaseFunc {
       FormResult lastResult) {
     FormResult ret = lastResult;
     PrintStream pw = Utils.cast(PrintStream.class,
-        Utils.checknull(evaluatedParams[0]));
-    String s = Utils.checknull(evaluatedParams[1]).toString();
+        Utils.checknotnull(evaluatedParams[0]));
+    String s = Utils.checknotnull(evaluatedParams[1]).toString();
     pw.print(s);
     return ret;
   }
@@ -31,7 +31,7 @@ public class Print extends BaseFunc {
   protected Object checkParams(Object params) {
     if (length(super.checkParams(params)) != 2)
       throw new IllegalArgumentException();
-    Utils.checknull(get(params, 0));
+    Utils.checknotnull(get(params, 0));
     return params;
   }
 }

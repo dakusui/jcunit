@@ -33,7 +33,7 @@ public class Format extends BaseFunc {
     if (length(params) < 1) {
       throw new IllegalArgumentException();
     }
-    Utils.checknull(get(params, 0));
+    Utils.checknotnull(get(params, 0));
     return params;
   }
 }

@@ -46,7 +46,7 @@ public class IsOneOf extends BinomialPredicate {
 
   @Override
   protected Object checkParams(Object params) {
-    Utils.checknull(params);
+    Utils.checknotnull(params);
     if (length(params) < 2) {
       throw new IllegalArgumentException(msgParameterLengthWrong(">1",
           Basic.tostr(params)));

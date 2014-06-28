@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.constraints.ccs.CCSValueTuple;
 import com.github.dakusui.jcunit.constraints.ccs.CCSValueTupleSet;
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.ValueTuple;
@@ -57,7 +56,7 @@ public class ConstraintTest extends JCUnitBase {
         )
     );
 
-    CCSValueTuple<String, Object> result = rule.evaluate(tuple);
+    ValueTuple<String, Object> result = rule.evaluate(tuple);
     System.out.println(result);
   }
 
@@ -92,7 +91,7 @@ public class ConstraintTest extends JCUnitBase {
         )
     );
 
-    CCSValueTuple<String, Object> result = rule.evaluate(tuple);
+    ValueTuple<String, Object> result = rule.evaluate(tuple);
     System.out.println(result);
   }
 
@@ -130,7 +129,7 @@ public class ConstraintTest extends JCUnitBase {
         )
     );
 
-    CCSValueTuple<String, Object> result = rule.evaluate(tuple);
+    ValueTuple<String, Object> result = rule.evaluate(tuple);
     System.out.println(result);
   }
 
@@ -138,7 +137,7 @@ public class ConstraintTest extends JCUnitBase {
   public void constraintSet() throws Exception {
     Map<String, List<String>> domains = composeDomains();
     CCSValueTupleSet valueTupleSet = new CCSValueTupleSet(domains);
-    CCSValueTuple valueTuple = new CCSValueTuple();
+    ValueTuple valueTuple = new ValueTuple();
     valueTupleSet.add(valueTuple);
   }
 

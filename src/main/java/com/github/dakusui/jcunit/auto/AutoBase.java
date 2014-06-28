@@ -43,12 +43,12 @@ public abstract class AutoBase extends BaseFunc {
     super.checkParams(params);
     if (Basic.length(params) != 3)
       throw new IllegalArgumentException();
-    Utils.checknull(Basic.get(params, 0));
+    Utils.checknotnull(Basic.get(params, 0));
     if (!(Basic.get(params, 0) instanceof String)) {
       throw new IllegalArgumentException();
     }
-    Utils.checknull(Basic.get(params, 1));
-    Utils.checknull(Basic.get(params, 2));
+    Utils.checknotnull(Basic.get(params, 1));
+    Utils.checknotnull(Basic.get(params, 2));
     return params;
   }
 

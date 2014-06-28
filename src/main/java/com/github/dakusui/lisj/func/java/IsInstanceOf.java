@@ -21,7 +21,7 @@ public class IsInstanceOf extends BaseFunc {
     Object obj = evaluatedParams[0];
     if (obj != null) {
       Class<?> clazz = Utils.cast(Class.class,
-          Utils.checknull(evaluatedParams[1]));
+          Utils.checknotnull(evaluatedParams[1]));
       ret.value(clazz.isAssignableFrom(obj.getClass()));
       return ret;
     }

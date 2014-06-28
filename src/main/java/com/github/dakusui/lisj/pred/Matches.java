@@ -15,8 +15,8 @@ public class Matches extends BinomialPredicate {
   @Override
   protected Object checkParams(Object params) {
     super.checkParams(params);
-    Utils.checknull(get(params, 0));
-    Utils.checknull(get(params, 1));
+    Utils.checknotnull(get(params, 0));
+    Utils.checknotnull(get(params, 1));
     return params;
   }
 

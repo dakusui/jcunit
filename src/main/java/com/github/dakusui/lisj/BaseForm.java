@@ -2,10 +2,6 @@ package com.github.dakusui.lisj;
 
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
-
-import java.util.LinkedList;
-import java.util.TreeSet;
 
 public abstract class BaseForm implements Form {
   /**
@@ -69,7 +65,7 @@ public abstract class BaseForm implements Form {
   }
 
   protected Object checkParams(Object params) {
-    return Utils.checknull(params);
+    return Utils.checknotnull(params);
   }
 
   @Override
