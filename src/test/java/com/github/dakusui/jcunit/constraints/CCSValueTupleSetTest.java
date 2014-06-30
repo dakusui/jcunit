@@ -1,18 +1,17 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.constraints.ccs.CCSValueTuple;
+import com.github.dakusui.jcunit.core.ValueTuple;
 
 /**
  * Created by hiroshi on 6/11/14.
  */
 public class CCSValueTupleSetTest {
 
-
-  CCSValueTuple<String, String> composeValueTuple1() {
+  ValueTuple<String, String> composeValueTuple1() {
     return null;
   }
 
-  CCSValueTuple<String, String> composeValueTuple2() {
+  ValueTuple<String, String> composeValueTuple2() {
     return null;
   }
 }
