@@ -43,11 +43,65 @@ public class IPO2 {
     this.optimizer = optimizer;
   }
 
+  static Set<ValueTuple<String, Object>> tuplesCoveredBy(
+      ValueTuple<String, Object> tuple, int strength) {
+    Set<ValueTuple<String, Object>> ret = new HashSet<ValueTuple<String, Object>>();
+    Combinator<String> c = new Combinator<String>(
+        new LinkedList<String>(tuple.keySet()), strength);
+    for (List<String> keys : c) {
+      ValueTuple<String, Object> cur = new ValueTuple<String, Object>();
+      for (String k : keys) {
+        cur.put(k, tuple.get(k));
+      }
+      ret.add(cur);
+    }
+    return ret;
+  }
+
+  private static List<ValueTuple<String, Object>> lookup(
+      List<ValueTuple<String, Object>> tuples, ValueTuple<String, Object> q) {
+    List<ValueTuple<String, Object>> ret = new LinkedList<ValueTuple<String, Object>>();
+    for (ValueTuple<String, Object> cur : tuples) {
+      if (matches(cur, q)) {
+        ret.add(cur);
+      }
+    }
+    return ret;
+  }
+
+  private static boolean matches(ValueTuple<String, Object> tuple,
+      ValueTuple<String, Object> q) {
+    for (String k : q.keySet()) {
+      Object v = q.get(k);
+      if (v == DontCare && tuple.containsKey(k)) {
+        return false;
+      }
+      if (!tuple.containsKey(k)) {
+        return false;
+      }
+      if (!IPO2Utils.eq(v, tuple.get(k))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static private List<ValueTuple<String, Object>> cloneTuples(
+      List<ValueTuple<String, Object>> found) {
+    List<ValueTuple<String, Object>> ret = new ArrayList<ValueTuple<String, Object>>(
+        found.size());
+    for (ValueTuple<String, Object> cur : found) {
+      ret.add(cur);
+    }
+    return ret;
+  }
+
   public void ipo() {
     if (this.strength < this.domains.size()) {
       this.result = initialTestCases(
           IPO2Utils
-              .headMap(domains, IPO2Utils.nthKey(this.strength, this.domains)));
+              .headMap(domains, IPO2Utils.nthKey(this.strength, this.domains))
+      );
     } else if (domains.size() == this.strength) {
       this.result = initialTestCases(this.domains);
       return;
@@ -71,7 +125,8 @@ public class IPO2 {
       if (leftTuples.isEmpty()) {
         continue;
       }
-      vg(result, leftTuples, factorName, IPO2Utils.headMap(domains, factorName));
+      vg(result, leftTuples, factorName,
+          IPO2Utils.headMap(domains, factorName));
     }
   }
 
@@ -95,8 +150,9 @@ public class IPO2 {
         (int) ce.size());
     for (List<AttrValue<String, Object>> t : ce) {
       ValueTuple<String, Object> tuple = IPO2Utils.list2tuple(t);
-      if (constraintManager.check(tuple))
+      if (constraintManager.check(tuple)) {
         ret.add(tuple);
+      }
     }
     return ret;
   }
@@ -142,16 +198,20 @@ public class IPO2 {
     }
     // 2. Calculate all the tuples covered by the invalid tests.
     Set<ValueTuple<String, Object>> invalidTuples = new HashSet<ValueTuple<String, Object>>();
-    for (ValueTuple<String, Object> c : invalidTests)
+    for (ValueTuple<String, Object> c : invalidTests) {
       invalidTuples.addAll(tuplesCoveredBy(c, this.strength));
+    }
     // 3. Check if each tuple is covered by remaining tests in 'result' and
     //    if not, it will be added to 'leftTuples' again.
-    for (ValueTuple<String, Object> c : invalidTuples)
-      if (lookup(result, c).isEmpty())
+    for (ValueTuple<String, Object> c : invalidTuples) {
+      if (lookup(result, c).isEmpty()) {
         leftTuples.add(c);
+      }
+    }
   }
 
-  private Set<ValueTuple<String, Object>> vg(List<ValueTuple<String, Object>> result,
+  private Set<ValueTuple<String, Object>> vg(
+      List<ValueTuple<String, Object>> result,
       LeftTuples leftTuples,
       String factorName, LinkedHashMap<String, Object[]> factors) {
     for (ValueTuple toBeCovered : leftTuples.yetToCover()) {
@@ -179,8 +239,9 @@ public class IPO2 {
       } else {
         ValueTuple<String, Object> t = createTupleFrom(q.clone(),
             factors.keySet());
-        if (this.constraintManager.check(t))
+        if (this.constraintManager.check(t)) {
           best = t;
+        }
       }
       if (best != null) {
         ////
@@ -226,7 +287,9 @@ public class IPO2 {
     Utils.checknotnull(missingFactors);
     Utils.checknotnull(leftTuples);
     Utils.checknotnull(constraintManager);
-    return this.optimizer.fillInMissingFactors(tuple, missingFactors, leftTuples, constraintManager);
+    return this.optimizer
+        .fillInMissingFactors(tuple, missingFactors, leftTuples,
+            constraintManager);
   }
 
   /**
@@ -256,56 +319,8 @@ public class IPO2 {
     Utils.checknotnull(factorLevels);
     Utils.checknotnull(tuple);
     Utils.checknotnull(leftTuples);
-    return this.optimizer.chooseBestValue(factorName, factorLevels, tuple, leftTuples);
-  }
-
-  static Set<ValueTuple<String, Object>> tuplesCoveredBy(
-      ValueTuple<String, Object> tuple, int strength) {
-    Set<ValueTuple<String, Object>> ret = new HashSet<ValueTuple<String, Object>>();
-    Combinator<String> c = new Combinator<String>(
-        new LinkedList<String>(tuple.keySet()), strength);
-    for (List<String> keys : c) {
-      ValueTuple<String, Object> cur = new ValueTuple<String, Object>();
-      for (String k : keys) {
-        cur.put(k, tuple.get(k));
-      }
-      ret.add(cur);
-    }
-    return ret;
-  }
-
-  private static List<ValueTuple<String, Object>> lookup(
-      List<ValueTuple<String, Object>> tuples, ValueTuple<String, Object> q) {
-    List<ValueTuple<String, Object>> ret = new LinkedList<ValueTuple<String, Object>>();
-    for (ValueTuple<String, Object> cur : tuples) {
-      if (matches(cur, q))
-        ret.add(cur);
-    }
-    return ret;
-  }
-
-  private static boolean matches(ValueTuple<String, Object> tuple,
-      ValueTuple<String, Object> q) {
-    for (String k : q.keySet()) {
-      Object v = q.get(k);
-      if (v == DontCare && tuple.containsKey(k))
-        return false;
-      if (!tuple.containsKey(k))
-        return false;
-      if (!IPO2Utils.eq(v, tuple.get(k)))
-        return false;
-    }
-    return true;
-  }
-
-  static private List<ValueTuple<String, Object>> cloneTuples(
-      List<ValueTuple<String, Object>> found) {
-    List<ValueTuple<String, Object>> ret = new ArrayList<ValueTuple<String, Object>>(
-        found.size());
-    for (ValueTuple<String, Object> cur : found) {
-      ret.add(cur);
-    }
-    return ret;
+    return this.optimizer
+        .chooseBestValue(factorName, factorLevels, tuple, leftTuples);
   }
 
   /**
@@ -318,8 +333,9 @@ public class IPO2 {
       ValueTuple<String, Object> base, Set<String> factorNames) {
     ValueTuple<String, Object> ret = base.clone();
     for (String f : factorNames) {
-      if (!ret.containsKey(f))
+      if (!ret.containsKey(f)) {
         ret.put(f, DontCare);
+      }
     }
     return ret;
   }

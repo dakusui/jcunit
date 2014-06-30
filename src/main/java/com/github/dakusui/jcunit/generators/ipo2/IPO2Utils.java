@@ -26,8 +26,9 @@ public class IPO2Utils {
   }
 
   public static boolean eq(Object v, Object o) {
-    if (v == null)
+    if (v == null) {
       return o == null;
+    }
     return v.equals(o);
   }
 
@@ -64,13 +65,18 @@ public class IPO2Utils {
       boolean toFound = false;
 
       @Override public void accept(K k, V v) {
-        if (k.equals(from))
+        if (k.equals(from)) {
           fromFound = true;
-        if (!ignoreTo && k.equals(to))
+        }
+        if (!ignoreTo && k.equals(to)) {
           toFound = true;
-        Utils.checkcond(toFound && !fromFound);
-        if (fromFound && !toFound)
+        }
+        Utils.checkcond(!(toFound && !fromFound), String.format(
+            "Something wrong: (from, to, key, ignoreTo)=(%s, %s, %s, %s)", from,
+            to, k, ignoreTo));
+        if (fromFound && !toFound) {
           ret.put(k, v);
+        }
       }
     });
     return ret;
@@ -79,9 +85,11 @@ public class IPO2Utils {
   public static List<AttrValue<String, Object>> map2list(
       Map<String, Object[]> domains) {
     List<AttrValue<String, Object>> ret = new LinkedList<AttrValue<String, Object>>();
-    for (String k : domains.keySet())
-      for (Object v : domains.get(k))
+    for (String k : domains.keySet()) {
+      for (Object v : domains.get(k)) {
         ret.add(new AttrValue<String, Object>(k, v));
+      }
+    }
     return ret;
   }
 

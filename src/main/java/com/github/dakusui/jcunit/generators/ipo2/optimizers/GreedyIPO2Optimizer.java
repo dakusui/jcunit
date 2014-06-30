@@ -9,11 +9,13 @@ import com.github.dakusui.jcunit.generators.ipo2.LeftTuples;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by hiroshi on 6/30/14.
  */
 public class GreedyIPO2Optimizer implements IPO2Optimizer {
+  private final Random random = new Random(4649);
 
   @Override public ValueTuple<String, Object> fillInMissingFactors(
       ValueTuple tuple, LinkedHashMap<String, Object[]> missingFactors,
@@ -21,14 +23,14 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
       ConstraintManager<String, Object> constraintManager) {
     CartesianEnumerator<String, Object> enumerator = new CartesianEnumerator<String, Object>(
         IPO2Utils.map2list(
-        missingFactors)
+            missingFactors)
     );
     long sz = enumerator.size();
     int maxTries = 50;
     int maxNum = -1;
     ValueTuple<String, Object> ret = null;
     for (int i = 0; i < maxTries; i++) {
-      long index = maxTries < sz ? i : (long) (Math.random() * sz);
+      long index = maxTries < sz ? i : (long) (random.nextDouble() * sz);
       ValueTuple<String, Object> t = IPO2Utils.list2tuple(enumerator.get(index));
       t.putAll(tuple);
       if (!constraintManager.check(t))

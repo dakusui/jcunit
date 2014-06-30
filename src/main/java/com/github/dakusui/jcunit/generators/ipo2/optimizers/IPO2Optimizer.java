@@ -11,11 +11,10 @@ import java.util.List;
  * Created by hiroshi on 6/30/14.
  */
 public interface IPO2Optimizer {
-  public Object chooseBestValue(String factorName, Object[] factorLevels,
-      ValueTuple<String, Object> tuple, LeftTuples leftTuples);
   public ValueTuple<String, Object> fillInMissingFactors(ValueTuple tuple,
       LinkedHashMap<String, Object[]> missingFactors, LeftTuples leftTuples,
       ConstraintManager<String, Object> constraintManager);
+
   /**
    * An extension point.
    * Called by 'vg' process.
@@ -26,4 +25,7 @@ public interface IPO2Optimizer {
   public ValueTuple<String, Object> chooseBestTuple(
       List<ValueTuple<String, Object>> found, LeftTuples leftTuples,
       String factorName, Object level);
+
+  public Object chooseBestValue(String factorName, Object[] factorLevels,
+      ValueTuple<String, Object> tuple, LeftTuples leftTuples);
 }
