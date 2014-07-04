@@ -4,16 +4,17 @@ import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.ValueTuple;
 import com.github.dakusui.jcunit.generators.ipo2.LeftTuples;
 
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hiroshi on 6/30/14.
  */
 public interface IPO2Optimizer {
-  public ValueTuple<String, Object> fillInMissingFactors(ValueTuple tuple,
-      LinkedHashMap<String, Object[]> missingFactors, LeftTuples leftTuples,
-      ConstraintManager<String, Object> constraintManager);
+  public ValueTuple<String, Object> fillInMissingFactors(ValueTuple<String, Object> tuple,
+      LeftTuples leftTuples,
+      ConstraintManager<String, Object> constraintManager,
+      Map<String, Object[]> domains);
 
   /**
    * An extension point.

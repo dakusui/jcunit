@@ -4,11 +4,13 @@ import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.ValueTuple;
 import com.github.dakusui.jcunit.generators.ipo.GiveUp;
+import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 import com.github.dakusui.jcunit.generators.ipo2.LeftTuples;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -18,23 +20,32 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
   private final Random random = new Random(4649);
 
   @Override public ValueTuple<String, Object> fillInMissingFactors(
-      ValueTuple tuple, LinkedHashMap<String, Object[]> missingFactors,
+      ValueTuple<String, Object> tuple,
       LeftTuples leftTuples,
-      ConstraintManager<String, Object> constraintManager) {
+      ConstraintManager<String, Object> constraintManager,
+      Map<String, Object[]> domains) {
+    LinkedHashMap<String, Object[]> missingFactors = new LinkedHashMap<String, Object[]>();
+    for (String f : tuple.keySet()) {
+      if (tuple.get(f) == IPO2.DontCare) {
+        missingFactors.put(f, domains.get(f));
+      }
+    }
+    if (missingFactors.size() == 0) return tuple;
     CartesianEnumerator<String, Object> enumerator = new CartesianEnumerator<String, Object>(
         IPO2Utils.map2list(
             missingFactors)
     );
     long sz = enumerator.size();
-    int maxTries = 50;
+    int maxTries = Math.min(50, (int)Math.min(sz, Integer.MAX_VALUE));
     int maxNum = -1;
     ValueTuple<String, Object> ret = null;
     for (int i = 0; i < maxTries; i++) {
       long index = maxTries < sz ? i : (long) (random.nextDouble() * sz);
-      ValueTuple<String, Object> t = IPO2Utils.list2tuple(enumerator.get(index));
-      t.putAll(tuple);
-      if (!constraintManager.check(t))
+      ValueTuple<String, Object> t = tuple.clone();
+      t.putAll(IPO2Utils.list2tuple(enumerator.get(index)));
+      if (!constraintManager.check(t)) {
         continue;
+      }
       int num = leftTuples.coveredBy(t).size();
       if (num > maxNum) {
         maxNum = num;

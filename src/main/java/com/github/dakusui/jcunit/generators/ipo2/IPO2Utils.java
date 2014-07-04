@@ -11,6 +11,11 @@ import java.util.function.BiConsumer;
  * Created by hiroshi on 6/30/14.
  */
 public class IPO2Utils {
+  public static <T> T[] cloneArray(T[] arr) {
+    Utils.checknotnull(arr);
+    return Arrays.copyOf(arr, arr.length);
+  }
+
   public static String nthKey(int index,
       LinkedHashMap<String, Object[]> domains) {
     Utils.checknotnull(domains);

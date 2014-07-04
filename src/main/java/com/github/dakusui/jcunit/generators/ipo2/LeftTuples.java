@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.generators.ipo2;
 
+import com.github.dakusui.enumerator.Combinator;
+import com.github.dakusui.enumerator.Enumerator;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.core.Utils;
@@ -8,8 +10,8 @@ import com.github.dakusui.jcunit.core.ValueTuple;
 import java.util.*;
 
 /**
-* Created by hiroshi on 6/30/14.
-*/
+ * Created by hiroshi on 6/30/14.
+ */
 public class LeftTuples {
   private final Set<ValueTuple<String, Object>> tuples;
   private final String                          factor;
@@ -30,12 +32,29 @@ public class LeftTuples {
       Object[] factorLevels) {
     Set<ValueTuple<String, Object>> ret = new HashSet<ValueTuple<String, Object>>();
     List<AttrValue<String, Object>> work = IPO2Utils.map2list(domains);
-    for (Object l : factorLevels)
+    for (Object l : factorLevels) {
       work.add(new AttrValue<String, Object>(factorName, l));
-    CartesianEnumerator<String, Object> ce = new CartesianEnumerator<String, Object>(
-        work);
-    for (List<AttrValue<String, Object>> attrValues : ce)
-      ret.add(IPO2Utils.list2tuple(attrValues));
+    }
+    Enumerator<String> combinator = new Combinator<String>(new LinkedList<String>(domains.keySet()), this.strength - 1);
+
+    for (List<String> keys : combinator) {
+      List<AttrValue<String, Object>> cur = new LinkedList<AttrValue<String, Object>>();
+      for (String k : keys) {
+        for (Object o : domains.get(k)) {
+          cur.add(new AttrValue<String, Object>(k, o));
+        }
+      }
+      for (Object o : factorLevels) {
+        cur.add(new AttrValue<String, Object>(factorName, o));
+      }
+      CartesianEnumerator<String, Object> ce = new CartesianEnumerator<String, Object>(
+          cur);
+      for (
+          List<AttrValue<String, Object>> attrValues
+          : ce) {
+        ret.add(IPO2Utils.list2tuple(attrValues));
+      }
+    }
     return ret;
   }
 
@@ -61,8 +80,9 @@ public class LeftTuples {
     Set<ValueTuple<String, Object>> possibleTuples = IPO2.tuplesCoveredBy(tuple,
         this.strength);
     for (ValueTuple<String, Object> c : possibleTuples) {
-      if (this.tuples.contains(c))
+      if (this.tuples.contains(c)) {
         ret.add(c);
+      }
     }
     return ret;
   }
@@ -82,5 +102,9 @@ public class LeftTuples {
       return false;
     }
     return this.tuples.equals(another.tuples);
+  }
+
+  public void addAll(LinkedHashSet<ValueTuple<String, Object>> leftOver) {
+    this.tuples.addAll(leftOver);
   }
 }
