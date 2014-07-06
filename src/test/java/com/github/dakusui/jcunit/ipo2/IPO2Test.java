@@ -2,6 +2,8 @@ package com.github.dakusui.jcunit.ipo2;
 
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.generators.ipo2.*;
+import com.github.dakusui.jcunit.generators.ipo2.constraintmanagers.NullConstraintManager;
+import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 
 import java.util.*;
@@ -25,14 +27,17 @@ public abstract class IPO2Test {
   }
 
   protected void verify(List<Tuple> testcases,
-      int strength, Factors factors) {
+      int strength, Factors factors, ConstraintManager constraintManager) {
     System.out.println(String.format("%3d:%s", testcases.size(), testcases));
     ////
-    // All tuples are covered.
+    // All tuples (excepting prohibited ones) are covered.
     List<Tuple> tuplesToBeGenerated = factors
         .generateAllPossibleTuples(strength);
     List<Tuple> notFound = new LinkedList<Tuple>();
     for (Tuple t : tuplesToBeGenerated) {
+      if (!constraintManager.check(t)) {
+        continue;
+      }
       if (!find(t, testcases)) {
         notFound.add(t);
       }
@@ -41,6 +46,19 @@ public abstract class IPO2Test {
             .format("%d tuples were not found. %s", notFound.size(), notFound),
         notFound.size(), is(0)
     );
+    ///
+    // No violation.
+    List<Tuple> violations = new LinkedList<Tuple>();
+    for (Tuple t : testcases) {
+      if (!constraintManager.check(t)) {
+        violations.add(t);
+      }
+    }
+    assertThat(String
+        .format("%d tuples are violating constraints. %s", violations.size(),
+            violations
+        ), violations.size(), is(0));
+
     ////
     // No duplication.
     Set<Tuple> duplicated = new HashSet<Tuple>();
@@ -94,4 +112,15 @@ public abstract class IPO2Test {
     return true;
   }
 
+  public List<Tuple> getProhibitedTuples() {
+    return Collections.emptyList();
+  }
+
+  protected ConstraintManager createConstraintManager() {
+    return new NullConstraintManager();
+  }
+
+  protected GreedyIPO2Optimizer createOptimizer() {
+    return new GreedyIPO2Optimizer();
+  }
 }

@@ -224,6 +224,7 @@ public class IPO2 {
       List<Tuple> result,
       LeftTuples leftTuples,
       Factors factors) {
+    Set<Tuple> ret = new LinkedHashSet<Tuple>();
     List<Tuple> work = leftTuples.leftTuples();
     for (Tuple cur : work) {
       if (leftTuples.isEmpty()) {
@@ -242,7 +243,8 @@ public class IPO2 {
         ///
         // This tuple can't be covered at all. Because it is explicitly violate
         // given constraints.
-        throw new GiveUp(cur);
+        ret.add(cur);
+        continue;
       }
       for (String factorName : cur.keySet()) {
         Tuple q = cur.clone();
@@ -268,7 +270,6 @@ public class IPO2 {
       leftTuples.removeAll(tuplesCoveredBy(best, this.strength));
       result.add(best);
     }
-    Set<Tuple> ret = new LinkedHashSet<Tuple>();
     for (Tuple testCase : result) {
       try {
         Tuple processedTestCase = fillInMissingFactors(
