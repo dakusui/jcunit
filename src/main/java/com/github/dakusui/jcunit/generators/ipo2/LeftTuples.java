@@ -70,7 +70,7 @@ public class LeftTuples {
     return this.tuples.isEmpty();
   }
 
-  public Set<ValueTuple<String, Object>> yetToCover() {
+  public Set<ValueTuple<String, Object>> leftTuples() {
     return this.tuples;
   }
 
@@ -106,5 +106,9 @@ public class LeftTuples {
 
   public void addAll(LinkedHashSet<ValueTuple<String, Object>> leftOver) {
     this.tuples.addAll(leftOver);
+  }
+
+  public boolean contains(ValueTuple<String, Object> tuple) {
+    return this.tuples.contains(tuple);
   }
 }

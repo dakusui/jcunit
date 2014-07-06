@@ -30,8 +30,12 @@ public class IPO2 {
       ConstraintManager<String, Object> constraintManager,
       IPO2Optimizer optimizer) {
     Utils.checknotnull(factors);
-    Utils.checkcond(factors.size() >= strength, String.format("The strength must be greater than 1 and less than %d.", factors.size()));
-    Utils.checkcond(strength >= 2, String.format("The strength must be greater than 1 and less than %d.", factors.size()));
+    Utils.checkcond(factors.size() >= strength, String.format(
+        "The strength must be greater than 1 and less than %d.",
+        factors.size()));
+    Utils.checkcond(strength >= 2, String
+        .format("The strength must be greater than 1 and less than %d.",
+            factors.size()));
     Utils.checknotnull(constraintManager);
     Utils.checknotnull(optimizer);
     for (String k : factors.keySet()) {
@@ -67,7 +71,7 @@ public class IPO2 {
     List<ValueTuple<String, Object>> ret = new LinkedList<ValueTuple<String, Object>>();
     for (ValueTuple<String, Object> cur : tuples) {
       if (matches(cur, q)) {
-        ret.add(cur);
+        ret.add(cur.clone());
       }
     }
     return ret;
@@ -83,12 +87,15 @@ public class IPO2 {
     return true;
   }
 
-  static private List<ValueTuple<String, Object>> cloneTuples(
-      List<ValueTuple<String, Object>> found) {
+  static private List<ValueTuple<String, Object>> filterInvalidTuples(
+      List<ValueTuple<String, Object>> found,
+      ConstraintManager<String, Object> constraintManager) {
     List<ValueTuple<String, Object>> ret = new ArrayList<ValueTuple<String, Object>>(
         found.size());
     for (ValueTuple<String, Object> cur : found) {
-      ret.add(cur);
+      if (constraintManager.check(cur)) {
+        ret.add(cur);
+      }
     }
     return ret;
   }
@@ -124,8 +131,12 @@ public class IPO2 {
       if (leftTuples.isEmpty()) {
         continue;
       }
-      leftOver = vg(result, leftTuples, factorName,
-          IPO2Utils.headMap(factors, factorName));
+      if (IPO2Utils.isLastKey(factors, factorName)) {
+        leftOver = vg(result, leftTuples, factors);
+      } else {
+        leftOver = vg(result, leftTuples,
+            IPO2Utils.headMap(factors, IPO2Utils.nextKey(factors, factorName)));
+      }
     }
     ////
     // As a result of replacing don't care values, multiple test cases can be identical.
@@ -223,42 +234,46 @@ public class IPO2 {
   private LinkedHashSet<ValueTuple<String, Object>> vg(
       List<ValueTuple<String, Object>> result,
       LeftTuples leftTuples,
-      String factorName, LinkedHashMap<String, Object[]> factors) {
-    for (ValueTuple<String, Object> toBeCovered : leftTuples.yetToCover()) {
-      ValueTuple<String, Object> q = toBeCovered.clone();
-      q.put(factorName, DontCare);
-      List<ValueTuple<String, Object>> found = lookup(result, q);
+      LinkedHashMap<String, Object[]> factors) {
+    List<ValueTuple<String, Object>> work = new LinkedList<ValueTuple<String, Object>>(leftTuples.leftTuples());
+    for (ValueTuple<String, Object> cur : work) {
+      if (leftTuples.isEmpty()) break;
+      if (!leftTuples.contains(cur)) continue;
       ValueTuple<String, Object> best = null;
-      if (lookup(result, toBeCovered).size() > 0) {
-        Object value = toBeCovered.get(factorName);
-        List<ValueTuple<String, Object>> foundTuples = cloneTuples(found);
-        while (!foundTuples.isEmpty()) {
-          ValueTuple<String, Object> chosen = this
-              .chooseBestTuple(foundTuples, leftTuples, factorName, value);
-          chosen.put(factorName, value);
-          if (this.constraintManager.check(chosen)) {
-            best = chosen;
-            break;
-          } else {
-            foundTuples.remove(chosen);
+      int numCovered = -1;
+      ValueTuple<String, Object> t = createTupleFrom(cur, factors.keySet());
+      if (this.constraintManager.check(t)) {
+        best = t;
+        numCovered = leftTuples.coveredBy(t).size();
+      } else {
+        ///
+        // This tuple can't be covered at all. Because it is explicitly violate
+        // given constraints.
+        throw new GiveUp(cur);
+      }
+      for (String factorName : cur.keySet()) {
+        ValueTuple<String, Object> q = cur.clone();
+        q.put(factorName, DontCare);
+        List<ValueTuple<String, Object>> found = filterInvalidTuples(
+            lookup(result, q), this.constraintManager);
+
+        if (found.size() > 0) {
+          Object levelToBeAssigned = cur.get(factorName);
+          ValueTuple<String, Object> f = this
+              .chooseBestTuple(found, leftTuples, factorName,
+                  levelToBeAssigned);
+          f.put(factorName, levelToBeAssigned);
+          int num = leftTuples.coveredBy(f).size();
+          if (num > numCovered) {
+            numCovered = num;
+            best = f;
           }
         }
-      } else {
-        ValueTuple<String, Object> t = createTupleFrom(q,
-            factors.keySet());
-        if (this.constraintManager.check(t)) {
-          best = t;
-        }
+        // In case no matching tuple is found, fall back to the best known
+        // tuple.
       }
-      if (best != null) {
-        ////
-        // Unlike original IPO algorithm, in case implied constraint violation
-        // is detected, tuples that do not involve factor 'factorName' can be in
-        // 'LeftTuples'.
-        // So we need to list up all possible tuples and remove them from it.
-        leftTuples.removeAll(tuplesCoveredBy(best, this.strength));
-        result.add(best);
-      }
+      leftTuples.removeAll(tuplesCoveredBy(best, this.strength));
+      result.add(best);
     }
     LinkedHashSet<ValueTuple<String, Object>> ret = new LinkedHashSet<ValueTuple<String, Object>>();
     for (ValueTuple<String, Object> testCase : result) {
@@ -279,7 +294,8 @@ public class IPO2 {
   /**
    * An extension point.
    */
-  protected ValueTuple<String, Object> fillInMissingFactors(ValueTuple<String, Object> tuple,
+  protected ValueTuple<String, Object> fillInMissingFactors(
+      ValueTuple<String, Object> tuple,
       LeftTuples leftTuples,
       ConstraintManager<String, Object> constraintManager) {
     Utils.checknotnull(tuple);
@@ -299,6 +315,7 @@ public class IPO2 {
    * An extension point.
    * Called by 'vg' process.
    * Chooses the best tuple to assign the factor and its level from the given tests.
+   * This method itself doesn't assign {@code level} to {@code factorName}.
    *
    * @param found A list of cloned tuples. (candidates)
    */

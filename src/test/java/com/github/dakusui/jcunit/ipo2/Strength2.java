@@ -93,8 +93,25 @@ public class Strength2 extends IPO2Test {
   public void test_006() {
     // "Don't care" is found in generated test cases.
     // "Test case that lacks F3 is generated.
-    Factors factors = new Factors.Builder().add(factor("F1", "L11"))
-        .add(factor("F2", "L21")).add(factor("F3", "L31", "F32")).build();
+    Factors factors = new Factors.Builder()
+        .add(factor("F1", "L11"))
+        .add(factor("F2", "L21"))
+        .add(factor("F3", "L31", "F32")).build();
+    ConstraintManager<String, Object> constraintManager = new NullConstraintManager<String, Object>();
+    IPO2Optimizer optimizer = new GreedyIPO2Optimizer();
+
+    List<ValueTuple<String, Object>> testcases = generate(factors,
+        strength, constraintManager, optimizer);
+
+    verify(testcases, strength, factors);
+  }
+
+  @Test
+  public void test_007() {
+    Factors factors = new Factors.Builder()
+        .add(factor("F1", "L11", "L12"))
+        .add(factor("F2", "L21", "L22"))
+        .add(factor("F3", "L31", "L32")).build();
     ConstraintManager<String, Object> constraintManager = new NullConstraintManager<String, Object>();
     IPO2Optimizer optimizer = new GreedyIPO2Optimizer();
 

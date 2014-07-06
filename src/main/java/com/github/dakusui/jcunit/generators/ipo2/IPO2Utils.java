@@ -46,6 +46,36 @@ public class IPO2Utils {
     return extractSubMap(map, map.keySet().iterator().next(), to, false);
   }
 
+  public static <K, V> K nextKey(LinkedHashMap<K, V> map, final K to) {
+    Utils.checknotnull(map);
+    Iterator<K> i = map.keySet().iterator();
+    while (i.hasNext()) {
+      if (IPO2Utils.eq(i.next(), to) && i.hasNext()) {
+        return i.next();
+      }
+    }
+    Utils.checkcond(false, String.format("The given key '%s' wasn't found in the map's keys or the last one:%s ", to, map));
+    return null; // This line will never be executed.
+  }
+
+  public static <K, V> boolean isLastKey(LinkedHashMap<K, V> map, final K k) {
+    Utils.checknotnull(map);
+    Utils.checkcond(map.size() > 0);
+    Utils.checkcond(map.containsKey(k));
+    Iterator<K> i = map.keySet().iterator();
+    while (i.hasNext()) {
+      K cur = i.next();
+      if (i.hasNext()) {
+        if (IPO2Utils.eq(cur, k))
+          return false;
+      } else {
+        if (IPO2Utils.eq(cur, k))
+          return true;
+      }
+    }
+    throw new RuntimeException("Something went wrong");
+  }
+
   public static <K, V> LinkedHashMap<K, V> tailMap(LinkedHashMap<K, V> map,
       final K from) {
     Utils.checknotnull(map);
