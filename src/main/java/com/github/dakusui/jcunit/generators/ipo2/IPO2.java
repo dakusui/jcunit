@@ -80,10 +80,11 @@ public class IPO2 {
   }
 
   static private List<Tuple> filterInvalidTuples(
-      List<Tuple> found, ConstraintManager constraintManager) {
-    List<Tuple> ret = new ArrayList<Tuple>(found.size());
-    for (Tuple cur : found) {
-      if (constraintManager.check(cur)) {
+      List<Tuple> tuples,
+      ConstraintManager constraintManager) {
+    List<Tuple> ret = new ArrayList<Tuple>(tuples.size());
+    for (Tuple cur : tuples) {
+      if (checkConstraints(constraintManager, cur)) {
         ret.add(cur);
       }
     }
@@ -156,7 +157,7 @@ public class IPO2 {
         (int) ce.size());
     for (List<AttrValue<String, Object>> t : ce) {
       Tuple tuple = IPO2Utils.list2tuple(t);
-      if (constraintManager.check(tuple)) {
+      if (checkConstraints(constraintManager, tuple)) {
         ret.add(tuple);
       }
     }
@@ -188,7 +189,7 @@ public class IPO2 {
         }
       }
       cur.put(factorName, chosenLevel);
-      if (constraintManager.check(cur)) {
+      if (checkConstraints(constraintManager, cur)) {
         leftTuples.removeAll(tuplesCoveredBy(cur, this.strength));
       } else {
         levelList.remove(chosenLevel);
@@ -236,7 +237,7 @@ public class IPO2 {
       Tuple best;
       int numCovered;
       Tuple t = factors.createTupleFrom(cur, DontCare);
-      if (this.constraintManager.check(t)) {
+      if (checkConstraints(this.constraintManager, t)) {
         best = t;
         numCovered = leftTuples.coveredBy(t).size();
       } else {
@@ -301,8 +302,19 @@ public class IPO2 {
     Utils.checknotnull(ret);
     Utils.checkcond(ret.keySet().equals(tuple.keySet()));
     Utils.checkcond(!ret.containsValue(DontCare));
-    Utils.checkcond(constraintManager.check(ret));
+    Utils.checkcond(checkConstraints(constraintManager, ret));
     return ret;
+  }
+
+  private static boolean checkConstraints(ConstraintManager constraintManager,
+      Tuple cur) {
+    Utils.checknotnull(constraintManager);
+    Utils.checknotnull(cur);
+    Tuple tuple = cur.clone();
+    for (String factorName : cur.keySet()) {
+      if (tuple.get(factorName) == DontCare) tuple.remove(factorName);
+    }
+    return constraintManager.check(cur);
   }
 
   /**
