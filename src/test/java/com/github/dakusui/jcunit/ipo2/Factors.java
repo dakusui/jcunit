@@ -16,6 +16,7 @@ public class Factors implements Iterable<Factor> {
   private final Map<String, Factor> factorMap;
 
   public Factors(List<Factor> factors) {
+    Utils.checknotnull(factors);
     this.factors = Collections.unmodifiableList(factors);
     Map<String, Factor> factorMap = new HashMap<String, Factor>();
     for (Factor f : factors) {
@@ -37,7 +38,12 @@ public class Factors implements Iterable<Factor> {
   }
 
   public Factor get(String factorName) {
+    Utils.checknotnull(factorName);
     return this.factorMap.get(factorName);
+  }
+
+  public boolean has(String factorName) {
+    return this.factorMap.containsKey(factorName);
   }
 
   public List<ValueTuple<String, Object>> generateAllPossibleTuples(
@@ -62,6 +68,34 @@ public class Factors implements Iterable<Factor> {
     }
     return ret;
   }
+
+  public Factors head(String to) {
+    Utils.checknotnull(to);
+    Utils.checkcond(has(to));
+    List<Factor> factors = new LinkedList<Factor>();
+    for (Factor f : this.factors) {
+      factors.add(f);
+      if (to.equals(f.name)) {
+        return new Factors(factors);
+      }
+    }
+    throw new RuntimeException("Something went wrong.");
+  }
+
+  public Factors tail(String from) {
+    Utils.checknotnull(from);
+    Utils.checkcond(has(from));
+    List<Factor> factors = new LinkedList<Factor>();
+    boolean found = false;
+    for (Factor f : this.factors) {
+      if (f.name.equals(from)) found = true;
+      if (found) {
+        factors.add(f);
+      }
+    }
+    return new Factors(factors);
+  }
+
 
   public LinkedHashMap<String, Object[]> toLinkedHashMap() {
     LinkedHashMap<String, Object[]> ret = new LinkedHashMap<String, Object[]>();

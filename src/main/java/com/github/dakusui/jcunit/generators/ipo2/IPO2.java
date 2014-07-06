@@ -327,7 +327,7 @@ public class IPO2 {
     Utils.checknotnull(leftTuples);
     Utils.checknotnull(factorName);
     ValueTuple<String, Object> ret = this.optimizer
-        .chooseBestTuple(new LinkedList<ValueTuple<String, Object>>(found),
+        .chooseBestTuple(Collections.unmodifiableList(found),
             leftTuples, factorName, level);
     Utils.checknotnull(ret);
     Utils.checkcond(found.contains(ret),
