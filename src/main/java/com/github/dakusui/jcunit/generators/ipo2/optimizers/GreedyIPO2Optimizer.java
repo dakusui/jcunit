@@ -4,13 +4,10 @@ import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.ValueTuple;
 import com.github.dakusui.jcunit.generators.ipo.GiveUp;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
-import com.github.dakusui.jcunit.generators.ipo2.LeftTuples;
+import com.github.dakusui.jcunit.generators.ipo2.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -19,29 +16,31 @@ import java.util.Random;
 public class GreedyIPO2Optimizer implements IPO2Optimizer {
   private final Random random = new Random(4649);
 
-  @Override public ValueTuple<String, Object> fillInMissingFactors(
-      ValueTuple<String, Object> tuple,
+  @Override public Tuple fillInMissingFactors(
+      Tuple tuple,
       LeftTuples leftTuples,
-      ConstraintManager<String, Object> constraintManager,
-      Map<String, Object[]> domains) {
+      ConstraintManager constraintManager,
+      Factors domains) {
     LinkedHashMap<String, Object[]> missingFactors = new LinkedHashMap<String, Object[]>();
     for (String f : tuple.keySet()) {
       if (tuple.get(f) == IPO2.DontCare) {
-        missingFactors.put(f, domains.get(f));
+        missingFactors.put(f, domains.get(f).levels.toArray());
       }
     }
-    if (missingFactors.size() == 0) return tuple;
+    if (missingFactors.size() == 0) {
+      return tuple;
+    }
     CartesianEnumerator<String, Object> enumerator = new CartesianEnumerator<String, Object>(
         IPO2Utils.map2list(
             missingFactors)
     );
     long sz = enumerator.size();
-    int maxTries = Math.min(50, (int)Math.min(sz, Integer.MAX_VALUE));
+    int maxTries = Math.min(50, (int) Math.min(sz, Integer.MAX_VALUE));
     int maxNum = -1;
-    ValueTuple<String, Object> ret = null;
+    Tuple ret = null;
     for (int i = 0; i < maxTries; i++) {
       long index = maxTries < sz ? i : (long) (random.nextDouble() * sz);
-      ValueTuple<String, Object> t = tuple.clone();
+      Tuple t = tuple.clone();
       t.putAll(IPO2Utils.list2tuple(enumerator.get(index)));
       if (!constraintManager.check(t)) {
         continue;
@@ -58,12 +57,12 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
     return ret;
   }
 
-  @Override public ValueTuple<String, Object> chooseBestTuple(
-      List<ValueTuple<String, Object>> found, LeftTuples leftTuples,
+  @Override public Tuple chooseBestTuple(
+      List<Tuple> found, LeftTuples leftTuples,
       String factorName, Object level) {
     int maxnum = -1;
-    ValueTuple<String, Object> ret = null;
-    for (ValueTuple<String, Object> t : found) {
+    Tuple ret = null;
+    for (Tuple t : found) {
 
       t.put(factorName, level);
       int num = leftTuples.coveredBy(t).size();
@@ -76,7 +75,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
   }
 
   @Override public Object chooseBestValue(String factorName,
-      Object[] factorLevels, ValueTuple<String, Object> tuple,
+      Object[] factorLevels, Tuple tuple,
       LeftTuples leftTuples) {
     int maxnum = -1;
     Object chosen = null;

@@ -1,8 +1,8 @@
 package com.github.dakusui.petronia.ct;
 
 import static org.junit.Assert.assertEquals;
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;

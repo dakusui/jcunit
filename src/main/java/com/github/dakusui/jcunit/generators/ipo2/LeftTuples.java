@@ -1,68 +1,44 @@
 package com.github.dakusui.jcunit.generators.ipo2;
 
-import com.github.dakusui.enumerator.Combinator;
-import com.github.dakusui.enumerator.Enumerator;
-import com.github.dakusui.enumerator.tuple.AttrValue;
-import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.ValueTuple;
 
 import java.util.*;
 
-/**
- * Created by hiroshi on 6/30/14.
- */
 public class LeftTuples {
-  private final Set<ValueTuple<String, Object>> tuples;
-  private final String                          factor;
-  private final int                             strength;
+  private final Set<Tuple> tuples;
+  private final String     factor;
+  private final int        strength;
 
-  LeftTuples(LinkedHashMap<String, Object[]> domains, String factor,
+  LeftTuples(Factors factors, Factor factor,
       int strength) {
-    Utils.checknotnull(domains);
+    Utils.checknotnull(factors);
     Utils.checknotnull(factor);
-    this.factor = factor;
+    Utils.checkcond(!factors.contains(factor), String
+        .format("factors(%s) mustn't contain '%s'", factors.getFactorNames(),
+            factor.name));
+    this.factor = factor.name;
     this.strength = strength;
-    this.tuples = init(IPO2Utils.headMap(domains, factor), factor,
-        domains.get(factor));
+    this.tuples = init(factors, factor);
   }
 
-  protected Set<ValueTuple<String, Object>> init(
-      LinkedHashMap<String, Object[]> domains, String factorName,
-      Object[] factorLevels) {
-    Set<ValueTuple<String, Object>> ret = new HashSet<ValueTuple<String, Object>>();
-    List<AttrValue<String, Object>> work = IPO2Utils.map2list(domains);
-    for (Object l : factorLevels) {
-      work.add(new AttrValue<String, Object>(factorName, l));
-    }
-    Enumerator<String> combinator = new Combinator<String>(new LinkedList<String>(domains.keySet()), this.strength - 1);
-
-    for (List<String> keys : combinator) {
-      List<AttrValue<String, Object>> cur = new LinkedList<AttrValue<String, Object>>();
-      for (String k : keys) {
-        for (Object o : domains.get(k)) {
-          cur.add(new AttrValue<String, Object>(k, o));
-        }
-      }
-      for (Object o : factorLevels) {
-        cur.add(new AttrValue<String, Object>(factorName, o));
-      }
-      CartesianEnumerator<String, Object> ce = new CartesianEnumerator<String, Object>(
-          cur);
-      for (
-          List<AttrValue<String, Object>> attrValues
-          : ce) {
-        ret.add(IPO2Utils.list2tuple(attrValues));
+  protected Set<Tuple> init(
+      Factors factors, Factor factor) {
+    Set<Tuple> ret = new HashSet<Tuple>();
+    for (Tuple t : factors.generateAllPossibleTuples(this.strength - 1)) {
+      for (Object l : factor) {
+        Tuple tt = t.clone();
+        tt.put(factor.name, l);
+        ret.add(tt);
       }
     }
     return ret;
   }
 
-  public void add(ValueTuple<String, Object> c) {
-    this.add(c);
+  public void add(Tuple tuple) {
+    this.tuples.add(tuple);
   }
 
-  void removeAll(Set<ValueTuple<String, Object>> tuples) {
+  void removeAll(Set<Tuple> tuples) {
     this.tuples.removeAll(tuples);
   }
 
@@ -70,16 +46,16 @@ public class LeftTuples {
     return this.tuples.isEmpty();
   }
 
-  public Set<ValueTuple<String, Object>> leftTuples() {
-    return this.tuples;
+  public List<Tuple> leftTuples() {
+    return new LinkedList<Tuple>(this.tuples);
   }
 
-  public Set<ValueTuple<String, Object>> coveredBy(
-      ValueTuple<String, Object> tuple) {
-    Set<ValueTuple<String, Object>> ret = new LinkedHashSet<ValueTuple<String, Object>>();
-    Set<ValueTuple<String, Object>> possibleTuples = IPO2.tuplesCoveredBy(tuple,
+  public Set<Tuple> coveredBy(
+      Tuple tuple) {
+    Set<Tuple> ret = new LinkedHashSet<Tuple>();
+    Set<Tuple> possibleTuples = IPO2.tuplesCoveredBy(tuple,
         this.strength);
-    for (ValueTuple<String, Object> c : possibleTuples) {
+    for (Tuple c : possibleTuples) {
       if (this.tuples.contains(c)) {
         ret.add(c);
       }
@@ -98,17 +74,15 @@ public class LeftTuples {
       return false;
     }
     LeftTuples another = (LeftTuples) anotherObject;
-    if (!this.factor.equals(((LeftTuples) anotherObject).factor)) {
-      return false;
-    }
-    return this.tuples.equals(another.tuples);
+    return this.factor.equals(((LeftTuples) anotherObject).factor)
+        && this.tuples.equals(another.tuples);
   }
 
-  public void addAll(LinkedHashSet<ValueTuple<String, Object>> leftOver) {
+  public void addAll(Set<Tuple> leftOver) {
     this.tuples.addAll(leftOver);
   }
 
-  public boolean contains(ValueTuple<String, Object> tuple) {
+  public boolean contains(Tuple tuple) {
     return this.tuples.contains(tuple);
   }
 }

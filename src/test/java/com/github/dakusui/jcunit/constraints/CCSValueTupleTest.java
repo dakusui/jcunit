@@ -4,8 +4,8 @@ import com.github.dakusui.jcunit.constraints.ccs.CCSValueTupleSet;
 import com.github.dakusui.jcunit.core.ValueTuple;
 import org.junit.Test;
 
-import static junit.framework.Assert.assertEquals;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class CCSValueTupleTest {

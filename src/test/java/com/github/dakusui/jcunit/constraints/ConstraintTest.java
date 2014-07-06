@@ -75,7 +75,8 @@ public class ConstraintTest extends JCUnitBase {
     rule.when(
         or(
             and(
-                eq($("notEvaluated3"), 1), eq($("notEvaluated4"), 1), eq($("notEvaluated5"), 0)
+                eq($("notEvaluated3"), 1), eq($("notEvaluated4"), 1),
+                eq($("notEvaluated5"), 0)
             ),
             and(
                 eq($("notEvaluated1"), 0), eq($("notEvaluated2"), 1)
@@ -116,7 +117,8 @@ public class ConstraintTest extends JCUnitBase {
                 eq($("notEvaluatedX"), 0), eq($("notEvaluated5"), 1)
             ),
             and(
-                eq($("notEvaluatedZ"), 1), eq($("notEvaluated2"), 1), eq($("notEvaluated3"), 1)
+                eq($("notEvaluatedZ"), 1), eq($("notEvaluated2"), 1),
+                eq($("notEvaluated3"), 1)
             ),
             and(
                 eq($("notEvaluated1"), 0), eq($("notEvaluated5"), 1)
@@ -135,17 +137,17 @@ public class ConstraintTest extends JCUnitBase {
 
   @Test
   public void constraintSet() throws Exception {
-    Map<String, List<String>> domains = composeDomains();
-    CCSValueTupleSet valueTupleSet = new CCSValueTupleSet(domains);
-    ValueTuple valueTuple = new ValueTuple();
+    Map<String, List<Object>> domains = composeDomains();
+    CCSValueTupleSet<String, Object> valueTupleSet = new CCSValueTupleSet<String, Object>(domains);
+    ValueTuple<String, Object> valueTuple = new ValueTuple<String, Object>();
     valueTupleSet.add(valueTuple);
   }
 
-  private Map<String, List<String>> composeDomains() {
-    Map<String, List<String>> ret = new HashMap<String, List<String>>();
-    ret.put("P1", Arrays.asList("P11", "P12"));
-    ret.put("P2", Arrays.asList("P21", "P22"));
-    ret.put("P3", Arrays.asList("P31", "P32", "P33"));
+  private Map<String, List<Object>> composeDomains() {
+    Map<String, List<Object>> ret = new HashMap<String, List<Object>>();
+    ret.put("P1", Arrays.asList((Object)"P11", "P12"));
+    ret.put("P2", Arrays.asList((Object)"P21", "P22"));
+    ret.put("P3", Arrays.asList((Object)"P31", "P32", "P33"));
     return ret;
   }
 
