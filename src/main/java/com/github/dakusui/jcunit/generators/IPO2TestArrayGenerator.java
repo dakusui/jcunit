@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraints.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 

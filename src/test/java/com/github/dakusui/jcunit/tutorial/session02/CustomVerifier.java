@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tutorial.session02;
 
-import com.github.dakusui.jcunit.core.Out.Verifier;
+import com.github.dakusui.jcunit.compat.core.annotations.Out.Verifier;
 
 public class CustomVerifier implements Verifier {
 

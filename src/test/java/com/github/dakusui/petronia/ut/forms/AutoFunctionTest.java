@@ -1,6 +1,6 @@
 package com.github.dakusui.petronia.ut.forms;
 
-import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.lisj.Form;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;

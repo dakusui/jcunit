@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.generators;
 
-import com.github.dakusui.jcunit.core.GeneratorParameters;
-import com.github.dakusui.jcunit.core.GeneratorParameters.Value;
+import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
+import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

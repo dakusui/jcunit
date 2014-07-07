@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.compat.auto;
 
 import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.core.Out;
-import com.github.dakusui.jcunit.core.Out.Verifier;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
+import com.github.dakusui.jcunit.compat.core.annotations.Out.Verifier;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 import com.github.dakusui.lisj.*;

@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.compat.core.Summarizer;
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;

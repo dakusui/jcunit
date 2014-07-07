@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.compat.core.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,7 +28,7 @@ public @interface GeneratorParameters {
 
     Class<? extends Object> classValue() default Object.class;
 
-    Class<? extends Object>[] classArrayValur() default { };
+    Class<? extends Object>[] classArrayValue() default { };
 
     String stringValue() default "";
 

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.generators;
 
-import com.github.dakusui.jcunit.core.GeneratorParameters;
+import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
 import java.util.LinkedHashMap;

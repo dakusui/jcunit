@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.compat.core.annotations.In;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;

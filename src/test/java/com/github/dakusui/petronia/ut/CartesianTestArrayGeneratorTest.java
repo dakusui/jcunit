@@ -1,6 +1,6 @@
 package com.github.dakusui.petronia.ut;
 
-import com.github.dakusui.jcunit.core.GeneratorParameters.Value;
+import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters.Value;
 import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
 import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 

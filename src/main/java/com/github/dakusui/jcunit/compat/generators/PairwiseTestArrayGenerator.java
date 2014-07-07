@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRun;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.GreedyIPOOptimizer;
-import com.github.dakusui.jcunit.core.GeneratorParameters;
+import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.generators.BaseTestArrayGenerator;
 
 import java.util.HashMap;

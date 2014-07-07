@@ -2,11 +2,11 @@ package com.github.dakusui.petronia.examples;
 
 import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.In;
-import com.github.dakusui.jcunit.core.In.Domain;
+import com.github.dakusui.jcunit.compat.core.annotations.Generator;
+import com.github.dakusui.jcunit.compat.core.annotations.In;
+import com.github.dakusui.jcunit.compat.core.annotations.In.Domain;
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Rule;

@@ -1,7 +1,6 @@
-package com.github.dakusui.jcunit.compat.core;
+package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.compat.report.ReportWriter;
-import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
@@ -11,7 +10,6 @@ import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 import com.github.dakusui.jcunit.generators.TestArrayGenerator;
-import com.github.dakusui.lisj.Basic;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.TestClass;
@@ -23,7 +21,11 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class JCUnit extends Suite {
-  private final ArrayList<Runner> runners = new ArrayList<Runner>();
+  /**
+   * A report writer object.
+   */
+  private static ReportWriter      writer  = new ReportWriter();
+  private final  ArrayList<Runner> runners = new ArrayList<Runner>();
 
   /**
    * Only called reflectively. Do not use programmatically.
@@ -35,27 +37,6 @@ public class JCUnit extends Suite {
       runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
           parametersList, i));
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  static Map<Field, Object> cast(Object values) {
-    return (Map<Field, Object>) values;
-  }
-
-  @Override
-  protected List<Runner> getChildren() {
-    return runners;
-  }
-
-  private List<Object> getParametersList(TestClass klass) throws Throwable {
-    @SuppressWarnings("rawtypes")
-    Class<? extends TestArrayGenerator> generatorClass = getTestArrayGeneratorClass(
-        klass
-            .getJavaClass());
-    if (generatorClass == null) {
-      generatorClass = SimpleTestArrayGenerator.class;
-    }
-    return this.composeTestArray(klass.getJavaClass(), generatorClass);
   }
 
   static Method domainMethod(Class<?> cut, Field inField) {
@@ -87,43 +68,11 @@ public class JCUnit extends Suite {
     return ret;
   }
 
-  static Method assertMethod(Class<?> cut, Field outField) {
-    Method ret;
-    try {
-      try {
-        ret = cut.getMethod(outField.getName(), outField.getType(),
-            outField.getType());
-      } catch (NoSuchMethodException e) {
-        ret = cut.getDeclaredMethod(outField.getName());
-      }
-    } catch (SecurityException e) {
-      String msg = String.format(
-          "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
-              .getName(), e.getMessage()
-      );
-      throw new JCUnitEnvironmentException(msg, e);
-    } catch (NoSuchMethodException e) {
-      String msg = String
-          .format(
-              "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
-              outField, cut);
-      throw new ObjectUnderFrameworkException(msg, e);
-    }
-    if (!validateAssertMethod(outField, ret)) {
-      String msg = String.format(
-          "Assertion method '%s' isn't compatible with field '%s'", ret,
-          outField);
-      throw new IllegalArgumentException(msg, null);
-    }
-
-    return ret;
-  }
-
-  public static boolean checkIfStatic(Method domainMethod) {
+  static boolean checkIfStatic(Method domainMethod) {
     return Modifier.isStatic(domainMethod.getModifiers());
   }
 
-  private static boolean checkIfTypeCompatible(Field inField,
+  static boolean checkIfTypeCompatible(Field inField,
       Method domainMethod) {
     if (!domainMethod.getReturnType().isArray()) {
       return false;
@@ -134,27 +83,15 @@ public class JCUnit extends Suite {
     return true;
   }
 
-  private static boolean checkIfAnyParameterExists(Method domainMethod) {
+  static boolean checkIfAnyParameterExists(Method domainMethod) {
     return domainMethod.getParameterTypes().length != 0;
   }
 
-  private static boolean checkIfReturnTypeIsArray(Method domainMethod) {
+  static boolean checkIfReturnTypeIsArray(Method domainMethod) {
     return domainMethod.getReturnType().isArray();
   }
 
-  private static boolean checkIfReturnTypeIsBoolean(Method assertMethod) {
-    return Boolean.TRUE.equals(assertMethod.getReturnType());
-  }
-
-  private static boolean validateAssertMethod(Field outField,
-      Method assertMethod) {
-    boolean ret = true;
-    ret &= JCUnit.checkIfStatic(assertMethod);
-    ret &= JCUnit.checkIfReturnTypeIsBoolean(assertMethod);
-    return ret;
-  }
-
-  private static boolean validateDomainMethod(Field inField,
+  static boolean validateDomainMethod(Field inField,
       Method domainMethod) {
     boolean ret = true;
     ret &= JCUnit.checkIfStatic(domainMethod);
@@ -276,6 +213,39 @@ public class JCUnit extends Suite {
     return ret;
   }
 
+  @SuppressWarnings("rawtypes")
+  private static Class<? extends TestArrayGenerator> getTestArrayGeneratorClass(
+      Class<? extends Object> cuf) {
+    Generator an = cuf.getAnnotation(Generator.class);
+    Class<? extends TestArrayGenerator> ret = an != null ? an.value() : null;
+    if (ret != null) {
+      return ret;
+    } else {
+      Class<? extends Object> superClass = cuf.getSuperclass();
+      if (superClass == null) {
+        return null;
+      }
+      return getTestArrayGeneratorClass(superClass);
+    }
+  }
+
+  @Override
+  protected List<Runner> getChildren() {
+    return runners;
+  }
+
+  private List<Object> getParametersList(TestClass klass) throws Throwable {
+    @SuppressWarnings("rawtypes")
+    Class<? extends TestArrayGenerator> generatorClass = getTestArrayGeneratorClass(
+        klass
+            .getJavaClass()
+    );
+    if (generatorClass == null) {
+      generatorClass = SimpleTestArrayGenerator.class;
+    }
+    return this.composeTestArray(klass.getJavaClass(), generatorClass);
+  }
+
   /*
      * Composes the test array.
      */
@@ -324,116 +294,6 @@ public class JCUnit extends Suite {
     for (Map<Field, Object> pattern : testArrayGenerator) {
       ret.add(pattern);
     }
-
-    // //
-    // Print the test array definition.
-    reportTestArray(cut, testArrayGenerator);
     return ret;
-  }
-
-  private void reportTestArray(Class<?> targetClass,
-      TestArrayGenerator<Field> testArrayGenerator) {
-    initClassLevelReport(targetClass);
-    writeMatrixHeader(targetClass);
-    writeDomains(targetClass, testArrayGenerator);
-    writeMatrix(targetClass, testArrayGenerator);
-  }
-
-  /**
-   * A report writer object.
-   */
-  private static ReportWriter writer = new ReportWriter();
-
-  /* DONE */
-  protected void initClassLevelReport(Class<?> targetClass) {
-    writer.deleteReport(targetClass);
-  }
-
-  /* DONE */
-  private void writeMatrixHeader(Class<?> targetClass) {
-    writer.writeLine(targetClass, 0,
-        "***********************************************");
-    writer.writeLine(targetClass, 0,
-        "***                                         ***");
-    writer.writeLine(targetClass, 0,
-        "***          T E S T   M A T R I X          ***");
-    writer.writeLine(targetClass, 0,
-        "***                                         ***");
-    writer.writeLine(targetClass, 0,
-        "***********************************************");
-    writer.writeLine(targetClass, 0, "");
-  }
-
-  /* DONE */
-  protected static void writeDomains(Class<?> targetClass,
-      TestArrayGenerator<Field> testArrayGenerator) {
-    writer.writeLine(targetClass, 0, "* DOMAINS *");
-    char keyCode = 'A';
-    for (Field key : testArrayGenerator.getKeys()) {
-      // //
-      // print out header
-      String domainHeader = String.format("%s:%s(%s)", keyCode, key.getName(),
-          key.getType());
-      writer.writeLine(targetClass, 1, domainHeader);
-      Object[] d = testArrayGenerator.getDomain(key);
-      for (int i = 0; i < d.length; i++) {
-        String l = String.format("%02d:'%s'", i, Basic.tostr(d[i]));
-        writer.writeLine(targetClass, 2, l);
-      }
-      keyCode++;
-    }
-    writer.writeLine(targetClass, 0, "");
-  }
-
-  /* DONE */
-  protected static void writeMatrix(Class<?> targetClass,
-      TestArrayGenerator<Field> testArrayGenerator) {
-    writer.writeLine(targetClass, 0, "* MATRIX *");
-    String header = String.format("%22s", "");
-    int numKeys = testArrayGenerator.getKeys().size();
-    boolean firstTime = true;
-    char keyCode = 'A';
-    for (int i = 0; i < numKeys; i++) {
-      if (firstTime) {
-        firstTime = false;
-      } else {
-        header += ",";
-      }
-      header += String.format("%-2s", keyCode);
-      keyCode++;
-    }
-    writer.writeLine(targetClass, 0, header);
-    long size = testArrayGenerator.size();
-    for (int i = 0; i < size; i++) {
-      String line = String.format("%-20s", String.format("testrun[%d]:", i));
-      firstTime = true;
-      for (Field key : testArrayGenerator.getKeys()) {
-        int valueCode = testArrayGenerator.getIndex(key, i);
-        if (firstTime) {
-          firstTime = false;
-        } else {
-          line += ",";
-        }
-        line += String.format("%02d", valueCode);
-      }
-      writer.writeLine(targetClass, 1, line);
-    }
-    writer.writeLine(targetClass, 0, "");
-  }
-
-  @SuppressWarnings("rawtypes")
-  private static Class<? extends TestArrayGenerator> getTestArrayGeneratorClass(
-      Class<? extends Object> cuf) {
-    Generator an = cuf.getAnnotation(Generator.class);
-    Class<? extends TestArrayGenerator> ret = an != null ? an.value() : null;
-    if (ret != null) {
-      return ret;
-    } else {
-      Class<? extends Object> superClass = cuf.getSuperclass();
-      if (superClass == null) {
-        return null;
-      }
-      return getTestArrayGeneratorClass(superClass);
-    }
   }
 }

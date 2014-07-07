@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.compat.core.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -26,8 +26,8 @@ public @interface In {
      */
     Method,
     /**
-     * Framework doesn't assign any value the field and therefore, the value
-     * assigned by user code will be used during the tests.
+     * Framework doesn't assign any value to the field and therefore, the value
+     * assigned by user code will be used during all the tests.
      */
     None
   }
