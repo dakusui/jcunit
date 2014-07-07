@@ -10,12 +10,12 @@ import org.junit.Test;
 
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Enumerator;
-import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.IPOTestRun;
-import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
-import com.github.dakusui.jcunit.generators.ipo.IPOValuePair;
-import com.github.dakusui.jcunit.generators.ipo.optimizers.GreedyIPOOptimizer;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPO;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRun;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
+import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.GreedyIPOOptimizer;
 
 public class IPOTest {
   @Test

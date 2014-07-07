@@ -4,29 +4,27 @@ import java.util.LinkedHashMap;
 
 import com.github.dakusui.jcunit.core.GeneratorParameters;
 
-public class CartesianTestArrayGenerator<T, U> extends
-    BaseTestArrayGenerator<T, U> {
+public class CartesianTestArrayGenerator<T> extends
+    BaseTestArrayGenerator<T> {
   @Override
-  public void init(GeneratorParameters.Value[] params,
-      LinkedHashMap<T, U[]> domains) {
+  public long initializeTestCases(GeneratorParameters.Value[] params,
+      LinkedHashMap<T, Object[]> domains) {
     super.init(params, domains);
     if (this.domains == null)
       throw new NullPointerException();
-    assert this.size < 0;
-    assert this.cur < 0;
-    size = 1;
+    long size = 1;
     for (T f : this.domains.keySet()) {
-      U[] d = this.domains.get(f);
+	    Object[] d = this.domains.get(f);
       size *= d.length;
     }
-    cur = 0;
+    return size;
   }
 
   @Override
   public int getIndex(T key, long cur) {
     long div = cur;
     for (T f : this.domains.keySet()) {
-      U[] values = domains.get(f);
+	    Object[] values = domains.get(f);
       int index = (int) (div % values.length);
       if (key.equals(f))
         return index;

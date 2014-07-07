@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.RuleSet;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
 
 public class RuleSetTest extends JCUnitBase {
   @Test(

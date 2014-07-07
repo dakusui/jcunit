@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
-import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
-import com.github.dakusui.jcunit.generators.ipo.optimizers.IPOOptimizer;
-import com.github.dakusui.jcunit.generators.ipo.optimizers.ModuloIPOOptimizer;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
+import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.IPOOptimizer;
+import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.ModuloIPOOptimizer;
 
 public class ExamplesWithModuloOptimizer extends IPOExamples {
 

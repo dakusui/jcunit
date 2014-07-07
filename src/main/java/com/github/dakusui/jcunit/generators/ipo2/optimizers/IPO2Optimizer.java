@@ -1,20 +1,15 @@
 package com.github.dakusui.jcunit.generators.ipo2.optimizers;
 
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
-import com.github.dakusui.jcunit.core.ValueTuple;
-import com.github.dakusui.jcunit.generators.ipo2.Factors;
-import com.github.dakusui.jcunit.generators.ipo2.LeftTuples;
-import com.github.dakusui.jcunit.generators.ipo2.Tuple;
+import com.github.dakusui.jcunit.core.Factors;
+import com.github.dakusui.jcunit.core.Tuples;
+import com.github.dakusui.jcunit.core.Tuple;
 
 import java.util.List;
-import java.util.Map;
 
-/**
- * Created by hiroshi on 6/30/14.
- */
 public interface IPO2Optimizer {
   public Tuple fillInMissingFactors(Tuple tuple,
-      LeftTuples leftTuples,
+      Tuples leftTuples,
       ConstraintManager constraintManager,
       Factors factors);
 
@@ -26,9 +21,9 @@ public interface IPO2Optimizer {
    * @param found A list of cloned tuples. (candidates)
    */
   public Tuple chooseBestTuple(
-      List<Tuple> found, LeftTuples leftTuples,
+      List<Tuple> found, Tuples leftTuples,
       String factorName, Object level);
 
   public Object chooseBestValue(String factorName, Object[] factorLevels,
-      Tuple tuple, LeftTuples leftTuples);
+      Tuple tuple, Tuples leftTuples);
 }

@@ -3,7 +3,9 @@ package com.github.dakusui.jcunit.core;
 import java.math.MathContext;
 import java.util.List;
 
-import com.github.dakusui.jcunit.auto.AutoRuleSet;
+import com.github.dakusui.jcunit.compat.auto.AutoRuleSet;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
+import com.github.dakusui.jcunit.compat.core.RuleSetBuilder;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.ContextImpl;

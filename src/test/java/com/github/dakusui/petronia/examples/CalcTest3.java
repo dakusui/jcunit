@@ -6,15 +6,15 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
-import com.github.dakusui.jcunit.core.BasicSummarizer;
+import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Out;
-import com.github.dakusui.jcunit.core.RuleSet;
-import com.github.dakusui.jcunit.generators.PairwiseTestArrayGenerator;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
+import com.github.dakusui.jcunit.compat.generators.PairwiseTestArrayGenerator;
 import com.github.dakusui.petronia.examples.Calc.Op;
 
 /**

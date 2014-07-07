@@ -1,5 +1,9 @@
 package com.github.dakusui.petronia.examples;
 
+import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
+import com.github.dakusui.jcunit.compat.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
+import com.github.dakusui.jcunit.compat.core.Summarizer;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.GeneratorParameters.Type;
 import com.github.dakusui.jcunit.core.GeneratorParameters.Value;
@@ -19,7 +23,7 @@ public class CalcTest7 extends JCUnitBase {
   @ClassRule
   public static Summarizer summarizer = new BasicSummarizer();
   @Rule
-  public        RuleSet    rules      = new JCUnitBase()
+  public RuleSet rules      = new JCUnitBase()
       .autoRuleSet(this).summarizer(
           summarizer);
   @In

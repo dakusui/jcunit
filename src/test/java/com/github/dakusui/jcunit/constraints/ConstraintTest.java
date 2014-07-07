@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.constraints.ccs.CCSValueTupleSet;
+import com.github.dakusui.jcunit.constraints.constraintmanagers.ccs.CCSValueTupleSet;
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.ValueTuple;
+import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.CUT;
 import org.hamcrest.CoreMatchers;
@@ -14,18 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by hiroshi on 5/23/14.
- */
 public class ConstraintTest extends JCUnitBase {
   @Test
   public void simple() throws CUT, JCUnitException {
-    ValueTuple<String, Object> tuple = new ValueTuple<String, Object>();
+    Tuple tuple = new Tuple();
     tuple.put("hdd1", 0);
     tuple.put("hdd2", 1);
 
-    ConstraintRule rule = new ConstraintRule(this);
-    rule.when(eq($("hdd1"), 0)).then(not(eq($("hdd2"), 0)));
+    ConstraintRule rule = new ConstraintRule.Builder().setContext(this).when(eq($("hdd1"), 0)).then(not(eq($("hdd2"), 0))).build();
     Assert.assertThat(2, CoreMatchers.is(rule.evaluate(tuple).size()));
     Assert.assertThat(0, CoreMatchers.is(rule.evaluate(tuple).get("hdd1")));
     Assert.assertThat(1, CoreMatchers.is(rule.evaluate(tuple).get("hdd2")));
@@ -33,7 +29,7 @@ public class ConstraintTest extends JCUnitBase {
 
   @Test
   public void shortCut1() throws CUT, JCUnitException {
-    ValueTuple<String, Object> tuple = new ValueTuple<String, Object>();
+    Tuple tuple = new Tuple();
     tuple.put("notEvaluated1", 1);
     tuple.put("notEvaluated2", 1);
     tuple.put("notEvaluated3", 1);
@@ -42,8 +38,8 @@ public class ConstraintTest extends JCUnitBase {
     tuple.put("evaluated1", 1);
     tuple.put("evaluated2", 1);
 
-    ConstraintRule rule = new ConstraintRule(this);
-    rule.when(
+    ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
+    .when(
         or(
             and(
                 eq($("notEvaluated1"), 0), eq($("notEvaluated2"), 1)
@@ -54,15 +50,15 @@ public class ConstraintTest extends JCUnitBase {
         not(
             eq($("evaluated2"), 1)
         )
-    );
+    ).build();
 
-    ValueTuple<String, Object> result = rule.evaluate(tuple);
+    Tuple result = rule.evaluate(tuple);
     System.out.println(result);
   }
 
   @Test
   public void shortCut2() throws CUT, JCUnitException {
-    ValueTuple<String, Object> tuple = new ValueTuple<String, Object>();
+    Tuple tuple = new Tuple();
     tuple.put("notEvaluated1", 1);
     tuple.put("notEvaluated2", 1);
     tuple.put("notEvaluated3", 1);
@@ -71,8 +67,8 @@ public class ConstraintTest extends JCUnitBase {
     tuple.put("evaluated1", 1);
     tuple.put("evaluated2", 1);
 
-    ConstraintRule rule = new ConstraintRule(this);
-    rule.when(
+    ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
+    .when(
         or(
             and(
                 eq($("notEvaluated3"), 1), eq($("notEvaluated4"), 1),
@@ -90,15 +86,15 @@ public class ConstraintTest extends JCUnitBase {
         not(
             eq($("evaluated2"), 0)
         )
-    );
+    ).build();
 
-    ValueTuple<String, Object> result = rule.evaluate(tuple);
+    Tuple result = rule.evaluate(tuple);
     System.out.println(result);
   }
 
   @Test
   public void shortCut3() throws CUT, JCUnitException {
-    ValueTuple<String, Object> tuple = new ValueTuple<String, Object>();
+    Tuple tuple = new Tuple();
     tuple.put("notEvaluated1", 1);
     tuple.put("notEvaluated2", 1);
     tuple.put("notEvaluated3", 1);
@@ -110,8 +106,8 @@ public class ConstraintTest extends JCUnitBase {
     tuple.put("evaluated4", 1);
     tuple.put("evaluated5", 1);
 
-    ConstraintRule rule = new ConstraintRule(this);
-    rule.when(
+    ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
+    .when(
         or(
             and(
                 eq($("notEvaluatedX"), 0), eq($("notEvaluated5"), 1)
@@ -129,17 +125,17 @@ public class ConstraintTest extends JCUnitBase {
         not(
             eq($("evaluated2"), 0)
         )
-    );
+    ).build();
 
-    ValueTuple<String, Object> result = rule.evaluate(tuple);
+    Tuple result = rule.evaluate(tuple);
     System.out.println(result);
   }
 
   @Test
   public void constraintSet() throws Exception {
     Map<String, List<Object>> domains = composeDomains();
-    CCSValueTupleSet<String, Object> valueTupleSet = new CCSValueTupleSet<String, Object>(domains);
-    ValueTuple<String, Object> valueTuple = new ValueTuple<String, Object>();
+    CCSValueTupleSet valueTupleSet = new CCSValueTupleSet(domains);
+    Tuple valueTuple = new Tuple();
     valueTupleSet.add(valueTuple);
   }
 

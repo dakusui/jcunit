@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.ut.ipo;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.github.dakusui.jcunit.generators.ipo.IPOValuePair;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
 
 import org.junit.Test;
 

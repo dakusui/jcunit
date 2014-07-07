@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.generators.ipo.IPOValuePair;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
 import com.github.dakusui.jcunit.testutils.TestSettings;
 
 public abstract class IPOExamples extends IPOTestBase {

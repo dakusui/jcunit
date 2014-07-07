@@ -2,7 +2,7 @@ package com.github.dakusui.lisj;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.github.dakusui.jcunit.auto.OutFieldNames;
+import com.github.dakusui.jcunit.compat.auto.OutFieldNames;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.func.io.Print;
 import com.github.dakusui.lisj.func.java.Get;

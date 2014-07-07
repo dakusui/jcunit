@@ -6,9 +6,9 @@ import com.github.dakusui.jcunit.constraints.Constraint;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.RuleSet;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
 
 @RunWith(JCUnit.class)

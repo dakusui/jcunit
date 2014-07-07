@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.core.DomainGenerator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.Out;

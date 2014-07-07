@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.Set;
 
 import com.github.dakusui.enumerator.Combinator;
-import com.github.dakusui.jcunit.generators.ipo.IPO;
-import com.github.dakusui.jcunit.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.generators.ipo.IPOTestSpace;
-import com.github.dakusui.jcunit.generators.ipo.IPOValuePair;
-import com.github.dakusui.jcunit.generators.ipo.optimizers.IPOOptimizer;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPO;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
+import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.IPOOptimizer;
 import com.github.dakusui.jcunit.testutils.TestSettings;
 
 public abstract class IPOTestBase {
