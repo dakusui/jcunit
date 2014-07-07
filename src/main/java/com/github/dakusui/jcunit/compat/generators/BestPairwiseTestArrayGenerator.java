@@ -1,28 +1,28 @@
 package com.github.dakusui.jcunit.compat.generators;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.dakusui.enumerator.Permutator;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPO;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.GreedyIPOOptimizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class BestPairwiseTestArrayGenerator<T> extends
     PairwiseTestArrayGenerator<T> {
   private static final Logger LOGGER = LoggerFactory
-                                         .getLogger(BestPairwiseTestArrayGenerator.class);
+      .getLogger(BestPairwiseTestArrayGenerator.class);
 
   @Override
   protected IPOTestRunSet composeTestRunSet(Map<Integer, T> indexToKeyMap) {
     if (this.domains.size() == 0) {
       LOGGER
-          .warn("The domains has no member, falling back to PairwiseTestArrayGenerator.");
+          .warn(
+              "The domains has no member, falling back to PairwiseTestArrayGenerator.");
       return super.composeTestRunSet(indexToKeyMap);
     }
     List<T> domainKeys = new ArrayList<T>(this.domains.size());

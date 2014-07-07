@@ -1,16 +1,12 @@
 package com.github.dakusui.petronia.ut;
 
-import static com.github.dakusui.lisj.Basic.NIL;
-import static com.github.dakusui.lisj.Basic.cons;
-import static com.github.dakusui.lisj.Basic.eq;
-import static com.github.dakusui.lisj.Basic.length;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import com.github.dakusui.lisj.Basic;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
-import com.github.dakusui.lisj.Basic;
+import static com.github.dakusui.lisj.Basic.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ConsTest2 {
   @Test
@@ -85,7 +81,7 @@ public class ConsTest2 {
 
   @Test
   public void test_97() {
-    Object obj = new Object[] {};
+    Object obj = new Object[] { };
     assertEquals("NIL", Basic.tostr(obj));
     assertEquals(0, Basic.length(obj));
   }

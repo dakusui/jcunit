@@ -26,8 +26,9 @@ public class Set extends BaseFunc {
 
   protected Object checkParams(Object params) {
     super.checkParams(params);
-    if (Basic.length(params) != 3)
+    if (Basic.length(params) != 3) {
       throw new IllegalArgumentException();
+    }
     Utils.checknotnull(Basic.get(params, 0));
     Utils.checknotnull(Basic.get(params, 1));
     return params;

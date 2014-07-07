@@ -1,10 +1,10 @@
 package com.github.dakusui.lisj.pred;
 
-import static com.github.dakusui.lisj.Basic.get;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+
+import static com.github.dakusui.lisj.Basic.get;
 
 public class Contains extends BinomialPredicate {
   /**

@@ -1,5 +1,9 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -13,38 +17,44 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
-
 public class Utils {
   public static BigDecimal bigDecimal(Number num) {
-    if (num == null)
+    if (num == null) {
       throw new NullPointerException();
-    if (num instanceof BigDecimal)
+    }
+    if (num instanceof BigDecimal) {
       return (BigDecimal) num;
-    if (num instanceof BigInteger)
+    }
+    if (num instanceof BigInteger) {
       return new BigDecimal((BigInteger) num);
-    if (num instanceof Byte)
+    }
+    if (num instanceof Byte) {
       return new BigDecimal((Byte) num);
-    if (num instanceof Double)
+    }
+    if (num instanceof Double) {
       return new BigDecimal((Double) num);
-    if (num instanceof Float)
+    }
+    if (num instanceof Float) {
       return new BigDecimal((Float) num);
-    if (num instanceof Integer)
+    }
+    if (num instanceof Integer) {
       return new BigDecimal((Integer) num);
-    if (num instanceof Long)
+    }
+    if (num instanceof Long) {
       return new BigDecimal((Long) num);
-    if (num instanceof Short)
+    }
+    if (num instanceof Short) {
       return new BigDecimal((Short) num);
+    }
     String message = String.format(
         "Unsupported number object %s(%s) is given.", num, num.getClass());
     throw new IllegalArgumentException(message);
   }
 
   public static Object normalize(Object v) {
-    if (v == null)
+    if (v == null) {
       return null;
+    }
     if (v instanceof Number) {
       return bigDecimal((Number) v);
     }
@@ -52,8 +62,9 @@ public class Utils {
   }
 
   public static Field getField(Object obj, String fieldName) {
-    if (obj == null)
+    if (obj == null) {
       throw new NullPointerException();
+    }
     Class<?> clazz = obj.getClass();
     Field ret = getFieldFromClass(clazz, fieldName);
     return ret;
@@ -64,12 +75,14 @@ public class Utils {
     try {
       ret = clazz.getField(fieldName);
       if (!ret.isAnnotationPresent(In.class)
-          && !ret.isAnnotationPresent(Out.class))
+          && !ret.isAnnotationPresent(Out.class)) {
         throw new NoSuchFieldException();
+      }
     } catch (SecurityException e) {
       String msg = String.format(
           "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
-              .getName(), e.getMessage());
+              .getName(), e.getMessage()
+      );
       throw new JCUnitEnvironmentException(msg, e);
     } catch (NoSuchFieldException e) {
       String msg = String.format(
@@ -116,21 +129,26 @@ public class Utils {
   }
 
   public static <T> T checknotnull(T obj) {
-    if (obj == null)
+    if (obj == null) {
       throw new NullPointerException();
+    }
     return obj;
   }
 
   public static void checkcond(boolean b) {
-    if (!b) throw new IllegalArgumentException();
+    if (!b) {
+      throw new IllegalArgumentException();
+    }
   }
 
   public static void checkcond(boolean b, String msg) {
-    if (!b) throw new IllegalArgumentException(msg);
+    if (!b) {
+      throw new IllegalArgumentException(msg);
+    }
   }
 
-
-  public static void initializeTestObject(Object out, Map<Field, Object> values) {
+  public static void initializeTestObject(Object out,
+      Map<Field, Object> values) {
     for (Field f : values.keySet()) {
       setFieldValue(out, f, values.get(f));
     }
@@ -195,8 +213,9 @@ public class Utils {
 
   @SuppressWarnings("unchecked")
   public static <T> T cast(Class<T> clazz, Object obj) {
-    if (clazz == null)
+    if (clazz == null) {
       throw new NullPointerException();
+    }
     if (obj == null || clazz.isAssignableFrom(obj.getClass())) {
       return (T) obj;
     }
@@ -210,12 +229,14 @@ public class Utils {
   }
 
   private static final Pattern methodPattern = Pattern
-                                                 .compile("[a-zA-Z$_][0-9a-zA-Z$_]*");
+      .compile("[a-zA-Z$_][0-9a-zA-Z$_]*");
 
-  public static Object invokeMethod(Object obj, String methodId, Object[] params)
+  public static Object invokeMethod(Object obj, String methodId,
+      Object[] params)
       throws JCUnitException {
-    if (obj == null)
+    if (obj == null) {
       throw new NullPointerException();
+    }
     try {
       Method m = obj.getClass().getMethod(getMethodName(methodId),
           getParameterTypes(methodId));
@@ -234,13 +255,14 @@ public class Utils {
   }
 
   private static Class<?>[] getParameterTypes(String methodId) {
-    return new Class<?>[] {};
+    return new Class<?>[] { };
   }
 
   private static String getMethodName(String methodId) throws JCUnitException {
     Matcher m = methodPattern.matcher(methodId);
-    if (m.find())
+    if (m.find()) {
       return m.group(0);
+    }
     throw new JCUnitException(String.format("Specified method wasn't found:%s",
         methodId), null);
   }

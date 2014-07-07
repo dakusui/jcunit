@@ -1,7 +1,5 @@
 package com.github.dakusui.jcunit.compat.auto;
 
-import java.lang.reflect.Field;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
@@ -9,6 +7,8 @@ import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.func.BaseFunc;
+
+import java.lang.reflect.Field;
 
 public class OutFieldNames extends BaseFunc {
 
@@ -44,8 +44,9 @@ public class OutFieldNames extends BaseFunc {
   @Override
   protected Object checkParams(Object params) {
     super.checkParams(params);
-    if (Basic.length(params) != 1)
+    if (Basic.length(params) != 1) {
       throw new IllegalArgumentException();
+    }
     Utils.checknotnull(Basic.get(params, 0));
     return params;
   }

@@ -1,13 +1,14 @@
 package com.github.dakusui.lisj.func.io;
 
-import java.io.PrintStream;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.func.BaseFunc;
 
-import static com.github.dakusui.lisj.Basic.*;
+import java.io.PrintStream;
+
+import static com.github.dakusui.lisj.Basic.get;
+import static com.github.dakusui.lisj.Basic.length;
 
 public class Print extends BaseFunc {
 
@@ -29,8 +30,9 @@ public class Print extends BaseFunc {
 
   @Override
   protected Object checkParams(Object params) {
-    if (length(super.checkParams(params)) != 2)
+    if (length(super.checkParams(params)) != 2) {
       throw new IllegalArgumentException();
+    }
     Utils.checknotnull(get(params, 0));
     return params;
   }

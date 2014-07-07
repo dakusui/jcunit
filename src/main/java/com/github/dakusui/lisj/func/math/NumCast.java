@@ -1,15 +1,15 @@
 package com.github.dakusui.lisj.func.math;
 
-import static com.github.dakusui.lisj.Basic.get;
-import static com.github.dakusui.lisj.Basic.length;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.func.BaseFunc;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import static com.github.dakusui.lisj.Basic.get;
+import static com.github.dakusui.lisj.Basic.length;
 
 public abstract class NumCast extends BaseFunc {
 

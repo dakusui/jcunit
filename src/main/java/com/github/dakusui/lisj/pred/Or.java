@@ -1,7 +1,6 @@
 package com.github.dakusui.lisj.pred;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
@@ -19,7 +18,7 @@ public class Or extends LogicalMultinominalPredicate {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-    FormResult lastResult) throws JCUnitException, CUT {
+      FormResult lastResult) throws JCUnitException, CUT {
     return evaluateEach(true, context, currentParam, lastResult);
   }
 }

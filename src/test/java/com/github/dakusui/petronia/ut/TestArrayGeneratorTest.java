@@ -1,27 +1,20 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.GeneratorParameters.Value;
 import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import org.junit.Test;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
 
 public abstract class TestArrayGeneratorTest {
   @Test
   public void makeSureAllThePossibleValuesOfEachFieldAreCovered() {
     System.out
-        .println("*** Making sure all the possible values of each field are coverd ***");
+        .println(
+            "*** Making sure all the possible values of each field are coverd ***");
     TestArrayGenerator<String> generator = createTestArrayGenerator();
 
     LinkedHashMap<String, Object[]> d = new LinkedHashMap<String, Object[]>();
@@ -38,10 +31,11 @@ public abstract class TestArrayGeneratorTest {
     while (generator.hasNext()) {
       Map<String, Object> arr = generator.next();
       System.out.println("*** " + arr);
-      if (results.contains(arr.toString()))
+      if (results.contains(arr.toString())) {
         fail(String.format(
             "The combination '%s' appeared more than once in the test array.",
             arr.toString()));
+      }
       results.add(arr.toString());
     }
 
@@ -55,12 +49,14 @@ public abstract class TestArrayGeneratorTest {
     String s = results.toString();
 
     for (Object cur : arr.toArray(new Object[arr.size()])) {
-      if (!s.contains((String)cur)) { // We know that this object is actually a string.
+      if (!s.contains(
+          (String) cur)) { // We know that this object is actually a string.
         fail(String.format("Value '%s' isn't covered.", cur));
       }
     }
     System.out
-        .println("********************************************************************");
+        .println(
+            "********************************************************************");
   }
 
   protected abstract TestArrayGenerator<String> createTestArrayGenerator();

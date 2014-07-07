@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
+import org.junit.Test;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
-
-import org.junit.Test;
 
 public class ValuePairTest {
   @Test

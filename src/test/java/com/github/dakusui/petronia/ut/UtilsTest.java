@@ -1,61 +1,58 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.core.DomainGenerator;
 import com.github.dakusui.jcunit.core.In;
+import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.core.Out;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.In.Domain;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class UtilsTest {
   @In
-  public String  a = "field-a";
+  public String a = "field-a";
 
   @Out
-  public String  b = "field-b";
+  public String b = "field-b";
 
-  public String  c = "field-c";
-
-  @In
-  public int     intField;
+  public String c = "field-c";
 
   @In
-  public long    longField;
+  public int intField;
 
   @In
-  public short   shortField;
+  public long longField;
 
   @In
-  public byte    byteField;
+  public short shortField;
 
   @In
-  public float   floatField;
+  public byte byteField;
 
   @In
-  public double  doubleField;
+  public float floatField;
 
   @In
-  public char    charField;
+  public double doubleField;
+
+  @In
+  public char charField;
 
   @In
   public boolean booleanField;
 
   @In
-  public String  stringField;
+  public String stringField;
 
   @In
-  public Object  objField;
+  public Object objField;
 
   @In(
       domain = Domain.None)
-  public Object  noneField;
+  public Object noneField;
 
   @Test
   public void getFieldValue_01() {

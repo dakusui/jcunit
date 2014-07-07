@@ -9,7 +9,7 @@ public class Symbol implements Serializable {
    */
   private static final long serialVersionUID = 5209431927035873439L;
 
-  private String            name;
+  private String name;
 
   public Symbol(String name) {
     this.name = name;

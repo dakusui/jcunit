@@ -1,8 +1,8 @@
 package com.github.dakusui.lisj;
 
-import java.io.Serializable;
-
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+
+import java.io.Serializable;
 
 public interface Form extends Serializable {
   Object evaluate(Context context, Object params) throws JCUnitException, CUT;

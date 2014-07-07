@@ -1,15 +1,14 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertTrue;
-
-import java.io.Serializable;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
+import org.junit.Test;
+
+import java.io.Serializable;
+
+import static org.junit.Assert.assertTrue;
 
 public class IsInstanceOfTest extends JCUnitBase implements
     Serializable {

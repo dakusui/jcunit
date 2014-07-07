@@ -1,13 +1,5 @@
 package com.github.dakusui.jcunit.compat.generators.ipo.optimizers;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPO;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRun;
@@ -15,12 +7,19 @@ import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOValueTuple.Attr;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOValueTuple.ValueTriple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class GreedyIPOOptimizer extends IPOOptimizer {
   private static final Logger LOGGER = LoggerFactory
-                                         .getLogger(GreedyIPOOptimizer.class);
+      .getLogger(GreedyIPOOptimizer.class);
 
-  private Set<ValueTriple>    uncoveredTriples;
+  private Set<ValueTriple> uncoveredTriples;
 
   public GreedyIPOOptimizer(IPOTestSpace space) {
     super(space);
@@ -55,7 +54,8 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public Object optimizeInVG(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
+  public Object optimizeInVG(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun,
       int i) {
     Object v = IPO.DC;
     int coverings = -1;
@@ -75,8 +75,9 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
     // The index should be 1-origin.
     for (int i = 1; i <= run.width(); i++) {
       Attr attr = new Attr(i, run.get(i));
-      if (attr.value != IPO.DC)
+      if (attr.value != IPO.DC) {
         tmpAttrs.add(attr);
+      }
     }
     Combinator<Attr> comb = new Combinator<Attr>(tmpAttrs, 3);
     Set<ValueTriple> triplesToBeCovered = new HashSet<ValueTriple>();
@@ -91,15 +92,17 @@ public class GreedyIPOOptimizer extends IPOOptimizer {
   private int countTriplesNewlyCoveredBy(IPOTestRun run) {
     int ret = 0;
     for (ValueTriple cur : triplesCoveredBy(run)) {
-      if (this.uncoveredTriples.contains(cur))
+      if (this.uncoveredTriples.contains(cur)) {
         ret++;
+      }
     }
     LOGGER.trace("Triples newly covered by {}:{}", run, ret);
     return ret;
   }
 
   @Override
-  protected Object bestValueFor(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
+  protected Object bestValueFor(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun,
       int fieldId) {
     // Object ret = hgCandidates.get(hgCandidates.size() - 1);
     int maxNumCoveredTriples = -1;

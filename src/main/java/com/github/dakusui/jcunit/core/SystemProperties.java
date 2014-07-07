@@ -5,7 +5,7 @@ import java.io.File;
 /**
  * A singleton class to access system properties from inside JCUnit. JCUnit code
  * shouldn't access any system property without using this class.
- * 
+ *
  * @author hiroshi
  */
 public class SystemProperties {
@@ -16,6 +16,7 @@ public class SystemProperties {
         return "jcunit.basedir";
       }
     };
+
     public abstract String key();
   }
 

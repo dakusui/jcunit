@@ -30,8 +30,9 @@ public class IPOValueTuple extends HashMap<Integer, Object> {
 
     public ValueTriple(List<Attr> attrs) {
       super(attrs.get(0), attrs.get(1), attrs.get(2));
-      if (attrs.size() != 3)
+      if (attrs.size() != 3) {
         throw new IllegalArgumentException();
+      }
     }
   }
 
@@ -41,7 +42,8 @@ public class IPOValueTuple extends HashMap<Integer, Object> {
   private static final long serialVersionUID = 6285756323807101173L;
 
   public IPOValueTuple(Attr... attrs) {
-    for (Attr cur : attrs)
+    for (Attr cur : attrs) {
       this.put(cur.attributeIndex, cur.value);
+    }
   }
 }

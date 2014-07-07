@@ -1,15 +1,14 @@
 package com.github.dakusui.jcunit.experiments;
 
-import org.junit.runner.RunWith;
-
+import com.github.dakusui.jcunit.compat.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.constraints.Constraint;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
+import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 @Generator(CartesianTestArrayGenerator.class)
@@ -18,7 +17,8 @@ public class PictExample1 extends JCUnitBase {
   public String edition;
 
   public static String[] edition() {
-    return new String[] { "Ultimate", "Business", "Home Premium", "Home Basic" };
+    return new String[] { "Ultimate", "Business", "Home Premium",
+        "Home Basic" };
   }
 
   @In(domain = Domain.Method)
@@ -68,6 +68,7 @@ public class PictExample1 extends JCUnitBase {
   }
 
   @Constraint
-  public RuleSet constraint = this.ruleSet().incase(eq($("hd1"), "None"), not(eq($("hd2"), "None")))
+  public RuleSet constraint = this.ruleSet()
+      .incase(eq($("hd1"), "None"), not(eq($("hd2"), "None")))
       .incase(eq($("hd2"), "None"), not(eq($("hd1"), "None")));
 }

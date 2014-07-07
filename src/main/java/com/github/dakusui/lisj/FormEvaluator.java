@@ -15,7 +15,8 @@ public final class FormEvaluator {
   private final FormResult result;
   private       boolean    initialized;
 
-  public FormEvaluator(Context context, BaseForm func, Object params, FormResult formResult) {
+  public FormEvaluator(Context context, BaseForm func, Object params,
+      FormResult formResult) {
     this.form = func;
     this.params = params;
     this.context = context;
@@ -44,8 +45,9 @@ public final class FormEvaluator {
   }
 
   public boolean hasNext(FormResult lastResult) {
-    if (!this.initialized)
+    if (!this.initialized) {
       throw new IllegalStateException();
+    }
     // //
     // Since it's sure that this object is initialized, we can use
     // evaluatedResult's
@@ -77,7 +79,8 @@ public final class FormEvaluator {
     return form.handleException(this.context, e, result);
   }
 
-  public FormResult evaluateLast(FormResult lastResult) throws JCUnitException, CUT {
+  public FormResult evaluateLast(FormResult lastResult)
+      throws JCUnitException, CUT {
     FormResult ret = null;
     try {
       ret = form.evaluateLast(this.context, this.evaluatedResult, lastResult);
@@ -102,7 +105,8 @@ public final class FormEvaluator {
     }
   }
 
-  private void failEvaluation(Context context, BaseForm form, int index, JCUnitException e) {
+  private void failEvaluation(Context context, BaseForm form, int index,
+      JCUnitException e) {
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
     oList.addAll(this.context.observers());
     Collections.reverse(oList);
@@ -122,7 +126,8 @@ public final class FormEvaluator {
 
   }
 
-  private void eachEvaluation(Context context, BaseForm form, Object cur, FormResult ret) {
+  private void eachEvaluation(Context context, BaseForm form, Object cur,
+      FormResult ret) {
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
     oList.addAll(this.context.observers());
     Collections.reverse(oList);

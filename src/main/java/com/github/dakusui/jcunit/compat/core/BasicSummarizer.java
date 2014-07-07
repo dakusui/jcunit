@@ -1,28 +1,23 @@
 package com.github.dakusui.jcunit.compat.core;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-
+import com.github.dakusui.jcunit.compat.report.ReportWriter;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import com.github.dakusui.jcunit.compat.report.ReportWriter;
+import java.util.*;
 
 public class BasicSummarizer implements TestRule, Summarizer {
 
   public static class ResultMatrix {
-    private Set<String>                errorObjects = new HashSet<String>();
-    private Map<String, Result>        resultMap    = new HashMap<String, Result>();
-    Map<String, Map<Integer, Boolean>> map          = new LinkedHashMap<String, Map<Integer, Boolean>>();
+    private Set<String>         errorObjects = new HashSet<String>();
+    private Map<String, Result> resultMap    = new HashMap<String, Result>();
+    Map<String, Map<Integer, Boolean>> map    = new LinkedHashMap<String, Map<Integer, Boolean>>();
     // //
     // The order where object id's are coming in isn't sort, the client
     // side needs to sort it again either way. So, I don't use LinkedHashSet
     // here.
-    Set<Integer>                       objIds       = new HashSet<Integer>();
+    Set<Integer>                       objIds = new HashSet<Integer>();
 
     public void set(String testName, int objId, boolean result) {
       add(testName);
@@ -37,17 +32,21 @@ public class BasicSummarizer implements TestRule, Summarizer {
     }
 
     public boolean hasEntry(String testName, int objId) {
-      if (map.containsKey(testName))
-        if (map.get(testName).containsKey(objId))
+      if (map.containsKey(testName)) {
+        if (map.get(testName).containsKey(objId)) {
           return true;
+        }
+      }
       return false;
     }
 
     public boolean get(String testName, int objId) {
-      if (!map.containsKey(testName))
+      if (!map.containsKey(testName)) {
         throw new RuntimeException();
-      if (!map.get(testName).containsKey(objId))
+      }
+      if (!map.get(testName).containsKey(objId)) {
         throw new RuntimeException();
+      }
       return map.get(testName).get(objId);
     }
 
@@ -56,8 +55,9 @@ public class BasicSummarizer implements TestRule, Summarizer {
     }
 
     public Result getResultType(String testName) {
-      if (!this.resultMap.containsKey(testName))
+      if (!this.resultMap.containsKey(testName)) {
         return Result.ERR;
+      }
       return this.resultMap.get(testName);
     }
 
@@ -80,10 +80,10 @@ public class BasicSummarizer implements TestRule, Summarizer {
     OK, NG, ABT, ERR
   }
 
-  ResultMatrix     matrix = new ResultMatrix();
+  ResultMatrix matrix = new ResultMatrix();
   private RuleSet ruleSet;
 
-  ReportWriter     writer = new ReportWriter();
+  ReportWriter writer = new ReportWriter();
   private Class<?> klazz;
 
   public Statement apply(Statement base, Description description) {
@@ -144,14 +144,16 @@ public class BasicSummarizer implements TestRule, Summarizer {
     }
     for (int j = 0; j < registeredIds; j++) {
       for (int i = 0; i < headers.length; i++) {
-        if (i == ruleSet.levelOf(j))
+        if (i == ruleSet.levelOf(j)) {
           headers[i] += String.format("%02d ", j);
-        else
+        } else {
           headers[i] += "   ";
+        }
       }
     }
-    for (String h : headers)
+    for (String h : headers) {
       writeLine(h);
+    }
     String line;
     for (String testName : matrix.testNames()) {
       line = String.format("[%-3s]%-30s", this.matrix.getResultType(testName),

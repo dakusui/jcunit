@@ -1,11 +1,10 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class LambdaTest extends JCUnitBase {
   @Test
@@ -39,7 +38,9 @@ public class LambdaTest extends JCUnitBase {
             assign(
                 $("printit"),
                 lambda($("a", "b"),
-                    print(format("Hi, %s! %s\n", $("a"), $("b"))))));
+                    print(format("Hi, %s! %s\n", $("a"), $("b"))))
+            )
+        );
     assertEquals("Hi, Mayu! hello\n",
         Basic.eval(this, new Object[] { $("printit"), "Mayu", "hello" }));
   }

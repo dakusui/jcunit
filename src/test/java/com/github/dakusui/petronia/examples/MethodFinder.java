@@ -9,27 +9,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MethodFinder {
-  private Class<?>   clazz;
-  private String     methodName;
+  private Class<?> clazz;
+  private String   methodName;
   private Class<?>[] signature = new Class<?>[0];
 
   public MethodFinder setClass(Class<?> clazz) {
-    if (clazz == null)
+    if (clazz == null) {
       throw new NullPointerException();
+    }
     this.clazz = clazz;
     return this;
   }
 
   public MethodFinder setSignature(String sig) throws ClassNotFoundException {
-    if (sig == null)
+    if (sig == null) {
       throw new NullPointerException();
+    }
     this.signature = parseSignature(sig);
     return this;
   }
 
   public MethodFinder setSignature(Class<?>... sig) {
-    if (sig == null)
+    if (sig == null) {
       throw new NullPointerException();
+    }
     this.signature = sig;
     return this;
   }
@@ -49,28 +52,39 @@ public class MethodFinder {
     int c = 0;
     try {
       c = r.read();
-      if (c < 0)
+      if (c < 0) {
         return null;
-      if (c == 'Z')
+      }
+      if (c == 'Z') {
         return getClass(arrayLevel, Boolean.TYPE);
-      if (c == 'B')
+      }
+      if (c == 'B') {
         return getClass(arrayLevel, Byte.TYPE);
-      if (c == 'C')
+      }
+      if (c == 'C') {
         return getClass(arrayLevel, Character.TYPE);
-      if (c == 'S')
+      }
+      if (c == 'S') {
         return getClass(arrayLevel, Short.TYPE);
-      if (c == 'I')
+      }
+      if (c == 'I') {
         return getClass(arrayLevel, Integer.TYPE);
-      if (c == 'J')
+      }
+      if (c == 'J') {
         return getClass(arrayLevel, Long.TYPE);
-      if (c == 'F')
+      }
+      if (c == 'F') {
         return getClass(arrayLevel, Float.TYPE);
-      if (c == 'D')
+      }
+      if (c == 'D') {
         return getClass(arrayLevel, Double.TYPE);
-      if (c == 'L')
+      }
+      if (c == 'L') {
         return getClass(arrayLevel, readClassNameAndLoadTheClass(r));
-      if (c == '[')
+      }
+      if (c == '[') {
         return parseSignature(arrayLevel + 1, r);
+      }
     } catch (IOException e) {
       // since the underlying data source is a string,
       // IO exception will never happen.
@@ -80,8 +94,9 @@ public class MethodFinder {
   }
 
   private Class<?> getClass(int arrayLevel, Class<?> type) {
-    if (arrayLevel == 0)
+    if (arrayLevel == 0) {
       return type;
+    }
     int[] dimensions = new int[arrayLevel];
     // By Java language it is guaranteed that elements of int array
     // are all 0 after initialization.
@@ -95,8 +110,9 @@ public class MethodFinder {
     String className = null;
     try {
       while ((c = r.read()) != -1) {
-        if (c == ';')
+        if (c == ';') {
           return Class.forName(className = builder.toString());
+        }
         builder.append((char) c);
       }
     } catch (ClassNotFoundException e) {
@@ -113,15 +129,18 @@ public class MethodFinder {
   }
 
   public MethodFinder setName(String name) {
-    if (name == null)
+    if (name == null) {
       throw new NullPointerException();
+    }
     this.methodName = name;
     return this;
   }
 
   public Method find() throws SecurityException, NoSuchMethodException {
-    if (this.clazz == null || this.methodName == null || this.signature == null)
+    if (this.clazz == null || this.methodName == null
+        || this.signature == null) {
       throw new IllegalStateException();
+    }
     return this.clazz.getMethod(this.methodName, this.signature);
   }
 }

@@ -1,12 +1,5 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPO;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
@@ -14,6 +7,8 @@ import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
 import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.IPOOptimizer;
 import com.github.dakusui.jcunit.testutils.TestSettings;
+
+import java.util.*;
 
 public abstract class IPOTestBase {
   public static class Task {
@@ -38,7 +33,7 @@ public abstract class IPOTestBase {
   private static IPOTestSpace createRandomizedTestSpace(Task... tasks) {
     List<Object[]> work = composeTestDomain(tasks);
     Collections.shuffle(work);
-    IPOTestSpace ret = new IPOTestSpace(work.toArray(new Object[][] {}));
+    IPOTestSpace ret = new IPOTestSpace(work.toArray(new Object[][] { }));
     return ret;
   }
 
@@ -60,16 +55,16 @@ public abstract class IPOTestBase {
 
   protected static IPOTestSpace createTestSpace(Task... tasks) {
     List<Object[]> work = composeTestDomain(tasks);
-    return new IPOTestSpace(work.toArray(new Object[][] {}));
+    return new IPOTestSpace(work.toArray(new Object[][] { }));
   }
 
   protected static Task task(int numLevels, int numFactors) {
     return new Task(numLevels, numFactors);
   }
 
-  private IPO              ipo;
-  private IPOOptimizer     optimizer;
-  private IPOTestSpace        testSpace;
+  private   IPO               ipo;
+  private   IPOOptimizer      optimizer;
+  private   IPOTestSpace      testSpace;
   protected IPOTestRunSet     testRunSet;
   protected Set<IPOValuePair> allPairs;
 
@@ -93,8 +88,9 @@ public abstract class IPOTestBase {
   }
 
   private Set<IPOValuePair> createAllPairs(IPOTestSpace testSpace) {
-    if (!TestSettings.isCoveringCheckEnabled())
+    if (!TestSettings.isCoveringCheckEnabled()) {
       return new HashSet<IPOValuePair>();
+    }
     Set<IPOValuePair> ret = new HashSet<IPOValuePair>();
     List<Integer> domains = new ArrayList<Integer>();
     // domain index is 1-origin.
@@ -121,8 +117,9 @@ public abstract class IPOTestBase {
       IPOTestRunSet testRunSet = new IPO(testSpace, createOptimizer(testSpace))
           .ipo();
       int cur = testRunSet.size();
-      if (cur < min)
+      if (cur < min) {
         min = cur;
+      }
       printTestRunSet();
     }
     System.out.println("---");

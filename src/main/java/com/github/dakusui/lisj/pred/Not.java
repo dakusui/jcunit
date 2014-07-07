@@ -3,9 +3,6 @@ package com.github.dakusui.lisj.pred;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.*;
 
-import java.util.LinkedList;
-import java.util.TreeSet;
-
 public class Not extends LogicalPredicate {
   /**
    * Serial version UID.

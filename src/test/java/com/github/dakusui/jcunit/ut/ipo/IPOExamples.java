@@ -1,14 +1,13 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
-import static org.junit.Assert.assertEquals;
+import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
+import com.github.dakusui.jcunit.testutils.TestSettings;
+import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Test;
-
-import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
-import com.github.dakusui.jcunit.testutils.TestSettings;
+import static org.junit.Assert.assertEquals;
 
 public abstract class IPOExamples extends IPOTestBase {
   private static final List<IPOValuePair> EMPTY_LIST = new LinkedList<IPOValuePair>();

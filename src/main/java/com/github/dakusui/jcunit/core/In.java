@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * An annotation to tell JCUnit framework that a field is an input and the value
  * should be changed by the framework.
- * 
+ *
  * @author hiroshi
  */
 @Target(ElementType.FIELD)
@@ -38,7 +38,7 @@ public @interface In {
    * In case the annotated field isn't primitive, determines if
    * <code>null</code> is included in the domain. If the field's domain is not
    * <code>Default</code> this parameter will be ignored.
-   * 
+   *
    * @return true - null will be included / false - null won't be included.
    */
   public boolean includeNull() default true;

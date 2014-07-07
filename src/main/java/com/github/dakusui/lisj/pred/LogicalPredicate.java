@@ -3,8 +3,6 @@ package com.github.dakusui.lisj.pred;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.*;
 
-import java.util.LinkedList;
-
 public abstract class LogicalPredicate extends BasePredicate {
   /**
    * Serial version UID.
@@ -28,8 +26,9 @@ public abstract class LogicalPredicate extends BasePredicate {
   protected Object checkParams(Object params) {
     super.checkParams(params);
     for (Object cur : Basic.iterator(params)) {
-      if (cur == null)
+      if (cur == null) {
         throw new IllegalArgumentException();
+      }
     }
     return params;
   }

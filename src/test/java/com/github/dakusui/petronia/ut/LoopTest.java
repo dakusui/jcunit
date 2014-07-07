@@ -1,13 +1,12 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 import com.github.dakusui.lisj.Basic;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class LoopTest extends JCUnitBase {
 
@@ -28,7 +27,9 @@ public class LoopTest extends JCUnitBase {
             assign($("i"), 0),
             loop(lt($("i"), 10),
                 print(format("@@@@@@@@ %s @@@@@@@@\n", $("i"))),
-                assign($("i"), add($("i"), 1)))));
+                assign($("i"), add($("i"), 1)))
+        )
+    );
 
     assertEquals(Utils.bigDecimal(10), Basic.eval(this, $("i")));
   }
@@ -60,7 +61,8 @@ public class LoopTest extends JCUnitBase {
     Basic.eval(
         this,
         loop(format("<%s>", lt($("i"), 1)), print($("i")),
-            assign($("i"), add($("i"), 1))));
+            assign($("i"), add($("i"), 1)))
+    );
     assertEquals(Utils.bigDecimal(1), Basic.eval(this, $("i")));
   }
 }

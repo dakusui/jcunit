@@ -1,15 +1,10 @@
 package com.github.dakusui.lisj.special;
 
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.lisj.*;
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.lisj.BaseForm;
-import com.github.dakusui.lisj.CUT;
-import com.github.dakusui.lisj.Context;
-import com.github.dakusui.lisj.Form;
-import com.github.dakusui.lisj.FormResult;
-
-import static com.github.dakusui.lisj.Basic.*;
+import static com.github.dakusui.lisj.Basic.length;
 
 public class Eval extends BaseForm {
 
@@ -46,7 +41,8 @@ public class Eval extends BaseForm {
   @Override
   protected Object checkParams(Object params) {
     if (length(super.checkParams(params)) < 1) {
-      throw new IllegalArgumentException(msgParameterLengthWrong(">=0", params));
+      throw new IllegalArgumentException(
+          msgParameterLengthWrong(">=0", params));
     }
     return params;
   }

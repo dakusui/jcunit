@@ -1,13 +1,12 @@
 package com.github.dakusui.petronia.ut.forms;
 
-import org.junit.Before;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.Form;
+import org.junit.Before;
 
 public abstract class FormTestBase {
   private Form    form;
@@ -27,7 +26,7 @@ public abstract class FormTestBase {
 
   /**
    * This method should be used from inside each test method.
-   * 
+   *
    * @throws CUT
    * @throws JCUnitException
    */
@@ -36,7 +35,6 @@ public abstract class FormTestBase {
   }
 
   /**
-   * 
    * @param params
    * @return
    * @throws JCUnitException

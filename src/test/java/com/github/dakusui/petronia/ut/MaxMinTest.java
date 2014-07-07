@@ -1,14 +1,13 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class MaxMinTest extends JCUnitBase {
   @Test

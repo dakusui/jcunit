@@ -12,15 +12,16 @@ public class SymbolNotFoundException extends JCUnitException {
    * Creates an object of this class.
    *
    * @param symbolNames Comma separated symbol names.
-   * @param t A nested exception
+   * @param t           A nested exception
    */
   public SymbolNotFoundException(String symbolNames, Throwable t) {
-    super(formatSymbolNames(symbolNames),  t);
-    this.symbolNames= symbolNames;
+    super(formatSymbolNames(symbolNames), t);
+    this.symbolNames = symbolNames;
   }
 
   static private String formatSymbolNames(String symbolNames) {
-    String msg = String.format("The symbol(s) '%s' weren't found.", symbolNames);
+    String msg = String
+        .format("The symbol(s) '%s' weren't found.", symbolNames);
     return msg;
   }
 

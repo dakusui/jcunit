@@ -14,7 +14,8 @@ public class ModuloIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  protected Object bestValueFor(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
+  protected Object bestValueFor(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun,
       int fieldId) {
     Object ret = this.hgCandidates.get(this.counter % this.hgCandidates.size());
     this.counter++;
@@ -22,7 +23,8 @@ public class ModuloIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public Object optimizeInVG(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
+  public Object optimizeInVG(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun,
       int i) {
     Object[] values = this.space.domainOf(i);
     Object ret = values[this.counter % values.length];

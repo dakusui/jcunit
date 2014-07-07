@@ -1,25 +1,20 @@
 package com.github.dakusui.jcunit.compat.auto;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-
 import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
+import java.io.*;
+import java.lang.reflect.Field;
+
 /**
  * A function that stores a value of a field of a given object.
- * 
+ * <p/>
  * This function returns <code>true</code> as long as the storing procedure is
  * successful.
- * 
- * @see AutoBase
+ *
  * @author hiroshi
+ * @see AutoBase
  */
 public class Store extends AutoBase {
   /**

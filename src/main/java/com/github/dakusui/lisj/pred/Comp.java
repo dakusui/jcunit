@@ -1,10 +1,10 @@
 package com.github.dakusui.lisj.pred;
 
-import static com.github.dakusui.lisj.Basic.get;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+
+import static com.github.dakusui.lisj.Basic.get;
 
 public abstract class Comp extends BinomialPredicate {
   /**
@@ -28,12 +28,14 @@ public abstract class Comp extends BinomialPredicate {
     Object value = evaluatedParams[0];
     Object another = evaluatedParams[1];
 
-    if (value == null || !(value instanceof Comparable))
+    if (value == null || !(value instanceof Comparable)) {
       throw new IllegalArgumentException(msgIllegalArgumentFound(value,
           evaluatedParams));
-    if (another == null || !(another instanceof Comparable))
+    }
+    if (another == null || !(another instanceof Comparable)) {
       throw new IllegalArgumentException(msgIllegalArgumentFound(another,
           evaluatedParams));
+    }
 
     ret.value(evaluate(value, another));
     return ret;

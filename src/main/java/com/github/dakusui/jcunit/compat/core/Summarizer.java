@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.compat.core;
 
-import com.github.dakusui.jcunit.compat.core.RuleSet;
 import org.junit.rules.TestRule;
 
 public interface Summarizer extends TestRule {

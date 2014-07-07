@@ -1,10 +1,9 @@
 package com.github.dakusui.lisj.basic;
 
-import static org.junit.Assert.assertEquals;
-
+import com.github.dakusui.lisj.Basic;
 import org.junit.Test;
 
-import com.github.dakusui.lisj.Basic;
+import static org.junit.Assert.assertEquals;
 
 public class ToStrTest {
   @Test
@@ -21,7 +20,8 @@ public class ToStrTest {
 
   @Test
   public void tostr_FQCNlikeString_true_3() {
-    assertEquals("World#Test", Basic.tostr("com.github.hello.World#Test", true));
+    assertEquals("World#Test",
+        Basic.tostr("com.github.hello.World#Test", true));
   }
 
   @Test

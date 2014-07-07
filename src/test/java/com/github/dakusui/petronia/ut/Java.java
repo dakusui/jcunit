@@ -1,13 +1,12 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
-import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.In;
+import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class Java extends JCUnitBase {
   @In

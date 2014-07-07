@@ -3,8 +3,8 @@ package com.github.dakusui.jcunit.ipo2;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.constraints.ConstraintObserver;
 import com.github.dakusui.jcunit.core.Factors;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
 
@@ -74,7 +74,8 @@ public class ConstraintTest extends IPO2Test {
   @Test
   public void test_001a() {
     int strength = 2;
-    this.setProhibitedTuples(new Tuple.Builder().put("F1", "L1x").put("F2", "L2x").build());
+    this.setProhibitedTuples(
+        new Tuple.Builder().put("F1", "L1x").put("F2", "L2x").build());
 
     Factors factors = new Factors.Builder()
         .add(factor("F1", "L11", "L1x"))
@@ -93,7 +94,8 @@ public class ConstraintTest extends IPO2Test {
   @Test
   public void test_001b() {
     int strength = 3;
-    this.setProhibitedTuples(new Tuple.Builder().put("F1", "L1x").put("F2", "L2x").build());
+    this.setProhibitedTuples(
+        new Tuple.Builder().put("F1", "L1x").put("F2", "L2x").build());
 
     Factors factors = new Factors.Builder()
         .add(factor("F1", "L11", "L1x"))

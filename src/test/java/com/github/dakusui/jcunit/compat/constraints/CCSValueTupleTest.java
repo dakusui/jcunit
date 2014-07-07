@@ -29,7 +29,7 @@ public class CCSValueTupleTest {
 
     assertThat(merged.size(), is(1));
     assertThat(merged.containsKey("A1"), is(true));
-    assertThat(merged.get("A1"), is((Object)"V11"));
+    assertThat(merged.get("A1"), is((Object) "V11"));
   }
 
   @Test
@@ -42,7 +42,7 @@ public class CCSValueTupleTest {
 
     assertThat(merged.size(), is(1));
     assertThat(merged.containsKey("A1"), is(true));
-    assertThat(merged.get("A1"), is((Object)"V11"));
+    assertThat(merged.get("A1"), is((Object) "V11"));
   }
 
   @Test
@@ -56,7 +56,7 @@ public class CCSValueTupleTest {
 
     assertThat(merged.size(), is(1));
     assertThat(merged.containsKey("A1"), is(true));
-    assertThat(merged.get("A1"), is((Object)"V11"));
+    assertThat(merged.get("A1"), is((Object) "V11"));
   }
 
   @Test
@@ -70,9 +70,9 @@ public class CCSValueTupleTest {
 
     assertThat(merged.size(), is(2));
     assertThat(merged.containsKey("A1"), is(true));
-    assertThat(merged.get("A1"), is((Object)"V11"));
+    assertThat(merged.get("A1"), is((Object) "V11"));
     assertThat(merged.containsKey("A2"), is(true));
-    assertThat(merged.get("A2"), is((Object)"V21"));
+    assertThat(merged.get("A2"), is((Object) "V21"));
   }
 
   @Test
@@ -87,9 +87,9 @@ public class CCSValueTupleTest {
 
     assertThat(merged.size(), is(2));
     assertThat(merged.containsKey("A1"), is(true));
-    assertThat(merged.get("A1"), is((Object)"V11"));
+    assertThat(merged.get("A1"), is((Object) "V11"));
     assertThat(merged.containsKey("A2"), is(true));
-    assertThat(merged.get("A2"), is((Object)"V21"));
+    assertThat(merged.get("A2"), is((Object) "V21"));
   }
 
   @Test

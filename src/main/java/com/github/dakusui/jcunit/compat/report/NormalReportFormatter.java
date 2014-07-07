@@ -1,37 +1,27 @@
 package com.github.dakusui.jcunit.compat.report;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.junit.runner.Description;
-
 import com.github.dakusui.jcunit.compat.core.BasicSummarizer.ResultMatrix;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.compat.core.RuleSet.Pair;
 import com.github.dakusui.jcunit.compat.core.RuleSet.RuleIgnored;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 import com.github.dakusui.jcunit.compat.report.Reporter.Domain;
 import com.github.dakusui.jcunit.compat.report.Reporter.FieldSet;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 import com.github.dakusui.lisj.Basic;
+import org.apache.commons.lang3.ArrayUtils;
+import org.junit.runner.Description;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 public class NormalReportFormatter implements ReportFormatter {
-  private static final String  OTHERWISECLAUSE_FORMAT = "(otherwise-%d)";
+  private static final String OTHERWISECLAUSE_FORMAT = "(otherwise-%d)";
 
-  private Map<Object, Integer> idMap                  = new IdentityHashMap<Object, Integer>();
-  private Map<Object, Integer> levelMap               = new HashMap<Object, Integer>();
-  private Set<Integer>         leaves                 = new HashSet<Integer>();
+  private Map<Object, Integer> idMap    = new IdentityHashMap<Object, Integer>();
+  private Map<Object, Integer> levelMap = new HashMap<Object, Integer>();
+  private Set<Integer>         leaves   = new HashSet<Integer>();
 
-  private char                 domainKeycode;
+  private char domainKeycode;
 
   public NormalReportFormatter() {
   }
@@ -94,10 +84,11 @@ public class NormalReportFormatter implements ReportFormatter {
     boolean firstTime = true;
     char keyCode = 'A';
     for (int i = 0; i < numKeys; i++) {
-      if (firstTime)
+      if (firstTime) {
         firstTime = false;
-      else
+      } else {
         header += ",";
+      }
       header += String.format("%-2s", keyCode);
       keyCode++;
     }
@@ -110,10 +101,11 @@ public class NormalReportFormatter implements ReportFormatter {
       firstTime = true;
       for (Field key : testArrayGenerator.getKeys()) {
         int valueCode = testArrayGenerator.getIndex(key, i);
-        if (firstTime)
+        if (firstTime) {
           firstTime = false;
-        else
+        } else {
           line += ",";
+        }
         line += String.format("%02d", valueCode);
       }
       writer.writeLine(klazz, 1, line);
@@ -139,14 +131,16 @@ public class NormalReportFormatter implements ReportFormatter {
     }
     for (int j = 0; j < registeredIds; j++) {
       for (int i = 0; i < headers.length; i++) {
-        if (i == ruleSet.levelOf(j))
+        if (i == ruleSet.levelOf(j)) {
           headers[i] += String.format("%02d ", j);
-        else
+        } else {
           headers[i] += "   ";
+        }
       }
     }
-    for (String h : headers)
+    for (String h : headers) {
       writer.writeLine(klazz, 0, h);
+    }
     String line;
     for (String testName : matrix.testNames()) {
       line = String.format("[%-3s]%-30s", matrix.getResultType(testName),
@@ -207,18 +201,21 @@ public class NormalReportFormatter implements ReportFormatter {
           RuleSet nestedRuleSet = (RuleSet) nested;
           try {
             passed &= this.apply(writer, desc, nestedRuleSet, indent + 1);
-            if (cur.cut())
+            if (cur.cut()) {
               break;
+            }
           } catch (RuleIgnored e) {
             passed = false;
-            if (e.source() == nested)
+            if (e.source() == nested) {
               continue;
+            }
           }
         } else {
           passed &= this.expect(writer, desc, indent, nested,
               cur.nestedResult());
-          if (cur.cut())
+          if (cur.cut()) {
             break;
+          }
         }
       }
     }
@@ -381,21 +378,19 @@ public class NormalReportFormatter implements ReportFormatter {
    * is executed, it needs to identify which object corresponding to which
    * object in another run. JCUnit figures out this based on the fact that the
    * rule objects are instantiated in the same order for each run.
-   * 
-   * @param ruleSet
-   *          A <code>RuleSet</code> object
-   * @param nextIdTobeUsed
-   *          The id to be used the next time.
-   * @param level
-   *          the current level of the object.
+   *
+   * @param ruleSet        A <code>RuleSet</code> object
+   * @param nextIdTobeUsed The id to be used the next time.
+   * @param level          the current level of the object.
    * @return The next id number to be passed to this method.
    */
   private int identifyObjects(RuleSet ruleSet, int nextIdTobeUsed, int level) {
     List<Pair> rules = new LinkedList<Pair>();
     rules.addAll(ruleSet.rulePairs());
     Pair otherwise = ruleSet.otherwise();
-    if (otherwise != null)
+    if (otherwise != null) {
       rules.add(otherwise);
+    }
     for (Pair p : ruleSet.rulePairs()) {
       Object cond = p.cond();
       if (OTHERWISECLAUSE_FORMAT.equals(cond)) {

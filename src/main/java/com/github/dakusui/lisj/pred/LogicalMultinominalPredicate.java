@@ -10,7 +10,8 @@ import com.github.dakusui.lisj.FormResult;
  * Created by hiroshi on 5/28/14.
  */
 public abstract class LogicalMultinominalPredicate extends LogicalPredicate {
-  protected final FormResult evaluateEach(boolean shortCuttingValue, Context context, Object currentParam,
+  protected final FormResult evaluateEach(boolean shortCuttingValue,
+      Context context, Object currentParam,
       FormResult lastResult) throws JCUnitException, CUT {
     FormResult ret = super.evaluateEach(context, currentParam, lastResult);
     if (ret.value() instanceof Boolean) {
@@ -29,24 +30,28 @@ public abstract class LogicalMultinominalPredicate extends LogicalPredicate {
   protected FormResult handleException(Context context,
       JCUnitException e, FormResult result)
       throws JCUnitException {
-    if (context.allowsUnboundSymbols() && e instanceof SymbolNotFoundException) {
+    if (context.allowsUnboundSymbols()
+        && e instanceof SymbolNotFoundException) {
       result.addIgnoredException(e);
       return result;
-    }
-    else
+    } else {
       return super.handleException(context, e, result);
+    }
   }
 
   @Override
   protected FormResult evaluateLast(Context context,
       Object[] evaluatedParams,
       FormResult lastResult) throws JCUnitException {
-    if (context.allowsUnboundSymbols() && lastResult.ignoredExceptions().size() > 0) {
+    if (context.allowsUnboundSymbols()
+        && lastResult.ignoredExceptions().size() > 0) {
       StringBuilder symbolNames = new StringBuilder();
       for (JCUnitException e : lastResult.ignoredExceptions()) {
         if (e instanceof SymbolNotFoundException) {
           SymbolNotFoundException ee = (SymbolNotFoundException) e;
-          if (symbolNames.length() > 0) symbolNames.append(",");
+          if (symbolNames.length() > 0) {
+            symbolNames.append(",");
+          }
           symbolNames.append(ee.getSymbolNames());
         } else {
           ////

@@ -1,18 +1,17 @@
 package com.github.dakusui.petronia.examples;
 
+import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
+import com.github.dakusui.jcunit.compat.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
+import com.github.dakusui.jcunit.compat.core.Summarizer;
+import com.github.dakusui.jcunit.core.In;
+import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.core.Out;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.In;
-import com.github.dakusui.jcunit.compat.core.JCUnit;
-import com.github.dakusui.jcunit.core.Out;
-import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.compat.core.Summarizer;
 
 @RunWith(JCUnit.class)
 public class CalcTest5 {
@@ -25,12 +24,12 @@ public class CalcTest5 {
   }
 
   @Out
-  public String            out;
+  public String out;
 
   @Rule
-  public RuleSet           rules      = new JCUnitBase()
-                                          .autoRuleSet(this).summarizer(
-                                              summarizer);
+  public RuleSet rules = new JCUnitBase()
+      .autoRuleSet(this).summarizer(
+          summarizer);
 
   @ClassRule
   public static Summarizer summarizer = new BasicSummarizer();

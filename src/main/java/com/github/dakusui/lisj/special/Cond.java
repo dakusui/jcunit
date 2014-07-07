@@ -1,11 +1,7 @@
 package com.github.dakusui.lisj.special;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.lisj.BaseForm;
-import com.github.dakusui.lisj.Basic;
-import com.github.dakusui.lisj.CUT;
-import com.github.dakusui.lisj.Context;
-import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.*;
 
 public class Cond extends BaseForm {
   /**
@@ -29,8 +25,9 @@ public class Cond extends BaseForm {
         throw e;
       }
     } finally {
-      if (successfullyEvaluated)
+      if (successfullyEvaluated) {
         cut(ret.value());
+      }
     }
     return ret;
   }

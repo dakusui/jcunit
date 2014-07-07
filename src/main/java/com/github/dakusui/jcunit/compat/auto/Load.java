@@ -1,16 +1,11 @@
 package com.github.dakusui.jcunit.compat.auto;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-
 import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+
+import java.io.*;
+import java.lang.reflect.Field;
 
 public class Load extends AutoBase {
   /**

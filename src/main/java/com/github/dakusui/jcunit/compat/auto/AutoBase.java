@@ -1,12 +1,9 @@
 package com.github.dakusui.jcunit.compat.auto;
 
-import java.io.File;
-import java.lang.reflect.Field;
-
-import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
-import com.github.dakusui.jcunit.core.encoders.ObjectEncoders;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
+import com.github.dakusui.jcunit.core.encoders.ObjectEncoders;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
@@ -14,17 +11,20 @@ import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.func.BaseFunc;
 
+import java.io.File;
+import java.lang.reflect.Field;
+
 /**
  * An abstract base class for 'automatic capture-replay based tests'.
- * 
+ * <p/>
  * Below are the list of valid parameters for subclasses of this class.
- * 
+ * <p/>
  * <ol>
  * <li>String testName: A name of a test.</li>
  * <li>Object obj: An object under the test.</li>
  * <li>String fieldName: A name of a field to be tested.</li>
  * </ol>
- * 
+ *
  * @author hiroshi
  */
 public abstract class AutoBase extends BaseFunc {
@@ -35,14 +35,15 @@ public abstract class AutoBase extends BaseFunc {
 
   /**
    * This function takes one and only one parameter, which is a name of a field.
-   * 
+   *
    * @see com.github.dakusui.lisj.BaseForm#checkParams(java.lang.Object)
    */
   @Override
   protected Object checkParams(Object params) {
     super.checkParams(params);
-    if (Basic.length(params) != 3)
+    if (Basic.length(params) != 3) {
       throw new IllegalArgumentException();
+    }
     Utils.checknotnull(Basic.get(params, 0));
     if (!(Basic.get(params, 0) instanceof String)) {
       throw new IllegalArgumentException();
@@ -77,7 +78,7 @@ public abstract class AutoBase extends BaseFunc {
 
   /**
    * Returns base directory to output the values of '@Out' annotated fields.
-   * 
+   *
    * @return The base directory.
    */
   protected File baseDir() {

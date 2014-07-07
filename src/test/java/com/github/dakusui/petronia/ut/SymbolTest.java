@@ -1,18 +1,15 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Symbol;
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 public class SymbolTest extends JCUnitBase {
   @Test

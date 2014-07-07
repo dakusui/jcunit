@@ -11,12 +11,14 @@ public class NaiveIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  protected Object bestValueFor(IPOTestRunSet currentTestRunSet, IPOTestRun testRun, int fieldId) {
+  protected Object bestValueFor(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun, int fieldId) {
     return this.hgCandidates.get(hgCandidates.size() - 1);
   }
 
   @Override
-  public Object optimizeInVG(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
+  public Object optimizeInVG(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun,
       int i) {
     return this.space.value(i, 1);
   }

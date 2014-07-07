@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
+import com.github.dakusui.jcunit.compat.core.JCUnit;
+import com.github.dakusui.jcunit.compat.generators.PairwiseTestArrayGenerator;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.In;
 import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.compat.core.JCUnit;
-import com.github.dakusui.jcunit.compat.generators.PairwiseTestArrayGenerator;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

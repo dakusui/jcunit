@@ -1,21 +1,21 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertArrayEquals;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
+import org.junit.Test;
+
+import static org.junit.Assert.assertArrayEquals;
 
 public class QuoteTest extends JCUnitBase {
   @Test
   public void quote_00() throws Exception {
-    assertArrayEquals(new Object[] {}, (Object[]) (Basic.eval(this, quote())));
+    assertArrayEquals(new Object[] { }, (Object[]) (Basic.eval(this, quote())));
   }
 
   @Test
   public void quote_01() throws Exception {
-    assertArrayEquals(new Object[] { 1 }, (Object[]) Basic.eval(this, quote(1)));
+    assertArrayEquals(new Object[] { 1 },
+        (Object[]) Basic.eval(this, quote(1)));
   }
 
   @Test

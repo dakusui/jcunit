@@ -1,13 +1,12 @@
 package com.github.dakusui.lisj.func.str;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.func.BaseFunc;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import static com.github.dakusui.lisj.Basic.*;
+import static com.github.dakusui.lisj.Basic.length;
 
 public class Concat extends BaseFunc {
   /**

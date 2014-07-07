@@ -1,14 +1,10 @@
 package com.github.dakusui.lisj.special;
 
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.lisj.*;
+
 import static com.github.dakusui.lisj.Basic.get;
 import static com.github.dakusui.lisj.Basic.length;
-
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.lisj.BaseForm;
-import com.github.dakusui.lisj.CUT;
-import com.github.dakusui.lisj.Context;
-import com.github.dakusui.lisj.FormResult;
-import com.github.dakusui.lisj.Symbol;
 
 public class Assign extends BaseForm {
 
@@ -18,7 +14,8 @@ public class Assign extends BaseForm {
   private static final long serialVersionUID = 4109334578076480349L;
 
   @Override
-  protected FormResult evaluateEach(Context context, Object currentParam, FormResult lastResult)
+  protected FormResult evaluateEach(Context context, Object currentParam,
+      FormResult lastResult)
       throws JCUnitException, CUT {
     FormResult ret = lastResult;
 
@@ -33,7 +30,8 @@ public class Assign extends BaseForm {
   }
 
   @Override
-  protected FormResult evaluateLast(Context context, Object[] evaluatedParams, FormResult lastResult)
+  protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
+      FormResult lastResult)
       throws JCUnitException {
     FormResult ret = lastResult;
 
@@ -47,10 +45,12 @@ public class Assign extends BaseForm {
   @Override
   public Object checkParams(Object params) {
     super.checkParams(params);
-    if (length(params) != 2)
+    if (length(params) != 2) {
       throw new IllegalArgumentException(msgParameterLengthWrong(2, params));
-    if (!(get(params, 0) instanceof Symbol))
+    }
+    if (!(get(params, 0) instanceof Symbol)) {
       throw new IllegalArgumentException();
+    }
     return params;
   }
 }

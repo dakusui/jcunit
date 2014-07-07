@@ -1,8 +1,5 @@
 package com.github.dakusui.petronia.suites;
 
-import java.net.MalformedURLException;
-import java.util.Set;
-
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -10,6 +7,9 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+
+import java.net.MalformedURLException;
+import java.util.Set;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ ExampleSuite.class, UnitTests.class,

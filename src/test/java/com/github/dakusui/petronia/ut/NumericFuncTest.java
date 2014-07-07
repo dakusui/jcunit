@@ -1,22 +1,14 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.math.BigDecimal;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.lisj.Basic;
-import com.github.dakusui.lisj.func.math.Add;
-import com.github.dakusui.lisj.func.math.Div;
-import com.github.dakusui.lisj.func.math.Max;
-import com.github.dakusui.lisj.func.math.Min;
-import com.github.dakusui.lisj.func.math.Mul;
-import com.github.dakusui.lisj.func.math.Sub;
+import com.github.dakusui.lisj.func.math.*;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+
+import static org.junit.Assert.*;
 
 public class NumericFuncTest extends JCUnitBase {
   int    intnum    = 1;

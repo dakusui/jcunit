@@ -1,10 +1,10 @@
 package com.github.dakusui.lisj.func.math;
 
-import java.math.BigDecimal;
-
 import com.github.dakusui.lisj.Context;
 
-import static com.github.dakusui.lisj.Basic.*;
+import java.math.BigDecimal;
+
+import static com.github.dakusui.lisj.Basic.length;
 
 public class Div extends NumericFunc {
 
@@ -18,10 +18,11 @@ public class Div extends NumericFunc {
       BigDecimal[] evaluatedParams) {
     BigDecimal ret = null;
     for (BigDecimal cur : evaluatedParams) {
-      if (ret == null)
+      if (ret == null) {
         ret = cur;
-      else
+      } else {
         ret = ret.divide(cur, context.bigDecimalMathContext());
+      }
     }
     return ret;
   }

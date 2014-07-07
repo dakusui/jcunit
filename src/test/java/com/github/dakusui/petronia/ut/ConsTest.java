@@ -1,50 +1,44 @@
 package com.github.dakusui.petronia.ut;
 
-import static com.github.dakusui.lisj.Basic.NIL;
-import static com.github.dakusui.lisj.Basic.car;
-import static com.github.dakusui.lisj.Basic.cdr;
-import static com.github.dakusui.lisj.Basic.cons;
-import static com.github.dakusui.lisj.Basic.eq;
-import static com.github.dakusui.lisj.Basic.length;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.github.dakusui.lisj.Basic;
+import org.apache.commons.lang3.ArrayUtils;
+import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Test;
-
-import com.github.dakusui.lisj.Basic;
+import static com.github.dakusui.lisj.Basic.*;
+import static org.junit.Assert.*;
 
 public class ConsTest {
   private static final Object ARR_54 = cons(1, cons(2, cons(3, cons(4, NIL))));
   private static final Object ARR_53 = cons(1, new Object[] { 2, 3, 4, NIL });
   private static final Object ARR_52 = cons(
-                                         1,
-                                         cons(2,
-                                             cons(3, cons(4, cons(NIL, NIL)))));
+      1,
+      cons(2,
+          cons(3, cons(4, cons(NIL, NIL))))
+  );
   private static final Object ARR_51 = new Object[] { 1, 2, 3, 4, NIL };
   private static final Object ARR_24 = cons(1, cons(NIL, cons(3, cons(4, 5))));
   private static final Object ARR_23 = cons(1, new Object[] { NIL, 3, 4, 5 });
   private static final Object ARR_22 = cons(
-                                         1,
-                                         cons(NIL,
-                                             cons(3, cons(4, cons(5, NIL)))));
+      1,
+      cons(NIL,
+          cons(3, cons(4, cons(5, NIL))))
+  );
   private static final Object ARR_21 = new Object[] { 1, NIL, 3, 4, 5 };
   private static final Object ARR_14 = cons(NIL, cons(2, cons(3, cons(4, 5))));
   private static final Object ARR_13 = cons(NIL, new Object[] { 2, 3, 4, 5 });
   private static final Object ARR_12 = cons(
-                                         NIL,
-                                         cons(2, cons(3, cons(4, cons(5, NIL)))));
+      NIL,
+      cons(2, cons(3, cons(4, cons(5, NIL)))));
   private static final Object ARR_11 = new Object[] { NIL, 2, 3, 4, 5 };
   private static final Object ARR_04 = cons(1, cons(2, cons(3, cons(4, 5))));
   private static final Object ARR_03 = cons(1, new Object[] { 2, 3, 4, 5 });
   private static final Object ARR_02 = cons(
-                                         1,
-                                         cons(2, cons(3, cons(4, cons(5, NIL)))));
+      1,
+      cons(2, cons(3, cons(4, cons(5, NIL)))));
   private static final Object ARR_01 = new Object[] { 1, 2, 3, 4, 5 };
 
   @Test
@@ -185,7 +179,7 @@ public class ConsTest {
 
   @Test
   public void length_0() {
-    Object arr = new Object[] {};
+    Object arr = new Object[] { };
     assertEquals(0, length(arr));
   }
 
@@ -311,7 +305,7 @@ public class ConsTest {
   }
 
   public void atom_02() {
-    assertEquals(true, Basic.atom(new Object[] {}));
+    assertEquals(true, Basic.atom(new Object[] { }));
   }
 
   public void atom_03() {

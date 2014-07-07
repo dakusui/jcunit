@@ -4,26 +4,27 @@ package com.github.dakusui.jcunit.compat.generators.ipo;
  * A class that represents the value pair. In IPO algorithm, all the possible
  * value pairs(that are represented by this class) must be covered by output
  * result (CA; Covering Array).
- * 
+ *
  * @author hiroshi
  */
 public class IPOValuePair {
-  int A;
+  int    A;
   Object r;
-  int B;
+  int    B;
   Object s;
 
   /**
    * Creates an object of this class.
-   * 
+   *
    * @param A
    * @param r
    * @param B
    * @param s
    */
   public IPOValuePair(int A, Object r, int B, Object s) {
-    if (A == B)
+    if (A == B) {
       throw new IllegalArgumentException();
+    }
     if (A < B) {
       this.A = A;
       this.r = r;
@@ -42,7 +43,8 @@ public class IPOValuePair {
    */
   @Override
   public int hashCode() {
-    return this.A + ((this.r == null) ? 0 : this.r.hashCode()) + this.B + ((this.s == null) ? 0 : this.s.hashCode());
+    return this.A + ((this.r == null) ? 0 : this.r.hashCode()) + this.B + ((
+        this.s == null) ? 0 : this.s.hashCode());
   }
 
   /**
@@ -52,7 +54,7 @@ public class IPOValuePair {
    * swap the values of <code>A</code> and </code>B</code>, and also
    * <code>r</code> and <code>s</code>, it should still remain equal to the
    * original object.
-   * 
+   *
    * @return true - anotherObject is equal to this object / false - otherwise.
    */
   @Override
@@ -64,23 +66,29 @@ public class IPOValuePair {
       return false;
     }
     IPOValuePair another = (IPOValuePair) anotherObject;
-    if (this.A != another.A)
+    if (this.A != another.A) {
       return false;
-    if (this.B != another.B)
+    }
+    if (this.B != another.B) {
       return false;
+    }
     if (this.r == null) {
-      if (another.r != null)
+      if (another.r != null) {
         return false;
+      }
     } else {
-      if (!this.r.equals(another.r))
+      if (!this.r.equals(another.r)) {
         return false;
+      }
     }
     if (this.s == null) {
-      if (another.s != null)
+      if (another.s != null) {
         return false;
+      }
     } else {
-      if (!this.s.equals(another.s))
+      if (!this.s.equals(another.s)) {
         return false;
+      }
     }
     return true;
   }

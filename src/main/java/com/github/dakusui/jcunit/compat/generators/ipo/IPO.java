@@ -1,20 +1,15 @@
 package com.github.dakusui.jcunit.compat.generators.ipo;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-
+import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.IPOOptimizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.IPOOptimizer;
+import java.util.*;
 
 /**
  * This class provides an implementation of the algorithm described in the book
  * "Foundations of Software Testing: Fundamental Algorithms and Techniques".
- * 
+ * <p/>
  * Chapter 4. Test Generation from Combinatorial Designs 11. Generating Covering
  * Arrays
  */
@@ -27,29 +22,28 @@ public class IPO {
   /**
    * The 'Don't care value', used in 'vg'(vertical growth) procedure.
    */
-  public static final Object  DC     = new Object() {
-                                       @Override
-                                       public String toString() {
-                                         return "D/C";
-                                       }
-                                     };
+  public static final Object DC = new Object() {
+    @Override
+    public String toString() {
+      return "D/C";
+    }
+  };
 
   /**
    * The test space.
    */
-  IPOTestSpace                   space;
+  IPOTestSpace space;
 
   /**
    * An optimizer object.
    */
-  private IPOOptimizer        optimizer;
+  private IPOOptimizer optimizer;
 
   /**
    * Creates an object of this class.
-   * 
-   * @param space
-   *          the definition of the test space in which the test runs are
-   *          executed.
+   *
+   * @param space the definition of the test space in which the test runs are
+   *              executed.
    */
   public IPO(IPOTestSpace space, IPOOptimizer optimizer) {
     this.space = space;
@@ -119,8 +113,9 @@ public class IPO {
       // and vk denote values of parameters Fj and Fk respectively.
       // More details of this step are found in procedure VG described
       // in the function 'vg'.
-      if (U.isEmpty())
+      if (U.isEmpty()) {
         continue;
+      }
       T = vg(info, T, U);
     }
 
@@ -141,11 +136,13 @@ public class IPO {
       for (int Fi = 1; Fi <= T.width; Fi++) {
         Object r = t.get(Fi);
         for (Object s : this.space.domainOf(Fk)) {
-          if (Fi == Fk)
+          if (Fi == Fk) {
             continue;
+          }
           IPOValuePair p = new IPOValuePair(Fi, r, Fk, s);
-          if (lookUp(lookUp(T, Fi, r), Fk, s).size() == 0)
+          if (lookUp(lookUp(T, Fi, r), Fk, s).size() == 0) {
             ret.add(p);
+          }
         }
       }
     }
@@ -225,8 +222,9 @@ public class IPO {
 
       // 4.2 AP = AP − pairs(t'j).
       for (int ii = 1; ii <= tj$.width(); ii++) {
-        if (F == ii)
+        if (F == ii) {
           continue;
+        }
         AP.remove(new IPOValuePair(ii, tj$.get(ii), F, space.value(F, j)));
       }
     }
@@ -266,25 +264,19 @@ public class IPO {
   /**
    * Returns the best value for the specified field in the test run. And outputs
    * the set of pairs newly covered by using the value.
-   * 
-   * @param info
-   *          information object to which this method sets how many times
-   *          optimizer works and so on.
-   * @param AP$
-   *          Value pairs that newly covered by using returned object as a value
-   *          for Fi.
-   * @param R
-   *          Current test run set
-   * @param tj
-   *          A test run that is going to be added.
-   * @param F
-   *          Index to specify the field for which this method chooses a value.
-   * @param AP
-   *          Value pairs yet to be covered.
-   * 
+   *
+   * @param info information object to which this method sets how many times
+   *             optimizer works and so on.
+   * @param AP$  Value pairs that newly covered by using returned object as a value
+   *             for Fi.
+   * @param R    Current test run set
+   * @param tj   A test run that is going to be added.
+   * @param F    Index to specify the field for which this method chooses a value.
+   * @param AP   Value pairs yet to be covered.
    * @return The value to be used for Fi.
    */
-  private Object chooseBestValueForF(IPOTestRunSet.Info info, Set<IPOValuePair> AP$,
+  private Object chooseBestValueForF(IPOTestRunSet.Info info,
+      Set<IPOValuePair> AP$,
       IPOTestRunSet R, IPOTestRun tj, int F, Set<IPOValuePair> AP) {
     Object v$; // space.value(F, 1);
     this.optimizer.clearHGCandidates();
@@ -314,8 +306,9 @@ public class IPO {
       this.optimizer.addHGCandidate(v, AP$$);
     }
     if (this.optimizer.numHGCandidates() > 0) {
-      if (optimizer.numHGCandidates() > 1)
+      if (optimizer.numHGCandidates() > 1) {
         info.numHorizontalFallbacks++;
+      }
       AP$.clear();
       v$ = this.optimizer.getBestHGValue(AP$, R, tj, F);
     } else {
@@ -336,16 +329,14 @@ public class IPO {
   /**
    * Returns a list of elements whose parameter <code>F</code>'s value is
    * <code>v</code>.
-   * 
-   * @param runList
-   *          A list from which matching runs are searched.
-   * @param F
-   *          parameter ID.
-   * @param v
-   *          the value of F.
+   *
+   * @param runList A list from which matching runs are searched.
+   * @param F       parameter ID.
+   * @param v       the value of F.
    * @return The list of test runs which satisfy the given condition.
    */
-  public static List<IPOTestRun> lookUp(List<IPOTestRun> runList, int F, Object v) {
+  public static List<IPOTestRun> lookUp(List<IPOTestRun> runList, int F,
+      Object v) {
     List<IPOTestRun> ret = new LinkedList<IPOTestRun>();
     for (IPOTestRun cur : runList) {
       // //
@@ -362,7 +353,8 @@ public class IPO {
   // selected value of the corresponding parameter. Instead, one
   // could also select a value that maximizes the number of
   // higher-oder tuples such as triples.
-  private IPOTestRunSet replaceDontCareValues(IPOTestRunSet.Info info, IPOTestRunSet testRunSet) {
+  private IPOTestRunSet replaceDontCareValues(IPOTestRunSet.Info info,
+      IPOTestRunSet testRunSet) {
     for (IPOTestRun run : testRunSet) {
       for (int i = 1; i <= run.width(); i++) {
         if (run.get(i) == DC) {
@@ -401,7 +393,8 @@ public class IPO {
    * combining values of parameter Fi, 1 <= i <= (k - 1) with parameter Fk are
    * covered.
    */
-  private IPOTestRunSet vg(IPOTestRunSet.Info info, IPOTestRunSet T, Set<IPOValuePair> MP) {
+  private IPOTestRunSet vg(IPOTestRunSet.Info info, IPOTestRunSet T,
+      Set<IPOValuePair> MP) {
     /*
      * D(F) = {l1, l2,..., Lq}, q >= 1 t1, t2,..., tm denote the m >= 1 runs in
      * T. (Ai.r, Bj.s) denotes a pair of values r and s that correspond to
@@ -422,7 +415,8 @@ public class IPO {
       // then replace it by the run
       // (v1, v2,..., vi-1, r, vi+1,..., vk-1, s)
       // and examine the next missing pair, else go to the next substep
-      List<IPOTestRun> runsWhoseAis_rAndBisDC = lookUp(lookUp(T$, pair.A, pair.r),
+      List<IPOTestRun> runsWhoseAis_rAndBisDC = lookUp(
+          lookUp(T$, pair.A, pair.r),
           pair.B, DC);
       if (runsWhoseAis_rAndBisDC.size() > 0) {
         // Since parameters are processed from left to right, this

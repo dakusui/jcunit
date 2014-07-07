@@ -1,9 +1,9 @@
 package com.github.dakusui.petronia.ut;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 public class Test {
   public static void s(Object o) {
@@ -72,7 +72,7 @@ public class Test {
         ArrayUtils.toString(getMethod("m", Integer.TYPE, Integer.TYPE)));
     System.out.printf("m(int,int,String[]):%s\n", ArrayUtils
         .toString(getMethod("m", Integer.TYPE, Integer.TYPE,
-            new String[] {}.getClass())));
+            new String[] { }.getClass())));
     System.out.printf("m(int):%s\n",
         ArrayUtils.toString(getMethod("m", Integer.TYPE)));
     System.out.printf("m(Short):%s\n",

@@ -23,7 +23,8 @@ public abstract class BaseForm implements Form {
    * A template method of a form evaluation.
    */
   @Override
-  final public Object evaluate(Context context, Object params_) throws JCUnitException, CUT {
+  final public Object evaluate(Context context, Object params_)
+      throws JCUnitException, CUT {
     FormEvaluator evaluator = newEvaluator(context, params_);
     FormResult result = evaluator.result();
     try {
@@ -35,10 +36,11 @@ public abstract class BaseForm implements Form {
         }
       }
     } catch (CUT e) {
-      if (!this.throwsCUT() && e.source() == this)
+      if (!this.throwsCUT() && e.source() == this) {
         result.value(e.value());
-      else
+      } else {
         throw e;
+      }
     }
     return evaluator.evaluateLast(result).value();
   }
@@ -48,10 +50,12 @@ public abstract class BaseForm implements Form {
     throw e;
   }
 
-  abstract protected FormResult evaluateEach(Context context, Object currentParam, FormResult lastResult)
+  abstract protected FormResult evaluateEach(Context context,
+      Object currentParam, FormResult lastResult)
       throws JCUnitException, CUT;
 
-  abstract protected FormResult evaluateLast(Context context, Object[] evaluatedParams, FormResult lastResult)
+  abstract protected FormResult evaluateLast(Context context,
+      Object[] evaluatedParams, FormResult lastResult)
       throws JCUnitException, CUT;
 
   protected FormEvaluator newEvaluator(Context context, Object params) {
@@ -60,8 +64,9 @@ public abstract class BaseForm implements Form {
      * a context to FormEvaluator's constructor instead of a new context created
      * by context.createChild method.
      */
-    return new FormEvaluator(context.createChild(), this, checkParams(params), new FormResult(0, Basic.length(params),
-        null));
+    return new FormEvaluator(context.createChild(), this, checkParams(params),
+        new FormResult(0, Basic.length(params),
+            null));
   }
 
   protected Object checkParams(Object params) {
@@ -78,7 +83,8 @@ public abstract class BaseForm implements Form {
     return this.name;
   }
 
-  protected static FormResult evaluateEachSimply(Context context, Object currentParam, FormResult lastResult)
+  protected static FormResult evaluateEachSimply(Context context,
+      Object currentParam, FormResult lastResult)
       throws JCUnitException, CUT {
     FormResult ret = lastResult;
     try {
@@ -114,8 +120,10 @@ public abstract class BaseForm implements Form {
     // array
     if (params.length > 1) {
       Object last = params[params.length - 1];
-      if (!Basic.atom(last) && Basic.length(last) > 1)
-        params[params.length - 1] = Basic.cons(params[params.length - 1], Basic.NIL);
+      if (!Basic.atom(last) && Basic.length(last) > 1) {
+        params[params.length - 1] = Basic
+            .cons(params[params.length - 1], Basic.NIL);
+      }
     }
     Object ret;
     ret = Basic.cons(this, params);
@@ -130,32 +138,47 @@ public abstract class BaseForm implements Form {
     return false;
   }
 
-  protected String msgParameterLengthWrong(Object expectedLength, Object params) {
-    return String.format("%s:The number of parameters must be %s (params=%s)", this, expectedLength,
-        Basic.tostr(params));
+  protected String msgParameterLengthWrong(Object expectedLength,
+      Object params) {
+    return String
+        .format("%s:The number of parameters must be %s (params=%s)", this,
+            expectedLength,
+            Basic.tostr(params));
   }
 
   protected String msgFirstParameterTypeMismatch(Object param) {
-    return String.format("%s:The first parameter must be evaluated a boolean value, but '%s'(%s)", this, param,
+    return String.format(
+        "%s:The first parameter must be evaluated a boolean value, but '%s'(%s)",
+        this, param,
         param != null ? param.getClass() : null);
   }
 
   protected String msgFirstParameterIsNull(Object params) {
-    return String.format("%s:The first parameter cannot be null. (params=%s)", this, Basic.tostr(params));
+    return String
+        .format("%s:The first parameter cannot be null. (params=%s)", this,
+            Basic.tostr(params));
   }
 
-  protected String msgReturnedTypeMismatch(Class<?> expectedType, Object actualValue) {
-    return String.format("%s:'%s' class value was expected, but '%s'(%s) was returned", this, expectedType.getName(),
-        actualValue, actualValue == null ? null : actualValue.getClass().getName());
+  protected String msgReturnedTypeMismatch(Class<?> expectedType,
+      Object actualValue) {
+    return String
+        .format("%s:'%s' class value was expected, but '%s'(%s) was returned",
+            this, expectedType.getName(),
+            actualValue,
+            actualValue == null ? null : actualValue.getClass().getName());
   }
 
   protected String msgTypeIncompatible(Comparable<?> lhs, Comparable<?> rhs) {
-    return String.format("%s:Object '%s'(%s) and '%s'(%s) couldn't be compared each other.", this, lhs, lhs.getClass(),
+    return String.format(
+        "%s:Object '%s'(%s) and '%s'(%s) couldn't be compared each other.",
+        this, lhs, lhs.getClass(),
         rhs, rhs.getClass());
   }
 
   protected String msgIllegalArgumentFound(Object value, Object[] params) {
-    return String.format("%s:Illegal argument '%s'(%s) is found in given parameters '%s'", this, value,
+    return String.format(
+        "%s:Illegal argument '%s'(%s) is found in given parameters '%s'", this,
+        value,
         value == null ? null : value.getClass().getName(), Basic.tostr(params));
   }
 }

@@ -26,8 +26,9 @@ public class Get extends BaseFunc {
   @Override
   protected Object checkParams(Object params) {
     super.checkParams(params);
-    if (Basic.length(params) != 2)
+    if (Basic.length(params) != 2) {
       throw new IllegalArgumentException();
+    }
     Utils.checknotnull(Basic.get(params, 0));
     Utils.checknotnull(Basic.get(params, 1));
     return params;

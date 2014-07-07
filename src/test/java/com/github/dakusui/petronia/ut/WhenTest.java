@@ -1,10 +1,9 @@
 package com.github.dakusui.petronia.ut;
 
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
+import org.junit.Test;
 
 public class WhenTest extends JCUnitBase {
   @Test

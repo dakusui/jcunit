@@ -1,18 +1,18 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class CondTest extends JCUnitBase {
 
   @Test
   public void cond_01() throws Exception {
-    assertEquals(Utils.bigDecimal(100), Basic.eval(this, cond(when(true, 100))));
+    assertEquals(Utils.bigDecimal(100),
+        Basic.eval(this, cond(when(true, 100))));
   }
 
   @Test
@@ -48,7 +48,8 @@ public class CondTest extends JCUnitBase {
   @Test
   public void cond_07() throws Exception {
     assertEquals(Utils.bigDecimal(0),
-        Basic.eval(this, cond(when(true, 0), when(true, 100), when(true, 200))));
+        Basic
+            .eval(this, cond(when(true, 0), when(true, 100), when(true, 200))));
   }
 
   @Test
@@ -56,7 +57,8 @@ public class CondTest extends JCUnitBase {
     assertEquals(
         Utils.bigDecimal(0),
         Basic.eval(this,
-            cond(when(same(123, 123), 0), when(false, 100), when(true, 200))));
+            cond(when(same(123, 123), 0), when(false, 100), when(true, 200)))
+    );
   }
 
   @Test
@@ -64,7 +66,8 @@ public class CondTest extends JCUnitBase {
     assertEquals(
         Utils.bigDecimal(200),
         Basic.eval(this,
-            cond(when(same(123, 124), 0), when(false, 100), when(true, 200))));
+            cond(when(same(123, 124), 0), when(false, 100), when(true, 200)))
+    );
   }
 
   @Test
@@ -72,6 +75,7 @@ public class CondTest extends JCUnitBase {
     assertEquals(
         false,
         Basic.eval(this,
-            cond(when(same(123, 124), 0), when(false, 100), when(false, 200))));
+            cond(when(same(123, 124), 0), when(false, 100), when(false, 200)))
+    );
   }
 }

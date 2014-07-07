@@ -1,17 +1,16 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.func.math.NumCast;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
 
 public class NumCastTest extends JCUnitBase {
   @Test

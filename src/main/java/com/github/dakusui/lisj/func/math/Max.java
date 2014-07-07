@@ -1,10 +1,10 @@
 package com.github.dakusui.lisj.func.math;
 
-import java.math.BigDecimal;
-
 import com.github.dakusui.lisj.Context;
 
-import static com.github.dakusui.lisj.Basic.*;
+import java.math.BigDecimal;
+
+import static com.github.dakusui.lisj.Basic.length;
 
 public class Max extends NumericFunc {
   /**
@@ -17,10 +17,11 @@ public class Max extends NumericFunc {
       BigDecimal[] evaluatedParams) {
     BigDecimal ret = null;
     for (BigDecimal cur : evaluatedParams) {
-      if (ret == null)
+      if (ret == null) {
         ret = cur;
-      else
+      } else {
         ret = ret.compareTo(cur) < 0 ? cur : ret;
+      }
     }
     return ret;
   }
@@ -29,7 +30,8 @@ public class Max extends NumericFunc {
   protected Object checkParams(Object params) {
     super.checkParams(params);
     if (length(params) < 1) {
-      throw new IllegalArgumentException(msgParameterLengthWrong(">=1", params));
+      throw new IllegalArgumentException(
+          msgParameterLengthWrong(">=1", params));
     }
     return params;
   }

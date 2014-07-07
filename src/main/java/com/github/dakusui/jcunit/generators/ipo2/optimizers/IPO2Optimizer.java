@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit.generators.ipo2.optimizers;
 
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.Factors;
-import com.github.dakusui.jcunit.core.Tuples;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.Tuples;
 
 import java.util.List;
 

@@ -1,16 +1,15 @@
 package com.github.dakusui.jcunit.ut.ipo;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOValueTuple.Attr;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOValueTuple.ValueTriple;
 import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.IPOOptimizer;
 import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.LevelingIPOOptimizer;
+import org.apache.commons.lang3.ArrayUtils;
+import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class IPOTestSandbox extends IPOTestBase {
 
@@ -40,7 +39,8 @@ public class IPOTestSandbox extends IPOTestBase {
 
   @Test
   public void testComposingTestDomain() {
-    for (Object[] row : composeTestDomain(task(4, 15), task(3, 17), task(2, 20))) {
+    for (Object[] row : composeTestDomain(task(4, 15), task(3, 17),
+        task(2, 20))) {
       System.out.println(ArrayUtils.toString(row));
     }
   }
@@ -53,10 +53,10 @@ public class IPOTestSandbox extends IPOTestBase {
     System.out.println(">>" + triples);
     System.out.println(">>"
         + triples.contains(new ValueTriple(new Attr(1, "X"), new Attr(2, "Y"),
-            new Attr(3, "Z"))));
+        new Attr(3, "Z"))));
     System.out.println(">>"
         + triples.contains(new ValueTriple(new Attr(1, "X"), new Attr(2, "Y"),
-            new Attr(3, "W"))));
+        new Attr(3, "W"))));
   }
 
   @Override

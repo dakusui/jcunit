@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.compat.generators.ipo;
 
 /**
  * A class represents each test run in a <code>TestRunSet</code> object.
- * 
+ *
  * @author hiroshi
  */
 public class IPOTestRun implements Cloneable {
@@ -13,9 +13,8 @@ public class IPOTestRun implements Cloneable {
 
   /**
    * Creates an object of this class.
-   * 
-   * @param width
-   *          the width of the object.
+   *
+   * @param width the width of the object.
    */
   public IPOTestRun(int width) {
     this.v = new Object[width];
@@ -23,34 +22,33 @@ public class IPOTestRun implements Cloneable {
 
   /**
    * Sets a value <code>v</code> to the parameter F<code>i</code>.
-   * 
-   * @param i
-   *          ID of parameter.
-   * @param v
-   *          The value to set.
+   *
+   * @param i ID of parameter.
+   * @param v The value to set.
    */
   public void set(int i, Object v) {
-    if (i == 0)
+    if (i == 0) {
       throw new IllegalArgumentException();
+    }
     this.v[i - 1] = v;
   }
 
   /**
    * Returns a value of the parameter F<code>i</code>.
-   * 
-   * @param i
-   *          ID of the parameter.
+   *
+   * @param i ID of the parameter.
    * @return The value of parameter F<code>i</code> in this test run.
    */
   public Object get(int i) {
-    if (i == 0)
+    if (i == 0) {
       throw new IllegalArgumentException();
+    }
     return this.v[i - 1];
   }
 
   /**
    * Returns the number of parameters in this test run.
-   * 
+   *
    * @return Number of parameters.
    */
   public int width() {
@@ -60,7 +58,7 @@ public class IPOTestRun implements Cloneable {
   /**
    * Returns a new <code>Run</code> object whose length is incremented from this
    * object. The values are copied to the new object.
-   * 
+   *
    * @return A new <code>Run</code> object.
    */
   public IPOTestRun grow() {
@@ -92,16 +90,19 @@ public class IPOTestRun implements Cloneable {
   }
 
   public boolean covers(IPOValuePair pair) {
-    if (pair == null)
+    if (pair == null) {
       throw new NullPointerException();
-    if (eq(this.get(pair.A), pair.r))
+    }
+    if (eq(this.get(pair.A), pair.r)) {
       return eq(this.get(pair.B), pair.s);
+    }
     return false;
   }
 
   private static boolean eq(Object v, Object w) {
-    if (v == null)
+    if (v == null) {
       return w == null;
+    }
     return v.equals(w);
   }
 }

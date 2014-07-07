@@ -1,21 +1,15 @@
 package com.github.dakusui.petronia.ut;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.github.dakusui.enumerator.Combinator;
+import com.github.dakusui.enumerator.Enumerator;
+import com.github.dakusui.jcunit.compat.generators.ipo.*;
+import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.GreedyIPOOptimizer;
 import junit.framework.TestCase;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
-import com.github.dakusui.enumerator.Combinator;
-import com.github.dakusui.enumerator.Enumerator;
-import com.github.dakusui.jcunit.compat.generators.ipo.IPO;
-import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRun;
-import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
-import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
-import com.github.dakusui.jcunit.compat.generators.ipo.IPOValuePair;
-import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.GreedyIPOOptimizer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class IPOTest {
   @Test
@@ -60,8 +54,9 @@ public class IPOTest {
 
   @Test
   public void ipo_06() {
-    IPOTestSpace space = new IPOTestSpace(new Object[][] { { "Z" }, { "X", "Y" },
-        { "a", "b", "C" }, { "A", "B", "C", "D" }, { 1, 2, 3, 4, 5 }, });
+    IPOTestSpace space = new IPOTestSpace(
+        new Object[][] { { "Z" }, { "X", "Y" },
+            { "a", "b", "C" }, { "A", "B", "C", "D" }, { 1, 2, 3, 4, 5 }, });
 
     runTest(space);
   }
@@ -149,8 +144,9 @@ public class IPOTest {
   int indexOf(Object[] cur, Object[][] domains) {
     int i = -1;
     for (i = 0; i < domains.length; i++) {
-      if (domains[i] == cur)
+      if (domains[i] == cur) {
         return i;
+      }
     }
     return i;
   }

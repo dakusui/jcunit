@@ -1,112 +1,98 @@
 package com.github.dakusui.jcunit.compat.core;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
+import com.github.dakusui.jcunit.compat.report.ReportWriter;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.lisj.Basic;
+import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.Context;
 import junit.framework.TestCase;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.compat.report.ReportWriter;
-import com.github.dakusui.lisj.Basic;
-import com.github.dakusui.lisj.CUT;
-import com.github.dakusui.lisj.Context;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * A class that represents a set of test rules.
- * 
- * 
+ *
  * @author hiroshi
- * 
  */
 public class RuleSet implements TestRule {
   private static final String     OTHERWISECLAUSE_FORMAT = "(otherwise-%d)";
   private static final Summarizer DUMMYSUMMARIZER        = new Summarizer() {
-                                                           @Override
-                                                           public void passed(
-                                                               String testName,
-                                                               int id) {
-                                                           }
+    @Override
+    public void passed(
+        String testName,
+        int id) {
+    }
 
-                                                           @Override
-                                                           public void failed(
-                                                               String testName,
-                                                               int id) {
-                                                           }
+    @Override
+    public void failed(
+        String testName,
+        int id) {
+    }
 
-                                                           @Override
-                                                           public void setRuleSet(
-                                                               RuleSet ruleSet) {
-                                                           }
+    @Override
+    public void setRuleSet(
+        RuleSet ruleSet) {
+    }
 
-                                                           @Override
-                                                           public Statement apply(
-                                                               Statement base,
-                                                               Description description) {
-                                                             return new Statement() {
-                                                               @Override
-                                                               public void evaluate()
-                                                                   throws Throwable {
-                                                               }
-                                                             };
-                                                           }
+    @Override
+    public Statement apply(
+        Statement base,
+        Description description) {
+      return new Statement() {
+        @Override
+        public void evaluate()
+            throws Throwable {
+        }
+      };
+    }
 
-                                                           @Override
-                                                           public int passes(
-                                                               int objId) {
-                                                             return -1;
-                                                           }
+    @Override
+    public int passes(
+        int objId) {
+      return -1;
+    }
 
-                                                           @Override
-                                                           public int fails(
-                                                               int objId) {
-                                                             return -1;
-                                                           }
+    @Override
+    public int fails(
+        int objId) {
+      return -1;
+    }
 
-                                                           @Override
-                                                           public void error(
-                                                               String methodName) {
-                                                           }
+    @Override
+    public void error(
+        String methodName) {
+    }
 
-                                                           @Override
-                                                           public void ok(
-                                                               String methodName) {
-                                                           }
+    @Override
+    public void ok(
+        String methodName) {
+    }
 
-                                                           @Override
-                                                           public void ng(
-                                                               String methodName) {
-                                                           }
+    @Override
+    public void ng(
+        String methodName) {
+    }
 
-                                                           @Override
-                                                           public void error(
-                                                               String string,
-                                                               int id) {
-                                                           }
-                                                         };
+    @Override
+    public void error(
+        String string,
+        int id) {
+    }
+  };
 
   public static class RuleIgnored extends JCUnitException {
     /**
      * A serial version UID.
      */
     private static final long serialVersionUID = 1L;
-    private RuleSet           source;
+    private RuleSet source;
 
     public RuleIgnored(RuleSet jcunitRuleSet) {
       this.source = jcunitRuleSet;
@@ -118,7 +104,7 @@ public class RuleSet implements TestRule {
   }
 
   public class Report {
-    int                  indent = 0;
+    int indent = 0;
     private ReportWriter writer;
     private Description  desc;
 
@@ -139,8 +125,9 @@ public class RuleSet implements TestRule {
         writeLine(this.desc, this.indent,
             id + "NOT MATCHED:" + Basic.tostr(cond));
       }
-      if (result)
+      if (result) {
         this.indent++;
+      }
       return result;
     }
 
@@ -163,9 +150,9 @@ public class RuleSet implements TestRule {
   }
 
   public static class Pair {
-    Object         cond;
-    Object         nested;
-    boolean        cut;
+    Object  cond;
+    Object  nested;
+    boolean cut;
     public boolean condResult;
     public boolean nestedResult;
 
@@ -204,28 +191,28 @@ public class RuleSet implements TestRule {
     return this.rulePairs;
   }
 
-  private Context                     context;
-  private List<Pair>                  rulePairs    = new ArrayList<Pair>();
-  private Pair                        otherwise    = null;
+  private Context context;
+  private List<Pair> rulePairs = new ArrayList<Pair>();
+  private Pair       otherwise = null;
 
-  protected static final ReportWriter writer       = new ReportWriter();
+  protected static final ReportWriter writer = new ReportWriter();
 
-  private Map<Field, Object>          inValues     = null;
+  private Map<Field, Object> inValues = null;
 
-  private String                      failedReason = null;
+  private String failedReason = null;
 
-  private Map<Field, Object>          outValues;
-  private Object                      target;
+  private Map<Field, Object> outValues;
+  private Object             target;
 
-  private Map<Object, Integer>        idMap        = null;                 // new
-                                                                            // IdentityHashMap<Object,
-                                                                            // Integer>();
-  private Map<Object, Integer>        levelMap     = null;                 // new
-                                                                            // HashMap<Object,
-                                                                            // Integer>();
-  private Summarizer                  summarizer   = DUMMYSUMMARIZER;
-  private int                         maxLevel;
-  private Set<Integer>                leaves;
+  private Map<Object, Integer> idMap      = null;                 // new
+  // IdentityHashMap<Object,
+  // Integer>();
+  private Map<Object, Integer> levelMap   = null;                 // new
+  // HashMap<Object,
+  // Integer>();
+  private Summarizer           summarizer = DUMMYSUMMARIZER;
+  private int          maxLevel;
+  private Set<Integer> leaves;
 
   public RuleSet(Context context, Object target) {
     // //
@@ -276,10 +263,11 @@ public class RuleSet implements TestRule {
               writeOutputValues(desc);
               String msg = "Test:" + RuleSet.summarize(inValues)
                   + " was failed. (" + failedReason() + ")";
-              if (ok)
+              if (ok) {
                 RuleSet.this.summarizer.ok(desc.getMethodName());
-              else
+              } else {
                 RuleSet.this.summarizer.ng(desc.getMethodName());
+              }
               if (!verified) {
                 writer.writeErrorLine(desc, 0, "");
                 String failedReason = failedReason();
@@ -325,8 +313,9 @@ public class RuleSet implements TestRule {
     Report report = new Report(desc, 1, writer);
     try {
       ret = this.apply(report, desc.getMethodName());
-      if (!ret)
+      if (!ret) {
         failedReason("Rule matched but failed.");
+      }
     } catch (RuleIgnored e) {
       failedReason("No rule matched with this test.");
       return false;
@@ -345,8 +334,9 @@ public class RuleSet implements TestRule {
     this.levelMap = levelMap;
     List<Pair> rules = new LinkedList<Pair>();
     rules.addAll(this.rulePairs);
-    if (this.otherwise != null)
+    if (this.otherwise != null) {
       rules.add(this.otherwise);
+    }
     for (Pair p : rules) {
       if (OTHERWISECLAUSE_FORMAT.equals(p.cond)) {
         p.cond = String.format(p.cond.toString(), i);
@@ -482,18 +472,17 @@ public class RuleSet implements TestRule {
    * manner. If this object is already closed, i.e. <code>otherwise</code>
    * method is called on this object, an <code>IllegalStateException</code> will
    * be thrown.
-   * 
-   * @param condition
-   *          must be a boolean value or a predicate.
-   * @param expect
-   *          must be a boolean value, a predicate, or a <code>RuleSet</code>
-   *          object.
+   *
+   * @param condition must be a boolean value or a predicate.
+   * @param expect    must be a boolean value, a predicate, or a <code>RuleSet</code>
+   *                  object.
    * @return this object.
    * @see RuleSet#apply(Report, String)
    */
   public RuleSet incase(Object condition, Object expect) {
-    if (this.otherwise != null)
+    if (this.otherwise != null) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
+    }
     this.rulePairs.add(new Pair(condition, expect, false));
     return this;
   }
@@ -503,42 +492,51 @@ public class RuleSet implements TestRule {
   }
 
   public RuleSet incase(Object condition) {
-    if (this.otherwise != null)
+    if (this.otherwise != null) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
+    }
     if (this.rulePairs.size() > 0) {
       Pair lastPair = this.rulePairs.get(this.rulePairs.size() - 1);
       // //
       // you must call 'expect' in this case.
-      if (lastPair.cond != null && lastPair.nested == null)
+      if (lastPair.cond != null && lastPair.nested == null) {
         throw new IllegalStateException("FRIENDLY MESSAGE!");
+      }
     }
     this.rulePairs.add(new Pair(condition, null, false));
     return this;
   }
 
   public RuleSet expect(Object expect) {
-    if (this.otherwise != null)
+    if (this.otherwise != null) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
-    if (this.rulePairs.size() == 0)
+    }
+    if (this.rulePairs.size() == 0) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
+    }
     Pair lastPair = this.rulePairs.get(this.rulePairs.size() - 1);
-    if (lastPair.nested != null)
+    if (lastPair.nested != null) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
+    }
     lastPair.nested = expect;
 
     return this;
   }
 
   public RuleSet cut() {
-    if (this.otherwise != null)
+    if (this.otherwise != null) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
-    if (this.rulePairs.size() == 0)
+    }
+    if (this.rulePairs.size() == 0) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
+    }
     Pair lastPair = this.rulePairs.get(this.rulePairs.size() - 1);
-    if (lastPair.nested == null)
+    if (lastPair.nested == null) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
-    if (lastPair.cut)
+    }
+    if (lastPair.cut) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
+    }
     lastPair.cut = true;
     return this;
   }
@@ -546,26 +544,27 @@ public class RuleSet implements TestRule {
   /**
    * After this method is called, <code>incase</code> method and this method
    * won't be able to be called on this object.
-   * 
-   * @param expect
-   *          must be a boolean value, a predicate, or an <code>RuleSet</code>
-   *          object.
+   *
+   * @param expect must be a boolean value, a predicate, or an <code>RuleSet</code>
+   *               object.
    * @return this object
    * @see RuleSet#incase(Object, Object)
    * @see RuleSet#apply(Report, String)
    */
   public RuleSet otherwise(Object expect) {
-    if (this.rulePairs.size() < 1)
+    if (this.rulePairs.size() < 1) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
-    if (this.otherwise != null)
+    }
+    if (this.otherwise != null) {
       throw new IllegalStateException("FRIENDLY MESSAGE!");
+    }
     this.otherwise = new Pair("(otherwise-%d)", expect, false);
     return this;
   }
 
   /**
    * Returns 'otherwise' clause pair.
-   * 
+   *
    * @return 'otherwise' clause pair.
    */
   public Pair otherwise() {
@@ -614,18 +613,21 @@ public class RuleSet implements TestRule {
           RuleSet nested = (RuleSet) cur.nested;
           try {
             passed &= nested.apply(report, testName);
-            if (cur.cut())
+            if (cur.cut()) {
               break;
+            }
           } catch (RuleIgnored e) {
             passed = false;
-            if (e.source() == nested)
+            if (e.source() == nested) {
               continue;
+            }
           }
         } else {
           passed &= report.expect(testName, cur.nested,
               evalp(cur, cur.nested, testName));
-          if (cur.cut())
+          if (cur.cut()) {
             break;
+          }
         }
       }
     }
@@ -655,12 +657,13 @@ public class RuleSet implements TestRule {
 
       public String toString() {
         Iterator<Entry<String, Object>> i = entrySet().iterator();
-        if (!i.hasNext())
+        if (!i.hasNext()) {
           return "{}";
+        }
 
         StringBuilder sb = new StringBuilder();
         sb.append('{');
-        for (;;) {
+        for (; ; ) {
           Entry<String, Object> e = i.next();
           String key = e.getKey();
           Object value = e.getValue();
@@ -669,8 +672,9 @@ public class RuleSet implements TestRule {
           value = value instanceof Object[] ? ArrayUtils.toString(value)
               : value;
           sb.append(value == this ? "(this Map)" : value);
-          if (!i.hasNext())
+          if (!i.hasNext()) {
             return sb.append('}').toString();
+          }
           sb.append(", ");
         }
       }
@@ -698,26 +702,29 @@ public class RuleSet implements TestRule {
 
   public void printOutClassLevelResult(Class<?> klazz) {
     List<Pair> pairs = new ArrayList<Pair>(this.rulePairs);
-    if (this.otherwise != null)
+    if (this.otherwise != null) {
       pairs.add(this.otherwise);
+    }
     for (Pair p : pairs) {
       writer.writeLine(klazz, 0, String.format("[%02d]%3d/%3d - %s%s",
           idOf(p.cond), this.summarizer.passes(idOf(p.cond)),
           this.summarizer.fails(idOf(p.cond)), spaces(levelOf(p.cond)),
           Basic.tostr(p.cond, true)));
-      if (p.nested instanceof RuleSet)
+      if (p.nested instanceof RuleSet) {
         ((RuleSet) p.nested).printOutClassLevelResult(klazz);
-      else
+      } else {
         writer.writeLine(klazz, 0, String.format("[%02d]%3d/%3d - %s%s",
             idOf(p.nested), this.summarizer.passes(idOf(p.nested)),
             this.summarizer.fails(idOf(p.nested)), spaces(levelOf(p.nested)),
             Basic.tostr(p.nested, true)));
+      }
     }
   }
 
   private String spaces(int i) {
-    if (i == 0)
+    if (i == 0) {
       return "";
+    }
     return String.format("%" + (i * 2) + "s", "");
   }
 
@@ -731,7 +738,7 @@ public class RuleSet implements TestRule {
 
   /**
    * Returns a map which associates '@Out' annotated fields and their values.
-   * 
+   *
    * @return Map for '@Out' annotated fields and their values.
    */
   protected Map<Field, Object> getOutValues() {

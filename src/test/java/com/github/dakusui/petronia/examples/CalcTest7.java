@@ -23,7 +23,7 @@ public class CalcTest7 extends JCUnitBase {
   @ClassRule
   public static Summarizer summarizer = new BasicSummarizer();
   @Rule
-  public RuleSet rules      = new JCUnitBase()
+  public        RuleSet    rules      = new JCUnitBase()
       .autoRuleSet(this).summarizer(
           summarizer);
   @In

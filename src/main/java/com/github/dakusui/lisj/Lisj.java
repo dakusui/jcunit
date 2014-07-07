@@ -1,7 +1,5 @@
 package com.github.dakusui.lisj;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.github.dakusui.jcunit.compat.auto.OutFieldNames;
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.func.io.Print;
@@ -9,33 +7,12 @@ import com.github.dakusui.lisj.func.java.Get;
 import com.github.dakusui.lisj.func.java.Invoke;
 import com.github.dakusui.lisj.func.java.IsInstanceOf;
 import com.github.dakusui.lisj.func.java.Set;
-import com.github.dakusui.lisj.func.math.Add;
-import com.github.dakusui.lisj.func.math.Div;
-import com.github.dakusui.lisj.func.math.Max;
-import com.github.dakusui.lisj.func.math.Min;
-import com.github.dakusui.lisj.func.math.Mul;
-import com.github.dakusui.lisj.func.math.NumCast;
-import com.github.dakusui.lisj.func.math.Sub;
+import com.github.dakusui.lisj.func.math.*;
 import com.github.dakusui.lisj.func.str.Concat;
 import com.github.dakusui.lisj.func.str.Format;
-import com.github.dakusui.lisj.pred.AlwaysTrue;
-import com.github.dakusui.lisj.pred.And;
-import com.github.dakusui.lisj.pred.Contains;
-import com.github.dakusui.lisj.pred.Eq;
-import com.github.dakusui.lisj.pred.Gt;
-import com.github.dakusui.lisj.pred.IsOneOf;
-import com.github.dakusui.lisj.pred.Matches;
-import com.github.dakusui.lisj.pred.Not;
-import com.github.dakusui.lisj.pred.Or;
-import com.github.dakusui.lisj.pred.Same;
-import com.github.dakusui.lisj.special.Assign;
-import com.github.dakusui.lisj.special.Cond;
-import com.github.dakusui.lisj.special.Eval;
-import com.github.dakusui.lisj.special.Lambda;
-import com.github.dakusui.lisj.special.Loop;
-import com.github.dakusui.lisj.special.Progn;
-import com.github.dakusui.lisj.special.Quote;
-import com.github.dakusui.lisj.special.When;
+import com.github.dakusui.lisj.pred.*;
+import com.github.dakusui.lisj.special.*;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class Lisj {
   private Context context;
@@ -43,9 +20,8 @@ public class Lisj {
   /**
    * Creates an object of this class initialized by the <code>context</code>
    * object.
-   * 
-   * @param context
-   *          A context object.
+   *
+   * @param context A context object.
    */
   public Lisj(Context context) {
     init(context);
@@ -77,7 +53,8 @@ public class Lisj {
         // Since bind method destroys params, need to pass a cloned array to the
         // bind
         // calls but the last one.
-        return super.bind(new Gt().bind(params.clone()), new Same().bind(params));
+        return super
+            .bind(new Gt().bind(params.clone()), new Same().bind(params));
       }
 
       @Override
@@ -122,7 +99,8 @@ public class Lisj {
 
           @Override
           public Object bind(Object... params_) {
-            return super.bind(new Gt().bind(params_.clone()), new Same().bind(params_));
+            return super
+                .bind(new Gt().bind(params_.clone()), new Same().bind(params_));
           }
 
           @Override
@@ -263,7 +241,8 @@ public class Lisj {
   }
 
   public Object isoneof(Object obj, Object... args) {
-    Object[] ret = (Object[]) form("isoneof").bind(ArrayUtils.add(args, 0, obj));
+    Object[] ret = (Object[]) form("isoneof")
+        .bind(ArrayUtils.add(args, 0, obj));
     return ret;
   }
 

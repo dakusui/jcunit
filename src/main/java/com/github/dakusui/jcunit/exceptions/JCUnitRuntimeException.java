@@ -9,11 +9,9 @@ public class JCUnitRuntimeException extends RuntimeException {
 
   /**
    * Creates an object of this class.
-   * 
-   * @param message
-   *          An error message for this object.
-   * @param t
-   *          A nested <code>throwable</code> object.
+   *
+   * @param message An error message for this object.
+   * @param t       A nested <code>throwable</code> object.
    */
   public JCUnitRuntimeException(String message, Throwable t) {
     super(message, t);

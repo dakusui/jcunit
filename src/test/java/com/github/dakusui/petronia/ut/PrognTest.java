@@ -1,12 +1,11 @@
 package com.github.dakusui.petronia.ut;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class PrognTest extends JCUnitBase {
   @Test
@@ -42,6 +41,8 @@ public class PrognTest extends JCUnitBase {
         progn(
             assign($("a"), 0),
             loop(lt($("a"), 10), print("hello\n"),
-                assign($("a"), add($("a"), 1)))));
+                assign($("a"), add($("a"), 1)))
+        )
+    );
   }
 }

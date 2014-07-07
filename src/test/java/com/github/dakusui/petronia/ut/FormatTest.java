@@ -1,18 +1,14 @@
 package com.github.dakusui.petronia.ut;
 
-import static com.github.dakusui.lisj.Basic.car;
-import static com.github.dakusui.lisj.Basic.cdr;
-import static com.github.dakusui.lisj.Basic.cons;
-import static com.github.dakusui.lisj.Basic.tostr;
-import static org.junit.Assert.assertEquals;
-
-import java.util.IllegalFormatException;
-
+import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.lisj.Basic;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
-import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.lisj.Basic;
+import java.util.IllegalFormatException;
+
+import static com.github.dakusui.lisj.Basic.*;
+import static org.junit.Assert.assertEquals;
 
 public class FormatTest extends JCUnitBase {
   @Test

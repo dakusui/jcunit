@@ -1,14 +1,14 @@
 package com.github.dakusui.lisj.special;
 
-import static com.github.dakusui.lisj.Basic.get;
-import static com.github.dakusui.lisj.Basic.length;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.BaseForm;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+
+import static com.github.dakusui.lisj.Basic.get;
+import static com.github.dakusui.lisj.Basic.length;
 
 public class When extends BaseForm {
 
@@ -26,8 +26,9 @@ public class When extends BaseForm {
     if (pos == 0) {
       if (ret.value() instanceof Boolean) {
         boolean res = (Boolean) ret.value();
-        if (!res)
+        if (!res) {
           cut(res);
+        }
       } else {
         throw new IllegalArgumentException(
             msgFirstParameterTypeMismatch(currentParam));
@@ -50,8 +51,9 @@ public class When extends BaseForm {
    */
   @Override
   protected Object checkParams(Object params) {
-    if (length(super.checkParams(params)) < 1)
+    if (length(super.checkParams(params)) < 1) {
       throw new IllegalArgumentException();
+    }
     Utils.checknotnull(get(params, 0));
     return params;
   }

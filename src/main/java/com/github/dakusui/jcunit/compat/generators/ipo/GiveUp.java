@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.compat.generators.ipo;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
 /**
  * Created by hiroshi on 6/29/14.

@@ -15,7 +15,8 @@ public class LevelingIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  protected Object bestValueFor(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
+  protected Object bestValueFor(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun,
       int fieldId) {
     // //
     // In order to make the test run set the same any time (reproducible), we
@@ -44,7 +45,8 @@ public class LevelingIPOOptimizer extends IPOOptimizer {
   }
 
   @Override
-  public Object optimizeInVG(IPOTestRunSet currentTestRunSet, IPOTestRun testRun,
+  public Object optimizeInVG(IPOTestRunSet currentTestRunSet,
+      IPOTestRun testRun,
       int fieldId) {
     Object[] values = this.space.domainOf(fieldId);
     int numUsed = Integer.MAX_VALUE;

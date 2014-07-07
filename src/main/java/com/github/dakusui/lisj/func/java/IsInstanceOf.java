@@ -10,8 +10,8 @@ import com.github.dakusui.lisj.func.BaseFunc;
 public class IsInstanceOf extends BaseFunc {
 
   /**
-	 * 
-	 */
+   *
+   */
   private static final long serialVersionUID = 5793284792247933434L;
 
   @Override

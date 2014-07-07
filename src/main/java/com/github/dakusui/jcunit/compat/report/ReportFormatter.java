@@ -1,14 +1,13 @@
 package com.github.dakusui.jcunit.compat.report;
 
-import java.lang.reflect.Field;
-
-import org.junit.runner.Description;
-
 import com.github.dakusui.jcunit.compat.core.BasicSummarizer.ResultMatrix;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 import com.github.dakusui.jcunit.compat.report.Reporter.Domain;
 import com.github.dakusui.jcunit.compat.report.Reporter.FieldSet;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import org.junit.runner.Description;
+
+import java.lang.reflect.Field;
 
 public interface ReportFormatter {
   public void beginTestCase(ReportWriter writer, Description desc);

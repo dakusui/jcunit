@@ -20,18 +20,18 @@ public @interface GeneratorParameters {
 
     int intValue() default 0;
 
-    int[] intArrayValue() default {};
+    int[] intArrayValue() default { };
 
     long longValue() default 0;
 
-    long[] longArrayValue() default {};
+    long[] longArrayValue() default { };
 
     Class<? extends Object> classValue() default Object.class;
 
-    Class<? extends Object>[] classArrayValur() default {};
+    Class<? extends Object>[] classArrayValur() default { };
 
     String stringValue() default "";
 
-    String[] stringArrayValue() default {};
+    String[] stringArrayValue() default { };
   }
 }

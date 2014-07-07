@@ -1,15 +1,14 @@
 package com.github.dakusui.jcunit.compat.report;
 
+import com.github.dakusui.jcunit.compat.core.BasicSummarizer.ResultMatrix;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
+import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import org.junit.runner.Description;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.junit.runner.Description;
-
-import com.github.dakusui.jcunit.compat.core.BasicSummarizer.ResultMatrix;
-import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
 
 public abstract class Reporter {
   private ReportWriter    writer;
@@ -113,13 +112,12 @@ public abstract class Reporter {
     /*
      * Category name to which this field set belongs.
      */
-    private String            categoryName;
+    private String categoryName;
 
     /**
      * Creates an object of this class.
-     * 
-     * @param categoryName
-     *          A category name to which this field set belongs.
+     *
+     * @param categoryName A category name to which this field set belongs.
      */
     public FieldSet(String categoryName) {
       this.categoryName = categoryName;
@@ -127,7 +125,7 @@ public abstract class Reporter {
 
     /**
      * Returns category name.
-     * 
+     *
      * @return A category name to which this field set belongs.
      */
     public String categoryName() {

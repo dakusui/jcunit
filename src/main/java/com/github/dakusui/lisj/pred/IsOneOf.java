@@ -1,13 +1,12 @@
 package com.github.dakusui.lisj.pred;
 
-import static com.github.dakusui.lisj.Basic.length;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import org.apache.commons.lang3.ArrayUtils;
+
+import static com.github.dakusui.lisj.Basic.length;
 
 public class IsOneOf extends BinomialPredicate {
   /**

@@ -1,16 +1,11 @@
 package com.github.dakusui.jcunit.compat.report;
 
+import com.github.dakusui.jcunit.core.SystemProperties;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.dakusui.jcunit.core.SystemProperties;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 
 public class ReportWriter {
   /**
@@ -21,8 +16,8 @@ public class ReportWriter {
   /**
    * A logger object.
    */
-  private static final Logger LOGGER          = LoggerFactory
-                                                  .getLogger(ReportWriter.class);
+  private static final Logger LOGGER = LoggerFactory
+      .getLogger(ReportWriter.class);
 
   /**
    * Creates an object of this class.
@@ -32,9 +27,8 @@ public class ReportWriter {
 
   /**
    * Deletes a test case level report file.
-   * 
-   * @param desc
-   *          A description object to locate a report file.
+   *
+   * @param desc A description object to locate a report file.
    */
   public void deleteReport(Description desc) {
     fileToWrite(desc.getClassName(), desc.getMethodName()).delete();
@@ -42,9 +36,8 @@ public class ReportWriter {
 
   /**
    * Deletes a test class level report file.
-   * 
-   * @param klazz
-   *          A class object to locate a report file.
+   *
+   * @param klazz A class object to locate a report file.
    */
   public void deleteReport(Class<?> klazz) {
     fileToWrite(klazz.getCanonicalName()).delete();
@@ -52,11 +45,9 @@ public class ReportWriter {
 
   /**
    * Writes a line for 'test case level' report.
-   * 
-   * @param indentLevel
-   *          indent level.
-   * @param str
-   *          A string to be printed.
+   *
+   * @param indentLevel indent level.
+   * @param str         A string to be printed.
    */
   public void writeLine(Description desc, int indentLevel, String str) {
     String s = indent(indentLevel) + str;
@@ -91,8 +82,9 @@ public class ReportWriter {
       // //
       // Creates a necessary directory, if it doesn't exist.
       File p = f.getParentFile();
-      if (!p.exists())
+      if (!p.exists()) {
         p.mkdirs();
+      }
 
       f.getParentFile().mkdirs();
       FileWriter fw = new FileWriter(f, true);

@@ -1,15 +1,14 @@
 package com.github.dakusui.petronia.ut.forms;
 
-import java.io.File;
-import java.io.IOException;
-
+import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.lisj.Form;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-import com.github.dakusui.jcunit.core.Out;
-import com.github.dakusui.lisj.Form;
+import java.io.File;
+import java.io.IOException;
 
 public abstract class AutoFunctionTest extends FormTestBase {
   public static class Example {

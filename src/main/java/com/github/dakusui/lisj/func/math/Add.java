@@ -1,8 +1,8 @@
 package com.github.dakusui.lisj.func.math;
 
-import java.math.BigDecimal;
-
 import com.github.dakusui.lisj.Context;
+
+import java.math.BigDecimal;
 
 public class Add extends NumericFunc {
   /**

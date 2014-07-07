@@ -8,8 +8,8 @@ import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 import java.util.*;
 
 /**
-* Created by hiroshi on 7/3/14.
-*/
+ * Created by hiroshi on 7/3/14.
+ */
 public class Factors implements Iterable<Factor> {
   private final List<Factor>        factors;
   private final Map<String, Factor> factorMap;
@@ -69,7 +69,8 @@ public class Factors implements Iterable<Factor> {
     Utils.checkcond(this.factorMap.containsKey(factorName));
     Factor f = get(factorName);
     int i = this.factors.indexOf(f);
-    Utils.checkcond(i < this.factors.size() - 1, String.format("'%s' is the last factor name.", factorName));
+    Utils.checkcond(i < this.factors.size() - 1,
+        String.format("'%s' is the last factor name.", factorName));
     Factor g = get(i + 1);
     return g.name;
   }
@@ -97,7 +98,9 @@ public class Factors implements Iterable<Factor> {
     List<Factor> factors = new LinkedList<Factor>();
     boolean found = false;
     for (Factor f : this.factors) {
-      if (f.name.equals(from)) found = true;
+      if (f.name.equals(from)) {
+        found = true;
+      }
       if (found) {
         factors.add(f);
       }
@@ -133,15 +136,17 @@ public class Factors implements Iterable<Factor> {
    * using values given by {@code tuple}.
    * For factors that do not appear in {@code tuple}, {@code defaultValue} will
    * be used.
-   *
+   * <p/>
    * The {@code tuple} must not contain any keys which are not defined in this object.
-   *
+   * <p/>
    * The object {@code tuple} will remain unchanged after a call of this method.
    */
   public Tuple createTupleFrom(Tuple tuple, Object defaultValue) {
     Utils.checknotnull(tuple);
     for (String k : tuple.keySet()) {
-      Utils.checkcond(this.factorMap.containsKey(k), String.format("Undefined factor '%s' was found: defined keys (%s)", k, this.getFactorNames()));
+      Utils.checkcond(this.factorMap.containsKey(k), String
+          .format("Undefined factor '%s' was found: defined keys (%s)", k,
+              this.getFactorNames()));
     }
     Tuple ret = tuple.clone();
     for (String k : getFactorNames()) {

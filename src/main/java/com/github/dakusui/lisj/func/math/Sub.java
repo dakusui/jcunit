@@ -1,10 +1,11 @@
 package com.github.dakusui.lisj.func.math;
 
-import java.math.BigDecimal;
-
 import com.github.dakusui.lisj.Context;
 
-import static com.github.dakusui.lisj.Basic.*;
+import java.math.BigDecimal;
+
+import static com.github.dakusui.lisj.Basic.length;
+import static com.github.dakusui.lisj.Basic.tostr;
 
 public class Sub extends NumericFunc {
   /**
@@ -17,10 +18,11 @@ public class Sub extends NumericFunc {
       BigDecimal[] evaluatedParams) {
     BigDecimal ret = null;
     for (BigDecimal cur : evaluatedParams) {
-      if (ret == null)
+      if (ret == null) {
         ret = cur;
-      else
+      } else {
         ret = ret.subtract(cur);
+      }
     }
     return ret;
   }
@@ -28,8 +30,9 @@ public class Sub extends NumericFunc {
   @Override
   protected Object checkParams(Object params) {
     super.checkParams(params);
-    if (length(params) < 1)
+    if (length(params) < 1) {
       throw new IllegalArgumentException(tooFewArguments(params));
+    }
     return params;
   }
 

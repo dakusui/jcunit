@@ -1,20 +1,19 @@
 package com.github.dakusui.jcunit.tutorial.session01;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
+import com.github.dakusui.jcunit.compat.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
+import com.github.dakusui.jcunit.compat.core.Summarizer;
+import com.github.dakusui.jcunit.core.In;
+import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.core.Out;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.In;
-import com.github.dakusui.jcunit.compat.core.JCUnit;
-import com.github.dakusui.jcunit.core.Out;
-import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.compat.core.Summarizer;
+import java.util.HashMap;
+import java.util.Map;
 
 @RunWith(JCUnit.class)
 /*
@@ -37,34 +36,36 @@ public class CalcTest1 {
     }
 
     public boolean equals(Object another) {
-      if (another == null)
+      if (another == null) {
         return false;
-      if (!(another instanceof Example))
+      }
+      if (!(another instanceof Example)) {
         return false;
+      }
       return this.a == ((Example) another).a;
     }
   }
 
   @In
-  public int                 a;
+  public int    a;
   @In
-  public int                 b;
+  public int    b;
   @Out
-  public int                 c;
+  public int    c;
   @Out
-  public Object              obj;
+  public Object obj;
   @Out
-  public String              str;
+  public String str;
   @Out
-  public Map<String, String> map        = new HashMap<String, String>();
+  public Map<String, String> map = new HashMap<String, String>();
 
   @Rule
-  public RuleSet             rules      = new JCUnitBase()
-                                            .autoRuleSet(this).summarizer(
-                                                summarizer);
+  public RuleSet rules = new JCUnitBase()
+      .autoRuleSet(this).summarizer(
+          summarizer);
 
   @ClassRule
-  public static Summarizer   summarizer = new BasicSummarizer();
+  public static Summarizer summarizer = new BasicSummarizer();
 
   @Test
   public void test() {

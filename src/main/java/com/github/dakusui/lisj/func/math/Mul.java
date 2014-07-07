@@ -1,8 +1,8 @@
 package com.github.dakusui.lisj.func.math;
 
-import java.math.BigDecimal;
-
 import com.github.dakusui.lisj.Context;
+
+import java.math.BigDecimal;
 
 public class Mul extends NumericFunc {
   /**
@@ -15,10 +15,11 @@ public class Mul extends NumericFunc {
       BigDecimal[] evaluatedParams) {
     BigDecimal ret = BigDecimal.ONE;
     for (BigDecimal cur : evaluatedParams) {
-      if (ret == null)
+      if (ret == null) {
         ret = cur;
-      else
+      } else {
         ret = ret.multiply(cur);
+      }
     }
     return ret;
   }

@@ -11,7 +11,6 @@ public class And extends LogicalMultinominalPredicate {
    */
   private static final long serialVersionUID = -3809947834203544114L;
 
-
   @Override
   protected boolean initialValue() {
     return true;

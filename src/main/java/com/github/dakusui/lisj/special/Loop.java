@@ -1,15 +1,11 @@
 package com.github.dakusui.lisj.special;
 
-import static com.github.dakusui.lisj.Basic.eval;
-import static com.github.dakusui.lisj.Basic.length;
-
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
-import com.github.dakusui.lisj.BaseForm;
-import com.github.dakusui.lisj.Basic;
-import com.github.dakusui.lisj.CUT;
-import com.github.dakusui.lisj.Context;
-import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.*;
+
+import static com.github.dakusui.lisj.Basic.eval;
+import static com.github.dakusui.lisj.Basic.length;
 
 public class Loop extends BaseForm {
   /**
@@ -43,8 +39,9 @@ public class Loop extends BaseForm {
     FormResult ret = lastResult;
     ret.value(currentParam);
     ret.incrementPosition();
-    if (ret.nextPosition() >= ret.numPositions())
+    if (ret.nextPosition() >= ret.numPositions()) {
       ret.nextPosition(0);
+    }
     return ret;
   }
 
@@ -56,8 +53,9 @@ public class Loop extends BaseForm {
    */
   @Override
   protected Object checkParams(Object params) {
-    if (length(super.checkParams(params)) < 1)
+    if (length(super.checkParams(params)) < 1) {
       throw new IllegalArgumentException();
+    }
     return params;
   }
 }

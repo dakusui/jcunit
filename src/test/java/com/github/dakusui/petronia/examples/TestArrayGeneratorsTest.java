@@ -1,14 +1,13 @@
 package com.github.dakusui.petronia.examples;
 
-import static org.junit.Assert.assertEquals;
-
+import com.github.dakusui.jcunit.core.SystemProperties;
+import com.github.dakusui.jcunit.testutils.TestUtils;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
-import com.github.dakusui.jcunit.core.SystemProperties;
-import com.github.dakusui.jcunit.testutils.TestUtils;
+import static org.junit.Assert.assertEquals;
 
 public class TestArrayGeneratorsTest {
   @Test

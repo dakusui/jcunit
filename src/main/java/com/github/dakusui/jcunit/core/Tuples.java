@@ -2,102 +2,97 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Tuples {
-	private final Set<Tuple> tuples;
-	private final String factorName;
-	private final int strength;
+  private final Set<Tuple> tuples;
+  private final String     factorName;
+  private final int        strength;
 
-	public Tuples(Factors factors, Factor factorName,
-	              int strength) {
-		Utils.checknotnull(factors);
-		Utils.checknotnull(factorName);
-		Utils.checkcond(!factors.contains(factorName), String
-				.format("factors(%s) mustn't contain '%s'", factors.getFactorNames(),
-						factorName.name));
-		this.factorName = factorName.name;
-		this.strength = strength;
-		this.tuples = init(factors, factorName);
-	}
+  public Tuples(Factors factors, Factor factorName,
+      int strength) {
+    Utils.checknotnull(factors);
+    Utils.checknotnull(factorName);
+    Utils.checkcond(!factors.contains(factorName), String
+        .format("factors(%s) mustn't contain '%s'", factors.getFactorNames(),
+            factorName.name));
+    this.factorName = factorName.name;
+    this.strength = strength;
+    this.tuples = init(factors, factorName);
+  }
 
-	private Tuples(Tuples tuples) {
-		this.tuples = Collections.unmodifiableSet(tuples.tuples);
-		this.factorName = tuples.factorName;
-		this.strength = tuples.strength;
-	}
+  private Tuples(Tuples tuples) {
+    this.tuples = Collections.unmodifiableSet(tuples.tuples);
+    this.factorName = tuples.factorName;
+    this.strength = tuples.strength;
+  }
 
-	protected Set<Tuple> init(
-			Factors factors, Factor factor) {
-		Set<Tuple> ret = new HashSet<Tuple>();
-		for (Tuple t : factors.generateAllPossibleTuples(this.strength - 1)) {
-			for (Object l : factor) {
-				Tuple tt = t.clone();
-				tt.put(factor.name, l);
-				ret.add(tt);
-			}
-		}
-		return ret;
-	}
+  protected Set<Tuple> init(
+      Factors factors, Factor factor) {
+    Set<Tuple> ret = new HashSet<Tuple>();
+    for (Tuple t : factors.generateAllPossibleTuples(this.strength - 1)) {
+      for (Object l : factor) {
+        Tuple tt = t.clone();
+        tt.put(factor.name, l);
+        ret.add(tt);
+      }
+    }
+    return ret;
+  }
 
-	public void add(Tuple tuple) {
-		this.tuples.add(tuple);
-	}
+  public void add(Tuple tuple) {
+    this.tuples.add(tuple);
+  }
 
-	public void removeAll(Set<Tuple> tuples) {
-		this.tuples.removeAll(tuples);
-	}
+  public void removeAll(Set<Tuple> tuples) {
+    this.tuples.removeAll(tuples);
+  }
 
-	public boolean isEmpty() {
-		return this.tuples.isEmpty();
-	}
+  public boolean isEmpty() {
+    return this.tuples.isEmpty();
+  }
 
-	public List<Tuple> leftTuples() {
-		return new LinkedList<Tuple>(this.tuples);
-	}
+  public List<Tuple> leftTuples() {
+    return new LinkedList<Tuple>(this.tuples);
+  }
 
-	public Set<Tuple> coveredBy(
-			Tuple tuple) {
-		Set<Tuple> ret = new LinkedHashSet<Tuple>();
-		Set<Tuple> possibleTuples = IPO2Utils.subtuplesOf(tuple,
-				this.strength);
-		for (Tuple c : possibleTuples) {
-			if (this.tuples.contains(c)) {
-				ret.add(c);
-			}
-		}
-		return ret;
-	}
+  public Set<Tuple> coveredBy(
+      Tuple tuple) {
+    Set<Tuple> ret = new LinkedHashSet<Tuple>();
+    Set<Tuple> possibleTuples = IPO2Utils.subtuplesOf(tuple,
+        this.strength);
+    for (Tuple c : possibleTuples) {
+      if (this.tuples.contains(c)) {
+        ret.add(c);
+      }
+    }
+    return ret;
+  }
 
-	@Override
-	public int hashCode() {
-		return this.factorName.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return this.factorName.hashCode();
+  }
 
-	@Override
-	public boolean equals(Object anotherObject) {
-		if (!(anotherObject instanceof Tuples)) {
-			return false;
-		}
-		Tuples another = (Tuples) anotherObject;
-		return this.factorName.equals(((Tuples) anotherObject).factorName)
-				&& this.tuples.equals(another.tuples);
-	}
+  @Override
+  public boolean equals(Object anotherObject) {
+    if (!(anotherObject instanceof Tuples)) {
+      return false;
+    }
+    Tuples another = (Tuples) anotherObject;
+    return this.factorName.equals(((Tuples) anotherObject).factorName)
+        && this.tuples.equals(another.tuples);
+  }
 
-	public void addAll(Set<Tuple> leftOver) {
-		this.tuples.addAll(leftOver);
-	}
+  public void addAll(Set<Tuple> leftOver) {
+    this.tuples.addAll(leftOver);
+  }
 
-	public boolean contains(Tuple tuple) {
-		return this.tuples.contains(tuple);
-	}
+  public boolean contains(Tuple tuple) {
+    return this.tuples.contains(tuple);
+  }
 
-	public Tuples unmodifiableVersion() {
-		return new Tuples(this);
-	}
+  public Tuples unmodifiableVersion() {
+    return new Tuples(this);
+  }
 }

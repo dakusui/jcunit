@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * A class that represents the set of test runs.
- * 
+ *
  * @author hiroshi
  */
 public class IPOTestRunSet extends ArrayList<IPOTestRun> {
@@ -14,8 +14,8 @@ public class IPOTestRunSet extends ArrayList<IPOTestRun> {
   }
 
   private static final long serialVersionUID = 1L;
-  int                       width;
-  private Info              info;
+  int width;
+  private Info info;
 
   public IPOTestRunSet(int width) {
     this.width = width;
@@ -23,7 +23,7 @@ public class IPOTestRunSet extends ArrayList<IPOTestRun> {
 
   /**
    * Returns number of parameters that are held by this object.
-   * 
+   *
    * @return number of attributes.
    */
   public int width() {
@@ -33,25 +33,27 @@ public class IPOTestRunSet extends ArrayList<IPOTestRun> {
   /**
    * Add the given <code>run</code> object to this object. If a value not to be
    * added is given, a <code>RuntimeException</code> will be thrown.
-   * 
-   * @param run
-   *          the value to be added.
+   *
+   * @param run the value to be added.
    */
   @Override
   public boolean add(IPOTestRun run) {
-    if (run == null)
+    if (run == null) {
       throw new NullPointerException();
-    if (run.v == null)
+    }
+    if (run.v == null) {
       throw new NullPointerException();
-    if (run.v.length != this.width)
+    }
+    if (run.v.length != this.width) {
       throw new IllegalArgumentException();
+    }
     return super.add(run);
   }
 
   /**
    * Returns an array of parameter IDs by which you can call 'valueOf' method as
    * <code>F</code>.
-   * 
+   *
    * @return An array of parameter ID's.
    */
   public int[] coveredParameters() {
@@ -65,14 +67,14 @@ public class IPOTestRunSet extends ArrayList<IPOTestRun> {
   /**
    * Returns <code>i</code>th run in this set. Note that <code>i</code> is
    * 1-origin. not 0.
-   * 
-   * @param i
-   *          an index to specify test run.
+   *
+   * @param i an index to specify test run.
    * @return A <code>i</code>th test run
    */
   public IPOTestRun getRun(int i) {
-    if (i == 0)
+    if (i == 0) {
       throw new IllegalArgumentException();
+    }
     return super.get(i - 1);
   }
 
@@ -96,8 +98,9 @@ public class IPOTestRunSet extends ArrayList<IPOTestRun> {
 
   public boolean covers(IPOValuePair p) {
     for (IPOTestRun cur : this) {
-      if (cur.covers(p))
+      if (cur.covers(p)) {
         return true;
+      }
     }
     return false;
   }

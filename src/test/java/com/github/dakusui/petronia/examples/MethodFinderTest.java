@@ -1,77 +1,89 @@
 package com.github.dakusui.petronia.examples;
 
-import java.lang.reflect.Method;
-
+import com.github.dakusui.jcunit.compat.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.RuleSet;
+import com.github.dakusui.jcunit.core.Generator;
+import com.github.dakusui.jcunit.core.In;
+import com.github.dakusui.jcunit.core.In.Domain;
+import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.core.Out;
+import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import com.github.dakusui.jcunit.compat.core.JCUnit;
-import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.In;
-import com.github.dakusui.jcunit.core.Out;
-import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.core.In.Domain;
-import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
+import java.lang.reflect.Method;
 
 public class MethodFinderTest extends JCUnitBase {
   @RunWith(JCUnit.class)
   @Generator(SimpleTestArrayGenerator.class)
   public static class MethodFinderTest1 extends MethodFinderTest {
     @Rule
-    public RuleSet    verifier = ruleSet()
-                                   .incase(
-                                       and(isoneof(get("clazz"), String.class,
-                                           Object.class),
-                                           is(get("methodName"), "toString"),
-                                           eq(get("parameterTypes"),
-                                               new Object[0])),
-                                       not(is(get("method"), null)))
-                                   .incase(
-                                       and(is(get("methodName"), "equals"),
-                                           eq(get("parameterTypes"),
-                                               new Object[0])),
-                                       isinstanceof(get("exception"),
-                                           NoSuchMethodException.class))
-                                   .incase(
-                                       and(is(get("methodName"), "matches"),
-                                           eq(get("parameterTypes"),
-                                               new Object[0])),
-                                       isinstanceof(get("exception"),
-                                           NoSuchMethodException.class))
-                                   .incase(
-                                       is(get("clazz"), null),
-                                       isinstanceof(get("exception"),
-                                           NullPointerException.class))
-                                   .incase(
-                                       is(get("methodName"), null),
-                                       isinstanceof(get("exception"),
-                                           NullPointerException.class))
-                                   .incase(
-                                       is(get("parameterTypes"), null),
-                                       isinstanceof(get("exception"),
-                                           NullPointerException.class))
-                                   .incase(
-                                       is(get("methodName"), "notFound"),
-                                       isinstanceof(get("exception"),
-                                           NoSuchMethodException.class))
-                                   .incase(
-                                       and(is(get("methodName"), "toString"),
-                                           not(or(
-                                               eq(get("parameterTypes"),
-                                                   new Object[0]),
-                                               eq(get("parameterTypes"), null)))),
-                                       isinstanceof(get("exception"),
-                                           NoSuchMethodException.class));
+    public RuleSet verifier = ruleSet()
+        .incase(
+            and(isoneof(get("clazz"), String.class,
+                    Object.class),
+                is(get("methodName"), "toString"),
+                eq(get("parameterTypes"),
+                    new Object[0])
+            ),
+            not(is(get("method"), null))
+        )
+        .incase(
+            and(is(get("methodName"), "equals"),
+                eq(get("parameterTypes"),
+                    new Object[0])
+            ),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        )
+        .incase(
+            and(is(get("methodName"), "matches"),
+                eq(get("parameterTypes"),
+                    new Object[0])
+            ),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        )
+        .incase(
+            is(get("clazz"), null),
+            isinstanceof(get("exception"),
+                NullPointerException.class)
+        )
+        .incase(
+            is(get("methodName"), null),
+            isinstanceof(get("exception"),
+                NullPointerException.class)
+        )
+        .incase(
+            is(get("parameterTypes"), null),
+            isinstanceof(get("exception"),
+                NullPointerException.class)
+        )
+        .incase(
+            is(get("methodName"), "notFound"),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        )
+        .incase(
+            and(is(get("methodName"), "toString"),
+                not(or(
+                    eq(get("parameterTypes"),
+                        new Object[0]),
+                    eq(get("parameterTypes"), null)
+                ))
+            ),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        );
 
     @In(
         domain = Domain.Method)
     public Class<?>[] parameterTypes;
 
     public static Class<?>[][] parameterTypes() {
-      return new Class<?>[][] { new Class[] {}, new Class[] { Object.class },
+      return new Class<?>[][] { new Class[] { }, new Class[] { Object.class },
           new Class[] { String.class }, null };
     }
 
@@ -96,57 +108,69 @@ public class MethodFinderTest extends JCUnitBase {
   public static class MethodFinderTest2 extends MethodFinderTest {
     @Rule
     public RuleSet verifier = ruleSet()
-                                .incase(
-                                    and(isoneof(get("clazz"), String.class,
-                                        Object.class),
-                                        is(get("methodName"), "toString"),
-                                        eq(get("parameterTypes"), "")),
-                                    not(is(get("method"), null)))
-                                .incase(
-                                    and(is(get("methodName"), "equals"),
-                                        eq(get("parameterTypes"), "")),
-                                    isinstanceof(get("exception"),
-                                        NoSuchMethodException.class))
-                                .incase(
-                                    and(is(get("methodName"), "matches"),
-                                        eq(get("parameterTypes"), "")),
-                                    isinstanceof(get("exception"),
-                                        NoSuchMethodException.class))
-                                .incase(
-                                    is(get("clazz"), null),
-                                    isinstanceof(get("exception"),
-                                        NullPointerException.class))
-                                .incase(
-                                    is(get("methodName"), null),
-                                    isinstanceof(get("exception"),
-                                        NullPointerException.class))
-                                .incase(
-                                    is(get("parameterTypes"), null),
-                                    isinstanceof(get("exception"),
-                                        NullPointerException.class))
-                                .incase(
-                                    isoneof(get("parameterTypes"), "Q",
-                                        "Lnot.Found;"),
-                                    isinstanceof(get("exception"),
-                                        IllegalArgumentException.class))
-                                .incase(
-                                    is(get("methodName"), "notFound"),
-                                    isinstanceof(get("exception"),
-                                        NoSuchMethodException.class))
-                                .incase(
-                                    and(is(get("methodName"), "toString"),
-                                        not(or(
-                                            eq(get("parameterTypes"),
-                                                "Lnot.Found;"),
-                                            eq(get("parameterTypes"), ""),
-                                            eq(get("parameterTypes"), "Q"),
-                                            eq(get("parameterTypes"), null)))),
-                                    isinstanceof(get("exception"),
-                                        NoSuchMethodException.class));
+        .incase(
+            and(isoneof(get("clazz"), String.class,
+                    Object.class),
+                is(get("methodName"), "toString"),
+                eq(get("parameterTypes"), "")
+            ),
+            not(is(get("method"), null))
+        )
+        .incase(
+            and(is(get("methodName"), "equals"),
+                eq(get("parameterTypes"), "")),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        )
+        .incase(
+            and(is(get("methodName"), "matches"),
+                eq(get("parameterTypes"), "")),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        )
+        .incase(
+            is(get("clazz"), null),
+            isinstanceof(get("exception"),
+                NullPointerException.class)
+        )
+        .incase(
+            is(get("methodName"), null),
+            isinstanceof(get("exception"),
+                NullPointerException.class)
+        )
+        .incase(
+            is(get("parameterTypes"), null),
+            isinstanceof(get("exception"),
+                NullPointerException.class)
+        )
+        .incase(
+            isoneof(get("parameterTypes"), "Q",
+                "Lnot.Found;"),
+            isinstanceof(get("exception"),
+                IllegalArgumentException.class)
+        )
+        .incase(
+            is(get("methodName"), "notFound"),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        )
+        .incase(
+            and(is(get("methodName"), "toString"),
+                not(or(
+                    eq(get("parameterTypes"),
+                        "Lnot.Found;"),
+                    eq(get("parameterTypes"), ""),
+                    eq(get("parameterTypes"), "Q"),
+                    eq(get("parameterTypes"), null)
+                ))
+            ),
+            isinstanceof(get("exception"),
+                NoSuchMethodException.class)
+        );
 
     @In(
         domain = Domain.Method)
-    public String  parameterTypes;
+    public String parameterTypes;
 
     public static String[] parameterTypes() {
       return new String[] { "", "Ljava.lang.Object;", "Ljava.lang.String;",
@@ -163,8 +187,9 @@ public class MethodFinderTest extends JCUnitBase {
         this.method = finder.find();
       } catch (Exception e) {
         this.exception = e;
-        if (e instanceof ClassNotFoundException)
+        if (e instanceof ClassNotFoundException) {
           throw e;
+        }
       }
     }
   }
@@ -186,7 +211,7 @@ public class MethodFinderTest extends JCUnitBase {
   }
 
   @Out
-  public Method    method;
+  public Method method;
 
   @Out
   public Exception exception;

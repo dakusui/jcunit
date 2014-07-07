@@ -1,13 +1,11 @@
 package com.github.dakusui.petronia.ut.basic;
 
-import junit.framework.TestCase;
-
-import org.junit.Test;
-
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
+import junit.framework.TestCase;
+import org.junit.Test;
 
 public class BasicTest extends JCUnitBase {
   @Test
@@ -45,11 +43,11 @@ public class BasicTest extends JCUnitBase {
     TestCase.assertFalse(Basic.evalp(this, Basic.quote($("eq"), null, 100)));
   }
 
-
   ////
   // A known bug.
   // @Test()
   public void eq_01() throws Exception {
-    TestCase.assertEquals(true, Basic.eq(new Object[]{1, new Object[]{1}}, new Object[]{1, 1}));
+    TestCase.assertEquals(true, Basic
+        .eq(new Object[] { 1, new Object[] { 1 } }, new Object[] { 1, 1 }));
   }
 }

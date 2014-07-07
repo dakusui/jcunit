@@ -10,6 +10,7 @@ public class Tuple extends LinkedHashMap<String, Object> {
       this.attrs.put(k, v);
       return this;
     }
+
     public Tuple build() {
       Tuple ret = new Tuple();
       for (String k : this.attrs.keySet()) {

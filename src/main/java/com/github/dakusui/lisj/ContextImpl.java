@@ -1,17 +1,13 @@
 package com.github.dakusui.lisj;
 
-import java.math.MathContext;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
+
+import java.math.MathContext;
+import java.util.*;
 
 public abstract class ContextImpl implements Context {
   private final List<ContextObserver> observers = new LinkedList<ContextObserver>();
-  private final Map<String, Object> formMap = new HashMap<String, Object>();
+  private final Map<String, Object>   formMap   = new HashMap<String, Object>();
 
   @Override
   public Object lookup(Symbol symbol) throws SymbolNotFoundException {

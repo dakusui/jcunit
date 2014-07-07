@@ -1,7 +1,5 @@
 package com.github.dakusui.lisj.func.java;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
@@ -9,6 +7,7 @@ import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.func.BaseFunc;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class Invoke extends BaseFunc {
 
@@ -32,8 +31,9 @@ public class Invoke extends BaseFunc {
   @Override
   protected Object checkParams(Object params) {
     super.checkParams(params);
-    if (Basic.length(params) < 2)
+    if (Basic.length(params) < 2) {
       throw new IllegalArgumentException();
+    }
     Utils.checknotnull(Basic.get(params, 0));
     Utils.checknotnull(Basic.get(params, 1));
     return params;
