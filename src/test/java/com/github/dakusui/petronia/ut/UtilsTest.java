@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.compat.core.JCUnit;
-import com.github.dakusui.jcunit.core.DomainGenerator;
+import com.github.dakusui.jcunit.compat.core.DomainGenerator;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.In.Domain;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;

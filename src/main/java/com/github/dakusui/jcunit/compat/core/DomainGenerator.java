@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.compat.core;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 

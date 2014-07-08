@@ -1,5 +1,8 @@
 package com.github.dakusui.jcunit.core.encoders;
 
+import com.github.dakusui.jcunit.core.annotations.FactorField;
+import org.mockito.Mock;
+
 public abstract class BaseObjectEncoder implements ObjectEncoder {
 
   protected String createMessage_FailedToDecodeObject(
@@ -8,4 +11,11 @@ public abstract class BaseObjectEncoder implements ObjectEncoder {
         .getClass().getName(), e.getMessage());
     return msg;
   }
+
+	@Mock
+			@FactorField()
+	BaseObjectEncoder t;
+
+
+	public void t() {}
 }
