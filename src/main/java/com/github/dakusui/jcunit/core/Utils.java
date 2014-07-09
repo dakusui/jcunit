@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 
 import java.lang.annotation.Annotation;
@@ -20,6 +21,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+  public static interface Formatter<T> {
+    public static final Formatter INSTANCE = new Formatter<Object>() {
+      @Override public String format(Object elem) {
+        if (elem == null) return null;
+        return elem.toString();
+      }
+    };
+    String format(T elem);
+  }
+
   public static BigDecimal bigDecimal(Number num) {
     if (num == null) {
       throw new NullPointerException();
@@ -106,10 +117,10 @@ public class Utils {
         f.setAccessible(accessible);
       }
     } catch (IllegalArgumentException e) {
-      assert false;
+      Utils.checkcond(false);
       throw e;
     } catch (IllegalAccessException e) {
-      assert false;
+      rethrow(e);
     }
     return ret;
   }
@@ -130,6 +141,44 @@ public class Utils {
     }
   }
 
+  /**
+   *
+   * This method is implemented in order to reduce dependencies on external libraries.
+   *
+   * @param sep A separator to be used to join {@code elemes}
+   * @param elems Elements to be joined.
+   * @return A joined {@code String}
+   */
+  public static <T> String join(String sep, Formatter formatter, T... elems) {
+    Utils.checknotnull(sep);
+    StringBuilder b = new StringBuilder();
+    boolean firstOne = true;
+    for (T s : elems) {
+      if (!firstOne) b.append(formatter.format(sep));
+      b.append(s);
+      firstOne = false;
+    }
+    return b.toString();
+  }
+
+  public static <T> String join(String sep, T... elems) {
+    return join(sep, Formatter.INSTANCE, elems);
+  }
+
+  public static <T> String join(T... elems) {
+    return join("", elems);
+  }
+
+  /**
+   * Checks if the given {@code obj} is {@code null} or not.
+   * If it is, a {@code NullPointerException} will be thrown.
+   *
+   * This method is implemented in order to reduce dependencies on external libraries.
+   *
+   * @param obj A variable to be checked.
+   * @param <T> The type of {@code obj}
+   * @return {@code obj} itself
+   */
   public static <T> T checknotnull(T obj) {
     if (obj == null) {
       throw new NullPointerException();
@@ -147,6 +196,14 @@ public class Utils {
     if (!b) {
       throw new IllegalArgumentException(msg);
     }
+  }
+
+  public static void rethrow(String msg, Exception e) {
+    throw new JCUnitRuntimeException(msg, e);
+  }
+
+  public static void rethrow(Exception e) {
+    rethrow(e.getMessage(), e);
   }
 
   public static void initializeTestObject(Object out,

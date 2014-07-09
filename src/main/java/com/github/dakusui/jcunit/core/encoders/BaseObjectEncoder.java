@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.encoders;
 
-import com.github.dakusui.jcunit.core.annotations.FactorField;
+import com.github.dakusui.jcunit.core.factor.FactorField;
 import org.mockito.Mock;
 
 public abstract class BaseObjectEncoder implements ObjectEncoder {

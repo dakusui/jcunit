@@ -5,6 +5,8 @@ import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.compat.generators.ipo.GiveUp;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 
 import java.util.*;

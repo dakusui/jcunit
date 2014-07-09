@@ -1,8 +1,10 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
+import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 
 import java.util.ArrayList;
