@@ -1,10 +1,10 @@
-package com.github.dakusui.jcunit.generators;
+package com.github.dakusui.jcunit.compat.generators;
 
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 
 import java.util.LinkedHashMap;
 
-public class SimpleTestArrayGenerator<T> extends
+public class CartesianTestArrayGenerator<T> extends
     BaseTestArrayGenerator<T> {
   @Override
   public long initializeTestCases(GeneratorParameters.Value[] params,
@@ -15,32 +15,25 @@ public class SimpleTestArrayGenerator<T> extends
     }
     long size = 1;
     for (T f : this.domains.keySet()) {
-      size += Math.max(0, this.domains.get(f).length - 1);
+      Object[] d = this.domains.get(f);
+      size *= d.length;
     }
     return size;
   }
 
   @Override
   public int getIndex(T key, long cur) {
-    // //
-    // Initialize the returned map with the default values.
-    int ret = 0;
-    // //
-    // If cur is 0, the returned value should always be 0.
-    if (cur == 0) {
-      return 0;
-    }
-    cur--;
+    long div = cur;
     for (T f : this.domains.keySet()) {
-      long index = cur;
-      Object[] d = domains.get(f);
-      if ((cur -= (d.length - 1)) < 0) {
-        if (key.equals(f)) {
-          ret = (int) (index + 1);
-        }
-        break;
+      Object[] values = domains.get(f);
+      int index = (int) (div % values.length);
+      if (key.equals(f)) {
+        return index;
       }
+
+      div = div / values.length;
     }
-    return ret;
+    assert false;
+    return -1;
   }
 }

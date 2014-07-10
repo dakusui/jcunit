@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.generators;
+package com.github.dakusui.jcunit.compat.generators;
 
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 

@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.compat.core.RuleSet.Pair;
 import com.github.dakusui.jcunit.compat.core.RuleSet.RuleIgnored;
 import com.github.dakusui.jcunit.compat.report.Reporter.Domain;
 import com.github.dakusui.jcunit.compat.report.Reporter.FieldSet;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.TestArrayGenerator;
 import com.github.dakusui.lisj.Basic;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.runner.Description;

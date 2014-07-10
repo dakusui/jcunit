@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.compat.core;
 
 import com.github.dakusui.jcunit.compat.report.ReportWriter;
-import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
@@ -9,8 +8,8 @@ import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
-import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.SimpleTestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.TestArrayGenerator;
 import com.github.dakusui.lisj.Basic;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
@@ -174,7 +173,7 @@ public class JCUnit extends Suite {
       ret = new DomainGenerator() {
         @Override
         public Object[] domain() throws JCUnitException {
-          return Utils.invokeDomainMethod(m);
+          return CompatUtils.invokeDomainMethod(m);
         }
       };
     } else if (inType == In.Domain.Default) {
@@ -300,7 +299,7 @@ public class JCUnit extends Suite {
 
     // //
     // Initialize the domains for every '@In' annotated field.
-    Field[] fields = Utils.getInFieldsFromClassUnderTest(cut);
+    Field[] fields = CompatUtils.getInFieldsFromClassUnderTest(cut);
 
     // Intentionally using concrete class name 'LinkedHashMap' to express
     // this variable needs to have predictable order in listing keys.

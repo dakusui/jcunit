@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.compat.core.annotations;
 
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.TestArrayGenerator;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

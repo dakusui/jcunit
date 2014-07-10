@@ -40,7 +40,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     TestClass klazz = getTestClass();
     Object ret = klazz.getJavaClass().newInstance();
     Map<Field, Object> values = JCUnit.cast(computeParams());
-    Utils.initializeTestObject(ret, values);
+    CompatUtils.initializeTestObject(ret, values);
     for (RuleSet cur : getRuleSets(ret)) {
       cur.setInValues(values);
     }

@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestRunSet;
 import com.github.dakusui.jcunit.compat.generators.ipo.IPOTestSpace;
 import com.github.dakusui.jcunit.compat.generators.ipo.optimizers.GreedyIPOOptimizer;
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
-import com.github.dakusui.jcunit.generators.BaseTestArrayGenerator;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,8 +17,8 @@ import java.util.Map;
  *
  * @param <T> Type of keys
  * @author hiroshi
- * @see com.github.dakusui.jcunit.generators.BaseTestArrayGenerator
- * @see com.github.dakusui.jcunit.generators.TestArrayGenerator
+ * @see BaseTestArrayGenerator
+ * @see TestArrayGenerator
  */
 public class PairwiseTestArrayGenerator<T> extends
     BaseTestArrayGenerator<T> {

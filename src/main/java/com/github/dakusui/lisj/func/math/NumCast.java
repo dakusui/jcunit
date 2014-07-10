@@ -3,6 +3,7 @@ package com.github.dakusui.lisj.func.math;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 import com.github.dakusui.lisj.func.BaseFunc;
 
 import java.math.BigDecimal;
@@ -33,7 +34,7 @@ public abstract class NumCast extends BaseFunc {
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult) {
-    Number value = Utils.bigDecimal(Utils
+    Number value = Utils.bigDecimal(LisjUtils
         .cast(Number.class, evaluatedParams[0]));
     lastResult.value(cast(value));
     return lastResult;

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.generators;
+package com.github.dakusui.jcunit.compat.generators;
 
 import com.github.dakusui.jcunit.constraints.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.*;

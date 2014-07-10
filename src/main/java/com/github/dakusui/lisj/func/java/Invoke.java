@@ -6,6 +6,7 @@ import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 import com.github.dakusui.lisj.func.BaseFunc;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -24,7 +25,7 @@ public class Invoke extends BaseFunc {
     String methodId = Utils.checknotnull(evaluatedParams[1]).toString();
     Object[] params = ArrayUtils.subarray(evaluatedParams, 2,
         evaluatedParams.length);
-    ret.value(Utils.invokeMethod(obj, methodId, params));
+    ret.value(LisjUtils.invokeMethod(obj, methodId, params));
     return ret;
   }
 

@@ -27,7 +27,7 @@ public class Lambda extends BaseForm {
       throws JCUnitException, CUT {
     FormResult ret = lastResult;
 
-    final Symbol[] paramSymbols = Utils
+    final Symbol[] paramSymbols = LisjUtils
         .cast(Symbol[].class, Utils.checknotnull(evaluatedParams[0]));
     final Object[] funcBody = ArrayUtils
         .subarray(evaluatedParams, 1, evaluatedParams.length);

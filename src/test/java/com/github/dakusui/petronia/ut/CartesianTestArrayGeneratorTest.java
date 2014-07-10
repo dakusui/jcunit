@@ -1,8 +1,8 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters.Value;
-import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.CartesianTestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.TestArrayGenerator;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

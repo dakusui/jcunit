@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.In.Domain;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
-import com.github.dakusui.jcunit.generators.BaseTestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.BaseTestArrayGenerator;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

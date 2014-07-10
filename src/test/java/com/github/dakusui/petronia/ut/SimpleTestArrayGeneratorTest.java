@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
-import com.github.dakusui.jcunit.generators.SimpleTestArrayGenerator;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.SimpleTestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.TestArrayGenerator;
 
 public class SimpleTestArrayGeneratorTest extends TestArrayGeneratorTest {
 

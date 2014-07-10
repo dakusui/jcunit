@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
-import com.github.dakusui.jcunit.generators.IPO2TestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.IPO2TestArrayGenerator;
 import com.github.dakusui.petronia.examples.Calc.Op;
 import org.junit.ClassRule;
 import org.junit.Rule;

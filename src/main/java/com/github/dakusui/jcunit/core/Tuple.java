@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class Tuple extends LinkedHashMap<String, Object> implements Cloneable {
 

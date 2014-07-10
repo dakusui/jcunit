@@ -5,9 +5,6 @@ import com.github.dakusui.jcunit.core.Utils;
 
 import java.util.*;
 
-/**
- * Created by hiroshi on 7/3/14.
- */
 public class Factor implements Iterable<Object> {
   public final String       name;
   public final List<Object> levels;

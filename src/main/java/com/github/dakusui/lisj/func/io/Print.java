@@ -3,6 +3,7 @@ package com.github.dakusui.lisj.func.io;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 import com.github.dakusui.lisj.func.BaseFunc;
 
 import java.io.PrintStream;
@@ -21,8 +22,8 @@ public class Print extends BaseFunc {
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult) {
     FormResult ret = lastResult;
-    PrintStream pw = Utils.cast(PrintStream.class,
-        Utils.checknotnull(evaluatedParams[0]));
+    PrintStream pw = LisjUtils.cast(PrintStream.class,
+		    Utils.checknotnull(evaluatedParams[0]));
     String s = Utils.checknotnull(evaluatedParams[1]).toString();
     pw.print(s);
     return ret;

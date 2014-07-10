@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.compat.core.BasicSummarizer.ResultMatrix;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.compat.report.Reporter.Domain;
 import com.github.dakusui.jcunit.compat.report.Reporter.FieldSet;
-import com.github.dakusui.jcunit.generators.TestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.TestArrayGenerator;
 import org.junit.runner.Description;
 
 import java.lang.reflect.Field;

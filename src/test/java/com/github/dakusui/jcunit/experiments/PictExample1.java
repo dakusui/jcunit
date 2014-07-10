@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.In.Domain;
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.generators.CartesianTestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.CartesianTestArrayGenerator;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)

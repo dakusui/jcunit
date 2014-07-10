@@ -461,7 +461,7 @@ public class RuleSet implements TestRule {
   }
 
   protected Field[] getOutFields() {
-    return Utils.getOutFieldsFromClassUnderTest(this.target.getClass());
+    return CompatUtils.getOutFieldsFromClassUnderTest(this.target.getClass());
   }
 
   /**

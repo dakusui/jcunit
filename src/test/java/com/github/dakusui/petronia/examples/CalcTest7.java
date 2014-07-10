@@ -11,7 +11,7 @@ import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters.Typ
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters.Value;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
-import com.github.dakusui.jcunit.generators.CustomTestArrayGenerator;
+import com.github.dakusui.jcunit.compat.generators.CustomTestArrayGenerator;
 import com.github.dakusui.petronia.examples.Calc.Op;
 import org.junit.ClassRule;
 import org.junit.Rule;

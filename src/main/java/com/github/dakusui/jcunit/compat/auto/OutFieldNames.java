@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.compat.auto;
 
+import com.github.dakusui.jcunit.compat.core.CompatUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
@@ -21,8 +22,8 @@ public class OutFieldNames extends BaseFunc {
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult) throws JCUnitException, CUT {
     FormResult ret = lastResult;
-    Field[] outFields = Utils.getOutFieldsFromClassUnderTest(Basic.get(
-        evaluatedParams, 0).getClass());
+    Field[] outFields = CompatUtils.getOutFieldsFromClassUnderTest(Basic.get(
+		    evaluatedParams, 0).getClass());
     // //
     // outFields can never be null since 'checkParams' guarantees it.
     if (outFields.length == 0) {
