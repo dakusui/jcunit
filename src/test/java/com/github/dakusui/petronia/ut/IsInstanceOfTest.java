@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import org.junit.Test;
@@ -15,35 +15,35 @@ public class IsInstanceOfTest extends JCUnitBase implements
   private static final long serialVersionUID = 1L;
 
   @Test
-  public void isinstanceof_01() throws JCUnitException, CUT {
+  public void isinstanceof_01() throws JCUnitCheckedException, CUT {
     assertTrue((Boolean) Basic.eval(this, isinstanceof(this, Object.class)));
   }
 
   @Test
-  public void isinstanceof_02() throws JCUnitException, CUT {
+  public void isinstanceof_02() throws JCUnitCheckedException, CUT {
     assertTrue(!(Boolean) Basic.eval(this, isinstanceof(this, String.class)));
   }
 
   @Test
-  public void isinstanceof_03() throws JCUnitException, CUT {
+  public void isinstanceof_03() throws JCUnitCheckedException, CUT {
     assertTrue((Boolean) Basic.eval(this,
         isinstanceof(this, Serializable.class)));
   }
 
   @Test
-  public void isinstanceof_04() throws JCUnitException, CUT {
+  public void isinstanceof_04() throws JCUnitCheckedException, CUT {
     assertTrue(!(Boolean) Basic
         .eval(this, isinstanceof(this, Comparable.class)));
   }
 
   @Test
-  public void isinstanceof_05() throws JCUnitException, CUT {
+  public void isinstanceof_05() throws JCUnitCheckedException, CUT {
     assertTrue(!(Boolean) Basic.eval(this, isinstanceof(null, Object.class)));
   }
 
   @Test(
       expected = NullPointerException.class)
-  public void isinstanceof_06() throws JCUnitException, CUT {
+  public void isinstanceof_06() throws JCUnitCheckedException, CUT {
     assertTrue(!(Boolean) Basic.eval(this, isinstanceof(this, null)));
   }
 }

@@ -1,12 +1,9 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.compat.auto.OutFieldNames;
-import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.func.io.Print;
-import com.github.dakusui.lisj.func.java.Get;
 import com.github.dakusui.lisj.func.java.Invoke;
 import com.github.dakusui.lisj.func.java.IsInstanceOf;
-import com.github.dakusui.lisj.func.java.Set;
 import com.github.dakusui.lisj.func.math.*;
 import com.github.dakusui.lisj.func.str.Concat;
 import com.github.dakusui.lisj.func.str.Format;
@@ -15,7 +12,7 @@ import com.github.dakusui.lisj.special.*;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class Lisj {
-  private Context context;
+  protected final Context context;
 
   /**
    * Creates an object of this class initialized by the <code>context</code>
@@ -24,11 +21,11 @@ public class Lisj {
    * @param context A context object.
    */
   public Lisj(Context context) {
+    this.context = context;
     init(context);
   }
 
   protected void init(Context context) {
-    this.context = context;
     this.context.register(new Add());
     this.context.register(new And());
     this.context.register(new Assign());
@@ -62,7 +59,6 @@ public class Lisj {
         return "ge";
       }
     });
-    this.context.register(new Get());
     this.context.register(new Gt());
     this.context.register(NumCast.intValue());
     this.context.register(new Invoke());
@@ -140,13 +136,11 @@ public class Lisj {
     this.context.register(new Print());
     this.context.register(new Progn());
     this.context.register(new Quote(), "quote", "q");
-    this.context.register(new Set());
     this.context.register(new Sub());
     this.context.register(NumCast.shortValue());
     this.context.register(new When());
     this.context.register(new IsInstanceOf());
     this.context.register(new Concat());
-    this.context.register(new OutFieldNames());
   }
 
   public Object add(Object... params) {
@@ -207,10 +201,6 @@ public class Lisj {
 
   public Object ge(Object obj, Object another) {
     return form("ge").bind(obj, another);
-  }
-
-  public Object get(Object obj, Object attrName) {
-    return form("get").bind(obj, attrName);
   }
 
   public Object gt(Object obj, Object another) {
@@ -282,10 +272,6 @@ public class Lisj {
     return ((BaseForm) form("or")).bind(args);
   }
 
-  public Object set(Object obj, Object attrName, Object value) {
-    return form("set").bind(obj, attrName, value);
-  }
-
   public Object shortValue(Object num) {
     return form("shortValue").bind(num);
   }
@@ -294,9 +280,6 @@ public class Lisj {
     return form("sub").bind(params);
   }
 
-  public Object outFieldNames() throws SymbolNotFoundException {
-    return outFieldNames(this);
-  }
 
   public Object outFieldNames(Object obj) {
     return form("outfieldnames").bind(obj);
@@ -367,7 +350,7 @@ public class Lisj {
     return ret;
   }
 
-  private Form form(String formName) {
+  protected Form form(String formName) {
     Form ret = null;
     try {
       // //

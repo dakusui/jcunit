@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.func.math.NumCast;
@@ -14,42 +14,42 @@ import static org.junit.Assert.assertEquals;
 
 public class NumCastTest extends JCUnitBase {
   @Test
-  public void intValue() throws JCUnitException, CUT {
+  public void intValue() throws JCUnitCheckedException, CUT {
     assertEquals((int) 123, Basic.eval(this, intValue(123)));
   }
 
   @Test
-  public void shortValue() throws JCUnitException, CUT {
+  public void shortValue() throws JCUnitCheckedException, CUT {
     assertEquals((short) 123, Basic.eval(this, shortValue((short) 123)));
   }
 
   @Test
-  public void longValue() throws JCUnitException, CUT {
+  public void longValue() throws JCUnitCheckedException, CUT {
     assertEquals((long) 123, Basic.eval(this, longValue(123)));
   }
 
   @Test
-  public void floatValue() throws JCUnitException, CUT {
+  public void floatValue() throws JCUnitCheckedException, CUT {
     assertEquals((float) 123.45, Basic.eval(this, floatValue(123.45)));
   }
 
   @Test
-  public void doubleValue() throws JCUnitException, CUT {
+  public void doubleValue() throws JCUnitCheckedException, CUT {
     assertEquals((double) 123.45, Basic.eval(this, doubleValue(123.45)));
   }
 
   @Test
-  public void byteValue() throws JCUnitException, CUT {
+  public void byteValue() throws JCUnitCheckedException, CUT {
     assertEquals((byte) 123, Basic.eval(this, byteValue(123)));
   }
 
   @Test
-  public void bigDecimal() throws JCUnitException, CUT {
+  public void bigDecimal() throws JCUnitCheckedException, CUT {
     assertEquals(new BigDecimal(123), Basic.eval(this, bigDecimal(123)));
   }
 
   @Test
-  public void bigInteger() throws JCUnitException, CUT {
+  public void bigInteger() throws JCUnitCheckedException, CUT {
     assertEquals(new BigInteger("123"), Basic.eval(this, bigInteger(123)));
   }
 

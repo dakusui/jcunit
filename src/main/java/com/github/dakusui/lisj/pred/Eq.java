@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.pred;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -14,7 +14,7 @@ public class Eq extends BinomialPredicate {
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitException, CUT {
+      FormResult lastResult) throws JCUnitCheckedException, CUT {
     Object obj = evaluatedParams[0];
     Object another = evaluatedParams[1];
     lastResult.value(Basic.eq(obj, another));

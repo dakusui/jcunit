@@ -34,7 +34,7 @@ public abstract class NumCast extends BaseFunc {
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult) {
-    Number value = Utils.bigDecimal(LisjUtils
+    Number value = LisjUtils.bigDecimal(LisjUtils
         .cast(Number.class, evaluatedParams[0]));
     lastResult.value(cast(value));
     return lastResult;
@@ -144,7 +144,7 @@ public abstract class NumCast extends BaseFunc {
 
       @Override
       protected BigDecimal cast(Number value) {
-        return Utils.bigDecimal(value);
+        return LisjUtils.bigDecimal(value);
       }
 
       @Override
@@ -160,7 +160,7 @@ public abstract class NumCast extends BaseFunc {
 
       @Override
       protected BigInteger cast(Number value) {
-        return Utils.bigDecimal(value).toBigInteger();
+        return LisjUtils.bigDecimal(value).toBigInteger();
       }
 
       @Override

@@ -1,72 +1,72 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.LisjUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class MaxMinTest extends JCUnitBase {
   @Test
-  public void max_01() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(100), Basic.eval(this, max(100)));
+  public void max_01() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(100), Basic.eval(this, max(100)));
   }
 
   @Test
-  public void max_02() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(2), Basic.eval(this, max(1, 2)));
-    assertEquals(Utils.bigDecimal(2), Basic.eval(this, max(2, 1)));
+  public void max_02() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(2), Basic.eval(this, max(1, 2)));
+    assertEquals(LisjUtils.bigDecimal(2), Basic.eval(this, max(2, 1)));
   }
 
   @Test
-  public void max_03() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(3), Basic.eval(this, max(1, 2, 3)));
-    assertEquals(Utils.bigDecimal(3), Basic.eval(this, max(2, 3, 1)));
-    assertEquals(Utils.bigDecimal(3), Basic.eval(this, max(3, 2, 1)));
+  public void max_03() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(3), Basic.eval(this, max(1, 2, 3)));
+    assertEquals(LisjUtils.bigDecimal(3), Basic.eval(this, max(2, 3, 1)));
+    assertEquals(LisjUtils.bigDecimal(3), Basic.eval(this, max(3, 2, 1)));
   }
 
   @Test
-  public void max_minus() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(-1), Basic.eval(this, max(-1, -2)));
-    assertEquals(Utils.bigDecimal(-1), Basic.eval(this, max(-2, -1)));
+  public void max_minus() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(-1), Basic.eval(this, max(-1, -2)));
+    assertEquals(LisjUtils.bigDecimal(-1), Basic.eval(this, max(-2, -1)));
   }
 
   @Test(
       expected = IllegalArgumentException.class)
-  public void max_e() throws JCUnitException, CUT {
+  public void max_e() throws JCUnitCheckedException, CUT {
     Basic.eval(this, max());
   }
 
   @Test
-  public void min_01() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(100), Basic.eval(this, min(100)));
+  public void min_01() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(100), Basic.eval(this, min(100)));
   }
 
   @Test
-  public void min_02() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(1), Basic.eval(this, min(1, 2)));
-    assertEquals(Utils.bigDecimal(1), Basic.eval(this, min(2, 1)));
+  public void min_02() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(1), Basic.eval(this, min(1, 2)));
+    assertEquals(LisjUtils.bigDecimal(1), Basic.eval(this, min(2, 1)));
   }
 
   @Test
-  public void min_03() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(1), Basic.eval(this, min(1, 2, 3)));
-    assertEquals(Utils.bigDecimal(1), Basic.eval(this, min(2, 3, 1)));
-    assertEquals(Utils.bigDecimal(1), Basic.eval(this, min(3, 2, 1)));
+  public void min_03() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(1), Basic.eval(this, min(1, 2, 3)));
+    assertEquals(LisjUtils.bigDecimal(1), Basic.eval(this, min(2, 3, 1)));
+    assertEquals(LisjUtils.bigDecimal(1), Basic.eval(this, min(3, 2, 1)));
   }
 
   @Test
-  public void min_minus() throws JCUnitException, CUT {
-    assertEquals(Utils.bigDecimal(-2), Basic.eval(this, min(-1, -2)));
-    assertEquals(Utils.bigDecimal(-2), Basic.eval(this, min(-2, -1)));
+  public void min_minus() throws JCUnitCheckedException, CUT {
+    assertEquals(LisjUtils.bigDecimal(-2), Basic.eval(this, min(-1, -2)));
+    assertEquals(LisjUtils.bigDecimal(-2), Basic.eval(this, min(-2, -1)));
   }
 
   @Test(
       expected = IllegalArgumentException.class)
-  public void min_e() throws JCUnitException, CUT {
+  public void min_e() throws JCUnitCheckedException, CUT {
     Basic.eval(this, min());
   }
 

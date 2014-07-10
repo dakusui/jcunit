@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
 import static com.github.dakusui.lisj.Basic.length;
@@ -25,7 +26,7 @@ public class IsOneOf extends BinomialPredicate {
         evaluatedParams.length)) {
       // //
       // Normalize number objects to 'BigDecimal' if they are Numbers.
-      cur = Utils.normalize(cur);
+      cur = LisjUtils.normalize(cur);
       if (obj == null) {
         if (cur == null) {
           ret.value(true);

@@ -1,7 +1,7 @@
 package com.github.dakusui.lisj.special;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.*;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -15,7 +15,7 @@ public class Lambda extends BaseForm {
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
       FormResult lastResult)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     lastResult.incrementPosition();
     lastResult.value(currentParam);
     return lastResult;
@@ -24,7 +24,7 @@ public class Lambda extends BaseForm {
   @Override
   protected FormResult evaluateLast(Context context,
       final Object[] evaluatedParams, FormResult lastResult)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     FormResult ret = lastResult;
 
     final Symbol[] paramSymbols = LisjUtils
@@ -38,7 +38,7 @@ public class Lambda extends BaseForm {
       @Override
       protected FormResult evaluateEach(Context context, Object currentParam,
           FormResult lastResult)
-          throws JCUnitException, CUT {
+          throws JCUnitCheckedException, CUT {
         FormResult ret = lastResult;
 
         ret.value(context
@@ -51,7 +51,7 @@ public class Lambda extends BaseForm {
       @Override
       protected FormResult evaluateLast(Context context,
           Object[] evaluatedParams, FormResult lastResult)
-          throws JCUnitException, CUT {
+          throws JCUnitCheckedException, CUT {
         FormResult ret = lastResult;
         for (Object cur : funcBody) {
           ret = evaluateEachSimply(context, cur, ret);

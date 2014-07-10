@@ -1,5 +1,7 @@
-package com.github.dakusui.lisj.func.java;
+package com.github.dakusui.jcunit.compat.lisj;
 
+import com.github.dakusui.jcunit.compat.core.annotations.In;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Context;
@@ -15,11 +17,13 @@ public class Set extends BaseFunc {
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult) {
-    FormResult ret = lastResult;
+    FormResult ret;
+    ret = lastResult;
     Object obj = Utils.checknotnull(evaluatedParams[0]);
     String attrName = Utils.checknotnull(evaluatedParams[1]).toString();
     Object valueToSet = evaluatedParams[2];
-    Utils.setFieldValue(obj, Utils.getField(obj, attrName), valueToSet);
+    Utils.setFieldValue(obj, Utils.getField(obj, attrName, In.class, Out.class),
+        valueToSet);
     ret.value(valueToSet);
     return ret;
   }

@@ -1,9 +1,12 @@
-package com.github.dakusui.lisj.func.java;
+package com.github.dakusui.jcunit.compat.lisj;
 
+import com.github.dakusui.jcunit.compat.core.annotations.In;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 import com.github.dakusui.lisj.func.BaseFunc;
 
 public class Get extends BaseFunc {
@@ -18,8 +21,8 @@ public class Get extends BaseFunc {
     FormResult ret = lastResult;
     Object obj = Utils.checknotnull(evaluatedParams[0]);
     String attrName = Utils.checknotnull(evaluatedParams[1]).toString();
-    ret.value(Utils.normalize(Utils.getFieldValue(obj,
-        Utils.getField(obj, attrName))));
+    ret.value(LisjUtils.normalize(Utils.getFieldValue(obj,
+        Utils.getField(obj, attrName, Out.class, In.class))));
     return ret;
   }
 

@@ -1,6 +1,8 @@
-package com.github.dakusui.jcunit.exceptions;
+package com.github.dakusui.lisj.exceptions;
 
-public class SymbolNotFoundException extends JCUnitException {
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+
+public class SymbolNotFoundException extends JCUnitCheckedException {
 
   /**
    * Serial version UID

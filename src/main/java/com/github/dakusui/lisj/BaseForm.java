@@ -1,7 +1,7 @@
 package com.github.dakusui.lisj;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 
 public abstract class BaseForm implements Form {
   /**
@@ -24,14 +24,14 @@ public abstract class BaseForm implements Form {
    */
   @Override
   final public Object evaluate(Context context, Object params_)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     FormEvaluator evaluator = newEvaluator(context, params_);
     FormResult result = evaluator.result();
     try {
       while (evaluator.hasNext(result)) {
         try {
           result = evaluator.next(result);
-        } catch (JCUnitException e) {
+        } catch (JCUnitCheckedException e) {
           result = evaluator.handleException(result, e);
         }
       }
@@ -45,18 +45,18 @@ public abstract class BaseForm implements Form {
     return evaluator.evaluateLast(result).value();
   }
 
-  protected FormResult handleException(Context context, JCUnitException e,
-      FormResult result) throws JCUnitException {
+  protected FormResult handleException(Context context, JCUnitCheckedException e,
+      FormResult result) throws JCUnitCheckedException {
     throw e;
   }
 
   abstract protected FormResult evaluateEach(Context context,
       Object currentParam, FormResult lastResult)
-      throws JCUnitException, CUT;
+      throws JCUnitCheckedException, CUT;
 
   abstract protected FormResult evaluateLast(Context context,
       Object[] evaluatedParams, FormResult lastResult)
-      throws JCUnitException, CUT;
+      throws JCUnitCheckedException, CUT;
 
   protected FormEvaluator newEvaluator(Context context, Object params) {
     /*
@@ -85,7 +85,7 @@ public abstract class BaseForm implements Form {
 
   protected static FormResult evaluateEachSimply(Context context,
       Object currentParam, FormResult lastResult)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     FormResult ret = lastResult;
     try {
       ret.value(Basic.eval(context, currentParam));

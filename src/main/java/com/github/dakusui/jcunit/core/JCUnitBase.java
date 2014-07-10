@@ -3,15 +3,14 @@ package com.github.dakusui.jcunit.core;
 import com.github.dakusui.jcunit.compat.auto.AutoRuleSet;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.compat.core.RuleSetBuilder;
-import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
+import com.github.dakusui.jcunit.compat.lisj.Lisj;
 import com.github.dakusui.lisj.*;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.math.MathContext;
 import java.util.List;
 
 public class JCUnitBase extends Lisj implements RuleSetBuilder, Context {
-  Context context;
-
   public JCUnitBase() {
     // //
     // Doing a funky thing to create JCUnitBase instance, which extends Lisj and
@@ -21,9 +20,7 @@ public class JCUnitBase extends Lisj implements RuleSetBuilder, Context {
     // referencing 'this' during its execution.
     // Override init method to prevent the super class from accessing context.
     // And call super class's 'init' method implementation.
-    super(null);
-    this.context = new ContextImpl() {
-    };
+    super(new ContextImpl() {});
     super.init(this);
   }
 
@@ -38,7 +35,8 @@ public class JCUnitBase extends Lisj implements RuleSetBuilder, Context {
 
   @Override
   public RuleSet ruleSet(Object target) {
-    RuleSet ret = new RuleSet(this, target);
+    RuleSet ret;
+    ret = new RuleSet(this, target);
     return ret;
   }
 

@@ -1,7 +1,7 @@
 package com.github.dakusui.lisj.special;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.BaseForm;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -19,7 +19,7 @@ public class When extends BaseForm {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitException, CUT {
+      FormResult lastResult) throws JCUnitCheckedException, CUT {
     int pos = lastResult.nextPosition();
     FormResult ret = evaluateEachSimply(context, currentParam, lastResult);
 

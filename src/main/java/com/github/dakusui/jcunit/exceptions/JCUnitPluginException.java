@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.exceptions;
 
-public class JCUnitPluginException extends JCUnitRuntimeException {
+public class JCUnitPluginException extends JCUnitException {
 
   /**
    * A serial version UID.

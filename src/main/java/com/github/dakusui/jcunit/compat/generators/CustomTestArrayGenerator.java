@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.compat.generators;
 
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.util.LinkedHashMap;
 
@@ -10,7 +10,6 @@ public class CustomTestArrayGenerator<T> extends
   @Override
   public long initializeTestCases(GeneratorParameters.Value[] params,
       LinkedHashMap<T, Object[]> domains) {
-    super.init(params, domains);
     if (params == null) {
       throw new NullPointerException();
     }
@@ -47,7 +46,7 @@ public class CustomTestArrayGenerator<T> extends
           .format(
               "'cur'(%d) must be positive and less than %d (maybe framework side issue)",
               cur, this.params.length);
-      throw new JCUnitRuntimeException(msg, null);
+      throw new JCUnitException(msg, null);
     }
     // Since it's not practical to give a value more than Integer.MAX_VALUE,
     // we can naively cast it to int.
@@ -57,7 +56,7 @@ public class CustomTestArrayGenerator<T> extends
           .format(
               "The generator(%s)'s %dst/nd/th parameter(%s) has only %d element(s) but at least %d element(s) are necessary.",
               this, cur, this.params[(int) cur], values.length, pos + 1);
-      throw new JCUnitRuntimeException(msg, null);
+      throw new JCUnitException(msg, null);
     }
     return values[pos];
   }

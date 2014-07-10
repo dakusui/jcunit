@@ -30,7 +30,7 @@ public interface TestCaseGenerator extends Iterator<Tuple>,
 	 * <p/>
 	 * Until this method is called, behaviors of any other methods are not predictable.
 	 */
-	public void init(GeneratorParameters.Value[] params,
+	public void init(String[] params,
 	                 Factors factors);
 
 	/**

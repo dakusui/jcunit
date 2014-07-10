@@ -3,8 +3,9 @@ package com.github.dakusui.jcunit.compat.auto;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.compat.core.annotations.Out.Verifier;
+import com.github.dakusui.jcunit.compat.lisj.Lisj;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 import com.github.dakusui.lisj.*;
 import com.github.dakusui.lisj.pred.BasePredicate;
 import org.junit.rules.TestRule;
@@ -35,13 +36,13 @@ import java.util.Map;
  */
 public class AutoRuleSet extends RuleSet implements TestRule {
   /**
-   * Name of the test run. This member is set by 'apply' method of this class.
-   */
-  private       String   testName;
-  /**
    * Names of fields.
    */
   private final String[] fieldNames;
+  /**
+   * Name of the test run. This member is set by 'apply' method of this class.
+   */
+  private       String   testName;
 
   /**
    * Creates an object of this class.
@@ -50,7 +51,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    *
    * @param context A context object.
    * @param target  An object under this test run.
-   * @throws JCUnitException An internal procedure is failed. Usually not thrown.
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException An internal procedure is failed. Usually not thrown.
    */
   public AutoRuleSet(Context context, Object target, String... fieldNames) {
     super(context, target);
@@ -86,7 +87,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
             this.incase(
                 c.lisj().any(),
                 verify().bind(load(fieldName),
-                    c.lisj().get(this.getTargetObject(), fieldName),
+                    ((Lisj) c.lisj()).get(this.getTargetObject(), fieldName),
                     verifierForField(fieldName))
             );
           } else {
@@ -110,12 +111,12 @@ public class AutoRuleSet extends RuleSet implements TestRule {
       String msg = String.format(
           "A cut, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
           cut.getMessage());
-      throw new JCUnitRuntimeException(msg, cut);
-    } catch (JCUnitException e) {
+      throw new JCUnitException(msg, cut);
+    } catch (JCUnitCheckedException e) {
       String msg = String.format(
           "A JCUnitException, which shouldn't be thrown during AutoRuleSet#init is being executed, was thrown. ('%s')",
           e.getMessage());
-      throw new JCUnitRuntimeException(msg, e);
+      throw new JCUnitException(msg, e);
     }
     final Statement statementFromSuper = super.apply(base, desc);
     return new Statement() {
@@ -136,7 +137,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
     for (Field f : getOutFields()) {
       try {
         ret.put(f, Basic.eval(this.getContext(), load(f.getName())));
-      } catch (JCUnitException e) {
+      } catch (JCUnitCheckedException e) {
         // //
         // Since we are using valid values for 'load' as parameters,
         // this path shouldn't be executed.
@@ -195,10 +196,10 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    * Returns an S expression list of field names in the target object.
    *
    * @return S expression list of field names.
-   * @throws JCUnitException Failed to get field names.
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException Failed to get field names.
    * @throws CUT             Operation is cut. Usually not thrown.
    */
-  protected Object outFieldNames() throws JCUnitException, CUT {
+  protected Object outFieldNames() throws JCUnitCheckedException, CUT {
     return Basic.eval(this.getContext(),
         new OutFieldNames().bind(this.getTargetObject()));
   }
@@ -208,10 +209,10 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    *
    * @param fieldName Name of the field.
    * @return true - if the field is stored / false - the field is not stored.
-   * @throws JCUnitException Failed to get field names.
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException Failed to get field names.
    * @throws CUT             Operation is cut. Usually not thrown.
    */
-  protected boolean isStored(Object fieldName) throws JCUnitException, CUT {
+  protected boolean isStored(Object fieldName) throws JCUnitCheckedException, CUT {
     return Basic.evalp(this.getContext(), new IsStored()
         .bind(this.getTestName(), this.getTargetObject(), fieldName));
   }
@@ -228,7 +229,7 @@ public class AutoRuleSet extends RuleSet implements TestRule {
       @Override
       protected FormResult evaluateLast(Context context,
           Object[] evaluatedParams, FormResult lastResult)
-          throws JCUnitException, CUT {
+          throws JCUnitCheckedException, CUT {
         Object expected = Basic.get(evaluatedParams, 0);
         Object actual = Basic.get(evaluatedParams, 1);
         Verifier v = (Verifier) Basic.get(evaluatedParams, 2);
@@ -249,10 +250,10 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    *
    * @param fieldName Name of the field.
    * @return Value of the field.
-   * @throws JCUnitException Failed to get field names.
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException Failed to get field names.
    * @throws CUT             Operation is cut. Usually not thrown.
    */
-  protected Object load(Object fieldName) throws JCUnitException, CUT {
+  protected Object load(Object fieldName) throws JCUnitCheckedException, CUT {
     return new Load()
         .bind(this.getTestName(), this.getTargetObject(), fieldName);
   }
@@ -262,10 +263,10 @@ public class AutoRuleSet extends RuleSet implements TestRule {
    * directory.
    *
    * @param fieldName Name of the field.
-   * @throws JCUnitException Failed to store the value.
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException Failed to store the value.
    * @throws CUT             Operation is cut. Usually not thrown.
    */
-  protected void store(Object fieldName) throws JCUnitException, CUT {
+  protected void store(Object fieldName) throws JCUnitCheckedException, CUT {
     Basic.eval(this.getContext(), new Store()
         .bind(this.getTestName(), this.getTargetObject(), fieldName));
   }

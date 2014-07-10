@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.compat.auto;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 
 public class IsStored extends AutoBase {
 
@@ -11,12 +11,12 @@ public class IsStored extends AutoBase {
 
   @Override
   protected Object autoBaseExec(String testName, Object obj, String fieldName)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     return isAlreadyStored(obj, fieldName, testName);
   }
 
   private boolean isAlreadyStored(Object obj, String fieldName, String testName)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     return fileForField(baseDir(), testName, field(obj.getClass(), fieldName))
         .exists();
   }

@@ -4,8 +4,8 @@ import com.github.dakusui.jcunit.compat.report.ReportWriter;
 import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.jcunit.compat.generators.SimpleTestArrayGenerator;
@@ -172,7 +172,7 @@ public class JCUnit extends Suite {
       final Method m = JCUnit.domainMethod(cut, inField);
       ret = new DomainGenerator() {
         @Override
-        public Object[] domain() throws JCUnitException {
+        public Object[] domain() throws JCUnitCheckedException {
           return CompatUtils.invokeDomainMethod(m);
         }
       };
@@ -242,7 +242,7 @@ public class JCUnit extends Suite {
     } else if (inType == In.Domain.None) {
       ret = new DomainGenerator() {
         @Override
-        public Object[] domain() throws JCUnitException {
+        public Object[] domain() throws JCUnitCheckedException {
           return new Object[] { };
         }
       };
@@ -282,7 +282,7 @@ public class JCUnit extends Suite {
       Class<? extends Object> cut,
       @SuppressWarnings("rawtypes")
       Class<? extends TestArrayGenerator> generatorClass)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     if (generatorClass == null) {
       throw new NullPointerException();
     }

@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.compat.core;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 
 import java.lang.reflect.Array;
@@ -17,14 +17,7 @@ import java.util.Map;
 public class CompatUtils {
 	private CompatUtils() {}
 
-	public static void initializeTestObject(Object out,
-	    Map<Field, Object> values) {
-	  for (Field f : values.keySet()) {
-	    Utils.setFieldValue(out, f, values.get(f));
-	  }
-	}
-
-	public static Field[] getInFieldsFromClassUnderTest(Class<?> cut) {
+  public static Field[] getInFieldsFromClassUnderTest(Class<?> cut) {
 	  return Utils.getAnnotatedFields(cut, In.class);
 	}
 
@@ -32,7 +25,8 @@ public class CompatUtils {
 	  return Utils.getAnnotatedFields(cut, Out.class);
 	}
 
-	public static Object[] invokeDomainMethod(Method m) throws JCUnitException {
+	public static Object[] invokeDomainMethod(Method m) throws
+      JCUnitCheckedException {
 	  Object[] ret = null;
 	  boolean accessible = m.isAccessible();
 	  try {
@@ -55,7 +49,7 @@ public class CompatUtils {
 	      throw ee;
 	    } catch (RuntimeException ee) {
 	      throw ee;
-	    } catch (JCUnitException ee) {
+	    } catch (JCUnitCheckedException ee) {
 	      throw ee;
 	    } catch (Throwable tt) {
 	      String message = String.format(
@@ -68,4 +62,11 @@ public class CompatUtils {
 	  }
 	  return ret;
 	}
+
+  public static void initializeTestObject(Object out,
+      Map<Field, Object> values) {
+    for (Field f : values.keySet()) {
+      Utils.setFieldValue(out, f, values.get(f));
+    }
+  }
 }

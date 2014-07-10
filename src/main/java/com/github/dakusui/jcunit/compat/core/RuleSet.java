@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.compat.core;
 
 import com.github.dakusui.jcunit.compat.report.ReportWriter;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -87,7 +87,7 @@ public class RuleSet implements TestRule {
     }
   };
 
-  public static class RuleIgnored extends JCUnitException {
+  public static class RuleIgnored extends JCUnitCheckedException {
     /**
      * A serial version UID.
      */
@@ -305,7 +305,7 @@ public class RuleSet implements TestRule {
   }
 
   protected boolean verify(Description desc, Object target, RuleSet ruleSet)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     assert this.inValues != null;
 
     boolean ret = false;
@@ -572,7 +572,7 @@ public class RuleSet implements TestRule {
   }
 
   private boolean evalp(Pair pair, Object p, String testName)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     try {
       boolean ret = Basic.evalp(context, p);
       if (p == pair.cond) {
@@ -583,7 +583,7 @@ public class RuleSet implements TestRule {
         throw new RuntimeException();
       }
       return ret;
-    } catch (JCUnitException e) {
+    } catch (JCUnitCheckedException e) {
       throw e;
     } catch (CUT e) {
       throw e;
@@ -597,7 +597,8 @@ public class RuleSet implements TestRule {
   }
 
   /* DONE */
-  public boolean apply(Report report, String testName) throws JCUnitException,
+  public boolean apply(Report report, String testName) throws
+      JCUnitCheckedException,
       RuleIgnored, CUT {
     boolean passed = true;
     boolean matchedAtLeastOnce = false;

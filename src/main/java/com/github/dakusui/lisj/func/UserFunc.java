@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.func;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
@@ -9,7 +9,7 @@ import com.github.dakusui.lisj.FormResult;
 public abstract class UserFunc extends BaseFunc {
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitException, CUT {
+      FormResult lastResult) throws JCUnitCheckedException, CUT {
     lastResult.value(user(evaluatedParams));
     return lastResult;
   }

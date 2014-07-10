@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.compat.generators.ipo;
 
 import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 /**
  * Created by hiroshi on 6/29/14.
  */
-public class GiveUp extends JCUnitRuntimeException {
+public class GiveUp extends JCUnitException {
   private final Tuple tuple;
 
   public GiveUp(Tuple tuple) {

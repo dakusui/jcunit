@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.compat.generators.ipo;
 
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Enumerator;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.util.*;
 
@@ -67,7 +67,7 @@ public class IPOTestSpace {
    * @param i ID of the parameter. The origin is 1, not 0.
    * @param v The valued searched from the domain of the parameter.
    * @return Index of <code>v</code> in the domain of the parameter
-   * @throws JCUnitRuntimeException If <code>v</code> doesn't belong to the domain.
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitException If <code>v</code> doesn't belong to the domain.
    */
   public int indexOf(int i, Object v) {
     int ret = 0;
@@ -79,7 +79,7 @@ public class IPOTestSpace {
     }
     String msg = String.format("%s coudln't be found in the parameter:%d (%s)",
         v, i, Arrays.toString(this.domainOf(i)));
-    throw new JCUnitRuntimeException(msg, null);
+    throw new JCUnitException(msg, null);
   }
 
   /**

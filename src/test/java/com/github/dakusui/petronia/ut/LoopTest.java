@@ -1,9 +1,9 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
+import com.github.dakusui.lisj.LisjUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -16,7 +16,7 @@ public class LoopTest extends JCUnitBase {
     Basic.eval(this,
         loop(lt($("i"), 10), print($("i")), assign($("i"), add($("i"), 1))));
 
-    assertEquals(Utils.bigDecimal(10), Basic.eval(this, $("i")));
+    assertEquals(LisjUtils.bigDecimal(10), Basic.eval(this, $("i")));
   }
 
   @Test
@@ -31,7 +31,7 @@ public class LoopTest extends JCUnitBase {
         )
     );
 
-    assertEquals(Utils.bigDecimal(10), Basic.eval(this, $("i")));
+    assertEquals(LisjUtils.bigDecimal(10), Basic.eval(this, $("i")));
   }
 
   @Test
@@ -39,7 +39,7 @@ public class LoopTest extends JCUnitBase {
     Basic.eval(this, assign($("i"), 0));
     Basic.eval(this,
         loop(lt($("i"), 0), print($("i")), assign($("i"), add($("i"), 1))));
-    assertEquals(Utils.bigDecimal(0), Basic.eval(this, $("i")));
+    assertEquals(LisjUtils.bigDecimal(0), Basic.eval(this, $("i")));
   }
 
   @Test
@@ -47,11 +47,11 @@ public class LoopTest extends JCUnitBase {
     Basic.eval(this, assign($("i"), 0));
     Basic.eval(this,
         loop(lt($("i"), 1), print($("i")), assign($("i"), add($("i"), 1))));
-    assertEquals(Utils.bigDecimal(1), Basic.eval(this, $("i")));
+    assertEquals(LisjUtils.bigDecimal(1), Basic.eval(this, $("i")));
   }
 
   @Test(
-      expected = JCUnitRuntimeException.class)
+      expected = JCUnitException.class)
   public void loop_e01() throws Exception {
     // //
     // Test the behavior of 'loop' when the first parameter of it isn neither
@@ -63,6 +63,6 @@ public class LoopTest extends JCUnitBase {
         loop(format("<%s>", lt($("i"), 1)), print($("i")),
             assign($("i"), add($("i"), 1)))
     );
-    assertEquals(Utils.bigDecimal(1), Basic.eval(this, $("i")));
+    assertEquals(LisjUtils.bigDecimal(1), Basic.eval(this, $("i")));
   }
 }

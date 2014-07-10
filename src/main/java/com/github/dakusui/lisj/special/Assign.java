@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.special;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.*;
 
 import static com.github.dakusui.lisj.Basic.get;
@@ -16,7 +16,7 @@ public class Assign extends BaseForm {
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
       FormResult lastResult)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     FormResult ret = lastResult;
 
     if (ret.nextPosition() == 0) {
@@ -32,7 +32,7 @@ public class Assign extends BaseForm {
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
       FormResult lastResult)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     FormResult ret = lastResult;
 
     Symbol symbol = (Symbol) evaluatedParams[0];

@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import org.junit.Test;
@@ -46,18 +46,18 @@ public class LogicalPredicateTest extends JCUnitBase {
 
   @Test(
       expected = IllegalArgumentException.class)
-  public void or_err1() throws JCUnitException, CUT {
+  public void or_err1() throws JCUnitCheckedException, CUT {
     Basic.eval(this, or("ERR"));
   }
 
   @Test
-  public void or_err2() throws JCUnitException, CUT {
+  public void or_err2() throws JCUnitCheckedException, CUT {
     assertEquals(true, Basic.eval(this, or(true, "ERR")));
   }
 
   @Test(
       expected = IllegalArgumentException.class)
-  public void or_err3() throws JCUnitException, CUT {
+  public void or_err3() throws JCUnitCheckedException, CUT {
     Basic.eval(this, or(false, "ERR"));
   }
 
@@ -103,18 +103,18 @@ public class LogicalPredicateTest extends JCUnitBase {
 
   @Test(
       expected = IllegalArgumentException.class)
-  public void and_err1() throws JCUnitException, CUT {
+  public void and_err1() throws JCUnitCheckedException, CUT {
     Basic.eval(this, and("ERR"));
   }
 
   @Test(
       expected = IllegalArgumentException.class)
-  public void and_err2() throws JCUnitException, CUT {
+  public void and_err2() throws JCUnitCheckedException, CUT {
     Basic.eval(this, and(true, "ERR"));
   }
 
   @Test
-  public void and_err3() throws JCUnitException, CUT {
+  public void and_err3() throws JCUnitCheckedException, CUT {
     assertEquals(false, Basic.eval(this, and(false, "ERR")));
   }
 

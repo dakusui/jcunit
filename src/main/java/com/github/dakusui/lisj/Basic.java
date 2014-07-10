@@ -1,7 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -44,7 +43,8 @@ public class Basic {
       return Arrays.deepEquals(((Object[]) a), ((Object[]) b));
     }
     if (a instanceof Number && b instanceof Number) {
-      return Utils.bigDecimal((Number) a).equals(Utils.bigDecimal((Number) b));
+      return LisjUtils
+          .bigDecimal((Number) a).equals(LisjUtils.bigDecimal((Number) b));
     }
     return a.equals(b);
   }
@@ -132,12 +132,12 @@ public class Basic {
   }
 
   public static Object eval(Context context, Object var)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     if (atom(var)) {
       if (var instanceof Symbol) {
         return context.lookup((Symbol) var);
       } else {
-        return Utils.normalize(var);
+        return LisjUtils.normalize(var);
       }
     }
     Object car = car(var);
@@ -217,7 +217,7 @@ public class Basic {
   }
 
   public static boolean evalp(Context context, Object predicate)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     Object value = eval(context, predicate);
     if (value instanceof Boolean) {
       return ((Boolean) value);

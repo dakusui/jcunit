@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.math.MathContext;
 import java.util.*;

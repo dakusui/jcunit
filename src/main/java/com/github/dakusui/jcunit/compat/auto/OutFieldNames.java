@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.compat.auto;
 
 import com.github.dakusui.jcunit.compat.core.CompatUtils;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -20,7 +20,7 @@ public class OutFieldNames extends BaseFunc {
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitException, CUT {
+      FormResult lastResult) throws JCUnitCheckedException, CUT {
     FormResult ret = lastResult;
     Field[] outFields = CompatUtils.getOutFieldsFromClassUnderTest(Basic.get(
 		    evaluatedParams, 0).getClass());

@@ -1,12 +1,13 @@
 package com.github.dakusui.petronia.ut;
 
-import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.compat.core.DomainGenerator;
+import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.In.Domain;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.LisjUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -57,31 +58,31 @@ public class UtilsTest {
   @Test
   public void getFieldValue_01() {
     assertEquals("field-a",
-        Utils.getFieldValue(this, Utils.getField(this, "a")));
+        Utils.getFieldValue(this, Utils.getField(this, "a", In.class)));
   }
 
   @Test
   public void getFieldValue_02() {
     assertEquals("field-b",
-        Utils.getFieldValue(this, Utils.getField(this, "b")));
+        Utils.getFieldValue(this, Utils.getField(this, "b", Out.class)));
   }
 
   @Test(
       expected = RuntimeException.class)
   public void getField_01() {
-    Utils.getField(this, "c");
+    Utils.getField(this, "c", In.class);
   }
 
   @Test(
       expected = RuntimeException.class)
   public void getField_03() {
-    Utils.getField(this, "d");
+    Utils.getField(this, "d", Out.class);
   }
 
   @Test(
       expected = IllegalArgumentException.class)
   public void bidDecimal_e01() {
-    Utils.bigDecimal(new Number() {
+    LisjUtils.bigDecimal(new Number() {
       private static final long serialVersionUID = 1L;
 
       @Override
@@ -107,9 +108,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void intDomain() throws JCUnitException {
+  public void intDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "intField"));
+        Utils.getField(this, "intField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Integer);
@@ -117,9 +118,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void longDomain() throws JCUnitException {
+  public void longDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "longField"));
+        Utils.getField(this, "longField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Long);
@@ -127,9 +128,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void shortDomain() throws JCUnitException {
+  public void shortDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "shortField"));
+        Utils.getField(this, "shortField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Short);
@@ -137,9 +138,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void byteDomain() throws JCUnitException {
+  public void byteDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "byteField"));
+        Utils.getField(this, "byteField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Byte);
@@ -147,9 +148,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void floatDomain() throws JCUnitException {
+  public void floatDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "floatField"));
+        Utils.getField(this, "floatField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Float);
@@ -157,9 +158,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void doubleDomain() throws JCUnitException {
+  public void doubleDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "doubleField"));
+        Utils.getField(this, "doubleField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Double);
@@ -167,9 +168,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void charDomain() throws JCUnitException {
+  public void charDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "charField"));
+        Utils.getField(this, "charField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Character);
@@ -177,9 +178,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void booleanDomain() throws JCUnitException {
+  public void booleanDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "booleanField"));
+        Utils.getField(this, "booleanField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof Boolean);
@@ -187,9 +188,9 @@ public class UtilsTest {
   }
 
   @Test
-  public void stringDomain() throws JCUnitException {
+  public void stringDomain() throws JCUnitCheckedException {
     DomainGenerator dGeneator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "stringField"));
+        Utils.getField(this, "stringField", In.class));
     assertNotNull(dGeneator);
     for (Object cur : dGeneator.domain()) {
       assertTrue(cur == null || cur instanceof String);
@@ -198,14 +199,15 @@ public class UtilsTest {
 
   @Test(
       expected = IllegalArgumentException.class)
-  public void objDomain() throws JCUnitException {
-    JCUnit.domainGenerator(this.getClass(), Utils.getField(this, "objField"));
+  public void objDomain() throws JCUnitCheckedException {
+    JCUnit.domainGenerator(this.getClass(),
+        Utils.getField(this, "objField", In.class));
   }
 
   @Test
-  public void noneDomain() throws JCUnitException {
+  public void noneDomain() throws JCUnitCheckedException {
     DomainGenerator dGenerator = JCUnit.domainGenerator(this.getClass(),
-        Utils.getField(this, "noneField"));
+        Utils.getField(this, "noneField", In.class));
     assertEquals(0, dGenerator.domain().length);
   }
 }

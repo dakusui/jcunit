@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.encoders;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.*;
 
@@ -24,7 +24,7 @@ class SerializingEncoder extends BaseObjectEncoder {
       ret = ois.readObject();
     } catch (ClassNotFoundException e) {
       String msg = createMessage_FailedToDecodeObject(e);
-      throw new JCUnitRuntimeException(msg, e);
+      throw new JCUnitException(msg, e);
     } finally {
       ois.close();
     }

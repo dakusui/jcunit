@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 import com.github.dakusui.lisj.func.BaseFunc;
 
 import java.math.BigDecimal;
@@ -23,7 +24,7 @@ public abstract class NumericFunc extends BaseFunc {
     int i = 0;
     for (Object cur : evaluatedParams) {
       if (cur instanceof Number) {
-        evaluatedParamsBigDecimal[i] = Utils.bigDecimal((Number) cur);
+        evaluatedParamsBigDecimal[i] = LisjUtils.bigDecimal((Number) cur);
       } else {
         String message = String.format("Given value %s(%s) isn't a number.",
             cur, cur != null ? cur.getClass() : null);

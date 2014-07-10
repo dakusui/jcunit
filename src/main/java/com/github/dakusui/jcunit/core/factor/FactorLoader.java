@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -257,7 +257,7 @@ public class FactorLoader {
 	}
 
 	public static class FactorFieldValidationException
-			extends JCUnitRuntimeException {
+			extends JCUnitException {
 		private final ValidationResult validationResult;
 
 		/**

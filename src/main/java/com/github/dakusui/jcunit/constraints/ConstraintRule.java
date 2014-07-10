@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit.constraints;
 
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.exceptions.SymbolNotFoundException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.BaseForm;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
@@ -76,12 +76,12 @@ public class ConstraintRule {
 	 *
 	 * @param given The values with which the evaluation is executed.
 	 * @return The symbols and values that are used in the evaluation.
-	 * @throws JCUnitException
+	 * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException
 	 * @throws SymbolNotFoundException A necessary field(s) is/are neither defined in the context nor
 	 *                                 <code>values</code>
 	 * @throws CUT                     Evaluation process is cut.
 	 */
-	public Tuple evaluate(final Tuple given) throws JCUnitException, CUT {
+	public Tuple evaluate(final Tuple given) throws JCUnitCheckedException, CUT {
 		final Tuple ret = new Tuple();
 		Context c = this.context.createChild();
 		final List<Symbol> involvedSymbols = new LinkedList<Symbol>();
@@ -127,7 +127,7 @@ public class ConstraintRule {
 			}
 
 			@Override
-			public void failEvaluation(BaseForm form, int index, JCUnitException e) {
+			public void failEvaluation(BaseForm form, int index, JCUnitCheckedException e) {
 				System.out.println("** FAIL **" + form);
 			}
 

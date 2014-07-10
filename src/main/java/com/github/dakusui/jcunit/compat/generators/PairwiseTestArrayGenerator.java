@@ -35,7 +35,6 @@ public class PairwiseTestArrayGenerator<T> extends
   @Override
   protected long initializeTestCases(GeneratorParameters.Value[] params,
       LinkedHashMap<T, Object[]> domains) {
-    super.init(params, domains);
     this.testRunSet = this.composeTestRunSet(indexToKeyMap);
     return this.testRunSet.size();
   }

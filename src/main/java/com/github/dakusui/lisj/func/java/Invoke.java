@@ -1,7 +1,7 @@
 package com.github.dakusui.lisj.func.java;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -19,7 +19,7 @@ public class Invoke extends BaseFunc {
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitException, CUT {
+      FormResult lastResult) throws JCUnitCheckedException, CUT {
     FormResult ret = lastResult;
     Object obj = Utils.checknotnull(evaluatedParams[0]);
     String methodId = Utils.checknotnull(evaluatedParams[1]).toString();

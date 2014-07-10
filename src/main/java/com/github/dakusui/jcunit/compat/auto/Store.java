@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.compat.auto;
 
 import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -24,13 +24,13 @@ public class Store extends AutoBase {
 
   @Override
   protected Object autoBaseExec(String testName, Object obj, String fieldName)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     store(obj, fieldName, testName);
     return false;
   }
 
   private void store(Object obj, String fieldName, String testName)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     Field field = field(obj.getClass(), fieldName);
     Object value;
     try {
@@ -57,7 +57,7 @@ public class Store extends AutoBase {
       if (!f.getParentFile().isDirectory() && !f.getParentFile().mkdirs()) {
         String msg = String.format("Failed to create a directory '%s'",
             f.getParentFile());
-        throw new JCUnitRuntimeException(msg, null);
+        throw new JCUnitException(msg, null);
       }
       ObjectEncoder objEncoder = getObjectEncoder(clazz);
       OutputStream os = new BufferedOutputStream(new FileOutputStream(f));
@@ -68,11 +68,11 @@ public class Store extends AutoBase {
       }
     } catch (FileNotFoundException e) {
       String msg = String.format("Failed to find a file (%s)", f);
-      throw new JCUnitRuntimeException(msg, e);
+      throw new JCUnitException(msg, e);
     } catch (IOException e) {
       String msg = String.format("Failed to write object (%s) to a file (%s)",
           f, value);
-      throw new JCUnitRuntimeException(msg, e);
+      throw new JCUnitException(msg, e);
     }
   }
 }

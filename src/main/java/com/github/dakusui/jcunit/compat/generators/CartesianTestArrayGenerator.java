@@ -9,7 +9,6 @@ public class CartesianTestArrayGenerator<T> extends
   @Override
   public long initializeTestCases(GeneratorParameters.Value[] params,
       LinkedHashMap<T, Object[]> domains) {
-    super.init(params, domains);
     if (this.domains == null) {
       throw new NullPointerException();
     }

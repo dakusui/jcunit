@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut.forms;
 
 import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -28,19 +28,19 @@ public abstract class FormTestBase {
    * This method should be used from inside each test method.
    *
    * @throws CUT
-   * @throws JCUnitException
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException
    */
-  protected Object eval(Object... params) throws JCUnitException, CUT {
+  protected Object eval(Object... params) throws JCUnitCheckedException, CUT {
     return Basic.eval(context, this.form.bind(params));
   }
 
   /**
    * @param params
    * @return
-   * @throws JCUnitException
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException
    * @throws CUT
    */
-  protected boolean evalp(Object... params) throws JCUnitException, CUT {
+  protected boolean evalp(Object... params) throws JCUnitCheckedException, CUT {
     return Basic.evalp(context, this.form.bind(params));
   }
 }

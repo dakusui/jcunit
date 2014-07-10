@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.compat.auto;
 
 import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.exceptions.JCUnitRuntimeException;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -15,12 +15,12 @@ public class Load extends AutoBase {
 
   @Override
   protected Object autoBaseExec(String testName, Object obj, String fieldName)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     return load(obj.getClass(), fieldName, testName);
   }
 
   private Object load(Class<?> clazz, String fieldName, String testName)
-      throws JCUnitException {
+      throws JCUnitCheckedException {
     Field f = field(clazz, fieldName);
     return readObjectFromFile(fileForField(baseDir(), testName, f), clazz);
   }
@@ -38,10 +38,10 @@ public class Load extends AutoBase {
       }
     } catch (FileNotFoundException e) {
       String msg = String.format("Failed to find a file (%s)", f);
-      throw new JCUnitRuntimeException(msg, e);
+      throw new JCUnitException(msg, e);
     } catch (IOException e) {
       String msg = String.format("Failed to read object from a file (%s)", f);
-      throw new JCUnitRuntimeException(msg, e);
+      throw new JCUnitException(msg, e);
     }
     return ret;
   }

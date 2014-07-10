@@ -1,10 +1,12 @@
 package com.github.dakusui.jcunit.compat.auto;
 
+import com.github.dakusui.jcunit.compat.core.annotations.In;
+import com.github.dakusui.jcunit.compat.core.annotations.Out;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
 import com.github.dakusui.jcunit.core.encoders.ObjectEncoders;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -58,7 +60,8 @@ public abstract class AutoBase extends BaseFunc {
    */
   @Override
   final protected FormResult evaluateLast(Context context,
-      Object[] evaluatedParams, FormResult lastResult) throws JCUnitException,
+      Object[] evaluatedParams, FormResult lastResult) throws
+      JCUnitCheckedException,
       CUT {
     FormResult ret = lastResult;
     /*
@@ -74,10 +77,10 @@ public abstract class AutoBase extends BaseFunc {
   }
 
   abstract protected Object autoBaseExec(String testName, Object obj,
-      String fieldName) throws JCUnitException;
+      String fieldName) throws JCUnitCheckedException;
 
   /**
-   * Returns base directory to output the values of '@Out' annotated fields.
+   * Returns base directory to output the values of '@In' and '@Out' annotated fields.
    *
    * @return The base directory.
    */
@@ -86,8 +89,8 @@ public abstract class AutoBase extends BaseFunc {
   }
 
   protected Field field(Class<?> clazz, String fieldName)
-      throws JCUnitException {
-    return Utils.getFieldFromClass(clazz, fieldName);
+      throws JCUnitCheckedException {
+    return Utils.getFieldFromClass(clazz, fieldName, In.class, Out.class);
   }
 
   protected File fileForField(File baseDir, String testName, Field out) {

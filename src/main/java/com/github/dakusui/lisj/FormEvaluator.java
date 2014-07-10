@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -56,7 +56,8 @@ public final class FormEvaluator {
     return lastResult.nextPosition() < evaluatedResult.length;
   }
 
-  public FormResult next(FormResult lastResult) throws CUT, JCUnitException {
+  public FormResult next(FormResult lastResult) throws CUT,
+      JCUnitCheckedException {
     int nextPosition = lastResult.nextPosition();
     FormResult ret = null;
     try {
@@ -68,19 +69,19 @@ public final class FormEvaluator {
     } catch (CUT e) {
       this.cutEvaluation(context, this.form, nextPosition, e);
       throw e;
-    } catch (JCUnitException e) {
+    } catch (JCUnitCheckedException e) {
       this.failEvaluation(context, this.form, nextPosition, e);
       throw e;
     }
   }
 
-  public FormResult handleException(FormResult result, JCUnitException e)
-      throws JCUnitException {
+  public FormResult handleException(FormResult result, JCUnitCheckedException e)
+      throws JCUnitCheckedException {
     return form.handleException(this.context, e, result);
   }
 
   public FormResult evaluateLast(FormResult lastResult)
-      throws JCUnitException, CUT {
+      throws JCUnitCheckedException, CUT {
     FormResult ret = null;
     try {
       ret = form.evaluateLast(this.context, this.evaluatedResult, lastResult);
@@ -89,7 +90,7 @@ public final class FormEvaluator {
     } catch (CUT e) {
       this.cutEvaluation(context, this.form, -1, e);
       throw e;
-    } catch (JCUnitException e) {
+    } catch (JCUnitCheckedException e) {
       this.failEvaluation(context, this.form, -1, e);
       throw e;
     }
@@ -106,7 +107,7 @@ public final class FormEvaluator {
   }
 
   private void failEvaluation(Context context, BaseForm form, int index,
-      JCUnitException e) {
+      JCUnitCheckedException e) {
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
     oList.addAll(this.context.observers());
     Collections.reverse(oList);

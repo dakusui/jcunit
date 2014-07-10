@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.constraints;
 import com.github.dakusui.jcunit.constraints.constraintmanagers.ccs.CCSValueTupleSet;
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.CUT;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class ConstraintTest extends JCUnitBase {
   @Test
-  public void simple() throws CUT, JCUnitException {
+  public void simple() throws CUT, JCUnitCheckedException {
     Tuple tuple = new Tuple();
     tuple.put("hdd1", 0);
     tuple.put("hdd2", 1);
@@ -29,7 +29,7 @@ public class ConstraintTest extends JCUnitBase {
   }
 
   @Test
-  public void shortCut1() throws CUT, JCUnitException {
+  public void shortCut1() throws CUT, JCUnitCheckedException {
     Tuple tuple = new Tuple();
     tuple.put("notEvaluated1", 1);
     tuple.put("notEvaluated2", 1);
@@ -58,7 +58,7 @@ public class ConstraintTest extends JCUnitBase {
   }
 
   @Test
-  public void shortCut2() throws CUT, JCUnitException {
+  public void shortCut2() throws CUT, JCUnitCheckedException {
     Tuple tuple = new Tuple();
     tuple.put("notEvaluated1", 1);
     tuple.put("notEvaluated2", 1);
@@ -94,7 +94,7 @@ public class ConstraintTest extends JCUnitBase {
   }
 
   @Test
-  public void shortCut3() throws CUT, JCUnitException {
+  public void shortCut3() throws CUT, JCUnitCheckedException {
     Tuple tuple = new Tuple();
     tuple.put("notEvaluated1", 1);
     tuple.put("notEvaluated2", 1);

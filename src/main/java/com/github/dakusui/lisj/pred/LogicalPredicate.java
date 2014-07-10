@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.pred;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.*;
 
 public abstract class LogicalPredicate extends BasePredicate {
@@ -11,14 +11,14 @@ public abstract class LogicalPredicate extends BasePredicate {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitException, CUT {
+      FormResult lastResult) throws JCUnitCheckedException, CUT {
     FormResult ret = super.evaluateEach(context, currentParam, lastResult);
     return ret;
   }
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitException {
+      FormResult lastResult) throws JCUnitCheckedException {
     return lastResult;
   }
 
