@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.refined;
 
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.petronia.examples.Calc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -10,12 +11,12 @@ public class JCUnitExample {
   @FactorField
   public int f1;
   @FactorField
-  public long f2;
-  @FactorField
-  public String f3;
+  public int f2;
 
   @Test
   public void test() {
-    System.out.println(String.format("f1=%d, f2=%d, f3=%s", f1, f2, f3));
+	  Calc calc = new Calc();
+	  System.out.println(String.format("f1=%d,f2=%d", f1, f2));
+	  System.out.println(calc.calc(Calc.Op.plus, f1, f2));
   }
 }
