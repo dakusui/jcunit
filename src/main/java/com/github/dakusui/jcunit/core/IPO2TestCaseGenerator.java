@@ -1,51 +1,30 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.constraints.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
+import com.github.dakusui.jcunit.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 
 import java.util.Iterator;
 import java.util.List;
 
-public class IPO2TestCaseGenerator implements TestCaseGenerator {
-  @Override public Factor getFactor(String factorName) {
-    return null;
-  }
-
-  @Override public void init(String[] params,
+public class IPO2TestCaseGenerator extends BaseTestCaseGenerator {
+  List<Tuple> tests;
+  @Override protected long initializeTestCases(String[] params,
       Factors factors) {
-
+    IPO2 ipo2 = new IPO2(factors, 2, new
+        NullConstraintManager(),
+        new GreedyIPO2Optimizer());
+    ipo2.ipo();
+    this.tests = ipo2.getResult();
+    return this.tests.size();
   }
 
   @Override public int getIndex(String factorName, long testId) {
-    return 0;
-  }
-
-  @Override public List<String> getFactorNames() {
-    return null;
-  }
-
-  @Override public Tuple get(long testId) {
-    return null;
-  }
-
-  @Override public long size() {
-    return 0;
-  }
-
-  @Override public Iterator<Tuple> iterator() {
-    return null;
-  }
-
-  @Override public boolean hasNext() {
-    return false;
-  }
-
-  @Override public Tuple next() {
-    return null;
-  }
-
-  @Override public void remove() {
-
+    Tuple testCase = this.tests.get((int) testId);
+    Object l = testCase.get(factorName);
+    return getFactor(factorName).levels.indexOf(l);
   }
 }

@@ -20,7 +20,6 @@ public class IPO2TestArrayGenerator<T> extends BaseTestArrayGenerator<T> {
   @Override
   public long initializeTestCases(GeneratorParameters.Value[] params,
       LinkedHashMap<T, Object[]> domains) {
-    super.init(params, domains);
     Factors.Builder factorsBuilder = new Factors.Builder();
     for (T k : domains.keySet()) {
       String name = String.format("F-%s-%d", k, System.identityHashCode(k));
@@ -53,7 +52,7 @@ public class IPO2TestArrayGenerator<T> extends BaseTestArrayGenerator<T> {
     Tuple test = this.tests.get((int) cur);
     Factor f = keyToFactorMap.get(key);
     ////
-    // Relying on the fact that levels in the factor and ones in domains map
+    // Relying on the fact that levels in the domain and ones in factors map
     // are placed in the same order.
     return f.levels.indexOf(test.get(f.name));
   }

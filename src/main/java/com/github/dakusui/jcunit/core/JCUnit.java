@@ -26,7 +26,7 @@ public class JCUnit extends Suite {
    */
   public JCUnit(Class<?> klass) throws Throwable {
     super(klass, Collections.<Runner>emptyList());
-    List<Tuple> parametersList = getParametersList(getTestClass());
+    List<Tuple> parametersList = getTestCasesFor(getTestClass());
     for (int i = 0; i < parametersList.size(); i++) {
       runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
           parametersList, i));
@@ -35,10 +35,10 @@ public class JCUnit extends Suite {
 
   /**
    * @param generatorClass A generator class to be used for <code>cut</code>
-   * @param params         TODO
+   * @param params         Parameters given to {@code init(String[])} method of a generator.
    * @param factors        Domain definitions for all the fields.
    */
-  public static TestCaseGenerator newTestArrayGenerator(
+  public static TestCaseGenerator newTestCaseGenerator(
       @SuppressWarnings("rawtypes")
       Class<? extends TestCaseGenerator> generatorClass,
       String[] params,
@@ -55,20 +55,17 @@ public class JCUnit extends Suite {
     return ret;
   }
 
-  @SuppressWarnings("rawtypes")
-  private static Class<? extends TestCaseGenerator> getTestArrayGeneratorClass(
-      Class<?> cuf) {
-    Generator an = cuf.getAnnotation(Generator.class);
-    Class<? extends TestCaseGenerator> ret = an != null ? an.value() : null;
-    if (ret != null) {
-      return ret;
-    } else {
-      Class<?> superClass = cuf.getSuperclass();
+  private static Generator getGeneratorAnnotation(Class<?> testClass) {
+    Utils.checknotnull(testClass);
+    Generator ret = testClass.getAnnotation(Generator.class);
+    if (ret == null) {
+      Class<?> superClass = testClass.getSuperclass();
       if (superClass == null) {
         return null;
       }
-      return getTestArrayGeneratorClass(superClass);
+      return getGeneratorAnnotation(superClass);
     }
+    return ret;
   }
 
   @Override
@@ -76,19 +73,27 @@ public class JCUnit extends Suite {
     return runners;
   }
 
-  private List<Tuple> getParametersList(TestClass klass) throws Throwable {
-    @SuppressWarnings("rawtypes")
-    Class<? extends TestCaseGenerator> generatorClass = getTestArrayGeneratorClass(
-        klass
-            .getJavaClass()
-    );
-    if (generatorClass == null) {
-      generatorClass = IPO2TestCaseGenerator.class;
-    }
+  private List<Tuple> getTestCasesFor(TestClass klass) throws Throwable {
+    Utils.checknotnull(klass);
     Class<?> testClass = klass.getJavaClass();
-    Generator generatorAnn = generatorClass.getAnnotation(Generator.class);
+    Utils.checknotnull(testClass);
+    Generator generatorAnn = getGeneratorAnnotation(testClass);
+    Class<? extends TestCaseGenerator> generatorClass;
+    String[] generatorParams;
+    if (generatorAnn != null) {
+      generatorClass = generatorAnn.value();
+      if (generatorClass == null) {
+        generatorClass = IPO2TestCaseGenerator.class;
+      }
+      generatorParams = generatorAnn.parameters();
+      Utils.checknotnull(generatorParams);
+    } else {
+      generatorClass = IPO2TestCaseGenerator.class;
+      generatorParams = new String[] { };
+
+    }
     return this
-        .composeTestArray(testClass, generatorClass, generatorAnn.parameters());
+        .composeTestArray(testClass, generatorClass, generatorParams);
   }
 
   /*
@@ -119,14 +124,13 @@ public class JCUnit extends Suite {
     }
     if (!errors.isEmpty()) {
       errors.add(0, "One or more factors failed to be initialized.");
-      throw new JCUnitException(Utils.join("\n\t", errors.toArray()),
-          null);
+      throw new JCUnitException(Utils.join("\n\t", errors.toArray()));
     }
 
     // //
     // Instantiates the test array generator.
     TestCaseGenerator testCaseGenerator = JCUnit
-        .newTestArrayGenerator(generatorClass, params, factorsBuilder.build());
+        .newTestCaseGenerator(generatorClass, params, factorsBuilder.build());
 
     // //
     // Compose an array to be returned to the caller.
