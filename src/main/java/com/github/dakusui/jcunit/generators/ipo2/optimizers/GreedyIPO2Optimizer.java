@@ -21,15 +21,17 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
       Tuple tuple,
       Tuples leftTuples,
       ConstraintManager constraintManager,
-      Factors domains) {
+      Factors factors) {
     LinkedHashMap<String, Object[]> missingFactors = new LinkedHashMap<String, Object[]>();
     for (String f : tuple.keySet()) {
       if (tuple.get(f) == IPO2.DontCare) {
-        missingFactors.put(f, domains.get(f).levels.toArray());
+        missingFactors.put(f, factors.get(f).levels.toArray());
       }
     }
     if (missingFactors.size() == 0) {
-      return tuple;
+      if (constraintManager.check(tuple))
+        return tuple;
+      throw new GiveUp(tuple);
     }
     CartesianEnumerator<String, Object> enumerator = new CartesianEnumerator<String, Object>(
         IPO2Utils.map2list(

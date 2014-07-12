@@ -2,11 +2,9 @@ package com.github.dakusui.jcunit.ipo2;
 
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
-
-import java.util.List;
 
 public class Strength2 extends IPO2Test {
   int strength = 2;
@@ -19,10 +17,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -33,10 +31,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -47,10 +45,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -63,10 +61,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -80,10 +78,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -97,10 +95,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -112,10 +110,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -131,10 +129,10 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
 
   @Test
@@ -150,10 +148,9 @@ public class Strength2 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    List<Tuple> testcases = generate(factors,
+    IPO2 ipo = generate(factors,
         strength, constraintManager, optimizer);
-
-    verify(testcases, strength, factors, constraintManager);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors,
+        constraintManager);
   }
-
 }

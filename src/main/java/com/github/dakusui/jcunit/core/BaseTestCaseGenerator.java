@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
@@ -14,6 +15,7 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
   private Factors factors = null;
   private long    size    = -1;
   private long    cur     = -1;
+  private ConstraintManager constraintManager;
 
   @Override
   public void remove() {
@@ -45,11 +47,16 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
 
   @Override
   final public void init(String[] params,
-      Factors factors) {
+      Factors factors, ConstraintManager constraintManager) {
     this.factors = factors;
     this.params = params;
-    this.size = initializeTestCases(params, factors);
+    this.constraintManager = constraintManager;
     this.cur = 0;
+    this.size = initializeTestCases(params, factors);
+  }
+
+  @Override public ConstraintManager getConstraintManager() {
+    return this.constraintManager;
   }
 
   @Override

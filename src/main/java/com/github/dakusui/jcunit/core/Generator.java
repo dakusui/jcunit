@@ -9,9 +9,9 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Generator {
-	Class<? extends TestCaseGenerator> value() default IPO2TestCaseGenerator.class;
+  Class<? extends TestCaseGenerator> value() default IPO2TestCaseGenerator.class;
 
-	String[] parameters() default {};
+  String[] parameters() default { };
 
-	Class<? extends ConstraintManager> constraintManager() default NullConstraintManager.class;
+  Class<? extends ConstraintManager> constraintManager() default NullConstraintManager.class;
 }

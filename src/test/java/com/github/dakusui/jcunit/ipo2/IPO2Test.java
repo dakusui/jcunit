@@ -20,19 +20,88 @@ public abstract class IPO2Test {
     return new Factor(name, Arrays.asList(factors));
   }
 
-  protected List<Tuple> generate(
+  protected IPO2 generate(
       Factors factors, int strength,
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {
     IPO2 ipo = new IPO2(factors, strength, constraintManager,
         optimizer);
     ipo.ipo();
-    return ipo.getResult();
+    return ipo;
   }
 
   protected void verify(List<Tuple> testcases,
-      int strength, Factors factors, ConstraintManager constraintManager) {
+      List<Tuple> remainders, int strength, Factors factors,
+      ConstraintManager constraintManager) {
     System.out.println(String.format("%3d:%s", testcases.size(), testcases));
+    verifyAllValidTuplesAreGenerated(testcases, strength, factors,
+        constraintManager);
+    verifyNoConstraintViolationOccursInResult(testcases, constraintManager);
+    verifyNoDuplicationOccursInResult(testcases);
+    verifyAllTestCasesHaveCorrectNumberOfAttributes(testcases, factors);
+    verifyRemaindersViolateConstraints(remainders, testcases, constraintManager);
+  }
+
+  protected void verifyRemaindersViolateConstraints(List<Tuple> remainders,
+      List<Tuple> result, ConstraintManager constraintManager) {
+    ////
+    // No entry in remainder is expected in default implementation.
+    assertThat(String.format("Some remainder(s) are found.: %s", remainders), remainders.size(), is(0));
+  }
+
+  protected void verifyAllTestCasesHaveCorrectNumberOfAttributes(
+      List<Tuple> testcases, Factors factors) {
+    ////
+    // All the test cases have correct number of attributes.
+    List<Tuple> wrongTestCasesInvalidNumAttributes = new LinkedList<Tuple>();
+    for (Tuple t : testcases) {
+      if (t.size() != factors.size()) {
+        wrongTestCasesInvalidNumAttributes.add(t);
+      }
+    }
+    assertThat(String
+            .format("%d test cases have wrong number of attributes. %s",
+                wrongTestCasesInvalidNumAttributes.size(),
+                wrongTestCasesInvalidNumAttributes),
+        wrongTestCasesInvalidNumAttributes.size(), is(0)
+    );
+  }
+
+  protected void verifyNoDuplicationOccursInResult(List<Tuple> testcases) {
+    ////
+    // No duplication.
+    Set<Tuple> duplicated = new HashSet<Tuple>();
+    Set<Tuple> checked = new HashSet<Tuple>();
+    for (Tuple t : testcases) {
+      if (checked.contains(t)) {
+        duplicated.add(t);
+      } else {
+        checked.add(t);
+      }
+    }
+    assertThat(String
+        .format("%d test cases are duplicated. %s", duplicated.size(),
+            duplicated), duplicated.size(), is(0));
+  }
+
+  protected void verifyNoConstraintViolationOccursInResult(List<Tuple> testcases,
+      ConstraintManager constraintManager) {
+    ///
+    // No violation.
+    List<Tuple> violations = new LinkedList<Tuple>();
+    for (Tuple t : testcases) {
+      if (!constraintManager.check(t)) {
+        violations.add(t);
+      }
+    }
+    assertThat(String
+        .format("%d tuples are violating constraints. %s", violations.size(),
+            violations
+        ), violations.size(), is(0));
+  }
+
+  protected void verifyAllValidTuplesAreGenerated(List<Tuple> testcases,
+      int strength, Factors factors, ConstraintManager constraintManager) {
     ////
     // All tuples (excepting prohibited ones) are covered.
     List<Tuple> tuplesToBeGenerated = factors
@@ -50,47 +119,6 @@ public abstract class IPO2Test {
             .format("%d tuples were not found. %s", notFound.size(), notFound),
         notFound.size(), is(0)
     );
-    ///
-    // No violation.
-    List<Tuple> violations = new LinkedList<Tuple>();
-    for (Tuple t : testcases) {
-      if (!constraintManager.check(t)) {
-        violations.add(t);
-      }
-    }
-    assertThat(String
-        .format("%d tuples are violating constraints. %s", violations.size(),
-            violations
-        ), violations.size(), is(0));
-
-    ////
-    // No duplication.
-    Set<Tuple> duplicated = new HashSet<Tuple>();
-    Set<Tuple> checked = new HashSet<Tuple>();
-    for (Tuple t : testcases) {
-      if (checked.contains(t)) {
-        duplicated.add(t);
-      } else {
-        checked.add(t);
-      }
-    }
-    assertThat(String
-        .format("%d test cases are duplicated. %s", duplicated.size(),
-            duplicated), duplicated.size(), is(0));
-    ////
-    // All the test cases have correct number of attributes.
-    List<Tuple> wrongTestCasesInvalidNumAttributes = new LinkedList<Tuple>();
-    for (Tuple t : testcases) {
-      if (t.size() != factors.size()) {
-        wrongTestCasesInvalidNumAttributes.add(t);
-      }
-    }
-    assertThat(String
-            .format("%d test cases have wrong number of attributes. %s",
-                wrongTestCasesInvalidNumAttributes.size(),
-                wrongTestCasesInvalidNumAttributes),
-        wrongTestCasesInvalidNumAttributes.size(), is(0)
-    );
   }
 
   protected boolean find(Tuple t,
@@ -105,19 +133,13 @@ public abstract class IPO2Test {
 
   private boolean matches(Tuple q,
       Tuple tuple) {
+    if (!tuple.keySet().containsAll(q.keySet())) return false;
     for (String k : q.keySet()) {
-      if (!tuple.containsKey(k)) {
-        return false;
-      }
       if (!IPO2Utils.eq(q.get(k), tuple.get(k))) {
         return false;
       }
     }
     return true;
-  }
-
-  public List<Tuple> getProhibitedTuples() {
-    return Collections.emptyList();
   }
 
   protected ConstraintManager createConstraintManager() {

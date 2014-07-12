@@ -4,14 +4,15 @@ import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.constraints.ConstraintObserver;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ConstraintTest extends IPO2Test {
 	public static class TestConstraintManager implements ConstraintManager {
@@ -24,9 +25,6 @@ public class ConstraintTest extends IPO2Test {
 
 		private static boolean matches(Tuple constraint, Tuple t) {
 			for (String fName : constraint.keySet()) {
-				if (!t.containsKey(fName)) {
-					return false;
-				}
 				if (!IPO2Utils.eq(constraint.get(fName), t.get(fName))) {
 					return false;
 				}
@@ -37,6 +35,7 @@ public class ConstraintTest extends IPO2Test {
 		@Override
 		public boolean check(Tuple tuple) {
 			for (Tuple c : constraints) {
+        if (!tuple.keySet().containsAll(c.keySet())) continue;
 				if (matches(c, tuple)) {
 					return false;
 				}
@@ -57,16 +56,13 @@ public class ConstraintTest extends IPO2Test {
 
 	private List<Tuple> prohibitedTuples = null;
 
-	@Override
 	public List<Tuple> getProhibitedTuples() {
 		return this.prohibitedTuples;
 	}
 
 	protected void setProhibitedTuples(Tuple... tuples) {
 		this.prohibitedTuples = new LinkedList<Tuple>();
-		for (Tuple t : tuples) {
-			this.prohibitedTuples.add(t);
-		}
+    Collections.addAll(prohibitedTuples, tuples);
 	}
 
 	@Override
@@ -88,10 +84,9 @@ public class ConstraintTest extends IPO2Test {
 		ConstraintManager constraintManager = createConstraintManager();
 		IPO2Optimizer optimizer = createOptimizer();
 
-		List<Tuple> testcases = generate(factors,
-				strength, constraintManager, optimizer);
-
-		verify(testcases, strength, factors, constraintManager);
+    IPO2 ipo = generate(factors,
+        strength, constraintManager, optimizer);
+		verify(ipo.getResult(), ipo.getRemainders(), strength, factors, constraintManager);
 	}
 
 	@Test
@@ -108,10 +103,21 @@ public class ConstraintTest extends IPO2Test {
 		ConstraintManager constraintManager = createConstraintManager();
 		IPO2Optimizer optimizer = createOptimizer();
 
-		List<Tuple> testcases = generate(factors,
-				strength, constraintManager, optimizer);
-
-		verify(testcases, strength, factors, constraintManager);
+    IPO2 ipo = generate(factors,
+        strength, constraintManager, optimizer);
+    verify(ipo.getResult(), ipo.getRemainders(), strength, factors, constraintManager);
 	}
 
+  @Override
+  protected void verifyRemaindersViolateConstraints(List<Tuple> remainders,
+      List<Tuple> result, ConstraintManager constraintManager) {
+    // Since in this test class there is no implicit constraint, we
+    // can simply verify them.
+    System.err.println(result);
+    for (Tuple tuple : remainders) {
+      assertThat(String.format("'%s' is contained in result set.", tuple), find(tuple, result), is(false));
+      assertThat(String.format("'%s' doesn't violate any constraints.", tuple), constraintManager.check(
+          tuple), is(false));
+    }
+  }
 }

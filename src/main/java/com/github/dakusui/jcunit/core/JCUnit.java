@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.constraints.ConstraintManager;
+import com.github.dakusui.jcunit.constraints.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
@@ -42,11 +44,12 @@ public class JCUnit extends Suite {
       @SuppressWarnings("rawtypes")
       Class<? extends TestCaseGenerator> generatorClass,
       String[] params,
-      Factors factors) {
+      Factors factors,
+      ConstraintManager constraintManager) {
     TestCaseGenerator ret;
     try {
       ret = generatorClass.newInstance();
-      ret.init(params, factors);
+      ret.init(params, factors, constraintManager);
     } catch (InstantiationException e) {
       throw new JCUnitPluginException(e.getMessage(), e);
     } catch (IllegalAccessException e) {
@@ -54,6 +57,21 @@ public class JCUnit extends Suite {
     }
     return ret;
   }
+
+  private static ConstraintManager newConstraintManager(Class<? extends ConstraintManager> constManagerClass, Factors factors) {
+    Utils.checknotnull(constManagerClass);
+    Utils.checknotnull(factors);
+    ConstraintManager ret = null;
+    try {
+      ret = constManagerClass.newInstance();
+    } catch (InstantiationException e) {
+      Utils.rethrow(String.format("Failed to instantiate a class '%s':%s", constManagerClass, e.getMessage()), e);
+    } catch (IllegalAccessException e) {
+      Utils.rethrow(String.format("Failed to instantiate a class '%s':%s", constManagerClass, e.getMessage()), e);
+    }
+    return ret;
+  }
+
 
   private static Generator getGeneratorAnnotation(Class<?> testClass) {
     Utils.checknotnull(testClass);
@@ -79,7 +97,8 @@ public class JCUnit extends Suite {
     Utils.checknotnull(testClass);
     Generator generatorAnn = getGeneratorAnnotation(testClass);
     Class<? extends TestCaseGenerator> generatorClass;
-    String[] generatorParams;
+    Class<? extends ConstraintManager> constManagerClass;
+        String[] generatorParams;
     if (generatorAnn != null) {
       generatorClass = generatorAnn.value();
       if (generatorClass == null) {
@@ -87,30 +106,31 @@ public class JCUnit extends Suite {
       }
       generatorParams = generatorAnn.parameters();
       Utils.checknotnull(generatorParams);
+      constManagerClass = generatorAnn.constraintManager();
     } else {
       generatorClass = IPO2TestCaseGenerator.class;
       generatorParams = new String[] { };
-
+      constManagerClass = NullConstraintManager.class;
     }
     return this
-        .composeTestArray(testClass, generatorClass, generatorParams);
+        .composeTestArray(testClass, generatorClass, generatorParams, constManagerClass);
   }
 
   /*
      * Composes the test array.
      */
   public List<Tuple> composeTestArray(
-      Class<?> cut,
+      Class<?> testClass,
       @SuppressWarnings("rawtypes")
       Class<? extends TestCaseGenerator> generatorClass,
-      String[] params)
+      String[] params, Class<? extends ConstraintManager> constManagerClass)
       throws JCUnitCheckedException {
     if (generatorClass == null) {
       throw new NullPointerException();
     }
     // //
     // Initialize the factor levels for every '@FactorField' annotated field.
-    Field[] fields = Utils.getAnnotatedFields(cut, FactorField.class);
+    Field[] fields = Utils.getAnnotatedFields(testClass, FactorField.class);
     Factors.Builder factorsBuilder = new Factors.Builder();
     List<String> errors = new LinkedList<String>();
     for (Field f : fields) {
@@ -129,8 +149,10 @@ public class JCUnit extends Suite {
 
     // //
     // Instantiates the test array generator.
+    Factors factors = factorsBuilder.build();
+    ConstraintManager constraintManager = JCUnit.newConstraintManager(constManagerClass, factors);
     TestCaseGenerator testCaseGenerator = JCUnit
-        .newTestCaseGenerator(generatorClass, params, factorsBuilder.build());
+        .newTestCaseGenerator(generatorClass, params, factors, constraintManager);
 
     // //
     // Compose an array to be returned to the caller.

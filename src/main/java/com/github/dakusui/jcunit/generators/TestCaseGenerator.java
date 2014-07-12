@@ -4,6 +4,7 @@ package com.github.dakusui.jcunit.generators;
  */
 
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
+import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -31,7 +32,7 @@ public interface TestCaseGenerator extends Iterator<Tuple>,
 	 * Until this method is called, behaviors of any other methods are not predictable.
 	 */
 	public void init(String[] params,
-	                 Factors factors);
+      Factors factors, ConstraintManager constraintManager);
 
 	/**
 	 * Returns an index of the value for {@code key} in <code>testId</code>.
@@ -51,7 +52,9 @@ public interface TestCaseGenerator extends Iterator<Tuple>,
 
 	public List<String> getFactorNames();
 
-	/**
+  ConstraintManager getConstraintManager();
+
+  /**
 	 * Returns a tuple which represents a test case identified by {@code testId}
 	 */
 	public Tuple get(long testId);

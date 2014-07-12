@@ -4,7 +4,9 @@ import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.compat.generators.ipo.GiveUp;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.Tuples;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
@@ -24,6 +26,7 @@ public class IPO2 {
   private final int               strength;
   private final IPO2Optimizer     optimizer;
   private       List<Tuple>       result;
+  private       List<Tuple>       remainders;
 
   public IPO2(Factors factors, int strength,
       ConstraintManager constraintManager,
@@ -40,6 +43,7 @@ public class IPO2 {
     this.factors = factors;
     this.strength = strength;
     this.result = null;
+    this.remainders = null;
     this.constraintManager = constraintManager;
     this.optimizer = optimizer;
   }
@@ -78,10 +82,12 @@ public class IPO2 {
 
   public void ipo() {
     if (this.strength < this.factors.size()) {
+      this.remainders = new LinkedList<Tuple>();
       this.result = initialTestCases(
           factors.head(factors.get(this.strength).name)
       );
     } else if (factors.size() == this.strength) {
+      this.remainders = new LinkedList<Tuple>();
       this.result = initialTestCases(this.factors);
       return;
     }
@@ -98,11 +104,14 @@ public class IPO2 {
           this.strength);
       leftTuples.addAll(leftOver);
 
+      System.out.println("HG:result  =" + result);
+      System.out.println("HG:leftover=" + leftOver);
+
       ////
       // Expand test case set horizontally and get the list of test cases
       // that are proven to be invalid.
-      hg(result, leftTuples, factors.get(factorName));
-
+      leftOver = hg(result, leftTuples, factors.get(factorName));
+      leftTuples.removeAll(leftOver);
       if (leftTuples.isEmpty()) {
         continue;
       }
@@ -112,14 +121,17 @@ public class IPO2 {
         leftOver = vg(result, leftTuples,
             factors.head(factors.nextKey(factorName)));
       }
+      System.out.println("VG:result  =" + result);
+      System.out.println("VG:leftover=" + leftOver);
     }
     ////
     // As a result of replacing don't care values, multiple test cases can be identical.
     // By registering all the members to a new temporary set and adding them back to
     // the original one, I'm removing those duplicates.
     LinkedHashSet<Tuple> tmp = new LinkedHashSet<Tuple>(result);
-    result.clear();
-    result.addAll(tmp);
+    this.result.clear();
+    this.result.addAll(tmp);
+    this.remainders.addAll(leftOver);
   }
 
   public List<Tuple> getResult() {
@@ -127,9 +139,15 @@ public class IPO2 {
     return Collections.unmodifiableList(this.result);
   }
 
+  public List<Tuple> getRemainders() {
+    Utils.checkcond(this.result != null, "Execute ipo() method first");
+    return Collections.unmodifiableList(this.remainders);
+  }
+
   private List<Tuple> initialTestCases(
       Factors factors) {
-    List<AttrValue<String, Object>> attrValues = new LinkedList<AttrValue<String, Object>>();
+    List<AttrValue<String, Object>> attrValues = new ArrayList<AttrValue<String, Object>>(
+        512);
     for (String k : factors.getFactorNames()) {
       for (Object v : factors.get(k)) {
         attrValues.add(new AttrValue<String, Object>(k, v));
@@ -153,57 +171,49 @@ public class IPO2 {
      * Returns a list of test cases in {@code result} which are proven to be not
      * possible under given constraints.
      */
-  private void hg(
+  private Set<Tuple> hg(
       List<Tuple> result, Tuples leftTuples, Factor factor) {
+    Set<Tuple> leftOver = new HashSet<Tuple>();
     List<Tuple> invalidTests = new LinkedList<Tuple>();
     String factorName = factor.name;
-    Object[] factorLevels = factor.levels.toArray();
+    // Factor levels to cover in this method.
     for (int i = 0; i < result.size(); i++) {
       Tuple cur = result.get(i);
-      Object chosenLevel = null;
-      List<Object> levelList = Arrays.asList(factorLevels);
-      for (int j = 0; j < factorLevels.length; j++) {
-        if (i < result.size()) {
-          chosenLevel = factorLevels[(i + j) % factorLevels.length];
-        } else {
-          chosenLevel = chooseBestValue(
-              factorName,
-              levelList,
-              cur,
-              leftTuples);
-        }
-      }
-      cur.put(factorName, chosenLevel);
-      if (checkConstraints(cur)) {
-        leftTuples.removeAll(IPO2Utils.subtuplesOf(cur, this.strength));
-      } else {
-        levelList.remove(chosenLevel);
-        if (levelList.isEmpty()) {
-          cur.remove(factorName);
-          invalidTests.add(cur);
+      Object chosenLevel;
+      // Since Arrays.asList returns an unmodifiable list,
+      // create another list to hold
+      List<Object> possibleLevels = new LinkedList<Object>(factor.levels);
+      boolean validLevelFound = false;
+      while (!possibleLevels.isEmpty()) {
+        chosenLevel = chooseBestValue(
+            factorName,
+            possibleLevels,
+            cur,
+            leftTuples);
+        cur.put(factorName, chosenLevel);
+        if (checkConstraints(cur)) {
+          leftTuples.removeAll(IPO2Utils.subtuplesOf(cur, this.strength));
+          validLevelFound = true;
           break;
+        } else {
+          cur.remove(factorName);
         }
+        possibleLevels.remove(chosenLevel);
+      }
+      if (!validLevelFound) {
+        // A testCase cur can't be covered.
+        Tuple tupleGivenUp = cur.clone();
+        cur.clear();
+        handleGivenUpTuple(tupleGivenUp, result, leftOver);
+        invalidTests.add(cur);
       }
     }
     ////
-    // Remove tuples covered by invalid tests unless they are covered by other
-    // tests.
-    // 1. Remove invalid tests from 'result'.
+    // Remove empty tests from the result.
     for (Tuple cur : invalidTests) {
       result.remove(cur);
     }
-    // 2. Calculate all the tuples covered by the invalid tests.
-    Set<Tuple> invalidTuples = new HashSet<Tuple>();
-    for (Tuple c : invalidTests) {
-      invalidTuples.addAll(IPO2Utils.subtuplesOf(c, this.strength));
-    }
-    // 3. Check if each tuple is covered by remaining tests in 'result' and
-    //    if not, it will be added to 'leftTuples' again.
-    for (Tuple c : invalidTuples) {
-      if (lookup(result, c).isEmpty()) {
-        leftTuples.add(c);
-      }
-    }
+    return leftOver;
   }
 
   private Set<Tuple> vg(
@@ -227,7 +237,7 @@ public class IPO2 {
         numCovered = leftTuples.coveredBy(t).size();
       } else {
         ///
-        // This tuple can't be covered at all. Because it is explicitly violate
+        // This tuple can't be covered at all. Because it is explicitly violating
         // given constraints.
         ret.add(cur);
         continue;
@@ -253,51 +263,65 @@ public class IPO2 {
         // In case no matching tuple is found, fall back to the best known
         // tuple.
       }
-      leftTuples.removeAll(IPO2Utils.subtuplesOf(best, this.strength));
+      Set<Tuple> subtuplesOfBest = IPO2Utils.subtuplesOf(best, this.strength);
+      leftTuples.removeAll(subtuplesOfBest);
+      ret.removeAll(subtuplesOfBest);
       result.add(best);
     }
+    Set<Tuple> remove = new HashSet<Tuple>();
     for (Tuple testCase : result) {
       try {
-        Tuple processedTestCase = fillInMissingFactors(
-            testCase,
-            leftTuples);
-        testCase.putAll(processedTestCase);
-        leftTuples.removeAll(IPO2Utils.subtuplesOf(testCase, strength));
+        fillInMissingFactors(testCase, leftTuples);
+        Set<Tuple> subtuples = IPO2Utils.subtuplesOf(testCase, strength);
+        leftTuples.removeAll(subtuples);
+        ret.removeAll(subtuples);
       } catch (GiveUp e) {
-        ret.add(e.getTuple());
+        Tuple tupleGivenUp = removeDontCareEntries(e.getTuple().clone());
+        testCase.clear();
+        handleGivenUpTuple(tupleGivenUp, result, ret);
+        remove.add(testCase);
       }
     }
+    result.removeAll(remove);
     return ret;
   }
 
+  private void handleGivenUpTuple(Tuple tupleGivenUp, List<Tuple> result,
+      Set<Tuple> leftOver) {
+    for (Tuple invalidatedSubTuple : IPO2Utils
+        .subtuplesOf(tupleGivenUp, strength)) {
+      if (lookup(result, invalidatedSubTuple).size() == 0) {
+        leftOver.add(invalidatedSubTuple);
+      }
+    }
+  }
+
   /**
-   * An extension point.
+   * Calls an extension point in optimizer 'fillInMissingFactors'.
+   * Update content of {@code tuple} using optimizer.
+   * Throws a {@code GiveUp} when this method can't find a valid tuple.
    */
-  protected Tuple fillInMissingFactors(
+  protected void fillInMissingFactors(
       Tuple tuple,
       Tuples leftTuples) {
     Utils.checknotnull(tuple);
     Utils.checknotnull(leftTuples);
     Utils.checknotnull(constraintManager);
-    Tuple ret = this.optimizer
+    Tuple work = this.optimizer
         .fillInMissingFactors(tuple.clone(), leftTuples,
             constraintManager, this.factors);
-    Utils.checknotnull(ret);
-    Utils.checkcond(ret.keySet().equals(tuple.keySet()));
-    Utils.checkcond(!ret.containsValue(DontCare));
-    Utils.checkcond(checkConstraints(ret));
-    return ret;
+    Utils.checknotnull(work);
+    Utils.checkcond(work.keySet().equals(tuple.keySet()));
+    Utils.checkcond(!work.containsValue(DontCare));
+    if (!checkConstraints(work)) {
+      throw new GiveUp(removeDontCareEntries(work));
+    }
+    tuple.putAll(work);
   }
 
   private boolean checkConstraints(Tuple cur) {
     Utils.checknotnull(cur);
-    Tuple tuple = cur.clone();
-    for (String factorName : cur.keySet()) {
-      if (tuple.get(factorName) == DontCare) {
-        tuple.remove(factorName);
-      }
-    }
-    return constraintManager.check(cur);
+    return constraintManager.check(removeDontCareEntries(cur));
   }
 
   /**
@@ -316,7 +340,7 @@ public class IPO2 {
     Utils.checknotnull(leftTuples);
     Utils.checknotnull(factorName);
     Tuple ret = this.optimizer
-        .chooseBestTuple(Collections.unmodifiableList(found),
+        .chooseBestTuple(found,
             leftTuples.unmodifiableVersion(), factorName, level);
     Utils.checknotnull(ret);
     Utils.checkcond(found.contains(ret),
@@ -338,9 +362,18 @@ public class IPO2 {
 
     Object ret = this.optimizer
         .chooseBestValue(factorName, factorLevels.toArray() /* By specification of 'toArray', even if the content is modified, it's safe */,
-            tuple.clone() /* In order to prevent plugins from breaking this tuple, clone it. */,
-            leftTuples.unmodifiableVersion());
+            tuple, leftTuples.unmodifiableVersion());
     Utils.checkcond(factorLevels.contains(ret));
     return ret;
+  }
+
+  private Tuple removeDontCareEntries(Tuple cur) {
+    Tuple tuple = cur.clone();
+    for (String factorName : cur.keySet()) {
+      if (tuple.get(factorName) == DontCare) {
+        tuple.remove(factorName);
+      }
+    }
+    return tuple;
   }
 }
