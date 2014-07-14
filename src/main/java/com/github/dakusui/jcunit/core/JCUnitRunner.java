@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -10,15 +11,15 @@ import org.junit.runners.model.TestClass;
 import java.util.List;
 
 class JCUnitRunner extends BlockJUnit4ClassRunner {
-  private final List<Tuple> fParameterList;
+  private final TestCaseGenerator testCases;
 
-  private final int fParameterSetNumber;
+  private final int currentTestCaseId;
 
-  JCUnitRunner(Class<?> type, List<Tuple> parameterList, int i)
+  JCUnitRunner(Class<?> type, TestCaseGenerator testCases, int i)
       throws InitializationError {
     super(type);
-    fParameterList = parameterList;
-    fParameterSetNumber = i;
+    this.testCases = testCases;
+    currentTestCaseId = i;
   }
 
   @Override
@@ -30,28 +31,23 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   public Object createTest() throws Exception {
     TestClass klazz = getTestClass();
     Object ret = klazz.getJavaClass().newInstance();
-    Tuple values = (Tuple) computeParams();
+    Tuple values = testCases.get(currentTestCaseId);
     Utils.initializeTestObject(ret, values);
     return ret;
   }
 
   @Override
   protected String getName() {
-    return String.format("[%s]", fParameterSetNumber);
+    return String.format("[%s]", currentTestCaseId);
   }
 
   @Override
   protected String testName(final FrameworkMethod method) {
-    return String.format("%s[%s]", method.getName(), fParameterSetNumber);
+    return String.format("%s[%s]", method.getName(), currentTestCaseId);
   }
 
   @Override
   protected void validateConstructor(List<Throwable> errors) {
     validateZeroArgConstructor(errors);
   }
-
-  private Tuple computeParams() throws Exception {
-    return fParameterList.get(fParameterSetNumber);
-  }
-
 }

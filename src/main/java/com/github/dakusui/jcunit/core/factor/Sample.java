@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.jcunit.compat.auto.OutFieldNames;
-import com.github.dakusui.jcunit.compat.lisj.Get;
+import com.github.dakusui.jcunit.core.Param;
 
 public class Sample {
   public static final int   a = 0;
@@ -11,7 +10,7 @@ public class Sample {
   Object obj;
 
   @FactorField(levelsFactory = DefaultLevelsFactory.class,
-      factoryParameters = { "Hello", "world" })
+      factoryParameters = { @Param({ "Hello", "world" })})
   int test;
 
   @FactorField(intLevels = { 1, 2, 100 })

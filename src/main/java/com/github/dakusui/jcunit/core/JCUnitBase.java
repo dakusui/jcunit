@@ -20,7 +20,8 @@ public class JCUnitBase extends Lisj implements RuleSetBuilder, Context {
     // referencing 'this' during its execution.
     // Override init method to prevent the super class from accessing context.
     // And call super class's 'init' method implementation.
-    super(new ContextImpl() {});
+    super(new ContextImpl() {
+    });
     super.init(this);
   }
 

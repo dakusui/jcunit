@@ -46,6 +46,9 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
     @Override public void setFactors(Factors factors) {
     }
 
+    @Override public void init(Object[] params) {
+    }
+
     @Override public Factors getFactors() {
       return null;
     }

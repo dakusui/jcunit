@@ -11,6 +11,6 @@ public class ArrayExample {
     Object a = new int[1];
     Array.set(a, 0, new Integer(100));
 
-    System.out.println(Arrays.toString((int[])a));
+    System.out.println(Arrays.toString((int[]) a));
   }
 }

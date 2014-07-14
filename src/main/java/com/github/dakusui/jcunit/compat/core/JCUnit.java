@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.compat.report.ReportWriter;
 import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
@@ -86,51 +87,14 @@ public class JCUnit extends Suite {
     return ret;
   }
 
-  static Method assertMethod(Class<?> cut, Field outField) {
-    Method ret;
-    try {
-      try {
-        ret = cut.getMethod(outField.getName(), outField.getType(),
-            outField.getType());
-      } catch (NoSuchMethodException e) {
-        ret = cut.getDeclaredMethod(outField.getName());
-      }
-    } catch (SecurityException e) {
-      String msg = String.format(
-          "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
-              .getName(), e.getMessage()
-      );
-      throw new JCUnitEnvironmentException(msg, e);
-    } catch (NoSuchMethodException e) {
-      String msg = String
-          .format(
-              "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
-              outField, cut);
-      throw new ObjectUnderFrameworkException(msg, e);
-    }
-    if (!validateAssertMethod(outField, ret)) {
-      String msg = String.format(
-          "Assertion method '%s' isn't compatible with field '%s'", ret,
-          outField);
-      throw new IllegalArgumentException(msg, null);
-    }
-
-    return ret;
-  }
-
   public static boolean checkIfStatic(Method domainMethod) {
     return Modifier.isStatic(domainMethod.getModifiers());
   }
 
   private static boolean checkIfTypeCompatible(Field inField,
       Method domainMethod) {
-    if (!domainMethod.getReturnType().isArray()) {
-      return false;
-    }
-    if (domainMethod.getReturnType().getComponentType() != inField.getType()) {
-      return false;
-    }
-    return true;
+    return domainMethod.getReturnType().isArray()
+        && domainMethod.getReturnType().getComponentType() == inField.getType();
   }
 
   private static boolean checkIfAnyParameterExists(Method domainMethod) {
@@ -141,22 +105,10 @@ public class JCUnit extends Suite {
     return domainMethod.getReturnType().isArray();
   }
 
-  private static boolean checkIfReturnTypeIsBoolean(Method assertMethod) {
-    return Boolean.TRUE.equals(assertMethod.getReturnType());
-  }
-
-  private static boolean validateAssertMethod(Field outField,
-      Method assertMethod) {
-    boolean ret = true;
-    ret &= JCUnit.checkIfStatic(assertMethod);
-    ret &= JCUnit.checkIfReturnTypeIsBoolean(assertMethod);
-    return ret;
-  }
-
   private static boolean validateDomainMethod(Field inField,
       Method domainMethod) {
-    boolean ret = true;
-    ret &= JCUnit.checkIfStatic(domainMethod);
+    boolean ret;
+    ret = JCUnit.checkIfStatic(domainMethod);
     ret &= !JCUnit.checkIfAnyParameterExists(domainMethod);
     ret &= JCUnit.checkIfReturnTypeIsArray(domainMethod);
     ret &= JCUnit.checkIfTypeCompatible(inField, domainMethod);
@@ -209,10 +161,16 @@ public class JCUnit extends Suite {
         try {
           tmpvalues = (Object[]) inFieldType.getMethod("values").invoke(null);
         } catch (IllegalArgumentException e) {
+          Utils.rethrow("Something went wrong.", e);
         } catch (SecurityException e) {
+          Utils.rethrow("Something went wrong.", e);
+          Utils.rethrow(e);
         } catch (IllegalAccessException e) {
+          Utils.rethrow("Something went wrong.", e);
         } catch (InvocationTargetException e) {
+          Utils.rethrow("Something went wrong.", e);
         } catch (NoSuchMethodException e) {
+          Utils.rethrow("Something went wrong.", e);
         }
       } else {
         String msg = String
@@ -255,7 +213,6 @@ public class JCUnit extends Suite {
    * @param generatorClass A generator class to be used for <code>cut</code>
    * @param params         TODO
    * @param domains        Domain definitions for all the fields.
-   * @return
    */
   @SuppressWarnings("unchecked")
   public static TestArrayGenerator<Field> newTestArrayGenerator(
@@ -263,7 +220,7 @@ public class JCUnit extends Suite {
       Class<? extends TestArrayGenerator> generatorClass,
       GeneratorParameters.Value[] params,
       LinkedHashMap<Field, Object[]> domains) {
-    TestArrayGenerator<Field> ret = null;
+    TestArrayGenerator<Field> ret;
     try {
       ret = (TestArrayGenerator<Field>) generatorClass.newInstance();
       ret.init(params, domains);
@@ -279,7 +236,7 @@ public class JCUnit extends Suite {
      * Composes the test array.
      */
   public List<Object> composeTestArray(
-      Class<? extends Object> cut,
+      Class<?> cut,
       @SuppressWarnings("rawtypes")
       Class<? extends TestArrayGenerator> generatorClass)
       throws JCUnitCheckedException {
@@ -422,13 +379,13 @@ public class JCUnit extends Suite {
 
   @SuppressWarnings("rawtypes")
   private static Class<? extends TestArrayGenerator> getTestArrayGeneratorClass(
-      Class<? extends Object> cuf) {
+      Class<?> cuf) {
     Generator an = cuf.getAnnotation(Generator.class);
     Class<? extends TestArrayGenerator> ret = an != null ? an.value() : null;
     if (ret != null) {
       return ret;
     } else {
-      Class<? extends Object> superClass = cuf.getSuperclass();
+      Class<?> superClass = cuf.getSuperclass();
       if (superClass == null) {
         return null;
       }

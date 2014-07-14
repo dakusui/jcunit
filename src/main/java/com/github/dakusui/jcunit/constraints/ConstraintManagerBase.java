@@ -11,6 +11,11 @@ public abstract class ConstraintManagerBase implements ConstraintManager {
   private final Set<ConstraintObserver> observers = new LinkedHashSet<ConstraintObserver>();
   private Factors factors;
 
+
+  @Override
+  public void init(Object[] params) {
+  }
+
   @Override
   public void setFactors(Factors factors) {
     this.factors = factors;

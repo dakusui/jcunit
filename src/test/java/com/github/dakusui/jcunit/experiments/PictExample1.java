@@ -2,10 +2,10 @@ package com.github.dakusui.jcunit.experiments;
 
 import com.github.dakusui.jcunit.compat.core.JCUnit;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.constraints.Constraint;
 import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
 import com.github.dakusui.jcunit.compat.core.annotations.In.Domain;
+import com.github.dakusui.jcunit.core.Constraint;
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.compat.generators.CartesianTestArrayGenerator;
 import org.junit.runner.RunWith;

@@ -1,21 +1,26 @@
 package com.github.dakusui.jcunit.refined;
 
 import com.github.dakusui.jcunit.constraints.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
 import static org.junit.Assert.assertThat;
+import com.github.dakusui.jcunit.core.Param.Type;
 
 @RunWith(JCUnit.class)
-@Generator(constraintManager = JCUnitExample2.CM.class, parameters = {
-    @Param(type = Param.Type.Int, array = false, value = {})
-})
+@TestCaseGeneration(
+    generator = @Generator(
+        value = IPO2TestCaseGenerator.class,
+        params = {
+            @Param(type = Type.Int, array = false, value = { "3" })
+        }),
+    constraint = @Constraint(
+        value = JCUnitExample2.CM.class,
+        params = {
+        }))
 public class JCUnitExample2 {
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int a;

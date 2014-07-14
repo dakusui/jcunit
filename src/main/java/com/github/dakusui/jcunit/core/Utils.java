@@ -6,6 +6,8 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,6 +175,63 @@ public class Utils {
 
   public static Tuple unmodifiableTuple(Tuple tuple) {
     return new Tuple.Builder().putAll(tuple).setUnmodifiable(true).build();
+  }
+
+  public static <T> T invokeMethod(Object on, Method m, Object... parameters) {
+    try {
+      return (T) m.invoke(on, parameters);
+    } catch (IllegalAccessException e) {
+      rethrow(e);
+    } catch (InvocationTargetException e) {
+      rethrow(e);
+    }
+    checkcond(false, "Something went wrong.");
+    return null;
+  }
+
+  public static <T> T createNewInstanceUsingNoParameterConstructor(
+      Class<? extends T> klazz) {
+    T ret = null;
+    try {
+      ret = klazz.getConstructor().newInstance();
+    } catch (InstantiationException e) {
+      rethrow(String.format("Failed to instantiate '%s'."), e);
+    } catch (IllegalAccessException e) {
+      rethrow(String.format(
+              "Failed to instantiate '%s'. The constructor with no parameter was not open enough.", klazz),
+          e);
+    } catch (InvocationTargetException e) {
+      rethrow(String.format("Failed to instantiate '%s'.", klazz), e);
+    } catch (NoSuchMethodException e) {
+      rethrow(String.format(
+          "Failed to instantiate '%s'. A constructor with no parameter was not found."),
+          e);
+    }
+    checknotnull(ret);
+    return ret;
+  }
+
+  public static <T> T getDefaultValueOfAnnotation(
+      Class<? extends Annotation> klazz, String method) {
+    checknotnull(klazz);
+    checknotnull(method);
+    try {
+      return (T) klazz.getDeclaredMethod(method).getDefaultValue();
+    } catch (NoSuchMethodException e) {
+      rethrow(e);
+    }
+    checkcond(false, "Something went wrong. This line shouldn't be executed.");
+    return null;
+  }
+
+  public static Object[] processParams(Param[] params) {
+    Utils.checknotnull(params);
+    Object[] ret = new Object[params.length];
+    int i = 0;
+    for (Param p : params) {
+      ret[i++] = p.type().getValue(p);
+    }
+    return ret;
   }
 
   public static interface Formatter<T> {

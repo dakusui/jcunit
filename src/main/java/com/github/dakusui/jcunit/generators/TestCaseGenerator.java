@@ -24,6 +24,12 @@ public interface TestCaseGenerator extends Iterator<Tuple>,
 	 */
 	public Factor getFactor(String factorName);
 
+  public void setFactors(Factors factors);
+
+  Factors getFactors();
+
+  public void setConstraintManager(ConstraintManager constraintManager);
+
 	/**
 	 * Initializes this object.
 	 * Users of the implementations of this interface must call this method
@@ -31,8 +37,7 @@ public interface TestCaseGenerator extends Iterator<Tuple>,
 	 * <p/>
 	 * Until this method is called, behaviors of any other methods are not predictable.
 	 */
-	public void init(Object[] params,
-      Factors factors, ConstraintManager constraintManager);
+	public void init(Object[] params);
 
 	/**
 	 * Returns an index of the value for {@code key} in <code>testId</code>.

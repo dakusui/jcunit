@@ -46,17 +46,30 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
   }
 
   @Override
-  final public void init(Object[] params,
-      Factors factors, ConstraintManager constraintManager) {
+  final public void setFactors(Factors factors) {
     this.factors = factors;
-    this.params = params;
-    this.constraintManager = constraintManager;
-    this.cur = 0;
-    this.size = initializeTestCases(params, factors);
   }
 
-  @Override public ConstraintManager getConstraintManager() {
+  @Override
+  final public Factors getFactors() {
+    return this.factors;
+  }
+
+  @Override
+  final public void setConstraintManager(ConstraintManager constraintManager) {
+    this.constraintManager = constraintManager;
+  }
+
+  @Override
+  final public ConstraintManager getConstraintManager() {
     return this.constraintManager;
+  }
+
+  @Override
+  final public void init(Object[] params) {
+    this.params = params;
+    this.cur = 0;
+    this.size = initializeTestCases(params);
   }
 
   @Override
@@ -89,12 +102,19 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
     return this.size;
   }
 
+  public abstract Tuple getTestCase(int testId);
+
+  @Override public int getIndex(String factorName, long testId) {
+    Tuple testCase = getTestCase((int) testId);
+    Object l = testCase.get(factorName);
+    return getFactor(factorName).levels.indexOf(l);
+  }
+
   /**
    * Implementation of this method must return a number of test cases to be executed in total.
    *
    * @return A number of test cases
    */
   abstract protected long initializeTestCases(
-      Object[] params,
-      Factors domains);
+      Object[] params);
 }

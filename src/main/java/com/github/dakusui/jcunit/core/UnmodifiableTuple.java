@@ -4,6 +4,7 @@ import java.util.*;
 
 public class UnmodifiableTuple implements Tuple {
   private final Map<String, Object> map;
+
   public UnmodifiableTuple(Map<String, Object> map) {
     Utils.checknotnull(map);
     this.map = new TreeMap<String, Object>();

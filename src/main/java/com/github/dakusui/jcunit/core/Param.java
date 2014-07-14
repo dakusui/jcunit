@@ -92,11 +92,11 @@ public @interface Param {
       @Override public Object parse(String str) {
         return str;
       }
-
       @Override public Object createArray(int length) {
         return new String[length];
       }
-    },;
+    }
+    ;
 
     public abstract Object parse(String str);
 
