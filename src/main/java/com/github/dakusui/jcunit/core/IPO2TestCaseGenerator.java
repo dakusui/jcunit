@@ -18,6 +18,11 @@ public class IPO2TestCaseGenerator extends BaseTestCaseGenerator {
         2,
         this.getConstraintManager(),
         new GreedyIPO2Optimizer());
+    ////
+    // Wire constraint manager.
+    this.getConstraintManager().addObserver(ipo2);
+    ////
+    // Perform IPO algorithm.
     ipo2.ipo();
     this.tests = ipo2.getResult();
     return this.tests.size();

@@ -113,7 +113,7 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
   /**
    * Implementation of this method must return a number of test cases to be executed in total.
    *
-   * @return A number of test cases
+o   * @return A number of test cases
    */
   abstract protected long initializeTestCases(
       Object[] params);

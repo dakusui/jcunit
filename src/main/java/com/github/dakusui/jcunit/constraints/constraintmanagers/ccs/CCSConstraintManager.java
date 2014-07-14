@@ -19,7 +19,6 @@ import java.util.Set;
  */
 public abstract class CCSConstraintManager extends ConstraintManagerBase {
   private Set<PotentialConstraint> potentialConstraints = new LinkedHashSet<PotentialConstraint>();
-  private Set<Tuple>               learnedConstraint    = new HashSet<Tuple>();
 
   /**
    * Returns {@code null} if the given tuple doesn't violate constraint rules
@@ -59,9 +58,6 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
   @Override
   public boolean check(Tuple tuple) {
     Tuple violating;
-    if (this.checkTupleWithLearnedConstraints(tuple)) {
-      return false;
-    }
     if ((violating = this.checkTupleWithRules(tuple)) == null) {
       return true;
     }
@@ -85,31 +81,11 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
           // Notify observers.
           this.unregisterImplicitConstraintFromPotentialConstraintSet(
               implicitConstraint);
-          this.registerImplicitConstraintToLearnedConstraintSet(implicitConstraint);
           this.implicitConstraintFound(implicitConstraint);
         }
       }
     }
     return false;
-  }
-
-  private void registerImplicitConstraintToLearnedConstraintSet(
-      Tuple implicitConstraint) {
-    Set<Tuple> removal = new HashSet<Tuple>();
-    for (Tuple t : this.learnedConstraint) {
-      if (implicitConstraint.isSubtupleOf(t)) {
-        removal.add(t);
-      }
-    }
-    this.learnedConstraint.removeAll(removal);
-    this.learnedConstraint.add(implicitConstraint);
-  }
-
-  private boolean checkTupleWithLearnedConstraints(Tuple tuple) {
-    for (Tuple t : TupleUtils.subtuplesOf(tuple)) {
-      if (this.learnedConstraint.contains(t)) return false;
-    }
-    return true;
   }
 
   private void unregisterImplicitConstraintFromPotentialConstraintSet(

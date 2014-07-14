@@ -30,6 +30,7 @@ public class IPO2 implements ConstraintObserver {
   private final IPO2Optimizer     optimizer;
   private       List<Tuple>       result;
   private       List<Tuple>       remainders;
+  private Set<Tuple>               learnedConstraint    = new HashSet<Tuple>();
 
   public IPO2(Factors factors, int strength,
       ConstraintManager constraintManager,
@@ -106,6 +107,7 @@ public class IPO2 implements ConstraintObserver {
           factors.get(factorName),
           this.strength);
       leftTuples.addAll(leftOver);
+      leftTuples.removeAll(findTuplesViolatingLearnedConstraints(leftTuples.leftTuples()));
 
       System.out.println("HG:result  =" + result);
       System.out.println("HG:leftover=" + leftOver);
@@ -164,7 +166,9 @@ public class IPO2 implements ConstraintObserver {
     for (List<AttrValue<String, Object>> t : ce) {
       Tuple tuple = TupleUtils.list2tuple(t);
       if (checkConstraints(tuple)) {
-        ret.add(tuple);
+        if (this.checkConstraints(tuple)) {
+          ret.add(tuple);
+        }
       }
     }
     return ret;
@@ -390,6 +394,35 @@ public class IPO2 implements ConstraintObserver {
   }
 
   @Override public void implicitConstraintFound(Tuple constraint) {
-
+    this.registerImplicitConstraintToLearnedConstraintSet(constraint);
   }
+
+  private void registerImplicitConstraintToLearnedConstraintSet(
+      Tuple implicitConstraint) {
+    Set<Tuple> removal = new HashSet<Tuple>();
+    for (Tuple t : this.learnedConstraint) {
+      if (implicitConstraint.isSubtupleOf(t)) {
+        removal.add(t);
+      }
+    }
+    this.learnedConstraint.removeAll(removal);
+    this.learnedConstraint.add(implicitConstraint);
+  }
+
+  private boolean checkTupleWithLearnedConstraints(Tuple tuple) {
+    for (Tuple t : TupleUtils.subtuplesOf(tuple)) {
+      if (this.learnedConstraint.contains(t)) return false;
+    }
+    return true;
+  }
+
+  public Set<Tuple> findTuplesViolatingLearnedConstraints(Collection<Tuple> tuples) {
+    Utils.checknotnull(tuples);
+    Set<Tuple> ret = new HashSet<Tuple>();
+    for (Tuple t : tuples) {
+      if (!checkTupleWithLearnedConstraints(t)) ret.add(t);
+    }
+    return ret;
+  }
+
 }
