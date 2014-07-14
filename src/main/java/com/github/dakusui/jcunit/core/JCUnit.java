@@ -43,7 +43,7 @@ public class JCUnit extends Suite {
   public static TestCaseGenerator newTestCaseGenerator(
       @SuppressWarnings("rawtypes")
       Class<? extends TestCaseGenerator> generatorClass,
-      String[] params,
+      Param[] params,
       Factors factors,
       ConstraintManager constraintManager) {
     TestCaseGenerator ret;
@@ -58,20 +58,24 @@ public class JCUnit extends Suite {
     return ret;
   }
 
-  private static ConstraintManager newConstraintManager(Class<? extends ConstraintManager> constManagerClass, Factors factors) {
+  private static ConstraintManager newConstraintManager(
+      Class<? extends ConstraintManager> constManagerClass, Factors factors) {
     Utils.checknotnull(constManagerClass);
     Utils.checknotnull(factors);
     ConstraintManager ret = null;
     try {
       ret = constManagerClass.newInstance();
     } catch (InstantiationException e) {
-      Utils.rethrow(String.format("Failed to instantiate a class '%s':%s", constManagerClass, e.getMessage()), e);
+      Utils.rethrow(String
+          .format("Failed to instantiate a class '%s':%s", constManagerClass,
+              e.getMessage()), e);
     } catch (IllegalAccessException e) {
-      Utils.rethrow(String.format("Failed to instantiate a class '%s':%s", constManagerClass, e.getMessage()), e);
+      Utils.rethrow(String
+          .format("Failed to instantiate a class '%s':%s", constManagerClass,
+              e.getMessage()), e);
     }
     return ret;
   }
-
 
   private static Generator getGeneratorAnnotation(Class<?> testClass) {
     Utils.checknotnull(testClass);
@@ -98,7 +102,7 @@ public class JCUnit extends Suite {
     Generator generatorAnn = getGeneratorAnnotation(testClass);
     Class<? extends TestCaseGenerator> generatorClass;
     Class<? extends ConstraintManager> constManagerClass;
-        String[] generatorParams;
+    Param[] generatorParams;
     if (generatorAnn != null) {
       generatorClass = generatorAnn.value();
       if (generatorClass == null) {
@@ -109,11 +113,12 @@ public class JCUnit extends Suite {
       constManagerClass = generatorAnn.constraintManager();
     } else {
       generatorClass = IPO2TestCaseGenerator.class;
-      generatorParams = new String[] { };
+      generatorParams = new Param[] { };
       constManagerClass = NullConstraintManager.class;
     }
     return this
-        .composeTestArray(testClass, generatorClass, generatorParams, constManagerClass);
+        .composeTestArray(testClass, generatorClass, generatorParams,
+            constManagerClass);
   }
 
   /*
@@ -123,7 +128,7 @@ public class JCUnit extends Suite {
       Class<?> testClass,
       @SuppressWarnings("rawtypes")
       Class<? extends TestCaseGenerator> generatorClass,
-      String[] params, Class<? extends ConstraintManager> constManagerClass)
+      Param[] params, Class<? extends ConstraintManager> constManagerClass)
       throws JCUnitCheckedException {
     if (generatorClass == null) {
       throw new NullPointerException();
@@ -150,9 +155,12 @@ public class JCUnit extends Suite {
     // //
     // Instantiates the test array generator.
     Factors factors = factorsBuilder.build();
-    ConstraintManager constraintManager = JCUnit.newConstraintManager(constManagerClass, factors);
+    ConstraintManager constraintManager = JCUnit
+        .newConstraintManager(constManagerClass, factors);
+    constraintManager.setFactors(factors);
     TestCaseGenerator testCaseGenerator = JCUnit
-        .newTestCaseGenerator(generatorClass, params, factors, constraintManager);
+        .newTestCaseGenerator(generatorClass, params, factors,
+            constraintManager);
 
     // //
     // Compose an array to be returned to the caller.

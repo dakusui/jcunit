@@ -15,8 +15,8 @@ public class JCUnitExample {
 
   @Test
   public void test() {
-	  Calc calc = new Calc();
-	  System.out.println(String.format("f1=%d,f2=%d", f1, f2));
-	  System.out.println(calc.calc(Calc.Op.plus, f1, f2));
+    Calc calc = new Calc();
+    System.out.println(String.format("f1=%d,f2=%d", f1, f2));
+    System.out.println(calc.calc(Calc.Op.plus, f1, f2));
   }
 }

@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.constraints.constraintmanagers.ccs;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.TupleImpl;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,9 +95,9 @@ public class CCSValueTupleSet {
 		CartesianEnumerator<AttrValue<String, Object>, Tuple> enumerator = new CartesianEnumerator<AttrValue<String, Object>, Tuple>(
 				attrValues);
 		for (List<AttrValue<AttrValue<String, Object>, Tuple>> v : enumerator) {
-			Tuple next = new Tuple();
+			Tuple next = new TupleImpl();
 			for (AttrValue<AttrValue<String, Object>, Tuple> w : v) {
-				Tuple cur = new Tuple();
+				Tuple cur = new TupleImpl();
 				cur.putAll(w.value());
 				cur.remove(attr);
 				if ((next = merge(cur, next)) == null) {
@@ -132,7 +133,7 @@ public class CCSValueTupleSet {
 		if (another == null) {
 			throw new NullPointerException();
 		}
-		Tuple ret = new Tuple();
+		Tuple ret = new TupleImpl();
 		Tuple left = it;
 		Tuple right = another;
 		if (it.size() > another.size()) {

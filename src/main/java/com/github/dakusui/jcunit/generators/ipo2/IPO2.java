@@ -53,7 +53,7 @@ public class IPO2 {
     List<Tuple> ret = new LinkedList<Tuple>();
     for (Tuple cur : tuples) {
       if (matches(cur, q)) {
-        ret.add(cur.clone());
+        ret.add(cur.cloneTuple());
       }
     }
     return ret;
@@ -202,7 +202,7 @@ public class IPO2 {
       }
       if (!validLevelFound) {
         // A testCase cur can't be covered.
-        Tuple tupleGivenUp = cur.clone();
+        Tuple tupleGivenUp = cur.cloneTuple();
         cur.clear();
         handleGivenUpTuple(tupleGivenUp, result, leftOver);
         invalidTests.add(cur);
@@ -243,7 +243,7 @@ public class IPO2 {
         continue;
       }
       for (String factorName : cur.keySet()) {
-        Tuple q = cur.clone();
+        Tuple q = cur.cloneTuple();
         q.put(factorName, DontCare);
         List<Tuple> found = filterInvalidTuples(
             lookup(result, q));
@@ -276,7 +276,7 @@ public class IPO2 {
         leftTuples.removeAll(subtuples);
         ret.removeAll(subtuples);
       } catch (GiveUp e) {
-        Tuple tupleGivenUp = removeDontCareEntries(e.getTuple().clone());
+        Tuple tupleGivenUp = removeDontCareEntries(e.getTuple().cloneTuple());
         testCase.clear();
         handleGivenUpTuple(tupleGivenUp, result, ret);
         remove.add(testCase);
@@ -308,7 +308,7 @@ public class IPO2 {
     Utils.checknotnull(leftTuples);
     Utils.checknotnull(constraintManager);
     Tuple work = this.optimizer
-        .fillInMissingFactors(tuple.clone(), leftTuples,
+        .fillInMissingFactors(tuple.cloneTuple(), leftTuples,
             constraintManager, this.factors);
     Utils.checknotnull(work);
     Utils.checkcond(work.keySet().equals(tuple.keySet()));
@@ -368,7 +368,7 @@ public class IPO2 {
   }
 
   private Tuple removeDontCareEntries(Tuple cur) {
-    Tuple tuple = cur.clone();
+    Tuple tuple = cur.cloneTuple();
     for (String factorName : cur.keySet()) {
       if (tuple.get(factorName) == DontCare) {
         tuple.remove(factorName);

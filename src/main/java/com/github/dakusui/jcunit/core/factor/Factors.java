@@ -4,6 +4,7 @@ import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.TupleImpl;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
 
@@ -127,7 +128,7 @@ public class Factors implements Iterable<Factor> {
 			CartesianEnumerator<String, Object> ce = new CartesianEnumerator<String, Object>(
 					attrValues);
 			for (List<AttrValue<String, Object>> t : ce) {
-				Tuple tuple = new Tuple();
+				Tuple tuple = new TupleImpl();
 				for (AttrValue<String, Object> attrValue : t) {
 					tuple.put(attrValue.attr(), attrValue.value());
 				}
@@ -154,7 +155,7 @@ public class Factors implements Iterable<Factor> {
 					.format("Undefined factor '%s' was found: defined keys (%s)", k,
 							this.getFactorNames()));
 		}
-		Tuple ret = tuple.clone();
+		Tuple ret = tuple.cloneTuple();
 		for (String k : getFactorNames()) {
 			if (!ret.containsKey(k)) {
 				ret.put(k, defaultValue);

@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.constraints.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 
+import javax.jws.soap.SOAPBinding;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -11,7 +12,7 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Generator {
   Class<? extends TestCaseGenerator> value() default IPO2TestCaseGenerator.class;
 
-  String[] parameters() default { };
+  Param[] parameters() default { };
 
   Class<? extends ConstraintManager> constraintManager() default NullConstraintManager.class;
 }

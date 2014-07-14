@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.generators.ipo2;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.TupleImpl;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -31,7 +32,7 @@ public class IPO2Utils {
 
 	public static Tuple list2tuple(
 			List<AttrValue<String, Object>> attrValues) {
-		Tuple ret = new Tuple();
+		Tuple ret = new TupleImpl();
 		for (AttrValue<String, Object> cur : attrValues) {
 			ret.put(cur.attr(), cur.value());
 		}
@@ -44,7 +45,7 @@ public class IPO2Utils {
 		Combinator<String> c = new Combinator<String>(
 				new LinkedList<String>(tuple.keySet()), strength);
 		for (List<String> keys : c) {
-			Tuple cur = new Tuple();
+			Tuple cur = new TupleImpl();
 			for (String k : keys) {
 				cur.put(k, tuple.get(k));
 			}

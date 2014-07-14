@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.compat.constraints;
 
 import com.github.dakusui.jcunit.constraints.constraintmanagers.ccs.CCSValueTupleSet;
 import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.TupleImpl;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -11,8 +12,8 @@ import static org.junit.Assert.assertThat;
 public class CCSValueTupleTest {
   @Test
   public void test1() {
-    Tuple tuple1 = new Tuple();
-    Tuple tuple2 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
+    Tuple tuple2 = new TupleImpl();
 
     Tuple merged = CCSValueTupleSet.merge(tuple1, tuple2);
 
@@ -21,9 +22,9 @@ public class CCSValueTupleTest {
 
   @Test
   public void test2() {
-    Tuple tuple1 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
     tuple1.put("A1", "V11");
-    Tuple tuple2 = new Tuple();
+    Tuple tuple2 = new TupleImpl();
 
     Tuple merged = CCSValueTupleSet.merge(tuple1, tuple2);
 
@@ -34,8 +35,8 @@ public class CCSValueTupleTest {
 
   @Test
   public void test3() {
-    Tuple tuple1 = new Tuple();
-    Tuple tuple2 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
+    Tuple tuple2 = new TupleImpl();
     tuple2.put("A1", "V11");
 
     Tuple merged = CCSValueTupleSet.merge(tuple1, tuple2);
@@ -47,9 +48,9 @@ public class CCSValueTupleTest {
 
   @Test
   public void test4() {
-    Tuple tuple1 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
     tuple1.put("A1", "V11");
-    Tuple tuple2 = new Tuple();
+    Tuple tuple2 = new TupleImpl();
     tuple2.put("A1", "V11");
 
     Tuple merged = CCSValueTupleSet.merge(tuple1, tuple2);
@@ -61,9 +62,9 @@ public class CCSValueTupleTest {
 
   @Test
   public void test5() {
-    Tuple tuple1 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
     tuple1.put("A1", "V11");
-    Tuple tuple2 = new Tuple();
+    Tuple tuple2 = new TupleImpl();
     tuple2.put("A2", "V21");
 
     Tuple merged = CCSValueTupleSet.merge(tuple1, tuple2);
@@ -77,9 +78,9 @@ public class CCSValueTupleTest {
 
   @Test
   public void test6() {
-    Tuple tuple1 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
     tuple1.put("A1", "V11");
-    Tuple tuple2 = new Tuple();
+    Tuple tuple2 = new TupleImpl();
     tuple2.put("A1", "V11");
     tuple2.put("A2", "V21");
 
@@ -94,9 +95,9 @@ public class CCSValueTupleTest {
 
   @Test
   public void inconsistent() {
-    Tuple tuple1 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
     tuple1.put("A1", "V11");
-    Tuple tuple2 = new Tuple();
+    Tuple tuple2 = new TupleImpl();
     tuple2.put("A1", "V12");
 
     Tuple merged = CCSValueTupleSet.merge(tuple1, tuple2);
@@ -106,10 +107,10 @@ public class CCSValueTupleTest {
 
   @Test
   public void inconsistent2() {
-    Tuple tuple1 = new Tuple();
+    Tuple tuple1 = new TupleImpl();
     tuple1.put("A1", "V11");
     tuple1.put("A2", "V21");
-    Tuple tuple2 = new Tuple();
+    Tuple tuple2 = new TupleImpl();
     tuple2.put("A1", "V11");
     tuple2.put("A2", "V22");
 

@@ -9,7 +9,7 @@ import java.util.List;
 public class IPO2TestCaseGenerator extends BaseTestCaseGenerator {
   List<Tuple> tests;
 
-  @Override protected long initializeTestCases(String[] params,
+  @Override protected long initializeTestCases(Object[] params,
       Factors factors) {
     IPO2 ipo2 = new IPO2(
         factors,

@@ -117,7 +117,6 @@ public final class FormEvaluator {
   }
 
   private void cutEvaluation(Context context, BaseForm form, int index, CUT e) {
-    System.out.println("**    CUT " + form + " **");
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
     oList.addAll(this.context.observers());
     Collections.reverse(oList);

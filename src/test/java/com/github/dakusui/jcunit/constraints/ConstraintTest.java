@@ -1,51 +1,27 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.constraints.constraintmanagers.ccs.CCSValueTupleSet;
 import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class ConstraintTest extends JCUnitBase {
-  @Test
-  public void simple() throws CUT, JCUnitCheckedException {
-    Tuple tuple = new Tuple();
-    tuple.put("hdd1", 0);
-    tuple.put("hdd2", 1);
-
-    ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
-        .when(eq($("hdd1"), 0)).then(not(eq($("hdd2"), 0))).build();
-    Assert.assertThat(2, CoreMatchers.is(rule.evaluate(tuple).size()));
-    Assert.assertThat(0, CoreMatchers.is(rule.evaluate(tuple).get("hdd1")));
-    Assert.assertThat(1, CoreMatchers.is(rule.evaluate(tuple).get("hdd2")));
-  }
-
-  @Test
-  public void shortCut1() throws CUT, JCUnitCheckedException {
-    Tuple tuple = new Tuple();
-    tuple.put("notEvaluated1", 1);
-    tuple.put("notEvaluated2", 1);
-    tuple.put("notEvaluated3", 1);
-    tuple.put("notEvaluated4", 1);
-    tuple.put("notEvaluated5", 1);
-    tuple.put("evaluated1", 1);
-    tuple.put("evaluated2", 1);
+  @Test(expected = SymbolNotFoundException.class)
+  public void notAbleToEvaluateForInsufficientAttributes()
+      throws CUT, JCUnitCheckedException {
+    Tuple.Builder builder = new Tuple.Builder();
+    builder.put("evaluated1", 1);
+    builder.put("evaluated2", 1);
+    Tuple t = builder.build();
 
     ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
         .when(
-            or(
-                and(
-                    eq($("notEvaluated1"), 0), eq($("notEvaluated2"), 1)
-                ),
-                eq(("evaluated1"), 1)
+            and(
+                eq($("evaluated1"), 1), eq($("missing"), 1)
             )
         ).then(
             not(
@@ -53,35 +29,23 @@ public class ConstraintTest extends JCUnitBase {
             )
         ).build();
 
-    Tuple result = rule.evaluate(tuple);
-    System.out.println(result);
+    Assert.fail(String
+        .format("This path shouldn't be executed. '%s'", rule.evaluate(t)));
   }
 
   @Test
-  public void shortCut2() throws CUT, JCUnitCheckedException {
-    Tuple tuple = new Tuple();
-    tuple.put("notEvaluated1", 1);
-    tuple.put("notEvaluated2", 1);
-    tuple.put("notEvaluated3", 1);
-    tuple.put("notEvaluated4", 1);
-    tuple.put("notEvaluated5", 1);
-    tuple.put("evaluated1", 1);
-    tuple.put("evaluated2", 1);
+  public void tupleSatisfiesSimpleConstraint()
+      throws CUT, JCUnitCheckedException {
+    Tuple.Builder builder = new Tuple.Builder();
+    builder.put("evaluated1", 1);
+    builder.put("evaluated11", 11);
+    builder.put("evaluated2", 2);
+    Tuple t = builder.build();
 
     ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
         .when(
-            or(
-                and(
-                    eq($("notEvaluated3"), 1), eq($("notEvaluated4"), 1),
-                    eq($("notEvaluated5"), 0)
-                ),
-                and(
-                    eq($("notEvaluated1"), 0), eq($("notEvaluated2"), 1)
-                ),
-                eq($("evaluated1"), 1),
-                and(
-                    eq($("notEvaluated1"), 1), eq($("notEvaluated2"), 1)
-                )
+            and(
+                eq($("evaluated1"), 1), eq($("evaluated11"), 11)
             )
         ).then(
             not(
@@ -89,63 +53,75 @@ public class ConstraintTest extends JCUnitBase {
             )
         ).build();
 
-    Tuple result = rule.evaluate(tuple);
-    System.out.println(result);
+    Tuple result = rule.evaluate(t);
+    Assert.assertThat(result, CoreMatchers.nullValue());
   }
 
   @Test
-  public void shortCut3() throws CUT, JCUnitCheckedException {
-    Tuple tuple = new Tuple();
-    tuple.put("notEvaluated1", 1);
-    tuple.put("notEvaluated2", 1);
-    tuple.put("notEvaluated3", 1);
-    tuple.put("notEvaluated4", 1);
-    tuple.put("notEvaluated5", 1);
-    tuple.put("evaluated1", 1);
-    tuple.put("evaluated2", 1);
-    tuple.put("evaluated3", 1);
-    tuple.put("evaluated4", 1);
-    tuple.put("evaluated5", 1);
+  public void tupleSatisfiesConstraintWithShortCut()
+      throws CUT, JCUnitCheckedException {
+    Tuple.Builder builder = new Tuple.Builder();
+    builder.put("attr1", 1);
+    builder.put("attr1sc", 99);
+    builder.put("attr2", 2);
+    builder.put("attr3", 3);
+    Tuple t = builder.build();
 
     ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
         .when(
             or(
                 and(
-                    eq($("notEvaluatedX"), 0), eq($("notEvaluated5"), 1)
+                    eq($("attr1"), 0), eq($("attr1sc"), 99)
                 ),
-                and(
-                    eq($("notEvaluatedZ"), 1), eq($("notEvaluated2"), 1),
-                    eq($("notEvaluated3"), 1)
-                ),
-                and(
-                    eq($("notEvaluated1"), 0), eq($("notEvaluated5"), 1)
-                ),
-                eq($("evaluated1"), 1)
+                eq($("attr2"), 2)
             )
         ).then(
-            not(
-                eq($("evaluated2"), 0)
-            )
+            eq($("attr3"), 3)
         ).build();
 
-    Tuple result = rule.evaluate(tuple);
+    Tuple result = rule.evaluate(t);
     System.out.println(result);
+    Assert.assertThat(result, CoreMatchers.nullValue());
   }
 
   @Test
-  public void constraintSet() throws Exception {
-    Map<String, List<Object>> domains = composeDomains();
-    CCSValueTupleSet valueTupleSet = new CCSValueTupleSet(domains);
-    Tuple valueTuple = new Tuple();
-    valueTupleSet.add(valueTuple);
+  public void tupleDoesntSatisfySimpleConstraintInWhenClause()
+      throws CUT, JCUnitCheckedException {
+    Tuple.Builder builder = new Tuple.Builder();
+    builder.put("evaluated1", 1);
+    builder.put("evaluated2", 2);
+    Tuple t = builder.build();
+
+    ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
+        .when(
+            eq($("evaluated1"), 0)
+        ).then(
+            eq($("evaluated2"), 1)
+        ).build();
+
+    Tuple result = rule.evaluate(t);
+    Assert.assertThat(1, CoreMatchers.is(result.size()));
+    Assert.assertThat(1, CoreMatchers.is(result.get("evaluated1")));
   }
 
-  private Map<String, List<Object>> composeDomains() {
-    Map<String, List<Object>> ret = new HashMap<String, List<Object>>();
-    ret.put("P1", Arrays.asList((Object) "P11", "P12"));
-    ret.put("P2", Arrays.asList((Object) "P21", "P22"));
-    ret.put("P3", Arrays.asList((Object) "P31", "P32", "P33"));
-    return ret;
-  }
+  @Test
+  public void tupleDoesntSatisfySimpleConstraintInThenClause()
+      throws CUT, JCUnitCheckedException {
+    Tuple.Builder builder = new Tuple.Builder();
+    builder.put("evaluated1", 1);
+    builder.put("evaluated2", 2);
+    Tuple t = builder.build();
 
+    ConstraintRule rule = new ConstraintRule.Builder().setContext(this)
+        .when(
+            eq($("evaluated1"), 1)
+        ).then(
+            eq($("evaluated2"), 0)
+        ).build();
+
+    Tuple result = rule.evaluate(t);
+    Assert.assertThat(2, CoreMatchers.is(result.size()));
+    Assert.assertThat((Integer) result.get("evaluated1"), CoreMatchers.is(1));
+    Assert.assertThat((Integer) result.get("evaluated2"), CoreMatchers.is(2));
+  }
 }

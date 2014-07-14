@@ -34,7 +34,7 @@ public class Tuples {
     Set<Tuple> ret = new HashSet<Tuple>();
     for (Tuple t : factors.generateAllPossibleTuples(this.strength - 1)) {
       for (Object l : factor) {
-        Tuple tt = t.clone();
+        Tuple tt = t.cloneTuple();
         tt.put(factor.name, l);
         ret.add(tt);
       }

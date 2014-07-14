@@ -34,7 +34,7 @@ public class FactorLoader {
 		methodNameMappings.put(Float.class, getLevelsMethod("floatLevels"));
 		methodNameMappings.put(Double.TYPE, getLevelsMethod("doubleLevels"));
 		methodNameMappings.put(Double.class, getLevelsMethod("doubleLevels"));
-		methodNameMappings.put(String.class, getLevelsMethod("stringLevels"));
+    methodNameMappings.put(String.class, getLevelsMethod("stringLevels"));
 	}
 
 	private final Field field;
@@ -153,26 +153,29 @@ public class FactorLoader {
 			}
 		} else {
 			Class<?> fieldType = f.getType();
-			if (methodNameMappings.containsKey(fieldType)) {
-				levelsFactory = new DefaultLevelsFactory(ann,
-						methodNameMappings.get(fieldType));
-			} else {
-				////
-				// In this case (Non-primitive, non-string typed fields),
-				// levelsFactory must be provided, but not found (because no overriding
-				// method was found).
-				errors.add(String.format(
-						"For the field '%s', 'levelsFactory' needs to be provided since there is no pre-defined xyzLevels method for it.",
-						f));
-			}
-		}
+      if (Enum.class.isAssignableFrom(fieldType)) {
+        fieldType = Enum.class;
+      }
+      if (methodNameMappings.containsKey(fieldType)) {
+        levelsFactory = new DefaultLevelsFactory(ann,
+            methodNameMappings.get(fieldType));
+      } else {
+        ////
+        // In this case (Non-primitive, non-string typed fields),
+        // levelsFactory must be provided, but not found (because no overriding
+        // method was found).
+        errors.add(String.format(
+            "For the field '%s', 'levelsFactory' needs to be provided since there is no pre-defined xyzLevels method for it.",
+            f));
+      }
+    }
 		ValidationResult ret;
 		if (errors.isEmpty()) {
 			ret = new ValidationResult(true, levelsFactory, null);
 
 		} else {
 			ret = new ValidationResult(false, null,
-					Utils.join(";", errors.toArray()));
+					Utils.join("; ", errors.toArray()));
 		}
 		return ret;
 	}

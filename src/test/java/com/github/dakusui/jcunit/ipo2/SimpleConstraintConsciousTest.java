@@ -14,7 +14,7 @@ import java.util.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ConstraintTest extends IPO2Test {
+public class SimpleConstraintConsciousTest extends IPO2Test {
 	public static class TestConstraintManager implements ConstraintManager {
 		private final Set<Tuple> constraints;
 
@@ -43,7 +43,14 @@ public class ConstraintTest extends IPO2Test {
 			return true;
 		}
 
-		@Override
+    @Override public void setFactors(Factors factors) {
+    }
+
+    @Override public Factors getFactors() {
+      return null;
+    }
+
+    @Override
 		public void addObserver(ConstraintObserver observer) {
 
 		}

@@ -36,6 +36,8 @@ public @interface FactorField {
 			"abcdefghijklmnopqrstuvwxyz", "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?", " ", ""
 	};
 
+  Class<? extends Enum> enumLevels() default  Enum.class ;
+
 	public Class<? extends LevelsFactory> levelsFactory() default LevelsFactory.class;
 
 	public String[] factoryParameters() default {};

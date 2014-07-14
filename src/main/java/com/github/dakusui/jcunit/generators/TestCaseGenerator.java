@@ -31,7 +31,7 @@ public interface TestCaseGenerator extends Iterator<Tuple>,
 	 * <p/>
 	 * Until this method is called, behaviors of any other methods are not predictable.
 	 */
-	public void init(String[] params,
+	public void init(Object[] params,
       Factors factors, ConstraintManager constraintManager);
 
 	/**

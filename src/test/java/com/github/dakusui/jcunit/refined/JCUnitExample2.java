@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.refined;
 import com.github.dakusui.jcunit.constraints.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import org.junit.Test;
@@ -12,21 +13,25 @@ import org.mockito.internal.matchers.LessThan;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
-@Generator(constraintManager = JCUnitExample2.CM.class)
+@Generator(constraintManager = JCUnitExample2.CM.class, parameters = {
+    @Param(type = Param.Type.Int, array = false, value = {})
+})
 public class JCUnitExample2 {
-  @FactorField//(intLevels = {100})
+  @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int a;
-  @FactorField//(intLevels = {0})
+  @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int b;
-  @FactorField
+  @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int c;
 
   @Test
   public void test() {
     QuadraticEquationResolver.Solutions s = new QuadraticEquationResolver(a, b,
         c).resolve();
-    assertThat(a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
-    assertThat(a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
+    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+        a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
+    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+        a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
   }
 
   public static class CM extends ConstraintManagerBase {

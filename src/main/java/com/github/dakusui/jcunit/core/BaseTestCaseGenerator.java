@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
-  protected String[] params;
+  protected Object[] params;
   private Factors factors = null;
   private long    size    = -1;
   private long    cur     = -1;
@@ -46,7 +46,7 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
   }
 
   @Override
-  final public void init(String[] params,
+  final public void init(Object[] params,
       Factors factors, ConstraintManager constraintManager) {
     this.factors = factors;
     this.params = params;
@@ -61,11 +61,11 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
 
   @Override
   public Tuple get(long cur) {
-    Tuple ret = new Tuple();
+    Tuple.Builder b = new Tuple.Builder();
     for (String f : this.factors.getFactorNames()) {
-      ret.put(f, factors.get(f).levels.get(getIndex(f, cur)));
+      b.put(f, factors.get(f).levels.get(getIndex(f, cur)));
     }
-    return ret;
+    return b.build();
   }
 
   @Override
@@ -95,6 +95,6 @@ public abstract class BaseTestCaseGenerator implements TestCaseGenerator {
    * @return A number of test cases
    */
   abstract protected long initializeTestCases(
-      String[] params,
+      Object[] params,
       Factors domains);
 }

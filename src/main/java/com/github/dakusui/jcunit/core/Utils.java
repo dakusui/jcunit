@@ -171,6 +171,10 @@ public class Utils {
     return ret.toArray(new Field[ret.size()]);
   }
 
+  public static Tuple unmodifiableTuple(Tuple tuple) {
+    return new Tuple.Builder().putAll(tuple).setUnmodifiable(true).build();
+  }
+
   public static interface Formatter<T> {
     public static final Formatter INSTANCE = new Formatter<Object>() {
       @Override

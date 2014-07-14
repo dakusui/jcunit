@@ -43,7 +43,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
     Tuple ret = null;
     for (int i = 0; i < maxTries; i++) {
       long index = maxTries < sz ? i : (long) (random.nextDouble() * sz);
-      Tuple t = tuple.clone();
+      Tuple t = tuple.cloneTuple();
       t.putAll(IPO2Utils.list2tuple(enumerator.get(index)));
       if (!constraintManager.check(t)) {
         continue;
