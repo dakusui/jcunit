@@ -6,7 +6,7 @@ import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.TupleImpl;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
+import com.github.dakusui.jcunit.core.TupleUtils;
 
 import java.util.*;
 

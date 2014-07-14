@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.generators.ipo2;
+package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.tuple.AttrValue;

@@ -1,7 +1,5 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
-
 import java.util.TreeMap;
 
 public class TupleImpl extends TreeMap<String, Object> implements Tuple {

@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
-import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
+import com.github.dakusui.jcunit.core.TupleUtils;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 

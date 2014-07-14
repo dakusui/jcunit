@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
 
 import java.util.*;
 

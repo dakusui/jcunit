@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.Tuples;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
+import com.github.dakusui.jcunit.core.TupleUtils;
 import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.LinkedHashMap;
