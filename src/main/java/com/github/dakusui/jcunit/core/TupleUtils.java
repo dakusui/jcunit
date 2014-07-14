@@ -44,8 +44,7 @@ public class TupleUtils {
 	public static Set<Tuple> subtuplesOf(
 			Tuple tuple, int strength) {
     Utils.checknotnull(tuple);
-    Utils.checkcond(strength >= 0);
-    Utils.checkcond(strength <= tuple.size());
+    Utils.checkcond(strength >= 0 && strength <= tuple.size());
 		Set<Tuple> ret = new HashSet<Tuple>();
 		Combinator<String> c = new Combinator<String>(
 				new LinkedList<String>(tuple.keySet()), strength);

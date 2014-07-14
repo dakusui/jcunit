@@ -29,6 +29,19 @@ class DefaultLevelsFactory extends LevelsFactoryBase<Object> {
         throw new RuntimeException();
       }
       this.size = Array.getLength(this.values);
+      Class<?> compType = this.values.getClass().getComponentType();
+      ////
+      // If the type is String or Enum, and includeNull is set to true,
+      // a null value will be included in the values.
+      if (String.class.equals(compType) || Enum.class.isAssignableFrom(compType)) {
+        if (annotation.includeNull()) {
+          Object work = Array.newInstance(compType, size + 1);
+          System.arraycopy(this.values, 0, work, 0, this.size);
+          Array.set(work, this.size, null);
+          this.values = work;
+          this.size++;
+        }
+      }
       return;
     } catch (IllegalAccessException e) {
       Utils.rethrow(e);
