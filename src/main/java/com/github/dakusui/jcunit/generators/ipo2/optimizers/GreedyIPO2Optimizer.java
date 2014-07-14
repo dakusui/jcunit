@@ -3,11 +3,12 @@ package com.github.dakusui.jcunit.generators.ipo2.optimizers;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.compat.generators.ipo.GiveUp;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.Tuples;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
+import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -29,12 +30,20 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
       }
     }
     if (missingFactors.size() == 0) {
-      if (constraintManager.check(tuple))
+      try {
+        if (constraintManager.check(tuple)) {
+          return tuple;
+        }
+      } catch (SymbolNotFoundException e) {
+        ////
+        // In case constraint checking fails for insufficient attributes, no way
+        // other than moving on.
         return tuple;
+      }
       throw new GiveUp(tuple);
     }
     CartesianEnumerator<String, Object> enumerator = new CartesianEnumerator<String, Object>(
-        IPO2Utils.map2list(
+        TupleUtils.map2list(
             missingFactors)
     );
     long sz = enumerator.size();
@@ -44,9 +53,15 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
     for (int i = 0; i < maxTries; i++) {
       long index = maxTries < sz ? i : (long) (random.nextDouble() * sz);
       Tuple t = tuple.cloneTuple();
-      t.putAll(IPO2Utils.list2tuple(enumerator.get(index)));
-      if (!constraintManager.check(t)) {
-        continue;
+      t.putAll(TupleUtils.list2tuple(enumerator.get(index)));
+      try {
+        if (!constraintManager.check(t)) {
+          continue;
+        }
+      } catch (SymbolNotFoundException e) {
+        ////
+        // In case constraint checking fails for insufficient attributes, no way
+        // other than moving on.
       }
       int num = leftTuples.coveredBy(t).size();
       if (num > maxNum) {

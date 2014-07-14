@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
+import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
 
 import java.util.*;
 
@@ -61,7 +61,7 @@ public class Tuples {
   public Set<Tuple> coveredBy(
       Tuple tuple) {
     Set<Tuple> ret = new LinkedHashSet<Tuple>();
-    Set<Tuple> possibleTuples = IPO2Utils.subtuplesOf(tuple,
+    Set<Tuple> possibleTuples = TupleUtils.subtuplesOf(tuple,
         this.strength);
     for (Tuple c : possibleTuples) {
       if (this.tuples.contains(c)) {

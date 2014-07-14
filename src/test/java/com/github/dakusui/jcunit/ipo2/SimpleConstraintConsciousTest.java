@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.constraints.ConstraintObserver;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
+import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
 
 		private static boolean matches(Tuple constraint, Tuple t) {
 			for (String fName : constraint.keySet()) {
-				if (!IPO2Utils.eq(constraint.get(fName), t.get(fName))) {
+				if (!TupleUtils.eq(constraint.get(fName), t.get(fName))) {
 					return false;
 				}
 			}
@@ -126,7 +126,8 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
     System.err.println(result);
     for (Tuple tuple : remainders) {
       assertThat(String.format("'%s' is contained in result set.", tuple), find(tuple, result), is(false));
-      assertThat(String.format("'%s' doesn't violate any constraints.", tuple), constraintManager.check(
+      assertThat(String.format("'%s' doesn't violate any constraints.", tuple), checkConstraints(
+          constraintManager,
           tuple), is(false));
     }
   }

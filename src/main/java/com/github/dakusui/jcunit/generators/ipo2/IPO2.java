@@ -4,16 +4,18 @@ import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.compat.generators.ipo.GiveUp;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
+import com.github.dakusui.jcunit.constraints.ConstraintObserver;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.Tuples;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.*;
 
-public class IPO2 {
+public class IPO2 implements ConstraintObserver {
   public static final Object DontCare = new Object() {
     @Override
     public String toString() {
@@ -62,7 +64,7 @@ public class IPO2 {
   private static boolean matches(Tuple tuple,
       Tuple q) {
     for (String k : q.keySet()) {
-      if (!tuple.containsKey(k) || !IPO2Utils.eq(q.get(k), tuple.get(k))) {
+      if (!tuple.containsKey(k) || !TupleUtils.eq(q.get(k), tuple.get(k))) {
         return false;
       }
     }
@@ -159,7 +161,7 @@ public class IPO2 {
     List<Tuple> ret = new ArrayList<Tuple>(
         (int) ce.size());
     for (List<AttrValue<String, Object>> t : ce) {
-      Tuple tuple = IPO2Utils.list2tuple(t);
+      Tuple tuple = TupleUtils.list2tuple(t);
       if (checkConstraints(tuple)) {
         ret.add(tuple);
       }
@@ -192,7 +194,7 @@ public class IPO2 {
             leftTuples);
         cur.put(factorName, chosenLevel);
         if (checkConstraints(cur)) {
-          leftTuples.removeAll(IPO2Utils.subtuplesOf(cur, this.strength));
+          leftTuples.removeAll(TupleUtils.subtuplesOf(cur, this.strength));
           validLevelFound = true;
           break;
         } else {
@@ -263,7 +265,7 @@ public class IPO2 {
         // In case no matching tuple is found, fall back to the best known
         // tuple.
       }
-      Set<Tuple> subtuplesOfBest = IPO2Utils.subtuplesOf(best, this.strength);
+      Set<Tuple> subtuplesOfBest = TupleUtils.subtuplesOf(best, this.strength);
       leftTuples.removeAll(subtuplesOfBest);
       ret.removeAll(subtuplesOfBest);
       result.add(best);
@@ -272,7 +274,7 @@ public class IPO2 {
     for (Tuple testCase : result) {
       try {
         fillInMissingFactors(testCase, leftTuples);
-        Set<Tuple> subtuples = IPO2Utils.subtuplesOf(testCase, strength);
+        Set<Tuple> subtuples = TupleUtils.subtuplesOf(testCase, strength);
         leftTuples.removeAll(subtuples);
         ret.removeAll(subtuples);
       } catch (GiveUp e) {
@@ -288,7 +290,7 @@ public class IPO2 {
 
   private void handleGivenUpTuple(Tuple tupleGivenUp, List<Tuple> result,
       Set<Tuple> leftOver) {
-    for (Tuple invalidatedSubTuple : IPO2Utils
+    for (Tuple invalidatedSubTuple : TupleUtils
         .subtuplesOf(tupleGivenUp, strength)) {
       if (lookup(result, invalidatedSubTuple).size() == 0) {
         leftOver.add(invalidatedSubTuple);
@@ -321,7 +323,16 @@ public class IPO2 {
 
   private boolean checkConstraints(Tuple cur) {
     Utils.checknotnull(cur);
-    return constraintManager.check(removeDontCareEntries(cur));
+    try {
+      return constraintManager.check(removeDontCareEntries(cur));
+    } catch (SymbolNotFoundException e) {
+      ////
+      // In case checking fails due to insufficient attribute values
+      // in tuple 'cur', JCUnit considers it is 'valid'.
+      // If it turns out that it violates constraints later,
+      // it will be removed, but it's a separate story.
+      return true;
+    }
   }
 
   /**
@@ -375,5 +386,9 @@ public class IPO2 {
       }
     }
     return tuple;
+  }
+
+  @Override public void implicitConstraintFound(Tuple constraint) {
+
   }
 }

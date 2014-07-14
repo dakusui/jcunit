@@ -6,8 +6,9 @@ import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
+import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
 import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -17,11 +18,8 @@ import java.util.Set;
 /**
  */
 public abstract class CCSConstraintManager extends ConstraintManagerBase {
-  private Set<PotentialConstraint> potentialConstraints;
-
-  public CCSConstraintManager() {
-    this.potentialConstraints = new LinkedHashSet<PotentialConstraint>();
-  }
+  private Set<PotentialConstraint> potentialConstraints = new LinkedHashSet<PotentialConstraint>();
+  private Set<Tuple>               learnedConstraint    = new HashSet<Tuple>();
 
   /**
    * Returns {@code null} if the given tuple doesn't violate constraint rules
@@ -36,17 +34,23 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
    * @param tuple The tuple to be evaluated.
    * @return A tuple which has involved values in {@code tuple}.
    */
-  Tuple checkTupleWithRules(Tuple tuple) {
+  private Tuple checkTupleWithRules(Tuple tuple) {
     List<ConstraintRule> constraintRules = getConstraintRules();
     for (ConstraintRule c : constraintRules) {
       Tuple ret;
       try {
         ret = c.evaluate(tuple);
-        if (ret != null) return ret;
+        if (ret != null) {
+          return ret;
+        }
+      } catch (SymbolNotFoundException e) {
+        ////
+        // In case evaluation fails due to insufficient attribute values in tuple,
+        // null will be returned, so, simply ignore SymbolNotFoundException.
       } catch (JCUnitCheckedException e) {
-        e.printStackTrace();
+        Utils.rethrow("Something went wrong", e);
       } catch (CUT cut) {
-        cut.printStackTrace();
+        Utils.rethrow("Something went wrong", cut);
       }
     }
     return null;
@@ -55,11 +59,14 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
   @Override
   public boolean check(Tuple tuple) {
     Tuple violating;
+    if (this.checkTupleWithLearnedConstraints(tuple)) {
+      return false;
+    }
     if ((violating = this.checkTupleWithRules(tuple)) == null) {
       return true;
     }
     Factors factors = this.getFactors();
-    Set<Tuple> subtuplesOfViolatingTuple = IPO2Utils
+    Set<Tuple> subtuplesOfViolatingTuple = TupleUtils
         .subtuplesOf(violating, violating.size() - 1);
     for (Tuple t : subtuplesOfViolatingTuple) {
       String removedFactorName = findMissingFactorName(t, violating);
@@ -76,7 +83,9 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
           // Now an implicit constraint is found.
           // Remove all super tuples.
           // Notify observers.
-          this.unregisterImplicitConstraint(implicitConstraint);
+          this.unregisterImplicitConstraintFromPotentialConstraintSet(
+              implicitConstraint);
+          this.registerImplicitConstraintToLearnedConstraintSet(implicitConstraint);
           this.implicitConstraintFound(implicitConstraint);
         }
       }
@@ -84,7 +93,27 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
     return false;
   }
 
-  private void unregisterImplicitConstraint(Tuple implicitConstraint) {
+  private void registerImplicitConstraintToLearnedConstraintSet(
+      Tuple implicitConstraint) {
+    Set<Tuple> removal = new HashSet<Tuple>();
+    for (Tuple t : this.learnedConstraint) {
+      if (implicitConstraint.isSubtupleOf(t)) {
+        removal.add(t);
+      }
+    }
+    this.learnedConstraint.removeAll(removal);
+    this.learnedConstraint.add(implicitConstraint);
+  }
+
+  private boolean checkTupleWithLearnedConstraints(Tuple tuple) {
+    for (Tuple t : TupleUtils.subtuplesOf(tuple)) {
+      if (this.learnedConstraint.contains(t)) return false;
+    }
+    return true;
+  }
+
+  private void unregisterImplicitConstraintFromPotentialConstraintSet(
+      Tuple implicitConstraint) {
     Set<PotentialConstraint> remove = new HashSet<PotentialConstraint>();
     for (PotentialConstraint k : this.potentialConstraints) {
       if (implicitConstraint

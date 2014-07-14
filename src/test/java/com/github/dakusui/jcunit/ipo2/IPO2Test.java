@@ -6,9 +6,10 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
+import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.*;
 
@@ -90,7 +91,7 @@ public abstract class IPO2Test {
     // No violation.
     List<Tuple> violations = new LinkedList<Tuple>();
     for (Tuple t : testcases) {
-      if (!constraintManager.check(t)) {
+      if (!checkConstraints(constraintManager, t)) {
         violations.add(t);
       }
     }
@@ -98,6 +99,16 @@ public abstract class IPO2Test {
         .format("%d tuples are violating constraints. %s", violations.size(),
             violations
         ), violations.size(), is(0));
+  }
+
+  public boolean checkConstraints(ConstraintManager constraintManager, Tuple t) {
+    try {
+      return constraintManager.check(t);
+    } catch (SymbolNotFoundException e) {
+      ////
+      // Consider failure from insufficient attributes is kind of success.
+      return true;
+    }
   }
 
   protected void verifyAllValidTuplesAreGenerated(List<Tuple> testcases,
@@ -108,7 +119,7 @@ public abstract class IPO2Test {
         .generateAllPossibleTuples(strength);
     List<Tuple> notFound = new LinkedList<Tuple>();
     for (Tuple t : tuplesToBeGenerated) {
-      if (!constraintManager.check(t)) {
+      if (!checkConstraints(constraintManager, t)) {
         continue;
       }
       if (!find(t, testcases)) {
@@ -135,7 +146,7 @@ public abstract class IPO2Test {
       Tuple tuple) {
     if (!tuple.keySet().containsAll(q.keySet())) return false;
     for (String k : q.keySet()) {
-      if (!IPO2Utils.eq(q.get(k), tuple.get(k))) {
+      if (!TupleUtils.eq(q.get(k), tuple.get(k))) {
         return false;
       }
     }

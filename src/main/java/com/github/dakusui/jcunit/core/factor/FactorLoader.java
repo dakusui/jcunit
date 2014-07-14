@@ -106,10 +106,10 @@ public class FactorLoader {
       if ("levelsFactory".equals(method.getName())) {
         ////
         // 'levelsFactory' is the overridden method.
-        Class<?> factoryClass = method.getReturnType();
-        Utils.checkcond(LevelsFactory.class.isAssignableFrom(factoryClass));
-        Utils.checknotnull(factoryClass);
+        Class<? extends LevelsFactory<?>> factoryClass = InvalidLevelsFactory.class;
         try {
+          factoryClass = (Class<? extends LevelsFactory<?>>) method.invoke(ann);
+          Utils.checknotnull(factoryClass);
           ////
           // We can safely cast it to LevelsFactory since 'levelsFactory' can only
           // return LevelsFactory and we've even already checked it.
@@ -121,6 +121,10 @@ public class FactorLoader {
         } catch (IllegalAccessException e) {
           errors.add(String.format(
               "A factory '%s' set to field '%s' couldn't be initialized. The constructor with no parameter of it must be implemented, be public, and successfully instantiate it. (not public):%s",
+              factoryClass.getCanonicalName(), f, e.getMessage()));
+        } catch (InvocationTargetException e) {
+          errors.add(String.format(
+              "A factory '%s' set to field '%s' couldn't be initialized. The constructor with no parameter of it must be implemented, be public, and successfully instantiate it. (failed):%s",
               factoryClass.getCanonicalName(), f, e.getMessage()));
         }
         try {
@@ -143,17 +147,14 @@ public class FactorLoader {
         levelType = method.getReturnType().getComponentType();
       }
       Utils.checknotnull(levelType);
-      if (!f.getType().isAssignableFrom(levelType)) {
-        errors.add(String
-            .format("'%s' values can't be assigned to '%s'.", levelType, f));
-      }
     } else {
       Class<?> fieldType = f.getType();
       if (Enum.class.isAssignableFrom(fieldType)) {
         fieldType = Enum.class;
       }
       if (methodNameMappings.containsKey(fieldType)) {
-        levelsFactory = new DefaultLevelsFactory(methodNameMappings.get(fieldType));
+        levelsFactory = new DefaultLevelsFactory(
+            methodNameMappings.get(fieldType));
       } else {
         ////
         // In this case (Non-primitive, non-string typed fields),

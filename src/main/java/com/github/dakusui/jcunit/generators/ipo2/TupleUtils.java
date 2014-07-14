@@ -4,6 +4,8 @@ import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.TupleImpl;
+import com.github.dakusui.jcunit.core.Utils;
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class IPO2Utils {
+public class TupleUtils {
 	public static boolean eq(Object v, Object o) {
 		if (v == null) {
 			return o == null;
@@ -41,6 +43,9 @@ public class IPO2Utils {
 
 	public static Set<Tuple> subtuplesOf(
 			Tuple tuple, int strength) {
+    Utils.checknotnull(tuple);
+    Utils.checkcond(strength >= 0);
+    Utils.checkcond(strength <= tuple.size());
 		Set<Tuple> ret = new HashSet<Tuple>();
 		Combinator<String> c = new Combinator<String>(
 				new LinkedList<String>(tuple.keySet()), strength);
@@ -53,4 +58,14 @@ public class IPO2Utils {
 		}
 		return ret;
 	}
+
+  public static Set<Tuple> subtuplesOf(Tuple tuple) {
+    Utils.checknotnull(tuple);
+    Set<Tuple> ret = new HashSet<Tuple>();
+    int sz = tuple.size();
+    for (int i = 0; i <= sz; i++) {
+      ret.addAll(subtuplesOf(tuple, sz - i));
+    }
+    return ret;
+  }
 }

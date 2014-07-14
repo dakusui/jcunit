@@ -6,7 +6,7 @@ import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.core.Tuple;
 import com.github.dakusui.jcunit.core.TupleImpl;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2Utils;
+import com.github.dakusui.jcunit.generators.ipo2.TupleUtils;
 
 import java.util.*;
 
@@ -77,7 +77,7 @@ public class Factors implements Iterable<Factor> {
   }
 
   public boolean isLastKey(String key) {
-    return IPO2Utils.eq(key, this.factors.get(this.factors.size() - 1).name);
+    return TupleUtils.eq(key, this.factors.get(this.factors.size() - 1).name);
   }
 
   public Factors head(String to) {
