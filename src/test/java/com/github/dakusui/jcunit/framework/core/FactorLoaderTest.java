@@ -17,46 +17,46 @@ public class FactorLoaderTest {
   private final TestFactors testFactors = new TestFactors();
 
   @Test
-  public void loadFactor() throws NoSuchFieldException {
+  public void validIntFieldWithDefaultValues() throws NoSuchFieldException {
     FactorLoader factorLoader = new FactorLoader(
-        this.testFactors.getClass().getField("intField"));
+        this.testFactors.getClass().getField("validIntFieldWithDefaultValues"));
     Factor f = factorLoader.getFactor();
     assertArrayEquals(new Object[] { 1, 0, -1, 100, -100, Integer.MAX_VALUE,
         Integer.MIN_VALUE }, f.levels.toArray());
   }
 
   @Test
-  public void loadFactor2() throws NoSuchFieldException {
+  public void validIntFieldWithExplicitValues() throws NoSuchFieldException {
     FactorLoader factorLoader = new FactorLoader(
-        this.testFactors.getClass().getField("intField2"));
+        this.testFactors.getClass().getField("validIntFieldWithExplicitIntValues"));
     Factor f = factorLoader.getFactor();
     assertArrayEquals(new Object[]{1, 2, 3}, f.levels.toArray());
 	}
 
 	@Test
-	public void invalidFactorsIncompatibleLevels() throws Exception {
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("intField3"));
+	public void invalidIntFieldWithExplicitLongValues() throws Exception {
+		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
 		FactorLoader.ValidationResult result = factorLoader.validate();
 		System.out.println(result.getErrorMessage());
 	}
 
 	@Test
 	public void validateValidField1() throws Exception {
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("intField"));
+		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithDefaultValues"));
 		FactorLoader.ValidationResult result = factorLoader.validate();
 		assertTrue(result.isValid());
 	}
 
 	@Test
 	public void validateValidField2() throws Exception {
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("intField2"));
+		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithExplicitIntValues"));
 		FactorLoader.ValidationResult result = factorLoader.validate();
 		assertTrue(result.isValid());
 	}
 
 	@Test
 	public void validateInvalidField1() throws Exception {
-		Field f = this.testFactors.getClass().getField("intField3");
+		Field f = this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues");
 		FactorLoader factorLoader = new FactorLoader(f);
 		FactorLoader.ValidationResult result = factorLoader.validate();
 		assertThat(result.isValid(), is(false));
@@ -66,8 +66,8 @@ public class FactorLoaderTest {
 
 	@Test
 	public void validateInvalidField2() throws Exception {
-		Field f = this.testFactors.getClass().getField("intField3");
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("intField3"));
+		Field f = this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues");
+		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
 		try {
 			Factor factor = factorLoader.getFactor();
 			System.out.println(factor);

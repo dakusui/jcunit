@@ -89,6 +89,7 @@ public class FactorLoader {
     List<String> errors = new LinkedList<String>();
     LevelsFactory<?> levelsFactory = InvalidLevelsFactory.INSTANCE;
     Method[] overridingLevelsMethods = getOverridingLevelsMethods(ann);
+    Class<?> fieldType = f.getType();
     if (overridingLevelsMethods.length > 1) {
       errors.add(String.format(
           "You can give at most one explicit value to FactorField annotation, but %d were given. [%s]",
@@ -147,8 +148,10 @@ public class FactorLoader {
         levelType = method.getReturnType().getComponentType();
       }
       Utils.checknotnull(levelType);
+      if (!fieldType.isAssignableFrom(levelType)) {
+        errors.add(String.format("'%s' values can't be assigned to '%s' field.", levelType, field));
+      }
     } else {
-      Class<?> fieldType = f.getType();
       if (Enum.class.isAssignableFrom(fieldType)) {
         fieldType = Enum.class;
       }

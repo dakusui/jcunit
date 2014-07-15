@@ -6,9 +6,9 @@ import com.github.dakusui.jcunit.core.factor.FactorField;
  */
 public class TestFactors {
 	@FactorField
-	public int intField;
+	public int validIntFieldWithDefaultValues;
 	@FactorField(intLevels = {1, 2, 3})
-	public int intField2;
+	public int validIntFieldWithExplicitIntValues;
 	@FactorField(longLevels = {1, 2, 3})
-	public int intField3;
+	public int invalidIntFieldWithExplicitLongValues;
 }
