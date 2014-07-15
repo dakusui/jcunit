@@ -48,11 +48,11 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
         // null will be returned, so, simply ignore SymbolNotFoundException.
       } catch (LisjCheckedException e) {
         Utils.rethrow(e,
-            String.format("Something went wrong.:%s", e.getMessage()));
+            "Something went wrong.:%s", e.getMessage());
       } catch (CUT cut) {
         // CUT shouldn't be thrown here unless otherwise there is a bug.
         Utils.rethrow(cut,
-            String.format("Something went wrong.:%s", cut.getMessage()));
+            "Something went wrong.:%s", cut.getMessage());
       }
     }
     return null;

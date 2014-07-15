@@ -2,29 +2,14 @@ package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.Utils;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public class MethodLevelsFactory extends LevelsFactoryBase<Object> {
   private Object levels;
   private int    size;
-
-  @Override protected void init(Field targetField,
-      FactorField annotation, Object[] parameters) {
-    Method levelsMethod = getFactorLevelsMethod(targetField.getDeclaringClass(),
-        targetField);
-    ////
-    // It is guaranteed that levelsMethod is static by validation in 'getFactorLevelsMethod'.
-    this.levels = Utils.invokeMethod(null, levelsMethod);
-    this.size = Array.getLength(this.levels);
-  }
-
-  @Override public int size() {
-    return this.size;
-  }
-
-  @Override public Object get(int index) {
-    return Array.get(levels, index);
-  }
 
   static Method getFactorLevelsMethod(Class<?> testClass, Field inField) {
     Method ret = null;
@@ -35,17 +20,13 @@ public class MethodLevelsFactory extends LevelsFactoryBase<Object> {
         ret = testClass.getDeclaredMethod(inField.getName());
       }
     } catch (SecurityException e) {
-      String msg = String.format(
-          "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
-              .getName(), e.getMessage()
-      );
-      Utils.rethrow(e, msg);
+      Utils.rethrow(e, "JCUnit cannot be run in this environment. (%s:%s)",
+          e.getClass()
+              .getName(), e.getMessage());
     } catch (NoSuchMethodException e) {
-      String msg = String
-          .format(
-              "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
-              inField, testClass);
-      Utils.rethrow(e, msg);
+      Utils.rethrow(e,
+          "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
+          inField, testClass);
     }
     if (!validateDomainMethod(inField, ret)) {
       String msg = String.format(
@@ -81,5 +62,23 @@ public class MethodLevelsFactory extends LevelsFactoryBase<Object> {
     ret &= checkIfReturnTypeIsArray(domainMethod);
     ret &= checkIfTypeCompatible(inField, domainMethod);
     return ret;
+  }
+
+  @Override protected void init(Field targetField,
+      FactorField annotation, Object[] parameters) {
+    Method levelsMethod = getFactorLevelsMethod(targetField.getDeclaringClass(),
+        targetField);
+    ////
+    // It is guaranteed that levelsMethod is static by validation in 'getFactorLevelsMethod'.
+    this.levels = Utils.invokeMethod(null, levelsMethod);
+    this.size = Array.getLength(this.levels);
+  }
+
+  @Override public int size() {
+    return this.size;
+  }
+
+  @Override public Object get(int index) {
+    return Array.get(levels, index);
   }
 }

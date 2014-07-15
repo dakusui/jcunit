@@ -36,7 +36,7 @@ public @interface Param {
     Char {
       @Override public Object parse(String str) {
         Utils.checkcond(str.length() == 1);
-        return (Character) str.charAt(0);
+        return str.charAt(0);
       }
 
       @Override public Object createArray(int length) {
@@ -92,11 +92,11 @@ public @interface Param {
       @Override public Object parse(String str) {
         return str;
       }
+
       @Override public Object createArray(int length) {
         return new String[length];
       }
-    }
-    ;
+    };
 
     public abstract Object parse(String str);
 
@@ -112,10 +112,10 @@ public @interface Param {
           Array.set(ret, i, param.value()[i]);
         }
       } else {
-        Utils.checkcond(len == 1, java.lang.String.format(
+        Utils.checkcond(len == 1,
             "Each parameter must have one (and only one) value if it is marked 'array = true', but %d value(s) found.: %s",
             len,
-            Arrays.toString(param.value())));
+            Arrays.toString(param.value()));
         ret = parse(param.value()[0]);
       }
       return ret;

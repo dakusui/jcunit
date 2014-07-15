@@ -45,9 +45,9 @@ public class FactorLoader {
     try {
       return FactorField.class.getMethod(methodName);
     } catch (NoSuchMethodException e) {
-      Utils.rethrow(e, String.format(
+      Utils.rethrow(e,
           "Something went wrong. A method '%s' should be found in @FactorField",
-          methodName));
+          methodName);
     }
     throw new RuntimeException(); // Will never be executed.
   }
@@ -190,9 +190,9 @@ public class FactorLoader {
             work.add(m);
           }
         } catch (IllegalAccessException e) {
-          Utils.rethrow(e, "Something went wrong:" + e.getMessage());
+          Utils.rethrow(e, "Something went wrong:'%s'", e.getMessage());
         } catch (InvocationTargetException e) {
-          Utils.rethrow(e, "Something went wrong:" + e.getMessage());
+          Utils.rethrow(e, "Something went wrong:%s", e.getMessage());
         }
       }
     }

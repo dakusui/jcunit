@@ -144,20 +144,34 @@ public class Utils {
 
   public static void checkcond(boolean b) {
     if (!b) {
-      throw new IllegalArgumentException();
+      throw new IllegalStateException();
     }
   }
 
-  public static void checkcond(boolean b, String msg) {
+  public static void checkcond(boolean b, String msgOrFmt, Object... args) {
     if (!b) {
-      throw new IllegalArgumentException(msg);
+      throw new IllegalStateException(String.format(msgOrFmt, args));
     }
   }
 
-  public static void rethrow(Exception e, String msg) {
-    throw new JCUnitException(msg, e);
+  /**
+   * Rethrows a given exception wrapping by a {@code JCUnitException}, which
+   * is a runtime exception.
+   *
+   * @param e        An exception to be re-thrown.
+   * @param msgOrFmt A message or a message format.
+   * @param args     Arguments to be embedded in {@code msg}.
+   */
+  public static void rethrow(Exception e, String msgOrFmt, Object... args) {
+    throw new JCUnitException(String.format(msgOrFmt, args), e);
   }
 
+  /**
+   * Rethrows a given exception wrapping by a {@code JCUnitException}, which
+   * is a runtime exception.
+   *
+   * @param e An exception to be re-thrown.
+   */
   public static void rethrow(Exception e) {
     rethrow(e, e.getMessage());
   }
@@ -196,16 +210,18 @@ public class Utils {
     try {
       ret = klazz.getConstructor().newInstance();
     } catch (InstantiationException e) {
-      rethrow(e, String.format("Failed to instantiate '%s'."));
+      rethrow(e, "Failed to instantiate '%s'.", klazz);
     } catch (IllegalAccessException e) {
-      rethrow(e, String.format(
-              "Failed to instantiate '%s'. The constructor with no parameter was not open enough.", klazz)
+      rethrow(e,
+          "Failed to instantiate '%s'. The constructor with no parameter was not open enough.",
+          klazz
       );
     } catch (InvocationTargetException e) {
       rethrow(e, String.format("Failed to instantiate '%s'.", klazz));
     } catch (NoSuchMethodException e) {
-      rethrow(e, String.format(
-          "Failed to instantiate '%s'. A constructor with no parameter was not found.")
+      rethrow(e,
+          "Failed to instantiate '%s'. A constructor with no parameter was not found.",
+          klazz
       );
     }
     checknotnull(ret);

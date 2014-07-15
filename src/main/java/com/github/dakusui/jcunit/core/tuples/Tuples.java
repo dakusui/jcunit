@@ -15,9 +15,9 @@ public class Tuples {
       int strength) {
     Utils.checknotnull(factors);
     Utils.checknotnull(factorName);
-    Utils.checkcond(!factors.contains(factorName), String
-        .format("factors(%s) mustn't contain '%s'", factors.getFactorNames(),
-            factorName.name));
+    Utils.checkcond(!factors.contains(factorName),
+        "factors(%s) mustn't contain '%s'", factors.getFactorNames(),
+        factorName.name);
     this.factorName = factorName.name;
     this.strength = strength;
     this.tuples = init(factors, factorName);

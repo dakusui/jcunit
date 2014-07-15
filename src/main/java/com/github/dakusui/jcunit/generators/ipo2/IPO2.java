@@ -5,12 +5,12 @@ import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.compat.generators.ipo.GiveUp;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.constraints.ConstraintObserver;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
@@ -30,18 +30,18 @@ public class IPO2 implements ConstraintObserver {
   private final IPO2Optimizer     optimizer;
   private       List<Tuple>       result;
   private       List<Tuple>       remainders;
-  private Set<Tuple>               learnedConstraint    = new HashSet<Tuple>();
+  private Set<Tuple> learnedConstraint = new HashSet<Tuple>();
 
   public IPO2(Factors factors, int strength,
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {
     Utils.checknotnull(factors);
-    Utils.checkcond(factors.size() >= strength, String.format(
+    Utils.checkcond(factors.size() >= strength,
         "The strength must be greater than 1 and less than %d.",
-        factors.size()));
-    Utils.checkcond(strength >= 2, String
-        .format("The strength must be greater than 1 and less than %d.",
-            factors.size()));
+        factors.size());
+    Utils.checkcond(strength >= 2,
+        "The strength must be greater than 1 and less than %d.",
+        factors.size());
     Utils.checknotnull(constraintManager);
     Utils.checknotnull(optimizer);
     this.factors = factors;
@@ -107,7 +107,8 @@ public class IPO2 implements ConstraintObserver {
           factors.get(factorName),
           this.strength);
       leftTuples.addAll(leftOver);
-      leftTuples.removeAll(findTuplesViolatingLearnedConstraints(leftTuples.leftTuples()));
+      leftTuples.removeAll(
+          findTuplesViolatingLearnedConstraints(leftTuples.leftTuples()));
 
       System.out.println("HG:result  =" + result);
       System.out.println("HG:leftover=" + leftOver);
@@ -411,16 +412,21 @@ public class IPO2 implements ConstraintObserver {
 
   private boolean checkTupleWithLearnedConstraints(Tuple tuple) {
     for (Tuple t : TupleUtils.subtuplesOf(tuple)) {
-      if (this.learnedConstraint.contains(t)) return false;
+      if (this.learnedConstraint.contains(t)) {
+        return false;
+      }
     }
     return true;
   }
 
-  public Set<Tuple> findTuplesViolatingLearnedConstraints(Collection<Tuple> tuples) {
+  public Set<Tuple> findTuplesViolatingLearnedConstraints(
+      Collection<Tuple> tuples) {
     Utils.checknotnull(tuples);
     Set<Tuple> ret = new HashSet<Tuple>();
     for (Tuple t : tuples) {
-      if (!checkTupleWithLearnedConstraints(t)) ret.add(t);
+      if (!checkTupleWithLearnedConstraints(t)) {
+        ret.add(t);
+      }
     }
     return ret;
   }

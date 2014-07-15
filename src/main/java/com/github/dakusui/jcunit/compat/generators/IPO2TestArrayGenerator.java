@@ -49,7 +49,7 @@ public class IPO2TestArrayGenerator<T> extends BaseTestArrayGenerator<T> {
   @Override
   public int getIndex(T key, long cur) {
     Utils.checkcond(keyToFactorMap.containsKey(key),
-        String.format("This key '%s' mustn't be referenced.", key));
+        "This key '%s' mustn't be referenced.", key);
     Tuple test = this.tests.get((int) cur);
     Factor f = keyToFactorMap.get(key);
     ////

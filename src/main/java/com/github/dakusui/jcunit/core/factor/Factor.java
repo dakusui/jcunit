@@ -13,7 +13,7 @@ public class Factor implements Iterable<Object> {
     Utils.checknotnull(name);
     Utils.checknotnull(levels);
     Utils.checkcond(levels.size() > 0,
-        String.format("Factor '%s' has no levels.", name));
+        "Factor '%s' has no levels.", name);
     this.name = name;
     this.levels = Collections.unmodifiableList(levels);
   }

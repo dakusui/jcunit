@@ -71,7 +71,7 @@ public class Factors implements Iterable<Factor> {
     Factor f = get(factorName);
     int i = this.factors.indexOf(f);
     Utils.checkcond(i < this.factors.size() - 1,
-        String.format("'%s' is the last factor name.", factorName));
+        "'%s' is the last factor name.", factorName);
     Factor g = get(i + 1);
     return g.name;
   }
@@ -145,9 +145,8 @@ public class Factors implements Iterable<Factor> {
   public Tuple createTupleFrom(Tuple tuple, Object defaultValue) {
     Utils.checknotnull(tuple);
     for (String k : tuple.keySet()) {
-      Utils.checkcond(this.factorMap.containsKey(k), String
-          .format("Undefined factor '%s' was found: defined keys (%s)", k,
-              this.getFactorNames()));
+      Utils.checkcond(this.factorMap.containsKey(k),"Undefined factor '%s' was found: defined keys (%s)", k,
+              this.getFactorNames());
     }
     Tuple ret = tuple.cloneTuple();
     for (String k : getFactorNames()) {
