@@ -12,13 +12,30 @@ import java.util.regex.Pattern;
 
 /**
  */
-public class LisjUtils extends Utils {
+public class LisjUtils {
 	private static final Pattern methodPattern = Pattern
 			.compile("[a-zA-Z$_][0-9a-zA-Z$_]*");
 
 	private LisjUtils() {}
 
-	@SuppressWarnings("unchecked")
+  /**
+   * Checks if the given {@code obj} is {@code null} or not.
+   * If it is, a {@code NullPointerException} will be thrown.
+   * <p/>
+   * This method is implemented in order to reduce dependencies on external libraries.
+   *
+   * @param obj A variable to be checked.
+   * @param <T> The type of {@code obj}
+   * @return {@code obj} itself
+   */
+  public static <T> T checknotnull(T obj) {
+    if (obj == null) {
+      throw new NullPointerException();
+    }
+    return obj;
+  }
+
+  @SuppressWarnings("unchecked")
 	public static <T> T cast(Class<T> clazz, Object obj) {
 		if (clazz == null) {
 			throw new NullPointerException();

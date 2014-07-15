@@ -74,6 +74,8 @@ public class ConstraintRule {
           return null;
         }
       }
+    } catch (SymbolNotFoundException e) {
+      throw e;
     } catch (LisjCheckedException e) {
       Utils.rethrow(e, "Something went wrong.:%s", e.getMessage());
     }
