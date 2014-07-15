@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.pred;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -12,7 +12,7 @@ import com.github.dakusui.lisj.FormResult;
 public abstract class LogicalMultinominalPredicate extends LogicalPredicate {
   protected final FormResult evaluateEach(boolean shortCuttingValue,
       Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     FormResult ret = super.evaluateEach(context, currentParam, lastResult);
     if (ret.value() instanceof Boolean) {
       if (Boolean.valueOf(shortCuttingValue).equals(ret.value())) {
@@ -28,8 +28,8 @@ public abstract class LogicalMultinominalPredicate extends LogicalPredicate {
 
   @Override
   protected FormResult handleException(Context context,
-      JCUnitCheckedException e, FormResult result)
-      throws JCUnitCheckedException {
+      LisjCheckedException e, FormResult result)
+      throws LisjCheckedException {
     if (context.allowsUnboundSymbols()
         && e instanceof SymbolNotFoundException) {
       result.addIgnoredException(e);
@@ -42,11 +42,11 @@ public abstract class LogicalMultinominalPredicate extends LogicalPredicate {
   @Override
   protected FormResult evaluateLast(Context context,
       Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitCheckedException {
+      FormResult lastResult) throws LisjCheckedException {
     if (context.allowsUnboundSymbols()
         && lastResult.ignoredExceptions().size() > 0) {
       StringBuilder symbolNames = new StringBuilder();
-      for (JCUnitCheckedException e : lastResult.ignoredExceptions()) {
+      for (LisjCheckedException e : lastResult.ignoredExceptions()) {
         if (e instanceof SymbolNotFoundException) {
           SymbolNotFoundException ee = (SymbolNotFoundException) e;
           if (symbolNames.length() > 0) {

@@ -7,6 +7,7 @@ import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.func.BaseFunc;
 
 import java.lang.reflect.Field;
@@ -20,7 +21,7 @@ public class OutFieldNames extends BaseFunc {
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     FormResult ret = lastResult;
     Field[] outFields = CompatUtils.getOutFieldsFromClassUnderTest(Basic.get(
 		    evaluatedParams, 0).getClass());

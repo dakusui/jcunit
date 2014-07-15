@@ -1,6 +1,5 @@
 package com.github.dakusui.lisj.func.io;
 
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.LisjUtils;
@@ -23,8 +22,8 @@ public class Print extends BaseFunc {
       FormResult lastResult) {
     FormResult ret = lastResult;
     PrintStream pw = LisjUtils.cast(PrintStream.class,
-		    Utils.checknotnull(evaluatedParams[0]));
-    String s = Utils.checknotnull(evaluatedParams[1]).toString();
+		    LisjUtils.checknotnull(evaluatedParams[0]));
+    String s = LisjUtils.checknotnull(evaluatedParams[1]).toString();
     pw.print(s);
     return ret;
   }
@@ -34,7 +33,7 @@ public class Print extends BaseFunc {
     if (length(super.checkParams(params)) != 2) {
       throw new IllegalArgumentException();
     }
-    Utils.checknotnull(get(params, 0));
+	  LisjUtils.checknotnull(get(params, 0));
     return params;
   }
 }

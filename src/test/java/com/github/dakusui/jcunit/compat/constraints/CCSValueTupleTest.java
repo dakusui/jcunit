@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.compat.constraints;
 
-import com.github.dakusui.jcunit.constraints.constraintmanagers.ccs.CCSValueTupleSet;
-import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.core.TupleImpl;
+import com.github.dakusui.jcunit.extensions.ccs.CCSValueTupleSet;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;

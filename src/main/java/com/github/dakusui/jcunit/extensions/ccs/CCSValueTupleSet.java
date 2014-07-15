@@ -1,9 +1,9 @@
-package com.github.dakusui.jcunit.constraints.constraintmanagers.ccs;
+package com.github.dakusui.jcunit.extensions.ccs;
 
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
-import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.core.TupleImpl;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 
 import java.util.HashMap;
 import java.util.HashSet;

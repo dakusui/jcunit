@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,13 +9,13 @@ public class FormResult {
   private int                          nextPosition;
   private Object                       value;
   private int                          numPositions;
-  private List<JCUnitCheckedException> ignoredExceptions;
+  private List<LisjCheckedException> ignoredExceptions;
 
   public FormResult(int nextPosition, int numPositions, Object value) {
     this.nextPosition = nextPosition;
     this.numPositions = numPositions;
     this.value = value;
-    this.ignoredExceptions = new LinkedList<JCUnitCheckedException>();
+    this.ignoredExceptions = new LinkedList<LisjCheckedException>();
   }
 
   public int nextPosition() {
@@ -26,11 +26,11 @@ public class FormResult {
     this.nextPosition = nextPosition;
   }
 
-  public void addIgnoredException(JCUnitCheckedException e) {
+  public void addIgnoredException(LisjCheckedException e) {
     this.ignoredExceptions.add(e);
   }
 
-  public List<JCUnitCheckedException> ignoredExceptions() {
+  public List<LisjCheckedException> ignoredExceptions() {
     return this.ignoredExceptions;
   }
 

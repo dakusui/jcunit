@@ -1,5 +1,7 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.generators;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.generators.BaseTestCaseGenerator;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 

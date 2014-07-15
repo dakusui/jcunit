@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.func;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.BaseForm;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
@@ -14,7 +14,7 @@ public abstract class BaseFunc extends BaseForm {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     return evaluateEachSimply(context, currentParam, lastResult);
   }
 }

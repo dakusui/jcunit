@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.pred;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.*;
 
 public class Not extends LogicalPredicate {
@@ -11,7 +11,7 @@ public class Not extends LogicalPredicate {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     FormResult ret = super.evaluateEach(context, currentParam, lastResult);
     return ret;
   }

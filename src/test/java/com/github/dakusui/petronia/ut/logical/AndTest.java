@@ -1,6 +1,6 @@
 package com.github.dakusui.petronia.ut.logical;
 
-import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.compat.core.JCUnitBase;
 import com.github.dakusui.lisj.Basic;
 import org.junit.Test;
 

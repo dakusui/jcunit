@@ -2,9 +2,9 @@ package com.github.dakusui.petronia.examples;
 
 import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
 import com.github.dakusui.jcunit.compat.core.JCUnit;
+import com.github.dakusui.jcunit.compat.core.JCUnitBase;
 import com.github.dakusui.jcunit.compat.core.RuleSet;
 import com.github.dakusui.jcunit.compat.core.Summarizer;
-import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.compat.core.annotations.Generator;
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters;
 import com.github.dakusui.jcunit.compat.core.annotations.GeneratorParameters.Type;

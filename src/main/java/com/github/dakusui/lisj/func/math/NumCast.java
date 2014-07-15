@@ -1,6 +1,5 @@
 package com.github.dakusui.lisj.func.math;
 
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
 import com.github.dakusui.lisj.LisjUtils;
@@ -21,7 +20,7 @@ public abstract class NumCast extends BaseFunc {
 
   @Override
   protected Object checkParams(Object params) {
-    Utils.checknotnull(params);
+    LisjUtils.checknotnull(params);
     if (length(params) != 1) {
       throw new IllegalArgumentException(msgParameterLengthWrong(1, params));
     }

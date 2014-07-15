@@ -1,6 +1,5 @@
 package com.github.dakusui.lisj.func.math;
 
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
@@ -44,7 +43,7 @@ public abstract class NumericFunc extends BaseFunc {
     Iterator<Object> i = iterator(params);
     while (i.hasNext()) {
       Object cur = i.next();
-      Utils.checknotnull(cur);
+      LisjUtils.checknotnull(cur);
     }
     return params;
   }

@@ -3,10 +3,10 @@ package com.github.dakusui.jcunit.core.factor;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
-import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.core.TupleImpl;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.TupleUtils;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
 import java.util.*;
 

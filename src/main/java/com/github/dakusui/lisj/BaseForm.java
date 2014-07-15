@@ -1,7 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 
 public abstract class BaseForm implements Form {
   /**
@@ -24,14 +23,14 @@ public abstract class BaseForm implements Form {
    */
   @Override
   final public Object evaluate(Context context, Object params_)
-      throws JCUnitCheckedException, CUT {
+      throws LisjCheckedException, CUT {
     FormEvaluator evaluator = newEvaluator(context, params_);
     FormResult result = evaluator.result();
     try {
       while (evaluator.hasNext(result)) {
         try {
           result = evaluator.next(result);
-        } catch (JCUnitCheckedException e) {
+        } catch (LisjCheckedException e) {
           result = evaluator.handleException(result, e);
         }
       }
@@ -45,18 +44,18 @@ public abstract class BaseForm implements Form {
     return evaluator.evaluateLast(result).value();
   }
 
-  protected FormResult handleException(Context context, JCUnitCheckedException e,
-      FormResult result) throws JCUnitCheckedException {
+  protected FormResult handleException(Context context, LisjCheckedException e,
+      FormResult result) throws LisjCheckedException {
     throw e;
   }
 
   abstract protected FormResult evaluateEach(Context context,
       Object currentParam, FormResult lastResult)
-      throws JCUnitCheckedException, CUT;
+      throws LisjCheckedException, CUT;
 
   abstract protected FormResult evaluateLast(Context context,
       Object[] evaluatedParams, FormResult lastResult)
-      throws JCUnitCheckedException, CUT;
+      throws LisjCheckedException, CUT;
 
   protected FormEvaluator newEvaluator(Context context, Object params) {
     /*
@@ -70,7 +69,7 @@ public abstract class BaseForm implements Form {
   }
 
   protected Object checkParams(Object params) {
-    return Utils.checknotnull(params);
+    return LisjUtils.checknotnull(params);
   }
 
   @Override
@@ -85,7 +84,7 @@ public abstract class BaseForm implements Form {
 
   protected static FormResult evaluateEachSimply(Context context,
       Object currentParam, FormResult lastResult)
-      throws JCUnitCheckedException, CUT {
+      throws LisjCheckedException, CUT {
     FormResult ret = lastResult;
     try {
       ret.value(Basic.eval(context, currentParam));

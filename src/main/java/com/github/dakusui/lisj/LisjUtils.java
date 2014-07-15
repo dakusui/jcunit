@@ -1,6 +1,7 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,7 +12,7 @@ import java.util.regex.Pattern;
 
 /**
  */
-public class LisjUtils {
+public class LisjUtils extends Utils {
 	private static final Pattern methodPattern = Pattern
 			.compile("[a-zA-Z$_][0-9a-zA-Z$_]*");
 
@@ -36,7 +37,7 @@ public class LisjUtils {
 
 	public static Object invokeMethod(Object obj, String methodId,
 	                                  Object[] params)
-			throws JCUnitCheckedException {
+			throws LisjCheckedException {
 		if (obj == null) {
 			throw new NullPointerException();
 		}
@@ -47,13 +48,13 @@ public class LisjUtils {
 		} catch (IllegalArgumentException e) {
 			throw e;
 		} catch (IllegalAccessException e) {
-			throw new JCUnitCheckedException(e.getMessage(), e);
+			throw new LisjCheckedException(e.getMessage(), e);
 		} catch (InvocationTargetException e) {
-			throw new JCUnitCheckedException(e.getMessage(), e.getCause());
+			throw new LisjCheckedException(e.getMessage(), e.getCause());
 		} catch (SecurityException e) {
-			throw new JCUnitCheckedException(e.getMessage(), e);
+			throw new LisjCheckedException(e.getMessage(), e);
 		} catch (NoSuchMethodException e) {
-			throw new JCUnitCheckedException(e.getMessage(), e);
+			throw new LisjCheckedException(e.getMessage(), e);
 		}
 	}
 
@@ -62,12 +63,12 @@ public class LisjUtils {
 	}
 
 	private static String getMethodName(String methodId) throws
-      JCUnitCheckedException {
+      LisjCheckedException {
 		Matcher m = methodPattern.matcher(methodId);
 		if (m.find()) {
 			return m.group(0);
 		}
-		throw new JCUnitCheckedException(String.format("Specified method wasn't found:%s",
+		throw new LisjCheckedException(String.format("Specified method wasn't found:%s",
 				methodId), null);
 	}
 

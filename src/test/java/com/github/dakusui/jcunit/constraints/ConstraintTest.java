@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.core.JCUnitBase;
-import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.jcunit.compat.core.JCUnitBase;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -12,7 +12,7 @@ import org.junit.Test;
 public class ConstraintTest extends JCUnitBase {
   @Test(expected = SymbolNotFoundException.class)
   public void notAbleToEvaluateForInsufficientAttributes()
-      throws CUT, JCUnitCheckedException {
+      throws CUT, LisjCheckedException {
     Tuple.Builder builder = new Tuple.Builder();
     builder.put("evaluated1", 1);
     builder.put("evaluated2", 1);
@@ -35,7 +35,7 @@ public class ConstraintTest extends JCUnitBase {
 
   @Test
   public void tupleSatisfiesSimpleConstraint()
-      throws CUT, JCUnitCheckedException {
+      throws CUT, LisjCheckedException {
     Tuple.Builder builder = new Tuple.Builder();
     builder.put("evaluated1", 1);
     builder.put("evaluated11", 11);
@@ -59,7 +59,7 @@ public class ConstraintTest extends JCUnitBase {
 
   @Test
   public void tupleSatisfiesConstraintWithShortCut()
-      throws CUT, JCUnitCheckedException {
+      throws CUT, LisjCheckedException {
     Tuple.Builder builder = new Tuple.Builder();
     builder.put("attr1", 1);
     builder.put("attr1sc", 99);
@@ -86,7 +86,7 @@ public class ConstraintTest extends JCUnitBase {
 
   @Test
   public void tupleDoesntSatisfySimpleConstraintInWhenClause()
-      throws CUT, JCUnitCheckedException {
+      throws CUT, LisjCheckedException {
     Tuple.Builder builder = new Tuple.Builder();
     builder.put("evaluated1", 1);
     builder.put("evaluated2", 2);
@@ -106,7 +106,7 @@ public class ConstraintTest extends JCUnitBase {
 
   @Test
   public void tupleDoesntSatisfySimpleConstraintInThenClause()
-      throws CUT, JCUnitCheckedException {
+      throws CUT, LisjCheckedException {
     Tuple.Builder builder = new Tuple.Builder();
     builder.put("evaluated1", 1);
     builder.put("evaluated2", 2);

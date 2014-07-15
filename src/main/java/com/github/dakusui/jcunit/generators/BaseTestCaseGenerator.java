@@ -1,9 +1,9 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 
 import java.util.ArrayList;
 import java.util.Iterator;

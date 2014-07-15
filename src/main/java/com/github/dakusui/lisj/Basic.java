@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -132,7 +132,7 @@ public class Basic {
   }
 
   public static Object eval(Context context, Object var)
-      throws JCUnitCheckedException, CUT {
+      throws LisjCheckedException, CUT {
     if (atom(var)) {
       if (var instanceof Symbol) {
         return context.lookup((Symbol) var);
@@ -217,7 +217,7 @@ public class Basic {
   }
 
   public static boolean evalp(Context context, Object predicate)
-      throws JCUnitCheckedException, CUT {
+      throws LisjCheckedException, CUT {
     Object value = eval(context, predicate);
     if (value instanceof Boolean) {
       return ((Boolean) value);

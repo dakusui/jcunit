@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.core.tuples;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

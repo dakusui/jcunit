@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factors;
 
 import java.util.Collections;

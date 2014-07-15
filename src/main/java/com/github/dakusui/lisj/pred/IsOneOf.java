@@ -1,6 +1,5 @@
 package com.github.dakusui.lisj.pred;
 
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
@@ -46,7 +45,7 @@ public class IsOneOf extends BinomialPredicate {
 
   @Override
   protected Object checkParams(Object params) {
-    Utils.checknotnull(params);
+    LisjUtils.checknotnull(params);
     if (length(params) < 2) {
       throw new IllegalArgumentException(msgParameterLengthWrong(">1",
           Basic.tostr(params)));

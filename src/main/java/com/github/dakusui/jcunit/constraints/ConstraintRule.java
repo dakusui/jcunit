@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.core.TupleImpl;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.lisj.*;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.pred.And;
 import com.github.dakusui.lisj.pred.Or;
@@ -48,12 +48,12 @@ public class ConstraintRule {
    *
    * @param given The values with which the evaluation is executed.
    * @return A sub tuple that doesn't satisfy this constraint.
-   * @throws com.github.dakusui.jcunit.exceptions.JCUnitCheckedException Failed for other failures than undefined symbols.
-   * @throws SymbolNotFoundException                                     A necessary field(s) is/are neither defined in the context nor
-   *                                                                     <code>values</code>
-   * @throws CUT                                                         Evaluation process is cut.
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitException Failed for other failures than undefined symbols.
+   * @throws SymbolNotFoundException                              A necessary field(s) is/are neither defined in the context nor
+   *                                                              <code>values</code>
+   * @throws CUT                                                  Evaluation process is cut.
    */
-  public Tuple evaluate(final Tuple given) throws JCUnitCheckedException,
+  public Tuple evaluate(final Tuple given) throws SymbolNotFoundException,
       CUT {
     final Tuple ret = new TupleImpl();
     Context c = this.context.createChild();
@@ -65,13 +65,18 @@ public class ConstraintRule {
       // each other.
       c.bind(new Symbol(key), given.get(key));
     }
-    if (Basic.evalp(c, this.when())) {
-      if (Basic.evalp(c, this.then())) {
-        ////
-        // If and only if both 'when' and 'then' are satisfied, {@code null} will
-        // be returned.
-        return null;
+    try {
+      if (Basic.evalp(c, this.when())) {
+        if (Basic.evalp(c, this.then())) {
+          ////
+          // If and only if both 'when' and 'then' are satisfied, {@code null} will
+          // be returned.
+          return null;
+        }
       }
+    } catch (LisjCheckedException e) {
+      Utils.rethrow(String.format("Something went wrong.:%s", e.getMessage()),
+          e);
     }
     for (Symbol s : involvedSymbols) {
       ret.put(s.name(), given.get(s.name()));
@@ -120,7 +125,7 @@ public class ConstraintRule {
 
       @Override
       public void failEvaluation(BaseForm form, int index,
-          JCUnitCheckedException e) {
+          LisjCheckedException e) {
       }
 
       @Override

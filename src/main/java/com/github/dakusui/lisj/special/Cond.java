@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.special;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.*;
 
 public class Cond extends BaseForm {
@@ -11,7 +11,7 @@ public class Cond extends BaseForm {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     boolean successfullyEvaluated = false;
     FormResult ret = lastResult;
     try {

@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.special;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.*;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -15,13 +15,13 @@ public class Eval extends BaseForm {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     return evaluateEachSimply(context, currentParam, lastResult);
   }
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     FormResult ret = lastResult;
 
     if (evaluatedParams[0] instanceof Form) {

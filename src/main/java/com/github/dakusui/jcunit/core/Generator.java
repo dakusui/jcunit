@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 
 import java.lang.annotation.Retention;

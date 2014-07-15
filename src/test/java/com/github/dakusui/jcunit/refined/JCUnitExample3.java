@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit.refined;
 
-import com.github.dakusui.jcunit.constraints.ConstraintManagerBase;
+import com.github.dakusui.jcunit.constraints.Constraint;
 import com.github.dakusui.jcunit.constraints.ConstraintRule;
-import com.github.dakusui.jcunit.constraints.constraintmanagers.ccs.CCSConstraintManager;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.extensions.ccs.CCSConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.Param.Type;
 import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;

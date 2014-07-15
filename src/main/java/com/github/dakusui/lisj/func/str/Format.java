@@ -1,8 +1,8 @@
 package com.github.dakusui.lisj.func.str;
 
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 import com.github.dakusui.lisj.func.BaseFunc;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -34,7 +34,7 @@ public class Format extends BaseFunc {
     if (length(params) < 1) {
       throw new IllegalArgumentException();
     }
-    Utils.checknotnull(get(params, 0));
+    LisjUtils.checknotnull(get(params, 0));
     return params;
   }
 }

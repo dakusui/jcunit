@@ -1,7 +1,8 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.core.tuples;
 
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.tuple.AttrValue;
+import com.github.dakusui.jcunit.core.Utils;
 
 import java.util.*;
 

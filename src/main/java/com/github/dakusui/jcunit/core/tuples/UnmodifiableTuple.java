@@ -1,4 +1,8 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.core.tuples;
+
+import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 
 import java.util.*;
 

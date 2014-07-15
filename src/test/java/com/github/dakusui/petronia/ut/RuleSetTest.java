@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.compat.core.JCUnitBase;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNotNull;

@@ -1,9 +1,11 @@
 package com.github.dakusui.petronia.ut;
 
-import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.compat.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.Lisj;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.func.math.NumCast;
 import org.junit.Test;
 
@@ -14,42 +16,42 @@ import static org.junit.Assert.assertEquals;
 
 public class NumCastTest extends JCUnitBase {
   @Test
-  public void intValue() throws JCUnitCheckedException, CUT {
+  public void intValue() throws LisjCheckedException, CUT {
     assertEquals((int) 123, Basic.eval(this, intValue(123)));
   }
 
   @Test
-  public void shortValue() throws JCUnitCheckedException, CUT {
+  public void shortValue() throws LisjCheckedException, CUT {
     assertEquals((short) 123, Basic.eval(this, shortValue((short) 123)));
   }
 
   @Test
-  public void longValue() throws JCUnitCheckedException, CUT {
+  public void longValue() throws LisjCheckedException, CUT {
     assertEquals((long) 123, Basic.eval(this, longValue(123)));
   }
 
   @Test
-  public void floatValue() throws JCUnitCheckedException, CUT {
+  public void floatValue() throws LisjCheckedException, CUT {
     assertEquals((float) 123.45, Basic.eval(this, floatValue(123.45)));
   }
 
   @Test
-  public void doubleValue() throws JCUnitCheckedException, CUT {
+  public void doubleValue() throws LisjCheckedException, CUT {
     assertEquals((double) 123.45, Basic.eval(this, doubleValue(123.45)));
   }
 
   @Test
-  public void byteValue() throws JCUnitCheckedException, CUT {
+  public void byteValue() throws LisjCheckedException, CUT {
     assertEquals((byte) 123, Basic.eval(this, byteValue(123)));
   }
 
   @Test
-  public void bigDecimal() throws JCUnitCheckedException, CUT {
+  public void bigDecimal() throws LisjCheckedException, CUT {
     assertEquals(new BigDecimal(123), Basic.eval(this, bigDecimal(123)));
   }
 
   @Test
-  public void bigInteger() throws JCUnitCheckedException, CUT {
+  public void bigInteger() throws LisjCheckedException, CUT {
     assertEquals(new BigInteger("123"), Basic.eval(this, bigInteger(123)));
   }
 

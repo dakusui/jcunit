@@ -1,8 +1,9 @@
 package com.github.dakusui.jcunit.compat.auto;
 
-import com.github.dakusui.jcunit.core.encoders.ObjectEncoder;
+import com.github.dakusui.jcunit.compat.core.encoders.ObjectEncoder;
 import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -24,13 +25,13 @@ public class Store extends AutoBase {
 
   @Override
   protected Object autoBaseExec(String testName, Object obj, String fieldName)
-      throws JCUnitCheckedException {
+      throws LisjCheckedException {
     store(obj, fieldName, testName);
     return false;
   }
 
   private void store(Object obj, String fieldName, String testName)
-      throws JCUnitCheckedException {
+      throws LisjCheckedException {
     Field field = field(obj.getClass(), fieldName);
     Object value;
     try {

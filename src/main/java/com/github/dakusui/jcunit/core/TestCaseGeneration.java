@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.constraints.Constraint;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 

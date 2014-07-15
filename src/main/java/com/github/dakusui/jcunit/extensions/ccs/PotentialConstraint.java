@@ -1,7 +1,7 @@
-package com.github.dakusui.jcunit.constraints.constraintmanagers.ccs;
+package com.github.dakusui.jcunit.extensions.ccs;
 
-import com.github.dakusui.jcunit.core.Tuple;
-import com.github.dakusui.jcunit.core.UnmodifiableTuple;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.UnmodifiableTuple;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 

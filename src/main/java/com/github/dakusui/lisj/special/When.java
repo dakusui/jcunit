@@ -1,11 +1,11 @@
 package com.github.dakusui.lisj.special;
 
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.BaseForm;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 
 import static com.github.dakusui.lisj.Basic.get;
 import static com.github.dakusui.lisj.Basic.length;
@@ -19,7 +19,7 @@ public class When extends BaseForm {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     int pos = lastResult.nextPosition();
     FormResult ret = evaluateEachSimply(context, currentParam, lastResult);
 
@@ -54,7 +54,7 @@ public class When extends BaseForm {
     if (length(super.checkParams(params)) < 1) {
       throw new IllegalArgumentException();
     }
-    Utils.checknotnull(get(params, 0));
+    LisjUtils.checknotnull(get(params, 0));
     return params;
   }
 

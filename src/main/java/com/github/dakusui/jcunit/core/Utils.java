@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 

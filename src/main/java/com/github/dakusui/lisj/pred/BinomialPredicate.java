@@ -1,10 +1,10 @@
 package com.github.dakusui.lisj.pred;
 
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormEvaluator;
 import com.github.dakusui.lisj.FormResult;
+import com.github.dakusui.lisj.LisjUtils;
 
 import static com.github.dakusui.lisj.Basic.length;
 
@@ -16,7 +16,7 @@ public abstract class BinomialPredicate extends BasePredicate {
 
   @Override
   protected Object checkParams(Object params) {
-    Utils.checknotnull(params);
+    LisjUtils.checknotnull(params);
     if (length(params) != 2) {
       throw new IllegalArgumentException(msgParameterLengthWrong(2, params));
     }

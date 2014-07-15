@@ -1,7 +1,7 @@
 package com.github.dakusui.petronia.ut;
 
 import com.github.dakusui.jcunit.compat.core.annotations.In;
-import com.github.dakusui.jcunit.core.JCUnitBase;
+import com.github.dakusui.jcunit.compat.core.JCUnitBase;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.LisjUtils;

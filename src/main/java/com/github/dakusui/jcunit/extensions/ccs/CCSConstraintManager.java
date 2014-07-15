@@ -1,13 +1,14 @@
-package com.github.dakusui.jcunit.constraints.constraintmanagers.ccs;
+package com.github.dakusui.jcunit.extensions.ccs;
 
 import com.github.dakusui.jcunit.constraints.ConstraintManagerBase;
 import com.github.dakusui.jcunit.constraints.ConstraintRule;
-import com.github.dakusui.jcunit.core.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
-import com.github.dakusui.jcunit.core.TupleUtils;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.HashSet;
@@ -46,10 +47,11 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
         ////
         // In case evaluation fails due to insufficient attribute values in tuple,
         // null will be returned, so, simply ignore SymbolNotFoundException.
-      } catch (JCUnitCheckedException e) {
-        Utils.rethrow("Something went wrong", e);
+      } catch (LisjCheckedException e) {
+        Utils.rethrow(String.format("Something went wrong.:%s", e.getMessage()), e);
       } catch (CUT cut) {
-        Utils.rethrow("Something went wrong", cut);
+        // CUT shouldn't be thrown here unless otherwise there is a bug.
+        Utils.rethrow(String.format("Something went wrong.:%s", cut.getMessage()), cut);
       }
     }
     return null;

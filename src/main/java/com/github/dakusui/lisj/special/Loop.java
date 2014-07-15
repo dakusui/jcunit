@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj.special;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.jcunit.exceptions.ObjectUnderFrameworkException;
 import com.github.dakusui.lisj.*;
 
@@ -21,7 +21,7 @@ public class Loop extends BaseForm {
 
   @Override
   protected FormResult evaluateEach(Context context, Object currentParam,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     currentParam = eval(context, currentParam);
     if (lastResult.nextPosition() == 0) {
       if ((currentParam instanceof Boolean)) {

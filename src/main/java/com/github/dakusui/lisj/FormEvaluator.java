@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -57,7 +57,7 @@ public final class FormEvaluator {
   }
 
   public FormResult next(FormResult lastResult) throws CUT,
-      JCUnitCheckedException {
+      LisjCheckedException {
     int nextPosition = lastResult.nextPosition();
     FormResult ret = null;
     try {
@@ -69,19 +69,19 @@ public final class FormEvaluator {
     } catch (CUT e) {
       this.cutEvaluation(context, this.form, nextPosition, e);
       throw e;
-    } catch (JCUnitCheckedException e) {
+    } catch (LisjCheckedException e) {
       this.failEvaluation(context, this.form, nextPosition, e);
       throw e;
     }
   }
 
-  public FormResult handleException(FormResult result, JCUnitCheckedException e)
-      throws JCUnitCheckedException {
+  public FormResult handleException(FormResult result, LisjCheckedException e)
+      throws LisjCheckedException {
     return form.handleException(this.context, e, result);
   }
 
   public FormResult evaluateLast(FormResult lastResult)
-      throws JCUnitCheckedException, CUT {
+      throws LisjCheckedException, CUT {
     FormResult ret = null;
     try {
       ret = form.evaluateLast(this.context, this.evaluatedResult, lastResult);
@@ -90,7 +90,7 @@ public final class FormEvaluator {
     } catch (CUT e) {
       this.cutEvaluation(context, this.form, -1, e);
       throw e;
-    } catch (JCUnitCheckedException e) {
+    } catch (LisjCheckedException e) {
       this.failEvaluation(context, this.form, -1, e);
       throw e;
     }
@@ -107,7 +107,7 @@ public final class FormEvaluator {
   }
 
   private void failEvaluation(Context context, BaseForm form, int index,
-      JCUnitCheckedException e) {
+      LisjCheckedException e) {
     List<ContextObserver> oList = new LinkedList<ContextObserver>();
     oList.addAll(this.context.observers());
     Collections.reverse(oList);

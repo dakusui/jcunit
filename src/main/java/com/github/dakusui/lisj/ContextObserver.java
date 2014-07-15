@@ -1,6 +1,6 @@
 package com.github.dakusui.lisj;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 
 /**
  * A interface which represents an observer of a context to monitor Lisj's
@@ -41,7 +41,7 @@ public interface ContextObserver {
    * @param index An index of parameter object.
    * @param e     An exception which made the evaluation fail.
    */
-  public void failEvaluation(BaseForm form, int index, JCUnitCheckedException e);
+  public void failEvaluation(BaseForm form, int index, LisjCheckedException e);
 
   /**
    * A call back method which is executed when an evaluation procedure for a

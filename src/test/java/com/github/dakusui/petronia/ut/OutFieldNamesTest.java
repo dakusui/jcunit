@@ -1,12 +1,12 @@
 package com.github.dakusui.petronia.ut;
 
+import com.github.dakusui.jcunit.compat.core.JCUnitBase;
 import com.github.dakusui.jcunit.compat.core.annotations.In;
-import com.github.dakusui.jcunit.core.JCUnitBase;
 import com.github.dakusui.jcunit.compat.core.annotations.Out;
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
-import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import com.github.dakusui.lisj.Basic;
 import com.github.dakusui.lisj.CUT;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
+import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,7 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 public class OutFieldNamesTest extends JCUnitBase {
   @Test
-  public void test00a() throws SymbolNotFoundException, JCUnitCheckedException, CUT {
+  public void test00a()
+      throws LisjCheckedException, CUT {
     Object obj = new Object() {
     };
     assertEquals(0,
@@ -25,7 +26,8 @@ public class OutFieldNamesTest extends JCUnitBase {
   }
 
   @Test
-  public void test00b() throws SymbolNotFoundException, JCUnitCheckedException, CUT {
+  public void test00b()
+      throws LisjCheckedException, CUT {
     Object obj = new Object() {
       @SuppressWarnings("unused")
       @In
@@ -36,7 +38,8 @@ public class OutFieldNamesTest extends JCUnitBase {
   }
 
   @Test
-  public void test00c() throws SymbolNotFoundException, JCUnitCheckedException, CUT {
+  public void test00c()
+      throws LisjCheckedException, CUT {
     Object obj = new Object() {
       @SuppressWarnings("unused")
       int dummy;
@@ -46,7 +49,8 @@ public class OutFieldNamesTest extends JCUnitBase {
   }
 
   @Test
-  public void test01a() throws SymbolNotFoundException, JCUnitCheckedException, CUT {
+  public void test01a()
+      throws LisjCheckedException, CUT {
     Object obj = new Object() {
       @SuppressWarnings("unused")
       @Out
@@ -58,7 +62,8 @@ public class OutFieldNamesTest extends JCUnitBase {
   }
 
   @Test
-  public void test01b() throws SymbolNotFoundException, JCUnitCheckedException, CUT {
+  public void test01b()
+      throws LisjCheckedException, CUT {
     Object obj = new Object() {
       @SuppressWarnings("unused")
       @Out
@@ -72,7 +77,8 @@ public class OutFieldNamesTest extends JCUnitBase {
   }
 
   @Test
-  public void test02a() throws SymbolNotFoundException, JCUnitCheckedException, CUT {
+  public void test02a()
+      throws LisjCheckedException, CUT {
     Object obj = new Object() {
       @SuppressWarnings("unused")
       @Out
@@ -86,7 +92,8 @@ public class OutFieldNamesTest extends JCUnitBase {
   }
 
   @Test
-  public void test02b() throws SymbolNotFoundException, JCUnitCheckedException, CUT {
+  public void test02b()
+      throws LisjCheckedException, CUT {
     Object obj = new Object() {
       @SuppressWarnings("unused")
       @Out

@@ -1,7 +1,6 @@
 package com.github.dakusui.lisj.func.java;
 
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
+import com.github.dakusui.lisj.exceptions.LisjCheckedException;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.Context;
 import com.github.dakusui.lisj.FormResult;
@@ -17,12 +16,12 @@ public class IsInstanceOf extends BaseFunc {
 
   @Override
   protected FormResult evaluateLast(Context context, Object[] evaluatedParams,
-      FormResult lastResult) throws JCUnitCheckedException, CUT {
+      FormResult lastResult) throws LisjCheckedException, CUT {
     FormResult ret = lastResult;
     Object obj = evaluatedParams[0];
     if (obj != null) {
       Class<?> clazz = LisjUtils.cast(Class.class,
-		      Utils.checknotnull(evaluatedParams[1]));
+		      LisjUtils.checknotnull(evaluatedParams[1]));
       ret.value(clazz.isAssignableFrom(obj.getClass()));
       return ret;
     }

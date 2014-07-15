@@ -12,10 +12,10 @@ public abstract class BaseObjectEncoder implements ObjectEncoder {
     return msg;
   }
 
-  @Mock
-  @FactorField()
-  BaseObjectEncoder t;
+	@Mock
+			@FactorField()
+	BaseObjectEncoder t;
 
-  public void t() {
-  }
+
+	public void t() {}
 }
