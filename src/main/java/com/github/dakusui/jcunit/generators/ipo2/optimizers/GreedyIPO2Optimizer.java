@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit.generators.ipo2.optimizers;
 
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
-import com.github.dakusui.jcunit.compat.generators.ipo.GiveUp;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.exceptions.GiveUp;
+import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,7 +34,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
         if (constraintManager.check(tuple)) {
           return tuple;
         }
-      } catch (SymbolNotFoundException e) {
+      } catch (JCUnitSymbolException e) {
         ////
         // In case constraint checking fails for insufficient attributes, no way
         // other than moving on.
@@ -58,7 +58,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
         if (!constraintManager.check(t)) {
           continue;
         }
-      } catch (SymbolNotFoundException e) {
+      } catch (JCUnitSymbolException e) {
         ////
         // In case constraint checking fails for insufficient attributes, no way
         // other than moving on.

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.extras.examples;
+package com.github.dakusui.jcunit.framework.examples.calc;
 
 public class Calc {
   public static enum Op {

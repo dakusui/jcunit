@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.generators.ipo2;
 
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
-import com.github.dakusui.jcunit.compat.generators.ipo.GiveUp;
 import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.constraints.ConstraintObserver;
 import com.github.dakusui.jcunit.core.Utils;
@@ -11,8 +10,9 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
+import com.github.dakusui.jcunit.exceptions.GiveUp;
+import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
-import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
 
 import java.util.*;
 
@@ -331,7 +331,7 @@ public class IPO2 implements ConstraintObserver {
     Utils.checknotnull(cur);
     try {
       return constraintManager.check(removeDontCareEntries(cur));
-    } catch (SymbolNotFoundException e) {
+    } catch (JCUnitSymbolException e) {
       ////
       // In case checking fails due to insufficient attribute values
       // in tuple 'cur', JCUnit considers it is 'valid'.

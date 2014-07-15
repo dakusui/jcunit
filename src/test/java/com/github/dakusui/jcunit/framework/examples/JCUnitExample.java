@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.framework.examples;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsFactory;
-import com.github.dakusui.jcunit.extras.examples.Calc;
+import com.github.dakusui.jcunit.framework.examples.calc.Calc;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -13,11 +13,12 @@ public class JCUnitExample {
   public int     f1;
   @FactorField(levelsFactory = MethodLevelsFactory.class)
   public int     f2;
-  public static int[] f2() {
-    return new int[]{1,2,3};
-  }
   @FactorField
   public Calc.Op op;
+
+  public static int[] f2() {
+    return new int[] { 1, 2, 3 };
+  }
 
   @Test
   public void test() throws Exception {
@@ -31,6 +32,8 @@ public class JCUnitExample {
     }
     System.out.println(String.format("f1=%d, op=%s, f2=%d = %s", f1, op, f2,
         result));
-    if (e != null) throw e;
+    if (e != null) {
+      throw e;
+    }
   }
 }

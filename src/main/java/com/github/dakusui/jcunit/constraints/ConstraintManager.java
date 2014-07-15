@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.constraints;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.lisj.exceptions.SymbolNotFoundException;
+import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 
 public interface ConstraintManager {
   void init(Object[] params);
@@ -15,9 +15,9 @@ public interface ConstraintManager {
    *
    * @param tuple A tuple to be evaluated.
    * @return {@code true} - The tuple doesn't violate constraints / {@code false} - otherwise.
-   * @throws SymbolNotFoundException Failed to evaluate the tuple for insufficient attribute(s).
+   * @throws com.github.dakusui.jcunit.exceptions.JCUnitSymbolException Failed to evaluate the tuple for insufficient attribute(s).
    */
-  boolean check(Tuple tuple) throws SymbolNotFoundException;
+  boolean check(Tuple tuple) throws JCUnitSymbolException;
 
   Factors getFactors();
 

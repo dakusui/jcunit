@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.compat.generators.ipo;
+package com.github.dakusui.jcunit.exceptions;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
