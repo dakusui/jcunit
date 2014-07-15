@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.constraints;
 
-import com.github.dakusui.jcunit.constraints.ConstraintManager;
 import com.github.dakusui.jcunit.constraints.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.Param;
 

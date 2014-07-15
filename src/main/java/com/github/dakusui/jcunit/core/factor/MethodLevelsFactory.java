@@ -39,13 +39,13 @@ public class MethodLevelsFactory extends LevelsFactoryBase<Object> {
           "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
               .getName(), e.getMessage()
       );
-      Utils.rethrow(msg, e);
+      Utils.rethrow(e, msg);
     } catch (NoSuchMethodException e) {
       String msg = String
           .format(
               "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
               inField, testClass);
-      Utils.rethrow(msg, e);
+      Utils.rethrow(e, msg);
     }
     if (!validateDomainMethod(inField, ret)) {
       String msg = String.format(

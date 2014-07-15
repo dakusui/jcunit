@@ -161,16 +161,16 @@ public class JCUnit extends Suite {
         try {
           tmpvalues = (Object[]) inFieldType.getMethod("values").invoke(null);
         } catch (IllegalArgumentException e) {
-          Utils.rethrow("Something went wrong.", e);
+          Utils.rethrow(e, "Something went wrong.");
         } catch (SecurityException e) {
-          Utils.rethrow("Something went wrong.", e);
+          Utils.rethrow(e, "Something went wrong.");
           Utils.rethrow(e);
         } catch (IllegalAccessException e) {
-          Utils.rethrow("Something went wrong.", e);
+          Utils.rethrow(e, "Something went wrong.");
         } catch (InvocationTargetException e) {
-          Utils.rethrow("Something went wrong.", e);
+          Utils.rethrow(e, "Something went wrong.");
         } catch (NoSuchMethodException e) {
-          Utils.rethrow("Something went wrong.", e);
+          Utils.rethrow(e, "Something went wrong.");
         }
       } else {
         String msg = String

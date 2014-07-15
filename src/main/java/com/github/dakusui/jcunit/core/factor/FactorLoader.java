@@ -45,9 +45,9 @@ public class FactorLoader {
     try {
       return FactorField.class.getMethod(methodName);
     } catch (NoSuchMethodException e) {
-      Utils.rethrow(String.format(
+      Utils.rethrow(e, String.format(
           "Something went wrong. A method '%s' should be found in @FactorField",
-          methodName), e);
+          methodName));
     }
     throw new RuntimeException(); // Will never be executed.
   }
@@ -136,9 +136,9 @@ public class FactorLoader {
         } catch (NoSuchMethodException e) {
           ////
           // This can only happen due to JCUnit side's bugs, so simply an exception will be thrown.
-          Utils.rethrow(String.format(
+          Utils.rethrow(e, String.format(
               "Something went wrong. Method 'get(int)' wasn't found in '%s':(%s)",
-              levelsFactory.getClass(), e.getMessage()), e);
+              levelsFactory.getClass(), e.getMessage()));
         }
       } else {
         ////
@@ -190,9 +190,9 @@ public class FactorLoader {
             work.add(m);
           }
         } catch (IllegalAccessException e) {
-          Utils.rethrow("Something went wrong:" + e.getMessage(), e);
+          Utils.rethrow(e, "Something went wrong:" + e.getMessage());
         } catch (InvocationTargetException e) {
-          Utils.rethrow("Something went wrong:" + e.getMessage(), e);
+          Utils.rethrow(e, "Something went wrong:" + e.getMessage());
         }
       }
     }

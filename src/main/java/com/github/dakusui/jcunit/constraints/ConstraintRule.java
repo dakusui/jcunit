@@ -75,8 +75,8 @@ public class ConstraintRule {
         }
       }
     } catch (LisjCheckedException e) {
-      Utils.rethrow(String.format("Something went wrong.:%s", e.getMessage()),
-          e);
+      Utils.rethrow(e, String.format("Something went wrong.:%s", e.getMessage())
+      );
     }
     for (Symbol s : involvedSymbols) {
       ret.put(s.name(), given.get(s.name()));

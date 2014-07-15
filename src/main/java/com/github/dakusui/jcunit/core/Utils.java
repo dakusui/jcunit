@@ -154,12 +154,12 @@ public class Utils {
     }
   }
 
-  public static void rethrow(String msg, Exception e) {
+  public static void rethrow(Exception e, String msg) {
     throw new JCUnitException(msg, e);
   }
 
   public static void rethrow(Exception e) {
-    rethrow(e.getMessage(), e);
+    rethrow(e, e.getMessage());
   }
 
   public static Field[] getAnnotatedFields(Class<?> clazz,
@@ -196,17 +196,17 @@ public class Utils {
     try {
       ret = klazz.getConstructor().newInstance();
     } catch (InstantiationException e) {
-      rethrow(String.format("Failed to instantiate '%s'."), e);
+      rethrow(e, String.format("Failed to instantiate '%s'."));
     } catch (IllegalAccessException e) {
-      rethrow(String.format(
-              "Failed to instantiate '%s'. The constructor with no parameter was not open enough.", klazz),
-          e);
+      rethrow(e, String.format(
+              "Failed to instantiate '%s'. The constructor with no parameter was not open enough.", klazz)
+      );
     } catch (InvocationTargetException e) {
-      rethrow(String.format("Failed to instantiate '%s'.", klazz), e);
+      rethrow(e, String.format("Failed to instantiate '%s'.", klazz));
     } catch (NoSuchMethodException e) {
-      rethrow(String.format(
-          "Failed to instantiate '%s'. A constructor with no parameter was not found."),
-          e);
+      rethrow(e, String.format(
+          "Failed to instantiate '%s'. A constructor with no parameter was not found.")
+      );
     }
     checknotnull(ret);
     return ret;

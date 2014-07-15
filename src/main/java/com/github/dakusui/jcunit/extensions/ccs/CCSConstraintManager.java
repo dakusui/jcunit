@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.constraints.ConstraintRule;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.exceptions.JCUnitCheckedException;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.lisj.CUT;
 import com.github.dakusui.lisj.exceptions.LisjCheckedException;
@@ -48,10 +47,12 @@ public abstract class CCSConstraintManager extends ConstraintManagerBase {
         // In case evaluation fails due to insufficient attribute values in tuple,
         // null will be returned, so, simply ignore SymbolNotFoundException.
       } catch (LisjCheckedException e) {
-        Utils.rethrow(String.format("Something went wrong.:%s", e.getMessage()), e);
+        Utils.rethrow(e,
+            String.format("Something went wrong.:%s", e.getMessage()));
       } catch (CUT cut) {
         // CUT shouldn't be thrown here unless otherwise there is a bug.
-        Utils.rethrow(String.format("Something went wrong.:%s", cut.getMessage()), cut);
+        Utils.rethrow(cut,
+            String.format("Something went wrong.:%s", cut.getMessage()));
       }
     }
     return null;
