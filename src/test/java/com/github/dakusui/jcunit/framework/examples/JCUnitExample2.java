@@ -8,10 +8,10 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.matchers.LessThan;
 
 import static org.junit.Assert.assertThat;
 import com.github.dakusui.jcunit.core.Param.Type;
+import org.mockito.internal.matchers.LessThan;
 
 @RunWith(JCUnit.class)
 @TestCaseGeneration(
