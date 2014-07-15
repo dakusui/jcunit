@@ -114,7 +114,7 @@ public class FactorLoader {
           ////
           // We can safely cast it to LevelsFactory since 'levelsFactory' can only
           // return LevelsFactory and we've even already checked it.
-          levelsFactory = (LevelsFactory<?>) factoryClass.newInstance();
+          levelsFactory = factoryClass.newInstance();
         } catch (InstantiationException e) {
           errors.add(String.format(
               "A factory '%s' set to field '%s' couldn't be initialized. The constructor with no parameter of it must be implemented, be public, and successfully instantiate it. (failed):%s",
