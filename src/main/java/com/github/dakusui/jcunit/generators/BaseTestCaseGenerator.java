@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.generators;
 
-import com.github.dakusui.jcunit.constraints.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;

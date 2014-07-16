@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit.generators.ipo2;
 
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
-import com.github.dakusui.jcunit.constraints.ConstraintManager;
-import com.github.dakusui.jcunit.constraints.ConstraintObserver;
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.ConstraintObserver;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;

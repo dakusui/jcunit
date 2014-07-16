@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.framework.ipo2;
 
-import com.github.dakusui.jcunit.constraints.ConstraintManager;
-import com.github.dakusui.jcunit.constraints.ConstraintObserver;
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.ConstraintObserver;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;

@@ -1,13 +1,15 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.generators;
 
-import com.github.dakusui.jcunit.constraints.Constraint;
-import com.github.dakusui.jcunit.constraints.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.Constraint;
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.core.Generator;
+import com.github.dakusui.jcunit.core.TestCaseGeneration;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

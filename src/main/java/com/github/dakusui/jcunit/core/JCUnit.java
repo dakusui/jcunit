@@ -1,6 +1,8 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
+import com.github.dakusui.jcunit.generators.TestCaseGeneratorFactory;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 
@@ -22,6 +24,8 @@ public class JCUnit extends Suite {
       runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
           testCaseGenerator, i));
     }
+    ConstraintManager cm = testCaseGenerator.getConstraintManager();
+
   }
 
   @Override

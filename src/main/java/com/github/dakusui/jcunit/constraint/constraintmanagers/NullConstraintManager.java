@@ -1,6 +1,6 @@
-package com.github.dakusui.jcunit.constraints.constraintmanagers;
+package com.github.dakusui.jcunit.constraint.constraintmanagers;
 
-import com.github.dakusui.jcunit.constraints.ConstraintManagerBase;
+import com.github.dakusui.jcunit.constraint.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 public class NullConstraintManager extends ConstraintManagerBase {

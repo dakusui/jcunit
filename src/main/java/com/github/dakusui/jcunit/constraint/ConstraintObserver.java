@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.constraints;
+package com.github.dakusui.jcunit.constraint;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 

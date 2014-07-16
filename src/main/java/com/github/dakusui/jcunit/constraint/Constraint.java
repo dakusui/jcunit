@@ -1,6 +1,6 @@
-package com.github.dakusui.jcunit.constraints;
+package com.github.dakusui.jcunit.constraint;
 
-import com.github.dakusui.jcunit.constraints.constraintmanagers.NullConstraintManager;
+import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.Param;
 
 import java.lang.annotation.Retention;

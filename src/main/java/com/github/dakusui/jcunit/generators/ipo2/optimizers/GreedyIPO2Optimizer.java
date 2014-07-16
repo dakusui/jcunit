@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.generators.ipo2.optimizers;
 
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
-import com.github.dakusui.jcunit.constraints.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.core.factor.Factors;

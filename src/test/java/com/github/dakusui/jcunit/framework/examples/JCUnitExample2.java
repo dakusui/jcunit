@@ -1,12 +1,14 @@
 package com.github.dakusui.jcunit.framework.examples;
 
-import com.github.dakusui.jcunit.constraints.Constraint;
-import com.github.dakusui.jcunit.constraints.ConstraintManagerBase;
+import com.github.dakusui.jcunit.constraint.Constraint;
+import com.github.dakusui.jcunit.constraint.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertThat;
@@ -25,15 +27,18 @@ import org.mockito.internal.matchers.LessThan;
         params = {
         }))
 public class JCUnitExample2 {
+  @Rule
+  public TestName name = new TestName();
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
-  public int a;
+  public int      a;
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
-  public int b;
+  public int      b;
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
-  public int c;
+  public int      c;
 
   @Test
   public void test() {
+    System.out.println(String.format("%s", name.getMethodName()));
     QuadraticEquationResolver.Solutions s = new QuadraticEquationResolver(a, b,
         c).resolve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
@@ -44,7 +49,8 @@ public class JCUnitExample2 {
 
   public static class CM extends ConstraintManagerBase {
 
-    @Override public boolean check(Tuple tuple) {
+    @Override
+    public boolean check(Tuple tuple) {
       if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
           .containsKey("c")) {
         return true;
