@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.framework.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
+import com.github.dakusui.jcunit.constraint.Violation;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
@@ -62,7 +63,12 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
 		public void removeObservers(ConstraintObserver observer) {
 
 		}
-	}
+
+    @Override
+    public List<Violation> getViolations() {
+      return Collections.emptyList();
+    }
+  }
 
 	private List<Tuple> prohibitedTuples = null;
 

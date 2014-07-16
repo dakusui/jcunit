@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -12,15 +11,20 @@ import org.junit.runners.model.TestClass;
 import java.util.List;
 
 class JCUnitRunner extends BlockJUnit4ClassRunner {
-  private final TestCaseGenerator testCases;
+  private final Tuple testCase;
 
   private final int currentTestCaseId;
 
-  JCUnitRunner(Class<?> type, TestCaseGenerator testCases, int i)
+  private final Object violationId;
+
+  JCUnitRunner(Class<?> type, Tuple testCase, int i, Object violationId)
       throws InitializationError {
     super(type);
-    this.testCases = testCases;
+    Utils.checknotnull(testCase);
+    this.testCase = testCase;
     currentTestCaseId = i;
+    // Violation ID can be null for normal cases.
+    this.violationId = violationId;
   }
 
   @Override
@@ -32,8 +36,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   public Object createTest() throws Exception {
     TestClass klazz = getTestClass();
     Object ret = klazz.getJavaClass().newInstance();
-    Tuple values = testCases.get(currentTestCaseId);
-    Utils.initializeTestObject(ret, values);
+    Utils.initializeTestObject(ret, testCase);
     return ret;
   }
 
@@ -44,7 +47,8 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 
   @Override
   protected String testName(final FrameworkMethod method) {
-    return String.format("%s[%s]", method.getName(), currentTestCaseId);
+    String category = violationId == null ? "normal" : String.format("violation:%s", violationId);
+    return String.format("%s(%s)[%s]", method.getName(), category, currentTestCaseId);
   }
 
   @Override

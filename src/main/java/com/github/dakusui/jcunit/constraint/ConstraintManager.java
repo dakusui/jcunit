@@ -4,6 +4,8 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 
+import java.util.List;
+
 public interface ConstraintManager {
   void init(Object[] params);
 
@@ -26,4 +28,6 @@ public interface ConstraintManager {
   void addObserver(ConstraintObserver observer);
 
   void removeObservers(ConstraintObserver observer);
+
+  List<Violation> getViolations();
 }

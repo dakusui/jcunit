@@ -1,8 +1,13 @@
 package com.github.dakusui.jcunit.framework.examples;
 
 import com.github.dakusui.jcunit.constraint.Constraint;
-import com.github.dakusui.jcunit.constraint.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.constraint.Violation;
+import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.core.Generator;
+import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.core.Param.Type;
+import com.github.dakusui.jcunit.core.TestCaseGeneration;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
@@ -10,10 +15,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.LessThan;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertThat;
-import com.github.dakusui.jcunit.core.Param.Type;
-import org.mockito.internal.matchers.LessThan;
 
 @RunWith(JCUnit.class)
 @TestCaseGeneration(
@@ -30,11 +37,11 @@ public class JCUnitExample2 {
   @Rule
   public TestName name = new TestName();
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
-  public int      a;
+  public int a;
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
-  public int      b;
+  public int b;
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
-  public int      c;
+  public int c;
 
   @Test
   public void test() {
@@ -48,7 +55,6 @@ public class JCUnitExample2 {
   }
 
   public static class CM extends ConstraintManagerBase {
-
     @Override
     public boolean check(Tuple tuple) {
       if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
@@ -59,6 +65,19 @@ public class JCUnitExample2 {
       int b = (Integer) tuple.get("b");
       int c = (Integer) tuple.get("c");
       return a != 0 && b * b - 4 * c * a >= 0;
+    }
+
+    @Override
+    public List<Violation> getViolations() {
+      List<Violation> ret = new LinkedList<Violation>();
+      ret.add(createViolation("a=0", createTestCase(0, 1, 1)));
+      ret.add(createViolation("b*b-4ca<0", createTestCase(100, 1, 100)));
+      ret.add(createViolation("nonsense 1=0", createTestCase(0, 0, 1)));
+      return ret;
+    }
+
+    private Tuple createTestCase(int a, int b, int c) {
+      return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
     }
   }
 }

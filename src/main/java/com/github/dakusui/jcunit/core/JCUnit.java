@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.Violation;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 import com.github.dakusui.jcunit.generators.TestCaseGeneratorFactory;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class JCUnit extends Suite {
   private final ArrayList<Runner> runners = new ArrayList<Runner>();
@@ -20,12 +20,18 @@ public class JCUnit extends Suite {
     super(klass, Collections.<Runner>emptyList());
     TestCaseGenerator testCaseGenerator = TestCaseGeneratorFactory.INSTANCE
         .createTestCaseGenerator(klass);
-    for (int i = 0; i < testCaseGenerator.size(); i++) {
+    int id;
+    for (id = 0; id < testCaseGenerator.size(); id++) {
       runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-          testCaseGenerator, i));
+          testCaseGenerator.get(id), id, null));
     }
     ConstraintManager cm = testCaseGenerator.getConstraintManager();
-
+    final List<Violation> violations = cm.getViolations();
+    for (int i = 0; i < violations.size(); i++) {
+      runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
+          violations.get(i).getTestCase(), id, violations.get(i).getId()));
+      id++;
+    }
   }
 
   @Override
