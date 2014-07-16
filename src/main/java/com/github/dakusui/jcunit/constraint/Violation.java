@@ -3,13 +3,15 @@ package com.github.dakusui.jcunit.constraint;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
+import java.io.Serializable;
+
 public interface Violation {
   public static class Builder {
-    private Object id;
+    private Serializable id;
     private Tuple  testCase;
 
-    public Builder setId(Object name) {
-      this.id = name;
+    public Builder setId(Serializable id) {
+      this.id = id;
       return this;
     }
 
@@ -18,12 +20,12 @@ public interface Violation {
       return this;
     }
     public Violation build() {
-      final Object name = Utils.checknotnull(this.id);
+      final Serializable id = Utils.checknotnull(this.id);
       final Tuple testCase = Utils.checknotnull(this.testCase);
       return new Violation() {
         @Override
-        public Object getId() {
-          return name;
+        public Serializable getId() {
+          return id;
         }
         @Override
         public Tuple getTestCase() {
@@ -32,6 +34,6 @@ public interface Violation {
       };
     }
   }
-  public Object getId();
+  public Serializable getId();
   public Tuple getTestCase();
 }

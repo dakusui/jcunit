@@ -4,9 +4,10 @@ import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
 import com.github.dakusui.jcunit.constraint.Violation;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,21 +43,27 @@ public abstract class ConstraintManagerBase implements ConstraintManager {
   }
 
   public Set<ConstraintObserver> observers() {
-		return Collections.unmodifiableSet(observers());
-	}
+    return Collections.unmodifiableSet(observers());
+  }
 
-	protected void implicitConstraintFound(Tuple tuple) {
-		for (ConstraintObserver o : this.observers) {
-			o.implicitConstraintFound(tuple);
-		}
-	}
+  /**
+   * A utility method that sub classes can call when they find an implicit
+   * constraints.
+   *
+   * @param tuple A tuple which represents an implicit constraint.
+   */
+  protected void implicitConstraintFound(Tuple tuple) {
+    for (ConstraintObserver o : this.observers) {
+      o.implicitConstraintFound(tuple);
+    }
+  }
 
   @Override
   public List<Violation> getViolations() {
     return Collections.emptyList();
   }
 
-  protected Violation createViolation(Object id, Tuple testCase){
+  protected Violation createViolation(Serializable id, Tuple testCase) {
     Utils.checknotnull(id);
     Utils.checknotnull(testCase);
     return new Violation.Builder().setId(id).setTestCase(testCase).build();

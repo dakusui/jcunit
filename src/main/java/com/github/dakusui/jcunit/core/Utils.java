@@ -142,6 +142,15 @@ public class Utils {
     return obj;
   }
 
+  public static <T> T checknotnull(T obj, String msgOrFmt, Object... args) {
+    if (msgOrFmt == null) checknotnull(obj);
+    if (obj == null) {
+      throw new NullPointerException(String.format(msgOrFmt, args));
+    }
+    return obj;
+  }
+
+
   public static void checkcond(boolean b) {
     if (!b) {
       throw new IllegalStateException();

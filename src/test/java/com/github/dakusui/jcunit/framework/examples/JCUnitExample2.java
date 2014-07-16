@@ -3,13 +3,11 @@ package com.github.dakusui.jcunit.framework.examples;
 import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.Violation;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.Param.Type;
-import com.github.dakusui.jcunit.core.TestCaseGeneration;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +33,9 @@ import static org.junit.Assert.assertThat;
         }))
 public class JCUnitExample2 {
   @Rule
-  public TestName name = new TestName();
+  public TestName       name = new TestName();
+  @Rule
+  public JcUnitTestDesc desc = new JcUnitTestDesc();
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int a;
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
@@ -45,7 +45,7 @@ public class JCUnitExample2 {
 
   @Test
   public void test() {
-    System.out.println(String.format("%s", name.getMethodName()));
+    System.out.println(String.format("desc=(%s,%s,%s)", desc.getTestName(), desc.getType(), desc.getSubIdentifier()));
     QuadraticEquationResolver.Solutions s = new QuadraticEquationResolver(a, b,
         c).resolve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
@@ -56,11 +56,10 @@ public class JCUnitExample2 {
 
   public static class CM extends ConstraintManagerBase {
     @Override
-    public boolean check(Tuple tuple) {
+    public boolean check(Tuple tuple) throws JCUnitSymbolException {
       if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
-          .containsKey("c")) {
-        return true;
-      }
+          .containsKey("c"))
+        throw new JCUnitSymbolException();
       int a = (Integer) tuple.get("a");
       int b = (Integer) tuple.get("b");
       int c = (Integer) tuple.get("c");
