@@ -41,8 +41,13 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   }
 
   @Override
+  protected String getName(){
+    return String.format("[%s]", this.id.toString());
+  }
+
+  @Override
   protected String testName(final FrameworkMethod method) {
-    return String.format("%s.%s(%s)", this.getTestClass().getJavaClass().getSimpleName(), method.getName(),  this.id.toString());
+    return String.format("%s[%s]", method.getName(),  this.id.toString());
   }
 
   @Override

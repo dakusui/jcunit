@@ -31,6 +31,6 @@ public class JCUnitTestCaseIdentifier implements Serializable{
   }
 
   public String toString() {
-    return String.format("%s[%s]", this.testType, this.idInType.toString());
+    return String.format("%s:%s", this.testType, this.idInType.toString());
   }
 }
