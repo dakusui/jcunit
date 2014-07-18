@@ -64,7 +64,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
         // other than moving on.
       }
       int num = leftTuples.coveredBy(t).size();
-      if (num > maxNum) {
+      if (num >= maxNum) {
         maxNum = num;
         ret = t;
       }
@@ -85,7 +85,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
 
       t.put(factorName, level);
       int num = leftTuples.coveredBy(t).size();
-      if (num > maxnum) {
+      if (num >= maxnum) {
         maxnum = num;
         ret = t;
       }
@@ -102,7 +102,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
     for (Object v : factorLevels) {
       tuple.put(factorName, v);
       int num = leftTuples.coveredBy(tuple).size();
-      if (num > maxnum) {
+      if (num >= maxnum) {
         chosen = v;
         maxnum = num;
       }
