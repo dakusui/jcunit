@@ -5,7 +5,7 @@ import org.junit.runner.Description;
 
 import java.io.Serializable;
 
-public class JcUnitTestDesc extends TestWatcher {
+public class JCUnitTestDesc extends TestWatcher {
   private String                   testName;
   private JCUnitTestCaseIdentifier id;
 

@@ -4,6 +4,7 @@ import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
+import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -36,6 +37,7 @@ public class IPO2 implements ConstraintObserver {
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {
     Utils.checknotnull(factors);
+    Utils.checkcond(factors.size() >= 2, "There must be 2 or more factors.");
     Utils.checkcond(factors.size() >= strength,
         "The strength must be greater than 1 and less than %d.",
         factors.size());
@@ -109,9 +111,10 @@ public class IPO2 implements ConstraintObserver {
       leftTuples.addAll(leftOver);
       leftTuples.removeAll(
           findTuplesViolatingLearnedConstraints(leftTuples.leftTuples()));
-
-      System.out.println("HG:result  =" + result);
-      System.out.println("HG:leftover=" + leftOver);
+      if (SystemProperties.isDebugEnabled()) {
+        System.out.println("HG:result  =" + result);
+        System.out.println("HG:leftover=" + leftOver);
+      }
 
       ////
       // Expand test case set horizontally and get the list of test cases
@@ -127,8 +130,10 @@ public class IPO2 implements ConstraintObserver {
         leftOver = vg(result, leftTuples,
             factors.head(factors.nextKey(factorName)));
       }
-      System.out.println("VG:result  =" + result);
-      System.out.println("VG:leftover=" + leftOver);
+      if (SystemProperties.isDebugEnabled()) {
+        System.out.println("VG:result  =" + result);
+        System.out.println("VG:leftover=" + leftOver);
+      }
     }
     ////
     // As a result of replacing don't care values, multiple test cases can be identical.

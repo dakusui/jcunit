@@ -10,10 +10,9 @@ public class Factor implements Iterable<Object> {
   public final List<Object> levels;
 
   public Factor(String name, List<Object> levels) {
-    Utils.checknotnull(name);
-    Utils.checknotnull(levels);
-    Utils.checkcond(levels.size() > 0,
-        "Factor '%s' has no levels.", name);
+    Utils.checknotnull(name, "A factor's 'name' mustn't be null");
+    Utils.checknotnull(levels, "A factor's 'levels' mustn't be null(factor:'%s')", name);
+    Utils.checkcond(levels.size() > 0, "Factor '%s' has no levels.", name);
     this.name = name;
     this.levels = Collections.unmodifiableList(levels);
   }
@@ -27,7 +26,8 @@ public class Factor implements Iterable<Object> {
     return ret;
   }
 
-  @Override public Iterator<Object> iterator() {
+  @Override
+  public Iterator<Object> iterator() {
     return this.levels.iterator();
   }
 

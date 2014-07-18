@@ -9,6 +9,12 @@ import java.io.File;
  * @author hiroshi
  */
 public class SystemProperties {
+  private static boolean debugEnabled = false;
+
+  public static boolean isDebugEnabled() {
+    return debugEnabled;
+  }
+
   public static enum KEY {
     BASEDIR {
       @Override

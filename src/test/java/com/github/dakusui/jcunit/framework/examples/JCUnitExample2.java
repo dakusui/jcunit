@@ -35,7 +35,7 @@ public class JCUnitExample2 {
   @Rule
   public TestName       name = new TestName();
   @Rule
-  public JcUnitTestDesc desc = new JcUnitTestDesc();
+  public JCUnitTestDesc desc = new JCUnitTestDesc();
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int a;
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })

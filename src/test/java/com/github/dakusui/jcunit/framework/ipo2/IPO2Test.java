@@ -31,16 +31,15 @@ public abstract class IPO2Test {
     return ipo;
   }
 
-  protected void verify(List<Tuple> testcases,
-      List<Tuple> remainders, int strength, Factors factors,
-      ConstraintManager constraintManager) {
-    System.out.println(String.format("%3d:%s", testcases.size(), testcases));
-    verifyAllValidTuplesAreGenerated(testcases, strength, factors,
-        constraintManager);
-    verifyNoConstraintViolationOccursInResult(testcases, constraintManager);
-    verifyNoDuplicationOccursInResult(testcases);
-    verifyAllTestCasesHaveCorrectNumberOfAttributes(testcases, factors);
-    verifyRemaindersViolateConstraints(remainders, testcases, constraintManager);
+  protected void verify(int givenStrength, Factors givenFactors, ConstraintManager givenConstraintManager, List<Tuple> actualTestCases,
+      List<Tuple> actualRemainders) {
+    System.out.println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
+    verifyAllValidTuplesAreGenerated(actualTestCases, givenStrength, givenFactors,
+        givenConstraintManager);
+    verifyNoConstraintViolationOccursInResult(actualTestCases, givenConstraintManager);
+    verifyNoDuplicationOccursInResult(actualTestCases);
+    verifyAllTestCasesHaveCorrectNumberOfAttributes(actualTestCases, givenFactors);
+    verifyRemaindersViolateConstraints(actualRemainders, actualTestCases, givenConstraintManager);
   }
 
   protected void verifyRemaindersViolateConstraints(List<Tuple> remainders,
