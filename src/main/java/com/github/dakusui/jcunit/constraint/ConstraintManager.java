@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.constraint;
 
+import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
@@ -7,6 +8,8 @@ import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import java.util.List;
 
 public interface ConstraintManager {
+  public static final ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
+
   void init(Object[] params);
 
   /**
@@ -30,4 +33,5 @@ public interface ConstraintManager {
   void removeObservers(ConstraintObserver observer);
 
   List<Violation> getViolations();
+
 }

@@ -6,7 +6,6 @@ import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
 import java.util.*;
 
@@ -19,6 +18,7 @@ public class Factors implements Iterable<Factor> {
     this.factors = Collections.unmodifiableList(factors);
     Map<String, Factor> factorMap = new HashMap<String, Factor>();
     for (Factor f : factors) {
+      Utils.checkcond(!factorMap.containsKey(f.name), "There are more than one factors whose names are '%s'.", f.name);
       factorMap.put(f.name, f);
     }
     this.factorMap = factorMap;
@@ -77,7 +77,7 @@ public class Factors implements Iterable<Factor> {
   }
 
   public boolean isLastKey(String key) {
-    return TupleUtils.eq(key, this.factors.get(this.factors.size() - 1).name);
+    return Utils.eq(key, this.factors.get(this.factors.size() - 1).name);
   }
 
   public Factors head(String to) {

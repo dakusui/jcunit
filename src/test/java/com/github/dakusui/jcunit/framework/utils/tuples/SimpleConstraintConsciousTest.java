@@ -1,12 +1,13 @@
-package com.github.dakusui.jcunit.framework.ipo2;
+package com.github.dakusui.jcunit.framework.utils.tuples;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
 import com.github.dakusui.jcunit.constraint.Violation;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.framework.tests.ipo2.IPO2Test;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
 
 		private static boolean matches(Tuple constraint, Tuple t) {
 			for (String fName : constraint.keySet()) {
-				if (!TupleUtils.eq(constraint.get(fName), t.get(fName))) {
+				if (!Utils.eq(constraint.get(fName), t.get(fName))) {
 					return false;
 				}
 			}

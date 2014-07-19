@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.framework.ipo2;
+package com.github.dakusui.jcunit.framework.tests.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factors;

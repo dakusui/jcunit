@@ -7,12 +7,6 @@ import com.github.dakusui.jcunit.core.Utils;
 import java.util.*;
 
 public class TupleUtils {
-  public static boolean eq(Object v, Object o) {
-    if (v == null) {
-      return o == null;
-    }
-    return v.equals(o);
-  }
 
   public static List<AttrValue<String, Object>> map2list(
       Map<String, Object[]> domains) {
@@ -59,5 +53,14 @@ public class TupleUtils {
       ret.addAll(subtuplesOf(tuple, sz - i));
     }
     return ret;
+  }
+
+  /**
+   * Returns {@code true} if {@code t} is a sub-tuple of {@code u}, {@code false} otherwise.
+   */
+  public static boolean isSubtupleOf(Tuple t, Tuple u) {
+    Utils.checknotnull(t);
+    Utils.checknotnull(u);
+    return t.isSubtupleOf(u);
   }
 }

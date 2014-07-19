@@ -20,7 +20,7 @@ public class TupleImpl extends TreeMap<String, Object> implements Tuple {
       return false;
     }
     for (String k : a.keySet()) {
-      if (!TupleUtils.eq(a.get(k), b.get(k))) {
+      if (!Utils.eq(a.get(k), b.get(k))) {
         return false;
       }
     }

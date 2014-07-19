@@ -68,7 +68,7 @@ public class IPO2 implements ConstraintObserver {
   private static boolean matches(Tuple tuple,
       Tuple q) {
     for (String k : q.keySet()) {
-      if (!tuple.containsKey(k) || !TupleUtils.eq(q.get(k), tuple.get(k))) {
+      if (!tuple.containsKey(k) || !Utils.eq(q.get(k), tuple.get(k))) {
         return false;
       }
     }

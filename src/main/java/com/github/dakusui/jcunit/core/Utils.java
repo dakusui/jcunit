@@ -260,6 +260,17 @@ public class Utils {
     return ret;
   }
 
+  /**
+   * Returns {@code true} if {@code v} and {@code} are equal,
+   * {@code false} otherwise.
+   */
+  public static boolean eq(Object v, Object o) {
+    if (v == null) {
+      return o == null;
+    }
+    return v.equals(o);
+  }
+
   public static interface Formatter<T> {
     public static final Formatter INSTANCE = new Formatter<Object>() {
       @Override

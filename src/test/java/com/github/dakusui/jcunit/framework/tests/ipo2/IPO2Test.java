@@ -1,13 +1,13 @@
-package com.github.dakusui.jcunit.framework.ipo2;
+package com.github.dakusui.jcunit.framework.tests.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 
@@ -145,7 +145,7 @@ public abstract class IPO2Test {
       Tuple tuple) {
     if (!tuple.keySet().containsAll(q.keySet())) return false;
     for (String k : q.keySet()) {
-      if (!TupleUtils.eq(q.get(k), tuple.get(k))) {
+      if (!Utils.eq(q.get(k), tuple.get(k))) {
         return false;
       }
     }
