@@ -167,6 +167,9 @@ public class BenchMark extends IPO2Test {
     TestGenerationResult actual = generate(factors,
         strength, constraintManager, optimizer);
 
+    for (Tuple v : actual.remainders) {
+      System.out.println(v);
+    }
     verify(factors, strength, constraintManager, actual);
   }
 

@@ -1,16 +1,14 @@
 package com.github.dakusui.jcunit.generators.ipo2.optimizers;
 
-import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -23,37 +21,24 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
       Tuples leftTuples,
       ConstraintManager constraintManager,
       Factors factors) {
-    LinkedHashMap<String, Object[]> missingFactors = new LinkedHashMap<String, Object[]>();
+    Factors.Builder missingFactorsBuilder = new Factors.Builder();
+    int numMissingFactors = 0;
     for (String f : tuple.keySet()) {
       if (tuple.get(f) == IPO2.DontCare) {
-        missingFactors.put(f, factors.get(f).levels.toArray());
+        numMissingFactors++;
+        missingFactorsBuilder.add(factors.get(f));
       }
     }
-    if (missingFactors.size() == 0) {
-      try {
-        if (constraintManager.check(tuple)) {
-          return tuple;
-        }
-      } catch (JCUnitSymbolException e) {
-        ////
-        // In case constraint checking fails for insufficient attributes, no way
-        // other than moving on.
-        return tuple;
-      }
-      throw new GiveUp(tuple);
+    if (numMissingFactors == 0) {
+      return tuple;
     }
-    CartesianEnumerator<String, Object> enumerator = new CartesianEnumerator<String, Object>(
-        TupleUtils.map2list(
-            missingFactors)
-    );
-    long sz = enumerator.size();
-    int maxTries = Math.min(50, (int) Math.min(sz, Integer.MAX_VALUE));
+    Factors missingFactors = missingFactorsBuilder.build();
+
+    int maxTries = 50;
     int maxNum = -1;
-    Tuple ret = null;
+    List<Tuple> candidates = new ArrayList<Tuple>(maxTries);
     for (int i = 0; i < maxTries; i++) {
-      long index = maxTries < sz ? i : (long) (random.nextDouble() * sz);
-      Tuple t = tuple.cloneTuple();
-      t.putAll(TupleUtils.list2tuple(enumerator.get(index)));
+      Tuple t = creteRandomTuple(missingFactors, tuple);
       try {
         if (!constraintManager.check(t)) {
           continue;
@@ -65,13 +50,18 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
       }
       int num = leftTuples.coveredBy(t).size();
       if (num >= maxNum) {
+        if (num > maxNum) {
+          candidates.clear();
+        }
         maxNum = num;
-        ret = t;
+        candidates.add(t);
       }
     }
-    if (ret == null) {
+    if (candidates.isEmpty()) {
       throw new GiveUp(tuple);
     }
+    Tuple ret;
+    ret = candidates.get(this.random.nextInt(candidates.size()));
     return ret;
   }
 
@@ -80,16 +70,20 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
       List<Tuple> found, Tuples leftTuples,
       String factorName, Object level) {
     int maxnum = -1;
-    Tuple ret = null;
+    List<Tuple> candidates = new ArrayList<Tuple>(found.size());
     for (Tuple t : found) {
-
       t.put(factorName, level);
       int num = leftTuples.coveredBy(t).size();
       if (num >= maxnum) {
+        if (num > maxnum) {
+          candidates.clear();
+        }
         maxnum = num;
-        ret = t;
+        candidates.add(t);
       }
     }
+    Tuple ret;
+    ret = found.get(this.random.nextInt(candidates.size()));
     return ret;
   }
 
@@ -98,16 +92,30 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
       Object[] factorLevels, Tuple tuple,
       Tuples leftTuples) {
     int maxnum = -1;
-    Object chosen = null;
+    List<Object> candidates = new ArrayList<Object>();
     for (Object v : factorLevels) {
       tuple.put(factorName, v);
       int num = leftTuples.coveredBy(tuple).size();
       if (num >= maxnum) {
-        chosen = v;
+        if (num > maxnum) {
+          candidates.clear();
+        }
+        candidates.add(v);
         maxnum = num;
       }
     }
+    Object chosen;
+    chosen = candidates.get(this.random.nextInt(candidates.size()));
     return chosen;
   }
 
+  private Tuple creteRandomTuple(Factors missingFactors, Tuple base) {
+    Tuple ret = base.cloneTuple();
+    for (String fn : missingFactors.getFactorNames()) {
+      List<Object> levels = missingFactors.get(fn).levels;
+      int index = this.random.nextInt(levels.size());
+      ret.put(fn, levels.get(index));
+    }
+    return ret;
+  }
 }

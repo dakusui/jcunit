@@ -313,6 +313,10 @@ public class IPO2 implements ConstraintObserver {
    * Calls an extension point in optimizer 'fillInMissingFactors'.
    * Update content of {@code tuple} using optimizer.
    * Throws a {@code GiveUp} when this method can't find a valid tuple.
+   *
+   * It's guaranteed that {@code tuple} doesn't violate constraints explicitly.
+   * But it is possible that it can violate them as a result of replacing "Don't care'
+   * value.
    */
   protected void fillInMissingFactors(
       Tuple tuple,
@@ -320,11 +324,14 @@ public class IPO2 implements ConstraintObserver {
     Utils.checknotnull(tuple);
     Utils.checknotnull(leftTuples);
     Utils.checknotnull(constraintManager);
+    if (!checkConstraints(tuple)) {
+      throw new GiveUp(removeDontCareEntries(tuple));
+    }
     Tuple work = this.optimizer
         .fillInMissingFactors(tuple.cloneTuple(), leftTuples,
             constraintManager, this.factors);
     Utils.checknotnull(work);
-    Utils.checkcond(work.keySet().equals(tuple.keySet()));
+    Utils.checkcond(work.keySet().equals(tuple.keySet()), "Key set was modified from %s to %s", tuple.keySet(), work.keySet());
     Utils.checkcond(!work.containsValue(DontCare));
     if (!checkConstraints(work)) {
       throw new GiveUp(removeDontCareEntries(work));
