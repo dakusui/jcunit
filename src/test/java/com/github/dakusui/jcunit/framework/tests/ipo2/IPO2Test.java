@@ -21,6 +21,27 @@ public abstract class IPO2Test {
     return new Factor(name, Arrays.asList(factors));
   }
 
+  static FactorsDef factorsDef(int l, int f) {
+    return new FactorsDef(l, f);
+  }
+
+  static Factors buildFactors(FactorsDef... factorsDefs) {
+    Factors.Builder fb = new Factors.Builder();
+    char ch = 'A';
+    for (FactorsDef fd : factorsDefs) {
+      for (int i = 0; i < fd.numFactors; i++) {
+        Factor.Builder b = new Factor.Builder();
+        b.setName(new Character(ch).toString());
+        for (int j = 0; j < fd.numLevels; j++) {
+          b.addLevel(new Character(ch).toString() + j);
+        }
+        ch++;
+        fb.add(b.build());
+      }
+    }
+    return fb.build();
+  }
+
   protected IPO2 generate(
       Factors factors, int strength,
       ConstraintManager constraintManager,
@@ -158,5 +179,15 @@ public abstract class IPO2Test {
 
   protected GreedyIPO2Optimizer createOptimizer() {
     return new GreedyIPO2Optimizer();
+  }
+
+  public static class FactorsDef {
+    int numLevels;
+    int numFactors;
+
+    public FactorsDef(int numLevels, int numFactors) {
+      this.numLevels = numLevels;
+      this.numFactors = numFactors;
+    }
   }
 }

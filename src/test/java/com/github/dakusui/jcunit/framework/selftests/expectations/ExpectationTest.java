@@ -1,13 +1,19 @@
 package com.github.dakusui.jcunit.framework.selftests.expectations;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.ConstraintObserver;
+import com.github.dakusui.jcunit.constraint.Violation;
+import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.utils.TestUtils;
 import com.github.dakusui.jcunit.framework.utils.tuples.*;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
@@ -199,6 +205,33 @@ public class ExpectationTest {
     );
     result.check();
     assertThat(result.isSuccessful(), is(true));
+  }
+
+  @Test
+  public void constraintViolationN01() throws Exception {
+    VerificationResult result = verify(
+        new NoConstraintViolationExpectation(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
+        TestUtils.tuples(
+            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        )
+    );
+    result.check();
+  }
+
+  @Test(expected = JCUnitAssertionError.class)
+  public void constraintViolationE01() throws Exception {
+    VerificationResult result = verify(
+        new NoConstraintViolationExpectation(new ConstraintManagerBase() {
+          @Override
+          public boolean check(Tuple tuple) throws JCUnitSymbolException {
+            return !(new Tuple.Builder().put("A", "a1").put("B", "b1").build().equals(tuple));
+          }
+        }),
+        TestUtils.tuples(
+            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        )
+    );
+    result.check();
   }
 
   public VerificationResult verify(Class<? extends Expectation> klazz, Tuple[] expect, Tuple[] tuples) throws Exception {

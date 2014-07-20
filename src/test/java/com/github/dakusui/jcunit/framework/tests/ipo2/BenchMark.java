@@ -1,43 +1,24 @@
 package com.github.dakusui.jcunit.framework.tests.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.TestCaseGeneration;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.framework.utils.tuples.NoConstraintViolationExpectation;
+import com.github.dakusui.jcunit.framework.utils.tuples.SanityExpectation;
+import com.github.dakusui.jcunit.framework.utils.tuples.ValidTuplesCoveredExpectation;
+import com.github.dakusui.jcunit.framework.utils.tuples.VerificationResult;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 public class BenchMark extends IPO2Test {
-  public static class FactorsDef {
-    int numLevels;
-    int numFactors;
-
-    public FactorsDef(int numLevels, int numFactors) {
-      this.numLevels = numLevels;
-      this.numFactors = numFactors;
-    }
-  }
-
-  static FactorsDef factorsDef(int l, int f) {
-    return new FactorsDef(l, f);
-  }
-
-  static Factors buildFactors(FactorsDef... factorsDefs) {
-    Factors.Builder fb = new Factors.Builder();
-    char ch = 'A';
-    for (FactorsDef fd : factorsDefs) {
-      for (int i = 0; i < fd.numFactors; i++) {
-        Factor.Builder b = new Factor.Builder();
-        b.setName(new Character(ch).toString());
-        for (int j = 0; j < fd.numLevels; j++) {
-          b.addLevel(new Character(ch).toString() + j);
-        }
-        ch++;
-        fb.add(b.build());
-      }
-    }
-    return fb.build();
+  static class TestGenerationResult {
+    List<Tuple> testCases;
+    List<Tuple> remainders;
   }
 
   protected int strength;
@@ -45,6 +26,18 @@ public class BenchMark extends IPO2Test {
   @Before
   public void before() {
     this.strength = 2;
+  }
+
+  protected VerificationResult verifyTuplesSanity(Factors factors, TestGenerationResult actual) {
+    return new SanityExpectation(factors).verify(actual.testCases);
+  }
+
+  protected VerificationResult verifyConstraintViolation(ConstraintManager cm, TestGenerationResult actual) {
+    return new NoConstraintViolationExpectation(cm).verify(actual.testCases);
+  }
+
+  protected VerificationResult verifyCoverage(Factors factors, int strength, ConstraintManager cm, TestGenerationResult actual) {
+    return new ValidTuplesCoveredExpectation(factors, strength, cm).verify(actual.testCases);
   }
 
   @Test

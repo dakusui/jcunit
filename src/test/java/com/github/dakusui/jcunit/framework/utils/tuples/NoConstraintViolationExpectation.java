@@ -21,7 +21,7 @@ public class NoConstraintViolationExpectation implements Expectation {
     Set<Tuple> invalidTuples = new HashSet<Tuple>();
     for (Tuple t : tuples) {
       try {
-        if (cm.check(t)) {
+        if (!cm.check(t)) {
           invalidTuples.add(t);
         }
       } catch (JCUnitSymbolException e) {
