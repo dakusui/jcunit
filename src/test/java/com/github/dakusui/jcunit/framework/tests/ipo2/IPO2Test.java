@@ -42,7 +42,7 @@ public abstract class IPO2Test {
     return fb.build();
   }
 
-  protected IPO2 generate(
+  protected IPO2 generateIPO2(
       Factors factors, int strength,
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {

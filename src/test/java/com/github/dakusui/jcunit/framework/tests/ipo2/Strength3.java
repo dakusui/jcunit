@@ -19,7 +19,7 @@ public class Strength3 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generate(factors,
+    IPO2 ipo = generateIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -34,7 +34,7 @@ public class Strength3 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generate(factors,
+    IPO2 ipo = generateIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -49,7 +49,7 @@ public class Strength3 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generate(factors,
+    IPO2 ipo = generateIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -64,7 +64,7 @@ public class Strength3 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generate(factors,
+    IPO2 ipo = generateIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -79,7 +79,7 @@ public class Strength3 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generate(factors,
+    IPO2 ipo = generateIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -94,7 +94,7 @@ public class Strength3 extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generate(factors,
+    IPO2 ipo = generateIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
