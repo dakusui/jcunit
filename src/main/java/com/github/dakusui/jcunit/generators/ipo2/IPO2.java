@@ -294,6 +294,9 @@ public class IPO2 implements ConstraintObserver {
     for (Tuple invalidatedSubTuple : TupleUtils
         .subtuplesOf(tupleGivenUp, strength)) {
       if (lookup(result, invalidatedSubTuple).size() == 0) {
+        ////
+        // Sub-tuples that do not constraints 'explicitly' will be added
+        // to 'leftOver' tuples.
         if (this.checkConstraints(invalidatedSubTuple)) {
           leftOver.add(invalidatedSubTuple);
         }
