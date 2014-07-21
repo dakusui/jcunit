@@ -1,31 +1,48 @@
 package com.github.dakusui.jcunit.core.tuples;
 
+import com.github.dakusui.enumerator.CartesianEnumeratorAdaptor;
 import com.github.dakusui.enumerator.Combinator;
+import com.github.dakusui.enumerator.Domains;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.Factor;
 
 import java.util.*;
 
 public class TupleUtils {
+  public static class CartesianTuples extends CartesianEnumeratorAdaptor<Tuple, String, Object> {
 
-  public static List<AttrValue<String, Object>> map2list(
-      Map<String, Object[]> domains) {
-    List<AttrValue<String, Object>> ret = new LinkedList<AttrValue<String, Object>>();
-    for (String k : domains.keySet()) {
-      for (Object v : domains.get(k)) {
-        ret.add(new AttrValue<String, Object>(k, v));
-      }
+    private final Tuple base;
+
+    protected CartesianTuples(Tuple base, final Factor... factors) {
+      super(new Domains<String, Object>() {
+        @Override public List<String> getDomainNames() {
+          List<String> ret = new ArrayList<String>(factors.length);
+          for (Factor f : factors) {
+            ret.add(f.name);
+          }
+          return ret;
+        }
+
+        @Override public List<Object> getDomain(String s) {
+          Utils.checknotnull(s);
+          for (Factor f : factors) {
+            if (s.equals(f.name)) return f.levels;
+          }
+          return null;
+        }
+      });
+      this.base = Utils.checknotnull(base);
     }
-    return ret;
+
+    @Override protected Tuple createMap() {
+      return base.cloneTuple();
+    }
   }
 
-  public static Tuple list2tuple(
-      List<AttrValue<String, Object>> attrValues) {
-    Tuple ret = new TupleImpl();
-    for (AttrValue<String, Object> cur : attrValues) {
-      ret.put(cur.attr(), cur.value());
-    }
-    return ret;
+  public static CartesianTuples enumerateCartesianProduct(final Tuple base, Factor... factors) {
+    Utils.checknotnull(base);
+    return new CartesianTuples(base, factors);
   }
 
   public static Set<Tuple> subtuplesOf(

@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.enumerator.Combinator;
-import com.github.dakusui.enumerator.tuple.AttrValue;
-import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleImpl;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
 import java.util.*;
 
@@ -18,7 +17,8 @@ public class Factors implements Iterable<Factor> {
     this.factors = Collections.unmodifiableList(factors);
     Map<String, Factor> factorMap = new HashMap<String, Factor>();
     for (Factor f : factors) {
-      Utils.checkcond(!factorMap.containsKey(f.name), "There are more than one factors whose names are '%s'.", f.name);
+      Utils.checkcond(!factorMap.containsKey(f.name),
+          "There are more than one factors whose names are '%s'.", f.name);
       factorMap.put(f.name, f);
     }
     this.factorMap = factorMap;
@@ -115,18 +115,15 @@ public class Factors implements Iterable<Factor> {
     Combinator<String> c = new Combinator<String>(this.getFactorNames(),
         strength);
     for (List<String> factorNames : c) {
-      List<AttrValue<String, Object>> attrValues = new LinkedList<AttrValue<String, Object>>();
-      for (String factorName : factorNames) {
-        attrValues.addAll(get(factorName).asAttrValues());
+      Factor[] chosenFactors = new Factor[factorNames.size()];
+      int i = 0;
+      for (String fName : factorNames) {
+        chosenFactors[i++] = get(fName);
       }
-      CartesianEnumerator<String, Object> ce = new CartesianEnumerator<String, Object>(
-          attrValues);
-      for (List<AttrValue<String, Object>> t : ce) {
-        Tuple tuple = new TupleImpl();
-        for (AttrValue<String, Object> attrValue : t) {
-          tuple.put(attrValue.attr(), attrValue.value());
-        }
-        ret.add(tuple);
+      TupleUtils.CartesianTuples tuples = TupleUtils
+          .enumerateCartesianProduct(new TupleImpl(), chosenFactors);
+      for (Tuple t : tuples) {
+        ret.add(t);
       }
     }
     return ret;
@@ -145,8 +142,9 @@ public class Factors implements Iterable<Factor> {
   public Tuple createTupleFrom(Tuple tuple, Object defaultValue) {
     Utils.checknotnull(tuple);
     for (String k : tuple.keySet()) {
-      Utils.checkcond(this.factorMap.containsKey(k),"Undefined factor '%s' was found: defined keys (%s)", k,
-              this.getFactorNames());
+      Utils.checkcond(this.factorMap.containsKey(k),
+          "Undefined factor '%s' was found: defined keys (%s)", k,
+          this.getFactorNames());
     }
     Tuple ret = tuple.cloneTuple();
     for (String k : getFactorNames()) {
@@ -159,6 +157,10 @@ public class Factors implements Iterable<Factor> {
 
   public boolean contains(Factor factor) {
     return this.factors.contains(factor);
+  }
+
+  public List<Factor> asFactorList() {
+    return this.factors; // It's unmodifiable already in the constructor.
   }
 
   public static class Builder {

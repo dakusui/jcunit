@@ -109,7 +109,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark3$4() {
+  public void benchmark1_3$4() {
     Factors factors = buildFactors(factorsDef(3, 4));
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
@@ -121,7 +121,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark3$13() {
+  public void benchmark2_3$13() {
     Factors factors = buildFactors(factorsDef(3, 13));
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
@@ -133,7 +133,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark4$15_3$17_2$20() {
+  public void benchmark3_4$15_3$17_2$20() {
     Factors factors = buildFactors(factorsDef(4, 15), factorsDef(3, 17),
         factorsDef(2, 20));
     ConstraintManager constraintManager = createConstraintManager();
@@ -146,7 +146,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark4$1_3$30_2$35() {
+  public void benchmark5_4$1_3$30_2$35() {
     Factors factors = buildFactors(factorsDef(4, 1), factorsDef(3, 30),
         factorsDef(2, 35));
     ConstraintManager constraintManager = createConstraintManager();
@@ -159,7 +159,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark2$100() {
+  public void benchmark6_2$100() {
     Factors factors = buildFactors(factorsDef(2, 100));
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
@@ -167,14 +167,11 @@ public class BenchMark extends IPO2Test {
     TestGenerationResult actual = generate(factors,
         strength, constraintManager, optimizer);
 
-    for (Tuple v : actual.remainders) {
-      System.out.println(v);
-    }
     verify(factors, strength, constraintManager, actual);
   }
 
   @Test
-  public void benchmark10$20() {
+  public void benchmark7_10$20() {
     Factors factors = buildFactors(factorsDef(10, 20));
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();

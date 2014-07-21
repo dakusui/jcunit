@@ -19,9 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class JCUnit extends Suite {
-  @Target(ElementType.METHOD)
-  @Retention(RetentionPolicy.RUNTIME)
-  public static @interface Parameters {}
   private final ArrayList<Runner> runners = new ArrayList<Runner>();
 
   /**
@@ -38,15 +35,15 @@ public class JCUnit extends Suite {
     }
     ConstraintManager cm = testCaseGenerator.getConstraintManager();
     final List<Violation> violations = cm.getViolations();
-    for (int i = 0; i < violations.size(); i++) {
+    for (Violation violation : violations) {
       runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-          JCUnitTestCaseType.Violation, violations.get(i).getId(),
-          violations.get(i).getTestCase()));
+          JCUnitTestCaseType.Violation, violation.getId(),
+          violation.getTestCase()));
       id++;
     }
     for (Tuple tuple : allCustomTuples()) {
       runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-              JCUnitTestCaseType.Custom, id, tuple));
+          JCUnitTestCaseType.Custom, id, tuple));
       id++;
     }
   }
@@ -85,5 +82,10 @@ public class JCUnit extends Suite {
         "{0}.{1}() must return an Iterable of arrays.",
         className, methodName);
     return new Exception(message);
+  }
+
+  @Target(ElementType.METHOD)
+  @Retention(RetentionPolicy.RUNTIME)
+  public static @interface Parameters {
   }
 }

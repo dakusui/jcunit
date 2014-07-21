@@ -1,7 +1,5 @@
 package com.github.dakusui.jcunit.generators.ipo2;
 
-import com.github.dakusui.enumerator.tuple.AttrValue;
-import com.github.dakusui.enumerator.tuple.CartesianEnumerator;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
 import com.github.dakusui.jcunit.core.SystemProperties;
@@ -9,6 +7,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
@@ -120,10 +119,11 @@ public class IPO2 implements ConstraintObserver {
       // Expand test case set horizontally and get the list of test cases
       // that are proven to be invalid.
       leftOver = hg(result, leftTuples, factors.get(factorName));
-      leftTuples.removeAll(leftOver);
       if (leftTuples.isEmpty()) {
         continue;
       }
+      ////
+      // Expand test case set vertically.
       if (factors.isLastKey(factorName)) {
         leftOver = vg(result, leftTuples, factors);
       } else {
@@ -157,25 +157,15 @@ public class IPO2 implements ConstraintObserver {
 
   private List<Tuple> initialTestCases(
       Factors factors) {
-    List<AttrValue<String, Object>> attrValues = new ArrayList<AttrValue<String, Object>>(
-        512);
-    for (String k : factors.getFactorNames()) {
-      for (Object v : factors.get(k)) {
-        attrValues.add(new AttrValue<String, Object>(k, v));
-      }
-    }
-
-    CartesianEnumerator<String, Object> ce = new CartesianEnumerator<String, Object>(
-        attrValues);
-    List<Tuple> ret = new ArrayList<Tuple>(
-        (int) ce.size());
-    for (List<AttrValue<String, Object>> t : ce) {
-      Tuple tuple = TupleUtils.list2tuple(t);
-      if (checkConstraints(tuple)) {
-        if (this.checkConstraints(tuple)) {
-          ret.add(tuple);
-        }
-      }
+    TupleUtils.CartesianTuples initialTestCases = TupleUtils
+        .enumerateCartesianProduct(
+            new TupleImpl(),
+            factors.asFactorList()
+                .toArray(new Factor[factors.asFactorList().size()])
+        );
+    List<Tuple> ret = new ArrayList<Tuple>((int) initialTestCases.size());
+    for (Tuple tuple : initialTestCases) {
+      ret.add(tuple);
     }
     return ret;
   }
@@ -304,7 +294,9 @@ public class IPO2 implements ConstraintObserver {
     for (Tuple invalidatedSubTuple : TupleUtils
         .subtuplesOf(tupleGivenUp, strength)) {
       if (lookup(result, invalidatedSubTuple).size() == 0) {
-        leftOver.add(invalidatedSubTuple);
+        if (this.checkConstraints(invalidatedSubTuple)) {
+          leftOver.add(invalidatedSubTuple);
+        }
       }
     }
   }
@@ -313,7 +305,7 @@ public class IPO2 implements ConstraintObserver {
    * Calls an extension point in optimizer 'fillInMissingFactors'.
    * Update content of {@code tuple} using optimizer.
    * Throws a {@code GiveUp} when this method can't find a valid tuple.
-   *
+   * <p/>
    * It's guaranteed that {@code tuple} doesn't violate constraints explicitly.
    * But it is possible that it can violate them as a result of replacing "Don't care'
    * value.
@@ -331,7 +323,8 @@ public class IPO2 implements ConstraintObserver {
         .fillInMissingFactors(tuple.cloneTuple(), leftTuples,
             constraintManager, this.factors);
     Utils.checknotnull(work);
-    Utils.checkcond(work.keySet().equals(tuple.keySet()), "Key set was modified from %s to %s", tuple.keySet(), work.keySet());
+    Utils.checkcond(work.keySet().equals(tuple.keySet()),
+        "Key set was modified from %s to %s", tuple.keySet(), work.keySet());
     Utils.checkcond(!work.containsValue(DontCare));
     if (!checkConstraints(work)) {
       throw new GiveUp(removeDontCareEntries(work));
