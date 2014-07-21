@@ -15,9 +15,12 @@ import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.dakusui.jcunit.core.tuples.TupleUtils.factorLevel;
+import static com.github.dakusui.jcunit.core.tuples.TupleUtils.newTuple;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
@@ -43,9 +46,18 @@ public class JCUnitExample2 {
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int c;
 
+  @JCUnit.Parameters
+  public static Iterable<Tuple> parameters() {
+    return Arrays.asList(
+        newTuple(factorLevel("a", 1), factorLevel("b", 2), factorLevel("c", 1))
+    );
+  }
+
   @Test
   public void test() {
-    System.out.println(String.format("desc=(%s,%s,%s)", desc.getTestName(), desc.getType(), desc.getSubIdentifier()));
+    System.out.println(String
+        .format("desc=(%s,%s,%s)", desc.getTestName(), desc.getType(),
+            desc.getSubIdentifier()));
     QuadraticEquationResolver.Solutions s = new QuadraticEquationResolver(a, b,
         c).resolve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
@@ -58,8 +70,9 @@ public class JCUnitExample2 {
     @Override
     public boolean check(Tuple tuple) throws JCUnitSymbolException {
       if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
-          .containsKey("c"))
+          .containsKey("c")) {
         throw new JCUnitSymbolException();
+      }
       int a = (Integer) tuple.get("a");
       int b = (Integer) tuple.get("b");
       int c = (Integer) tuple.get("c");

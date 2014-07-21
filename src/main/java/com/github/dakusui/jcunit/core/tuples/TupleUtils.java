@@ -63,4 +63,16 @@ public class TupleUtils {
     Utils.checknotnull(u);
     return t.isSubtupleOf(u);
   }
+
+  public static Tuple newTuple(AttrValue<String, Object>... attrs) {
+    Tuple.Builder b = new Tuple.Builder();
+    for (AttrValue<String, Object> attrValue : attrs) {
+      b.put(attrValue.attr(), attrValue.value());
+    }
+    return b.build();
+  }
+
+  public static AttrValue<String, Object> factorLevel(String name, Object level) {
+    return new AttrValue<String, Object>(name, level);
+  }
 }

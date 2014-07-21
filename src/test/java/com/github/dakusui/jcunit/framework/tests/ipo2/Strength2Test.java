@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
 
-public class Strength2 extends IPO2Test {
+public class Strength2Test extends IPO2Test {
   protected  int strength = 2;
 
   @Test
