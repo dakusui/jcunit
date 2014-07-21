@@ -43,7 +43,7 @@
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>enumerator</artifactId>
-            <version>0.3.4-SNAPSHOT</version>
+            <version>0.3.4</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
