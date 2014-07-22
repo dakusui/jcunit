@@ -164,7 +164,7 @@ public class IPO2 implements ConstraintObserver {
                 .toArray(new Factor[factors.asFactorList().size()])
         );
     List<Tuple> ret = new ArrayList<Tuple>((int) initialTestCases.size());
-    for (Tuple tuple : initialTestCases) {
+for (Tuple tuple : initialTestCases) {
       ret.add(tuple);
     }
     return ret;

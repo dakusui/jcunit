@@ -22,6 +22,7 @@ import java.util.List;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.factorLevel;
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.newTuple;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
@@ -47,6 +48,7 @@ public class QuadraticEquationSolverTestX {
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int c;
 
+  @SuppressWarnings("unchecked")
   @JCUnit.Parameters
   public static Iterable<Tuple> parameters() {
     return Arrays.asList(
@@ -61,10 +63,18 @@ public class QuadraticEquationSolverTestX {
             desc.getSubIdentifier()));
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
-    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
-        a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
-    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
-        a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
+    if ("a=0".equals(desc.getSubIdentifier())) {
+      assertEquals(null, s);
+    } else if ("b*b-4ca<0".equals(desc.getSubIdentifier())) {
+      assertEquals(null, s);
+    } else if ("nonsense 1=0".equals(desc.getSubIdentifier())) {
+      assertEquals(null, s);
+    } else {
+      assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+          a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
+      assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+          a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
+    }
   }
 
   public static class CM extends ConstraintManagerBase {
