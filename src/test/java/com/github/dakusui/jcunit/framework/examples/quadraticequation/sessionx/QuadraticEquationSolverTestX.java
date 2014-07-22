@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.framework.examples;
+package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 
 import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.Violation;
@@ -8,6 +8,7 @@ import com.github.dakusui.jcunit.core.Param.Type;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,13 +29,13 @@ import static org.junit.Assert.assertThat;
     generator = @Generator(
         value = IPO2TestCaseGenerator.class,
         params = {
-            @Param(type = Type.Int, array = false, value = { "3" })
+            @Param(type = Type.Int, array = false, value = { "2" })
         }),
     constraint = @Constraint(
-        value = JCUnitExample2.CM.class,
+        value = QuadraticEquationSolverTestX.CM.class,
         params = {
         }))
-public class JCUnitExample2 {
+public class QuadraticEquationSolverTestX {
   @Rule
   public TestName       name = new TestName();
   @Rule
@@ -58,8 +59,8 @@ public class JCUnitExample2 {
     System.out.println(String
         .format("desc=(%s,%s,%s)", desc.getTestName(), desc.getType(),
             desc.getSubIdentifier()));
-    QuadraticEquationResolver.Solutions s = new QuadraticEquationResolver(a, b,
-        c).resolve();
+    QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+        c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
         a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

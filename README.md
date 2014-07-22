@@ -2,64 +2,80 @@
 JCUnit is a framework to perform combinatorial tests using 'pairwise' technique.
 
 # First test with JCUnit
-Below is jcunit's most basic example 'Calc.java'. Gist is also available at https://gist.github.com/dakusui/8980728
+Below is jcunit's most basic example 'QuadraticEquationSolver.java'. Gist is also available at https://gist.github.com/dakusui/XYZ
+Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@FactorLevels' annotations.
 
-Just by running CalcTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@In' annotations, and will store the output of Calc based on '@Out' annotation at the first time. 
-From then on, in other words from the second run, you will be able to verify if Calc#calc's output is unchanged just by running CalcTest as a JUnit test.
-
-And the values of '@Out' annotated fields are stored in '.jcunit/' under current directory. You can remove it when you want to record new values of your SUT.
-
-## Calc.java example
-### Calc.java (Main class, SUT)
-Calc is the SUT (Software under test) in this example.
-The class provides a function to perform a calculation based on given two numbers and returns the result.
+## QuadraticEquationSolver.java example
+### QuadraticEquationSolver.java (Main class, SUT)
+QuadraticEquationSolver is the SUT (Software under test) in this example.
+The class provides a function to solve a quadratic equation using a quadratic formula and returns the solutions.
 
 ```
-package com.github.dakusui.jcunit.tutorial.session01;
- 
-public class Calc {
-	public int calc(int a, int b) {
-		return a + b;
-	}
+package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
+
+public class QuadraticEquationSolver {
+  private final double a;
+  private final double b;
+  private final double c;
+
+  public static class Solutions {
+    public final double x1;
+    public final double x2;
+
+    public Solutions(double x1, double x2) {
+      this.x1 = x1;
+      this.x2 = x2;
+    }
+
+    public String toString() {
+      return String.format("(%f,%f)", x1, x2);
+    }
+  }
+
+  public QuadraticEquationSolver(double a, double b, double c) {
+    this.a = a;
+    this.b = b;
+    this.c = c;
+  }
+
+  public Solutions solve() {
+    return new Solutions(
+        (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
+        (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
+    );
+  }
 }
 ```
 
-### CalcTest.java (Test)
-CalcTest is a test class for Calc class. '@Rule' and '@ClassRule' in this example is kind of boilerplate.
+### QuadraticEquationSolverTest.java (Test)
+QuadraticEquationSolverTest is a test class for QuadraticEquationSolver class.
 
 ```
-package com.github.dakusui.jcunit.tutorial.session01;
- 
-import org.junit.ClassRule;
-import org.junit.Rule;
+package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
+
+import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
- 
-import com.github.dakusui.jcunit.compat.core.BasicSummarizer;
-import com.github.dakusui.jcunit.core.DefaultRuleSetBuilder;
-import com.github.dakusui.jcunit.core.In;
-import com.github.dakusui.jcunit.compat.core.JCUnit;
-import com.github.dakusui.jcunit.core.Out;
-import com.github.dakusui.jcunit.compat.core.RuleSet;
-import com.github.dakusui.jcunit.compat.core.Summarizer;
- 
+
+import static junit.framework.Assert.assertEquals;
+
 @RunWith(JCUnit.class)
-public class CalcTest {
-	@In
+public class QuadraticEquationSolverTest1 {
+	@FactorField
 	public int a;
-	@In
+	@FactorField
 	public int b;
-	@Out
+	@FactorField
 	public int c;
-	
-	@Rule
-	public RuleSet rules = new DefaultRuleSetBuilder().autoRuleSet(this).summarizer(summarizer);
-	@ClassRule
-	public static Summarizer summarizer = new BasicSummarizer();
-	
+
 	@Test
 	public void test() {
-		this.c = new Calc().calc(this.a, this.b);
+		QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+				c).solve();
+		assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
+		assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
 	}
 }
 ```
@@ -71,19 +87,22 @@ Below is a pom.xml fragment to describe jcunit's dependency.
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.1.4</version>
+      <version>[0.3.0,]</version>
     </dependency>
 ```
 
-## Tip 1: Customizing domains of @In fields
-JCUnit creates combinations based on types. For example, if a memeber is annotated with '@In' and its type is int, jcunit will pick up values from a set {0, -1, 100, -100, 2147483647, -2147483648, 1}.
-But this set is just a 'default' and you can customize it by using 'domain' paramter of '@In' annotation and creating a static method whose name is the same as the input field name's.
+## Tip 1: Customizing domains of @FactorField annotated fields
+JCUnit creates combinations from values defined for each type by default.
+For example, if a member is annotated with '@FactorField' and its type is int, jcunit will pick up values from a set
+{1, 0, -1, 100, -100, Integer.MAX_VALUE, Integer.MIN_VALUE}.
+But this set is just a 'default' and you can customize it by using 'levelsFactory' parameter of '@FactorField'
+annotation and creating a static method whose name is the same as the field name's.
 The method mustn't have any parameters and its return value must be an array of the field's type.
 
-Below is the example for this function.
+Below is the example for that sort of function.
 
 ```
-	@In(domain=Domain.Method)
+    @FactorField(levelsFactory = MethodLevelsFactory.class)
 	public int a;
 	
 	public static int[] a() {
@@ -94,13 +113,18 @@ Below is the example for this function.
 
 The values returned by the method will be picked up and assigned to the field 'a' by the framework one by one.
 
-## Tip 2: Doing pairwise tests or customizing coverage.
+## Tip 2: Customizing the strength of all pair test's coverage.
 Add annotation '@Generator(PairwiseTestArrayGenerator.class)' to CalcTest.java
 
 ```
 @RunWith(JCUnit.class)
-@Generator(PairwiseTestArrayGenerator.class)
-public class CalcTest {
+@TestCaseGeneration(
+		generator = @Generator(
+				value = IPO2TestCaseGenerator.class,
+				params = {
+						@Param(type = Param.Type.Int, array = false, value = {"3"})
+				}))
+public class QuadraticEquationSolverTest1 {
 ```
 
 Since there are only two parameters in this test class now (members a and b only), the test will automatically be exhaustive.

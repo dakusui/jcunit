@@ -1,13 +1,13 @@
-package com.github.dakusui.jcunit.framework.examples;
+package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
-public class QuadraticEquationResolver {
+public class QuadraticEquationSolver {
   private final double a;
   private final double b;
   private final double c;
 
   public static class Solutions {
-    final double x1;
-    final double x2;
+    public final double x1;
+    public final double x2;
 
     public Solutions(double x1, double x2) {
       this.x1 = x1;
@@ -19,20 +19,16 @@ public class QuadraticEquationResolver {
     }
   }
 
-  public QuadraticEquationResolver(double a, double b, double c) {
+  public QuadraticEquationSolver(double a, double b, double c) {
     this.a = a;
     this.b = b;
     this.c = c;
   }
 
-  public Solutions resolve() {
+  public Solutions solve() {
     return new Solutions(
         (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
         (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
     );
-  }
-
-  public static  void main(String... args) {
-    System.out.println(new QuadraticEquationResolver(1, -2, 1).resolve());
   }
 }

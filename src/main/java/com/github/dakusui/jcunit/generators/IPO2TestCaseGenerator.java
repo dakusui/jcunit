@@ -17,7 +17,7 @@ public class IPO2TestCaseGenerator extends BaseTestCaseGenerator {
   @Override protected long initializeTestCases(Object[] params) {
     IPO2 ipo2 = new IPO2(
         this.getFactors(),
-        2,
+        params.length == 0 ? 2 : ((Number)params[0]).intValue(),
         this.getConstraintManager(),
         new GreedyIPO2Optimizer());
     ////
