@@ -74,7 +74,7 @@ public class QuadraticEquationSolver {
 ```
 
 Did you already notice the bugs that this program has?
-* It doesn't consider equations do not have solutions in real.
+* It doesn't consider equations that do not have solutions in real.
 * If it's not a quadratic equation but a linear one, how should it behave?
 * Errors. How should it handle errors? To what extent error is acceptable?
 * Overflows. If b * b, 4 * c * a, etc become bigger than Double.MAX_VALUE (or smaller than Double.MIN_VALUE), how should it handle it?
