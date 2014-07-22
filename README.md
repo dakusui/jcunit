@@ -1,7 +1,7 @@
 # JCUnit
 JCUnit is a framework to perform combinatorial tests using 'pairwise'(or more generaly 't-wise') technique.
 About what combinatorial testings are, an Wikipedia article below might be helpful as a starting point.
-* [http://en.wikipedia.org/wiki/All-pairs_testing](All-pairs testing)
+* [All-pairs testing](http://en.wikipedia.org/wiki/All-pairs_testing)
 
 # For users of previous versions
 Thank you for using JCUnit.
@@ -12,7 +12,7 @@ Although they might be provided as a part of JCUnit's core library itself or JCU
 So, if you need these features, please keep using the older version for the time being. 
 
 # First test with JCUnit
-Below is JCUnit's most basic example 'QuadraticEquationSolver.java'. Gist is also available at https://gist.github.com/dakusui/XYZ
+Below is JCUnit's most basic example 'QuadraticEquationSolver.java'.
 Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@FactorLevels' annotations.
 
 ## QuadraticEquationSolver program example
@@ -112,7 +112,7 @@ public class QuadraticEquationSolverTest1 {
 }
 ```
 
-### Maven dependency
+### Maven coordinate
 Below is a pom.xml fragment to describe jcunit's dependency.
 
 ```
@@ -211,8 +211,8 @@ Since combinatorial testing is an effort to cover pairs (or tuples) with test ca
 if a test case, which can possibly contain a lot of meaningful pairs, is revoked by such an error, which can be cause by just one parameter, it means the coverage of the test suite is severely reduced. 
 Below are the links that would be helpful for understanding how much constraint managements are important in combinatorial testing area. 
 
-* [http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6221818](Combinatorial test cases with constraints in software systems)
-* [http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6569736](An Efficient Algorithm for Constraint Handling in Combinatorial Test Generation)
+* [Combinatorial test cases with constraints in software systems](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6221818)
+* [An Efficient Algorithm for Constraint Handling in Combinatorial Test Generation](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6569736)
 
 For this purpose, JCUnit has a mechanism called 'constraints manager'.
 To use a constraint manager, you can do below
