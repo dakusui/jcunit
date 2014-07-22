@@ -7,7 +7,8 @@ About what combinatorial testings are, an Wikipedia article below might be helpf
 Thank you for using JCUnit.
 In this release, I have simplified JCUnit's interfaces and I had to remove some features like automatic regression tests, 
 reporting, or writing tests as logical predicates.
-Although they might be provided as a part of JCUnit's core library itself or JCUnit-extra library 
+Furthermore, names and semantics of annotations were changed and basically JCUnit 0.3.0 (or later) isn't compatible with the previous versions anymore.
+Although the removed functions might be provided as a part of JCUnit's core library itself or JCUnit-extra library 
 (and of course they will become more sophisticated) in future, they are not available at this moment.
 So, if you need these features, please keep using the older version for the time being. 
 
