@@ -32,6 +32,6 @@ public interface ConstraintManager {
 
   void removeObservers(ConstraintObserver observer);
 
-  List<Violation> getViolations();
+  List<LabeledTestCase> getViolations();
 
 }

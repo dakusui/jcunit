@@ -1,8 +1,8 @@
 # JCUnit
 JCUnit is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') technique.
 About what combinatorial testings are, an Wikipedia article below might be helpful as a starting point.
-* [All-pairs testing](http://en.wikipedia.org/wiki/All-pairs_testing)
 
+* [All-pairs testing](http://en.wikipedia.org/wiki/All-pairs_testing)
 
 Very roughly to say, it's a technique to generate test cases with good 'coverage' without making the number of test cases explode.
 
@@ -37,40 +37,41 @@ a * x^2 + b * x + c = 0
 The class provides a function to solve a quadratic equation using a quadratic formula and returns the solutions.
 
 ```
-package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
-public class QuadraticEquationSolver {
-  private final double a;
-  private final double b;
-  private final double c;
-
-  public static class Solutions {
-    public final double x1;
-    public final double x2;
-
-    public Solutions(double x1, double x2) {
-      this.x1 = x1;
-      this.x2 = x2;
+    package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
+    
+    public class QuadraticEquationSolver {
+      private final double a;
+      private final double b;
+      private final double c;
+    
+      public static class Solutions {
+        public final double x1;
+        public final double x2;
+    
+        public Solutions(double x1, double x2) {
+          this.x1 = x1;
+          this.x2 = x2;
+        }
+    
+        public String toString() {
+          return String.format("(%f,%f)", x1, x2);
+        }
+      }
+    
+      public QuadraticEquationSolver(double a, double b, double c) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+      }
+    
+      public Solutions solve() {
+        return new Solutions(
+            (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
+            (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
+        );
+      }
     }
-
-    public String toString() {
-      return String.format("(%f,%f)", x1, x2);
-    }
-  }
-
-  public QuadraticEquationSolver(double a, double b, double c) {
-    this.a = a;
-    this.b = b;
-    this.c = c;
-  }
-
-  public Solutions solve() {
-    return new Solutions(
-        (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
-        (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
-    );
-  }
-}
 ```
 
 Did you already notice the bugs that this program has?
@@ -87,39 +88,41 @@ Try to find (and reproduce) these bugs using JCUnit and fix them.
 QuadraticEquationSolverTest is a test class for QuadraticEquationSolver class.
 
 ```
-package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.factor.FactorField;
-import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static junit.framework.Assert.assertEquals;
-
-@RunWith(JCUnit.class)
-public class QuadraticEquationSolverTest1 {
-	@FactorField
-	public int a;
-	@FactorField
-	public int b;
-	@FactorField
-	public int c;
-
-	@Test
-	public void test() {
-		QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
-				c).solve();
-		assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
-		assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
-	}
-}
+    package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
+    
+    import com.github.dakusui.jcunit.core.JCUnit;
+    import com.github.dakusui.jcunit.core.factor.FactorField;
+    import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
+    import org.junit.Test;
+    import org.junit.runner.RunWith;
+    
+    import static junit.framework.Assert.assertEquals;
+    
+    @RunWith(JCUnit.class)
+    public class QuadraticEquationSolverTest1 {
+        @FactorField
+        public int a;
+        @FactorField
+        public int b;
+        @FactorField
+        public int c;
+    
+        @Test
+        public void test() {
+            QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+                    c).solve();
+            assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
+            assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
+        }
+    }
 ```
 
 ### Maven coordinate
 Below is a pom.xml fragment to describe jcunit's dependency.
 
 ```
+
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
@@ -135,8 +138,9 @@ But this set is just a 'default' and you can customize it by using (overriding) 
 where 'xyz' is a primitive types.
 
 ```
-  @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
-  public int a;
+
+    @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
+    public int a;
 ```
 
 Below is an example of using the 'intLevels' attribute.
@@ -151,6 +155,7 @@ The method mustn't have any parameters and its return value must be an array of 
 Below is the example for that sort of function.
 
 ```
+
     @FactorField(levelsFactory = MethodLevelsFactory.class)
 	public int a;
 	
@@ -168,14 +173,15 @@ Add parameter 'generator = @Generator(IPO2TestCaseGenerator.class)' explicitly t
 annotation for 'QuadraticEquationSolverTest1.java' and set the first parameter, which represents a 'strength'. 
 
 ```
-@RunWith(JCUnit.class)
-@TestCaseGeneration(
-		generator = @Generator(
-				value = IPO2TestCaseGenerator.class,
-				params = {
-						@Param(type = Param.Type.Int, array = false, value = {"3"})
-				}))
-public class QuadraticEquationSolverTest1 {
+
+    @RunWith(JCUnit.class)
+    @TestCaseGeneration(
+            generator = @Generator(
+                    value = IPO2TestCaseGenerator.class,
+                    params = {
+                            @Param(type = Param.Type.Int, array = false, value = {"3"})
+                    }))
+    public class QuadraticEquationSolverTest1 {
 ```
 
 In this example, the line
@@ -222,11 +228,12 @@ For this purpose, JCUnit has a mechanism called 'constraints manager'.
 To use a constraint manager, you can do below
 
 ```
-@RunWith(JCUnit.class)
-@TestCaseGeneration(
-    constraint = @Constraint(
-        value = QuadraticEquationSolverTestX.CM.class ))
-public class QuadraticEquationSolverTestX {
+
+    @RunWith(JCUnit.class)
+    @TestCaseGeneration(
+        constraint = @Constraint(
+            value = QuadraticEquationSolverTestX.CM.class ))
+    public class QuadraticEquationSolverTestX {
     ...
 ```
 
@@ -236,25 +243,26 @@ And if you want to exclude test cases that violate a discriminant of the quadrat
 not a linear, the definition of 'CM' would be
  
 ```
-  public static class CM extends ConstraintManagerBase {
-    @Override
-    public boolean check(Tuple tuple) throws JCUnitSymbolException {
-      if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
-          .containsKey("c")) {
-        throw new JCUnitSymbolException();
-      }
-      int a = (Integer) tuple.get("a");
-      int b = (Integer) tuple.get("b");
-      int c = (Integer) tuple.get("c");
-      return a != 0 && b * b - 4 * c * a >= 0;
+
+    public static class CM extends ConstraintManagerBase {
+        @Override
+        public boolean check(Tuple tuple) throws JCUnitSymbolException {
+          if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
+              .containsKey("c")) {
+            throw new JCUnitSymbolException();
+          }
+          int a = (Integer) tuple.get("a");
+          int b = (Integer) tuple.get("b");
+          int c = (Integer) tuple.get("c");
+          return a != 0 && b * b - 4 * c * a >= 0;
+        }
     }
-  }
 ```
 
 'ConstraintManagerBase' is a helper class that makes it easy to implement a ConstraintManager.
 All that you need is overriding 'boolean check(Tuple)' method.
 Since a test case is passed as a tuple, you need to use 'get' method of it.
-"a", "b", or "c" are the names of the field annotated with '@FactorField'. JCUnit accesses them using 'reflection' techniques of Java.
+"a", "b", or "c" are the names of the fields annotated with '@FactorField'. JCUnit accesses them using 'reflection' techniques of Java.
 JCUnit avoids using tuples for which check method of the specified constraint manager returns 'false'.
 
 # Tips 5: Writing test cases for error handling
@@ -268,12 +276,13 @@ verification procedures based on a test's 'sub-identifier'.
 First, by overriding method, return test cases that explicitly violate the constraint represented by the constraint manager class itself.
 
 ```
-  public static class CM extends ConstraintManagerBase {
+
+    public static class CM extends ConstraintManagerBase {
     @Override
     public boolean check(Tuple tuple) throws JCUnitSymbolException {
         ...
     }
-
+    
     @Override
     public List<Violation> getViolations() {
       List<Violation> ret = new LinkedList<Violation>();
@@ -282,11 +291,11 @@ First, by overriding method, return test cases that explicitly violate the const
       ret.add(createViolation("nonsense 1=0", createTestCase(0, 0, 1)));
       return ret;
     }
-
+    
     private Tuple createTestCase(int a, int b, int c) {
       return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
     }
-  }
+    }
 ```
 
 The method 'createViolation' is a helper method defined in 'ConstraintManagerBase', that returns a new 'Violation' object.
@@ -298,8 +307,9 @@ Now you enhance your test case so that it verifies the software under test behav
 Let's assume that the SUT should return null if one of the parameters 'a', 'b', or 'c' is not valid. 
 
 ```
-	@Test
-	public void test() {
+
+    @Test
+    public void test() {
         if ("a=0".equals(desc.getSubIdentifier())) {
           assertEquals(null, s);
         } else if ("b*b-4ca<0".equals(desc.getSubIdentifier())) {
@@ -311,8 +321,8 @@ Let's assume that the SUT should return null if one of the parameters 'a', 'b', 
                     c).solve();
             assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
             assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
-		}
-	}
+        }
+    }
 ```
 
 # Copyright and license #

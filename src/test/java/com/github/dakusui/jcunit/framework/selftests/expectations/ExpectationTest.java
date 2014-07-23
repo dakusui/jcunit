@@ -1,11 +1,8 @@
 package com.github.dakusui.jcunit.framework.selftests.expectations;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.constraint.ConstraintObserver;
-import com.github.dakusui.jcunit.constraint.Violation;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.utils.TestUtils;
@@ -13,7 +10,6 @@ import com.github.dakusui.jcunit.framework.utils.tuples.*;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;

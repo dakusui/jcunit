@@ -22,7 +22,7 @@ public class JCUnitTestDesc extends TestWatcher {
   }
 
   public Serializable getSubIdentifier() {
-    return this.id.idInType;
+    return null; //TODO
   }
 
   public String getTestName() {

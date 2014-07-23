@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 
 import com.github.dakusui.jcunit.constraint.Constraint;
-import com.github.dakusui.jcunit.constraint.Violation;
+import com.github.dakusui.jcunit.constraint.LabeledTestCase;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.Param.Type;
@@ -91,8 +91,8 @@ public class QuadraticEquationSolverTestX {
     }
 
     @Override
-    public List<Violation> getViolations() {
-      List<Violation> ret = new LinkedList<Violation>();
+    public List<LabeledTestCase> getViolations() {
+      List<LabeledTestCase> ret = new LinkedList<LabeledTestCase>();
       ret.add(createViolation("a=0", createTestCase(0, 1, 1)));
       ret.add(createViolation("b*b-4ca<0", createTestCase(100, 1, 100)));
       ret.add(createViolation("nonsense 1=0", createTestCase(0, 0, 1)));

@@ -17,14 +17,16 @@ import java.util.List;
 
 class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final Tuple testCase;
-  private final JCUnitTestCaseIdentifier id;
+  private final int id;
+  private final JCUnitTestCaseIdentifier labels;
 
-  JCUnitRunner(Class<?> clazz, JCUnitTestCaseType testType, Serializable idInType, Tuple testCase)
+  JCUnitRunner(Class<?> clazz, JCUnitTestCaseType testType, int id, List<Serializable> labels, Tuple testCase)
       throws InitializationError {
     super(clazz);
     Utils.checknotnull(testCase);
     this.testCase = testCase;
-    id = new JCUnitTestCaseIdentifier(testType, idInType);
+    this.id = id;
+    this.labels = new JCUnitTestCaseIdentifier(testType, labels);
   }
 
   @Override
@@ -42,12 +44,12 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 
   @Override
   protected String getName(){
-    return String.format("[%s]", this.id.toString());
+    return String.format("[%d]", this.id);
   }
 
   @Override
   protected String testName(final FrameworkMethod method) {
-    return String.format("%s[%s]", method.getName(),  this.id.toString());
+    return String.format("%s[%d]", method.getName(),  this.id);
   }
 
   @Override
@@ -62,10 +64,9 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 
     Annotation[] work = method.getAnnotations();
     ArrayList<Annotation> annotations = new ArrayList<Annotation>(work.length + 1);
-    annotations.add(new JCUnitTestCaseInternalAnnotation(this.id));
+    annotations.add(new JCUnitTestCaseInternalAnnotation(this.labels));
     Collections.addAll(annotations, work);
     return Description.createTestDescription(getTestClass().getJavaClass(),
         testName(method), annotations.toArray(new Annotation[annotations.size()]));
   }
-
 }
