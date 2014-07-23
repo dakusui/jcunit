@@ -2,12 +2,10 @@ package com.github.dakusui.jcunit.constraint.constraintmanagers;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
-import com.github.dakusui.jcunit.constraint.LabeledTestCase;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.LabeledTestCase;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -63,9 +61,4 @@ public abstract class ConstraintManagerBase implements ConstraintManager {
     return Collections.emptyList();
   }
 
-  protected LabeledTestCase createViolation(Serializable id, Tuple testCase) {
-    Utils.checknotnull(id);
-    Utils.checknotnull(testCase);
-    return new LabeledTestCase.Builder().addLabels(id).setTestCase(testCase).build();
-  }
 }

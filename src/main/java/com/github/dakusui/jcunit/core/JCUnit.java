@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.constraint.LabeledTestCase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 import com.github.dakusui.jcunit.generators.TestCaseGeneratorFactory;
@@ -31,25 +30,22 @@ public class JCUnit extends Suite {
 		TestCaseGenerator testCaseGenerator = TestCaseGeneratorFactory.INSTANCE
 				.createTestCaseGenerator(klass);
 		int id;
-    // TODO implement 'label' feature.
 		for (id = 0; id < testCaseGenerator.size(); id++) {
 			runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-					JCUnitTestCaseType.Normal, id, new LinkedList<Serializable>(), testCaseGenerator.get(id)));
+					id, JCUnitTestCaseType.Normal, new LinkedList<Serializable>(), testCaseGenerator.get(id)));
 		}
-    // TODO
-		ConstraintManager cm = testCaseGenerator.getConstraintManager();
+    	ConstraintManager cm = testCaseGenerator.getConstraintManager();
 		final List<LabeledTestCase> violations = cm.getViolations();
 		for (LabeledTestCase violation : violations) {
 			runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-					JCUnitTestCaseType.Violation, id, violation.getLabels(),
+					id, JCUnitTestCaseType.Violation, violation.getLabels(),
 					violation.getTestCase()));
 			id++;
 		}
-    // TODO
 		if (hasParametersMethod()) {
-			for (Tuple tuple : allCustomTuples()) {
+			for (LabeledTestCase testCase : allCustomTestCases()) {
 				runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-						JCUnitTestCaseType.Custom, id, new LinkedList<Serializable>(), tuple));
+						id, JCUnitTestCaseType.Custom, testCase.getLabels(), testCase.getTestCase()));
 				id++;
 			}
 		}
@@ -61,10 +57,10 @@ public class JCUnit extends Suite {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Iterable<Tuple> allCustomTuples() throws Throwable {
+	private Iterable<LabeledTestCase> allCustomTestCases() throws Throwable {
 		Object parameters = getParametersMethod().invokeExplosively(null);
 		if (parameters instanceof Iterable) {
-			return (Iterable<Tuple>) parameters;
+			return (Iterable<LabeledTestCase>) parameters;
 		} else {
 			throw parametersMethodReturnedWrongType();
 		}

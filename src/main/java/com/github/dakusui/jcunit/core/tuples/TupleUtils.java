@@ -4,13 +4,15 @@ import com.github.dakusui.enumerator.CartesianEnumeratorAdaptor;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Domains;
 import com.github.dakusui.enumerator.tuple.AttrValue;
+import com.github.dakusui.jcunit.core.LabeledTestCase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 
+import java.io.Serializable;
 import java.util.*;
 
 public class TupleUtils {
-  public static class CartesianTuples extends CartesianEnumeratorAdaptor<Tuple, String, Object> {
+	public static class CartesianTuples extends CartesianEnumeratorAdaptor<Tuple, String, Object> {
 
     private final Tuple base;
 
@@ -81,15 +83,4 @@ public class TupleUtils {
     return t.isSubtupleOf(u);
   }
 
-  public static Tuple newTuple(AttrValue<String, Object>... attrs) {
-    Tuple.Builder b = new Tuple.Builder();
-    for (AttrValue<String, Object> attrValue : attrs) {
-      b.put(attrValue.attr(), attrValue.value());
-    }
-    return b.build();
-  }
-
-  public static AttrValue<String, Object> factorLevel(String name, Object level) {
-    return new AttrValue<String, Object>(name, level);
-  }
 }
