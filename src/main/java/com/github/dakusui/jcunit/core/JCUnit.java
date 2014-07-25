@@ -1,8 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.TestCaseGenerator;
+import com.github.dakusui.jcunit.generators.SchemafulTupleGenerator;
 import com.github.dakusui.jcunit.generators.TestCaseGeneratorFactory;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
@@ -27,14 +26,14 @@ public class JCUnit extends Suite {
 	 */
 	public JCUnit(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner>emptyList());
-		TestCaseGenerator testCaseGenerator = TestCaseGeneratorFactory.INSTANCE
+		SchemafulTupleGenerator schemafulTupleGenerator = TestCaseGeneratorFactory.INSTANCE
 				.createTestCaseGenerator(klass);
 		int id;
-		for (id = 0; id < testCaseGenerator.size(); id++) {
+		for (id = 0; id < schemafulTupleGenerator.size(); id++) {
 			runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-					id, JCUnitTestCaseType.Normal, new LinkedList<Serializable>(), testCaseGenerator.get(id)));
+					id, JCUnitTestCaseType.Normal, new LinkedList<Serializable>(), schemafulTupleGenerator.get(id)));
 		}
-    	ConstraintManager cm = testCaseGenerator.getConstraintManager();
+    	ConstraintManager cm = schemafulTupleGenerator.getConstraintManager();
 		final List<LabeledTestCase> violations = cm.getViolations();
 		for (LabeledTestCase violation : violations) {
 			runners.add(new JCUnitRunner(getTestClass().getJavaClass(),

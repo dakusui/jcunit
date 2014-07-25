@@ -7,8 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TestCaseGeneration {
-  public static enum Dummy {Dummy}
+public @interface SchemafulTupleGeneration {
   Generator generator() default @Generator();
 
   Constraint constraint() default @Constraint();

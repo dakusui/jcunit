@@ -15,7 +15,7 @@ import java.util.List;
  * Implementations of this interface must guarantee that a public constructor without
  * any parameters exists.
  */
-public interface TestCaseGenerator extends Iterator<Tuple>,
+public interface SchemafulTupleGenerator extends Iterator<Tuple>,
     Iterable<Tuple> {
 
   /**

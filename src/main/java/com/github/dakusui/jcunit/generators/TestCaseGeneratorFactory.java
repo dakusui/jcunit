@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.TestCaseGeneration;
+import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorField;
@@ -18,14 +18,14 @@ import java.util.List;
 public class TestCaseGeneratorFactory {
   public static final TestCaseGeneratorFactory INSTANCE = new TestCaseGeneratorFactory();
 
-  public TestCaseGenerator createTestCaseGenerator(Class<?> klazz) {
+  public SchemafulTupleGenerator createTestCaseGenerator(Class<?> klazz) {
     Utils.checknotnull(klazz);
     Factors factors = loadFactors(klazz);
-    TestCaseGeneration testCaseGenerationAnn = getTestCaseGenerationAnnotation(
+    SchemafulTupleGeneration schemafulTupleGenerationAnn = getTestCaseGenerationAnnotation(
         klazz);
-    Generator generatorAnn = testCaseGenerationAnn.generator();
-    TestCaseGenerator generator = createTestCaseGeneratorInstance(generatorAnn);
-    Constraint constraintAnn = testCaseGenerationAnn.constraint();
+    Generator generatorAnn = schemafulTupleGenerationAnn.generator();
+    SchemafulTupleGenerator generator = createTestCaseGeneratorInstance(generatorAnn);
+    Constraint constraintAnn = schemafulTupleGenerationAnn.constraint();
     ConstraintManager constraintManager = createConstraintManager(
         constraintAnn);
     ////
@@ -65,21 +65,21 @@ public class TestCaseGeneratorFactory {
     return factors;
   }
 
-  TestCaseGeneration getTestCaseGenerationAnnotation(Class<?> klazz) {
-    TestCaseGeneration ret;
-    if (klazz.isAnnotationPresent(TestCaseGeneration.class)) {
-      ret = klazz.getAnnotation(TestCaseGeneration.class);
+  SchemafulTupleGeneration getTestCaseGenerationAnnotation(Class<?> klazz) {
+    SchemafulTupleGeneration ret;
+    if (klazz.isAnnotationPresent(SchemafulTupleGeneration.class)) {
+      ret = klazz.getAnnotation(SchemafulTupleGeneration.class);
     } else {
-      ret = new TestCaseGeneration() {
+      ret = new SchemafulTupleGeneration() {
         @Override public Generator generator() {
           return Utils
-              .getDefaultValueOfAnnotation(TestCaseGeneration.class,
+              .getDefaultValueOfAnnotation(SchemafulTupleGeneration.class,
                   "generator");
         }
 
         @Override public Constraint constraint() {
           return Utils
-              .getDefaultValueOfAnnotation(TestCaseGeneration.class,
+              .getDefaultValueOfAnnotation(SchemafulTupleGeneration.class,
                   "constraint");
         }
 
@@ -96,14 +96,14 @@ public class TestCaseGeneratorFactory {
         }
 
         @Override public Class<? extends Annotation> annotationType() {
-          return TestCaseGeneration.class;
+          return SchemafulTupleGeneration.class;
         }
       };
     }
     return ret;
   }
 
-  TestCaseGenerator createTestCaseGeneratorInstance(
+  SchemafulTupleGenerator createTestCaseGeneratorInstance(
       Generator generatorAnn) {
     return Utils.createNewInstanceUsingNoParameterConstructor(
         generatorAnn.value());

@@ -2,18 +2,15 @@ package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 
 import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.generators.Generator;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.JCUnitTestDesc;
-import com.github.dakusui.jcunit.core.LabeledTestCase;
-import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.Param.Type;
-import com.github.dakusui.jcunit.core.TestCaseGeneration;
+import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
+import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -33,9 +30,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
-@TestCaseGeneration(
+@SchemafulTupleGeneration(
 		generator = @Generator(
-				value = IPO2TestCaseGenerator.class,
+				value = IPO2SchemafulTupleGenerator.class,
 				params = {
 						@Param(type = Type.Int, array = false, value = {"2"})
 				}),

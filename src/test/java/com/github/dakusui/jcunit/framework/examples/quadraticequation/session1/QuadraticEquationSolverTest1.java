@@ -1,20 +1,20 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
+import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
 import com.github.dakusui.jcunit.generators.Generator;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.TestCaseGeneration;
 import com.github.dakusui.jcunit.core.factor.FactorField;
-import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
+import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static junit.framework.Assert.assertEquals;
 
 @RunWith(JCUnit.class)
-@TestCaseGeneration(
+@SchemafulTupleGeneration(
 		generator = @Generator(
-				value = IPO2TestCaseGenerator.class,
+				value = IPO2SchemafulTupleGenerator.class,
 				params = {
 						@Param(type = Param.Type.Int, array = false, value = {"2"})
 				}))
