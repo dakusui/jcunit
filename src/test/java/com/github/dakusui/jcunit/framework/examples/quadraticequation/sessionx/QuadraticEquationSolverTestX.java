@@ -2,14 +2,13 @@ package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 
 import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.Generator;
+import com.github.dakusui.jcunit.generators.Generator;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.JCUnitTestDesc;
 import com.github.dakusui.jcunit.core.LabeledTestCase;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.Param.Type;
 import com.github.dakusui.jcunit.core.TestCaseGeneration;
-import com.github.dakusui.jcunit.core.TestCaseUtils;
 import com.github.dakusui.jcunit.core.factor.FactorField;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;

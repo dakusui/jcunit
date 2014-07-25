@@ -1,5 +1,6 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.generators;
 
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.generators.IPO2TestCaseGenerator;
 import com.github.dakusui.jcunit.generators.TestCaseGenerator;
 

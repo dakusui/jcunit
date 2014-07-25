@@ -146,7 +146,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark5_4$1_3$30_2$35() {
+  public void benchmark4_4$1_3$30_2$35() {
     Factors factors = buildFactors(factorsDef(4, 1), factorsDef(3, 30),
         factorsDef(2, 35));
     ConstraintManager constraintManager = createConstraintManager();
@@ -159,7 +159,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark6_2$100() {
+  public void benchmark5_2$100() {
     Factors factors = buildFactors(factorsDef(2, 100));
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
@@ -171,7 +171,7 @@ public class BenchMark extends IPO2Test {
   }
 
   @Test
-  public void benchmark7_10$20() {
+  public void benchmark6_10$20() {
     Factors factors = buildFactors(factorsDef(10, 20));
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();

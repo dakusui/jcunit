@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
-import com.github.dakusui.jcunit.core.Generator;
+import com.github.dakusui.jcunit.generators.Generator;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.TestCaseGeneration;
