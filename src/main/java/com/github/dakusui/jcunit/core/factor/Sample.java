@@ -10,7 +10,7 @@ public class Sample {
   Object obj;
 
   @FactorField(levelsFactory = DefaultLevelsFactory.class,
-      factoryParameters = { @Param({ "Hello", "world" })})
+      factoryParams = { @Param({ "Hello", "world" }) })
   int test;
 
   @FactorField(intLevels = { 1, 2, 100 })

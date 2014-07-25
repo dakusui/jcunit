@@ -49,5 +49,5 @@ public @interface FactorField {
 
   public Class<? extends LevelsFactory> levelsFactory() default LevelsFactory.class;
 
-  public Param[] factoryParameters() default { };
+  public Param[] factoryParams() default { };
 }

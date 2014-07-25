@@ -172,7 +172,7 @@ public class FactorLoader {
     if (errors.isEmpty()) {
       levelsFactory.setAnnotation(ann);
       levelsFactory.setTargetField(field);
-      levelsFactory.init(Utils.processParams(ann.factoryParameters()));
+      levelsFactory.init(Utils.processParams(ann.factoryParams()));
       ret = new ValidationResult(true, levelsFactory, null);
     } else {
       ret = new ValidationResult(false, null,
