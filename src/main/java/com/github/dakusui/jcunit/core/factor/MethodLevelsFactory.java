@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-public class MethodLevelsFactory extends LevelsFactoryBase<Object> {
+public class MethodLevelsFactory<T> extends LevelsFactoryBase<T> {
   private Object levels;
   private int    size;
 
@@ -78,7 +78,7 @@ public class MethodLevelsFactory extends LevelsFactoryBase<Object> {
     return this.size;
   }
 
-  @Override public Object get(int index) {
-    return Array.get(levels, index);
+  @Override public T get(int index) {
+    return (T) Array.get(levels, index);
   }
 }

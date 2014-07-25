@@ -40,7 +40,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   public Object createTest() throws Exception {
     TestClass klazz = getTestClass();
     Object ret = klazz.getJavaClass().newInstance();
-    Utils.initializeTestObject(ret, testCase);
+    Utils.initializeObjectWithSchemafulTuple(ret, testCase);
     return ret;
   }
 

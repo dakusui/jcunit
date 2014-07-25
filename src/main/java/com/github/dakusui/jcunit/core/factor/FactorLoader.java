@@ -133,7 +133,7 @@ public class FactorLoader {
           // Get 'get(int)' method to check if it returns a value of appropriate type later.
           Method getMethod = levelsFactory.getClass().getMethod("get",
               Integer.TYPE);
-          levelType = getMethod.getReturnType();
+          Utils.checknotnull(getMethod, "Something went wrong.");
         } catch (NoSuchMethodException e) {
           ////
           // This can only happen due to JCUnit side's bugs, so simply an exception will be thrown.
@@ -146,10 +146,15 @@ public class FactorLoader {
         // Other than 'levelsFactory' method (like 'intLevels') is overridden.
         levelsFactory = new DefaultLevelsFactory(method);
         levelType = method.getReturnType().getComponentType();
-      }
-      Utils.checknotnull(levelType);
-      if (!fieldType.isAssignableFrom(levelType)) {
-        errors.add(String.format("'%s' values can't be assigned to '%s' field.", levelType, field));
+        Utils.checknotnull(levelType);
+        ////
+        // We cannot check if levelsFactory's returned type.
+        // E.g., see. MethodLevelsFactory. I don't want to force users to specify
+        //       one of various method levels factories implemented for all the
+        //       supported types.
+        if (!fieldType.isAssignableFrom(levelType)) {
+          errors.add(String.format("'%s' values can't be assigned to '%s' field.", levelType, field));
+        }
       }
     } else {
       if (Enum.class.isAssignableFrom(fieldType)) {

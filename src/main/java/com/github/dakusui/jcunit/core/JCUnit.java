@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.generators.SchemafulTupleGenerator;
-import com.github.dakusui.jcunit.generators.TestCaseGeneratorFactory;
+import com.github.dakusui.jcunit.generators.SchemafulTupleGeneratorFactory;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
@@ -26,8 +26,8 @@ public class JCUnit extends Suite {
 	 */
 	public JCUnit(Class<?> klass) throws Throwable {
 		super(klass, Collections.<Runner>emptyList());
-		SchemafulTupleGenerator schemafulTupleGenerator = TestCaseGeneratorFactory.INSTANCE
-				.createTestCaseGenerator(klass);
+		SchemafulTupleGenerator schemafulTupleGenerator = SchemafulTupleGeneratorFactory.INSTANCE
+				.createSchemafulTupleGeneratorFromClass(klass);
 		int id;
 		for (id = 0; id < schemafulTupleGenerator.size(); id++) {
 			runners.add(new JCUnitRunner(getTestClass().getJavaClass(),

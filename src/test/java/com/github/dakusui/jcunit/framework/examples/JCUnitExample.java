@@ -13,10 +13,10 @@ import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class JCUnitExample {
-  @FactorField
+  @FactorField(levelsFactory = MethodLevelsFactory.class)
   public int     f1;
   @FactorField(levelsFactory = MethodLevelsFactory.class)
-  public int     f2;
+  public long    f2;
   @FactorField
   private Calc.Op op;
 
@@ -27,10 +27,13 @@ public class JCUnitExample {
           params = {@Param(type = Param.Type.Int, array = false, value = "2")}
       )
   )
-  public Struct struct;
+  private Struct struct;
 
-  public static int[] f2() {
+  public static int[] f1() {
     return new int[] { 1, 2, 3 };
+  }
+  public static long[] f2() {
+    return new long[] { 1, 2, 3 };
   }
 
   @Test
@@ -39,12 +42,18 @@ public class JCUnitExample {
     String result = "(N/A)";
     Exception e = null;
     try {
-      result = Integer.toString(calc.calc(this.op, f1, f2));
+      result = Integer.toString(calc.calc(this.op, f1, (int) f2));
     } catch (Exception ee) {
       e = ee;
     }
-    System.out.println(String.format("f1=%d, op=%s, f2=%d = %s", f1, op, f2,
-        result));
+    System.out.println(
+        String.format(
+            "f1=%d, op=%s, f2=%d = %s ; struct = (%s)",
+            f1,
+            op,
+            f2,
+            result,
+            struct));
     if (e != null) {
       throw e;
     }

@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Utils {
 
-  public static void initializeTestObject(Object testObject,
+  public static void initializeObjectWithSchemafulTuple(Object testObject,
       Tuple tuple) {
     for (String fieldName : tuple.keySet()) {
       Field f;
@@ -38,7 +38,7 @@ public class Utils {
     Utils.checknotnull(fieldName);
     Field ret;
     try {
-      ret = clazz.getField(fieldName);
+      ret = clazz.getDeclaredField(fieldName);
     } catch (SecurityException e) {
       String msg = String.format(
           "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
@@ -187,7 +187,7 @@ public class Utils {
 
   public static Field[] getAnnotatedFields(Class<?> clazz,
       Class<? extends Annotation> annClass) {
-    Field[] declaerdFields = clazz.getFields();
+    Field[] declaerdFields = clazz.getDeclaredFields();
     List<Field> ret = new ArrayList<Field>(declaerdFields.length);
     for (Field f : declaerdFields) {
       if (f.getAnnotation(annClass) != null) {

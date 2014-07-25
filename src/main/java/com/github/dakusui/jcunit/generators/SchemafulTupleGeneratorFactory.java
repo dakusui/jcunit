@@ -11,20 +11,35 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 
-public class TestCaseGeneratorFactory {
-  public static final TestCaseGeneratorFactory INSTANCE = new TestCaseGeneratorFactory();
+public class SchemafulTupleGeneratorFactory {
+  public static final SchemafulTupleGeneratorFactory INSTANCE = new SchemafulTupleGeneratorFactory();
 
-  public SchemafulTupleGenerator createTestCaseGenerator(Class<?> klazz) {
+  /**
+   * Creates a {@code SchemafulTupleGenerator} using annotations attached to the class
+   * for which the returned generator is created.
+   */
+  public SchemafulTupleGenerator createSchemafulTupleGeneratorFromClass(Class<?> klazz) {
     Utils.checknotnull(klazz);
-    Factors factors = loadFactors(klazz);
-    SchemafulTupleGeneration schemafulTupleGenerationAnn = getTestCaseGenerationAnnotation(
+    SchemafulTupleGeneration schemafulTupleGenerationAnn = getSchemafulTupleGenerationAnnotation(
         klazz);
+    return createSchemafulTupleGenerator(klazz, schemafulTupleGenerationAnn);
+  }
+
+  public SchemafulTupleGenerator createSchemafulTupleGeneratorForField(Field field) {
+    Utils.checknotnull(field);
+    SchemafulTupleGeneration schemafulTupleGenerationAnn = getSchemafulTupleGenerationAnnotation(field);
+    return createSchemafulTupleGenerator(field.getType(), schemafulTupleGenerationAnn);
+  }
+
+  private SchemafulTupleGenerator createSchemafulTupleGenerator(Class<?> klazz, SchemafulTupleGeneration schemafulTupleGenerationAnn) {
+    Factors factors = loadFactors(klazz);
     Generator generatorAnn = schemafulTupleGenerationAnn.generator();
-    SchemafulTupleGenerator generator = createTestCaseGeneratorInstance(generatorAnn);
+    SchemafulTupleGenerator generator = createSchemafulTupleGeneratorInstance(generatorAnn);
     Constraint constraintAnn = schemafulTupleGenerationAnn.constraint();
     ConstraintManager constraintManager = createConstraintManager(
         constraintAnn);
@@ -46,10 +61,6 @@ public class TestCaseGeneratorFactory {
     List<String> errors = new LinkedList<String>();
     for (Field f : fields) {
       FactorLoader factorLoader = new FactorLoader(f);
-      FactorLoader.ValidationResult validationResult = factorLoader.validate();
-      if (!validationResult.isValid()) {
-        errors.add(f.getName() + ":" + validationResult.getErrorMessage());
-      }
       Factor factor = factorLoader.getFactor();
       factorsBuilder.add(factor);
     }
@@ -65,10 +76,10 @@ public class TestCaseGeneratorFactory {
     return factors;
   }
 
-  SchemafulTupleGeneration getTestCaseGenerationAnnotation(Class<?> klazz) {
+  SchemafulTupleGeneration getSchemafulTupleGenerationAnnotation(AnnotatedElement annotatedElement) {
     SchemafulTupleGeneration ret;
-    if (klazz.isAnnotationPresent(SchemafulTupleGeneration.class)) {
-      ret = klazz.getAnnotation(SchemafulTupleGeneration.class);
+    if (annotatedElement.isAnnotationPresent(SchemafulTupleGeneration.class)) {
+      ret = annotatedElement.getAnnotation(SchemafulTupleGeneration.class);
     } else {
       ret = new SchemafulTupleGeneration() {
         @Override public Generator generator() {
@@ -103,7 +114,7 @@ public class TestCaseGeneratorFactory {
     return ret;
   }
 
-  SchemafulTupleGenerator createTestCaseGeneratorInstance(
+  SchemafulTupleGenerator createSchemafulTupleGeneratorInstance(
       Generator generatorAnn) {
     return Utils.createNewInstanceUsingNoParameterConstructor(
         generatorAnn.value());
