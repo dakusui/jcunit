@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
+import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 
 import java.lang.reflect.Field;
@@ -8,7 +9,8 @@ public abstract class LevelsFactoryBase<T> implements LevelsFactory<T> {
   private Field       targetField;
   private FactorField annotation;
 
-  @Override final public void init(Object[] parameters) {
+  @Override
+  final public void init(Object[] parameters) {
     Utils.checknotnull(this.annotation);
     Utils.checknotnull(this.targetField);
 

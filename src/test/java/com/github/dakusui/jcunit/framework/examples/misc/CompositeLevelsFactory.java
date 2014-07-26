@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.framework.examples.misc;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.factor.LevelsFactoryBase;
 import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.framework.examples;
 
-import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.core.FactorField;
 
 public class Struct {
   @SuppressWarnings("unused")

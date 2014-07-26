@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.framework.tests.core;
 
-import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.core.FactorField;
 
 /**
  */

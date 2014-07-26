@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
 import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
-import com.github.dakusui.jcunit.generators.Generator;
+import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;

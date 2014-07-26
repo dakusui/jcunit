@@ -3,10 +3,10 @@ package com.github.dakusui.jcunit.framework.examples;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
-import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsFactory;
 import com.github.dakusui.jcunit.framework.examples.calc.Calc;
-import com.github.dakusui.jcunit.generators.Generator;
+import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,9 +14,9 @@ import org.junit.runner.RunWith;
 @RunWith(JCUnit.class)
 public class JCUnitExample {
   @FactorField(levelsFactory = MethodLevelsFactory.class)
-  public int     f1;
+  public  int     f1;
   @FactorField(levelsFactory = MethodLevelsFactory.class)
-  public long    f2;
+  public  long    f2;
   @FactorField
   private Calc.Op op;
 
@@ -24,14 +24,14 @@ public class JCUnitExample {
   @SchemafulTupleGeneration(
       generator = @Generator(
           value = IPO2SchemafulTupleGenerator.class,
-          params = {@Param(type = Param.Type.Int, array = false, value = "2")}
-      )
-  )
+          params = { @Param(type = Param.Type.Int, array = false, value = "2") }
+      ))
   private Struct struct;
 
   public static int[] f1() {
     return new int[] { 1, 2, 3 };
   }
+
   public static long[] f2() {
     return new long[] { 1, 2, 3 };
   }

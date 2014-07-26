@@ -3,14 +3,15 @@ package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.generators.Generator;
+import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.core.Param.Type;
 import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
-import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
+import com.github.dakusui.jcunit.core.TestExecution;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -40,6 +41,7 @@ import static org.junit.Assert.assertThat;
 				value = QuadraticEquationSolverTestX.CM.class,
 				params = {
 				}))
+@TestExecution(include = {0,1,2})
 public class QuadraticEquationSolverTestX {
 	@Rule
 	public TestName name = new TestName();

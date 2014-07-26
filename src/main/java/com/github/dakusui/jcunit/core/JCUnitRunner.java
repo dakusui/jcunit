@@ -20,12 +20,14 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final int id;
   private final JCUnitTestCaseType type;
 	private final List<Serializable> labels;
+  private final JCUnitTestCaseFilter filter;
 
-  JCUnitRunner(Class<?> clazz, int id, JCUnitTestCaseType testType, List<Serializable> labels, Tuple testCase)
+  JCUnitRunner(Class<?> clazz, JCUnitTestCaseFilter filter, int id, JCUnitTestCaseType testType, List<Serializable> labels, Tuple testCase)
       throws InitializationError {
     super(clazz);
     Utils.checknotnull(testCase);
     this.testCase = testCase;
+    this.filter = filter;
     this.id = id;
     this.type = testType;
 	  this.labels = Collections.unmodifiableList(labels);
