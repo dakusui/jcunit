@@ -9,6 +9,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Utils {
@@ -193,6 +195,12 @@ public class Utils {
         ret.add(f);
       }
     }
+    Collections.sort(ret, new Comparator<Field>() {
+      @Override
+      public int compare(Field o1, Field o2) {
+        return o1.getName().compareTo(o2.getName());
+      }
+    });
     return ret.toArray(new Field[ret.size()]);
   }
 

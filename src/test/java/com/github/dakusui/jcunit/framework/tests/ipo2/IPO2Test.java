@@ -21,11 +21,11 @@ public abstract class IPO2Test {
     return new Factor(name, Arrays.asList(factors));
   }
 
-  static FactorsDef factorsDef(int l, int f) {
+  protected static FactorsDef factorsDef(int l, int f) {
     return new FactorsDef(l, f);
   }
 
-  static Factors buildFactors(FactorsDef... factorsDefs) {
+  protected static Factors buildFactors(FactorsDef... factorsDefs) {
     Factors.Builder fb = new Factors.Builder();
     char ch = 'A';
     for (FactorsDef fd : factorsDefs) {
