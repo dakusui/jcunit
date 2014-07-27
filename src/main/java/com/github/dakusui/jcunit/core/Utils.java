@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.core;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.sun.istack.internal.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -144,9 +145,14 @@ public class Utils {
   }
 
   public static <T> T checknotnull(T obj, String msgOrFmt, Object... args) {
-    if (msgOrFmt == null) checknotnull(obj);
+    if (msgOrFmt == null) {
+      checknotnull(obj);
+    }
     if (obj == null) {
-      throw new NullPointerException(String.format(msgOrFmt, args));
+      if (msgOrFmt != null)
+        throw new NullPointerException(String.format(msgOrFmt, args));
+      else
+        throw new NullPointerException(String.format("info(%s)", Utils.join(",", args)));
     }
     return obj;
   }
@@ -158,9 +164,13 @@ public class Utils {
     }
   }
 
-  public static void checkcond(boolean b, String msgOrFmt, Object... args) {
+  public static void checkcond(boolean b, @Nullable String msgOrFmt, Object... args) {
     if (!b) {
-      throw new IllegalStateException(String.format(msgOrFmt, args));
+      if (msgOrFmt != null)
+        throw new IllegalStateException(String.format(msgOrFmt, args));
+      else {
+        throw new IllegalStateException(String.format("info(%s)", Utils.join(",", args)));
+      }
     }
   }
 
@@ -208,6 +218,7 @@ public class Utils {
     return new Tuple.Builder().putAll(tuple).setUnmodifiable(true).build();
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> T invokeMethod(Object on, Method m, Object... parameters) {
     try {
       return (T) m.invoke(on, parameters);
@@ -244,6 +255,7 @@ public class Utils {
     return ret;
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> T getDefaultValueOfAnnotation(
       Class<? extends Annotation> klazz, String method) {
     checknotnull(klazz);

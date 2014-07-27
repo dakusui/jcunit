@@ -32,7 +32,7 @@ public class JCUnit extends Suite {
     JCUnitTestCaseFilter filter = createTestCaseFilter(klass);
 		for (id = 0; id < schemafulTupleGenerator.size(); id++) {
       if (filter.shouldBeExecuted(id)) {
-        runners.add(new JCUnitRunner(getTestClass().getJavaClass(), filter,
+        runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
             id, JCUnitTestCaseType.Normal, new LinkedList<Serializable>(), schemafulTupleGenerator.get(id)));
       }
 		}
@@ -40,7 +40,7 @@ public class JCUnit extends Suite {
 		final List<LabeledTestCase> violations = cm.getViolations();
 		for (LabeledTestCase violation : violations) {
       if (filter.shouldBeExecuted(id)) {
-        runners.add(new JCUnitRunner(getTestClass().getJavaClass(), filter,
+        runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
             id, JCUnitTestCaseType.Violation, violation.getLabels(),
             violation.getTestCase()));
       }
@@ -49,7 +49,7 @@ public class JCUnit extends Suite {
 		if (hasParametersMethod()) {
 			for (LabeledTestCase testCase : allCustomTestCases()) {
         if (filter.shouldBeExecuted(id)) {
-          runners.add(new JCUnitRunner(getTestClass().getJavaClass(), filter,
+          runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
               id, JCUnitTestCaseType.Custom, testCase.getLabels(), testCase.getTestCase()));
         }
 				id++;
