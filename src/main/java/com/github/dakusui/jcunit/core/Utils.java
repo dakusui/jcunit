@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.core;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.sun.istack.internal.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -149,10 +148,11 @@ public class Utils {
       checknotnull(obj);
     }
     if (obj == null) {
-      if (msgOrFmt != null)
+      if (msgOrFmt != null) {
         throw new NullPointerException(String.format(msgOrFmt, args));
-      else
+      } else {
         throw new NullPointerException(String.format("info(%s)", Utils.join(",", args)));
+      }
     }
     return obj;
   }
@@ -164,11 +164,11 @@ public class Utils {
     }
   }
 
-  public static void checkcond(boolean b, @Nullable String msgOrFmt, Object... args) {
+  public static void checkcond(boolean b, String msgOrFmt, Object... args) {
     if (!b) {
-      if (msgOrFmt != null)
+      if (msgOrFmt != null) {
         throw new IllegalStateException(String.format(msgOrFmt, args));
-      else {
+      } else {
         throw new IllegalStateException(String.format("info(%s)", Utils.join(",", args)));
       }
     }
