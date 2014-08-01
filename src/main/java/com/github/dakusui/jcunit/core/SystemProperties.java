@@ -39,8 +39,4 @@ public class SystemProperties {
     }
     return ret;
   }
-
-  public static void jcunitBaseDir(String basedir) {
-    System.setProperty("jcunit.basedir", basedir);
-  }
 }

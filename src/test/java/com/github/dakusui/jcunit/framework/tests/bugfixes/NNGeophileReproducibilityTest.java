@@ -2,9 +2,8 @@ package com.github.dakusui.jcunit.framework.tests.bugfixes;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.JCUnitTestDesc;
+import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.TestExecution;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 @TestExecution(include = { 0, 3, 7, 10, 11, 20, 25, 29, 32, 35, 36 })
 public class NNGeophileReproducibilityTest {
   @Rule
-  public JCUnitTestDesc testDesc = new JCUnitTestDesc();
+  public JCUnitDesc testDesc = new JCUnitDesc();
   @FactorField(stringLevels = { "INCLUDED", "EXCLUDED" })
   public String  duplicates;
   @FactorField(doubleLevels = { 1, 64, 1024, 1000000 })

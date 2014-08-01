@@ -3,22 +3,23 @@ package com.github.dakusui.jcunit.core.tuples;
 import com.github.dakusui.enumerator.CartesianEnumeratorAdaptor;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Domains;
-import com.github.dakusui.enumerator.tuple.AttrValue;
-import com.github.dakusui.jcunit.core.LabeledTestCase;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.exceptions.SavedObjectBrokenException;
 
-import java.io.Serializable;
+import java.io.*;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class TupleUtils {
-	public static class CartesianTuples extends CartesianEnumeratorAdaptor<Tuple, String, Object> {
+  public static class CartesianTuples extends CartesianEnumeratorAdaptor<Tuple, String, Object> {
 
     private final Tuple base;
 
     protected CartesianTuples(Tuple base, final Factor... factors) {
       super(new Domains<String, Object>() {
-        @Override public List<String> getDomainNames() {
+        @Override
+        public List<String> getDomainNames() {
           List<String> ret = new ArrayList<String>(factors.length);
           for (Factor f : factors) {
             ret.add(f.name);
@@ -26,10 +27,13 @@ public class TupleUtils {
           return ret;
         }
 
-        @Override public List<Object> getDomain(String s) {
+        @Override
+        public List<Object> getDomain(String s) {
           Utils.checknotnull(s);
           for (Factor f : factors) {
-            if (s.equals(f.name)) return f.levels;
+            if (s.equals(f.name)) {
+              return f.levels;
+            }
           }
           return null;
         }
@@ -37,7 +41,8 @@ public class TupleUtils {
       this.base = Utils.checknotnull(base);
     }
 
-    @Override protected Tuple createMap() {
+    @Override
+    protected Tuple createMap() {
       return base.cloneTuple();
     }
   }
@@ -83,4 +88,72 @@ public class TupleUtils {
     return t.isSubtupleOf(u);
   }
 
+  public static Tuple unmodifiableTuple(Tuple tuple) {
+    Utils.checknotnull(tuple);
+    return new Tuple.Builder().putAll(tuple).setUnmodifiable(true).build();
+  }
+
+  public static String toString(Tuple tuple) {
+    Utils.checknotnull(tuple);
+    return tupleToString(tuple);
+  }
+
+  private static String escape(Object v) {
+    String ret = v.toString();
+    ret = ret.replaceAll("\\\\", "\\\\\\\\");
+    ret = ret.replaceAll("\"", "\\\\\"");
+    return ret;
+  }
+
+  private static String arrToString(Object v) {
+    int len = Array.getLength(v);
+    StringBuilder b = new StringBuilder();
+    b.append('[');
+    for (int i = 0; i < len; i++) {
+      if (i > 0) {
+        b.append(',');
+      }
+      b.append(valueToString(Array.get(v, i)));
+    }
+    b.append(']');
+    return b.toString();
+  }
+
+  private static String tupleToString(Tuple tuple) {
+    StringBuilder b = new StringBuilder();
+    Set<String> keySet = tuple.keySet();
+    b.append('{');
+    boolean firstTime = true;
+    for (String k : keySet) {
+      if (!firstTime) {
+        b.append(',');
+      }
+      Object v = tuple.get(k);
+      b.append(String.format("\"%s\":%s", escape(k),
+          valueToString(v)
+      ));
+      firstTime = false;
+    }
+    b.append('}');
+    return b.toString();
+  }
+
+  private static String valueToString(Object v) {
+    return v == null ? null
+        : v instanceof Tuple ? tupleToString((Tuple) v)
+        : v.getClass().isArray() ? arrToString(v)
+        : String.format("\"%s\"", escape(v));
+  }
+
+  public static void save(Tuple tuple, OutputStream os) {
+    Utils.save(tuple, os);
+  }
+
+  public static Tuple load(InputStream is) {
+    Object obj = Utils.load(is);
+    if (obj instanceof Tuple) {
+      return (Tuple)obj;
+    }
+    throw new SavedObjectBrokenException(String.format("Saved object wasn't a tuple (%s)", obj.getClass().getCanonicalName()), null);
+  }
 }

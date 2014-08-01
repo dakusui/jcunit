@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -214,10 +215,6 @@ public class Utils {
     return ret.toArray(new Field[ret.size()]);
   }
 
-  public static Tuple unmodifiableTuple(Tuple tuple) {
-    return new Tuple.Builder().putAll(tuple).setUnmodifiable(true).build();
-  }
-
   @SuppressWarnings("unchecked")
   public static <T> T invokeMethod(Object on, Method m, Object... parameters) {
     try {
@@ -303,4 +300,83 @@ public class Utils {
 
     public String format(T elem);
   }
+
+  public static File baseDirFor(Class<?> testClass) {
+    Utils.checknotnull(testClass);
+    return new File(SystemProperties.jcunitBaseDir(), testClass.getCanonicalName());
+  }
+
+  public static BufferedOutputStream openForWrite(File f) {
+    BufferedOutputStream ret = null;
+    try {
+      ret = new BufferedOutputStream(new FileOutputStream(f));
+    } catch (FileNotFoundException e) {
+      rethrow(e);
+    }
+    return ret;
+  }
+
+  public static BufferedInputStream openForRead(File f) {
+    BufferedInputStream ret = null;
+    try {
+      ret = new BufferedInputStream(new FileInputStream(f));
+    } catch (FileNotFoundException e) {
+      rethrow(e);
+    }
+    return ret;
+  }
+
+  public static void close(Closeable stream) {
+    try {
+      stream.close();
+    } catch (IOException e) {
+      rethrow(e);
+    }
+  }
+
+  public static void save(Object obj, File to) {
+    BufferedOutputStream bos;
+    bos = Utils.openForWrite(to);
+    try {
+      save(obj, bos);
+    } finally {
+      Utils.close(bos);
+    }
+  }
+
+  public static void save(Object obj, OutputStream os) {
+    Utils.checknotnull(obj);
+    Utils.checknotnull(os);
+
+    try {
+      ObjectOutputStream oos = new ObjectOutputStream(os);
+      try {
+        oos.writeObject(obj);
+      } finally {
+        oos.close();
+      }
+    } catch (IOException e) {
+      Utils.rethrow(e);
+    }
+  }
+
+  public static Object load(InputStream is) {
+    Utils.checknotnull(is);
+    Tuple ret = null;
+    try {
+      ObjectInputStream ois = new ObjectInputStream(is);
+      try {
+        ret = (Tuple) ois.readObject();
+      } catch (ClassNotFoundException e) {
+        Utils.rethrow(e);
+      } finally {
+        ois.close();
+      }
+    } catch (IOException e) {
+      Utils.rethrow(e);
+    }
+    return ret;
+  }
+
+
 }

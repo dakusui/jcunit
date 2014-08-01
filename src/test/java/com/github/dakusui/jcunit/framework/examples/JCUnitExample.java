@@ -1,18 +1,19 @@
 package com.github.dakusui.jcunit.framework.examples;
 
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsFactory;
+import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.framework.examples.calc.Calc;
-import com.github.dakusui.jcunit.core.Generator;
 import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class JCUnitExample {
+  @Rule
+  public JCUnitDesc testDesc = new JCUnitDesc();
+
   @FactorField(levelsFactory = MethodLevelsFactory.class)
   public  int     f1;
   @FactorField(levelsFactory = MethodLevelsFactory.class)
@@ -46,6 +47,8 @@ public class JCUnitExample {
     } catch (Exception ee) {
       e = ee;
     }
+    System.out.println(testDesc.getTestName());
+
     System.out.println(
         String.format(
             "f1=%d, op=%s, f2=%d = %s ; struct = (%s)",
