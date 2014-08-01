@@ -29,41 +29,41 @@ public class JCUnit extends Suite {
 		SchemafulTupleGenerator schemafulTupleGenerator = SchemafulTupleGeneratorFactory.INSTANCE
 				.createSchemafulTupleGeneratorFromClass(klass);
 		int id;
-    JCUnitTestCaseFilter filter = createTestCaseFilter(klass);
+		JCUnitTestCaseFilter filter = createTestCaseFilter(klass);
 		for (id = 0; id < schemafulTupleGenerator.size(); id++) {
-      if (filter.shouldBeExecuted(id)) {
-        runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-            id, JCUnitTestCaseType.Normal, new LinkedList<Serializable>(), schemafulTupleGenerator.get(id)));
-      }
+			if (filter.shouldBeExecuted(id)) {
+				runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
+						id, JCUnitTestCaseType.Normal, new LinkedList<Serializable>(), schemafulTupleGenerator.get(id)));
+			}
 		}
-    	ConstraintManager cm = schemafulTupleGenerator.getConstraintManager();
+		ConstraintManager cm = schemafulTupleGenerator.getConstraintManager();
 		final List<LabeledTestCase> violations = cm.getViolations();
 		for (LabeledTestCase violation : violations) {
-      if (filter.shouldBeExecuted(id)) {
-        runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-            id, JCUnitTestCaseType.Violation, violation.getLabels(),
-            violation.getTestCase()));
-      }
+			if (filter.shouldBeExecuted(id)) {
+				runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
+						id, JCUnitTestCaseType.Violation, violation.getLabels(),
+						violation.getTestCase()));
+			}
 			id++;
 		}
 		if (hasParametersMethod()) {
 			for (LabeledTestCase testCase : allCustomTestCases()) {
-        if (filter.shouldBeExecuted(id)) {
-          runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-              id, JCUnitTestCaseType.Custom, testCase.getLabels(), testCase.getTestCase()));
-        }
+				if (filter.shouldBeExecuted(id)) {
+					runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
+							id, JCUnitTestCaseType.Custom, testCase.getLabels(), testCase.getTestCase()));
+				}
 				id++;
 			}
 		}
 	}
 
-  private JCUnitTestCaseFilter createTestCaseFilter(Class<?> klass) {
-    if (klass.isAnnotationPresent(TestExecution.class)) {
-      return JCUnitTestCaseFilter.createTestCaseFilter(klass.getAnnotation(TestExecution.class));
-    } else {
-      return JCUnitTestCaseFilter.createTestCaseFilter();
-    }
-  }
+	private JCUnitTestCaseFilter createTestCaseFilter(Class<?> klass) {
+		if (klass.isAnnotationPresent(TestExecution.class)) {
+			return JCUnitTestCaseFilter.createTestCaseFilter(klass.getAnnotation(TestExecution.class));
+		} else {
+			return JCUnitTestCaseFilter.createTestCaseFilter();
+		}
+	}
 
 	@Override
 	protected List<Runner> getChildren() {

@@ -11,8 +11,7 @@ import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
-import com.github.dakusui.jcunit.core.TestExecution;
+import com.github.dakusui.jcunit.generators.RecordedSchemafulTupleGenerator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -34,7 +33,7 @@ import static org.junit.Assert.assertThat;
 @RunWith(JCUnit.class)
 @SchemafulTupleGeneration(
 		generator = @Generator(
-				value = IPO2SchemafulTupleGenerator.class,
+				value = RecordedSchemafulTupleGenerator.class,
 				params = {
 						@Param(type = Type.Int, array = false, value = {"2"})
 				}),
@@ -42,7 +41,6 @@ import static org.junit.Assert.assertThat;
 				value = QuadraticEquationSolverTestX.CM.class,
 				params = {
 				}))
-@TestExecution(include = {0,1,2})
 public class QuadraticEquationSolverTestX {
   @Rule
   public TestName   name = new TestName();
