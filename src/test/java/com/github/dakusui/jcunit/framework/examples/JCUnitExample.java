@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsFactory;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.framework.examples.calc.Calc;
-import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
+import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,17 +15,17 @@ public class JCUnitExample {
   public JCUnitDesc testDesc = new JCUnitDesc();
 
   @FactorField(levelsFactory = MethodLevelsFactory.class)
-  public  int     f1;
+  public int     f1;
   @FactorField(levelsFactory = MethodLevelsFactory.class)
-  public  long    f2;
+  public long    f2;
   @FactorField
   public Calc.Op op;
 
   @SuppressWarnings("unused") // This field is used by JCUnit.
-  @FactorField(levelsFactory = SchemafulTupleLevelsFactory.class)
-  @SchemafulTupleGeneration(
+  @FactorField(levelsFactory = TupleLevelsFactory.class)
+  @TupleGeneration(
       generator = @Generator(
-          value = IPO2SchemafulTupleGenerator.class,
+          value = IPO2TupleGenerator.class,
           params = @Param("2")
       ))
   public Struct struct;

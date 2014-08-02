@@ -2,16 +2,16 @@ package com.github.dakusui.jcunit.framework.examples;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.JCUnitRecorder;
-import com.github.dakusui.jcunit.generators.RecordedSchemafulTuplePlayer;
+import com.github.dakusui.jcunit.generators.RecordedTuplePlayer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 ///*/
-@SchemafulTupleGeneration(
+@TupleGeneration(
     generator = @Generator(
-        value = RecordedSchemafulTuplePlayer.class,
+        value = RecordedTuplePlayer.class,
         params = @Param("FailedOnly")
     ))
 ///*/

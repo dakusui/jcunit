@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.factor.LevelsFactoryBase;
-import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
+import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 
 import java.lang.reflect.Field;
 
@@ -16,7 +16,7 @@ public class CompositeLevelsFactory<T> extends LevelsFactoryBase<T> {
 		Utils.checknotnull(targetField);
 		Factors factors = buildFactorsFromClass((Class<T>) targetField.getType());
 
-		IPO2SchemafulTupleGenerator generator = new IPO2SchemafulTupleGenerator();
+		IPO2TupleGenerator generator = new IPO2TupleGenerator();
 	}
 
 	@Override

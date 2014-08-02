@@ -40,7 +40,7 @@ public class Utils {
     Utils.checknotnull(fieldName);
     Field ret;
     try {
-      ret = clazz.getDeclaredField(fieldName);
+      ret = clazz.getField(fieldName);
     } catch (SecurityException e) {
       String msg = String.format(
           "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
@@ -201,9 +201,9 @@ public class Utils {
 
   public static Field[] getAnnotatedFields(Class<?> clazz,
       Class<? extends Annotation> annClass) {
-    Field[] declaerdFields = clazz.getDeclaredFields();
-    List<Field> ret = new ArrayList<Field>(declaerdFields.length);
-    for (Field f : declaerdFields) {
+    Field[] fields = clazz.getFields();
+    List<Field> ret = new ArrayList<Field>(fields.length);
+    for (Field f : fields) {
       if (f.getAnnotation(annClass) != null) {
         ret.add(f);
       }
@@ -293,9 +293,20 @@ public class Utils {
     public String format(T elem);
   }
 
-  public static File baseDirFor(Class<?> testClass) {
+  /**
+   * Returns a base directory for a given test class.
+   * If {@code parentDirectory} is null, the value set to the system property,
+   * The value {@code SystemProperties.jcunitBaseDir()} returns will be used.
+   */
+  public static File baseDirFor(String parentDirName, Class<?> testClass) {
     Utils.checknotnull(testClass);
-    return new File(SystemProperties.jcunitBaseDir(), testClass.getCanonicalName());
+    File parentDir;
+    if (parentDirName == null) {
+      parentDir = SystemProperties.jcunitBaseDir();
+    } else {
+      parentDir = new File(parentDirName);
+    }
+    return new File(parentDir, testClass.getCanonicalName());
   }
 
   public static BufferedOutputStream openForWrite(File f) {
@@ -338,7 +349,7 @@ public class Utils {
 
   /**
    * By default File#delete fails for non-empty directories, it works like "rm".
-   * We need something a little more brutual - this does the equivalent of "rm -r"
+   * We need something a little more brutal - this does the equivalent of "rm -r"
    *
    * This method is cited from the url indicated in the link.
    *

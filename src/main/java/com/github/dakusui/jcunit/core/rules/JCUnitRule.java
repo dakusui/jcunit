@@ -1,14 +1,11 @@
 package com.github.dakusui.jcunit.core.rules;
 
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.JCUnitTestCaseInternalAnnotation;
-import com.github.dakusui.jcunit.core.JCUnitTestCaseType;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,17 +13,20 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class JCUnitRule extends TestWatcher {
-  private Class<?>           testClass;
-  private String             testName;
-  private int                id;
-  private List<Serializable> labels;
-  private JCUnitTestCaseType type;
-  private Tuple              testCase;
+  private Class<?>            testClass;
+  private String              testName;
+  private int                 id;
+  private List<Serializable>  labels;
+  private JCUnit.TestCaseType type;
+  private Tuple               testCase;
 
   @Override
   protected void starting(Description d) {
-    JCUnitTestCaseInternalAnnotation ann = d.getAnnotation(JCUnitTestCaseInternalAnnotation.class);
-    Utils.checknotnull(ann, "This class(%s) should be used with classes annotated @RunWith(%s.class)", this.getClass(), JCUnit.class.getClass());
+    JCUnit.TestCaseInternalAnnotation ann = d
+        .getAnnotation(JCUnit.TestCaseInternalAnnotation.class);
+    Utils.checknotnull(ann,
+        "This class(%s) should be used with classes annotated @RunWith(%s.class)",
+        this.getClass(), JCUnit.class.getClass());
     this.testClass = d.getTestClass();
     this.testName = d.getMethodName();
     this.id = ann.getId();
@@ -35,7 +35,7 @@ public abstract class JCUnitRule extends TestWatcher {
     this.testCase = TupleUtils.unmodifiableTuple(ann.getTestCase());
   }
 
-  public JCUnitTestCaseType getTestCaseType() {
+  public JCUnit.TestCaseType getTestCaseType() {
     return this.type;
   }
 

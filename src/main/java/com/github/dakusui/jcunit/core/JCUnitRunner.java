@@ -16,19 +16,20 @@ import java.util.Collections;
 import java.util.List;
 
 class JCUnitRunner extends BlockJUnit4ClassRunner {
-  private final Tuple testCase;
-  private final int id;
-  private final JCUnitTestCaseType type;
-	private final List<Serializable> labels;
+  private final Tuple               testCase;
+  private final int                 id;
+  private final JCUnit.TestCaseType type;
+  private final List<Serializable>  labels;
 
-  JCUnitRunner(Class<?> clazz, int id, JCUnitTestCaseType testType, List<Serializable> labels, Tuple testCase)
+  JCUnitRunner(Class<?> clazz, int id, JCUnit.TestCaseType testType,
+      List<Serializable> labels, Tuple testCase)
       throws InitializationError {
     super(clazz);
     Utils.checknotnull(testCase);
     this.testCase = testCase;
     this.id = id;
     this.type = testType;
-	  this.labels = Collections.unmodifiableList(labels);
+    this.labels = Collections.unmodifiableList(labels);
   }
 
   @Override
@@ -66,7 +67,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 
     Annotation[] work = method.getAnnotations();
     ArrayList<Annotation> annotations = new ArrayList<Annotation>(work.length + 1);
-    annotations.add(new JCUnitTestCaseInternalAnnotation(this.id, this.type, this.labels, this.testCase));
+    annotations.add(new JCUnit.TestCaseInternalAnnotation(this.id, this.type, this.labels, this.testCase));
     Collections.addAll(annotations, work);
     return Description.createTestDescription(getTestClass().getJavaClass(),
         testName(method), annotations.toArray(new Annotation[annotations.size()]));

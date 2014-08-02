@@ -1,17 +1,16 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 
-import com.github.dakusui.jcunit.constraint.Constraint;
+import com.github.dakusui.jcunit.core.Constraint;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
+import com.github.dakusui.jcunit.core.TupleGeneration;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.RecordedSchemafulTuplePlayer;
+import com.github.dakusui.jcunit.generators.RecordedTuplePlayer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -31,9 +30,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
-@SchemafulTupleGeneration(
+@TupleGeneration(
 		generator = @Generator(
-				value = RecordedSchemafulTuplePlayer.class,
+				value = RecordedTuplePlayer.class,
 				params = {
 						@Param("All")
 				}),
@@ -54,7 +53,7 @@ public class QuadraticEquationSolverTestX {
   public int c;
 
   @SuppressWarnings("unchecked")
-  @JCUnit.Parameters
+  @CustomTestCases
   public static Iterable<LabeledTestCase> parameters() {
     return Arrays.asList(
         createLabeledTestCase(labels("double root"),
