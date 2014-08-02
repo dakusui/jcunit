@@ -8,11 +8,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
+///*/
 @SchemafulTupleGeneration(
     generator = @Generator(
         value = RecordedSchemafulTuplePlayer.class,
         params = @Param("FailedOnly")
     ))
+///*/
 public class ReplayerExample {
   @Rule
   public JCUnitRecorder recorder = new JCUnitRecorder();
