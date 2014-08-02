@@ -6,7 +6,7 @@ import org.junit.runner.Description;
 import java.io.File;
 
 public class JCUnitRecorder extends JCUnitRule {
-  public static final String TESTCASE_FILENAME = "testcase.ser";
+  public static final String TESTCASE_FILENAME  = "testcase.ser";
   public static final String EXCEPTION_FILENAME = "exception.ser";
 
   private File dir;
@@ -14,8 +14,13 @@ public class JCUnitRecorder extends JCUnitRule {
   @Override
   protected void starting(Description d) {
     super.starting(d);
-    this.dir = new File(Utils.baseDirFor(this.getTestClass()), this.getTestName());
-    this.dir.mkdirs();
+    this.dir = new File(Utils.baseDirFor(this.getTestClass()),
+        String.format("test-%d", this.getId()));
+    if (this.dir.exists()) {
+      Utils.deleteRecursive(this.dir);
+    }
+    boolean dirCreated = this.dir.mkdirs();
+    Utils.checkcond(dirCreated);
     Utils.save(this.getTestCase(), new File(dir, TESTCASE_FILENAME));
   }
 

@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
+import com.github.dakusui.jcunit.core.ConfigUtils;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -178,7 +179,7 @@ public class FactorLoader {
     if (errors.isEmpty()) {
       levelsFactory.setAnnotation(ann);
       levelsFactory.setTargetField(field);
-      levelsFactory.init(Utils.processParams(ann.factoryParams()));
+      levelsFactory.init(ConfigUtils.processParams(levelsFactory.parameterTypes(), ann.factoryParams()));
       ret = new ValidationResult(true, levelsFactory, null);
     } else {
       ret = new ValidationResult(false, null,

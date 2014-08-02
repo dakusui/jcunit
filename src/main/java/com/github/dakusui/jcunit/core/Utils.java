@@ -184,7 +184,9 @@ public class Utils {
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static void rethrow(Exception e, String msgOrFmt, Object... args) {
-    throw new JCUnitException(String.format(msgOrFmt, args), e);
+    JCUnitException ee =  new JCUnitException(String.format(msgOrFmt, args), e);
+    ee.setStackTrace(e.getStackTrace());
+    throw ee;
   }
 
   /**
@@ -266,16 +268,6 @@ public class Utils {
     return null;
   }
 
-  public static Object[] processParams(Param[] params) {
-    Utils.checknotnull(params);
-    Object[] ret = new Object[params.length];
-    int i = 0;
-    for (Param p : params) {
-      ret[i++] = p.type().getValue(p);
-    }
-    return ret;
-  }
-
   /**
    * Returns {@code true} if {@code v} and {@code} are equal,
    * {@code false} otherwise.
@@ -342,6 +334,27 @@ public class Utils {
     } finally {
       Utils.close(bos);
     }
+  }
+
+  /**
+   * By default File#delete fails for non-empty directories, it works like "rm".
+   * We need something a little more brutual - this does the equivalent of "rm -r"
+   *
+   * This method is cited from the url indicated in the link.
+   *
+   * @link "http://stackoverflow.com/questions/779519/delete-files-recursively-in-java"
+   * @param path Root File Path
+   * @return true iff the file and all sub files/directories have been removed
+   */
+  public static boolean deleteRecursive(File path) {
+    if (!path.exists()) throw new JCUnitException(String.format("Path '%s' was not found.", path.getAbsolutePath()));
+    boolean ret = true;
+    if (path.isDirectory()){
+      for (File f : path.listFiles()){
+        ret = ret && Utils.deleteRecursive(f);
+      }
+    }
+    return ret && path.delete();
   }
 
   public static void save(Object obj, OutputStream os) {

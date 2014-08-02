@@ -1,22 +1,42 @@
-package com.github.dakusui.jcunit.generators;
+package  com.github.dakusui.jcunit.generators;
 
+import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class IPO2SchemafulTupleGenerator extends SchemafulTupleGeneratorBase {
   List<Tuple> tests;
 
-  @Override public Tuple getSchemafulTuple(int testId) {
-    return this.tests.get((int) testId);
+  @Override public Tuple getSchemafulTuple(int tupleId) {
+    return this.tests.get((int) tupleId);
   }
 
-  @Override protected long initializeSchemafulTuples(Object[] params) {
+  /**
+   * processedParameters[0] must be an int value greater than 1 and less than or
+   * equal to the number of factors, if given.
+   * If no parameter is given, it defaults to 2.
+   * <p/>
+   * If more than 1 parameter is given, this method will throw an {@code IllegalArgumentException}.
+   */
+  @Override protected long initializeSchemafulTuples(
+      Object[] processedParameters) {
+    int strength = processedParameters.length == 0 ?
+        2 :
+        ((Number) processedParameters[0]).intValue();
+    if (processedParameters.length > 1) {
+      String msg = String.format(
+          "At most 1 parameter is allowed for %s, but %d was given.: %s",
+          this.getClass().getSimpleName(), processedParameters.length,
+          Arrays.toString(processedParameters));
+      throw new IllegalArgumentException(msg);
+    }
     IPO2 ipo2 = new IPO2(
         this.getFactors(),
-        params.length == 0 ? 2 : ((Number)params[0]).intValue(),
+        strength,
         this.getConstraintManager(),
         new GreedyIPO2Optimizer());
     ////
@@ -27,5 +47,10 @@ public class IPO2SchemafulTupleGenerator extends SchemafulTupleGeneratorBase {
     ipo2.ipo();
     this.tests = ipo2.getResult();
     return this.tests.size();
+  }
+
+  @Override
+  public ParamType[] parameterTypes() {
+    return new ParamType[]{ ParamType.Int.withDefaultValue(2) };
   }
 }

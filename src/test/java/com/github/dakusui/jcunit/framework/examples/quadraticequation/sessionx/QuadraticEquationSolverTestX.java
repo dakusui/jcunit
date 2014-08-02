@@ -4,14 +4,14 @@ import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.Param.Type;
+import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.RecordedSchemafulTupleGenerator;
+import com.github.dakusui.jcunit.generators.RecordedSchemafulTuplePlayer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -33,9 +33,9 @@ import static org.junit.Assert.assertThat;
 @RunWith(JCUnit.class)
 @SchemafulTupleGeneration(
 		generator = @Generator(
-				value = RecordedSchemafulTupleGenerator.class,
+				value = RecordedSchemafulTuplePlayer.class,
 				params = {
-						@Param(type = Type.Int, array = false, value = {"2"})
+						@Param("All")
 				}),
 		constraint = @Constraint(
 				value = QuadraticEquationSolverTestX.CM.class,

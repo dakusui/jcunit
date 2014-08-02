@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 
 import java.lang.reflect.Array;
@@ -65,6 +66,10 @@ public class MethodLevelsFactory<T> extends LevelsFactoryBase<T> {
     return ret;
   }
 
+  @Override public ParamType[] parameterTypes() {
+    return new ParamType[0];
+  }
+
   @Override protected void init(Field targetField,
       FactorField annotation, Object[] parameters) {
     Method levelsMethod = getFactorLevelsMethod(targetField.getDeclaringClass(),
@@ -82,4 +87,5 @@ public class MethodLevelsFactory<T> extends LevelsFactoryBase<T> {
   @Override public T get(int index) {
     return (T) Array.get(levels, index);
   }
+
 }

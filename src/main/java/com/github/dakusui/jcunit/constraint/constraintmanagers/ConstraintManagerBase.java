@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.constraint.constraintmanagers;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
 import com.github.dakusui.jcunit.core.LabeledTestCase;
+import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
@@ -61,4 +62,8 @@ public abstract class ConstraintManagerBase implements ConstraintManager {
     return Collections.emptyList();
   }
 
+  @Override
+  public ParamType[] parameterTypes() {
+    return new ParamType[0];
+  }
 }

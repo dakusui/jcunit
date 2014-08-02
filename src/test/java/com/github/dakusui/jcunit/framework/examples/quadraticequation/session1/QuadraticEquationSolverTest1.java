@@ -1,10 +1,6 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
-import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
-import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.generators.IPO2SchemafulTupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,7 +12,7 @@ import static junit.framework.Assert.assertEquals;
 		generator = @Generator(
 				value = IPO2SchemafulTupleGenerator.class,
 				params = {
-						@Param(type = Param.Type.Int, array = false, value = {"2"})
+						@Param("2")
 				}))
 public class QuadraticEquationSolverTest1 {
 	@FactorField

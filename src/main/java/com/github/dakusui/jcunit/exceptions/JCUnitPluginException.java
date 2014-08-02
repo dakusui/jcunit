@@ -1,5 +1,8 @@
 package com.github.dakusui.jcunit.exceptions;
 
+/**
+ * An exception thrown when an error made by plugin writer.
+ */
 public class JCUnitPluginException extends JCUnitException {
 
   /**
@@ -9,5 +12,9 @@ public class JCUnitPluginException extends JCUnitException {
 
   public JCUnitPluginException(String message, Throwable t) {
     super(message, t);
+  }
+
+  public JCUnitPluginException(String message) {
+    super(message);
   }
 }

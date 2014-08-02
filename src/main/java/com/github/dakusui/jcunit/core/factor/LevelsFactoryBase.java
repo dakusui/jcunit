@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 
 import java.lang.reflect.Field;
@@ -8,6 +9,11 @@ import java.lang.reflect.Field;
 public abstract class LevelsFactoryBase<T> implements LevelsFactory<T> {
   private Field       targetField;
   private FactorField annotation;
+
+  @Override
+  public ParamType[] parameterTypes() {
+    return new ParamType[0];
+  }
 
   @Override
   final public void init(Object[] parameters) {

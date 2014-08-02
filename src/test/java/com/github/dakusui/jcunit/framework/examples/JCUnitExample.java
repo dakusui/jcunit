@@ -19,15 +19,16 @@ public class JCUnitExample {
   @FactorField(levelsFactory = MethodLevelsFactory.class)
   public  long    f2;
   @FactorField
-  private Calc.Op op;
+  public Calc.Op op;
 
+  @SuppressWarnings("unused") // This field is used by JCUnit.
   @FactorField(levelsFactory = SchemafulTupleLevelsFactory.class)
   @SchemafulTupleGeneration(
       generator = @Generator(
           value = IPO2SchemafulTupleGenerator.class,
-          params = { @Param(type = Param.Type.Int, array = false, value = "2") }
+          params = @Param("2")
       ))
-  private Struct struct;
+  public Struct struct;
 
   public static int[] f1() {
     return new int[] { 1, 2, 3 };

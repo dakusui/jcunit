@@ -1,9 +1,10 @@
 package com.github.dakusui.jcunit.core.tuples;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public interface Tuple extends Map<String, Object>, Cloneable {
+public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
   public Tuple cloneTuple();
 
   public static class Builder {

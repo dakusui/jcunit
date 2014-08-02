@@ -2,11 +2,8 @@ package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraint.Constraint;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.SchemafulTupleGeneration;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -24,33 +21,40 @@ public class SchemafulTupleGeneratorFactory {
    * Creates a {@code SchemafulTupleGenerator} using annotations attached to the class
    * for which the returned generator is created.
    */
-  public SchemafulTupleGenerator createSchemafulTupleGeneratorFromClass(Class<?> klazz) {
+  public SchemafulTupleGenerator createSchemafulTupleGeneratorFromClass(
+      Class<?> klazz) {
     Utils.checknotnull(klazz);
     SchemafulTupleGeneration schemafulTupleGenerationAnn = getSchemafulTupleGenerationAnnotation(
         klazz);
     return createSchemafulTupleGenerator(klazz, schemafulTupleGenerationAnn);
   }
 
-  public SchemafulTupleGenerator createSchemafulTupleGeneratorForField(Field field) {
+  public SchemafulTupleGenerator createSchemafulTupleGeneratorForField(
+      Field field) {
     Utils.checknotnull(field);
-    SchemafulTupleGeneration schemafulTupleGenerationAnn = getSchemafulTupleGenerationAnnotation(field);
-    return createSchemafulTupleGenerator(field.getType(), schemafulTupleGenerationAnn);
+    SchemafulTupleGeneration schemafulTupleGenerationAnn = getSchemafulTupleGenerationAnnotation(
+        field);
+    return createSchemafulTupleGenerator(field.getType(),
+        schemafulTupleGenerationAnn);
   }
 
-  private SchemafulTupleGenerator createSchemafulTupleGenerator(Class<?> klazz, SchemafulTupleGeneration schemafulTupleGenerationAnn) {
+  private SchemafulTupleGenerator createSchemafulTupleGenerator(Class<?> klazz,
+      SchemafulTupleGeneration schemafulTupleGenerationAnn) {
     Factors factors = loadFactors(klazz);
     Generator generatorAnn = schemafulTupleGenerationAnn.generator();
-    SchemafulTupleGenerator generator = createSchemafulTupleGeneratorInstance(generatorAnn);
+    SchemafulTupleGenerator generator = createSchemafulTupleGeneratorInstance(
+        generatorAnn);
     Constraint constraintAnn = schemafulTupleGenerationAnn.constraint();
     ConstraintManager constraintManager = createConstraintManager(
         constraintAnn);
     ////
     // Wire objects.
     constraintManager.setFactors(factors);
-    constraintManager.init(Utils.processParams(constraintAnn.params()));
+    constraintManager.init(ConfigUtils.processParams(constraintManager.parameterTypes(), constraintAnn.params()));
     generator.setFactors(factors);
     generator.setConstraintManager(constraintManager);
-    generator.init(Utils.processParams(generatorAnn.params()));
+    generator.setTargetClass(klazz);
+    generator.init(ConfigUtils.processParams(generator.parameterTypes(), generatorAnn.params()));
     return generator;
   }
 
@@ -77,7 +81,8 @@ public class SchemafulTupleGeneratorFactory {
     return factors;
   }
 
-  SchemafulTupleGeneration getSchemafulTupleGenerationAnnotation(AnnotatedElement annotatedElement) {
+  SchemafulTupleGeneration getSchemafulTupleGenerationAnnotation(
+      AnnotatedElement annotatedElement) {
     SchemafulTupleGeneration ret;
     if (annotatedElement.isAnnotationPresent(SchemafulTupleGeneration.class)) {
       ret = annotatedElement.getAnnotation(SchemafulTupleGeneration.class);
