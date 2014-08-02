@@ -2,10 +2,10 @@ target/
 /.settings
 /.project
 /.classpath
-/.project
 /.djunitplugin
 /jcoverage.ser
 /.jcunit
 /.idea
 /jcunit.iml
+.DS_Store
 
