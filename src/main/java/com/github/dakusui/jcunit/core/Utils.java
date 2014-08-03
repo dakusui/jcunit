@@ -20,6 +20,7 @@ public class Utils {
       Tuple tuple) {
     for (String fieldName : tuple.keySet()) {
       Field f;
+      //noinspection unchecked
       f = getField(testObject, fieldName,
           FactorField.class);
       setFieldValue(testObject, f, tuple.get(fieldName));
@@ -62,25 +63,6 @@ public class Utils {
     throw new JCUnitException(String.format(
         "Annotated field '%s' is found in '%s, but not annotated with none of [%s]",
         fieldName, clazz, Utils.join(", ", (Object[]) expectedAnnotations)));
-  }
-
-  public static Object getFieldValue(Object obj, Field f) {
-    Object ret = null;
-    try {
-      boolean accessible = f.isAccessible();
-      try {
-        f.setAccessible(true);
-        ret = f.get(obj);
-      } finally {
-        f.setAccessible(accessible);
-      }
-    } catch (IllegalArgumentException e) {
-      Utils.checkcond(false);
-      throw e;
-    } catch (IllegalAccessException e) {
-      rethrow(e);
-    }
-    return ret;
   }
 
   public static void setFieldValue(Object obj, Field f, Object value) {
@@ -152,12 +134,12 @@ public class Utils {
       if (msgOrFmt != null) {
         throw new NullPointerException(String.format(msgOrFmt, args));
       } else {
-        throw new NullPointerException(String.format("info(%s)", Utils.join(",", args)));
+        throw new NullPointerException(
+            String.format("info(%s)", Utils.join(",", args)));
       }
     }
     return obj;
   }
-
 
   public static void checkcond(boolean b) {
     if (!b) {
@@ -170,7 +152,8 @@ public class Utils {
       if (msgOrFmt != null) {
         throw new IllegalStateException(String.format(msgOrFmt, args));
       } else {
-        throw new IllegalStateException(String.format("info(%s)", Utils.join(",", args)));
+        throw new IllegalStateException(
+            String.format("info(%s)", Utils.join(",", args)));
       }
     }
   }
@@ -184,7 +167,7 @@ public class Utils {
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static void rethrow(Exception e, String msgOrFmt, Object... args) {
-    JCUnitException ee =  new JCUnitException(String.format(msgOrFmt, args), e);
+    JCUnitException ee = new JCUnitException(String.format(msgOrFmt, args), e);
     ee.setStackTrace(e.getStackTrace());
     throw ee;
   }
@@ -350,18 +333,23 @@ public class Utils {
   /**
    * By default File#delete fails for non-empty directories, it works like "rm".
    * We need something a little more brutal - this does the equivalent of "rm -r"
-   *
+   * <p/>
    * This method is cited from the url indicated in the link.
    *
-   * @link "http://stackoverflow.com/questions/779519/delete-files-recursively-in-java"
    * @param path Root File Path
    * @return true iff the file and all sub files/directories have been removed
+   * @link "http://stackoverflow.com/questions/779519/delete-files-recursively-in-java"
    */
   public static boolean deleteRecursive(File path) {
-    if (!path.exists()) throw new JCUnitException(String.format("Path '%s' was not found.", path.getAbsolutePath()));
+    Utils.checknotnull(path);
+    if (!path.exists()) {
+      throw new JCUnitException(
+          String.format("Path '%s' was not found.", path.getAbsolutePath()));
+    }
     boolean ret = true;
-    if (path.isDirectory()){
-      for (File f : path.listFiles()){
+    if (path.isDirectory()) {
+      //noinspection ConstantConditions
+      for (File f : path.listFiles()) {
         ret = ret && Utils.deleteRecursive(f);
       }
     }
@@ -401,6 +389,5 @@ public class Utils {
     }
     return ret;
   }
-
 
 }

@@ -14,7 +14,7 @@ public class JCUnitRecorder extends JCUnitRule {
   private File dir;
 
   public JCUnitRecorder() {
-    this.baseDir = null;
+    this(null);
   }
 
   public JCUnitRecorder(String baseDir) {
