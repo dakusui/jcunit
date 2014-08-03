@@ -1,11 +1,16 @@
 package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 public abstract class TupleGeneratorBase
@@ -84,7 +89,36 @@ public abstract class TupleGeneratorBase
   private int getIndex(String factorName, long testId) {
     Tuple testCase = getSchemafulTuple((int) testId);
     Object l = testCase.get(factorName);
-    return getFactor(factorName).levels.indexOf(l);
+    List<Object> levels = getFactor(factorName).levels;
+    int ret = levels.indexOf(l);
+    if (ret < 0) {
+      for (int i = 0; i < levels.size(); i++) {
+        if (arrayEquals(l, levels.get(i))) {
+          ret = i;
+          break;
+        }
+      }
+    }
+    Utils.checkcond(ret >= 0,
+        "'%s' was not found in factor '%s'. Failed to find '%s' in '%s'",
+        l,
+        factorName,
+        TupleUtils.toString(new Tuple.Builder().put("obj", l).build()),
+        levels
+    );
+    return ret;
+  }
+
+  private boolean arrayEquals(Object a, Object b) {
+    if (a == null || b == null) return b == a;
+    if (!a.getClass().isArray() || !b.getClass().isArray()) return a.equals(b);
+
+    int lena = Array.getLength(a);
+    if (lena != Array.getLength(b)) return false;
+    for (int i = 0; i < lena; i++) {
+      arrayEquals(Array.get(a, i), Array.get(b, i));
+    }
+    return true;
   }
 
   @Override
@@ -126,6 +160,14 @@ public abstract class TupleGeneratorBase
    */
   abstract protected long initializeSchemafulTuples(
       Object[] params);
+
+  public static void main(String... args) {
+    int[] arr1 = new int[]{1, 2};
+    int[] arr2 = new int[]{1, 2};
+
+    System.out.println(Arrays.asList(arr1).equals(Arrays.asList(arr2)));
+    System.out.println(Arrays.equals(arr1, arr2));
+  }
 }
 
 

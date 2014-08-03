@@ -1,16 +1,11 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 
-import com.github.dakusui.jcunit.core.Constraint;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.Generator;
-import com.github.dakusui.jcunit.core.TupleGeneration;
-import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.RecordedTuplePlayer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -22,24 +17,16 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.TestCaseUtils.createLabeledTestCase;
-import static com.github.dakusui.jcunit.core.TestCaseUtils.factor;
-import static com.github.dakusui.jcunit.core.TestCaseUtils.labels;
-import static com.github.dakusui.jcunit.core.TestCaseUtils.newTestCase;
+import static com.github.dakusui.jcunit.core.TestCaseUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
 @TupleGeneration(
-		generator = @Generator(
-				value = RecordedTuplePlayer.class,
-				params = {
-						@Param("All")
-				}),
-		constraint = @Constraint(
-				value = QuadraticEquationSolverTestX.CM.class,
-				params = {
-				}))
+    constraint = @Constraint(
+        value = QuadraticEquationSolverTestX.CM.class,
+        params = {
+        }))
 public class QuadraticEquationSolverTestX {
   @Rule
   public TestName   name = new TestName();
@@ -100,13 +87,15 @@ public class QuadraticEquationSolverTestX {
     public List<LabeledTestCase> getViolations() {
       List<LabeledTestCase> ret = new LinkedList<LabeledTestCase>();
       ret.add(createLabeledTestCase(labels("a=0"), createTestCase(0, 1, 1)));
-      ret.add(createLabeledTestCase(labels("b*b-4ca<0"), createTestCase(100, 1, 100)));
-      ret.add(createLabeledTestCase(labels("nonsense 1=0"), createTestCase(0, 0, 1)));
+      ret.add(createLabeledTestCase(labels("b*b-4ca<0"),
+          createTestCase(100, 1, 100)));
+      ret.add(createLabeledTestCase(labels("nonsense 1=0"),
+          createTestCase(0, 0, 1)));
       return ret;
     }
 
     private Tuple createTestCase(int a, int b, int c) {
-			return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
-		}
-	}
+      return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
+    }
+  }
 }
