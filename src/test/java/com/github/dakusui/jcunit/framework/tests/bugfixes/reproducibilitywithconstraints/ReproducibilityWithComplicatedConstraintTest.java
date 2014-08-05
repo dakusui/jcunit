@@ -165,8 +165,7 @@ public class ReproducibilityWithComplicatedConstraintTest {
   @Test
   public void test() {
     String s = this.desc.getId() + ";" + TupleUtils.toString(this.desc.getTestCase());
-    System.out.println(s);
-    //assertEquals(expectations.get(this.desc.getId()), s);
+    assertEquals(expectations.get(this.desc.getId()), s);
     expectations.remove(this.desc.getId());
   }
 
