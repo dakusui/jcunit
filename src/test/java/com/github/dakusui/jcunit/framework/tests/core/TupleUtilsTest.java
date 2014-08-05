@@ -46,7 +46,7 @@ public class TupleUtilsTest {
         .put("A\\", new Object[]{1, 2, 3, new int[]{1, 2, 3}})
         .put("B\"", new Tuple.Builder().put("A", "abc").build()).build();
     assertEquals(
-        "{\"A\\\\\":[\"1\",\"2\",\"3\",[\"1\",\"2\",\"3\"]],\"B\\\"\":{\"A\":\"abc\"}}",
+        "{\"A\\\\\":[1,2,3,[1,2,3]],\"B\\\"\":{\"A\":\"abc\"}}",
         TupleUtils.toString(t)
     );
   }

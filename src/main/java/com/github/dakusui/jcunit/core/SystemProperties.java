@@ -9,7 +9,7 @@ import java.io.File;
  * @author hiroshi
  */
 public class SystemProperties {
-  private static boolean debugEnabled = false;
+  private static boolean debugEnabled = true;
 
   public static boolean isDebugEnabled() {
     return debugEnabled;
