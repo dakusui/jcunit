@@ -10,12 +10,7 @@ import com.github.dakusui.jcunit.exceptions.SavedObjectBrokenException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TupleUtils {
 	public static class CartesianTuples extends CartesianEnumeratorAdaptor<Tuple, String, Object> {
@@ -62,7 +57,7 @@ public class TupleUtils {
 			Tuple tuple, int strength) {
 		Utils.checknotnull(tuple);
 		Utils.checkcond(strength >= 0 && strength <= tuple.size());
-		Set<Tuple> ret = new HashSet<Tuple>();
+		Set<Tuple> ret = new LinkedHashSet<Tuple>();
 		Combinator<String> c = new Combinator<String>(
 				new LinkedList<String>(tuple.keySet()), strength);
 		for (List<String> keys : c) {
@@ -77,7 +72,7 @@ public class TupleUtils {
 
 	public static Set<Tuple> subtuplesOf(Tuple tuple) {
 		Utils.checknotnull(tuple);
-		Set<Tuple> ret = new HashSet<Tuple>();
+		Set<Tuple> ret = new LinkedHashSet<Tuple>();
 		int sz = tuple.size();
 		for (int i = 0; i <= sz; i++) {
 			ret.addAll(subtuplesOf(tuple, sz - i));

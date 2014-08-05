@@ -9,13 +9,13 @@ import java.io.File;
  * @author hiroshi
  */
 public class SystemProperties {
-  private static boolean debugEnabled = true;
-
-  public static boolean isDebugEnabled() {
-    return debugEnabled;
-  }
-
   public static enum KEY {
+    DEBUG {
+      @Override
+      public String key() {
+        return "jcunit.debug";
+      }
+    },
     BASEDIR {
       @Override
       public String key() {
@@ -38,5 +38,9 @@ public class SystemProperties {
       ret = new File(".jcunit");
     }
     return ret;
+  }
+
+  public static boolean isDebugEnabled() {
+    return Boolean.parseBoolean(System.getProperty(KEY.DEBUG.key(), "false"));
   }
 }

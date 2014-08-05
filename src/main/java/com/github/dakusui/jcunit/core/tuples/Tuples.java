@@ -31,7 +31,7 @@ public class Tuples {
 
   protected Set<Tuple> init(
       Factors factors, Factor factor) {
-    Set<Tuple> ret = new HashSet<Tuple>();
+    Set<Tuple> ret = new LinkedHashSet<Tuple>();
     for (Tuple t : factors.generateAllPossibleTuples(this.strength - 1)) {
       for (Object l : factor) {
         Tuple tt = t.cloneTuple();

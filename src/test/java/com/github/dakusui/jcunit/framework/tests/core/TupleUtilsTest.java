@@ -15,8 +15,8 @@ public class TupleUtilsTest {
   public void subtuples_01() {
     Tuple t = new Tuple.Builder().put("A", "a1").build();
     Iterator<Tuple> i = TupleUtils.subtuplesOf(t).iterator();
-    assertEquals("{}", i.next().toString());
     assertEquals("{A=a1}", i.next().toString());
+    assertEquals("{}", i.next().toString());
     assertEquals(false, i.hasNext());
   }
 
@@ -24,10 +24,10 @@ public class TupleUtilsTest {
   public void subtuples_02() {
     Tuple t = new Tuple.Builder().put("A", "a1").put("B", "b1").build();
     Iterator<Tuple> i = TupleUtils.subtuplesOf(t).iterator();
-    assertEquals("{}", i.next().toString());
-    assertEquals("{B=b1}", i.next().toString());
-    assertEquals("{A=a1}", i.next().toString());
     assertEquals("{A=a1, B=b1}", i.next().toString());
+    assertEquals("{A=a1}", i.next().toString());
+    assertEquals("{B=b1}", i.next().toString());
+    assertEquals("{}", i.next().toString());
     assertEquals(false, i.hasNext());
   }
 
