@@ -27,8 +27,11 @@ public class JCUnit extends Suite {
   public JCUnit(Class<?> klass) throws Throwable {
     super(klass, Collections.<Runner>emptyList());
     try {
+      ////
+      // Prepare filter method(s) and custom test case methods.
       List<String> frameworkMethodFailures = new LinkedList<String>();
       List<FrameworkMethod> filterMethods = getFrameworkMethods(frameworkMethodFailures, FrameworkMethodValidator.TESTCASE_FILTER);
+      // Currently only one filter method can be used.
       if (filterMethods.size() > 1)
         frameworkMethodFailures.add(
             String.format(
