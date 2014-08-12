@@ -43,7 +43,7 @@ public class JCUnit extends Suite {
       }
       ////
       // Check if any error was found.
-      ConfigUtils.checkEnv(frameworkMethodFailures.isEmpty(), "Errors are found in test class '%s'", getTestClass().getJavaClass().getCanonicalName());
+      ConfigUtils.checkEnv(frameworkMethodFailures.isEmpty(), "Errors are found in test class '%s':%s", getTestClass().getJavaClass().getCanonicalName(), frameworkMethodFailures);
 
       ////
       // Generate a list of test cases using a specified tuple generator
@@ -164,7 +164,7 @@ public class JCUnit extends Suite {
         Method mm = m.getMethod();
         return m.isPublic() && m.isStatic() && mm.getParameterTypes().length == 0 &&
             (LabeledTestCase.class.isAssignableFrom(mm.getReturnType()) ||
-                Collections.class.isAssignableFrom(mm.getReturnType()));
+                Iterable.class.isAssignableFrom(mm.getReturnType()));
       }
 
       @Override

@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JCUnit.class)
-@JCUnit.Execute(include = {0, 3, 7, 10, 11, 20, 25, 29, 32, 35, 36})
+//@JCUnit.Execute(include = {0, 3, 7, 10, 11, 20, 25, 29, 32, 35, 36})
 public class GeophileReproducibilityTest extends GeophileTestBase {
     @Rule
     public JCUnitDesc desc = new JCUnitDesc();
