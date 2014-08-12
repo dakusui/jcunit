@@ -166,7 +166,7 @@ public class Utils {
    * @param msgOrFmt A message or a message format.
    * @param args     Arguments to be embedded in {@code msg}.
    */
-  public static void rethrow(Exception e, String msgOrFmt, Object... args) {
+  public static void rethrow(Throwable e, String msgOrFmt, Object... args) {
     JCUnitException ee = new JCUnitException(String.format(msgOrFmt, args), e);
     ee.setStackTrace(e.getStackTrace());
     throw ee;
