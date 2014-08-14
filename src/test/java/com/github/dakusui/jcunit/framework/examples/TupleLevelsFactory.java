@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.framework.examples;
 
+import com.github.dakusui.jcunit.core.TestCaseUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.LevelsFactoryBase;
@@ -31,7 +32,7 @@ public class TupleLevelsFactory extends LevelsFactoryBase {
   @Override
   public Object get(int index) {
     Object ret = Utils.createNewInstanceUsingNoParameterConstructor(this.targetField.getType());
-    Utils.initializeObjectWithTuple(ret, this.generator.get(index));
+    TestCaseUtils.initializeObjectWithTuple(ret, this.generator.get(index));
     return ret;
   }
 }

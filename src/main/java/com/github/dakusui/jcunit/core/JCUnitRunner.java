@@ -12,7 +12,10 @@ import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final Tuple               testCase;
@@ -20,7 +23,8 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final JCUnit.TestCaseType type;
   private final Factors             factors;
 
-  JCUnitRunner(Class<?> clazz, int id, JCUnit.TestCaseType testType, Factors factors, Tuple testCase)
+  JCUnitRunner(Class<?> clazz, int id, JCUnit.TestCaseType testType,
+      Factors factors, Tuple testCase)
       throws InitializationError {
     super(clazz);
     Utils.checknotnull(testCase);
@@ -28,6 +32,121 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     this.testCase = testCase;
     this.id = id;
     this.type = testType;
+  }
+
+  /**
+   * Returns {@code null}, if the list {@code whenMethods} is empty, which means
+   * all test cases should be executed.
+   * <p/>
+   * An empty set returned by this method means no test method should be executed
+   * for the given {@code testCase}.
+   */
+  private static boolean shouldInvoke(Object testObject,
+      List<FrameworkMethod> preconditions) {
+    if (preconditions == null) {
+      return true;
+    }
+    List<String> failures = new LinkedList<String>();
+    for (FrameworkMethod each : preconditions) {
+      try {
+        if ((Boolean) each.invokeExplosively(null, testObject)) {
+          return true;
+        }
+      } catch (Throwable throwable) {
+        ConfigUtils.rethrow(throwable,
+            "Failed to invoke test precondition method '%s'(%s)",
+            each.getName(),
+            each.getDeclaringClass().getCanonicalName()
+        );
+      }
+    }
+    Utils.checkcond(failures.isEmpty(), "Some errors are detected.: %s",
+        failures);
+    return false;
+  }
+
+  /**
+   * Returns a {@code Method} object or {@code null} if the specified method is not found or not loadable.
+   */
+  private static FrameworkMethod getTestPreconditionMethod(Class<?> testClass,
+      String methodName, FrameworkMethod referredToBy, List<String> failures) {
+    final List<FrameworkMethod> work = new LinkedList<FrameworkMethod>();
+    for (String each : methodName.replace(" ", "").split("&&")) {
+      work.add(getSingleTestPreconditionMethod(testClass, each, referredToBy,
+          failures));
+    }
+    Utils.checkcond(!work.isEmpty());
+    if (work.size() == 1) {
+      return work.get(0);
+    }
+    ////
+    // In order to avoid NPE, pass the first element's underlying 'method' object.
+    // But this should never be used directly.
+    return new FrameworkMethod(work.get(0).getMethod()) {
+      @Override
+      public Object invokeExplosively(final Object target,
+          final Object... params) throws Throwable {
+        ////
+        // It's safe to cast to Boolean because m is already validated by 'getTestPreconditionMethod'
+        for (FrameworkMethod each : work) {
+          if (!(Boolean)each.invokeExplosively(target, params)) return false;
+        }
+        return true;
+      }
+
+      @Override
+      public String getName() {
+        StringBuilder b = new StringBuilder();
+        boolean firstTime = true;
+        for (FrameworkMethod each : work) {
+          if (!firstTime) b.append("&&");
+          b.append(each.getName());
+          firstTime = false;
+        }
+        return b.toString();
+      }
+      @Override
+      public Method getMethod() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
+
+  private static FrameworkMethod getSingleTestPreconditionMethod(
+      Class<?> testClass, String methodName, FrameworkMethod referredToBy,
+      List<String> failures) {
+    boolean negateOperator = methodName.startsWith("!");
+    methodName = negateOperator ? methodName.substring(1) : methodName;
+    Method m = JCUnit
+        .getTestPreconditionMethod(testClass, methodName, failures);
+    if (m == null) {
+      failures.remove(failures.size() - 1);
+      ////
+      // Funky thing: reformat the last message.
+      failures.add(String.format(
+          "The method '%s(%s)' (referred to by '%s' of method '%s') can't be found in the test class '%s' .",
+          methodName,
+          testClass,
+          Given.class.getSimpleName(),
+          referredToBy.getName(),
+          testClass.getName()
+      ));
+      return null;
+    }
+    return negateOperator ? new FrameworkMethod(m) {
+      @Override
+      public Object invokeExplosively(final Object target,
+          final Object... params) throws Throwable {
+        ////
+        // It's safe to cast to Boolean because m is already validated by 'getTestPreconditionMethod'
+        return !((Boolean) super.invokeExplosively(target, params));
+      }
+
+      @Override
+      public String getName() {
+        return "!" + super.getName();
+      }
+    } : new FrameworkMethod(m);
   }
 
   @Override
@@ -61,11 +180,15 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     Utils.checknotnull(method);
 
     Annotation[] work = method.getAnnotations();
-    ArrayList<Annotation> annotations = new ArrayList<Annotation>(work.length + 1);
-    annotations.add(new JCUnit.TestCaseInternalAnnotation(this.type, this.id, this.factors, this.testCase));
+    ArrayList<Annotation> annotations = new ArrayList<Annotation>(
+        work.length + 1);
+    annotations.add(
+        new JCUnit.TestCaseInternalAnnotation(this.type, this.id, this.factors,
+            this.testCase));
     Collections.addAll(annotations, work);
     return Description.createTestDescription(getTestClass().getJavaClass(),
-        testName(method), annotations.toArray(new Annotation[annotations.size()]));
+        testName(method),
+        annotations.toArray(new Annotation[annotations.size()]));
   }
 
   @Override
@@ -73,55 +196,33 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
     for (FrameworkMethod each : computeTestMethods()) {
       assert this.testCase != null;
-      if (shouldInvoke(each, createTest())) ret.add(each);
+      if (shouldInvoke(each, createTest())) {
+        ret.add(each);
+      }
     }
     if (ret.isEmpty()) {
-      throw new RuntimeException(String.format("No matching test method is found for test: %s", this.testCase));
+      throw new RuntimeException(String
+          .format("No matching test method is found for test: %s",
+              this.testCase));
     }
     return ret;
   }
 
-
   private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
     List<String> failures = new LinkedList<String>();
-    List<FrameworkMethod> preconditionMethods = getTestPreconditionMethodsFor(testMethod, failures);
-    ConfigUtils.checkTest(failures.isEmpty(), "Errors are found while precondition checks.: %s", failures);
+    List<FrameworkMethod> preconditionMethods = getTestPreconditionMethodsFor(
+        testMethod, failures);
+    ConfigUtils.checkTest(failures.isEmpty(),
+        "Errors are found while precondition checks.: %s", failures);
     return shouldInvoke(testObject, preconditionMethods);
-  }
-
-  /**
-   * Returns {@code null}, if the list {@code whenMethods} is empty, which means
-   * all test cases should be executed.
-   * <p/>
-   * An empty set returned by this method means no test method should be executed
-   * for the given {@code testCase}.
-   */
-  private static boolean shouldInvoke(Object testObject, List<FrameworkMethod> preconditions) {
-    if (preconditions == null) return true;
-    List<String> failures = new LinkedList<String>();
-    for (FrameworkMethod each : preconditions) {
-      try {
-        if ((Boolean) each.invokeExplosively(null, testObject)) {
-          return true;
-        }
-      } catch (Throwable throwable) {
-        ConfigUtils.rethrow(throwable,
-            "Failed to invoke test precondition method '%s'(%s)",
-            each.getName(),
-            each.getDeclaringClass().getCanonicalName()
-        );
-      }
-    }
-    Utils.checkcond(failures.isEmpty(), "Some errors are detected.: %s", failures);
-    return false;
   }
 
   /**
    * Returns {@code null}, if the {@code testMethod} doesn't have 'When' annotation,
    * which means the method should be executed without any preconditions.
-   *
    */
-  private List<FrameworkMethod> getTestPreconditionMethodsFor(FrameworkMethod testMethod, List<String> failures) {
+  private List<FrameworkMethod> getTestPreconditionMethodsFor(
+      FrameworkMethod testMethod, List<String> failures) {
     List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
     Class<?> testClass = getTestClass().getJavaClass();
     Given given = testMethod.getAnnotation(Given.class);
@@ -131,7 +232,8 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     }
 
     for (String methodName : given.value()) {
-      FrameworkMethod m = getTestPreconditionMethod(testClass, methodName, testMethod, failures);
+      FrameworkMethod m = getTestPreconditionMethod(testClass, methodName,
+          testMethod, failures);
       if (m != null) {
         ret.add(m);
       }
@@ -141,36 +243,5 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
       JCUnit.validateTestPreconditionMethod(testClass, each, failures);
     }
     return ret;
-  }
-
-  /**
-   * Returns a {@code Method} object or {@code null} if the specified method is not found or not loadable.
-   */
-  private static FrameworkMethod getTestPreconditionMethod(Class<?> testClass, String methodName, FrameworkMethod referredToBy, List<String> failures) {
-    boolean negateOperator = methodName.startsWith("!");
-    methodName = negateOperator ? methodName.substring(1) : methodName;
-    Method m = JCUnit.getTestPreconditionMethod(testClass, methodName, failures);
-    if (m == null) {
-      failures.remove(failures.size() -1);
-      ////
-      // Funky thing: reformat the last message.
-      failures.add(String.format(
-          "The method '%s(%s)' (referred to by '%s' of method '%s') can't be found in the test class '%s' .",
-          methodName,
-          testClass,
-          Given.class.getSimpleName(),
-          referredToBy.getName(),
-          testClass.getName()
-      ));
-      return null;
-    }
-    return negateOperator ? new FrameworkMethod(m) {
-      @Override
-      public Object invokeExplosively(final Object target, final Object... params) throws Throwable {
-        ////
-        // It's safe to cast to Boolean because m is already validated by 'getTestPreconditionMethod'
-        return !((Boolean)super.invokeExplosively(target, params));
-      }
-    } : new FrameworkMethod(m);
   }
 }

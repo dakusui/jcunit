@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import java.lang.reflect.Field;
 
 /**
+ * This class is not yet finished.
  */
 public class CompositeLevelsFactory<T> extends LevelsFactoryBase<T> {
 	@Override

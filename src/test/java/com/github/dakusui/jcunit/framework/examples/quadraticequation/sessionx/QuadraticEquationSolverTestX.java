@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.framework.examples.quadraticequation.sessionx;
 
-import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -15,8 +15,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.TestCaseUtils.factor;
-import static com.github.dakusui.jcunit.core.TestCaseUtils.newTestCase;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
@@ -37,40 +35,24 @@ public class QuadraticEquationSolverTestX {
   @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
   public int c;
 
-  @SuppressWarnings("unchecked")
-  @CustomTestCases
-  public static Iterable<Tuple> parameters() {
-    return Arrays.asList(
-        newTestCase(factor("a", 1), factor("b", 2), factor("c", 1)),
-        newTestCase(factor("a", 0), factor("b", 200), factor("c", 1)
-        ));
+  public QuadraticEquationSolverTestX() {
   }
 
-  public static class CM extends ConstraintManagerBase {
-    @Override
-    public boolean check(Tuple tuple) throws JCUnitSymbolException {
-      if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
-          .containsKey("c")) {
-        throw new JCUnitSymbolException();
-      }
-      int a = (Integer) tuple.get("a");
-      int b = (Integer) tuple.get("b");
-      int c = (Integer) tuple.get("c");
-      return a != 0 && b * b - 4 * c * a >= 0;
-    }
+  @SuppressWarnings("unchecked")
+  @CustomTestCases
+  public static Iterable<QuadraticEquationSolverTestX> customTestCases() {
+    return Arrays.asList(
+        create(1, 2, 1),
+        create(0, 200, 1)
+    );
+  }
 
-    @Override
-    public List<Tuple> getViolations() {
-      List<Tuple> ret = new LinkedList<Tuple>();
-      ret.add(createTestCase(0, 1, 1));
-      ret.add(createTestCase(100, 1, 100));
-      ret.add(createTestCase(0, 0, 1));
-      return ret;
-    }
-
-    private Tuple createTestCase(int a, int b, int c) {
-      return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
-    }
+  private static QuadraticEquationSolverTestX create(int a, int b, int c) {
+    QuadraticEquationSolverTestX ret = new QuadraticEquationSolverTestX();
+    ret.a = a;
+    ret.b = b;
+    ret.c = c;
+    return ret;
   }
 
   //  @Precondition
@@ -86,18 +68,16 @@ public class QuadraticEquationSolverTestX {
     return b * b - 4 * c * a >= 0;
   }
 
-  public static boolean isValidQuadratic(QuadraticEquationSolverTestX test) {
-    return isANonZero(test) && isDiscriminantNonNegative(test);
-  }
-
   @Given({ "!isANonZero", "!isDiscriminantNonNegative" })
   @Test(expected = IllegalArgumentException.class)
   public void solveEquationThenIllegalArgumentExceptionWillBeThrown() {
-    new QuadraticEquationSolver(a, b,
+    new QuadraticEquationSolver(
+        a,
+        b,
         c).solve();
   }
 
-  @Given({ "isValidQuadratic" })
+  @Given({ "isANonZero&&isDiscriminantNonNegative" })
   @Test
   public void solveEquationThenSolutionsArePreciseEnough() {
     try {
@@ -112,6 +92,28 @@ public class QuadraticEquationSolverTestX {
     } catch (IllegalArgumentException e) {
       System.err.println("*** " + this.desc.getTestCase() + " ***");
       throw e;
+    }
+  }
+
+  public static class CM extends
+      TypedConstraintManager<QuadraticEquationSolverTestX> {
+    @Override
+    public boolean check(QuadraticEquationSolverTestX o, Tuple testCase)
+        throws JCUnitSymbolException {
+      if (!testCase.containsKey("a") || !testCase.containsKey("b") || !testCase
+          .containsKey("c")) {
+        throw new JCUnitSymbolException();
+      }
+      return o.a != 0 && o.b * o.b - 4 * o.c * o.a >= 0;
+    }
+
+    @Override
+    protected List<QuadraticEquationSolverTestX> getViolationTestObjects() {
+      List<QuadraticEquationSolverTestX> ret = new LinkedList<QuadraticEquationSolverTestX>();
+      ret.add(create(0, 1, 1));
+      ret.add(create(100, 1, 100));
+      ret.add(create(0, 0, 1));
+      return ret;
     }
   }
 }

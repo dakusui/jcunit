@@ -13,17 +13,6 @@ import java.util.*;
 
 public class Utils {
 
-  public static void initializeObjectWithTuple(Object testObject,
-      Tuple tuple) {
-    for (String fieldName : tuple.keySet()) {
-      Field f;
-      //noinspection unchecked
-      f = getField(testObject, fieldName,
-          FactorField.class);
-      setFieldValue(testObject, f, tuple.get(fieldName));
-    }
-  }
-
   public static Field getField(Object obj, String fieldName,
       Class<? extends Annotation>... expectedAnnotations) {
     Utils.checknotnull(obj);
@@ -104,20 +93,6 @@ public class Utils {
 
   public static String join(String sep, Object... elems) {
     return join(sep, Formatter.INSTANCE, elems);
-  }
-
-  public static boolean intersects(Set<?> a, Set<?> b) {
-    Utils.checknotnull(a);
-    Utils.checknotnull(b);
-    if (a.size() > b.size()) {
-      Set<?> c = b;
-      b = a;
-      a = c;
-    }
-    for (Object eachA : a) {
-      if (b.contains(eachA)) return true;
-    }
-    return false;
   }
 
   /**

@@ -33,7 +33,10 @@ public class JCUnit extends Suite {
       List<FrameworkMethod> customTestCaseMethods = getFrameworkMethods(frameworkMethodFailures, FrameworkMethodValidator.CUSTOM_TESTCASES);
       ////
       // Check if any error was found.
-      ConfigUtils.checkEnv(frameworkMethodFailures.isEmpty(), "Errors are found in test class '%s':%s", getTestClass().getJavaClass().getCanonicalName(), frameworkMethodFailures);
+      ConfigUtils.checkEnv(frameworkMethodFailures.isEmpty(),
+          "Errors are found in test class '%s':%s",
+          getTestClass().getJavaClass().getCanonicalName(),
+          frameworkMethodFailures);
 
       ////
       // Generate a list of test cases using a specified tuple generator
@@ -57,7 +60,7 @@ public class JCUnit extends Suite {
       // Compose a list of 'negative test cases' and register them.
       ConstraintManager cm = tupleGenerator.getConstraintManager();
       final List<Tuple> violations = cm.getViolations();
-      id = registerLabeledTestCases(
+      id = registerTestCases(
           id,
           factors,
           violations,
@@ -65,7 +68,7 @@ public class JCUnit extends Suite {
           preconditionMethods);
       ////
       // Compose a list of 'custom test cases' and register them.
-      registerLabeledTestCases(
+      registerTestCases(
           id,
           factors,
           invokeCustomTestCasesMethod(customTestCaseMethods),
@@ -79,16 +82,7 @@ public class JCUnit extends Suite {
   }
 
   static Object createTest(TestClass testClass, Tuple testCase) {
-    Object ret = null;
-    try {
-      ret = testClass.getJavaClass().newInstance();
-    } catch (InstantiationException e) {
-      ConfigUtils.rethrow(e, "Failed to instantiate %s", testClass);
-    } catch (IllegalAccessException e) {
-      ConfigUtils.rethrow(e, "Failed to instantiate %s", testClass);
-    }
-    Utils.initializeObjectWithTuple(ret, testCase);
-    return ret;
+    return TestCaseUtils.toTestObject(testClass.getJavaClass(), testCase);
   }
 
   private boolean shouldPerform(Tuple testCase, List<FrameworkMethod> preconditionMethods) {
@@ -104,7 +98,7 @@ public class JCUnit extends Suite {
     return ret;
   }
 
-  private int registerLabeledTestCases(int id,
+  private int registerTestCases(int id,
       Factors factors,
       Iterable<Tuple> testCases,
       TestCaseType testCaseType,
@@ -139,10 +133,15 @@ public class JCUnit extends Suite {
           ret.add((Tuple) r);
         } else if (r instanceof Iterable) {
           for (Object o : (Iterable) r) {
+            if (o == null) {
+              ConfigUtils.checkEnv(false, "Returned value of '%s' must not contain null.", m.getName());
+            }
             if (o instanceof Tuple) {
               ret.add((Tuple) o);
+            } else if (getTestClass().getJavaClass().isAssignableFrom(o.getClass())) {
+              ret.add(TestCaseUtils.toTestCase(o));
             } else {
-              ConfigUtils.checkEnv(false, "Returned value of '%s' must contain only LabeledTestCase objects.");
+              ConfigUtils.checkEnv(false, "Returned value of '%s' must contain only Tuple or test objects.", m.getName());
             }
           }
         } else {
@@ -218,7 +217,8 @@ public class JCUnit extends Suite {
         Method mm = m.getMethod();
         return m.isPublic() && m.isStatic() && mm.getParameterTypes().length == 0 &&
             (Tuple.class.isAssignableFrom(mm.getReturnType()) ||
-                Iterable.class.isAssignableFrom(mm.getReturnType()));
+                (Iterable.class.isAssignableFrom(mm.getReturnType())
+                ));
       }
 
       @Override
