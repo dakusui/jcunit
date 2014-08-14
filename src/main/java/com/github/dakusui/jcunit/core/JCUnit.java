@@ -56,7 +56,7 @@ public class JCUnit extends Suite {
       ////
       // Compose a list of 'negative test cases' and register them.
       ConstraintManager cm = tupleGenerator.getConstraintManager();
-      final List<LabeledTestCase> violations = cm.getViolations();
+      final List<Tuple> violations = cm.getViolations();
       id = registerLabeledTestCases(
           id,
           factors,
@@ -106,18 +106,18 @@ public class JCUnit extends Suite {
 
   private int registerLabeledTestCases(int id,
       Factors factors,
-      Iterable<LabeledTestCase> labeledTestCases,
+      Iterable<Tuple> testCases,
       TestCaseType testCaseType,
       List<FrameworkMethod> preconditionMethods)
       throws Throwable {
-    for (LabeledTestCase labeledTestCase : labeledTestCases) {
-      if (shouldPerform(labeledTestCase.getTestCase(), preconditionMethods)) {
+    for (Tuple testCase : testCases) {
+      if (shouldPerform(testCase, preconditionMethods)) {
         runners.add(new JCUnitRunner(
             getTestClass().getJavaClass(),
             id,
             testCaseType,
             factors,
-            labeledTestCase.getTestCase()));
+            testCase));
       }
       id++;
     }
@@ -129,18 +129,18 @@ public class JCUnit extends Suite {
     return runners;
   }
 
-  private List<LabeledTestCase> invokeCustomTestCasesMethod(List<FrameworkMethod> customTestCasesMethods) {
-    List<LabeledTestCase> ret = new LinkedList<LabeledTestCase>();
+  private List<Tuple> invokeCustomTestCasesMethod(List<FrameworkMethod> customTestCasesMethods) {
+    List<Tuple> ret = new LinkedList<Tuple>();
     try {
       for (FrameworkMethod m : customTestCasesMethods) {
         Object r = m.invokeExplosively(null);
 
-        if (r instanceof LabeledTestCase) {
-          ret.add((LabeledTestCase) r);
+        if (r instanceof Tuple) {
+          ret.add((Tuple) r);
         } else if (r instanceof Iterable) {
           for (Object o : (Iterable) r) {
-            if (o instanceof LabeledTestCase) {
-              ret.add((LabeledTestCase) o);
+            if (o instanceof Tuple) {
+              ret.add((Tuple) o);
             } else {
               ConfigUtils.checkEnv(false, "Returned value of '%s' must contain only LabeledTestCase objects.");
             }
@@ -217,7 +217,7 @@ public class JCUnit extends Suite {
       public boolean validate(Class testClass, FrameworkMethod m) {
         Method mm = m.getMethod();
         return m.isPublic() && m.isStatic() && mm.getParameterTypes().length == 0 &&
-            (LabeledTestCase.class.isAssignableFrom(mm.getReturnType()) ||
+            (Tuple.class.isAssignableFrom(mm.getReturnType()) ||
                 Iterable.class.isAssignableFrom(mm.getReturnType()));
       }
 

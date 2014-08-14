@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.framework.tests.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
-import com.github.dakusui.jcunit.core.LabeledTestCase;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -119,7 +118,9 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
           return false;
         }
       }
-      if (insufficientTuple) throw new JCUnitSymbolException();
+      if (insufficientTuple) {
+        throw new JCUnitSymbolException();
+      }
       return true;
     }
 
@@ -147,7 +148,7 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
 
     }
 
-    @Override public List<LabeledTestCase> getViolations() {
+    @Override public List<Tuple> getViolations() {
       return Collections.emptyList();
     }
   }

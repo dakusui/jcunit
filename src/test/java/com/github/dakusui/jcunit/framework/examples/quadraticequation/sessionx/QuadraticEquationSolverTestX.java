@@ -15,17 +15,16 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.TestCaseUtils.*;
+import static com.github.dakusui.jcunit.core.TestCaseUtils.factor;
+import static com.github.dakusui.jcunit.core.TestCaseUtils.newTestCase;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
-/*/
 @TupleGeneration(
     constraint = @Constraint(
         value = QuadraticEquationSolverTestX.CM.class,
         params = {
         }))
-        /*/
 public class QuadraticEquationSolverTestX {
   @Rule
   public TestName   name = new TestName();
@@ -40,12 +39,10 @@ public class QuadraticEquationSolverTestX {
 
   @SuppressWarnings("unchecked")
   @CustomTestCases
-  public static Iterable<LabeledTestCase> parameters() {
+  public static Iterable<Tuple> parameters() {
     return Arrays.asList(
-        createLabeledTestCase(labels("double root"),
-            newTestCase(factor("a", 1), factor("b", 2), factor("c", 1))),
-        createLabeledTestCase(labels("linear equation"),
-            newTestCase(factor("a", 0), factor("b", 200), factor("c", 1))
+        newTestCase(factor("a", 1), factor("b", 2), factor("c", 1)),
+        newTestCase(factor("a", 0), factor("b", 200), factor("c", 1)
         ));
   }
 
@@ -63,13 +60,11 @@ public class QuadraticEquationSolverTestX {
     }
 
     @Override
-    public List<LabeledTestCase> getViolations() {
-      List<LabeledTestCase> ret = new LinkedList<LabeledTestCase>();
-      ret.add(createLabeledTestCase(labels("a=0"), createTestCase(0, 1, 1)));
-      ret.add(createLabeledTestCase(labels("b*b-4ca<0"),
-          createTestCase(100, 1, 100)));
-      ret.add(createLabeledTestCase(labels("nonsense 1=0"),
-          createTestCase(0, 0, 1)));
+    public List<Tuple> getViolations() {
+      List<Tuple> ret = new LinkedList<Tuple>();
+      ret.add(createTestCase(0, 1, 1));
+      ret.add(createTestCase(100, 1, 100));
+      ret.add(createTestCase(0, 0, 1));
       return ret;
     }
 
@@ -83,7 +78,8 @@ public class QuadraticEquationSolverTestX {
     return testCase.a != 0;
   }
 
-  public static boolean isDiscriminantNonNegative(QuadraticEquationSolverTestX test) {
+  public static boolean isDiscriminantNonNegative(
+      QuadraticEquationSolverTestX test) {
     int a = test.a;
     int b = test.b;
     int c = test.c;
@@ -97,7 +93,7 @@ public class QuadraticEquationSolverTestX {
   @Given({ "!isANonZero", "!isDiscriminantNonNegative" })
   @Test(expected = IllegalArgumentException.class)
   public void solveEquationThenIllegalArgumentExceptionWillBeThrown() {
-    QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+    new QuadraticEquationSolver(a, b,
         c).solve();
   }
 

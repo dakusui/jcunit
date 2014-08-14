@@ -2,9 +2,8 @@ package com.github.dakusui.jcunit.constraint;
 
 import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
-import com.github.dakusui.jcunit.core.LabeledTestCase;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 
 import java.util.List;
@@ -32,6 +31,6 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
 
   void removeObservers(ConstraintObserver observer);
 
-  List<LabeledTestCase> getViolations();
+  List<Tuple> getViolations();
 
 }
