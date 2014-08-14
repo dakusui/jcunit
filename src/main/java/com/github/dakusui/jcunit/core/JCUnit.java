@@ -9,20 +9,12 @@ import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 
-/**
- * <pre>
- * # | '@Test' | '@Then' |
- * 1 | Absent  | Absent  | The method will not be executed.
- * 2 | Absent  | Present | The method will be executed when a method whose name appears in '@Then' 's value returns true.
- * 3 | Present | Absent  | The method will be executed always. Parameters given to @Test will be respected.
- * 4 | Present | Present | The method will be executed same as #2. Parameters given to @Test will also be respected.
- * </pre>
- */
 public class JCUnit extends Suite {
   private final ArrayList<Runner> runners = new ArrayList<Runner>();
 
@@ -86,11 +78,25 @@ public class JCUnit extends Suite {
     }
   }
 
+  static Object createTest(TestClass testClass, Tuple testCase) {
+    Object ret = null;
+    try {
+      ret = testClass.getJavaClass().newInstance();
+    } catch (InstantiationException e) {
+      ConfigUtils.rethrow(e, "Failed to instantiate %s", testClass);
+    } catch (IllegalAccessException e) {
+      ConfigUtils.rethrow(e, "Failed to instantiate %s", testClass);
+    }
+    Utils.initializeObjectWithTuple(ret, testCase);
+    return ret;
+  }
+
   private boolean shouldPerform(Tuple testCase, List<FrameworkMethod> preconditionMethods) {
     boolean ret = true;
     for (FrameworkMethod m : preconditionMethods) {
       try {
-        ret &= (Boolean)m.invokeExplosively(null, testCase);
+        Object testObject = createTest(this.getTestClass(), testCase);
+        ret &= (Boolean)m.invokeExplosively(null, testObject);
       } catch (Throwable throwable) {
         ConfigUtils.rethrow(throwable, "Failed to execute ");
       }
@@ -154,7 +160,7 @@ public class JCUnit extends Suite {
     List<FrameworkMethod> methods = getTestClass().getAnnotatedMethods(annClass);
     List<FrameworkMethod> ret = new ArrayList<FrameworkMethod>(methods.size());
     for (FrameworkMethod m : methods) {
-      if (validator.validate(m)) {
+      if (validator.validate(getTestClass().getJavaClass(), m)) {
         ret.add(m);
       } else {
         failures.add(
@@ -170,7 +176,6 @@ public class JCUnit extends Suite {
   }
 
   static void validateTestPreconditionMethod(Class<?> testClass, FrameworkMethod method, List<String> failures) {
-    List<Throwable> throwables = new LinkedList<Throwable>();
     if (!method.isPublic()) {
       failures.add(String.format(
           "The method '%s' must be public. (in %s)", method.getName(), testClass.getCanonicalName()
@@ -186,9 +191,6 @@ public class JCUnit extends Suite {
           "The method '%s' must return a boolean value. (in %s)", method.getName(), testClass.getCanonicalName()
       ));
     }
-    for (Throwable t : throwables) {
-      failures.add(t.getMessage());
-    }
   }
 
   /**
@@ -196,12 +198,12 @@ public class JCUnit extends Suite {
    */
   static Method getTestPreconditionMethod(Class<?> testClass, String methodName, List<String> failures) {
     try {
-      return testClass.getMethod(methodName, Tuple.class);
+      return testClass.getMethod(methodName, testClass);
     } catch (NoSuchMethodException e) {
       failures.add(String.format(
-          "The method '%s(Tuple)' can't be found in the test class '%s'.",
+          "The method '%s(%s)' can't be found in the test class '%s'.",
           methodName,
-          Given.class.getSimpleName(),
+          testClass,
           testClass.getName()
       ));
       return null;
@@ -209,10 +211,10 @@ public class JCUnit extends Suite {
   }
 
 
-  public static interface FrameworkMethodValidator {
+  public interface FrameworkMethodValidator {
     public static final FrameworkMethodValidator CUSTOM_TESTCASES = new FrameworkMethodValidator() {
       @Override
-      public boolean validate(FrameworkMethod m) {
+      public boolean validate(Class testClass, FrameworkMethod m) {
         Method mm = m.getMethod();
         return m.isPublic() && m.isStatic() && mm.getParameterTypes().length == 0 &&
             (LabeledTestCase.class.isAssignableFrom(mm.getReturnType()) ||
@@ -232,11 +234,11 @@ public class JCUnit extends Suite {
 
     public static final FrameworkMethodValidator PRECONDITION = new FrameworkMethodValidator() {
       @Override
-      public boolean validate(FrameworkMethod m) {
+      public boolean validate(Class<?> testClass, FrameworkMethod m) {
         Method mm = m.getMethod();
-        boolean ret = true;
-        ret &= mm.getParameterTypes().length == 1;
-        ret &= Tuple.class.isAssignableFrom(mm.getParameterTypes()[0]);
+        boolean ret;
+        ret = mm.getParameterTypes().length == 1;
+        ret &= mm.getParameterTypes()[0].isAssignableFrom(testClass);
         List<String> failures = new LinkedList<String>();
         validateTestPreconditionMethod(m.getDeclaringClass(), m, failures);
         ret &= failures.isEmpty();
@@ -251,11 +253,11 @@ public class JCUnit extends Suite {
 
       @Override
       public String getDescription() {
-        return "public, static, returning boolean, accepting a Tuple as the first parameter";
+        return "public, static, returning boolean, accepting an object of the class in which it is declared as the first parameter";
       }
     };
 
-    public boolean validate(FrameworkMethod m);
+    public boolean validate(Class<?> testClass, FrameworkMethod m);
 
     public Class<? extends Annotation> getAnnotation();
 

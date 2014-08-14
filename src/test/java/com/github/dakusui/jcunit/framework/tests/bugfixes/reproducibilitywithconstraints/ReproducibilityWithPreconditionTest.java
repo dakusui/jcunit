@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.framework.tests.bugfixes.reproducibilitywithco
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Given;
 import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.Precondition;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -41,9 +42,9 @@ public class ReproducibilityWithPreconditionTest {
     expectations.put(8, "8;{\"a\":3,\"b\":3,\"c\":3}");
   }
 
-  @Given
-  public static boolean filter(Tuple tuple) {
-    return tuple.get("a").equals(3);
+  @Precondition
+  public static boolean filter(ReproducibilityWithPreconditionTest test) {
+    return test.a == 3;
   }
 
 

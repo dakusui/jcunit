@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -37,11 +36,9 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   }
 
   @Override
-  public Object createTest() throws Exception {
+  public Object createTest() {
     TestClass klazz = getTestClass();
-    Object ret = klazz.getJavaClass().newInstance();
-    Utils.initializeObjectWithTuple(ret, testCase);
-    return ret;
+    return JCUnit.createTest(klazz, testCase);
   }
 
   @Override
@@ -76,7 +73,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
     for (FrameworkMethod each : computeTestMethods()) {
       assert this.testCase != null;
-      if (shouldInvoke(each, this.testCase)) ret.add(each);
+      if (shouldInvoke(each, createTest())) ret.add(each);
     }
     if (ret.isEmpty()) {
       throw new RuntimeException(String.format("No matching test method is found for test: %s", this.testCase));
@@ -85,11 +82,11 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   }
 
 
-  private boolean shouldInvoke(FrameworkMethod testMethod, Tuple testCase) {
+  private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
     List<String> failures = new LinkedList<String>();
     List<FrameworkMethod> preconditionMethods = getTestPreconditionMethodsFor(testMethod, failures);
     ConfigUtils.checkTest(failures.isEmpty(), "Errors are found while precondition checks.: %s", failures);
-    return shouldInvoke(testCase, preconditionMethods);
+    return shouldInvoke(testObject, preconditionMethods);
   }
 
   /**
@@ -99,12 +96,12 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
    * An empty set returned by this method means no test method should be executed
    * for the given {@code testCase}.
    */
-  private static boolean shouldInvoke(Tuple testCase, List<FrameworkMethod> preconditions) {
+  private static boolean shouldInvoke(Object testObject, List<FrameworkMethod> preconditions) {
     if (preconditions == null) return true;
     List<String> failures = new LinkedList<String>();
     for (FrameworkMethod each : preconditions) {
       try {
-        if ((Boolean) each.invokeExplosively(null, testCase)) {
+        if ((Boolean) each.invokeExplosively(null, testObject)) {
           return true;
         }
       } catch (Throwable throwable) {
@@ -158,8 +155,9 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
       ////
       // Funky thing: reformat the last message.
       failures.add(String.format(
-          "The method '%s(Tuple)' (referred to by '%s' of method '%s') can't be found in the test class '%s' .",
+          "The method '%s(%s)' (referred to by '%s' of method '%s') can't be found in the test class '%s' .",
           methodName,
+          testClass,
           Given.class.getSimpleName(),
           referredToBy.getName(),
           testClass.getName()

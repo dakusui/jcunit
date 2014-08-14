@@ -19,11 +19,13 @@ import static com.github.dakusui.jcunit.core.TestCaseUtils.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
+/*/
 @TupleGeneration(
     constraint = @Constraint(
         value = QuadraticEquationSolverTestX.CM.class,
         params = {
         }))
+        /*/
 public class QuadraticEquationSolverTestX {
   @Rule
   public TestName   name = new TestName();
@@ -41,7 +43,9 @@ public class QuadraticEquationSolverTestX {
   public static Iterable<LabeledTestCase> parameters() {
     return Arrays.asList(
         createLabeledTestCase(labels("double root"),
-            newTestCase(factor("a", 1), factor("b", 2), factor("c", 1))
+            newTestCase(factor("a", 1), factor("b", 2), factor("c", 1))),
+        createLabeledTestCase(labels("linear equation"),
+            newTestCase(factor("a", 0), factor("b", 200), factor("c", 1))
         ));
   }
 
@@ -74,35 +78,44 @@ public class QuadraticEquationSolverTestX {
     }
   }
 
-//  @Precondition
-  public static boolean isAZero(Tuple testCase) {
-    return testCase.get("a").equals(0);
+  //  @Precondition
+  public static boolean isANonZero(QuadraticEquationSolverTestX testCase) {
+    return testCase.a != 0;
   }
 
-  public static boolean isDiscriminantNonNegative(Tuple testCase) {
-    int a = (Integer) testCase.get("a");
-    int b = (Integer) testCase.get("b");
-    int c = (Integer) testCase.get("c");
-    return a != 0 && b * b - 4 * c * a >= 0;
+  public static boolean isDiscriminantNonNegative(QuadraticEquationSolverTestX test) {
+    int a = test.a;
+    int b = test.b;
+    int c = test.c;
+    return b * b - 4 * c * a >= 0;
   }
 
-  @Given({"isAZero", "!isDiscriminantNonNegative"})
+  public static boolean isValidQuadratic(QuadraticEquationSolverTestX test) {
+    return isANonZero(test) && isDiscriminantNonNegative(test);
+  }
+
+  @Given({ "!isANonZero", "!isDiscriminantNonNegative" })
   @Test(expected = IllegalArgumentException.class)
-  public void illegalArgumentExceptionWillBeThrown() {
+  public void solveEquationThenIllegalArgumentExceptionWillBeThrown() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
   }
 
-  @Given("isDiscriminantNonNegative")
+  @Given({ "isValidQuadratic" })
   @Test
-  public void test() {
-    System.out.println(String
-        .format("desc=(%s,%s)", desc.getTestName(), desc.getTestCaseType()));
-    QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
-        c).solve();
-    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
-        a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
-    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
-        a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
+  public void solveEquationThenSolutionsArePreciseEnough() {
+    try {
+      System.out.println(String
+          .format("desc=(%s,%s)", desc.getTestName(), desc.getTestCaseType()));
+      QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+          c).solve();
+      assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+          a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
+      assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+          a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
+    } catch (IllegalArgumentException e) {
+      System.err.println("*** " + this.desc.getTestCase() + " ***");
+      throw e;
+    }
   }
 }
