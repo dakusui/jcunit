@@ -8,14 +8,14 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import java.io.File;
 import java.io.IOException;
 
-public class TestUtils {
+public class UTUtils {
   public static final Factors defaultFactors = new Factors.Builder().add(
       new Factor.Builder().setName("A").addLevel("a1").addLevel("a2").build()
   ).add(
       new Factor.Builder().setName("B").addLevel("b1").addLevel("b2").build()
   ).build();
 
-  private TestUtils() {
+  private UTUtils() {
   }
 
   public static File createTempDirectory() throws IOException {

@@ -9,14 +9,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class Utils {
 
-  public static void initializeObjectWithSchemafulTuple(Object testObject,
+  public static void initializeObjectWithTuple(Object testObject,
       Tuple tuple) {
     for (String fieldName : tuple.keySet()) {
       Field f;
@@ -109,6 +106,20 @@ public class Utils {
     return join(sep, Formatter.INSTANCE, elems);
   }
 
+  public static boolean intersects(Set<?> a, Set<?> b) {
+    Utils.checknotnull(a);
+    Utils.checknotnull(b);
+    if (a.size() > b.size()) {
+      Set<?> c = b;
+      b = a;
+      a = c;
+    }
+    for (Object eachA : a) {
+      if (b.contains(eachA)) return true;
+    }
+    return false;
+  }
+
   /**
    * Checks if the given {@code obj} is {@code null} or not.
    * If it is, a {@code NullPointerException} will be thrown.
@@ -178,7 +189,7 @@ public class Utils {
    *
    * @param e An exception to be re-thrown.
    */
-  public static void rethrow(Exception e) {
+  public static void rethrow(Throwable e) {
     rethrow(e, e.getMessage());
   }
 

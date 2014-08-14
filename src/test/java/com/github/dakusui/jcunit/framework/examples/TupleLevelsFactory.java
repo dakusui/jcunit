@@ -31,7 +31,7 @@ public class TupleLevelsFactory extends LevelsFactoryBase {
   @Override
   public Object get(int index) {
     Object ret = Utils.createNewInstanceUsingNoParameterConstructor(this.targetField.getType());
-    Utils.initializeObjectWithSchemafulTuple(ret, this.generator.get(index));
+    Utils.initializeObjectWithTuple(ret, this.generator.get(index));
     return ret;
   }
 }

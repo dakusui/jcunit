@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.exceptions.JCUnitParameterException;
 import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ConfigUtils {
   public static void checkParam(boolean cond, String msg,
@@ -26,8 +27,16 @@ public class ConfigUtils {
     }
   }
 
+  public static void checkTest(boolean cond, String msg, Object... args) {
+    if (!cond) {
+      throw new JCUnitEnvironmentException(String.format(msg, args));
+    }
+  }
+
   public static void rethrow(Throwable t, String msg, Object... args) {
-    throw new JCUnitParameterException(String.format(msg, args), t);
+    RuntimeException e = new JCUnitParameterException(String.format(msg, args), t);
+    e.setStackTrace(t.getStackTrace());
+    throw e;
   }
 
   public static Object[] processParams(ParamType[] types, Param[] params) {

@@ -5,20 +5,17 @@ import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
-import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.github.dakusui.jcunit.core.TestCaseUtils.*;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
@@ -48,28 +45,6 @@ public class QuadraticEquationSolverTestX {
         ));
   }
 
-  @Test
-  public void test() {
-    System.out.println(String
-        .format("desc=(%s,%s,%s)", desc.getTestName(), desc.getTestCaseType(),
-            desc.getLabels()));
-    QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
-        c).solve();
-    List<Serializable> labels = desc.getLabels();
-    if (labels.contains("a=0")) {
-      assertEquals(null, s);
-    } else if (labels.contains("b*b-4ca<0")) {
-      assertEquals(null, s);
-    } else if (labels.contains("nonsense 1=0")) {
-      assertEquals(null, s);
-    } else {
-      assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
-          a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
-      assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
-          a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
-    }
-  }
-
   public static class CM extends ConstraintManagerBase {
     @Override
     public boolean check(Tuple tuple) throws JCUnitSymbolException {
@@ -97,5 +72,37 @@ public class QuadraticEquationSolverTestX {
     private Tuple createTestCase(int a, int b, int c) {
       return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
     }
+  }
+
+//  @Precondition
+  public static boolean isAZero(Tuple testCase) {
+    return testCase.get("a").equals(0);
+  }
+
+  public static boolean isDiscriminantNonNegative(Tuple testCase) {
+    int a = (Integer) testCase.get("a");
+    int b = (Integer) testCase.get("b");
+    int c = (Integer) testCase.get("c");
+    return a != 0 && b * b - 4 * c * a >= 0;
+  }
+
+  @Given({"isAZero", "!isDiscriminantNonNegative"})
+  @Test(expected = IllegalArgumentException.class)
+  public void illegalArgumentExceptionWillBeThrown() {
+    QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+        c).solve();
+  }
+
+  @Given("isDiscriminantNonNegative")
+  @Test
+  public void test() {
+    System.out.println(String
+        .format("desc=(%s,%s)", desc.getTestName(), desc.getTestCaseType()));
+    QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+        c).solve();
+    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+        a * s.x1 * s.x1 + b * s.x1 + c, new LessThan<Double>(0.01));
+    assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
+        a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
   }
 }

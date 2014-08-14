@@ -25,6 +25,6 @@ public class JCUnitUserException extends JCUnitException {
 
   @Override
   public String getMessage() {
-    return String.format("(%s):%s", this.getTargetClass().getSimpleName(), super.getMessage());
+    return String.format("(%s):%s", this.getTargetClass(), super.getMessage());
   }
 }

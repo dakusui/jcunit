@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.framework.tests.core;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.framework.utils.TestUtils;
+import com.github.dakusui.jcunit.framework.utils.UTUtils;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -15,13 +15,13 @@ public class FactorsTest {
   public void generateAllPossibleTuples() {
     assertThat(
         new HashSet<Tuple>(
-            TestUtils.defaultFactors.generateAllPossibleTuples(2)
+            UTUtils.defaultFactors.generateAllPossibleTuples(2)
         ),
         is(new HashSet<Tuple>(asList(new Tuple[]{
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
         })))
     );
   }

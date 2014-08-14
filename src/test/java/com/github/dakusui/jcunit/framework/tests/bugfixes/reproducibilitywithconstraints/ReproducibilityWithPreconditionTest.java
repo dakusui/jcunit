@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.framework.tests.bugfixes.reproducibilitywithconstraints;
 
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.Filter;
+import com.github.dakusui.jcunit.core.Given;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
-public class ReproducibilityWithFilterTest {
+public class ReproducibilityWithPreconditionTest {
   @Rule
   public JCUnitDesc desc = new JCUnitDesc();
 
@@ -41,7 +41,7 @@ public class ReproducibilityWithFilterTest {
     expectations.put(8, "8;{\"a\":3,\"b\":3,\"c\":3}");
   }
 
-  @Filter
+  @Given
   public static boolean filter(Tuple tuple) {
     return tuple.get("a").equals(3);
   }
@@ -55,6 +55,10 @@ public class ReproducibilityWithFilterTest {
     expectations.remove(this.desc.getId());
   }
 
+  @Test
+  public void test2() {
+
+  }
   @AfterClass
   public static void afterClass() {
     assertTrue(expectations.isEmpty());

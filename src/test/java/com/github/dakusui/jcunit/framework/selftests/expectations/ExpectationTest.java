@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManager
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
-import com.github.dakusui.jcunit.framework.utils.TestUtils;
+import com.github.dakusui.jcunit.framework.utils.UTUtils;
 import com.github.dakusui.jcunit.framework.utils.tuples.*;
 import org.junit.Test;
 
@@ -21,11 +21,11 @@ public class ExpectationTest {
   public void presence01() throws Exception {
     VerificationResult result = verify(
         PresenceExpectation.class,
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         ),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         )
     );
     assertThat(result.isSuccessful(), is(true));
@@ -36,12 +36,12 @@ public class ExpectationTest {
   public void presence02() throws Exception {
     VerificationResult result = verify(
         PresenceExpectation.class,
-        TestUtils.tuples(
+        UTUtils.tuples(
 
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         ),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
         ));
     assertThat(result.isSuccessful(), is(false));
     result.check();
@@ -51,10 +51,10 @@ public class ExpectationTest {
   @Test
   public void presence03() throws Exception {
     VerificationResult result = verify(PresenceExpectation.class,
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
-        ), TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").put("C", "c1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        ), UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").put("C", "c1").build()
         ));
     assertThat(result.isSuccessful(), is(true));
     result.check();
@@ -64,11 +64,11 @@ public class ExpectationTest {
   public void presence04() throws Exception {
     VerificationResult result =
         verify(PresenceExpectation.class,
-            TestUtils.tuples(
-                TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
-            ), TestUtils.tuples(
-                TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").put("C", "c1").build(),
-                TestUtils.tupleBuilder().put("A", "a2").put("B", "b2").put("C", "c2").build()
+            UTUtils.tuples(
+                UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+            ), UTUtils.tuples(
+                UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").put("C", "c1").build(),
+                UTUtils.tupleBuilder().put("A", "a2").put("B", "b2").put("C", "c2").build()
             ));
     assertThat(result.isSuccessful(), is(true));
     result.check();
@@ -78,11 +78,11 @@ public class ExpectationTest {
   public void absence01() throws Exception {
     VerificationResult result = verify(
         AbsenceExpectation.class,
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         ),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         )
     );
     assertThat(result.isSuccessful(), is(false));
@@ -93,11 +93,11 @@ public class ExpectationTest {
   public void absence02() throws Exception {
     VerificationResult result = verify(
         AbsenceExpectation.class,
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         ),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b2").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build()
         )
     );
     assertThat(result.isSuccessful(), is(true));
@@ -107,12 +107,12 @@ public class ExpectationTest {
   @Test
   public void validTuplesCovered01() throws Exception {
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(TestUtils.defaultFactors, 2, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
         )
     );
     result.check();
@@ -124,13 +124,13 @@ public class ExpectationTest {
     ////
     // Even if there is extra tuple, it should be acceptable.
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(TestUtils.defaultFactors, 2, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b2").build(),
-            TestUtils.tupleBuilder().put("A", "a3").put("B", "b3").build()
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b2").build(),
+            UTUtils.tupleBuilder().put("A", "a3").put("B", "b3").build()
         )
     );
     result.check();
@@ -142,11 +142,11 @@ public class ExpectationTest {
     ////
     // If there is a missing tuple, it will be complained.
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(TestUtils.defaultFactors, 2, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b1").build()
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b1").build()
         )
     );
     result.check();
@@ -156,12 +156,12 @@ public class ExpectationTest {
   @Test
   public void sanity01() throws Exception {
     VerificationResult result = verify(
-        new SanityExpectation(TestUtils.defaultFactors),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
-            TestUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
+        new SanityExpectation(UTUtils.defaultFactors),
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b1").build(),
+            UTUtils.tupleBuilder().put("A", "a2").put("B", "b2").build()
         )
     );
     result.check();
@@ -171,9 +171,9 @@ public class ExpectationTest {
   @Test
   public void sanity02() throws Exception {
     VerificationResult result = verify(
-        new SanityExpectation(TestUtils.defaultFactors),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        new SanityExpectation(UTUtils.defaultFactors),
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         )
     );
     result.check();
@@ -183,9 +183,9 @@ public class ExpectationTest {
   @Test(expected = JCUnitAssertionError.class)
   public void sanityE01() throws Exception {
     VerificationResult result = verify(
-        new SanityExpectation(TestUtils.defaultFactors),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b3").build()
+        new SanityExpectation(UTUtils.defaultFactors),
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b3").build()
         )
     );
     result.check();
@@ -194,9 +194,9 @@ public class ExpectationTest {
   @Test(expected = JCUnitAssertionError.class)
   public void sanityE02() throws Exception {
     VerificationResult result = verify(
-        new SanityExpectation(TestUtils.defaultFactors),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").put("E", "e1").build()
+        new SanityExpectation(UTUtils.defaultFactors),
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").put("E", "e1").build()
         )
     );
     result.check();
@@ -207,8 +207,8 @@ public class ExpectationTest {
   public void constraintViolationN01() throws Exception {
     VerificationResult result = verify(
         new NoConstraintViolationExpectation(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         )
     );
     result.check();
@@ -223,8 +223,8 @@ public class ExpectationTest {
             return !(new Tuple.Builder().put("A", "a1").put("B", "b1").build().equals(tuple));
           }
         }),
-        TestUtils.tuples(
-            TestUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
+        UTUtils.tuples(
+            UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         )
     );
     result.check();

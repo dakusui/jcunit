@@ -29,7 +29,7 @@ public abstract class ParamType  implements Cloneable {
       this.enclosedType = enclosedType;
     }
 
-    protected Object parse(String[] parameters) {
+    final protected Object parse(String[] parameters) {
       Utils.checknotnull(parameters);
       Object[] ret = new Object[parameters.length];
       int i = 0;
