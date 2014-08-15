@@ -8,5 +8,4 @@ import java.util.Arrays;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Param {
   String[] value();
-
 }

@@ -26,7 +26,7 @@ public class TupleGeneratorFactory {
     Utils.checknotnull(klazz);
     TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
         klazz);
-    return createSchemafulTupleGenerator(klazz, tupleGenerationAnn);
+    return createTupleGenerator(klazz, tupleGenerationAnn);
   }
 
   public TupleGenerator createTupleGeneratorForField(
@@ -34,11 +34,11 @@ public class TupleGeneratorFactory {
     Utils.checknotnull(field);
     TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
         field);
-    return createSchemafulTupleGenerator(field.getType(),
+    return createTupleGenerator(field.getType(),
         tupleGenerationAnn);
   }
 
-  private TupleGenerator createSchemafulTupleGenerator(Class<?> klazz,
+  private TupleGenerator createTupleGenerator(Class<?> klazz,
       TupleGeneration tupleGenerationAnn) {
     Factors factors = loadFactors(klazz);
     Generator generatorAnn = tupleGenerationAnn.generator();

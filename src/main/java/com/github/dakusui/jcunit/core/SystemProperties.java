@@ -21,10 +21,20 @@ public class SystemProperties {
       public String key() {
         return "jcunit.basedir";
       }
+    },
+    RECORDER {
+      @Override public String key() {
+        return "jcunit.recorder";
+      }
+    },
+    REPLAYER {
+      @Override public String key() {
+        return "jcunit.replayer";
+      }
     };
 
     public abstract String key();
-  }
+    }
 
   private SystemProperties() {
   }
@@ -43,4 +53,13 @@ public class SystemProperties {
   public static boolean isDebugEnabled() {
     return Boolean.parseBoolean(System.getProperty(KEY.DEBUG.key(), "false"));
   }
+
+  public static boolean isRecorderEnabled() {
+    return Boolean.parseBoolean(System.getProperty(KEY.RECORDER.key(), "false"));
+  }
+
+  public static boolean isReplayerEnabled() {
+    return Boolean.parseBoolean(System.getProperty(KEY.REPLAYER.key(), "false"));
+  }
+
 }

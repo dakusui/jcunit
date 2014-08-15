@@ -145,6 +145,10 @@ public abstract class ParamType  implements Cloneable {
     return this.defaultValue;
   }
 
+  public boolean isVarArgs() {
+    return false;
+  }
+
   public ParamType withDefaultValue(Object defaultValue) {
     ParamType ret;
     try {

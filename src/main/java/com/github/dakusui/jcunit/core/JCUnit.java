@@ -86,16 +86,16 @@ public class JCUnit extends Suite {
   }
 
   private boolean shouldPerform(Tuple testCase, List<FrameworkMethod> preconditionMethods) {
-    boolean ret = true;
+    if (preconditionMethods.isEmpty()) return true;
     for (FrameworkMethod m : preconditionMethods) {
       try {
         Object testObject = createTest(this.getTestClass(), testCase);
-        ret &= (Boolean)m.invokeExplosively(null, testObject);
+        if ((Boolean)m.invokeExplosively(null, testObject)) return true;
       } catch (Throwable throwable) {
         ConfigUtils.rethrow(throwable, "Failed to execute ");
       }
     }
-    return ret;
+    return false;
   }
 
   private int registerTestCases(int id,

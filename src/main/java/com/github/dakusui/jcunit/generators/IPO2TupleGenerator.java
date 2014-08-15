@@ -11,8 +11,11 @@ import java.util.List;
 public class IPO2TupleGenerator extends TupleGeneratorBase {
   List<Tuple> tests;
 
-  @Override public Tuple getSchemafulTuple(int tupleId) {
-    return this.tests.get((int) tupleId);
+  /**
+   * {@inheritDoc}
+   */
+  @Override public Tuple getTuple(int tupleId) {
+    return this.tests.get(tupleId);
   }
 
   /**
@@ -22,7 +25,7 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
    * <p/>
    * If more than 1 parameter is given, this method will throw an {@code IllegalArgumentException}.
    */
-  @Override protected long initializeSchemafulTuples(
+  @Override protected long initializeTuples(
       Object[] processedParameters) {
     int strength = processedParameters.length == 0 ?
         2 :

@@ -55,7 +55,7 @@ public class QuadraticEquationSolverTestX {
     return ret;
   }
 
-  //  @Precondition
+  //@Precondition
   public static boolean isANonZero(QuadraticEquationSolverTestX testCase) {
     return testCase.a != 0;
   }

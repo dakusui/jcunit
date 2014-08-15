@@ -248,6 +248,16 @@ public class Utils {
     return v.equals(o);
   }
 
+  public static boolean createFile(File file) {
+    checknotnull(file);
+    try {
+      return file.createNewFile();
+    } catch (IOException e) {
+      Utils.rethrow(e);
+    }
+    return false;
+  }
+
   public static interface Formatter<T> {
     public static final Formatter INSTANCE = new Formatter<Object>() {
       @Override
