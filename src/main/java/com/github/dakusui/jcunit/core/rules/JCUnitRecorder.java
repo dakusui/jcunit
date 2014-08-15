@@ -12,7 +12,7 @@ import java.io.File;
  * The default directory is {@code .jcunit} under the current directory.
  *
  * This class doesn't do anything in case a system property {@code jcunit.recorder} isn't
- * set {@codde true}.
+ * set {@code true}.
  */
 public class JCUnitRecorder extends JCUnitRule {
   public static final String TESTCASE_FILENAME  = "testcase.ser";
@@ -22,10 +22,20 @@ public class JCUnitRecorder extends JCUnitRule {
 
   private File dir;
 
+  /**
+   * Creates an object of this class with {@code null} base directory, which makes
+   * JCUnit use the value System.getProperty("jcunit.basedir")
+   * as the base directory to store test execution data.
+   */
   public JCUnitRecorder() {
     this(null);
   }
 
+  /**
+   * Creates an object of this class with {@code baseDir}.
+   *
+   * @param baseDir base directory of test execution data.
+   */
   public JCUnitRecorder(String baseDir) {
     this.baseDir = baseDir;
   }

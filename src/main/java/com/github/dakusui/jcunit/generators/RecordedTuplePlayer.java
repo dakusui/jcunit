@@ -15,22 +15,34 @@ import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+/**
+ * @see RecordedTuplePlayer#parameterTypes() for parameters definition.
+ */
 public class RecordedTuplePlayer extends TupleGeneratorBase {
   private final GenerationMode         generationMode;
   private       SortedMap<Long, Tuple> tuples;
   private       TupleGeneratorBase     fallbackGenerator;
 
+  /**
+   * Creates an object of this class.
+   */
   public RecordedTuplePlayer() {
     this.generationMode = SystemProperties.isReplayerEnabled() ?
         GenerationMode.Replay :
         GenerationMode.Fallback;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Tuple getTuple(int tupleId) {
     return this.generationMode.getTuple(this, tupleId);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected long initializeTuples(Object[] params) {
     return this.generationMode.initializeTuples(this, params);
@@ -40,12 +52,18 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
     return Long.parseLong(dirName.substring(dirName.lastIndexOf('-') + 1));
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long nextId(long tupleId) {
     assert this.generationMode != null;
     return this.generationMode.nextId(this, tupleId);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public long firstId() {
     assert this.generationMode != null;
@@ -83,10 +101,23 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
     );
   }
 
-  @Override public ParamType[] parameterTypes() {
+  /**
+   * Returns definitions of the parameters for this class.
+   * Below is the list of parameters.
+   * <ul>
+   * <li>0: Replay mode. 'All' or 'FailedOnly'. Note that 'FailedOnly' is only effective for
+   * generated test cases. So, test cases returned by '@CustomTestCase' annotated methods or
+   * {@code ConstraintManager#getViolations} will be executed regardless of this value. Remove
+   * the annotation or make the methods return empty lists to suppress then.</li>
+   * <li>1: Base directory of test data. By default, null (, which then defaults to .jcunit).</li>
+   * <li>2: Class name of a fall back tuple generator. By default IPO2TupleGenerator.</li>
+   * <li>3...: Parameters passed to fallback tuple generator.</li>
+   * </ul>
+   */
+  @Override
+  public ParamType[] parameterTypes() {
     return new ParamType[] {
-        /** 0: Replay mode. 'All' or 'FailedOnly'. */
-        new ParamType.NonArrayType() {
+          new ParamType.NonArrayType() {
           @Override protected Object parse(String str) {
             return ReplayMode.valueOf(str);
           }
@@ -96,9 +127,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
                 + ".ReplayMode";
           }
         }.withDefaultValue(ReplayMode.All),
-        /** 1: Base directory of test data. By default, null (, which then defaults to .jcunit). */
         ParamType.String.withDefaultValue(null),
-        /** 2: Class name of a fall back tuple generator. By default IPO2TupleGenerator*/
         new ParamType.NonArrayType() {
           @SuppressWarnings("unchecked") @Override
           protected Class<? extends TupleGeneratorBase> parse(
@@ -120,7 +149,6 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
             return null;
           }
         }.withDefaultValue(IPO2TupleGenerator.class),
-        /** 3: Parameters passed to fallback tuple generator */
         new ParamType() {
           @Override protected Object parse(final String[] values) {
             return new Param() {

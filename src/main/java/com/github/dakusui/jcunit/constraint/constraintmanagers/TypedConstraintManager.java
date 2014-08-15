@@ -20,7 +20,7 @@ public abstract class TypedConstraintManager<T extends Object>
    * certain field's value is assigned by JCUnit or just a default value.
    *
    * @param o A test object.
-   * @param tuple A tuple fromm which {@coe o} is generated.
+   * @param tuple A tuple fromm which {@code o} is generated.
    * @return true - constraint check is passed / false - otherwise.
    */
   protected abstract boolean check(T o, Tuple tuple) throws JCUnitSymbolException;
