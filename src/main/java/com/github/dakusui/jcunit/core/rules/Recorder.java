@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core.rules;
 
+import com.github.dakusui.jcunit.core.ConfigUtils;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
@@ -10,11 +11,14 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A 'recorder' class which stores test execution information in a local file system.
  * The default directory is {@code .jcunit} under the current directory.
- *
+ * <p/>
  * This class doesn't do anything in case a system property {@code jcunit.recorder} isn't
  * set {@code true}.
  */
@@ -66,9 +70,9 @@ public class Recorder extends JCUnitRule {
   @Override
   protected void starting(Description d) {
     super.starting(d);
+    this.dir = getDir(this.baseDir, this.getId(), d);
     if (SystemProperties.isRecorderEnabled()) {
       if (this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
-        this.dir = getDir(this.baseDir, this.getId(), d);
         if (this.dir.exists()) {
           Utils.deleteRecursive(this.dir);
         }
@@ -84,6 +88,7 @@ public class Recorder extends JCUnitRule {
 
   @Override
   protected void failed(Throwable t, Description d) {
+    System.out.println("failed");
     if (SystemProperties.isRecorderEnabled()) {
       if (this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
         Utils.checkcond(this.dir != null);
@@ -95,6 +100,55 @@ public class Recorder extends JCUnitRule {
       Utils.createFile(new File(dir.getParentFile(), FAILED_FILENAME));
     }
     super.failed(t, d);
+  }
+
+  public <T> void save(T obj) {
+    if (SystemProperties.isRecorderEnabled()) {
+      for (Field f : Utils
+          .getAnnotatedFields(obj.getClass(), Recorder.Record.class)) {
+        try {
+          Utils.save(f.get(obj), new File(dir, f.getName()));
+        } catch (IllegalAccessException e) {
+          ////
+          // This code will never be executed because Utils.getAnnotatedFields
+          // should return only accessible fields.
+          Utils.checkcond(false, "Something went wrong.");
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public <T> T load() {
+    T ret = null;
+    List<String> fieldsNotFoundInStore = new LinkedList<String>();
+    if (SystemProperties.isReplayerEnabled()) {
+      try {
+        ret = (T) getTestClass().newInstance();
+        for (Field f : Utils
+            .getAnnotatedFields(getTestClass(), Recorder.Record.class)) {
+          File file = new File(dir, f.getName());
+          if (!file.exists()) {
+            fieldsNotFoundInStore.add(f.getName());
+            continue;
+          }
+          Utils.setFieldValue(ret, f, Utils.load(file));
+        }
+      } catch (InstantiationException e) {
+        ConfigUtils.rethrow(e, "Failed to instantiate test class '%s'",
+            getTestClass().getCanonicalName());
+      } catch (IllegalAccessException e) {
+        ConfigUtils.rethrow(e,
+            "Failed to access non-parameter constructor of test class '%s'",
+            getTestClass().getCanonicalName());
+      }
+    }
+    Utils.checkcond(fieldsNotFoundInStore.isEmpty(),
+        "%s: These field(s) are not stored. Maybe you should set system property '%s' true and re-run this test.",
+        fieldsNotFoundInStore,
+        SystemProperties.KEY.RECORDER.key()
+    );
+    return ret;
   }
 
   @Target(ElementType.FIELD)

@@ -7,12 +7,7 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -21,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 @TupleGeneration(
     generator = @Generator(
         value = Replayer.class,
-        params = @Param("FailedOnly")
+        params = @Param("All")
     ))
 public class ReplayerExample {
   @Rule
@@ -37,7 +32,10 @@ public class ReplayerExample {
   public int k;
 
   @Recorder.Record
-  public int x;
+  public int x = 100;
+
+  @Recorder.Record
+  public int y = 101;
 
   @BeforeClass
   public static void beforeClass() {
@@ -46,49 +44,16 @@ public class ReplayerExample {
 
   @Test
   public void testX() {
-//    assertTrue(k > 0);
+    recorder.save(this);
+    ReplayerExample previous;
+    if ((previous = recorder.load())!= null) {
+      assertEquals(this.x, previous.x);
+      assertEquals(this.y, previous.y);
+    }
   }
 
   @Test
   public void testY() {
-//    assertTrue(k > 100);
+    //    assertTrue(k > 100);
   }
-
-  //@Replayer.CompareWithPrevious
-  @Rule
-  public MethodRule comp1() {
-//    System.out.println("comp1:called");
-    return new MethodRule() {
-      @Override public Statement apply(Statement base, FrameworkMethod method,
-          Object target) {
-        return new Statement() {
-          @Override public void evaluate() throws Throwable {
-            System.out.println("comp1:evaluated");
-          }
-        };
-      }
-    };
-  }
-
-  @Rule
-  public TestRule comp2() {
-//    System.out.println("comp2:called");
-    return new TestRule() {
-      @Override public Statement apply(final Statement base,
-          Description description) {
-        return new Statement() {
-          @Override public void evaluate() throws Throwable {
-            System.out.println("comp2:evaluated");
-            base.evaluate();
-          }
-        };
-      }
-    };
-  }
-
-  @After
-  public void after() {
-    System.out.println("after");
-  }
-
 }

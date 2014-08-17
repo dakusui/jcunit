@@ -5,13 +5,10 @@ package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
-import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Implementations of this interface must guarantee that a public constructor without

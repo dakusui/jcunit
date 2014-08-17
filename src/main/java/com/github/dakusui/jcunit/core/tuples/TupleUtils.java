@@ -171,4 +171,5 @@ public class TupleUtils {
 		}
 		throw new SavedObjectBrokenException(String.format("Saved object wasn't a tuple (%s)", obj.getClass().getCanonicalName()), null);
 	}
+
 }

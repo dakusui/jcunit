@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.factor.LevelsFactory;
 
 import java.lang.annotation.ElementType;

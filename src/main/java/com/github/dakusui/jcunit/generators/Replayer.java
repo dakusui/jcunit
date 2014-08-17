@@ -311,6 +311,4 @@ public class Replayer extends TupleGeneratorBase {
     void found(File f);
   }
 
-  public static @interface CompareWithPrevious {
-  }
 }

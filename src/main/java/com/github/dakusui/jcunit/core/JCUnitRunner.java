@@ -89,7 +89,9 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
         ////
         // It's safe to cast to Boolean because m is already validated by 'getTestPreconditionMethod'
         for (FrameworkMethod each : work) {
-          if (!(Boolean)each.invokeExplosively(target, params)) return false;
+          if (!(Boolean) each.invokeExplosively(target, params)) {
+            return false;
+          }
         }
         return true;
       }
@@ -99,12 +101,15 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
         StringBuilder b = new StringBuilder();
         boolean firstTime = true;
         for (FrameworkMethod each : work) {
-          if (!firstTime) b.append("&&");
+          if (!firstTime) {
+            b.append("&&");
+          }
           b.append(each.getName());
           firstTime = false;
         }
         return b.toString();
       }
+
       @Override
       public Method getMethod() {
         throw new UnsupportedOperationException();
@@ -149,11 +154,25 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     } : new FrameworkMethod(m);
   }
 
+  /**
+   * Without overriding this method, all the tests will fail for 'AssertionError',
+   * because {@code {@literal @}BeforeClass} methods and {@code {@literal @}AfterClass}
+   * methods are executed for every test case run not before and after all the
+   * test cases are executed.
+   *
+   * {@code BlockJUnit4ClassRunnerWithParameters} does the same.
+   *
+   * @see org.junit.runners.BlockJUnit4ClassRunner#classBlock(org.junit.runner.notification.RunNotifier)
+   */
   @Override
   protected Statement classBlock(RunNotifier notifier) {
     return childrenInvoker(notifier);
   }
 
+  /**
+   * Overrides super class's {@code createTest()} method, which throws a {@code java.lang.Exception},
+   * to simplify exception handling.
+   */
   @Override
   public Object createTest() {
     TestClass klazz = getTestClass();
@@ -194,9 +213,9 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
   @Override
   protected List<FrameworkMethod> getChildren() {
     List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
-    for (FrameworkMethod each : computeTestMethods()) {
+    for (FrameworkMethod each : this.computeTestMethods()) {
       assert this.testCase != null;
-      if (shouldInvoke(each, createTest())) {
+      if (this.shouldInvoke(each, createTest())) {
         ret.add(each);
       }
     }

@@ -9,7 +9,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class Utils {
 
@@ -70,10 +73,13 @@ public class Utils {
   }
 
   /**
+   * Joins given string objects with {@code sep} using {@code formatter}.
+   * <p/>
    * This method is implemented in order to reduce dependencies on external libraries.
    *
-   * @param sep   A separator to be used to join {@code elemes}
-   * @param elems Elements to be joined.
+   * @param sep       A separator to be used to join {@code elemes}.
+   * @param formatter A formatter used to join strings.
+   * @param elems     Elements to be joined.
    * @return A joined {@code String}
    */
   public static <T> String join(String sep, Formatter<T> formatter,
@@ -91,6 +97,15 @@ public class Utils {
     return b.toString();
   }
 
+  /**
+   * Joins given string objects with {@code sep} using {@code Formatter.INSTANCE}.
+   * <p/>
+   * This method is implemented in order to reduce dependencies on external libraries.
+   *
+   * @param sep   A separator to be used to join {@code elemes}
+   * @param elems Elements to be joined.
+   * @return A joined {@code String}
+   */
   public static String join(String sep, Object... elems) {
     return join(sep, Formatter.INSTANCE, elems);
   }
@@ -248,6 +263,13 @@ public class Utils {
     return v.equals(o);
   }
 
+  /**
+   * Creates a file using {@code java.io.File#createNewFile()} method.
+   *
+   * @param file A file to be created.
+   * @return true - created / false - not created.
+   * @see java.io.File
+   */
   public static boolean createFile(File file) {
     checknotnull(file);
     try {
@@ -256,20 +278,6 @@ public class Utils {
       Utils.rethrow(e);
     }
     return false;
-  }
-
-  public static interface Formatter<T> {
-    public static final Formatter INSTANCE = new Formatter<Object>() {
-      @Override
-      public String format(Object elem) {
-        if (elem == null) {
-          return null;
-        }
-        return elem.toString();
-      }
-    };
-
-    public String format(T elem);
   }
 
   /**
@@ -299,11 +307,12 @@ public class Utils {
   }
 
   public static BufferedInputStream openForRead(File f) {
+    Utils.checknotnull(f);
     BufferedInputStream ret = null;
     try {
       ret = new BufferedInputStream(new FileInputStream(f));
     } catch (FileNotFoundException e) {
-      rethrow(e);
+      rethrow(e, "File not found: '%s'", f.getAbsolutePath());
     }
     return ret;
   }
@@ -316,6 +325,12 @@ public class Utils {
     }
   }
 
+  /**
+   * Saves a given object to a file.
+   *
+   * @param obj An object to be saved.
+   * @param to  A file to which {@code obj} is saved.
+   */
   public static void save(Object obj, File to) {
     BufferedOutputStream bos;
     bos = Utils.openForWrite(to);
@@ -325,6 +340,53 @@ public class Utils {
       Utils.close(bos);
     }
   }
+
+  public static void save(Object obj, OutputStream os) {
+    Utils.checknotnull(obj);
+    Utils.checknotnull(os);
+
+    try {
+      ObjectOutputStream oos = new ObjectOutputStream(os);
+      try {
+        oos.writeObject(obj);
+      } finally {
+        oos.close();
+      }
+    } catch (IOException e) {
+      Utils.rethrow(e);
+    }
+  }
+
+  public static Object load(File f) {
+    Utils.checknotnull(f);
+    BufferedInputStream bis;
+    bis = Utils.openForRead(f);
+    try {
+      return load(bis);
+    } finally {
+      Utils.close(bis);
+    }
+  }
+
+  public static Object load(InputStream is) {
+    Utils.checknotnull(is);
+    Object ret = null;
+    try {
+      ObjectInputStream ois = new ObjectInputStream(is);
+      try {
+        ret = ois.readObject();
+      } catch (ClassNotFoundException e) {
+        Utils.rethrow(e);
+      } finally {
+        ois.close();
+      }
+    } catch (IOException e) {
+      Utils.rethrow(e);
+    }
+    return ret;
+  }
+
+
 
   /**
    * By default File#delete fails for non-empty directories, it works like "rm".
@@ -352,38 +414,18 @@ public class Utils {
     return ret && path.delete();
   }
 
-  public static void save(Object obj, OutputStream os) {
-    Utils.checknotnull(obj);
-    Utils.checknotnull(os);
-
-    try {
-      ObjectOutputStream oos = new ObjectOutputStream(os);
-      try {
-        oos.writeObject(obj);
-      } finally {
-        oos.close();
+  public static interface Formatter<T> {
+    public static final Formatter INSTANCE = new Formatter<Object>() {
+      @Override
+      public String format(Object elem) {
+        if (elem == null) {
+          return null;
+        }
+        return elem.toString();
       }
-    } catch (IOException e) {
-      Utils.rethrow(e);
-    }
-  }
+    };
 
-  public static Object load(InputStream is) {
-    Utils.checknotnull(is);
-    Tuple ret = null;
-    try {
-      ObjectInputStream ois = new ObjectInputStream(is);
-      try {
-        ret = (Tuple) ois.readObject();
-      } catch (ClassNotFoundException e) {
-        Utils.rethrow(e);
-      } finally {
-        ois.close();
-      }
-    } catch (IOException e) {
-      Utils.rethrow(e);
-    }
-    return ret;
+    public String format(T elem);
   }
 
 }
