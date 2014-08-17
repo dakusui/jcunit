@@ -32,6 +32,20 @@ where {x1, x2} are the solutions of an equation,
 a * x^2 + b * x + c = 0
 ```
 
+### Maven coordinate
+First of all, you will need to link JCUnit to your project.
+Below is a pom.xml fragment to describe jcunit's dependency.
+Please add it to your project's pom.xml 
+
+```
+
+    <dependency>
+      <groupId>com.github.dakusui</groupId>
+      <artifactId>jcunit</artifactId>
+      <version>[0.3.0,]</version>
+    </dependency>
+```
+
 ### QuadraticEquationSolver.java (Main class, SUT)
 'QuadraticEquationSolver' is the SUT (Software under test) in this example.
 The class provides a function to solve a quadratic equation using a quadratic formula and returns the solutions.
@@ -118,18 +132,7 @@ QuadraticEquationSolverTest is a test class for QuadraticEquationSolver class.
     }
 ```
 
-### Maven coordinate
-Below is a pom.xml fragment to describe jcunit's dependency.
-
-```
-
-    <dependency>
-      <groupId>com.github.dakusui</groupId>
-      <artifactId>jcunit</artifactId>
-      <version>[0.3.0,]</version>
-    </dependency>
-```
-
+#Tips
 ## Tip 1: Customizing domains of @FactorField annotated fields (1)
 By default, JCUnit creates test cases by assigning a value, picked up from a hardcoded set of values defined for each type, to each '@FactorField' annotated field in a test class
 For example, if a member is annotated with '@FactorField' and its type is int, JCUnit will pick up a value from a set
@@ -179,41 +182,21 @@ annotation for 'QuadraticEquationSolverTest1.java' and set the first parameter, 
             generator = @Generator(
                     value = IPO2TestCaseGenerator.class,
                     params = {
-                            @Param(type = Param.Type.Int, array = false, value = {"3"})
+                            @Param("3")
                     }))
     public class QuadraticEquationSolverTest1 {
 ```
 
 In this example, the line
 ```
-	@Param(type = Param.Type.Int, array = false, value = {"3"})
+	@Param("3")
 ```
 configures the strength of the t-wise tests performed by JCUnit.
-And '@Param' annotation is a standard way to give a parameter to JCUnit (excepting '@FactorLevels', 
-which requires more conciseness). It looks a bit complicated, but is straightforward actually.
+And '@Param' annotation is a standard way to give a parameter to JCUnit (excepting '@FactorLevels', which requires more conciseness). 
+It takes a string array as its 'value'(and remember that you can omit curly braces if there is only one element in the array). 
+JCUnit internally translates those values accordingly.
 
-'type' attribute tells JCUnit the type of the parameter,
-```
-	type = Param.Type.Int,
-```
-'array' attribute whether it's a array field or a non-array field.
-
-```
-	array = false, 
-```
-
-and 'value' attribute is for actual data content to be passed to JCUnit.
-
-```
-    value = {"3"})
-```
-
-Even if the value is a non-array value, you need to have braces surrounding the value.
-And the values need to be strings, even if they are numbers like int, double, and so on.
-In other words, 'value' is given as an array of string(s), and the type (including 
-whether it is an array or not) is given by 'type' and 'array' attributes. 
-
-## Tips 4: Defining constraints.
+## Tip 4: Defining constraints.
 In testings, we sometimes want to exclude a certain pair (, a triple, or a tuple) from the test cases since there are constraints in the test domain.
 For example, suppose there is a software system which has 100 parameters and doesn't accept any larger value than 1,000 for parameter x1.
 And it validates all the parameters and immediately exits if any one of them is invalid at start up.
@@ -265,36 +248,35 @@ Since a test case is passed as a tuple, you need to use 'get' method of it.
 "a", "b", or "c" are the names of the fields annotated with '@FactorField'. JCUnit accesses them using 'reflection' techniques of Java.
 JCUnit avoids using tuples for which check method of the specified constraint manager returns 'false'.
 
-# Tips 5: Writing test cases for error handling
+## Tip 5: Writing test cases for error handling (negative tests)
 That being said, handling errors appropriately is another concern.
 A program must complain of invalid parameters in an appropriate way, if given.
-And this characteristic is an aspect of software under test to be tested.
+And this characteristic is another aspect of software under test to be tested.
 
-You can do it be overriding 'getViolations' method of a constraint manager and switching the
-verification procedures based on a test's 'sub-identifier'.
+You can do it by overriding 'getViolations' method of a constraint manager and switching the verification procedures based on a test's 'sub-identifier'.
 
 First, by overriding method, return test cases that explicitly violate the constraint represented by the constraint manager class itself.
 
 ```
 
     public static class CM extends ConstraintManagerBase {
-    @Override
-    public boolean check(Tuple tuple) throws JCUnitSymbolException {
-        ...
-    }
-    
-    @Override
-    public List<Violation> getViolations() {
-      List<Violation> ret = new LinkedList<Violation>();
-      ret.add(createViolation("a=0", createTestCase(0, 1, 1)));
-      ret.add(createViolation("b*b-4ca<0", createTestCase(100, 1, 100)));
-      ret.add(createViolation("nonsense 1=0", createTestCase(0, 0, 1)));
-      return ret;
-    }
-    
-    private Tuple createTestCase(int a, int b, int c) {
-      return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
-    }
+        @Override
+        public boolean check(Tuple tuple) throws JCUnitSymbolException {
+            ...
+        }
+        
+        @Override
+        public List<Violation> getViolations() {
+            List<Violation> ret = new LinkedList<Violation>();
+            ret.add(createViolation("a=0", createTestCase(0, 1, 1)));
+            ret.add(createViolation("b*b-4ca<0", createTestCase(100, 1, 100)));
+            ret.add(createViolation("nonsense 1=0", createTestCase(0, 0, 1)));
+            return ret;
+        }
+        
+        private Tuple createTestCase(int a, int b, int c) {
+            return new Tuple.Builder().put("a", a).put("b", b).put("c", c).build();
+        }
     }
 ```
 
