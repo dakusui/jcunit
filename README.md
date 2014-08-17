@@ -24,11 +24,14 @@ To understand JCUnit's functions, let's test 'QuadraticEquationSolver.java' prog
 The program contains some intentional bugs and unclear specifications (or behaviors).
 The formula it uses is,
 
-```
+
+```java
 {x1, x2} =  { (-b + Math.sqrt(b*b - 4*c*a)) / 2*a, (-b - Math.sqrt(b*b - 4*c*a)) / 2*a }
 ```
+
 where {x1, x2} are the solutions of an equation, 
-```
+
+```java
 a * x^2 + b * x + c = 0
 ```
 
@@ -37,8 +40,7 @@ First of all, you will need to link JCUnit to your project.
 Below is a pom.xml fragment to describe jcunit's dependency.
 Please add it to your project's pom.xml 
 
-```
-
+```xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
@@ -50,42 +52,42 @@ Please add it to your project's pom.xml
 'QuadraticEquationSolver' is the SUT (Software under test) in this example.
 The class provides a function to solve a quadratic equation using a quadratic formula and returns the solutions.
 
-```
+```java
+//QuadraticEquationSolver.java
+package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
-    package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
-    
-    public class QuadraticEquationSolver {
-      private final double a;
-      private final double b;
-      private final double c;
-    
-      public static class Solutions {
-        public final double x1;
-        public final double x2;
-    
-        public Solutions(double x1, double x2) {
-          this.x1 = x1;
-          this.x2 = x2;
-        }
-    
-        public String toString() {
-          return String.format("(%f,%f)", x1, x2);
-        }
-      }
-    
-      public QuadraticEquationSolver(double a, double b, double c) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
-      }
-    
-      public Solutions solve() {
-        return new Solutions(
-            (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
-            (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
-        );
-      }
+public class QuadraticEquationSolver {
+  private final double a;
+  private final double b;
+  private final double c;
+
+  public static class Solutions {
+    public final double x1;
+    public final double x2;
+
+    public Solutions(double x1, double x2) {
+      this.x1 = x1;
+      this.x2 = x2;
     }
+
+    public String toString() {
+      return String.format("(%f,%f)", x1, x2);
+    }
+  }
+
+  public QuadraticEquationSolver(double a, double b, double c) {
+    this.a = a;
+    this.b = b;
+    this.c = c;
+  }
+
+  public Solutions solve() {
+    return new Solutions(
+        (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
+        (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
+    );
+  }
+}
 ```
 
 Did you already notice the bugs that this program has?
@@ -101,35 +103,35 @@ Try to find (and reproduce) these bugs using JCUnit and fix them.
 ### QuadraticEquationSolverTest.java (Test)
 QuadraticEquationSolverTest is a test class for QuadraticEquationSolver class.
 
-```
+```java
+// QuadraticEquationSolverTest1.java
+package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
 
-    package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
-    
-    import com.github.dakusui.jcunit.core.JCUnit;
-    import com.github.dakusui.jcunit.core.factor.FactorField;
-    import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
-    import org.junit.Test;
-    import org.junit.runner.RunWith;
-    
-    import static junit.framework.Assert.assertEquals;
-    
-    @RunWith(JCUnit.class)
-    public class QuadraticEquationSolverTest1 {
-        @FactorField
-        public int a;
-        @FactorField
-        public int b;
-        @FactorField
-        public int c;
-    
-        @Test
-        public void test() {
-            QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
-                    c).solve();
-            assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
-            assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
-        }
+import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.factor.FactorField;
+import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static junit.framework.Assert.assertEquals;
+
+@RunWith(JCUnit.class)
+public class QuadraticEquationSolverTest1 {
+    @FactorField
+    public int a;
+    @FactorField
+    public int b;
+    @FactorField
+    public int c;
+
+    @Test
+    public void test() {
+        QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+                c).solve();
+        assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
+        assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
     }
+}
 ```
 
 #Tips
@@ -140,7 +142,7 @@ For example, if a member is annotated with '@FactorField' and its type is int, J
 But this set is just a 'default' and you can customize it by using (overriding) an 'xyzLevels' attribute of a '@FactorField' annotation, 
 where 'xyz' is a primitive types.
 
-```
+```java
 
     @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
     public int a;
@@ -157,7 +159,7 @@ The method mustn't have any parameters and its return value must be an array of 
 
 Below is the example for that sort of function.
 
-```
+```java
 
     @FactorField(levelsFactory = MethodLevelsFactory.class)
 	public int a;
@@ -175,7 +177,7 @@ And you need to use 'levelsFactory' attribute when you are going to use non-prim
 Add parameter 'generator = @Generator(IPO2TestCaseGenerator.class)' explicitly to the '@TestCaseGeneration',
 annotation for 'QuadraticEquationSolverTest1.java' and set the first parameter, which represents a 'strength'. 
 
-```
+```java
 
     @RunWith(JCUnit.class)
     @TestCaseGeneration(
@@ -210,7 +212,7 @@ Below are the links that would be helpful for understanding how much constraint 
 For this purpose, JCUnit has a mechanism called 'constraints manager'.
 To use a constraint manager, you can do below
 
-```
+```java
 
     @RunWith(JCUnit.class)
     @TestCaseGeneration(
@@ -225,7 +227,7 @@ Unfortunately you cannot use anonymous classes because a value passed to an anno
 And if you want to exclude test cases that violate a discriminant of the quadratic equation formula and also make sure the given equation is a quadratic, 
 not a linear, the definition of 'CM' would be
  
-```
+```java
 
     public static class CM extends ConstraintManagerBase {
         @Override
