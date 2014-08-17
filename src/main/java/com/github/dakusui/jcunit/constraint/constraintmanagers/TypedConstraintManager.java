@@ -8,10 +8,11 @@ import java.lang.reflect.ParameterizedType;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class TypedConstraintManager<T extends Object>
+public abstract class TypedConstraintManager<T>
     extends ConstraintManagerBase {
-  @Override public final boolean check(Tuple tuple) throws JCUnitSymbolException {
-    return check(TestCaseUtils.toTestObject(getTestClass(), tuple), tuple);
+  @Override public final boolean check(Tuple tuple)
+      throws JCUnitSymbolException {
+    return check(toTestObject(tuple), tuple);
   }
 
   /**
@@ -19,11 +20,12 @@ public abstract class TypedConstraintManager<T extends Object>
    * in the test case. This is necessary because user codes can't tell if a
    * certain field's value is assigned by JCUnit or just a default value.
    *
-   * @param o A test object.
+   * @param o     A test object.
    * @param tuple A tuple fromm which {@code o} is generated.
    * @return true - constraint check is passed / false - otherwise.
    */
-  protected abstract boolean check(T o, Tuple tuple) throws JCUnitSymbolException;
+  protected abstract boolean check(T o, Tuple tuple)
+      throws JCUnitSymbolException;
 
   @Override public final List<Tuple> getViolations() {
     List<Tuple> ret = new LinkedList<Tuple>();

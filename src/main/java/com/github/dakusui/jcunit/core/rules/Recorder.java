@@ -6,6 +6,10 @@ import com.github.dakusui.jcunit.core.Utils;
 import org.junit.runner.Description;
 
 import java.io.File;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * A 'recorder' class which stores test execution information in a local file system.
@@ -14,7 +18,7 @@ import java.io.File;
  * This class doesn't do anything in case a system property {@code jcunit.recorder} isn't
  * set {@code true}.
  */
-public class JCUnitRecorder extends JCUnitRule {
+public class Recorder extends JCUnitRule {
   public static final String TESTCASE_FILENAME  = "testcase.ser";
   public static final String EXCEPTION_FILENAME = "exception.ser";
   public static final String FAILED_FILENAME    = "failed";
@@ -27,7 +31,7 @@ public class JCUnitRecorder extends JCUnitRule {
    * JCUnit use the value System.getProperty("jcunit.basedir")
    * as the base directory to store test execution data.
    */
-  public JCUnitRecorder() {
+  public Recorder() {
     this(null);
   }
 
@@ -36,7 +40,7 @@ public class JCUnitRecorder extends JCUnitRule {
    *
    * @param baseDir base directory of test execution data.
    */
-  public JCUnitRecorder(String baseDir) {
+  public Recorder(String baseDir) {
     this.baseDir = baseDir;
   }
 
@@ -68,7 +72,7 @@ public class JCUnitRecorder extends JCUnitRule {
         if (this.dir.exists()) {
           Utils.deleteRecursive(this.dir);
         }
-        synchronized (JCUnitRecorder.class) {
+        synchronized (Recorder.class) {
           boolean dirCreated = this.dir.mkdirs();
           Utils.checkcond(dirCreated);
           Utils.save(this.getTestCase(),
@@ -91,5 +95,10 @@ public class JCUnitRecorder extends JCUnitRule {
       Utils.createFile(new File(dir.getParentFile(), FAILED_FILENAME));
     }
     super.failed(t, d);
+  }
+
+  @Target(ElementType.FIELD)
+  @Retention(RetentionPolicy.RUNTIME)
+  public static @interface Record {
   }
 }

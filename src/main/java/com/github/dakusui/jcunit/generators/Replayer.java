@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.JCUnitRecorder;
+import com.github.dakusui.jcunit.core.rules.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
@@ -16,9 +16,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * @see RecordedTuplePlayer#parameterTypes() for parameters definition.
+ * @see Replayer#parameterTypes() for parameters definition.
  */
-public class RecordedTuplePlayer extends TupleGeneratorBase {
+public class Replayer extends TupleGeneratorBase {
   private final GenerationMode         generationMode;
   private       SortedMap<Long, Tuple> tuples;
   private       TupleGeneratorBase     fallbackGenerator;
@@ -26,7 +26,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
   /**
    * Creates an object of this class.
    */
-  public RecordedTuplePlayer() {
+  public Replayer() {
     this.generationMode = SystemProperties.isReplayerEnabled() ?
         GenerationMode.Replay :
         GenerationMode.Fallback;
@@ -123,7 +123,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
           }
 
           @Override public String toString() {
-            return RecordedTuplePlayer.class.getCanonicalName()
+            return Replayer.class.getCanonicalName()
                 + ".ReplayMode";
           }
         }.withDefaultValue(ReplayMode.All),
@@ -171,7 +171,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
 
   public enum GenerationMode {
     Replay {
-      @Override long initializeTuples(RecordedTuplePlayer tupleReplayer,
+      @Override long initializeTuples(Replayer tupleReplayer,
           Object[] params) {
         File baseDir = Utils
             .baseDirFor((String) params[1], tupleReplayer.getTargetClass());
@@ -194,7 +194,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
           for (File dir : tupleDirs) {
             Tuple tuple = TupleUtils.load(
                 Utils.openForRead(
-                    new File(dir, JCUnitRecorder.TESTCASE_FILENAME)));
+                    new File(dir, Recorder.TESTCASE_FILENAME)));
             tupleReplayer.tuples
                 .put(tupleReplayer.getIdFromDirName(dir.getName()), tuple);
           }
@@ -208,12 +208,12 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
         return numFoundTuples;
       }
 
-      @Override Tuple getTuple(RecordedTuplePlayer tuplePlayer, int tupleId) {
+      @Override Tuple getTuple(Replayer tuplePlayer, int tupleId) {
         Utils.checkcond(tuplePlayer.tuples.containsKey((long) tupleId));
         return tuplePlayer.tuples.get((long) tupleId);
       }
 
-      @Override long nextId(RecordedTuplePlayer tuplePlayer, long tupleId) {
+      @Override long nextId(Replayer tuplePlayer, long tupleId) {
         Utils.checkcond(tuplePlayer.tuples.containsKey(tupleId));
         Iterator<Long> tail = tuplePlayer.tuples.tailMap(tupleId).keySet()
             .iterator();
@@ -225,7 +225,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
         return tail.next();
       }
 
-      @Override long firstId(RecordedTuplePlayer tuplePlayer) {
+      @Override long firstId(Replayer tuplePlayer) {
         if (tuplePlayer.tuples.size() == 0) {
           return -1;
         }
@@ -234,7 +234,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
     },
     Fallback {
       @SuppressWarnings("unchecked") @Override long initializeTuples(
-          RecordedTuplePlayer tupleReplayer,
+          Replayer tupleReplayer,
           Object[] params) {
         ////
         // Create fallbackGenerator instance.
@@ -268,27 +268,27 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
         return generator.size();
       }
 
-      @Override Tuple getTuple(RecordedTuplePlayer tuplePlayer, int tupleId) {
+      @Override Tuple getTuple(Replayer tuplePlayer, int tupleId) {
         return tuplePlayer.fallbackGenerator.getTuple(tupleId);
       }
 
-      @Override long nextId(RecordedTuplePlayer tuplePlayer, long tupleId) {
+      @Override long nextId(Replayer tuplePlayer, long tupleId) {
         return tuplePlayer.fallbackGenerator.nextId(tupleId);
       }
 
-      @Override long firstId(RecordedTuplePlayer tuplePlayer) {
+      @Override long firstId(Replayer tuplePlayer) {
         return tuplePlayer.fallbackGenerator.firstId();
       }
     };
 
-    abstract long initializeTuples(RecordedTuplePlayer tupleReplayer,
+    abstract long initializeTuples(Replayer tupleReplayer,
         Object[] params);
 
-    abstract Tuple getTuple(RecordedTuplePlayer tuplePlayer, int tupleId);
+    abstract Tuple getTuple(Replayer tuplePlayer, int tupleId);
 
-    abstract long nextId(RecordedTuplePlayer tuplePlayer, long tupleId);
+    abstract long nextId(Replayer tuplePlayer, long tupleId);
 
-    abstract long firstId(RecordedTuplePlayer tuplePlayer);
+    abstract long firstId(Replayer tuplePlayer);
   }
 
   public static enum ReplayMode {
@@ -299,7 +299,7 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
     },
     FailedOnly {
       @Override public boolean shouldBeReplayed(File testStoreDir) {
-        return new File(testStoreDir, JCUnitRecorder.FAILED_FILENAME)
+        return new File(testStoreDir, Recorder.FAILED_FILENAME)
             .exists();
       }
     };
@@ -309,5 +309,8 @@ public class RecordedTuplePlayer extends TupleGeneratorBase {
 
   private static interface FoundTupleObserver {
     void found(File f);
+  }
+
+  public static @interface CompareWithPrevious {
   }
 }

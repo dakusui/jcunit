@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.framework.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.RecordedTuplePlayer;
+import com.github.dakusui.jcunit.generators.Replayer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -14,7 +14,7 @@ import static com.github.dakusui.jcunit.core.TestCaseUtils.newTestCase;
 @RunWith(JCUnit.class)
 @TupleGeneration(
     generator = @Generator(
-        value = RecordedTuplePlayer.class,
+        value = Replayer.class,
         params = {
             @Param("FailedOnly"),
             @Param("src/test/resources")
