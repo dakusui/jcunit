@@ -28,11 +28,11 @@ public class QuadraticEquationSolverTestX {
   public TestName   name = new TestName();
   @Rule
   public JCUnitDesc desc = new JCUnitDesc();
-  @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
+  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101})
   public int a;
-  @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
+  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101})
   public int b;
-  @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
+  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101})
   public int c;
 
   public QuadraticEquationSolverTestX() {
@@ -56,11 +56,11 @@ public class QuadraticEquationSolverTestX {
   }
 
   //@Precondition
-  public static boolean isANonZero(QuadraticEquationSolverTestX testCase) {
+  public static boolean aIsNonZero(QuadraticEquationSolverTestX testCase) {
     return testCase.a != 0;
   }
 
-  public static boolean isDiscriminantNonNegative(
+  public static boolean discriminantIsNonNegative(
       QuadraticEquationSolverTestX test) {
     int a = test.a;
     int b = test.b;
@@ -68,18 +68,18 @@ public class QuadraticEquationSolverTestX {
     return b * b - 4 * c * a >= 0;
   }
 
-  @Given({ "!isANonZero", "!isDiscriminantNonNegative" })
   @Test(expected = IllegalArgumentException.class)
-  public void solveEquationThenIllegalArgumentExceptionWillBeThrown() {
+  @Given({ "!aIsNonZero", "!discriminantIsNonNegative" })
+  public void solveEquation$ThenIllegalArgumentExceptionWillBeThrown() {
     new QuadraticEquationSolver(
         a,
         b,
         c).solve();
   }
 
-  @Given({ "isANonZero&&isDiscriminantNonNegative" })
   @Test
-  public void solveEquationThenSolutionsArePreciseEnough() {
+  @Given({ "aIsNonZero&&discriminantIsNonNegative" })
+  public void solveEquation$ThenSolutionsArePreciseEnough() {
     try {
       System.out.println(String
           .format("desc=(%s,%s)", desc.getTestName(), desc.getTestCaseType()));
@@ -90,7 +90,6 @@ public class QuadraticEquationSolverTestX {
       assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
           a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
     } catch (IllegalArgumentException e) {
-      System.err.println("*** " + this.desc.getTestCase() + " ***");
       throw e;
     }
   }

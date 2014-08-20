@@ -24,7 +24,7 @@ public class QuadraticEquationSolverTest1 {
   public int c;
 
   @Test
-  public void test() {
+  public void solveQuadraticEquation() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(a * s.x1 * s.x1 + b * s.x1 + c, is(0.0));
