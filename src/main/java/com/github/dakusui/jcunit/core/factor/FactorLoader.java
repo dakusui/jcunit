@@ -89,7 +89,7 @@ public class FactorLoader {
     Utils.checknotnull(f);
     FactorField ann = f.getAnnotation(FactorField.class);
     List<String> errors = new LinkedList<String>();
-    LevelsFactory<?> levelsFactory = InvalidLevelsFactory.INSTANCE;
+    LevelsProvider<?> levelsProvider = InvalidLevelsProvider.INSTANCE;
     Method[] overridingLevelsMethods = getOverridingLevelsMethods(ann);
     Class<?> fieldType = f.getType();
     if (overridingLevelsMethods.length > 1) {
@@ -109,14 +109,14 @@ public class FactorLoader {
       if ("levelsFactory".equals(method.getName())) {
         ////
         // 'levelsFactory' is the overridden method.
-        Class<? extends LevelsFactory<?>> factoryClass = InvalidLevelsFactory.class;
+        Class<? extends LevelsProvider<?>> factoryClass = InvalidLevelsProvider.class;
         try {
-          factoryClass = (Class<? extends LevelsFactory<?>>) method.invoke(ann);
+          factoryClass = (Class<? extends LevelsProvider<?>>) method.invoke(ann);
           Utils.checknotnull(factoryClass);
           ////
           // We can safely cast it to LevelsFactory since 'levelsFactory' can only
           // return LevelsFactory and we've even already checked it.
-          levelsFactory = factoryClass.newInstance();
+          levelsProvider = factoryClass.newInstance();
         } catch (InstantiationException e) {
           errors.add(String.format(
               "A factory '%s' set to field '%s' couldn't be initialized. The constructor with no parameter of it must be implemented, be public, and successfully instantiate it. (failed):%s",
@@ -133,7 +133,7 @@ public class FactorLoader {
         try {
           ////
           // Get 'get(int)' method to check if it returns a value of appropriate type later.
-          Method getMethod = levelsFactory.getClass().getMethod("get",
+          Method getMethod = levelsProvider.getClass().getMethod("get",
               Integer.TYPE);
           Utils.checknotnull(getMethod, "Something went wrong.");
         } catch (NoSuchMethodException e) {
@@ -141,12 +141,12 @@ public class FactorLoader {
           // This can only happen due to JCUnit side's bugs, so simply an exception will be thrown.
           Utils.rethrow(e, String.format(
               "Something went wrong. Method 'get(int)' wasn't found in '%s':(%s)",
-              levelsFactory.getClass(), e.getMessage()));
+              levelsProvider.getClass(), e.getMessage()));
         }
       } else {
         ////
         // Other than 'levelsFactory' method (like 'intLevels') is overridden.
-        levelsFactory = new DefaultLevelsFactory(method);
+        levelsProvider = new DefaultLevelsProvider(method);
         levelType = method.getReturnType().getComponentType();
         Utils.checknotnull(levelType);
         ////
@@ -163,7 +163,7 @@ public class FactorLoader {
         fieldType = Enum.class;
       }
       if (methodNameMappings.containsKey(fieldType)) {
-        levelsFactory = new DefaultLevelsFactory(
+        levelsProvider = new DefaultLevelsProvider(
             methodNameMappings.get(fieldType));
       } else {
         ////
@@ -177,10 +177,10 @@ public class FactorLoader {
     }
     ValidationResult ret;
     if (errors.isEmpty()) {
-      levelsFactory.setAnnotation(ann);
-      levelsFactory.setTargetField(field);
-      levelsFactory.init(ConfigUtils.processParams(levelsFactory.parameterTypes(), ann.factoryParams()));
-      ret = new ValidationResult(true, levelsFactory, null);
+      levelsProvider.setAnnotation(ann);
+      levelsProvider.setTargetField(field);
+      levelsProvider.init(ConfigUtils.processParams(levelsProvider.parameterTypes(), ann.factoryParams()));
+      ret = new ValidationResult(true, levelsProvider, null);
     } else {
       ret = new ValidationResult(false, null,
           Utils.join("; ", errors.toArray()));
@@ -216,14 +216,14 @@ public class FactorLoader {
     if (!this.validationResult.isValid()) {
       throw new FactorFieldValidationException(this.validationResult);
     }
-    LevelsFactory<?> levelsFactory = this.validationResult
-        .getLevelsFactory();
+    LevelsProvider<?> levelsProvider = this.validationResult
+        .getLevelsProvider();
 
     Factor.Builder factorBuilder = new Factor.Builder();
     factorBuilder.setName(this.field.getName());
-    int numLevels = levelsFactory.size();
+    int numLevels = levelsProvider.size();
     for (int i = 0; i < numLevels; i++) {
-      factorBuilder.addLevel(levelsFactory.get(i));
+      factorBuilder.addLevel(levelsProvider.get(i));
     }
     return factorBuilder.build();
   }
@@ -231,17 +231,17 @@ public class FactorLoader {
   public static class ValidationResult {
     private final boolean          valid;
     private final String           errMessage;
-    private final LevelsFactory<?> levelsFactory;
+    private final LevelsProvider<?> levelsProvider;
 
     public ValidationResult(boolean valid,
-        LevelsFactory<?> levelsFactory, String errorMessage) {
+        LevelsProvider<?> levelsProvider, String errorMessage) {
       if (valid) {
-        Utils.checknotnull(levelsFactory);
+        Utils.checknotnull(levelsProvider);
       } else {
         Utils.checknotnull(errorMessage);
       }
       this.valid = valid;
-      this.levelsFactory = levelsFactory;
+      this.levelsProvider = levelsProvider;
       this.errMessage = errorMessage;
     }
 
@@ -256,8 +256,8 @@ public class FactorLoader {
       return this.errMessage;
     }
 
-    public LevelsFactory<?> getLevelsFactory() {
-      return levelsFactory;
+    public LevelsProvider<?> getLevelsProvider() {
+      return levelsProvider;
     }
 
     public void check() {

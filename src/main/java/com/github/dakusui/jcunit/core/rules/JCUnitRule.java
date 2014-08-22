@@ -18,8 +18,8 @@ public abstract class JCUnitRule extends TestWatcher {
 
   @Override
   protected void starting(Description d) {
-    JCUnit.TestCaseInternalAnnotation ann = d
-        .getAnnotation(JCUnit.TestCaseInternalAnnotation.class);
+    JCUnit.InternalAnnotation ann = d
+        .getAnnotation(JCUnit.InternalAnnotation.class);
     Utils.checknotnull(ann,
         "This class(%s) should be used with classes annotated @RunWith(%s.class)",
         this.getClass(), JCUnit.class.getClass());

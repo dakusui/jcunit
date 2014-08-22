@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 
 import java.lang.reflect.Array;
@@ -9,12 +8,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-class DefaultLevelsFactory extends LevelsFactoryBase<Object> {
+class DefaultLevelsProvider extends LevelsProviderBase<Object> {
   private final Method m;
   private       Object values;
   private       int    size;
 
-  DefaultLevelsFactory(Method m) {
+  DefaultLevelsProvider(Method m) {
     this.m = m;
   }
 

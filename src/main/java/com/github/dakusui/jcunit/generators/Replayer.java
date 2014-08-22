@@ -150,7 +150,7 @@ public class Replayer extends TupleGeneratorBase {
           }
         }.withDefaultValue(IPO2TupleGenerator.class),
         new ParamType() {
-          @Override protected Object parse(final String[] values) {
+          @Override public Object parse(final String[] values) {
             return new Param() {
               @Override public String[] value() {
                 return values;
@@ -173,8 +173,9 @@ public class Replayer extends TupleGeneratorBase {
     Replay {
       @Override long initializeTuples(Replayer tupleReplayer,
           Object[] params) {
-        File baseDir = Utils
-            .baseDirFor((String) params[1], tupleReplayer.getTargetClass());
+        File baseDir = Recorder
+            .testClassDataDirFor((String) params[1],
+                tupleReplayer.getTargetClass());
         final int[] work = new int[] { 0 };
         File[] tupleDirs = tupleReplayer
             .getRecordedTupleDirectories((ReplayMode) params[0],

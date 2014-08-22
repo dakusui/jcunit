@@ -9,8 +9,8 @@ import java.lang.reflect.Field;
  * This class is provided to represent a default value of {@code FactorField} annotation's
  * {@code levelsFactory}.
  */
-public class InvalidLevelsFactory implements LevelsFactory<Object> {
-  public static final LevelsFactory<Object> INSTANCE = new InvalidLevelsFactory();
+public class InvalidLevelsProvider implements LevelsProvider<Object> {
+  public static final LevelsProvider<Object> INSTANCE = new InvalidLevelsProvider();
 
   /**
    * Although a constructor with no parameters of an implementation of {@code LevelsFactory}
@@ -19,7 +19,7 @@ public class InvalidLevelsFactory implements LevelsFactory<Object> {
    * This is because this class's intention is to represent an invalid value for {@code levelsFactory}
    * method, which doesn't virtually have a default value.
    */
-  private InvalidLevelsFactory() {}
+  private InvalidLevelsProvider() {}
 
   @Override public ParamType[] parameterTypes() {
     return new ParamType[0];

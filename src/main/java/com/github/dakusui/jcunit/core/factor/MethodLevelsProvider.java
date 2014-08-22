@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-public class MethodLevelsFactory<T> extends LevelsFactoryBase<T> {
+public class MethodLevelsProvider<T> extends LevelsProviderBase<T> {
   private Object levels;
   private int    size;
 

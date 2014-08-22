@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.framework.examples;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.Recorder;
 import com.github.dakusui.jcunit.generators.Replayer;
-import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +38,7 @@ public class ReplayerExample {
 
   @BeforeClass
   public static void beforeClass() {
-    Recorder.initializeDir(ReplayerExample.class);
+    Recorder.initializeTestClassDataDir(ReplayerExample.class);
   }
 
   @Test

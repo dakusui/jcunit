@@ -159,6 +159,21 @@ public class Utils {
     }
   }
 
+    public static void checkparam(boolean b) {
+        checkparam(b, "");
+    }
+
+    public static void checkparam(boolean b, String msgOrFmt, Object... args) {
+        if (!b) {
+            if (msgOrFmt != null) {
+                throw new IllegalArgumentException(String.format(msgOrFmt, args));
+            } else {
+                throw new IllegalArgumentException(
+                        String.format("info(%s)", Utils.join(",", args)));
+            }
+        }
+    }
+
   /**
    * Rethrows a given exception wrapping by a {@code JCUnitException}, which
    * is a runtime exception.
@@ -278,22 +293,6 @@ public class Utils {
       Utils.rethrow(e);
     }
     return false;
-  }
-
-  /**
-   * Returns a base directory for a given test class.
-   * If {@code parentDirectory} is null, the value set to the system property,
-   * The value {@code SystemProperties.jcunitBaseDir()} returns will be used.
-   */
-  public static File baseDirFor(String parentDirName, Class<?> testClass) {
-    Utils.checknotnull(testClass);
-    File parentDir;
-    if (parentDirName == null) {
-      parentDir = SystemProperties.jcunitBaseDir();
-    } else {
-      parentDir = new File(parentDirName);
-    }
-    return new File(parentDir, testClass.getCanonicalName());
   }
 
   public static BufferedOutputStream openForWrite(File f) {

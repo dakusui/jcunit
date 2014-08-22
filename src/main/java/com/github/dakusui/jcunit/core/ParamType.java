@@ -5,7 +5,7 @@ import java.util.Arrays;
 public abstract class ParamType  implements Cloneable {
   public static abstract class NonArrayType extends ParamType {
     @Override
-    protected Object parse(String[] parameters) {
+    public Object parse(String[] parameters) {
       checkParameters(parameters);
       return this.parse(parameters[0]);
     }
@@ -29,7 +29,7 @@ public abstract class ParamType  implements Cloneable {
       this.enclosedType = enclosedType;
     }
 
-    final protected Object parse(String[] parameters) {
+    final public Object parse(String[] parameters) {
       Utils.checknotnull(parameters);
       Object[] ret = new Object[parameters.length];
       int i = 0;
@@ -42,7 +42,8 @@ public abstract class ParamType  implements Cloneable {
 
   public static final NonArrayType Boolean = new NonArrayType() {
     @Override protected Object parse(String str) {
-      return java.lang.Boolean.parseBoolean(str);
+        Utils.checkparam("false".equals(str) || "true".equals(str), "Only 'true' and 'false' are acceptable here.");
+        return java.lang.Boolean.parseBoolean(str);
     }
 
     @Override public String toString() {
@@ -60,7 +61,7 @@ public abstract class ParamType  implements Cloneable {
   };
   public static final NonArrayType Char    = new NonArrayType() {
     @Override protected Object parse(String str) {
-      Utils.checkcond(str.length() == 1);
+      Utils.checkparam(str.length() == 1);
       return str.charAt(0);
     }
 
@@ -88,7 +89,7 @@ public abstract class ParamType  implements Cloneable {
   };
   public static final NonArrayType Long    = new NonArrayType() {
     @Override protected Object parse(String str) {
-      return null;
+      return java.lang.Long.parseLong(str);
     }
 
     @Override public String toString() {
@@ -161,5 +162,5 @@ public abstract class ParamType  implements Cloneable {
     throw new RuntimeException(); // This line will never be executed.
   }
 
-  abstract protected Object parse(String[] values);
+  abstract public Object parse(String[] values);
 }

@@ -28,7 +28,8 @@ public class GeophileRecorderTest extends GeophileTestBase {
     // Set the system property to 'true' for the sake of the test.
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
 
-    File baseDir = Utils.baseDirFor(RECORDER_BASE, GeophileRecorderTest.class);
+    File baseDir = Recorder
+        .testClassDataDirFor(RECORDER_BASE, GeophileRecorderTest.class);
     if (baseDir.exists()) {
       Utils.deleteRecursive(baseDir);
     }
@@ -37,7 +38,8 @@ public class GeophileRecorderTest extends GeophileTestBase {
 
   @Test
   public void test() {
-    File baseDir = Utils.baseDirFor(RECORDER_BASE, GeophileRecorderTest.class);
+    File baseDir = Recorder
+        .testClassDataDirFor(RECORDER_BASE, GeophileRecorderTest.class);
     assertNotNull(baseDir.list());
     assertThat(baseDir.list().length, is(this.recorder.getId() + 1));
   }

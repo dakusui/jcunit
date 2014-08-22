@@ -7,6 +7,6 @@ import com.github.dakusui.jcunit.core.FactorField;
 public class ParentMisc {
 	@FactorField
 	public int no;
-	@FactorField(levelsFactory = CompositeLevelsFactory.class)
+	@FactorField(levelsFactory = CompositeLevelsProvider.class)
 	public ChildMisc child;
 }

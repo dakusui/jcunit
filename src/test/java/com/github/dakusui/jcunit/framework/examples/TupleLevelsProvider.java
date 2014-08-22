@@ -3,13 +3,13 @@ package com.github.dakusui.jcunit.framework.examples;
 import com.github.dakusui.jcunit.core.TestCaseUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.factor.LevelsFactoryBase;
+import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 
 import java.lang.reflect.Field;
 
-public class TupleLevelsFactory extends LevelsFactoryBase {
+public class TupleLevelsProvider extends LevelsProviderBase {
   TupleGenerator generator = null;
   private Field targetField;
 
