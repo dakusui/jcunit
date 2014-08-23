@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
-import com.github.dakusui.jcunit.framework.utils.tuples.PresenceExpectation;
 
 import java.util.HashSet;
 import java.util.Set;

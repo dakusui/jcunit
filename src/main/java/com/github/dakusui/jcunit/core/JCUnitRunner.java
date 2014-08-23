@@ -80,13 +80,13 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     }
 
     /**
-     * Overrides super class's {@code createTest()} method, which throws a {@code java.lang.Exception},
+     * Overrides super class's {@code createTestObject()} method, which throws a {@code java.lang.Exception},
      * to simplify exception handling.
      */
     @Override
     public Object createTest() {
         TestClass klazz = getTestClass();
-        return JCUnit.createTest(klazz, testCase);
+        return JCUnit.createTestObject(klazz, testCase);
     }
 
     @Override
@@ -140,8 +140,8 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
         List<String> failures = new LinkedList<String>();
         List<FrameworkMethod> preconditionMethods = FrameworkUtils.getTestPreconditionMethodsFor(
-                getTestClass().getJavaClass(),
-                testMethod, failures);
+            getTestClass().getJavaClass(),
+            testMethod, failures);
         ConfigUtils.checkTest(failures.isEmpty(),
                 "Errors are found while precondition checks.: %s", failures);
         return shouldInvoke(testObject, preconditionMethods);

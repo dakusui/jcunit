@@ -3,11 +3,8 @@ package com.github.dakusui.jcunit.core;
 import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 import com.github.dakusui.jcunit.exceptions.JCUnitParameterException;
 import com.github.dakusui.jcunit.exceptions.JCUnitPluginException;
-import sun.security.krb5.Config;
 
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.List;
 
 public class ConfigUtils {
   public static void checkParam(boolean cond, String msg,
@@ -36,8 +33,12 @@ public class ConfigUtils {
   }
 
   public static void rethrow(Throwable t, String msg, Object... args) {
-    if (t instanceof Error) throw (Error)t;
-    if (t instanceof RuntimeException) throw (RuntimeException)t;
+    if (t instanceof Error) {
+      throw (Error) t;
+    }
+    if (t instanceof RuntimeException) {
+      throw (RuntimeException) t;
+    }
     throw new JCUnitParameterException(String.format(msg, args), t);
   }
 
@@ -45,15 +46,21 @@ public class ConfigUtils {
     Utils.checknotnull(params);
     Utils.checknotnull(types);
     int minLength = types.length;
-    if (minLength > 0 && types[minLength - 1].isVarArgs()) minLength--;
-    while (minLength > 0) {
-      if (types[minLength - 1].hasDefaultValue()) minLength--;
-      else break;
+    if (minLength > 0 && types[minLength - 1].isVarArgs()) {
+      minLength--;
     }
-    for (int i = 0; i < minLength; i++)
+    while (minLength > 0) {
+      if (types[minLength - 1].hasDefaultValue()) {
+        minLength--;
+      } else {
+        break;
+      }
+    }
+    for (int i = 0; i < minLength; i++) {
       checkPlugIn(!types[i].hasDefaultValue(),
           "Only the last parameters of a plugin can have default values.: %s",
           Arrays.toString(types));
+    }
     checkParam(minLength <= params.length && params.length <= types.length,
         "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
         minLength,
@@ -66,40 +73,44 @@ public class ConfigUtils {
     boolean varArgsDefined = false;
     boolean varArgsParameterPresent = false;
     for (ParamType t : types) {
-        if (i >= params.length) {
-          if (t.hasDefaultValue()) {
-            ret[i] = t.defaultValue();
-          } else if (t.isVarArgs()) {
-            ConfigUtils.checkPlugIn(i == types.length - 1, "Var args parameter can only be placed at the last of parameters.");
-            varArgsDefined = true;
-            break;
-          } else {
-            ConfigUtils.checkPlugIn(false, "Failed to parse %s (%s) in %d", Arrays.toString(params), Arrays.toString(types), i);
-          }
+      if (i >= params.length) {
+        if (t.hasDefaultValue()) {
+          ret[i] = t.defaultValue();
+        } else if (t.isVarArgs()) {
+          ConfigUtils.checkPlugIn(i == types.length - 1,
+              "Var args parameter can only be placed at the last of parameters.");
+          varArgsDefined = true;
+          break;
         } else {
-          try {
-            if (!t.isVarArgs()) {
-              ret[i] = t.parse(params[i].value());
-            } else {
-              ConfigUtils.checkPlugIn(i == types.length - 1, "Var args parameter can only be placed at the last of parameters.");
-              varArgsDefined = true;
-              while (i < params.length) {
-                ret[i] = t.parse(params[i].value());
-                varArgsParameterPresent = true;
-                i++;
-              }
-              break;
-            }
-          } catch (Exception e) {
-            ConfigUtils.rethrow(e,
-                String.format("The given value '%s' can't be converted to '%s' value.: %dth value in %s",
-                    Arrays.toString(params[i].value()),
-                    types[i],
-                    i,
-                    Arrays.toString(params)
-                ));
-          }
+          ConfigUtils.checkPlugIn(false, "Failed to parse %s (%s) in %d",
+              Arrays.toString(params), Arrays.toString(types), i);
         }
+      } else {
+        try {
+          if (!t.isVarArgs()) {
+            ret[i] = t.parse(params[i].value());
+          } else {
+            ConfigUtils.checkPlugIn(i == types.length - 1,
+                "Var args parameter can only be placed at the last of parameters.");
+            varArgsDefined = true;
+            while (i < params.length) {
+              ret[i] = t.parse(params[i].value());
+              varArgsParameterPresent = true;
+              i++;
+            }
+            break;
+          }
+        } catch (Exception e) {
+          ConfigUtils.rethrow(e,
+              String.format(
+                  "The given value '%s' can't be converted to '%s' value.: %dth value in %s",
+                  Arrays.toString(params[i].value()),
+                  types[i],
+                  i,
+                  Arrays.toString(params)
+              ));
+        }
+      }
       i++;
     }
     if (varArgsDefined && !varArgsParameterPresent) {

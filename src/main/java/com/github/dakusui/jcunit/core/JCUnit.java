@@ -83,7 +83,7 @@ public class JCUnit extends Suite {
         }
     }
 
-    static Object createTest(TestClass testClass, Tuple testCase) {
+    static Object createTestObject(TestClass testClass, Tuple testCase) {
         return TestCaseUtils.toTestObject(testClass.getJavaClass(), testCase);
     }
 
@@ -91,7 +91,8 @@ public class JCUnit extends Suite {
         if (preconditionMethods.isEmpty()) return true;
         for (FrameworkMethod m : preconditionMethods) {
             try {
-                Object testObject = createTest(this.getTestClass(), testCase);
+                Object testObject = createTestObject(this.getTestClass(),
+                    testCase);
                 if ((Boolean) m.invokeExplosively(null, testObject)) return true;
             } catch (Throwable throwable) {
                 ConfigUtils.rethrow(throwable, "Failed to execute ");

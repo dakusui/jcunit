@@ -1,11 +1,9 @@
 package com.github.dakusui.jcunit.framework.tests.bugfixes.reproducibilitywithconstraints;
 
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.Given;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Precondition;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
