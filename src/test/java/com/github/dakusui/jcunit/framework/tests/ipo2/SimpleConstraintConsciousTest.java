@@ -140,7 +140,10 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
 
     @Override
     public void addObserver(ConstraintObserver observer) {
+    }
 
+    @Override public Set<ConstraintObserver> observers() {
+      return null;
     }
 
     @Override

@@ -40,19 +40,7 @@ public abstract class ConstraintManagerBase implements ConstraintManager {
   }
 
   public Set<ConstraintObserver> observers() {
-    return Collections.unmodifiableSet(observers());
-  }
-
-  /**
-   * A utility method that sub classes can call when they find an implicit
-   * constraints.
-   *
-   * @param tuple A tuple which represents an implicit constraint.
-   */
-  protected void implicitConstraintFound(Tuple tuple) {
-    for (ConstraintObserver o : this.observers) {
-      o.implicitConstraintFound(tuple);
-    }
+    return Collections.unmodifiableSet(observers);
   }
 
   @Override

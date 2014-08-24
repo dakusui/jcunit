@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ConstraintManager extends JCUnitConfigurablePlugin {
   public static final ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
@@ -28,6 +29,8 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
   void setFactors(Factors factors);
 
   void addObserver(ConstraintObserver observer);
+
+  Set<ConstraintObserver> observers();
 
   void removeObservers(ConstraintObserver observer);
 

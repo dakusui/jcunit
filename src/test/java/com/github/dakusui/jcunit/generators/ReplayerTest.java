@@ -2,9 +2,6 @@ package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.Recorder;
-import com.github.dakusui.jcunit.generators.Replayer;
-import com.github.dakusui.jcunit.generators.TupleGenerator;
-import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -109,7 +106,8 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    TupleGenerator tupleGenerator = TupleGeneratorFactory.INSTANCE.createTupleGeneratorFromClass(TestClass.class);
+    TupleGenerator tupleGenerator = TupleGeneratorFactory.INSTANCE
+        .createTupleGeneratorFromClass(TestClass.class);
     assertEquals(Replayer.class, tupleGenerator.getClass());
 
     Replayer replayer = (Replayer) tupleGenerator;
