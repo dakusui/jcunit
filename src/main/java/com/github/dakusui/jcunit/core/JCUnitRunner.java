@@ -139,9 +139,9 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 
     private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
         List<String> failures = new LinkedList<String>();
-        List<FrameworkMethod> preconditionMethods = FrameworkUtils.getTestPreconditionMethodsFor(
-            getTestClass().getJavaClass(),
-            testMethod, failures);
+        List<FrameworkMethod> preconditionMethods = FrameworkMethodUtils.getTestPreconditionMethodsFor(
+                getTestClass().getJavaClass(),
+                testMethod, failures);
         ConfigUtils.checkTest(failures.isEmpty(),
                 "Errors are found while precondition checks.: %s", failures);
         return shouldInvoke(testObject, preconditionMethods);

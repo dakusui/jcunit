@@ -54,7 +54,7 @@ The class provides a function to solve a quadratic equation using a quadratic fo
 
 ```java
 //QuadraticEquationSolver.java
-package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
+package com.github.dakusui.jcunit.examples.quadraticequation.session1;
 
 public class QuadraticEquationSolver {
   private final double a;
@@ -105,11 +105,11 @@ QuadraticEquationSolverTest is a test class for QuadraticEquationSolver class.
 
 ```java
 // QuadraticEquationSolverTest1.java
-package com.github.dakusui.jcunit.framework.examples.quadraticequation.session1;
+package com.github.dakusui.jcunit.examples.quadraticequation.session1;
 
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.factor.FactorField;
-import com.github.dakusui.jcunit.framework.examples.quadraticequation.session1.QuadraticEquationSolver;
+import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

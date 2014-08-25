@@ -1,4 +1,4 @@
-package  com.github.dakusui.jcunit.generators;
+package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
