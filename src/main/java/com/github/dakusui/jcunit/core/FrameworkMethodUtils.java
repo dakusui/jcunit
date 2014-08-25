@@ -185,96 +185,101 @@ public class FrameworkMethodUtils {
     }
 
     public interface FrameworkMethodValidator {
-        public static final FrameworkMethodValidator CUSTOM_TESTCASES = new FrameworkMethodValidatorBase() {
-            @Override
-            public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures) {
-                Method mm = m.getMethod();
-                return m.isPublic() && m.isStatic()
-                        && mm.getParameterTypes().length == 0 &&
-                        (Tuple.class.isAssignableFrom(mm.getReturnType()) ||
-                                (Iterable.class.isAssignableFrom(mm.getReturnType())
-                                ));
-            }
-
-            @Override
-            protected Class<? extends Annotation> getAnnotation() {
-                return CustomTestCases.class;
-            }
-        };
-
-        public static final FrameworkMethodValidator PRECONDITION = new FrameworkMethodValidatorBase() {
-            @Override
-            public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures) {
-                return validateTestPreconditionMethod(testClass, m, failures);
-            }
-
-            @Override
-            protected Class<? extends Annotation> getAnnotation() {
-                return Precondition.class;
-            }
-        };
-
-        public static final FrameworkMethodValidator REFERENCED_BY_GIVEN = new FrameworkMethodValidatorBase() {
-            @Override
-            protected Class<? extends Annotation> getAnnotation() {
-                return Given.class;
-            }
-
-            @Override
-            public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures) {
-                return validateTestPreconditionMethod(testClass, m, failures);
-            }
-
-            @Override
-            public List<FrameworkMethod> getMethods(TestClass testClass) {
-                List<FrameworkMethod> methodsAnnotatedWithGiven = super.getMethods(testClass);
-                List<FrameworkMethod> ret = new ArrayList<FrameworkMethod>(methodsAnnotatedWithGiven.size());
-                for (FrameworkMethod each : methodsAnnotatedWithGiven) {
-                    // TODO
-                }
-                return ret;
-            }
-        };
-
-        public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures);
-
-        public List<FrameworkMethod> getMethods(TestClass testClass);
-
-        abstract static class FrameworkMethodValidatorBase implements FrameworkMethodValidator {
-            public List<FrameworkMethod> getMethods(TestClass testClass) {
-                return testClass.getAnnotatedMethods(this.getAnnotation());
-            }
-
-            abstract protected Class<? extends Annotation> getAnnotation();
+      public static final FrameworkMethodValidator CUSTOM_TESTCASES = new FrameworkMethodValidatorBase() {
+        @Override
+        public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures) {
+          Method mm = m.getMethod();
+          return m.isPublic() && m.isStatic()
+              && mm.getParameterTypes().length == 0 &&
+              (Tuple.class.isAssignableFrom(mm.getReturnType()) ||
+                  (Iterable.class.isAssignableFrom(mm.getReturnType())
+                  ));
         }
+
+        @Override
+        protected Class<? extends Annotation> getAnnotation() {
+          return CustomTestCases.class;
+        }
+      };
+
+      public static final FrameworkMethodValidator PRECONDITION = new FrameworkMethodValidatorBase() {
+        @Override
+        public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures) {
+          return validateTestPreconditionMethod(testClass, m, failures);
+        }
+
+        @Override
+        protected Class<? extends Annotation> getAnnotation() {
+          return Precondition.class;
+        }
+      };
+
+      public static final FrameworkMethodValidator REFERENCED_BY_GIVEN = new FrameworkMethodValidatorBase() {
+        class MethodRef {
+          boolean negate;
+          String methodName;
+        }
+        @Override
+        protected Class<? extends Annotation> getAnnotation() {
+          return Given.class;
+        }
+
+        @Override
+        public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures) {
+          return validateTestPreconditionMethod(testClass, m, failures);
+        }
+
+        @Override
+        public List<FrameworkMethod> getMethods(TestClass testClass) {
+          List<FrameworkMethod> methodsAnnotatedWithGiven = super.getMethods(testClass);
+          List<FrameworkMethod> ret = new ArrayList<FrameworkMethod>(methodsAnnotatedWithGiven.size());
+          for (FrameworkMethod each : methodsAnnotatedWithGiven) {
+            Given ann = (Given) each.getMethod().getAnnotation(this.getAnnotation());
+            String[] terms = ann.value();
+          }
+          return ret;
+        }
+      };
+
+      public boolean validate(Class<?> testClass, FrameworkMethod m, List<String> failures);
+
+      public List<FrameworkMethod> getMethods(TestClass testClass);
+
+      abstract static class FrameworkMethodValidatorBase implements FrameworkMethodValidator {
+        public List<FrameworkMethod> getMethods(TestClass testClass) {
+          return testClass.getAnnotatedMethods(this.getAnnotation());
+        }
+
+        abstract protected Class<? extends Annotation> getAnnotation();
+      }
     }
 
-    static class CompositeFrameworkMethod extends FrameworkMethod {
-        public static final Method DUMMY_METHOD;
-        static {
-            try {
-                DUMMY_METHOD = CompositeFrameworkMethod.class.getMethod("dummyMethod");
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            }
-        }
+  static class CompositeFrameworkMethod extends FrameworkMethod {
+    public static final Method DUMMY_METHOD;
 
-        static class Builder {
-            public Builder addMethod(Method method) {
-                return this;
-            }
-        }
-        /**
-         * Returns a new {@code FrameworkMethod} for {@code method}
-         *
-         * @param method
-         */
-        public CompositeFrameworkMethod() {
-            super(DUMMY_METHOD);
-        }
-
-        @SuppressWarnings("unused")
-        public static void dummyMethod() {
-        }
+    static {
+      try {
+        DUMMY_METHOD = CompositeFrameworkMethod.class.getMethod("dummyMethod");
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException(e);
+      }
     }
+
+    static class Builder {
+      public Builder addMethod(Method method) {
+        return this;
+      }
+    }
+
+    /**
+     * Returns a new {@code FrameworkMethod} for {@code method}
+     */
+    public CompositeFrameworkMethod() {
+      super(DUMMY_METHOD);
+    }
+
+    @SuppressWarnings("unused")
+    public static void dummyMethod() {
+    }
+  }
 }
