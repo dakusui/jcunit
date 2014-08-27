@@ -158,7 +158,7 @@ public class JCUnit extends Suite {
     }
 
     private List<FrameworkMethod> getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever retriever) {
-      return retriever.getMethods(getTestClass());
+      return retriever.getMethods(getTestClass().getJavaClass());
     }
 
 
