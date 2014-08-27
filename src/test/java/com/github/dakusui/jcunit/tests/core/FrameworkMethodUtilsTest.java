@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
@@ -55,7 +57,8 @@ public class FrameworkMethodUtilsTest {
 
     @Test
     public void test() {
-        List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodValidator.REFERENCED_BY_GIVEN.getMethods(new TestClass(ValidatorTestClass.class));
+        List<String> failures = new LinkedList<String>();
+        List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.REFERENCED_BY_GIVEN.getMethods(new TestClass(ValidatorTestClass.class));
         assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "precondition1"));
     }
 

@@ -139,7 +139,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 
     private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
         List<String> failures = new LinkedList<String>();
-        List<FrameworkMethod> preconditionMethods = FrameworkMethodUtils.getTestPreconditionMethodsFor(
+        List<FrameworkMethod> preconditionMethods = CompatFrameworkMethodUtils.getTestPreconditionMethodsFor(
                 getTestClass().getJavaClass(),
                 testMethod, failures);
         ConfigUtils.checkTest(failures.isEmpty(),

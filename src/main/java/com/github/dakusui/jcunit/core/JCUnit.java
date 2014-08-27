@@ -29,10 +29,10 @@ public class JCUnit extends Suite {
             ////
             // Prepare filter method(s) and custom test case methods.
             List<String> frameworkMethodFailures = new LinkedList<String>();
-            List<FrameworkMethod> preconditionMethods = getFrameworkMethods(frameworkMethodFailures, FrameworkMethodUtils.FrameworkMethodValidator.PRECONDITION);
+            List<FrameworkMethod> preconditionMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.PRECONDITION);
             // Currently only one filter method can be used.
             // Custom test case methods.
-            List<FrameworkMethod> customTestCaseMethods = getFrameworkMethods(frameworkMethodFailures, FrameworkMethodUtils.FrameworkMethodValidator.CUSTOM_TESTCASES);
+            List<FrameworkMethod> customTestCaseMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.CUSTOM_TESTCASES);
             ////
             // Check if any error was found.
             ConfigUtils.checkEnv(frameworkMethodFailures.isEmpty(),
@@ -157,15 +157,8 @@ public class JCUnit extends Suite {
         return ret;
     }
 
-    private List<FrameworkMethod> getFrameworkMethods(List<String> failures, FrameworkMethodUtils.FrameworkMethodValidator validator) {
-        List<FrameworkMethod> methods = validator.getMethods(getTestClass());
-        List<FrameworkMethod> ret = new ArrayList<FrameworkMethod>(methods.size());
-        for (FrameworkMethod m : methods) {
-            if (validator.validate(getTestClass().getJavaClass(), m, failures)) {
-                ret.add(m);
-            }
-        }
-        return ret;
+    private List<FrameworkMethod> getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever retriever) {
+      return retriever.getMethods(getTestClass());
     }
 
 
