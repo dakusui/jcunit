@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.generators.ipo2.optimizers;
+package com.github.dakusui.jcunit.tests.generators.ipo2.optimizers;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factors;

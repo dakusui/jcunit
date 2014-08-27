@@ -10,8 +10,8 @@ import com.github.dakusui.jcunit.ututils.tuples.NoConstraintViolationExpectation
 import com.github.dakusui.jcunit.ututils.tuples.SanityExpectation;
 import com.github.dakusui.jcunit.ututils.tuples.ValidTuplesCoveredExpectation;
 import com.github.dakusui.jcunit.ututils.tuples.VerificationResult;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.tests.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.tests.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

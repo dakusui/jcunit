@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session3;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.tests.generators.IPO2TupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;

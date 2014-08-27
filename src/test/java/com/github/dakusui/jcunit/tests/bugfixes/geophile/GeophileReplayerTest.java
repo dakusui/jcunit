@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.Replayer;
+import com.github.dakusui.jcunit.tests.generators.Replayer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

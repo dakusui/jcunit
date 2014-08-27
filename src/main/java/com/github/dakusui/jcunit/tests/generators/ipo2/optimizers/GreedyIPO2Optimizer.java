@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.generators.ipo2.optimizers;
+package com.github.dakusui.jcunit.tests.generators.ipo2.optimizers;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.tests.generators.ipo2.IPO2;
 
 import java.util.ArrayList;
 import java.util.List;

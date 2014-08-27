@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.generators;
+package com.github.dakusui.jcunit.tests.generators;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Utils;

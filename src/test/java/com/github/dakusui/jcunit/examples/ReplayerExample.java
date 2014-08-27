@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.Recorder;
-import com.github.dakusui.jcunit.generators.Replayer;
+import com.github.dakusui.jcunit.tests.generators.Replayer;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
