@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.tests.generators.ipo2;
+package com.github.dakusui.jcunit.generators.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
@@ -12,7 +12,7 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
-import com.github.dakusui.jcunit.tests.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 
 import java.util.ArrayList;
 import java.util.Collection;

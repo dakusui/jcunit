@@ -1,9 +1,9 @@
-package com.github.dakusui.jcunit.tests.generators;
+package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.tests.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.tests.generators.ipo2.optimizers.GreedyIPO2Optimizer;
+import com.github.dakusui.jcunit.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 
 import java.util.Arrays;
 import java.util.List;

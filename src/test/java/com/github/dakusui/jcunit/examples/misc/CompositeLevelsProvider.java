@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
-import com.github.dakusui.jcunit.tests.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 
 import java.lang.reflect.Field;
 

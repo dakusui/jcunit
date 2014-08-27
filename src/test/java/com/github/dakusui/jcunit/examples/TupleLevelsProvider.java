@@ -4,8 +4,8 @@ import com.github.dakusui.jcunit.core.TestCaseUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
-import com.github.dakusui.jcunit.tests.generators.TupleGenerator;
-import com.github.dakusui.jcunit.tests.generators.TupleGeneratorFactory;
+import com.github.dakusui.jcunit.generators.TupleGenerator;
+import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 
 import java.lang.reflect.Field;
 

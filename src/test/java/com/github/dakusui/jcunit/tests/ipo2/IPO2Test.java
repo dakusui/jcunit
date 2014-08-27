@@ -7,9 +7,9 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
-import com.github.dakusui.jcunit.tests.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.tests.generators.ipo2.optimizers.GreedyIPO2Optimizer;
-import com.github.dakusui.jcunit.tests.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
+import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 
 import java.util.*;
 

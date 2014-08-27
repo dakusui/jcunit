@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.examples.calc.Calc;
-import com.github.dakusui.jcunit.tests.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
