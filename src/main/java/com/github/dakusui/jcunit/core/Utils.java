@@ -127,9 +127,6 @@ public class Utils {
   }
 
   public static <T> T checknotnull(T obj, String msgOrFmt, Object... args) {
-    if (msgOrFmt == null) {
-      checknotnull(obj);
-    }
     if (obj == null) {
       if (msgOrFmt != null) {
         throw new NullPointerException(String.format(msgOrFmt, args));
@@ -159,7 +156,9 @@ public class Utils {
   }
 
     public static void checkparam(boolean b) {
-        checkparam(b, "");
+      if (!b) {
+        throw new IllegalArgumentException();
+      }
     }
 
     public static void checkparam(boolean b, String msgOrFmt, Object... args) {
