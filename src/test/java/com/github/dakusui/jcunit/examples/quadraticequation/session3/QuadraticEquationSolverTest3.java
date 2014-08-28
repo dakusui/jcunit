@@ -24,22 +24,20 @@ public class QuadraticEquationSolverTest3 {
   @FactorField
   public int c;
 
-  public static boolean aIsNonZero(QuadraticEquationSolverTest3 testCase) {
-    return testCase.a != 0;
+  public boolean aIsNonZero() {
+    return this.a != 0;
   }
 
-  public static boolean discriminantIsNonNegative(
-      QuadraticEquationSolverTest3 test) {
-    int a = test.a;
-    int b = test.b;
-    int c = test.c;
+  public boolean discriminantIsNonNegative() {
+    int a = this.a;
+    int b = this.b;
+    int c = this.c;
     return b * b - 4 * c * a >= 0;
   }
 
-  public static boolean coefficientsAreValid(
-      QuadraticEquationSolverTest3 testCase) {
-    return Math.abs(testCase.a) <= 100 || Math.abs(testCase.b) <= 100
-        || Math.abs(testCase.c) <= 100;
+  public boolean coefficientsAreValid() {
+    return Math.abs(this.a) <= 100 || Math.abs(this.b) <= 100
+        || Math.abs(this.c) <= 100;
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -56,15 +56,14 @@ public class QuadraticEquationSolverTestX {
   }
 
   //@Precondition
-  public static boolean aIsNonZero(QuadraticEquationSolverTestX testCase) {
-    return testCase.a != 0;
+  public boolean aIsNonZero() {
+    return this.a != 0;
   }
 
-  public static boolean discriminantIsNonNegative(
-      QuadraticEquationSolverTestX test) {
-    int a = test.a;
-    int b = test.b;
-    int c = test.c;
+  public boolean discriminantIsNonNegative() {
+    int a = this.a;
+    int b = this.b;
+    int c = this.c;
     return b * b - 4 * c * a >= 0;
   }
 

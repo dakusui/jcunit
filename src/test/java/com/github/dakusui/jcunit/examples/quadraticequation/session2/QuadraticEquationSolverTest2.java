@@ -24,8 +24,8 @@ public class QuadraticEquationSolverTest2 {
   @FactorField
   public int c;
 
-  public static boolean aIsNonZero(QuadraticEquationSolverTest2 testCase) {
-    return testCase.a != 0;
+  public boolean aIsNonZero() {
+    return this.a != 0;
   }
 
   public static boolean discriminantIsNonNegative(
@@ -36,10 +36,9 @@ public class QuadraticEquationSolverTest2 {
     return b * b - 4 * c * a >= 0;
   }
 
-  public static boolean coefficientsAreValid(
-      QuadraticEquationSolverTest2 testCase) {
-    return Math.abs(testCase.a) <= 100 || Math.abs(testCase.b) <= 100
-        || Math.abs(testCase.c) <= 100;
+  public boolean coefficientsAreValid() {
+    return Math.abs(this.a) <= 100 || Math.abs(this.b) <= 100
+        || Math.abs(this.c) <= 100;
   }
 
   @Test

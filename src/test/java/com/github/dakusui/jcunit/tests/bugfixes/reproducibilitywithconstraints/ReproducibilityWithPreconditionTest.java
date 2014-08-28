@@ -41,8 +41,8 @@ public class ReproducibilityWithPreconditionTest {
   }
 
   @Precondition
-  public static boolean filter(ReproducibilityWithPreconditionTest test) {
-    return test.a == 3;
+  public boolean filter() {
+    return this.a == 3;
   }
 
 

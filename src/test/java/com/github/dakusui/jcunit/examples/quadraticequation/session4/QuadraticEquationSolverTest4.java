@@ -23,22 +23,20 @@ public class QuadraticEquationSolverTest4 {
   @FactorField
   public int c;
 
-  public static boolean aIsNonZero(QuadraticEquationSolverTest4 testCase) {
-    return testCase.a != 0;
+  public boolean aIsNonZero() {
+    return this.a != 0;
   }
 
-  public static boolean discriminantIsNonNegative(
-      QuadraticEquationSolverTest4 test) {
-    int a = test.a;
-    int b = test.b;
-    int c = test.c;
+  public boolean discriminantIsNonNegative() {
+    int a = this.a;
+    int b = this.b;
+    int c = this.c;
     return b * b - 4 * c * a >= 0;
   }
 
-  public static boolean coefficientsAreValid(
-      QuadraticEquationSolverTest4 testCase) {
-    return Math.abs(testCase.a) <= 100 && Math.abs(testCase.b) <= 100
-        && Math.abs(testCase.c) <= 100;
+  public boolean coefficientsAreValid() {
+    return Math.abs(this.a) <= 100 && Math.abs(this.b) <= 100
+        && Math.abs(this.c) <= 100;
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -54,7 +52,7 @@ public class QuadraticEquationSolverTest4 {
   @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void whenSolveQuadraticEquation$thenSolved() {
     System.out.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b*b, -4*c*a, b*b-4*c*a));
-    System.out.println(coefficientsAreValid(this));
+    System.out.println(this.coefficientsAreValid());
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

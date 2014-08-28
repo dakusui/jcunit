@@ -21,8 +21,8 @@ public class PreconditionTest {
     public boolean f2;
 
     @SuppressWarnings("unused")
-    public static boolean precondition(TestClass test) {
-      return test.f1;
+    public boolean precondition() {
+      return f1;
     }
 
     @Test

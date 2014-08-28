@@ -101,7 +101,7 @@ public class JCUnit extends Suite {
       try {
         Object testObject = createTestObject(this.getTestClass(),
             testCase);
-        if ((Boolean) m.invokeExplosively(null, testObject)) {
+        if ((Boolean) m.invokeExplosively(testObject)) {
           return true;
         }
       } catch (Throwable throwable) {

@@ -60,7 +60,7 @@ public class FactorLoaderTest {
 		FactorLoader factorLoader = new FactorLoader(f);
 		FactorLoader.ValidationResult result = factorLoader.validate();
 		assertThat(result.isValid(), is(false));
-		assertThat(result.getErrorMessage(), containsString("can't be assigned"));
+		assertThat(result.getErrorMessage(), containsString("Incompatible method 'longLevels'"));
 		assertThat(result.getErrorMessage(), containsString(f.getName()));
 	}
 
@@ -74,7 +74,7 @@ public class FactorLoaderTest {
 		} catch (FactorLoader.FactorFieldValidationException e) {
 			FactorLoader.ValidationResult result = e.getValidationResult();
 			assertThat(result.isValid(), is(false));
-			assertThat(result.getErrorMessage(), containsString("can't be assigned"));
+            assertThat(result.getErrorMessage(), containsString("Incompatible method 'longLevels'"));
 			assertThat(result.getErrorMessage(), containsString(f.getName()));
 		}
 	}

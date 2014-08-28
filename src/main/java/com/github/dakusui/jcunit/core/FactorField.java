@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.core.factor.DefaultLevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 
 import java.lang.annotation.ElementType;
@@ -47,7 +48,7 @@ public @interface FactorField {
    */
   public boolean includeNull() default false;
 
-  public Class<? extends LevelsProvider> levelsFactory() default LevelsProvider.class;
+  public Class<? extends LevelsProvider> levelsFactory() default DefaultLevelsProvider.class;
 
-  public Param[] factoryParams() default { };
+  public Param[] providerParams() default { };
 }

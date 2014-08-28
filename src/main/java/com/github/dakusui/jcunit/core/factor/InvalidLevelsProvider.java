@@ -4,6 +4,8 @@ import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 
 import java.lang.reflect.Field;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class is provided to represent a default value of {@code FactorField} annotation's
@@ -41,5 +43,10 @@ public class InvalidLevelsProvider implements LevelsProvider<Object> {
   @Override public void setTargetField(Field targetField) {}
 
   @Override public void setAnnotation(FactorField ann) {}
+
+    @Override
+    public List<String> getErrorsOnInitialization() {
+        return new LinkedList<String>();
+    }
 
 }

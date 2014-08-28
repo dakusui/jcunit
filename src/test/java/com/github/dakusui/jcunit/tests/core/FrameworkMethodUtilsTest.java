@@ -14,47 +14,47 @@ import static org.junit.Assert.assertEquals;
 public class FrameworkMethodUtilsTest {
   public static class RetrieverTestClass {
     @SuppressWarnings("unused")
-    public static boolean precondition1(RetrieverTestClass testClass) {
+    public boolean precondition1() {
       return true;
     }
 
     @SuppressWarnings("unused")
-    public static boolean precondition2(RetrieverTestClass testClass) {
+    public boolean precondition2() {
       return true;
     }
 
     @SuppressWarnings("unused")
-    public static boolean precondition3(Object testClass) {
+    public boolean precondition3() {
       return true;
     }
 
     @SuppressWarnings("unused")
-    static boolean invalidPrecondition1(RetrieverTestClass testClass) {
+    boolean invalidPrecondition1() {
       return true;
     }
 
     @SuppressWarnings("unused")
-    public static Boolean invalidPrecondition2(RetrieverTestClass testClass) {
+    public Boolean invalidPrecondition2() {
       return true;
     }
 
     @SuppressWarnings("unused")
-    public boolean invalidPrecondition3(RetrieverTestClass testClass) {
+    public static boolean invalidPrecondition3() {
       return true;
     }
 
     @SuppressWarnings("unused")
-    public static boolean invalidPrecondition4(String invalidParam) {
+    public boolean invalidPrecondition4(String invalidParam) {
       return true;
     }
 
     @SuppressWarnings("unused")
-    public static boolean invalidPrecondition5(RetrieverTestClass testClass) {
+    public boolean invalidPrecondition5() {
       return true;
     }
 
     @SuppressWarnings("unused")
-    public static boolean invalidPrecondition5(String testClass) {
+    public boolean invalidPrecondition5(String testClass) {
       return true;
     }
 
@@ -117,7 +117,7 @@ public class FrameworkMethodUtilsTest {
   public static class TestClass2 {
     @SuppressWarnings("unused")
     @Precondition
-    public static boolean precondition1(TestClass2 testClass) {
+    public boolean precondition1() {
       return true;
     }
   }
@@ -147,10 +147,10 @@ public class FrameworkMethodUtilsTest {
         "The method 'invalidPrecondition2' must return a boolean value, but 'java.lang.Boolean' is returned. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)",
         assertErrorSizeIsOne(validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "invalidPrecondition2"))).get(0));
     assertEquals(
-        "The method 'invalidPrecondition3' must be static. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)",
+        "The method 'invalidPrecondition3' must not be static. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)",
         assertErrorSizeIsOne(validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "invalidPrecondition3"))).get(0));
     assertEquals(
-        "The method 'invalidPrecondition4' must take one and only one parameter, which is assignable from 'com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass' but its parameter is 'java.lang.String'.",
+        "The method 'invalidPrecondition4' must not have any parameter. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)",
         assertErrorSizeIsOne(validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "invalidPrecondition4"))).get(0));
     assertEquals(
         "The method 'invalidPrecondition5' is not found or not unique in a class 'com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass'",
@@ -160,12 +160,11 @@ public class FrameworkMethodUtilsTest {
         assertErrorSizeIsOne(validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "undefinedPrecondition"))).get(0));
 
     RetrieverTestClass testObj = new RetrieverTestClass();
-    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "precondition1").invokeExplosively(null, testObj));
-    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "(precondition2&&precondition3)").invokeExplosively(null, testObj));
-    assertEquals(false, getFrameworkMethodByNameFromList(methodList, "(!precondition2&&precondition3)").invokeExplosively(null, testObj));
-    assertEquals(false, getFrameworkMethodByNameFromList(methodList, "(precondition2&&!precondition3)").invokeExplosively(null, testObj));
-    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "((!precondition2&&!precondition3)||precondition1)").invokeExplosively(null, testObj));
-
+    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "precondition1").invokeExplosively(testObj));
+    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "(precondition2&&precondition3)").invokeExplosively(testObj));
+    assertEquals(false, getFrameworkMethodByNameFromList(methodList, "(!precondition2&&precondition3)").invokeExplosively(testObj));
+    assertEquals(false, getFrameworkMethodByNameFromList(methodList, "(precondition2&&!precondition3)").invokeExplosively(testObj));
+    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "((!precondition2&&!precondition3)||precondition1)").invokeExplosively(testObj));
   }
 
   @Test
@@ -173,7 +172,7 @@ public class FrameworkMethodUtilsTest {
     List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.PRECONDITION.getMethods(TestClass2.class);
     assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "precondition1"));
     TestClass2 testObj = new TestClass2();
-    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "precondition1").invokeExplosively(null, testObj));
+    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "precondition1").invokeExplosively(testObj));
     assertEquals(0, validateMethod(FrameworkMethodUtils.FrameworkMethodValidator.PRECONDITIONMETHOD_VALIDATOR, TestClass2.class, getFrameworkMethodByNameFromList(methodList, "precondition1")).size());
   }
 
