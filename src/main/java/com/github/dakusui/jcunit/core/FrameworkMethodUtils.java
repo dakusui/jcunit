@@ -71,10 +71,10 @@ public class FrameworkMethodUtils {
     }
 
     public static void validateFrameworkMethod(Class<?> testClass, FrameworkMethod method, FrameworkMethodValidator validator, List<String> errors) {
-        Utils.checknotnull(testClass);
-        Utils.checknotnull(method);
-        Utils.checknotnull(validator);
-        Utils.checknotnull(errors);
+        Checks.checknotnull(testClass);
+        Checks.checknotnull(method);
+        Checks.checknotnull(validator);
+        Checks.checknotnull(errors);
         if (method instanceof CompositeFrameworkMethod) {
             for (FrameworkMethod each : ((CompositeFrameworkMethod) method).methods) {
                 validateFrameworkMethod(testClass, each, validator, errors);
@@ -318,8 +318,8 @@ public class FrameworkMethodUtils {
          */
         CompositeFrameworkMethod(Mode mode, List<FrameworkMethod> methods) {
             super(DUMMY_METHOD);
-            Utils.checknotnull(methods);
-            Utils.checknotnull(mode, "Mode isn't set yet.");
+            Checks.checknotnull(methods);
+            Checks.checknotnull(mode, "Mode isn't set yet.");
             this.methods = methods;
             this.mode = mode;
         }
@@ -392,7 +392,7 @@ public class FrameworkMethodUtils {
     }
 
     public static String getPreconditionMethodNameFor(Given ann) {
-        Utils.checknotnull(ann);
+        Checks.checknotnull(ann);
         StringBuilder b = new StringBuilder();
         String[] values = ann.value();
         if (values.length > 1) {

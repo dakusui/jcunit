@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintMan
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 import java.util.List;
 import java.util.Set;
@@ -20,9 +20,9 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
    *
    * @param tuple A tuple to be evaluated.
    * @return {@code true} - The tuple doesn't violate constraints / {@code false} - otherwise.
-   * @throws com.github.dakusui.jcunit.exceptions.JCUnitSymbolException Failed to evaluate the tuple for insufficient attribute(s).
+   * @throws com.github.dakusui.jcunit.exceptions.UndefinedSymbol Failed to evaluate the tuple for insufficient attribute(s).
    */
-  boolean check(Tuple tuple) throws JCUnitSymbolException;
+  boolean check(Tuple tuple) throws UndefinedSymbol;
 
   Factors getFactors();
 

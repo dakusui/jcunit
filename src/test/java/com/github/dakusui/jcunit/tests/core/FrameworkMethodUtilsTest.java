@@ -185,7 +185,7 @@ public class FrameworkMethodUtilsTest {
   }
 
   private List<String> validateMethod(FrameworkMethodUtils.FrameworkMethodValidator validator, Class<?> testClass, FrameworkMethod method) {
-    Utils.checknotnull(method);
+    Checks.checknotnull(method);
     List<String> errors = new LinkedList<String>();
     FrameworkMethodUtils.validateFrameworkMethod(testClass, method, validator, errors);
     return errors;

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.ututils.tuples;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
@@ -18,7 +18,7 @@ public class SanityExpectation implements Expectation {
   @Override
   public VerificationResult verify(List<Tuple> tuples) {
     Set<Tuple> violations = new HashSet<Tuple>();
-    for (Tuple t : Utils.checknotnull(tuples)) {
+    for (Tuple t : Checks.checknotnull(tuples)) {
       if (t == null) {
         violations.add(t);
         continue;

@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
         if (!constraintManager.check(t)) {
           continue;
         }
-      } catch (JCUnitSymbolException e) {
+      } catch (UndefinedSymbol e) {
         ////
         // In case constraint checking fails for insufficient attributes, no way
         // other than moving on.

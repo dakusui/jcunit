@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.constraint.constraintmanagers;
 
 import com.github.dakusui.jcunit.core.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ import java.util.List;
 public abstract class TypedConstraintManager<T>
     extends ConstraintManagerBase {
   @Override public final boolean check(Tuple tuple)
-      throws JCUnitSymbolException {
+      throws UndefinedSymbol {
     return check(toTestObject(tuple), tuple);
   }
 
@@ -28,7 +28,7 @@ public abstract class TypedConstraintManager<T>
    * @return true - constraint check is passed / false - otherwise.
    */
   protected abstract boolean check(T o, Tuple tuple)
-      throws JCUnitSymbolException;
+      throws UndefinedSymbol;
 
   @Override public final List<Tuple> getViolations() {
     List<Tuple> ret = new LinkedList<Tuple>();

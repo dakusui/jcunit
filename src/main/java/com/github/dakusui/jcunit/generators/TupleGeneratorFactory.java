@@ -1,12 +1,11 @@
 package com.github.dakusui.jcunit.generators;
 
-import com.github.dakusui.jcunit.core.Constraint;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -23,7 +22,7 @@ public class TupleGeneratorFactory {
    */
   public TupleGenerator createTupleGeneratorFromClass(
       Class<?> klazz) {
-    Utils.checknotnull(klazz);
+    Checks.checknotnull(klazz);
     TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
         klazz);
     return createTupleGenerator(klazz, tupleGenerationAnn);
@@ -31,7 +30,7 @@ public class TupleGeneratorFactory {
 
   public TupleGenerator createTupleGeneratorForField(
       Field field) {
-    Utils.checknotnull(field);
+    Checks.checknotnull(field);
     TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
         field);
     return createTupleGenerator(field.getType(),
@@ -50,11 +49,11 @@ public class TupleGeneratorFactory {
     ////
     // Wire objects.
     constraintManager.setFactors(factors);
-    constraintManager.init(ConfigUtils.processParams(constraintManager.parameterTypes(), constraintAnn.params()));
+    constraintManager.init(ParamType.processParams(constraintManager.parameterTypes(), constraintAnn.params()));
     generator.setFactors(factors);
     generator.setConstraintManager(constraintManager);
     generator.setTargetClass(klazz);
-    generator.init(ConfigUtils.processParams(generator.parameterTypes(), generatorAnn.params()));
+    generator.init(ParamType.processParams(generator.parameterTypes(), generatorAnn.params()));
     return generator;
   }
 
@@ -63,16 +62,22 @@ public class TupleGeneratorFactory {
     // Initialize the factor levels for every '@FactorField' annotated field.
     Field[] fields = Utils.getAnnotatedFields(klazz, FactorField.class);
     Factors.Builder factorsBuilder = new Factors.Builder();
-    List<String> errors = new LinkedList<String>();
+    List<InvalidTestException> errors = new LinkedList<InvalidTestException>();
     for (Field f : fields) {
-      FactorLoader factorLoader = new FactorLoader(f);
-      Factor factor = factorLoader.getFactor();
-      factorsBuilder.add(factor);
+      try {
+        FactorLoader factorLoader = new FactorLoader(f);
+        Factor factor = factorLoader.getFactor();
+        factorsBuilder.add(factor);
+      } catch (InvalidTestException e) {
+        errors.add(e);
+      }
     }
-    if (!errors.isEmpty()) {
-      errors.add(0, "One or more factors failed to be initialized.");
-      throw new JCUnitException(Utils.join("\n\t", errors.toArray()));
-    }
+    Checks.checktest(errors.isEmpty(), "One or more factors failed to be initialized.: [%s]", Utils.join(", ", new Utils.Formatter<InvalidTestException>() {
+      @Override
+      public String format(InvalidTestException elem) {
+        return elem.getMessage();
+      }
+    }, errors.toArray(new InvalidTestException[errors.size()])));
 
     // //
     // Instantiates the test array generator.
@@ -88,31 +93,37 @@ public class TupleGeneratorFactory {
       ret = annotatedElement.getAnnotation(TupleGeneration.class);
     } else {
       ret = new TupleGeneration() {
-        @Override public Generator generator() {
+        @Override
+        public Generator generator() {
           return Utils
               .getDefaultValueOfAnnotation(TupleGeneration.class,
                   "generator");
         }
 
-        @Override public Constraint constraint() {
+        @Override
+        public Constraint constraint() {
           return Utils
               .getDefaultValueOfAnnotation(TupleGeneration.class,
                   "constraint");
         }
 
-        @Override public boolean equals(Object o) {
+        @Override
+        public boolean equals(Object o) {
           return super.equals(o);
         }
 
-        @Override public int hashCode() {
+        @Override
+        public int hashCode() {
           return super.hashCode();
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
           return super.toString();
         }
 
-        @Override public Class<? extends Annotation> annotationType() {
+        @Override
+        public Class<? extends Annotation> annotationType() {
           return TupleGeneration.class;
         }
       };

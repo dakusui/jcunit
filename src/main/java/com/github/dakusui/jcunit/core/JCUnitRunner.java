@@ -35,7 +35,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
                  Factors factors, Tuple testCase)
             throws InitializationError {
         super(clazz);
-        Utils.checknotnull(testCase);
+        Checks.checknotnull(testCase);
         this.factors = factors;
         this.testCase = testCase;
         this.id = id;
@@ -97,7 +97,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
 
     @Override
     protected Description describeChild(FrameworkMethod method) {
-        Utils.checknotnull(method);
+        Checks.checknotnull(method);
 
         Annotation[] work = method.getAnnotations();
         ArrayList<Annotation> annotations = new ArrayList<Annotation>(
@@ -137,7 +137,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
         if (given == null) return true;
         String preconditionMethodName = FrameworkMethodUtils.getPreconditionMethodNameFor(given);
         FrameworkMethod preconditionMethod = this.methods.get(preconditionMethodName);
-        Utils.checkcond(preconditionMethod != null, "Something went wrong: name=%s, methdos=%s", preconditionMethodName, this.methods);
+        Checks.checkcond(preconditionMethod != null, "Something went wrong: name=%s, methdos=%s", preconditionMethodName, this.methods);
         assert preconditionMethod != null;
         boolean ret = false;
         try {
@@ -149,7 +149,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
         } catch (Error e) {
             throw e;
         } catch (Throwable throwable) {
-            Utils.rethrow(throwable);
+            Checks.rethrow(throwable);
         }
         return ret;
     }
@@ -160,7 +160,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
         } catch (NoSuchMethodException e) {
             assert false;
         }
-        Utils.checkcond(false);
+        Checks.checkcond(false);
         return null;
     }
 

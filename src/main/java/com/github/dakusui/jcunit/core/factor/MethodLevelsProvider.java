@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
@@ -22,11 +23,11 @@ public class MethodLevelsProvider<T> extends LevelsProviderBase<T> {
         ret = testClass.getDeclaredMethod(inField.getName());
       }
     } catch (SecurityException e) {
-      Utils.rethrow(e, "JCUnit cannot be run in this environment. (%s:%s)",
+      Checks.rethrow(e, "JCUnit cannot be run in this environment. (%s:%s)",
           e.getClass()
               .getName(), e.getMessage());
     } catch (NoSuchMethodException e) {
-      Utils.rethrow(e,
+      Checks.rethrow(e,
           "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
           inField, testClass);
     }

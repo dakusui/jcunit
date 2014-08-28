@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.core.tuples;
 import com.github.dakusui.enumerator.CartesianEnumeratorAdaptor;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Domains;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.exceptions.SavedObjectBrokenException;
@@ -30,7 +31,7 @@ public class TupleUtils {
 
 				@Override
 				public List<Object> getDomain(String s) {
-					Utils.checknotnull(s);
+					Checks.checknotnull(s);
 					for (Factor f : factors) {
 						if (s.equals(f.name)) {
 							return f.levels;
@@ -39,7 +40,7 @@ public class TupleUtils {
 					return null;
 				}
 			});
-			this.base = Utils.checknotnull(base);
+			this.base = Checks.checknotnull(base);
 		}
 
 		@Override
@@ -49,14 +50,14 @@ public class TupleUtils {
 	}
 
 	public static CartesianTuples enumerateCartesianProduct(final Tuple base, Factor... factors) {
-		Utils.checknotnull(base);
+		Checks.checknotnull(base);
 		return new CartesianTuples(base, factors);
 	}
 
 	public static Set<Tuple> subtuplesOf(
 			Tuple tuple, int strength) {
-		Utils.checknotnull(tuple);
-		Utils.checkcond(strength >= 0 && strength <= tuple.size());
+		Checks.checknotnull(tuple);
+		Checks.checkcond(strength >= 0 && strength <= tuple.size());
 		Set<Tuple> ret = new LinkedHashSet<Tuple>();
 		Combinator<String> c = new Combinator<String>(
 				new LinkedList<String>(tuple.keySet()), strength);
@@ -71,7 +72,7 @@ public class TupleUtils {
 	}
 
 	public static Set<Tuple> subtuplesOf(Tuple tuple) {
-		Utils.checknotnull(tuple);
+		Checks.checknotnull(tuple);
 		Set<Tuple> ret = new LinkedHashSet<Tuple>();
 		int sz = tuple.size();
 		for (int i = 0; i <= sz; i++) {
@@ -84,13 +85,13 @@ public class TupleUtils {
 	 * Returns {@code true} if {@code t} is a sub-tuple of {@code u}, {@code false} otherwise.
 	 */
 	public static boolean isSubtupleOf(Tuple t, Tuple u) {
-		Utils.checknotnull(t);
-		Utils.checknotnull(u);
+		Checks.checknotnull(t);
+		Checks.checknotnull(u);
 		return t.isSubtupleOf(u);
 	}
 
 	public static Tuple unmodifiableTuple(Tuple tuple) {
-		Utils.checknotnull(tuple);
+		Checks.checknotnull(tuple);
 		return new Tuple.Builder().putAll(tuple).setUnmodifiable(true).build();
 	}
 
@@ -108,7 +109,7 @@ public class TupleUtils {
 	}
 
 	public static String toString(Tuple tuple) {
-		Utils.checknotnull(tuple);
+		Checks.checknotnull(tuple);
 		return tupleToString(tuple);
 	}
 

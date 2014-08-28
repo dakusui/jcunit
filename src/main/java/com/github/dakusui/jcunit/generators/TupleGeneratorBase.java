@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -146,7 +146,7 @@ public abstract class TupleGeneratorBase
         }
       }
     }
-    Utils.checkcond(ret >= 0,
+    Checks.checkcond(ret >= 0,
         "'%s' was not found in factor '%s'. Failed to find '%s' in '%s'",
         l,
         factorName,

@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintMa
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -97,10 +97,10 @@ public class QuadraticEquationSolverTestX {
       TypedConstraintManager<QuadraticEquationSolverTestX> {
     @Override
     public boolean check(QuadraticEquationSolverTestX o, Tuple testCase)
-        throws JCUnitSymbolException {
+        throws UndefinedSymbol {
       if (!testCase.containsKey("a") || !testCase.containsKey("b") || !testCase
           .containsKey("c")) {
-        throw new JCUnitSymbolException();
+        throw new UndefinedSymbol();
       }
       return o.a != 0 && o.b * o.b - 4 * o.c * o.a >= 0;
     }

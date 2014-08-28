@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.ututils;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -37,6 +37,6 @@ public class UTUtils {
   }
 
   public static Tuple[] tuples(Tuple... tuples) {
-    return Utils.checknotnull(tuples);
+    return Checks.checknotnull(tuples);
   }
 }

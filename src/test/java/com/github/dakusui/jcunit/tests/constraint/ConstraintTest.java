@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -25,10 +25,10 @@ public class ConstraintTest {
   }
 
   @Test
-  public void testConstraintManager() throws JCUnitSymbolException {
+  public void testConstraintManager() throws UndefinedSymbol {
     ConstraintManager manager = new TypedConstraintManager<TestClass>() {
       @Override protected boolean check(TestClass o, Tuple tuple)
-          throws JCUnitSymbolException {
+          throws UndefinedSymbol {
         return true;
       }
 

@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.core.TupleGeneration;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class ReproducibilityWithComplicatedConstraintTest {
   public static class CM extends ConstraintManagerBase {
     @Override
-    public boolean check(Tuple tuple) throws JCUnitSymbolException {
+    public boolean check(Tuple tuple) throws UndefinedSymbol {
       if (!checkLOandHIareInOrder(tuple))
         return false;
       if (!checkLeftIndexIsSane(tuple))
@@ -38,20 +38,20 @@ public class ReproducibilityWithComplicatedConstraintTest {
       return true;
     }
 
-    private boolean checkLOandHIareInOrder(Tuple tuple) throws JCUnitSymbolException {
+    private boolean checkLOandHIareInOrder(Tuple tuple) throws UndefinedSymbol {
       if (!tuple.containsKey("LO") || !tuple.containsKey("HI"))
-        throw new JCUnitSymbolException();
+        throw new UndefinedSymbol();
       double[] LO = toDoubleArray((String) tuple.get("LO"));
       double[] HI = toDoubleArray((String) tuple.get("HI"));
       return (LO[0] < HI[0] &&
           LO[1] < HI[1]);
     }
 
-    private boolean checkRightIndexIsSane(Tuple tuple) throws JCUnitSymbolException {
+    private boolean checkRightIndexIsSane(Tuple tuple) throws UndefinedSymbol {
       if (!tuple.containsKey("useSharedIndexForRight") ||
           !tuple.containsKey("useSharedSerializerForRight") ||
           !tuple.containsKey("rightIndexType")) {
-        throw new JCUnitSymbolException();
+        throw new UndefinedSymbol();
       }
       boolean useSharedIndexForRight = (Boolean) tuple.get("useSharedIndexForRight");
       boolean useSharedSerializerForRight = (Boolean) tuple.get("useSharedSerializerForRight");
@@ -66,9 +66,9 @@ public class ReproducibilityWithComplicatedConstraintTest {
       return true;
     }
 
-    private boolean checkLeftIndexIsSane(Tuple tuple) throws JCUnitSymbolException {
+    private boolean checkLeftIndexIsSane(Tuple tuple) throws UndefinedSymbol {
       if (!tuple.containsKey("leftIndexType"))
-        throw new JCUnitSymbolException();
+        throw new UndefinedSymbol();
       String leftIndexType = (String) tuple.get("leftIndexType");
       return !leftIndexType.equals("INVALID");
     }

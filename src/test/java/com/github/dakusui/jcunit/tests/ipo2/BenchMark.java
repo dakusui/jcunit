@@ -1,10 +1,11 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.ututils.PredicateExpectation;
 import com.github.dakusui.jcunit.ututils.tuples.NoConstraintViolationExpectation;
 import com.github.dakusui.jcunit.ututils.tuples.SanityExpectation;
@@ -85,12 +86,12 @@ public class BenchMark extends IPO2Test {
 
   protected PredicateExpectation.Predicate doesViolateConstraint(
       final ConstraintManager constraintManager) {
-    Utils.checknotnull(constraintManager);
+    Checks.checknotnull(constraintManager);
     return new PredicateExpectation.Predicate() {
       @Override public boolean evaluate(Tuple tuple) {
         try {
           return !constraintManager.check(tuple);
-        } catch (JCUnitSymbolException e) {
+        } catch (UndefinedSymbol e) {
           return false;
         }
       }

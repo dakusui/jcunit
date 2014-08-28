@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core.tuples;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 
 import java.util.TreeMap;
@@ -14,8 +15,8 @@ public class TupleImpl extends TreeMap<String, Object> implements Tuple {
   }
 
   static boolean isSubtupleOf(Tuple a, Tuple b) {
-    Utils.checknotnull(a);
-    Utils.checknotnull(b);
+    Checks.checknotnull(a);
+    Checks.checknotnull(b);
     if (!b.keySet().containsAll(a.keySet())) {
       return false;
     }

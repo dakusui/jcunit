@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
@@ -107,7 +107,7 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
     }
 
     @Override
-    public boolean check(Tuple tuple) throws JCUnitSymbolException {
+    public boolean check(Tuple tuple) throws UndefinedSymbol {
       boolean insufficientTuple = false;
       for (Tuple c : constraints) {
         if (!tuple.keySet().containsAll(c.keySet())) {
@@ -119,7 +119,7 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
         }
       }
       if (insufficientTuple) {
-        throw new JCUnitSymbolException();
+        throw new UndefinedSymbol();
       }
       return true;
     }

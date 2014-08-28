@@ -10,12 +10,4 @@ public class JCUnitEnvironmentException extends JCUnitUserException {
   public JCUnitEnvironmentException(String message, Throwable t) {
     super(message, t);
   }
-
-  public JCUnitEnvironmentException(String msg) {
-    super(msg);
-  }
-
-  public JCUnitEnvironmentException(Throwable e) {
-    super(e);
-  }
 }

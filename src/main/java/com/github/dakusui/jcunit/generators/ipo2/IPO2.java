@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.generators.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
@@ -11,7 +12,7 @@ import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 
 import java.util.ArrayList;
@@ -41,16 +42,16 @@ public class IPO2 implements ConstraintObserver {
 	public IPO2(Factors factors, int strength,
 	            ConstraintManager constraintManager,
 	            IPO2Optimizer optimizer) {
-		Utils.checknotnull(factors);
-		Utils.checkcond(factors.size() >= 2, "There must be 2 or more factors.");
-		Utils.checkcond(factors.size() >= strength,
-				"The strength must be greater than 1 and less than %d.",
-				factors.size());
-		Utils.checkcond(strength >= 2,
-				"The strength must be greater than 1 and less than %d.",
-				factors.size());
-		Utils.checknotnull(constraintManager);
-		Utils.checknotnull(optimizer);
+		Checks.checknotnull(factors);
+		Checks.checkcond(factors.size() >= 2, "There must be 2 or more factors.");
+		Checks.checkcond(factors.size() >= strength,
+        "The strength must be greater than 1 and less than %d.",
+        factors.size());
+		Checks.checkcond(strength >= 2,
+        "The strength must be greater than 1 and less than %d.",
+        factors.size());
+		Checks.checknotnull(constraintManager);
+		Checks.checknotnull(optimizer);
 		this.factors = factors;
 		this.strength = strength;
 		this.result = null;
@@ -152,12 +153,12 @@ public class IPO2 implements ConstraintObserver {
 	}
 
 	public List<Tuple> getResult() {
-		Utils.checkcond(this.result != null, "Execute ipo() method first");
+		Checks.checkcond(this.result != null, "Execute ipo() method first");
 		return Collections.unmodifiableList(this.result);
 	}
 
 	public List<Tuple> getRemainders() {
-		Utils.checkcond(this.result != null, "Execute ipo() method first");
+		Checks.checkcond(this.result != null, "Execute ipo() method first");
 		return Collections.unmodifiableList(this.remainders);
 	}
 
@@ -322,19 +323,19 @@ public class IPO2 implements ConstraintObserver {
 	protected void fillInMissingFactors(
 			Tuple tuple,
 			Tuples leftTuples) {
-		Utils.checknotnull(tuple);
-		Utils.checknotnull(leftTuples);
-		Utils.checknotnull(constraintManager);
+		Checks.checknotnull(tuple);
+		Checks.checknotnull(leftTuples);
+		Checks.checknotnull(constraintManager);
 		if (!checkConstraints(tuple)) {
 			throw new GiveUp(removeDontCareEntries(tuple));
 		}
 		Tuple work = this.optimizer
 				.fillInMissingFactors(tuple.cloneTuple(), leftTuples,
 						constraintManager, this.factors);
-		Utils.checknotnull(work);
-		Utils.checkcond(work.keySet().equals(tuple.keySet()),
-				"Key set was modified from %s to %s", tuple.keySet(), work.keySet());
-		Utils.checkcond(!work.containsValue(DontCare));
+		Checks.checknotnull(work);
+		Checks.checkcond(work.keySet().equals(tuple.keySet()),
+        "Key set was modified from %s to %s", tuple.keySet(), work.keySet());
+		Checks.checkcond(!work.containsValue(DontCare));
 		if (!checkConstraints(work)) {
 			throw new GiveUp(removeDontCareEntries(work));
 		}
@@ -342,10 +343,10 @@ public class IPO2 implements ConstraintObserver {
 	}
 
 	private boolean checkConstraints(Tuple cur) {
-		Utils.checknotnull(cur);
+		Checks.checknotnull(cur);
 		try {
 			return constraintManager.check(removeDontCareEntries(cur));
-		} catch (JCUnitSymbolException e) {
+		} catch (UndefinedSymbol e) {
 			////
 			// In case checking fails due to insufficient attribute values
 			// in tuple 'cur', JCUnit considers it is 'valid'.
@@ -366,16 +367,16 @@ public class IPO2 implements ConstraintObserver {
 	protected Tuple chooseBestTuple(
 			List<Tuple> found, Tuples leftTuples,
 			String factorName, Object level) {
-		Utils.checknotnull(found);
-		Utils.checkcond(found.size() > 0);
-		Utils.checknotnull(leftTuples);
-		Utils.checknotnull(factorName);
+		Checks.checknotnull(found);
+		Checks.checkcond(found.size() > 0);
+		Checks.checknotnull(leftTuples);
+		Checks.checknotnull(factorName);
 		Tuple ret = this.optimizer
 				.chooseBestTuple(found,
 						leftTuples.unmodifiableVersion(), factorName, level);
-		Utils.checknotnull(ret);
-		Utils.checkcond(found.contains(ret),
-				"User code must return a value from found tuples.");
+		Checks.checknotnull(ret);
+		Checks.checkcond(found.contains(ret),
+        "User code must return a value from found tuples.");
 		return ret;
 	}
 
@@ -385,16 +386,16 @@ public class IPO2 implements ConstraintObserver {
 	 */
 	protected Object chooseBestValue(String factorName, List<Object> factorLevels,
 	                                 Tuple tuple, Tuples leftTuples) {
-		Utils.checknotnull(factorName);
-		Utils.checknotnull(factorLevels);
-		Utils.checkcond(factorLevels.size() > 0);
-		Utils.checknotnull(tuple);
-		Utils.checknotnull(leftTuples);
+		Checks.checknotnull(factorName);
+		Checks.checknotnull(factorLevels);
+		Checks.checkcond(factorLevels.size() > 0);
+		Checks.checknotnull(tuple);
+		Checks.checknotnull(leftTuples);
 
 		Object ret = this.optimizer
 				.chooseBestValue(factorName, factorLevels.toArray() /* By specification of 'toArray', even if the content is modified, it's safe */,
 						tuple, leftTuples.unmodifiableVersion());
-		Utils.checkcond(factorLevels.contains(ret));
+		Checks.checkcond(factorLevels.contains(ret));
 		return ret;
 	}
 
@@ -436,7 +437,7 @@ public class IPO2 implements ConstraintObserver {
 
 	public Set<Tuple> findTuplesViolatingLearnedConstraints(
 			Collection<Tuple> tuples) {
-		Utils.checknotnull(tuples);
+		Checks.checknotnull(tuples);
 		Set<Tuple> ret = new LinkedHashSet<Tuple>();
 		for (Tuple t : tuples) {
 			if (!checkTupleWithLearnedConstraints(t)) {

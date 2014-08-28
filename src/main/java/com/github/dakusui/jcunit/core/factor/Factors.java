@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.enumerator.Combinator;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleImpl;
@@ -13,11 +14,11 @@ public class Factors implements Iterable<Factor> {
   private final Map<String, Factor> factorMap;
 
   public Factors(List<Factor> factors) {
-    Utils.checknotnull(factors);
+    Checks.checknotnull(factors);
     this.factors = Collections.unmodifiableList(factors);
     Map<String, Factor> factorMap = new HashMap<String, Factor>();
     for (Factor f : factors) {
-      Utils.checkcond(!factorMap.containsKey(f.name),
+      Checks.checkcond(!factorMap.containsKey(f.name),
           "There are more than one factors whose names are '%s'.", f.name);
       factorMap.put(f.name, f);
     }
@@ -51,13 +52,13 @@ public class Factors implements Iterable<Factor> {
   }
 
   public Factor get(String factorName) {
-    Utils.checknotnull(factorName);
+    Checks.checknotnull(factorName);
     return this.factorMap.get(factorName);
   }
 
   public Factor get(int index) {
-    Utils.checkcond(index > 0);
-    Utils.checkcond(index < this.factors.size());
+    Checks.checkcond(index > 0);
+    Checks.checkcond(index < this.factors.size());
     return this.factors.get(index);
   }
 
@@ -66,11 +67,11 @@ public class Factors implements Iterable<Factor> {
   }
 
   public String nextKey(String factorName) {
-    Utils.checknotnull(factorName);
-    Utils.checkcond(this.factorMap.containsKey(factorName));
+    Checks.checknotnull(factorName);
+    Checks.checkcond(this.factorMap.containsKey(factorName));
     Factor f = get(factorName);
     int i = this.factors.indexOf(f);
-    Utils.checkcond(i < this.factors.size() - 1,
+    Checks.checkcond(i < this.factors.size() - 1,
         "'%s' is the last factor name.", factorName);
     Factor g = get(i + 1);
     return g.name;
@@ -81,8 +82,8 @@ public class Factors implements Iterable<Factor> {
   }
 
   public Factors head(String to) {
-    Utils.checknotnull(to);
-    Utils.checkcond(has(to));
+    Checks.checknotnull(to);
+    Checks.checkcond(has(to));
     List<Factor> factors = new LinkedList<Factor>();
     for (Factor f : this.factors) {
       if (to.equals(f.name)) {
@@ -94,8 +95,8 @@ public class Factors implements Iterable<Factor> {
   }
 
   public Factors tail(String from) {
-    Utils.checknotnull(from);
-    Utils.checkcond(has(from));
+    Checks.checknotnull(from);
+    Checks.checkcond(has(from));
     List<Factor> factors = new LinkedList<Factor>();
     boolean found = false;
     for (Factor f : this.factors) {
@@ -140,9 +141,9 @@ public class Factors implements Iterable<Factor> {
    * The object {@code tuple} will remain unchanged after a call of this method.
    */
   public Tuple createTupleFrom(Tuple tuple, Object defaultValue) {
-    Utils.checknotnull(tuple);
+    Checks.checknotnull(tuple);
     for (String k : tuple.keySet()) {
-      Utils.checkcond(this.factorMap.containsKey(k),
+      Checks.checkcond(this.factorMap.containsKey(k),
           "Undefined factor '%s' was found: defined keys (%s)", k,
           this.getFactorNames());
     }
@@ -167,7 +168,7 @@ public class Factors implements Iterable<Factor> {
     private final List<Factor> factors = new LinkedList<Factor>();
 
     public Builder add(Factor f) {
-      Utils.checknotnull(f);
+      Checks.checknotnull(f);
       this.factors.add(f);
       return this;
     }

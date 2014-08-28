@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.examples.misc;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 public class CompositeLevelsProvider<T> extends LevelsProviderBase<T> {
 	@Override
 	protected void init(Field targetField, FactorField annotation, Object[] parameters) {
-		Utils.checknotnull(targetField);
+		Checks.checknotnull(targetField);
 		Factors factors = buildFactorsFromClass((Class<T>) targetField.getType());
 
 		IPO2TupleGenerator generator = new IPO2TupleGenerator();

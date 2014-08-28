@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.ututils.tuples;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.HashSet;
@@ -11,7 +11,7 @@ public abstract class PredicateExpectation implements Expectation {
   protected final Predicate predicate;
 
   public PredicateExpectation(Predicate p) {
-    this.predicate = Utils.checknotnull(p);
+    this.predicate = Checks.checknotnull(p);
   }
 
   public static interface Predicate {

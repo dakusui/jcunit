@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 
@@ -13,9 +13,9 @@ public class Tuples {
 
   public Tuples(Factors factors, Factor factorName,
       int strength) {
-    Utils.checknotnull(factors);
-    Utils.checknotnull(factorName);
-    Utils.checkcond(!factors.contains(factorName),
+    Checks.checknotnull(factors);
+    Checks.checknotnull(factorName);
+    Checks.checkcond(!factors.contains(factorName),
         "factors(%s) mustn't contain '%s'", factors.getFactorNames(),
         factorName.name);
     this.factorName = factorName.name;

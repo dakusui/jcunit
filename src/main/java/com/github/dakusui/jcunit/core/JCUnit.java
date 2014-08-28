@@ -41,7 +41,7 @@ public class JCUnit extends Suite {
       }
       ////
       // Check if any error was found.
-      ConfigUtils.checkEnv(errors.isEmpty(),
+      Checks.checkenv(errors.isEmpty(),
           "Errors are found in test class '%s':%s",
           getTestClass().getJavaClass().getCanonicalName(),
           errors);
@@ -82,7 +82,7 @@ public class JCUnit extends Suite {
           invokeCustomTestCasesMethod(customTestCaseMethods),
           TestCaseType.Custom,
           preconditionMethods);
-      ConfigUtils.checkEnv(runners.size() > 0, "No test to be run was found.");
+      Checks.checkenv(runners.size() > 0, "No test to be run was found.");
     } catch (JCUnitUserException e) {
       e.setTargetClass(klass);
       throw e;
@@ -105,7 +105,7 @@ public class JCUnit extends Suite {
           return true;
         }
       } catch (Throwable throwable) {
-        ConfigUtils.rethrow(throwable, "Failed to execute ");
+        Checks.rethrow(throwable, "Failed to execute ");
       }
     }
     return false;
@@ -146,22 +146,22 @@ public class JCUnit extends Suite {
         } else if (r instanceof Iterable) {
           for (Object o : (Iterable) r) {
             if (o == null) {
-              ConfigUtils.checkEnv(false, "Returned value of '%s' must not contain null.", each.getName());
+              Checks.checkenv(false, "Returned value of '%s' must not contain null.", each.getName());
             }
             if (o instanceof Tuple) {
               ret.add((Tuple) o);
             } else if (getTestClass().getJavaClass().isAssignableFrom(o.getClass())) {
               ret.add(TestCaseUtils.toTestCase(o));
             } else {
-              ConfigUtils.checkEnv(false, "Returned value of '%s' must contain only Tuple or test objects.", each.getName());
+              Checks.checkenv(false, "Returned value of '%s' must contain only Tuple or test objects.", each.getName());
             }
           }
         } else {
-          Utils.checkcond(false);
+          Checks.checkcond(false);
         }
       }
     } catch (Throwable throwable) {
-      Utils.rethrow(throwable, "Failed to execute '%s'.: (%s)", throwable.getMessage());
+      Checks.rethrow(throwable, "Failed to execute '%s'.: (%s)", throwable.getMessage());
     }
     return ret;
   }
@@ -200,7 +200,7 @@ public class JCUnit extends Suite {
 
     public InternalAnnotation(TestCaseType type, int id, Factors factors,
         Tuple testCase) {
-      Utils.checknotnull(type);
+      Checks.checknotnull(type);
       this.id = id;
       this.type = type;
       this.factors = factors;

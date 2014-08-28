@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ public class UnmodifiableTuple implements Tuple {
   private final Map<String, Object> map;
 
   public UnmodifiableTuple(Map<String, Object> map) {
-    Utils.checknotnull(map);
+    Checks.checknotnull(map);
     this.map = new TreeMap<String, Object>();
     this.map.putAll(map);
   }

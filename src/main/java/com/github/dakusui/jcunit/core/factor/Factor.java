@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -12,9 +12,9 @@ public class Factor implements Iterable<Object> {
     public final List<Object> levels;
 
     public Factor(String name, List<Object> levels) {
-        Utils.checknotnull(name, "A factor's 'name' mustn't be null");
-        Utils.checknotnull(levels, "A factor's 'levels' mustn't be null(factor:'%s')", name);
-        Utils.checkcond(levels.size() > 0, "Factor '%s' has no levels.", name);
+        Checks.checknotnull(name, "A factor's 'name' mustn't be null");
+        Checks.checknotnull(levels, "A factor's 'levels' mustn't be null(factor:'%s')", name);
+        Checks.checkcond(levels.size() > 0, "Factor '%s' has no levels.", name);
         this.name = name;
         this.levels = Collections.unmodifiableList(levels);
     }

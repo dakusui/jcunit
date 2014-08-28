@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.core.rules;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -20,7 +20,7 @@ public abstract class JCUnitRule extends TestWatcher {
   protected void starting(Description d) {
     JCUnit.InternalAnnotation ann = d
         .getAnnotation(JCUnit.InternalAnnotation.class);
-    Utils.checknotnull(ann,
+    Checks.checknotnull(ann,
         "This class(%s) should be used with classes annotated @RunWith(%s.class)",
         this.getClass(), JCUnit.class.getClass());
     this.testClass = d.getTestClass();

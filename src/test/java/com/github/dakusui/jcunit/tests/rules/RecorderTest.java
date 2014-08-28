@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.framework.rules;
+package com.github.dakusui.jcunit.tests.rules;
 
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.ututils.tuples;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.Collections;
@@ -13,14 +13,14 @@ public class VerificationResult {
 
   public VerificationResult(String reason, Set<Tuple> invalidTuples) {
     this.invalidTuples = Collections
-        .unmodifiableSet(Utils.checknotnull(invalidTuples));
-    this.reason = Utils.checknotnull(reason);
+        .unmodifiableSet(Checks.checknotnull(invalidTuples));
+    this.reason = Checks.checknotnull(reason);
     this.successful = this.invalidTuples.isEmpty();
   }
 
   public VerificationResult(String msg, boolean successful) {
     this.invalidTuples = null;
-    this.reason = Utils.checknotnull(msg);
+    this.reason = Checks.checknotnull(msg);
     this.successful = successful;
   }
 

@@ -2,9 +2,9 @@ package com.github.dakusui.jcunit.expectations;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import com.github.dakusui.jcunit.ututils.tuples.*;
 import org.junit.Test;
@@ -219,7 +219,7 @@ public class ExpectationTest {
     VerificationResult result = verify(
         new NoConstraintViolationExpectation(new ConstraintManagerBase() {
           @Override
-          public boolean check(Tuple tuple) throws JCUnitSymbolException {
+          public boolean check(Tuple tuple) throws UndefinedSymbol {
             return !(new Tuple.Builder().put("A", "a1").put("B", "b1").build().equals(tuple));
           }
         }),
@@ -231,9 +231,9 @@ public class ExpectationTest {
   }
 
   public VerificationResult verify(Class<? extends Expectation> klazz, Tuple[] expect, Tuple[] tuples) throws Exception {
-    Utils.checknotnull(klazz);
-    Utils.checknotnull(expect);
-    Utils.checknotnull(tuples);
+    Checks.checknotnull(klazz);
+    Checks.checknotnull(expect);
+    Checks.checknotnull(tuples);
 
     Expectation e = klazz.getDeclaredConstructor(Collection.class).newInstance(asList(expect));
     VerificationResult result = e.verify(asList(tuples));
@@ -241,6 +241,6 @@ public class ExpectationTest {
   }
 
   public VerificationResult verify(Expectation expect, Tuple[] tuples) {
-    return Utils.checknotnull(expect).verify(asList(Utils.checknotnull(tuples)));
+    return Checks.checknotnull(expect).verify(asList(Checks.checknotnull(tuples)));
   }
 }

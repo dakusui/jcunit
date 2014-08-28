@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.core.TupleGeneration;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -28,9 +28,9 @@ import static org.junit.Assert.assertTrue;
 public class ReproducibilityWithSimpleConstraintTest {
   public static class CM extends ConstraintManagerBase {
     @Override
-    public boolean check(Tuple tuple) throws JCUnitSymbolException {
+    public boolean check(Tuple tuple) throws UndefinedSymbol {
       if (!tuple.containsKey("a") || !tuple.containsKey("b"))
-        throw new JCUnitSymbolException();
+        throw new UndefinedSymbol();
       return !(new Integer(3).equals(tuple.get("a")) && new Integer(3).equals(tuple.get("b")));
     }
   }

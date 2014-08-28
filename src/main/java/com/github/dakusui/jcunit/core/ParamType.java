@@ -3,6 +3,86 @@ package com.github.dakusui.jcunit.core;
 import java.util.Arrays;
 
 public abstract class ParamType  implements Cloneable {
+  public static Object[] processParams(ParamType[] types, Param[] params) {
+    Checks.checknotnull(params);
+    Checks.checknotnull(types);
+    int minLength = types.length;
+    if (minLength > 0 && types[minLength - 1].isVarArgs()) {
+      minLength--;
+    }
+    while (minLength > 0) {
+      if (types[minLength - 1].hasDefaultValue()) {
+        minLength--;
+      } else {
+        break;
+      }
+    }
+    for (int i = 0; i < minLength; i++) {
+      Checks.checkplugin(!types[i].hasDefaultValue(),
+          "Only the last parameters of a plugin can have default values.: %s",
+          Arrays.toString(types));
+    }
+    Checks.checktest(minLength <= params.length && params.length <= types.length,
+        "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
+        minLength,
+        types.length,
+        params.length,
+        Arrays.toString(params)
+    );
+    Object[] ret = new Object[Math.max(types.length, params.length)];
+    int i = 0;
+    boolean varArgsDefined = false;
+    boolean varArgsParameterPresent = false;
+    for (ParamType t : types) {
+      if (i >= params.length) {
+        if (t.hasDefaultValue()) {
+          ret[i] = t.defaultValue();
+        } else if (t.isVarArgs()) {
+          Checks.checkplugin(i == types.length - 1,
+              "Var args parameter can only be placed at the last of parameters.");
+          varArgsDefined = true;
+          break;
+        } else {
+          Checks.checkplugin(false, "Failed to parse %s (%s) in %d",
+              Arrays.toString(params), Arrays.toString(types), i);
+        }
+      } else {
+        try {
+          if (!t.isVarArgs()) {
+            ret[i] = t.parse(params[i].value());
+          } else {
+            Checks.checkplugin(i == types.length - 1,
+                "Var args parameter can only be placed at the last of parameters.");
+            varArgsDefined = true;
+            while (i < params.length) {
+              ret[i] = t.parse(params[i].value());
+              varArgsParameterPresent = true;
+              i++;
+            }
+            break;
+          }
+        } catch (Exception e) {
+          Checks.rethrow(e,
+              java.lang.String.format(
+                  "The given value '%s' can't be converted to '%s' value.: %dth value in %s",
+                  Arrays.toString(params[i].value()),
+                  types[i],
+                  i,
+                  Arrays.toString(params)
+              ));
+        }
+      }
+      i++;
+    }
+    if (varArgsDefined && !varArgsParameterPresent) {
+      ////
+      // In case the last param is var args and no value is given to
+      // it, nothing should be appended to the returned parameter values.
+      ret = Arrays.copyOfRange(ret, 0, ret.length - 1);
+    }
+    return ret;
+  }
+
   public static abstract class NonArrayType extends ParamType {
     @Override
     public Object parse(String[] parameters) {
@@ -11,8 +91,8 @@ public abstract class ParamType  implements Cloneable {
     }
 
     protected void checkParameters(String[] parameters) {
-      Utils.checknotnull(parameters);
-      ConfigUtils.checkParam(parameters.length == 1,
+      Checks.checknotnull(parameters);
+      Checks.checktest(parameters.length == 1,
           "This parameter needs to be a non-array '%s', but '%s' (an array whose length is '%d') was given",
           this.getClass().getSimpleName(), Arrays.toString(parameters),
           parameters.length
@@ -25,12 +105,12 @@ public abstract class ParamType  implements Cloneable {
     private final NonArrayType enclosedType;
 
     public ArrayType(NonArrayType enclosedType) {
-      Utils.checknotnull(enclosedType);
+      Checks.checknotnull(enclosedType);
       this.enclosedType = enclosedType;
     }
 
     final public Object parse(String[] parameters) {
-      Utils.checknotnull(parameters);
+      Checks.checknotnull(parameters);
       Object[] ret = new Object[parameters.length];
       int i = 0;
       for (String s : parameters) {
@@ -41,85 +121,103 @@ public abstract class ParamType  implements Cloneable {
   }
 
   public static final NonArrayType Boolean = new NonArrayType() {
-    @Override protected Object parse(String str) {
-        Utils.checkparam("false".equals(str) || "true".equals(str), "Only 'true' and 'false' are acceptable here.");
-        return java.lang.Boolean.parseBoolean(str);
+    @Override
+    protected Object parse(String str) {
+      Checks.checkparam("false".equals(str) || "true".equals(str), "Only 'true' and 'false' are acceptable here.");
+      return java.lang.Boolean.parseBoolean(str);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "boolean";
     }
   };
   public static final NonArrayType Byte    = new NonArrayType() {
-    @Override protected Object parse(String str) {
+    @Override
+    protected Object parse(String str) {
       return java.lang.Byte.parseByte(str);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "byte";
     }
   };
   public static final NonArrayType Char    = new NonArrayType() {
-    @Override protected Object parse(String str) {
-      Utils.checkparam(str.length() == 1);
+    @Override
+    protected Object parse(String str) {
+      Checks.checkparam(str.length() == 1);
       return str.charAt(0);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "char";
     }
   };
   public static final NonArrayType Short   = new NonArrayType() {
-    @Override protected Object parse(String str) {
+    @Override
+    protected Object parse(String str) {
       return java.lang.Short.parseShort(str);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "short";
     }
   };
   public static final NonArrayType Int     = new NonArrayType() {
-    @Override protected Object parse(String str) {
+    @Override
+    protected Object parse(String str) {
       return Integer.parseInt(str);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "int";
     }
   };
   public static final NonArrayType Long    = new NonArrayType() {
-    @Override protected Object parse(String str) {
+    @Override
+    protected Object parse(String str) {
       return java.lang.Long.parseLong(str);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "long";
     }
   };
   public static final NonArrayType Float   = new NonArrayType() {
-    @Override protected Object parse(String str) {
+    @Override
+    protected Object parse(String str) {
       return java.lang.Float.parseFloat(str);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "float";
     }
   };
   public static final NonArrayType Double  = new NonArrayType() {
-    @Override protected Object parse(String str) {
+    @Override
+    protected Object parse(String str) {
       return java.lang.Double.parseDouble(str);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "double";
     }
   };
   public static final NonArrayType String  = new NonArrayType() {
-    @Override protected Object parse(String str) {
+    @Override
+    protected Object parse(String str) {
       return str;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return "String";
     }
   };
@@ -142,7 +240,7 @@ public abstract class ParamType  implements Cloneable {
   }
 
   public Object defaultValue() {
-    Utils.checkcond(this.hasDefaultValue());
+    Checks.checkcond(this.hasDefaultValue());
     return this.defaultValue;
   }
 
@@ -157,7 +255,7 @@ public abstract class ParamType  implements Cloneable {
       ret.defaultValue = defaultValue;
       return ret;
     } catch (CloneNotSupportedException e) {
-      Utils.rethrow(e);
+      Checks.rethrow(e);
     }
     throw new RuntimeException(); // This line will never be executed.
   }

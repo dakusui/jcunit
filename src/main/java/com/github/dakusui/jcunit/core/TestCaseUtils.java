@@ -33,28 +33,28 @@ public class TestCaseUtils {
   }
 
   public static <T> T toTestObject(Class<T> testClass, Tuple testCase) {
-    Utils.checknotnull(testClass);
-    Utils.checknotnull(testCase);
+    Checks.checknotnull(testClass);
+    Checks.checknotnull(testCase);
     T ret = null;
     try {
       ret = testClass.newInstance();
     } catch (InstantiationException e) {
-      Utils.rethrow(e, "Failed to instantiate %s", testClass);
+      Checks.rethrow(e, "Failed to instantiate %s", testClass);
     } catch (IllegalAccessException e) {
-      Utils.rethrow(e, "Failed to instantiate %s", testClass);
+      Checks.rethrow(e, "Failed to instantiate %s", testClass);
     }
     initializeObjectWithTuple(ret, testCase);
     return ret;
   }
 
   public static <T> Tuple toTestCase(T testObject) {
-    Utils.checknotnull(testObject);
+    Checks.checknotnull(testObject);
     Tuple.Builder b = new Tuple.Builder();
     for (Field each : Utils.getAnnotatedFields(testObject.getClass(), FactorField.class)) {
       try {
         b.put(each.getName(), each.get(testObject));
       } catch (IllegalAccessException e) {
-        Utils.rethrow(e);
+        Checks.rethrow(e);
       }
     }
     return b.build();

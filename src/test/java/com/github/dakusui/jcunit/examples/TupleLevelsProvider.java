@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.examples;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.TestCaseUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.FactorField;
@@ -16,9 +17,9 @@ public class TupleLevelsProvider extends LevelsProviderBase {
   @Override
   protected void init(Field targetField, FactorField annotation,
       Object[] parameters) {
-    Utils.checknotnull(targetField);
-    Utils.checknotnull(annotation);
-    Utils.checknotnull(parameters);
+    Checks.checknotnull(targetField);
+    Checks.checknotnull(annotation);
+    Checks.checknotnull(parameters);
     this.generator = TupleGeneratorFactory.INSTANCE
         .createTupleGeneratorForField(targetField);
     this.targetField = targetField;

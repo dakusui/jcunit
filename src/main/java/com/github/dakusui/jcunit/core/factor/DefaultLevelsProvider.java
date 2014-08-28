@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 
@@ -41,7 +42,7 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
     private Object values;
     private int size;
 
-    DefaultLevelsProvider() {
+    public DefaultLevelsProvider() {
     }
 
     @Override
@@ -51,11 +52,11 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
         try {
             Method m = chooseMethodForThisField(targetField, annotation, errors);
             if (m == null) {
-                Utils.checkcond(!errors.isEmpty());
+                Checks.checkcond(!errors.isEmpty());
                 return;
             }
             Object values = m.invoke(annotation);
-            Utils.checknotnull(values);
+            Checks.checknotnull(values);
             if (values.getClass().isArray()) {
                 this.values = values;
             } else if (Enum.class.isAssignableFrom((Class<?>) values)) {
@@ -86,11 +87,11 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
             }
             return;
         } catch (IllegalAccessException e) {
-            Utils.rethrow(e);
+            Checks.rethrow(e);
         } catch (InvocationTargetException e) {
-            Utils.rethrow(e);
+            Checks.rethrow(e);
         } catch (NoSuchMethodException e) {
-            Utils.rethrow(e);
+            Checks.rethrow(e);
         }
         throw new RuntimeException(); // Will not be thrown actually. But necessary to make fields of this class final.
     }
@@ -131,7 +132,7 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
                         public String format(Method m) {
                             return m.getName();
                         }
-                    })
+                    }, overridingLevelsMethods)
             ));
             return null;
         }
@@ -150,9 +151,9 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
                         work.add(m);
                     }
                 } catch (IllegalAccessException e) {
-                    Utils.rethrow(e, "Something went wrong:'%s'", e.getMessage());
+                    Checks.rethrow(e, "Something went wrong:'%s'", e.getMessage());
                 } catch (InvocationTargetException e) {
-                    Utils.rethrow(e, "Something went wrong:%s", e.getMessage());
+                    Checks.rethrow(e, "Something went wrong:%s", e.getMessage());
                 }
             }
         }
@@ -164,9 +165,9 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
         try {
             return FactorField.class.getMethod(methodName);
         } catch (NoSuchMethodException e) {
-            Utils.rethrow(e,
-                    "Something went wrong. A method '%s' should be found in @FactorField",
-                    methodName);
+            Checks.rethrow(e,
+                "Something went wrong. A method '%s' should be found in @FactorField",
+                methodName);
         }
         throw new RuntimeException(); // Will never be executed.
     }

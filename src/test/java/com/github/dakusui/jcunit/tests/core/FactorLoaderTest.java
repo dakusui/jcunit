@@ -2,15 +2,12 @@ package com.github.dakusui.jcunit.tests.core;
 
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class FactorLoaderTest {
 
@@ -30,52 +27,45 @@ public class FactorLoaderTest {
     FactorLoader factorLoader = new FactorLoader(
         this.testFactors.getClass().getField("validIntFieldWithExplicitIntValues"));
     Factor f = factorLoader.getFactor();
-    assertArrayEquals(new Object[]{1, 2, 3}, f.levels.toArray());
-	}
+    assertArrayEquals(new Object[] { 1, 2, 3 }, f.levels.toArray());
+  }
 
-	@Test
-	public void invalidIntFieldWithExplicitLongValues() throws Exception {
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
-		FactorLoader.ValidationResult result = factorLoader.validate();
-		System.out.println(result.getErrorMessage());
-	}
+  @Test(expected = InvalidTestException.class)
+  public void invalidIntFieldWithExplicitLongValues() throws Exception {
+    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
+    // Validation happens inside getFactor.
+    factorLoader.getFactor();
+  }
 
-	@Test
-	public void validateValidField1() throws Exception {
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithDefaultValues"));
-		FactorLoader.ValidationResult result = factorLoader.validate();
-		assertTrue(result.isValid());
-	}
+  @Test
+  public void validateValidField1() throws Exception {
+    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithDefaultValues"));
+    Factor f = factorLoader.getFactor();
+    assertEquals(1, f.levels.get(0));
+    assertEquals(7, f.levels.size());
+  }
 
-	@Test
-	public void validateValidField2() throws Exception {
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithExplicitIntValues"));
-		FactorLoader.ValidationResult result = factorLoader.validate();
-		assertTrue(result.isValid());
-	}
+  @Test
+  public void validateValidField2() throws Exception {
+    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithExplicitIntValues"));
+    // Validation happens inside getFactor.
+    Factor f = factorLoader.getFactor();
+    assertEquals(1, f.levels.get(0));
+    assertEquals(3, f.levels.size());
+  }
 
-	@Test
-	public void validateInvalidField1() throws Exception {
-		Field f = this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues");
-		FactorLoader factorLoader = new FactorLoader(f);
-		FactorLoader.ValidationResult result = factorLoader.validate();
-		assertThat(result.isValid(), is(false));
-		assertThat(result.getErrorMessage(), containsString("Incompatible method 'longLevels'"));
-		assertThat(result.getErrorMessage(), containsString(f.getName()));
-	}
+  @Test(expected = InvalidTestException.class)
+  public void validateInvalidField1() throws Exception {
+    Field f = this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues");
+    FactorLoader factorLoader = new FactorLoader(f);
+    // Validation happens inside getFactor.
+    factorLoader.getFactor();
+  }
 
-	@Test
-	public void validateInvalidField2() throws Exception {
-		Field f = this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues");
-		FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
-		try {
-			Factor factor = factorLoader.getFactor();
-			System.out.println(factor);
-		} catch (FactorLoader.FactorFieldValidationException e) {
-			FactorLoader.ValidationResult result = e.getValidationResult();
-			assertThat(result.isValid(), is(false));
-            assertThat(result.getErrorMessage(), containsString("Incompatible method 'longLevels'"));
-			assertThat(result.getErrorMessage(), containsString(f.getName()));
-		}
-	}
+  @Test(expected = InvalidTestException.class)
+  public void validateInvalidField2() throws Exception {
+    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
+    factorLoader.getFactor();
+    fail();
+  }
 }

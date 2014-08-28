@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.*;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -17,16 +16,16 @@ public class Utils {
 
   public static Field getField(Object obj, String fieldName,
       Class<? extends Annotation>... expectedAnnotations) {
-    Utils.checknotnull(obj);
-    Utils.checknotnull(fieldName);
+    Checks.checknotnull(obj);
+    Checks.checknotnull(fieldName);
     Class<?> clazz = obj.getClass();
     return getFieldFromClass(clazz, fieldName, expectedAnnotations);
   }
 
   public static Field getFieldFromClass(Class<?> clazz, String fieldName,
       Class<? extends Annotation>... expectedAnnotations) {
-    Utils.checknotnull(clazz);
-    Utils.checknotnull(fieldName);
+    Checks.checknotnull(clazz);
+    Checks.checknotnull(fieldName);
     Field ret;
     try {
       ret = clazz.getField(fieldName);
@@ -42,20 +41,34 @@ public class Utils {
           fieldName, clazz);
       throw new IllegalArgumentException(msg, e);
     }
-    for (Class<? extends Annotation> expectedAnnotation : expectedAnnotations) {
-      Utils.checknotnull(expectedAnnotation);
-      if (ret.isAnnotationPresent(expectedAnnotation)) {
-        return ret;
+    if (expectedAnnotations.length > 0) {
+      for (Class<? extends Annotation> expectedAnnotation : expectedAnnotations) {
+        Checks.checknotnull(expectedAnnotation);
+        if (ret.isAnnotationPresent(expectedAnnotation)) {
+          return ret;
+        }
       }
+      Checks.checkcond(false,
+          String.format(
+              "Annotated field '%s' is found in '%s, but not annotated with none of [%s]",
+              fieldName,
+              clazz,
+              Utils.join(",", new Formatter<Class<? extends Annotation>>() {
+                    @Override
+                    public String format(Class<? extends Annotation> elem) {
+                      return elem.getSimpleName();
+                    }
+                  },
+                  expectedAnnotations)
+          )
+      );
     }
-    throw new JCUnitException(String.format(
-        "Annotated field '%s' is found in '%s, but not annotated with none of [%s]",
-        fieldName, clazz, Utils.join(", ", (Object[]) expectedAnnotations)));
+    return ret;
   }
 
   public static void setFieldValue(Object obj, Field f, Object value) {
-    Utils.checknotnull(obj);
-    Utils.checknotnull(f);
+    Checks.checknotnull(obj);
+    Checks.checknotnull(f);
     try {
       boolean accessible = f.isAccessible();
       try {
@@ -65,9 +78,9 @@ public class Utils {
         f.setAccessible(accessible);
       }
     } catch (IllegalArgumentException e) {
-      rethrow(e);
+      Checks.rethrow(e);
     } catch (IllegalAccessException e) {
-      rethrow(e);
+      Checks.rethrow(e);
     }
   }
 
@@ -83,7 +96,7 @@ public class Utils {
    */
   public static <T> String join(String sep, Formatter<T> formatter,
       T... elems) {
-    Utils.checknotnull(sep);
+    Checks.checknotnull(sep);
     StringBuilder b = new StringBuilder();
     boolean firstOne = true;
     for (T s : elems) {
@@ -109,92 +122,6 @@ public class Utils {
     return join(sep, Formatter.INSTANCE, elems);
   }
 
-  /**
-   * Checks if the given {@code obj} is {@code null} or not.
-   * If it is, a {@code NullPointerException} will be thrown.
-   * <p/>
-   * This method is implemented in order to reduce dependencies on external libraries.
-   *
-   * @param obj A variable to be checked.
-   * @param <T> The type of {@code obj}
-   * @return {@code obj} itself
-   */
-  public static <T> T checknotnull(T obj) {
-    if (obj == null) {
-      throw new NullPointerException();
-    }
-    return obj;
-  }
-
-  public static <T> T checknotnull(T obj, String msgOrFmt, Object... args) {
-    if (obj == null) {
-      if (msgOrFmt != null) {
-        throw new NullPointerException(String.format(msgOrFmt, args));
-      } else {
-        throw new NullPointerException(
-            String.format("info(%s)", Utils.join(",", args)));
-      }
-    }
-    return obj;
-  }
-
-  public static void checkcond(boolean b) {
-    if (!b) {
-      throw new IllegalStateException();
-    }
-  }
-
-  public static void checkcond(boolean b, String msgOrFmt, Object... args) {
-    if (!b) {
-      if (msgOrFmt != null) {
-        throw new IllegalStateException(String.format(msgOrFmt, args));
-      } else {
-        throw new IllegalStateException(
-            String.format("info(%s)", Utils.join(",", args)));
-      }
-    }
-  }
-
-    public static void checkparam(boolean b) {
-      if (!b) {
-        throw new IllegalArgumentException();
-      }
-    }
-
-    public static void checkparam(boolean b, String msgOrFmt, Object... args) {
-        if (!b) {
-            if (msgOrFmt != null) {
-                throw new IllegalArgumentException(String.format(msgOrFmt, args));
-            } else {
-                throw new IllegalArgumentException(
-                        String.format("info(%s)", Utils.join(",", args)));
-            }
-        }
-    }
-
-  /**
-   * Rethrows a given exception wrapping by a {@code JCUnitException}, which
-   * is a runtime exception.
-   *
-   * @param e        An exception to be re-thrown.
-   * @param msgOrFmt A message or a message format.
-   * @param args     Arguments to be embedded in {@code msg}.
-   */
-  public static void rethrow(Throwable e, String msgOrFmt, Object... args) {
-    JCUnitException ee = new JCUnitException(String.format(msgOrFmt, args), e);
-    ee.setStackTrace(e.getStackTrace());
-    throw ee;
-  }
-
-  /**
-   * Rethrows a given exception wrapping by a {@code JCUnitException}, which
-   * is a runtime exception.
-   *
-   * @param e An exception to be re-thrown.
-   */
-  public static void rethrow(Throwable e) {
-    rethrow(e, e.getMessage());
-  }
 
   public static Field[] getAnnotatedFields(Class<?> clazz,
       Class<? extends Annotation> annClass) {
@@ -219,11 +146,11 @@ public class Utils {
     try {
       return (T) m.invoke(on, parameters);
     } catch (IllegalAccessException e) {
-      rethrow(e);
+      Checks.rethrow(e);
     } catch (InvocationTargetException e) {
-      rethrow(e);
+      Checks.rethrow(e);
     }
-    checkcond(false, "Something went wrong.");
+    Checks.checkcond(false, "Something went wrong.");
     return null;
   }
 
@@ -233,35 +160,35 @@ public class Utils {
     try {
       ret = klazz.getConstructor().newInstance();
     } catch (InstantiationException e) {
-      rethrow(e, "Failed to instantiate '%s'.", klazz);
+      Checks.rethrow(e, "Failed to instantiate '%s'.", klazz);
     } catch (IllegalAccessException e) {
-      rethrow(e,
+      Checks.rethrow(e,
           "Failed to instantiate '%s'. The constructor with no parameter was not open enough.",
           klazz
       );
     } catch (InvocationTargetException e) {
-      rethrow(e, String.format("Failed to instantiate '%s'.", klazz));
+      Checks.rethrow(e, String.format("Failed to instantiate '%s'.", klazz));
     } catch (NoSuchMethodException e) {
-      rethrow(e,
+      Checks.rethrow(e,
           "Failed to instantiate '%s'. A constructor with no parameter was not found.",
           klazz
       );
     }
-    checknotnull(ret);
+    Checks.checknotnull(ret);
     return ret;
   }
 
   @SuppressWarnings("unchecked")
   public static <T> T getDefaultValueOfAnnotation(
       Class<? extends Annotation> klazz, String method) {
-    checknotnull(klazz);
-    checknotnull(method);
+    Checks.checknotnull(klazz);
+    Checks.checknotnull(method);
     try {
       return (T) klazz.getDeclaredMethod(method).getDefaultValue();
     } catch (NoSuchMethodException e) {
-      rethrow(e);
+      Checks.rethrow(e);
     }
-    checkcond(false, "Something went wrong. This line shouldn't be executed.");
+    Checks.checkcond(false, "Something went wrong. This line shouldn't be executed.");
     return null;
   }
 
@@ -284,11 +211,11 @@ public class Utils {
    * @see java.io.File
    */
   public static boolean createFile(File file) {
-    checknotnull(file);
+    Checks.checknotnull(file);
     try {
       return file.createNewFile();
     } catch (IOException e) {
-      Utils.rethrow(e);
+      Checks.rethrow(e);
     }
     return false;
   }
@@ -298,18 +225,18 @@ public class Utils {
     try {
       ret = new BufferedOutputStream(new FileOutputStream(f));
     } catch (FileNotFoundException e) {
-      rethrow(e);
+      Checks.rethrow(e);
     }
     return ret;
   }
 
   public static BufferedInputStream openForRead(File f) {
-    Utils.checknotnull(f);
+    Checks.checknotnull(f);
     BufferedInputStream ret = null;
     try {
       ret = new BufferedInputStream(new FileInputStream(f));
     } catch (FileNotFoundException e) {
-      rethrow(e, "File not found: '%s'", f.getAbsolutePath());
+      Checks.rethrow(e, "File not found: '%s'", f.getAbsolutePath());
     }
     return ret;
   }
@@ -318,7 +245,7 @@ public class Utils {
     try {
       stream.close();
     } catch (IOException e) {
-      rethrow(e);
+      Checks.rethrow(e);
     }
   }
 
@@ -339,8 +266,8 @@ public class Utils {
   }
 
   public static void save(Object obj, OutputStream os) {
-    Utils.checknotnull(obj);
-    Utils.checknotnull(os);
+    Checks.checknotnull(obj);
+    Checks.checknotnull(os);
 
     try {
       ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -350,12 +277,12 @@ public class Utils {
         oos.close();
       }
     } catch (IOException e) {
-      Utils.rethrow(e);
+      Checks.rethrow(e);
     }
   }
 
   public static Object load(File f) {
-    Utils.checknotnull(f);
+    Checks.checknotnull(f);
     BufferedInputStream bis;
     bis = Utils.openForRead(f);
     try {
@@ -366,23 +293,22 @@ public class Utils {
   }
 
   public static Object load(InputStream is) {
-    Utils.checknotnull(is);
+    Checks.checknotnull(is);
     Object ret = null;
     try {
       ObjectInputStream ois = new ObjectInputStream(is);
       try {
         ret = ois.readObject();
       } catch (ClassNotFoundException e) {
-        Utils.rethrow(e);
+        Checks.rethrow(e);
       } finally {
         ois.close();
       }
     } catch (IOException e) {
-      Utils.rethrow(e);
+      Checks.rethrow(e);
     }
     return ret;
   }
-
 
 
   /**
@@ -396,10 +322,10 @@ public class Utils {
    * @link "http://stackoverflow.com/questions/779519/delete-files-recursively-in-java"
    */
   public static boolean deleteRecursive(File path) {
-    Utils.checknotnull(path);
+    Checks.checknotnull(path);
     if (!path.exists()) {
       throw new JCUnitException(
-          String.format("Path '%s' was not found.", path.getAbsolutePath()));
+          String.format("Path '%s' was not found.", path.getAbsolutePath()), null);
     }
     boolean ret = true;
     if (path.isDirectory()) {

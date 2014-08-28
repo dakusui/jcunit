@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.ututils.tuples;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.JCUnitSymbolException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +13,7 @@ public class NoConstraintViolationExpectation implements Expectation {
   private final ConstraintManager cm;
 
   public NoConstraintViolationExpectation(ConstraintManager cm) {
-    this.cm = Utils.checknotnull(cm);
+    this.cm = Checks.checknotnull(cm);
   }
 
   @Override
@@ -24,7 +24,7 @@ public class NoConstraintViolationExpectation implements Expectation {
         if (!cm.check(t)) {
           invalidTuples.add(t);
         }
-      } catch (JCUnitSymbolException e) {
+      } catch (UndefinedSymbol e) {
         ////
         // Ignore short tuples.
       }
