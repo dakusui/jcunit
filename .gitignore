@@ -7,5 +7,6 @@ target/
 /.jcunit
 /.idea
 /jcunit.iml
+/recordedField
 .DS_Store
 
