@@ -37,8 +37,8 @@ public class Utils {
       throw new JCUnitEnvironmentException(msg, e);
     } catch (NoSuchFieldException e) {
       String msg = String.format(
-          "Field '%s' isn't defined in class '%s' or not annotated.",
-          fieldName, clazz);
+          "Field '%s' isn't defined in class '%s', not public, or not annotated.",
+          fieldName, clazz.getCanonicalName());
       throw new IllegalArgumentException(msg, e);
     }
     if (expectedAnnotations.length > 0) {
@@ -48,9 +48,9 @@ public class Utils {
           return ret;
         }
       }
-      Checks.checkcond(false,
+      Checks.checkparam(false,
           String.format(
-              "Annotated field '%s' is found in '%s, but not annotated with none of [%s]",
+              "Field '%s' is found in '%s, but not annotated with none of [%s]",
               fieldName,
               clazz,
               Utils.join(",", new Formatter<Class<? extends Annotation>>() {

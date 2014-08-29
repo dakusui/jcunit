@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.exceptions;
 
-public class JCUnitEnvironmentException extends JCUnitUserException {
-
+public class JCUnitEnvironmentException extends JCUnitException {
   /**
    * Serial version UID
    */
