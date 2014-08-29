@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class UtilsFieldFunctionsTest {
+public class UtilsTest {
   static class TestClass {
     @FactorField
     private Object f = new Object();
