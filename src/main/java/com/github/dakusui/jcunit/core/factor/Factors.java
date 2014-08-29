@@ -140,7 +140,7 @@ public class Factors implements Iterable<Factor> {
    * <p/>
    * The object {@code tuple} will remain unchanged after a call of this method.
    */
-  public Tuple createTupleFrom(Tuple tuple, Object defaultValue) {
+  public Tuple createTupleFrom(Tuple tuple, @SuppressWarnings("SameParameterValue") Object defaultValue) {
     Checks.checknotnull(tuple);
     for (String k : tuple.keySet()) {
       Checks.checkcond(this.factorMap.containsKey(k),

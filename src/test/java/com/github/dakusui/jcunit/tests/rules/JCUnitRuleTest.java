@@ -48,7 +48,6 @@ public class JCUnitRuleTest extends JCUnitRule {
         assertEquals("methodName", this.getTestName());
         assertEquals(tuple, this.getTestCase());
         assertEquals(123, this.getId());
-        ;
         assertEquals(factors, this.getFactors());
     }
 

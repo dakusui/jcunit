@@ -47,7 +47,7 @@ public class JCUnit extends Suite {
     ////
     // Generate a list of test cases using a specified tuple generator
     TupleGenerator tupleGenerator = TupleGeneratorFactory.INSTANCE
-        .createTupleGeneratorFromClass(klass);
+        .createTupleGeneratorForClass(klass);
     Factors factors = tupleGenerator.getFactors();
     int id;
     for (id = (int) tupleGenerator.firstId();

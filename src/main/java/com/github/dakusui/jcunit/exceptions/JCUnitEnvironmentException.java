@@ -6,7 +6,7 @@ public class JCUnitEnvironmentException extends JCUnitException {
    */
   private static final long serialVersionUID = 1434737987358526140L;
 
-  public JCUnitEnvironmentException(String message, Throwable t) {
+  public JCUnitEnvironmentException(String message, @SuppressWarnings("SameParameterValue") Throwable t) {
     super(message, t);
   }
 }

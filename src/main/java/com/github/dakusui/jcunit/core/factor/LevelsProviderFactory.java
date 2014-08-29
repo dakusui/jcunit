@@ -12,7 +12,7 @@ public class LevelsProviderFactory {
     }
 
     public LevelsProvider createLevelsProvider(Field targetField, FactorField ann, List<String> errors) {
-        LevelsProvider ret = createLevelsProvider(ann.levelsFactory(), errors);
+        LevelsProvider ret = createLevelsProvider(ann.levelsProvider(), errors);
         ret.setTargetField(targetField);
         ret.setAnnotation(ann);
         ret.init(ann.providerParams());

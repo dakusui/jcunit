@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples;
+package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.TestCaseUtils;

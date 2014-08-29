@@ -6,7 +6,7 @@ public class JCUnitCheckedException extends Exception {
    */
   private static final long serialVersionUID = -8729834127235486228L;
 
-  public JCUnitCheckedException(String msg, Throwable e) {
+  public JCUnitCheckedException(@SuppressWarnings("SameParameterValue") String msg, Throwable e) {
     super(msg, e);
   }
 }

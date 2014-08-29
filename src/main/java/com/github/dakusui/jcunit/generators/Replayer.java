@@ -142,7 +142,7 @@ public class Replayer extends TupleGeneratorBase {
               );
               return (Class<? extends TupleGeneratorBase>) ret;
             } catch (ClassNotFoundException e) {
-              Checks.rethrow(e, "Failed to instantiate generator '%s'", str);
+              Checks.checktest(false, "The class '%s' you specified as a tuple generator was not found in the class path.", str);
             }
             // This line will never be executed.
             assert false;
@@ -247,9 +247,9 @@ public class Replayer extends TupleGeneratorBase {
           tupleReplayer.fallbackGenerator = ((Class<? extends TupleGeneratorBase>) params[2])
               .newInstance();
         } catch (InstantiationException e) {
-          Checks.rethrow(e, "Failed to instantiate '%s'", params[2]);
+          Checks.rethrowpluginerror(e, "The class '%s' cannot be instantiated.", params[2]);
         } catch (IllegalAccessException e) {
-          Checks.rethrow(e, "Failed to instantiate '%s'", params[2]);
+          Checks.rethrowpluginerror(e, "A no-parameter constructor of '%s' is too less open. Make it public.", params[2]);
         }
         ////
         // Extract parameters to be passed to fallbackGenerator.

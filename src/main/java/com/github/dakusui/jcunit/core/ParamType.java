@@ -281,23 +281,23 @@ public abstract class ParamType implements Cloneable {
 
   public ParamType withDefaultValue(Object defaultValue) {
     ParamType ret;
-    ret = this.clone();
+    ret = this.cloneObject();
     ret.defaultValue = defaultValue;
     return ret;
   }
 
   public ParamType withVarArgsEnabled() {
     ParamType ret;
-    ret = this.clone();
+    ret = this.cloneObject();
     ret.varArgs = true;
     return ret;
   }
 
   abstract public Object parse(String[] values);
 
-  protected ParamType clone() {
+  protected ParamType cloneObject() {
     try {
-      return (ParamType) super.clone();
+      return (ParamType) this.clone();
     } catch (CloneNotSupportedException e) {
       Checks.checkcond(false);
     }

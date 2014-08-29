@@ -236,8 +236,7 @@ public class ExpectationTest {
     Checks.checknotnull(tuples);
 
     Expectation e = klazz.getDeclaredConstructor(Collection.class).newInstance(asList(expect));
-    VerificationResult result = e.verify(asList(tuples));
-    return result;
+    return e.verify(asList(tuples));
   }
 
   public VerificationResult verify(Expectation expect, Tuple[] tuples) {

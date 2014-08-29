@@ -29,12 +29,6 @@ public class Utils {
     Field ret;
     try {
       ret = clazz.getField(fieldName);
-    } catch (SecurityException e) {
-      String msg = String.format(
-          "JCUnit cannot be run in this environment. (%s:%s)", e.getClass()
-              .getName(), e.getMessage()
-      );
-      throw new JCUnitEnvironmentException(msg, e);
     } catch (NoSuchFieldException e) {
       String msg = String.format(
           "Field '%s' isn't defined in class '%s', not public, or not annotated.",
@@ -69,18 +63,15 @@ public class Utils {
   public static void setFieldValue(Object obj, Field f, Object value) {
     Checks.checknotnull(obj);
     Checks.checknotnull(f);
+    boolean accessible = f.isAccessible();
     try {
-      boolean accessible = f.isAccessible();
-      try {
-        f.setAccessible(true);
-        f.set(obj, value);
-      } finally {
-        f.setAccessible(accessible);
-      }
-    } catch (IllegalArgumentException e) {
-      Checks.rethrow(e);
+      f.setAccessible(true);
+      f.set(obj, value);
     } catch (IllegalAccessException e) {
-      Checks.rethrow(e);
+      // This path should never be executed since the field is set accessible.
+      Checks.rethrow(e, "Something went wrong.");
+    } finally {
+      f.setAccessible(accessible);
     }
   }
 
@@ -148,7 +139,7 @@ public class Utils {
     } catch (IllegalAccessException e) {
       Checks.rethrow(e);
     } catch (InvocationTargetException e) {
-      Checks.rethrow(e);
+      Checks.rethrow(e.getTargetException());
     }
     Checks.checkcond(false, "Something went wrong.");
     return null;
@@ -158,20 +149,24 @@ public class Utils {
       Class<? extends T> klazz) {
     T ret = null;
     try {
-      ret = klazz.getConstructor().newInstance();
+      ret = klazz.getDeclaredConstructor().newInstance();
     } catch (InstantiationException e) {
-      Checks.rethrow(e, "Failed to instantiate '%s'.", klazz);
+      Checks.rethrow(e,
+          "'%s' is a class that cannot be instantiated directly.",
+          klazz.getCanonicalName());
     } catch (IllegalAccessException e) {
       Checks.rethrow(e,
-          "Failed to instantiate '%s'. The constructor with no parameter was not open enough.",
-          klazz
+          "Failed to instantiate '%s'. The constructor with no parameter is not open enough.",
+          klazz.getCanonicalName()
       );
     } catch (InvocationTargetException e) {
-      Checks.rethrow(e, String.format("Failed to instantiate '%s'.", klazz));
+      Checks.rethrow(e.getTargetException(),
+          "Failed to instantiate '%s'. An exception was thrown during instantiation.",
+          klazz.getCanonicalName());
     } catch (NoSuchMethodException e) {
       Checks.rethrow(e,
-          "Failed to instantiate '%s'. A constructor with no parameter was not found.",
-          klazz
+          "Failed to instantiate '%s'. A constructor with no parameter is not found.",
+          klazz.getCanonicalName()
       );
     }
     Checks.checknotnull(ret);

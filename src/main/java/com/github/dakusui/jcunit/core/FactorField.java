@@ -48,7 +48,7 @@ public @interface FactorField {
    */
   public boolean includeNull() default false;
 
-  public Class<? extends LevelsProvider> levelsFactory() default DefaultLevelsProvider.class;
+  public Class<? extends LevelsProvider> levelsProvider() default DefaultLevelsProvider.class;
 
   public Param[] providerParams() default { };
 }

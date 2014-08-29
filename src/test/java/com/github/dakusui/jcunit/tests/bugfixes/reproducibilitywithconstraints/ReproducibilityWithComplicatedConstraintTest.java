@@ -60,6 +60,7 @@ public class ReproducibilityWithComplicatedConstraintTest {
       // Consider &&! represents '->'
       if (useSharedIndexForRight && !useSharedSerializerForRight)
         return false;
+      // noinspection
       if (!useSharedIndexForRight && !(!rightIndexType.equals("INVALID"))) {
         return false;
       }

@@ -20,7 +20,7 @@ public class TupleGeneratorFactory {
    * Creates a {@code SchemafulTupleGenerator} using annotations attached to the class
    * for which the returned generator is created.
    */
-  public TupleGenerator createTupleGeneratorFromClass(
+  public TupleGenerator createTupleGeneratorForClass(
       Class<?> klazz) {
     Checks.checknotnull(klazz);
     TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
@@ -105,21 +105,6 @@ public class TupleGeneratorFactory {
           return Utils
               .getDefaultValueOfAnnotation(TupleGeneration.class,
                   "constraint");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-          return super.equals(o);
-        }
-
-        @Override
-        public int hashCode() {
-          return super.hashCode();
-        }
-
-        @Override
-        public String toString() {
-          return super.toString();
         }
 
         @Override

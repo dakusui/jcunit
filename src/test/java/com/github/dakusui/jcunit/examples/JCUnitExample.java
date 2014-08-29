@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.examples;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
+import com.github.dakusui.jcunit.core.factor.TupleLevelsProvider;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.examples.calc.Calc;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
@@ -14,15 +15,15 @@ public class JCUnitExample {
   @Rule
   public JCUnitDesc testDesc = new JCUnitDesc();
 
-  @FactorField(levelsFactory = MethodLevelsProvider.class)
+  @FactorField(levelsProvider = MethodLevelsProvider.class)
   public int     f1;
-  @FactorField(levelsFactory = MethodLevelsProvider.class)
+  @FactorField(levelsProvider = MethodLevelsProvider.class)
   public long    f2;
   @FactorField
   public Calc.Op op;
 
   @SuppressWarnings("unused") // This field is used by JCUnit.
-  @FactorField(levelsFactory = TupleLevelsProvider.class)
+  @FactorField(levelsProvider = TupleLevelsProvider.class)
   @TupleGeneration(
       generator = @Generator(
           value = IPO2TupleGenerator.class,

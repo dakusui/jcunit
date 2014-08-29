@@ -116,10 +116,10 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
             if (!methodNameMappings.containsKey(fieldType)) {
                 ////
                 // In this case (Non-primitive, non-string typed fields),
-                // levelsFactory must be provided, but not found (because no overriding
+                // levelsProvider must be provided, but not found (because no overriding
                 // method was found).
                 errors.add(String.format(
-                        "For the field '%s', 'levelsFactory' needs to be provided since there is no pre-defined xyzLevels method for it.",
+                        "For the field '%s', 'levelsProvider' needs to be provided since there is no pre-defined xyzLevels method for it.",
                         targetField));
             }
             return methodNameMappings.get(fieldType);
@@ -144,7 +144,7 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
         Method[] methods = FactorField.class.getDeclaredMethods();
         List<Method> work = new ArrayList<Method>(methods.length);
         for (Method m : methods) {
-            if (m.getName().endsWith("Levels") || "levelsFactory"
+            if (m.getName().endsWith("Levels") || "levelsProvider"
                     .equals(m.getName())) {
                 try {
                     if (!areSame(m.getDefaultValue(), m.invoke(factorFieldAnnotation))) {

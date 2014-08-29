@@ -17,73 +17,52 @@ public class Checks {
    * @return {@code obj} itself
    */
   public static <T> T checknotnull(T obj) {
-    if (obj == null) {
-      throw new NullPointerException();
-    }
+    checknotnull(obj, null);
     return obj;
   }
 
   public static <T> T checknotnull(T obj, String msgOrFmt, Object... args) {
     if (obj == null) {
-      if (msgOrFmt != null) {
-        throw new NullPointerException(String.format(msgOrFmt, args));
-      } else {
-        throw new NullPointerException(
-            String.format("info(%s)", Utils.join(",", args)));
-      }
+      throw new NullPointerException(composeMessage(msgOrFmt, args));
     }
     return obj;
   }
 
   public static void checkcond(boolean b) {
-    if (!b) {
-      throw new IllegalStateException();
-    }
+    checkcond(b, null);
   }
 
   public static void checkcond(boolean b, String msgOrFmt, Object... args) {
     if (!b) {
-      if (msgOrFmt != null) {
-        throw new IllegalStateException(String.format(msgOrFmt, args));
-      } else {
-        throw new IllegalStateException(
-            String.format("info(%s)", Utils.join(",", args)));
-      }
+      throw new IllegalStateException(composeMessage(msgOrFmt, args));
     }
   }
 
   public static void checkparam(boolean b) {
-    if (!b) {
-      throw new IllegalArgumentException();
-    }
+    checkparam(b, null);
   }
 
-  public static void checkparam(boolean b, String msgOrFmt, Object... args) {
+  public static void checkparam(@SuppressWarnings("SameParameterValue") boolean b, String msgOrFmt, Object... args) {
     if (!b) {
-      if (msgOrFmt != null) {
-        throw new IllegalArgumentException(String.format(msgOrFmt, args));
-      } else {
-        throw new IllegalArgumentException(
-            String.format("info(%s)", Utils.join(",", args)));
-      }
+      throw new IllegalArgumentException(composeMessage(msgOrFmt, args));
     }
   }
 
   public static void checkplugin(boolean cond, String msg, Object... args) {
     if (!cond) {
-      throw new InvalidPluginException(String.format(msg, args), null);
+      throw new InvalidPluginException(composeMessage(msg, args), null);
     }
   }
 
   public static void checkenv(boolean cond, String msg, Object... args) {
     if (!cond) {
-      throw new JCUnitEnvironmentException(String.format(msg, args), null);
+      throw new JCUnitEnvironmentException(composeMessage(msg, args), null);
     }
   }
 
   public static void checktest(boolean cond, String msg, Object... args) {
     if (!cond) {
-      throw new InvalidTestException(String.format(msg, args), null);
+      throw new InvalidTestException(composeMessage(msg, args), null);
     }
   }
 
@@ -96,7 +75,7 @@ public class Checks {
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static void rethrow(Throwable e, String msgOrFmt, Object... args) {
-    throw new JCUnitException(String.format(msgOrFmt, args), e);
+    throw new JCUnitException(composeMessage(msgOrFmt, args), e);
   }
 
   /**
@@ -107,5 +86,14 @@ public class Checks {
    */
   public static void rethrow(Throwable e) {
     rethrow(e, e.getMessage());
+  }
+
+  public static void rethrowpluginerror(Throwable throwable, String msgOrFmt, Object... args) {
+    throw new InvalidPluginException(composeMessage(msgOrFmt, args), throwable);
+  }
+
+  private static String composeMessage(String msgOrFmt, Object... args) {
+    if (msgOrFmt != null) return String.format(msgOrFmt, args);
+    return String.format("Message:'%s'", Utils.join(",", args));
   }
 }
