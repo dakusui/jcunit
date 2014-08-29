@@ -1,13 +1,17 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+
 import java.util.Arrays;
 
-public abstract class ParamType  implements Cloneable {
+public abstract class ParamType implements Cloneable {
   public static Object[] processParams(ParamType[] types, Param[] params) {
     Checks.checknotnull(params);
     Checks.checknotnull(types);
     int minLength = types.length;
+    boolean varArgsSpecified = false;
     if (minLength > 0 && types[minLength - 1].isVarArgs()) {
+      varArgsSpecified = true;
       minLength--;
     }
     while (minLength > 0) {
@@ -22,13 +26,22 @@ public abstract class ParamType  implements Cloneable {
           "Only the last parameters of a plugin can have default values.: %s",
           Arrays.toString(types));
     }
-    Checks.checktest(minLength <= params.length && params.length <= types.length,
-        "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
-        minLength,
-        types.length,
-        params.length,
-        Arrays.toString(params)
-    );
+    if (!varArgsSpecified) {
+      Checks.checktest(minLength <= params.length && params.length <= types.length,
+          "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
+          minLength,
+          types.length,
+          params.length,
+          Arrays.toString(params)
+      );
+    } else {
+      Checks.checktest(minLength <= params.length,
+          "Too little number of parameters (at least %d required, but %d given).: %s",
+          minLength,
+          params.length,
+          Arrays.toString(params)
+      );
+    }
     Object[] ret = new Object[Math.max(types.length, params.length)];
     int i = 0;
     boolean varArgsDefined = false;
@@ -61,6 +74,10 @@ public abstract class ParamType  implements Cloneable {
             }
             break;
           }
+        } catch (JCUnitException e) {
+          throw e;
+        } catch (RuntimeException e) {
+          throw e;
         } catch (Exception e) {
           Checks.rethrow(e,
               java.lang.String.format(
@@ -84,6 +101,10 @@ public abstract class ParamType  implements Cloneable {
   }
 
   public static abstract class NonArrayType extends ParamType {
+    protected NonArrayType() {
+      super();
+    }
+
     @Override
     public Object parse(String[] parameters) {
       checkParameters(parameters);
@@ -98,6 +119,7 @@ public abstract class ParamType  implements Cloneable {
           parameters.length
       );
     }
+
     protected abstract Object parse(String str);
   }
 
@@ -105,6 +127,7 @@ public abstract class ParamType  implements Cloneable {
     private final NonArrayType enclosedType;
 
     public ArrayType(NonArrayType enclosedType) {
+      super();
       Checks.checknotnull(enclosedType);
       this.enclosedType = enclosedType;
     }
@@ -232,8 +255,16 @@ public abstract class ParamType  implements Cloneable {
   public static final ParamType DoubleArray  = new ArrayType(Double);
   public static final ParamType StringArray  = new ArrayType(String);
 
-  protected            Object defaultValue     = NO_DEFAULT_VALUE;
-  private static final Object NO_DEFAULT_VALUE = new Object();
+  private static Object NO_DEFAULT_VALUE;
+  protected Object defaultValue;
+  private boolean varArgs = false;
+
+  protected ParamType() {
+    synchronized (ParamType.class) {
+      NO_DEFAULT_VALUE = DefaultValue.class;
+    }
+    this.defaultValue = NO_DEFAULT_VALUE;
+  }
 
   public boolean hasDefaultValue() {
     return !(this.defaultValue == NO_DEFAULT_VALUE);
@@ -245,20 +276,34 @@ public abstract class ParamType  implements Cloneable {
   }
 
   public boolean isVarArgs() {
-    return false;
+    return this.varArgs;
   }
 
   public ParamType withDefaultValue(Object defaultValue) {
     ParamType ret;
-    try {
-      ret = (ParamType) this.clone();
-      ret.defaultValue = defaultValue;
-      return ret;
-    } catch (CloneNotSupportedException e) {
-      Checks.rethrow(e);
-    }
-    throw new RuntimeException(); // This line will never be executed.
+    ret = this.clone();
+    ret.defaultValue = defaultValue;
+    return ret;
+  }
+
+  public ParamType withVarArgsEnabled() {
+    ParamType ret;
+    ret = this.clone();
+    ret.varArgs = true;
+    return ret;
   }
 
   abstract public Object parse(String[] values);
+
+  protected ParamType clone() {
+    try {
+      return (ParamType) super.clone();
+    } catch (CloneNotSupportedException e) {
+      Checks.checkcond(false);
+    }
+    // This line will never be executed.
+    throw new RuntimeException("Something went wrong.");
+  }
+
+  private static class DefaultValue {}
 }

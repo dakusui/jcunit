@@ -96,9 +96,7 @@ public class Checks {
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static void rethrow(Throwable e, String msgOrFmt, Object... args) {
-    JCUnitException ee = new JCUnitException(String.format(msgOrFmt, args), e);
-    ee.setStackTrace(e.getStackTrace());
-    throw ee;
+    throw new JCUnitException(String.format(msgOrFmt, args), e);
   }
 
   /**

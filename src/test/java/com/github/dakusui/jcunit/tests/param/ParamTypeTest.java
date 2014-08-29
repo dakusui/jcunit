@@ -1,8 +1,13 @@
 package com.github.dakusui.jcunit.tests.param;
 
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import org.junit.Test;
+
+import java.lang.annotation.Annotation;
 
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
@@ -104,6 +109,76 @@ public class ParamTypeTest {
     assertTrue(
         String.format("%s should have been thrown, but not.", expectedException.getCanonicalName()),
         false);
+  }
+
+  public static Param p1 = new Param() {
+    @Override
+    public String[] value() {
+      return new String[]{"true"};
+    }
+
+    @Override
+    public Class<? extends Annotation> annotationType() {
+      return Param.class;
+    }
+  };
+
+  @Test
+  public void processParamsTest1() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean}, new Param[]{p1});
+    assertArrayEquals(new Object[]{Boolean.TRUE}, processed);
+  }
+
+  @Test
+  public void processParamsTest2() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean.withDefaultValue(true)}, new Param[]{});
+    assertArrayEquals(new Object[]{Boolean.TRUE}, processed);
+  }
+
+  @Test
+  public void processParamsTest3() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean.withDefaultValue(true), ParamType.Boolean.withDefaultValue(false)}, new Param[]{});
+    assertArrayEquals(new Object[]{Boolean.TRUE, Boolean.FALSE}, processed);
+  }
+
+  @Test
+  public void processParamsTest4() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean.withVarArgsEnabled()}, new Param[]{p1});
+    assertArrayEquals(new Object[]{Boolean.TRUE}, processed);
+  }
+
+  @Test
+  public void processParamsTest5() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean.withVarArgsEnabled()}, new Param[]{p1, p1});
+    assertArrayEquals(new Object[]{Boolean.TRUE, Boolean.TRUE}, processed);
+  }
+
+  @Test(expected = InvalidTestException.class)
+  public void processParamsTest6$tooLittleParameters() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean, ParamType.Boolean.withVarArgsEnabled()}, new Param[]{});
+    assertArrayEquals(new Object[]{Boolean.TRUE, Boolean.TRUE}, processed);
+  }
+  @Test(expected = InvalidTestException.class)
+  public void processParamsTest6$tooManyParameters() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean, ParamType.Boolean}, new Param[]{p1, p1, p1, p1});
+    assertArrayEquals(new Object[]{Boolean.TRUE, Boolean.TRUE}, processed);
+  }
+
+  @Test
+  public void processParamsTest$defaultValueAndVarArgsInCombination() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean.withDefaultValue(false), ParamType.Boolean.withVarArgsEnabled()}, new Param[]{});
+    assertArrayEquals(new Object[]{Boolean.FALSE}, processed);
+  }
+
+  @Test(expected = InvalidPluginException.class)
+  public void processParamsTest$invalidDefaultNotAtLast() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean.withDefaultValue(false), ParamType.Boolean}, new Param[]{});
+    assertArrayEquals(new Object[]{Boolean.FALSE}, processed);
+  }
+
+  @Test(expected = InvalidPluginException.class)
+  public void processParamsTest$invalidVarargsNotAtLast() {
+    Object[] processed = ParamType.processParams(new ParamType[]{ParamType.Boolean.withVarArgsEnabled(), ParamType.Boolean}, new Param[]{p1, p1});
   }
 
 }
