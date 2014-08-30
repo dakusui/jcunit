@@ -1,5 +1,12 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session1;
 
+/**
+ * Quadratic equation solver.
+ *
+ * <ul>
+ *   <li>session 1: Initial version.</li>
+ * </ul>
+ */
 public class QuadraticEquationSolver {
   private final double a;
   private final double b;

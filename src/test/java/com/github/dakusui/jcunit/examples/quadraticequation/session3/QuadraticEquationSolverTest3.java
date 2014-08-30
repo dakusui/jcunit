@@ -1,22 +1,29 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session3;
 
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.Given;
+import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
 import static org.junit.Assert.assertThat;
 
+/**
+ * An example that tests QuadraticEquationSolver.
+ * <ul>
+ *   <li>session 1: Initial version of QuadraticEquationSolverTest.</li>
+ *   <li>session 2: Exclude 'invalid' test cases.</li>
+ *   <li>session 3: Exclude 'too big' coefficients.</li>
+ * </ul>
+ */
 @RunWith(JCUnit.class)
-@TupleGeneration(
-    generator = @Generator(
-        value = IPO2TupleGenerator.class,
-        params = {
-            @Param("2")
-        }))
 public class QuadraticEquationSolverTest3 {
+  public static final int runCount     = 14;
+  public static final int failureCount = 0;
+  public static final int ignoreCount  = 39;
+
   @FactorField
   public int a;
   @FactorField
@@ -36,22 +43,15 @@ public class QuadraticEquationSolverTest3 {
   }
 
   public boolean coefficientsAreValid() {
-    return Math.abs(this.a) <= 100 || Math.abs(this.b) <= 100
-        || Math.abs(this.c) <= 100;
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  @Given({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
-  public void whenSolveEquation$thenIllegalArgumentExceptionWillBeThrown() {
-    new QuadraticEquationSolver(
-        a,
-        b,
-        c).solve();
+    return
+        -100 <= a && a <= 100 &&
+            -100 <= b && b <= 100 &&
+            -100 <= c && c <= 100;
   }
 
   @Test
   @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
-  public void whenSolveQuadraticEquation$thenSolved() {
+  public void whenSolveEquation$thenSolved() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

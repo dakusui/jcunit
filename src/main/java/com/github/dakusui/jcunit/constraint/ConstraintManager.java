@@ -13,7 +13,7 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
   public static final ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
 
   /**
-   * Returns {@code true} if the given tuple satisfies all the known constraints.
+   * Returns {@code true} if the given tuple doesn't violate any known constraints.
    * In case tuple doesn't have sufficient attribute values to be evaluated,
    * a {@code SymbolNotFoundException} will be thrown.
    * Otherwise, {@code false} will be returned.

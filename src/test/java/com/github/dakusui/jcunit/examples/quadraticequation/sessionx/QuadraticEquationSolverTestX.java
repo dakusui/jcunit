@@ -21,18 +21,17 @@ import static org.junit.Assert.assertThat;
 @TupleGeneration(
     constraint = @Constraint(
         value = QuadraticEquationSolverTestX.CM.class,
-        params = {
-        }))
+        params = { }))
 public class QuadraticEquationSolverTestX {
   @Rule
   public TestName   name = new TestName();
   @Rule
   public JCUnitDesc desc = new JCUnitDesc();
-  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101})
+  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101 })
   public int a;
-  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101})
+  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101 })
   public int b;
-  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101})
+  @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101 })
   public int c;
 
   public QuadraticEquationSolverTestX() {

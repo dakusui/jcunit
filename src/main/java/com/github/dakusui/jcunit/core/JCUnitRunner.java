@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
@@ -154,9 +155,14 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
         return ret;
     }
 
-    private static FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
+    private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
         try {
-            return new FrameworkMethod(JCUnitRunner.class.getMethod("noMatchingTestMethodIsFoundForThisTestCase"));
+            return new FrameworkMethod(JCUnitRunner.class.getMethod("noMatchingTestMethodIsFoundForThisTestCase")) {
+              @Override
+              public String getName() {
+                return String.format("%s:%s", super.getName(), TupleUtils.toString(JCUnitRunner.this.testCase));
+              }
+            };
         } catch (NoSuchMethodException e) {
             assert false;
         }

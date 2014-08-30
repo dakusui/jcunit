@@ -31,9 +31,9 @@ public abstract class IPO2Test {
     for (FactorsDef fd : factorsDefs) {
       for (int i = 0; i < fd.numFactors; i++) {
         Factor.Builder b = new Factor.Builder();
-        b.setName(new Character(ch).toString());
+        b.setName(Character.toString(ch));
         for (int j = 0; j < fd.numLevels; j++) {
-          b.addLevel(new Character(ch).toString() + j);
+          b.addLevel(Character.toString(ch) + j);
         }
         ch++;
         fb.add(b.build());
@@ -164,7 +164,9 @@ public abstract class IPO2Test {
 
   private boolean matches(Tuple q,
       Tuple tuple) {
-    if (!tuple.keySet().containsAll(q.keySet())) return false;
+    if (!tuple.keySet().containsAll(q.keySet())) {
+      return false;
+    }
     for (String k : q.keySet()) {
       if (!Utils.eq(q.get(k), tuple.get(k))) {
         return false;

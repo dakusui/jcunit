@@ -24,15 +24,18 @@ To understand JCUnit's functions, let's test 'QuadraticEquationSolver.java' prog
 The program contains some intentional bugs and unclear specifications (or behaviors).
 The formula it uses is,
 
-
 ```java
-{x1, x2} =  { (-b + Math.sqrt(b*b - 4*c*a)) / 2*a, (-b - Math.sqrt(b*b - 4*c*a)) / 2*a }
+
+    {x1, x2} = { (-b + Math.sqrt(b*b - 4*c*a)) / 2*a, (-b - Math.sqrt(b*b - 4*c*a)) / 2*a }
+
 ```
 
 where {x1, x2} are the solutions of an equation, 
 
 ```java
-a * x^2 + b * x + c = 0
+
+    a * x^2 + b * x + c = 0
+
 ```
 
 ### Maven coordinate
@@ -41,11 +44,13 @@ Below is a pom.xml fragment to describe jcunit's dependency.
 Please add it to your project's pom.xml 
 
 ```xml
+
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>[0.3.0,]</version>
+      <version>[0.4.11,]</version>
     </dependency>
+    
 ```
 
 ### QuadraticEquationSolver.java (Main class, SUT)
@@ -53,41 +58,40 @@ Please add it to your project's pom.xml
 The class provides a function to solve a quadratic equation using a quadratic formula and returns the solutions.
 
 ```java
-//QuadraticEquationSolver.java
-package com.github.dakusui.jcunit.examples.quadraticequation.session1;
 
-public class QuadraticEquationSolver {
-  private final double a;
-  private final double b;
-  private final double c;
-
-  public static class Solutions {
-    public final double x1;
-    public final double x2;
-
-    public Solutions(double x1, double x2) {
-      this.x1 = x1;
-      this.x2 = x2;
+    //QuadraticEquationSolver.java
+    public class QuadraticEquationSolver {
+      private final double a;
+      private final double b;
+      private final double c;
+    
+      public static class Solutions {
+        public final double x1;
+        public final double x2;
+    
+        public Solutions(double x1, double x2) {
+          this.x1 = x1;
+          this.x2 = x2;
+        }
+    
+        public String toString() {
+          return String.format("(%f,%f)", x1, x2);
+        }
+      }
+    
+      public QuadraticEquationSolver(double a, double b, double c) {
+        this.a = a;
+        this.b = b;
+        this.c = c;
+      }
+    
+      public Solutions solve() {
+        return new Solutions(
+            (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
+            (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
+        );
+      }
     }
-
-    public String toString() {
-      return String.format("(%f,%f)", x1, x2);
-    }
-  }
-
-  public QuadraticEquationSolver(double a, double b, double c) {
-    this.a = a;
-    this.b = b;
-    this.c = c;
-  }
-
-  public Solutions solve() {
-    return new Solutions(
-        (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
-        (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
-    );
-  }
-}
 ```
 
 Did you already notice the bugs that this program has?
@@ -101,42 +105,37 @@ Did you already notice the bugs that this program has?
 Try to find (and reproduce) these bugs using JCUnit and fix them.
 
 ### QuadraticEquationSolverTest.java (Test)
-QuadraticEquationSolverTest is a test class for QuadraticEquationSolver class.
+QuadraticEquationSolverTest1 is a test class for QuadraticEquationSolver class.
 
 ```java
-// QuadraticEquationSolverTest1.java
-package com.github.dakusui.jcunit.examples.quadraticequation.session1;
 
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.factor.FactorField;
-import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static junit.framework.Assert.assertEquals;
-
-@RunWith(JCUnit.class)
-public class QuadraticEquationSolverTest1 {
-    @FactorField
-    public int a;
-    @FactorField
-    public int b;
-    @FactorField
-    public int c;
-
-    @Test
-    public void test() {
-        QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
-                c).solve();
-        assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
-        assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
+    // QuadraticEquationSolverTest1.java
+    @RunWith(JCUnit.class)
+    public class QuadraticEquationSolverTest1 {
+        @FactorField
+        public int a;
+        @FactorField
+        public int b;
+        @FactorField
+        public int c;
+    
+        @Test
+        public void test() {
+            QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+                    c).solve();
+            assertEquals(0.0, a * s.x1 * s.x1 + b * s.x1 + c);
+            assertEquals(0.0, a * s.x2 * s.x2 + b * s.x2 + c);
+        }
     }
-}
+    
 ```
+
+If you run this test class, JCUnit generates about fifty test cases and run them.
+By default, it generates the test cases by using 'all-pairs' technique.
 
 #Tips
 ## Tip 1: Customizing domains of @FactorField annotated fields (1)
-By default, JCUnit creates test cases by assigning a value, picked up from a hardcoded set of values defined for each type, to each '@FactorField' annotated field in a test class
+JCUnit creates test cases by assigning a value, picked up from a hardcoded set of values defined for each type, to each '@FactorField' annotated field in a test class.
 For example, if a member is annotated with '@FactorField' and its type is int, JCUnit will pick up a value from a set
 {1, 0, -1, 100, -100, Integer.MAX_VALUE, Integer.MIN_VALUE}.
 But this set is just a 'default' and you can customize it by using (overriding) an 'xyzLevels' attribute of a '@FactorField' annotation, 
@@ -146,9 +145,10 @@ where 'xyz' is a primitive types.
 
     @FactorField(intLevels = { 0, 1, 2, -1, -2, 100, -100, 10000, -10000 })
     public int a;
+
 ```
 
-Below is an example of using the 'intLevels' attribute.
+Above is an example of the use the 'intLevels' attribute.
 
 
 ## Tip 2: Customizing domains of @FactorField annotated fields (2)
@@ -183,31 +183,38 @@ annotation for 'QuadraticEquationSolverTest1.java' and set the first parameter, 
     @TestCaseGeneration(
             generator = @Generator(
                     value = IPO2TestCaseGenerator.class,
-                    params = {
-                            @Param("3")
-                    }))
+                    params = { @Param("3") }))
     public class QuadraticEquationSolverTest1 {
 ```
 
 In this example, the line
+
+```java
+
+    params = { @Param("3") }))
+
 ```
-	@Param("3")
-```
+
 configures the strength of the t-wise tests performed by JCUnit.
-And '@Param' annotation is a standard way to give a parameter to JCUnit (excepting '@FactorLevels', which requires more conciseness). 
+
+And '@Param' annotation is a standard way to give a parameter to JCUnit plugins (excepting '@FactorLevels', which requires more conciseness). 
 It takes a string array as its 'value'(and remember that you can omit curly braces if there is only one element in the array). 
 JCUnit internally translates those values accordingly.
 
 ## Tip 4: Defining constraints.
 In testings, we sometimes want to exclude a certain pair (, a triple, or a tuple) from the test cases since there are constraints in the test domain.
+
 For example, suppose there is a software system which has 100 parameters and doesn't accept any larger value than 1,000 for parameter x1.
 And it validates all the parameters and immediately exits if any one of them is invalid at start up.
-Since combinatorial testing is an effort to cover pairs (or tuples) with test cases as less as possible to find bugs which cannot be found by testing any single input parameter,
-if a test case, which can possibly contain a lot of meaningful pairs, is revoked by such an error, which can be cause by just one parameter, it means the coverage of the test suite is severely reduced. 
+
+Combinatorial testing is an effort to cover pairs (or tuples) with test cases as less as possible to find bugs which cannot be found by testing any single input parameter.
+If a test case, which can possibly contain a lot of meaningful pairs, is revoked by a single parameter, it means the coverage of the test suite will be damaged. 
 Below are the links that would be helpful for understanding how much constraint managements are important in combinatorial testing area. 
 
 * [Combinatorial test cases with constraints in software systems](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6221818)
 * [An Efficient Algorithm for Constraint Handling in Combinatorial Test Generation](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6569736)
+
+(Of course we want to test the behaviors on such illegal inputs. It will be discussed in the next tip.) 
 
 For this purpose, JCUnit has a mechanism called 'constraints manager'.
 To use a constraint manager, you can do below
@@ -224,7 +231,8 @@ To use a constraint manager, you can do below
 
 'CM' is a name of inner class which implements 'ConstraintManager' interface and checks if a given tuple violates any constraints in the test domain or not.
 Unfortunately you cannot use anonymous classes because a value passed to an annotation as its parameter must be a constant and Java's anonymous classes cannot be one.
-And if you want to exclude test cases that violate a discriminant of the quadratic equation formula and also make sure the given equation is a quadratic, 
+
+If you want to exclude test cases that violate a discriminant of the quadratic equation formula and also make sure the given equation is a quadratic, 
 not a linear, the definition of 'CM' would be
  
 ```java
@@ -234,7 +242,7 @@ not a linear, the definition of 'CM' would be
         public boolean check(Tuple tuple) throws JCUnitSymbolException {
           if (!tuple.containsKey("a") || !tuple.containsKey("b") || !tuple
               .containsKey("c")) {
-            throw new JCUnitSymbolException();
+            throw new UndefinedSymbol();
           }
           int a = (Integer) tuple.get("a");
           int b = (Integer) tuple.get("b");
@@ -246,13 +254,15 @@ not a linear, the definition of 'CM' would be
 
 'ConstraintManagerBase' is a helper class that makes it easy to implement a ConstraintManager.
 All that you need is overriding 'boolean check(Tuple)' method.
-Since a test case is passed as a tuple, you need to use 'get' method of it.
+In case the passed tuple violates your constraints, make it return false.
+A test case is passed as a tuple, you need to use 'get' method of it to retrieve the value (level) of it.
+
 "a", "b", or "c" are the names of the fields annotated with '@FactorField'. JCUnit accesses them using 'reflection' techniques of Java.
 JCUnit avoids using tuples for which check method of the specified constraint manager returns 'false'.
 
 ## Tip 5: Writing test cases for error handling (negative tests)
 That being said, handling errors appropriately is another concern.
-A program must complain of invalid parameters in an appropriate way, if given.
+A program must complain of invalid parameters in an appropriate way.
 And this characteristic is another aspect of software under test to be tested.
 
 You can do it by overriding 'getViolations' method of a constraint manager and switching the verification procedures based on a test's 'sub-identifier'.
@@ -268,11 +278,11 @@ First, by overriding method, return test cases that explicitly violate the const
         }
         
         @Override
-        public List<Violation> getViolations() {
-            List<Violation> ret = new LinkedList<Violation>();
-            ret.add(createViolation("a=0", createTestCase(0, 1, 1)));
-            ret.add(createViolation("b*b-4ca<0", createTestCase(100, 1, 100)));
-            ret.add(createViolation("nonsense 1=0", createTestCase(0, 0, 1)));
+        public List<Tuple> getViolations() {
+            List<Tuple> ret = new LinkedList<Tuple>();
+            ret.add(createTestCase("a=0", createTestCase(0, 1, 1)));
+            ret.add(createTestCase("b*b-4ca<0", createTestCase(100, 1, 100)));
+            ret.add(createTestCase("nonsense 1=0", createTestCase(0, 0, 1)));
             return ret;
         }
         
@@ -281,11 +291,6 @@ First, by overriding method, return test cases that explicitly violate the const
         }
     }
 ```
-
-The method 'createViolation' is a helper method defined in 'ConstraintManagerBase', that returns a new 'Violation' object.
-The first parameter to it can be any 'Serializable' object, which means you can use a string, 
-an enum, int, short, or whatever an object which implements a 'Serializable' interface.
-You will use these objects in order to identify which test procedure should be applied.
 
 Now you enhance your test case so that it verifies the software under test behaves correctly in case invalid parameters are given.
 Let's assume that the SUT should return null if one of the parameters 'a', 'b', or 'c' is not valid. 
@@ -308,6 +313,13 @@ Let's assume that the SUT should return null if one of the parameters 'a', 'b', 
         }
     }
 ```
+
+# Examples
+For more examples, see
+
+* [Examples](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/quadraticequation)
+
+
 
 # Copyright and license #
 

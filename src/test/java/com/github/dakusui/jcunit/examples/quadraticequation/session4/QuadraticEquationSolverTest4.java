@@ -8,14 +8,21 @@ import org.mockito.internal.matchers.LessThan;
 
 import static org.junit.Assert.assertThat;
 
+/**
+ * An example that tests QuadraticEquationSolver.
+ * <ul>
+ *   <li>session 1: Initial version of QuadraticEquationSolverTest.</li>
+ *   <li>session 2: Exclude 'invalid' test cases.</li>
+ *   <li>session 3: Exclude 'too big' coefficients.</li>
+ *   <li>session 4: Implement parameter validation in SUT and test it.</li>
+ * </ul>
+ */
 @RunWith(JCUnit.class)
-@TupleGeneration(
-    generator = @Generator(
-        value = IPO2TupleGenerator.class,
-        params = {
-            @Param("2")
-        }))
 public class QuadraticEquationSolverTest4 {
+  public static final int runCount     = 53;
+  public static final int failureCount = 0;
+  public static final int ignoreCount  = 0;
+
   @FactorField
   public int a;
   @FactorField
@@ -35,8 +42,10 @@ public class QuadraticEquationSolverTest4 {
   }
 
   public boolean coefficientsAreValid() {
-    return Math.abs(this.a) <= 100 && Math.abs(this.b) <= 100
-        && Math.abs(this.c) <= 100;
+    return
+        -100 <= a && a <= 100 &&
+        -100 <= b && b <= 100 &&
+        -100 <= c && c <= 100;
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -50,7 +59,7 @@ public class QuadraticEquationSolverTest4 {
 
   @Test
   @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
-  public void whenSolveQuadraticEquation$thenSolved() {
+  public void whenSolveEquation$thenSolved() {
     System.out.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b*b, -4*c*a, b*b-4*c*a));
     System.out.println(this.coefficientsAreValid());
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,

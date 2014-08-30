@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,8 +21,15 @@ public abstract class TypedConstraintManager<T>
    * in the test case. This is necessary because user codes can't tell if a
    * certain field's value is assigned by JCUnit or just a default value.
    *
-   * The second operator {@code tuple} is used for checking if an attribute in o is
+   * The second parameter {@code tuple} is used for checking if an attribute in o is
    * assigned or not.
+   *
+   * If {@code false} is returned, a tuple generator may give up
+   * covering pairs contained in {@tuple}. The pair coverage will potentially be
+   * damaged in case {@code false} is returned incorrectly.
+   *
+   * It is strongly recommended to check if factors involved in the constraints are
+   * already assigned by JCUnit.
    *
    * @param o     A test object.
    * @param tuple A tuple from which {@code o} is generated.
@@ -38,8 +46,14 @@ public abstract class TypedConstraintManager<T>
     return ret;
   }
 
-  protected abstract List<T> getViolationTestObjects();
+  /**
+   * By default this method returns an empty list.
+   */
+  protected List<T> getViolationTestObjects() {
+    return Collections.emptyList();
+  }
 
+  @SuppressWarnings("unchecked")
   protected Class<T> getTestClass() {
     return (Class<T>) ((ParameterizedType) this.getClass()
         .getGenericSuperclass()).getActualTypeArguments()[0];

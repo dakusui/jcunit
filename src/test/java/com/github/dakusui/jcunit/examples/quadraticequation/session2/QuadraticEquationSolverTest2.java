@@ -9,14 +9,19 @@ import org.mockito.internal.matchers.LessThan;
 
 import static org.junit.Assert.assertThat;
 
+/**
+ * An example that tests QuadraticEquationSolver.
+ * <ul>
+ *   <li>session 1: Initial version of QuadraticEquationSolverTest.</li>
+ *   <li>session 2: Exclude 'invalid' test cases.</li>
+ * </ul>
+ */
 @RunWith(JCUnit.class)
-@TupleGeneration(
-    generator = @Generator(
-        value = IPO2TupleGenerator.class,
-        params = {
-            @Param("2")
-        }))
 public class QuadraticEquationSolverTest2 {
+  public static final int runCount     = 37;
+  public static final int failureCount = 12;
+  public static final int ignoreCount  = 16;
+
   @FactorField
   public int a;
   @FactorField
@@ -25,25 +30,16 @@ public class QuadraticEquationSolverTest2 {
   public int c;
 
   public boolean aIsNonZero() {
-    return this.a != 0;
+    return a != 0;
   }
 
-  public static boolean discriminantIsNonNegative(
-      QuadraticEquationSolverTest2 testCase) {
-    int a = testCase.a;
-    int b = testCase.b;
-    int c = testCase.c;
+  public boolean discriminantIsNonNegative() {
     return b * b - 4 * c * a >= 0;
   }
 
-  public boolean coefficientsAreValid() {
-    return Math.abs(this.a) <= 100 || Math.abs(this.b) <= 100
-        || Math.abs(this.c) <= 100;
-  }
-
   @Test
-  @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
-  public void solveQuadraticEquation() {
+  @Given({ "aIsNonZero&&discriminantIsNonNegative" })
+  public void solveEquation() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
