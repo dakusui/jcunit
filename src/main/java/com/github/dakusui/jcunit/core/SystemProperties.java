@@ -2,6 +2,8 @@ package com.github.dakusui.jcunit.core;
 
 import java.io.File;
 
+import static java.lang.System.*;
+
 /**
  * A singleton class to access system properties from inside JCUnit. JCUnit code
  * shouldn't access any system property without using this class.
@@ -31,7 +33,11 @@ public class SystemProperties {
       @Override public String key() {
         return "jcunit.replayer";
       }
-    };
+    },
+    RANDOMSEED {
+      @Override public String key() { return "jcunit.generator.randomseed"; }
+    }
+    ;
 
     public abstract String key();
     }
@@ -41,7 +47,7 @@ public class SystemProperties {
 
   public static File jcunitBaseDir() {
     File ret;
-    String rec = System.getProperty(KEY.BASEDIR.key());
+    String rec = getProperty(KEY.BASEDIR.key());
     if (rec != null) {
       ret = new File(rec);
     } else {
@@ -51,15 +57,40 @@ public class SystemProperties {
   }
 
   public static boolean isDebugEnabled() {
-    return Boolean.parseBoolean(System.getProperty(KEY.DEBUG.key(), "false"));
+    return Boolean.parseBoolean(getProperty(KEY.DEBUG.key(), "false"));
   }
 
   public static boolean isRecorderEnabled() {
-    return Boolean.parseBoolean(System.getProperty(KEY.RECORDER.key(), "false"));
+    return Boolean.parseBoolean(getProperty(KEY.RECORDER.key(), "false"));
   }
 
   public static boolean isReplayerEnabled() {
-    return Boolean.parseBoolean(System.getProperty(KEY.REPLAYER.key(), "false"));
+    return Boolean.parseBoolean(getProperty(KEY.REPLAYER.key(), "false"));
   }
+
+  public static long randomSeed() {
+    String randomSeedKey = KEY.RANDOMSEED.key();
+    synchronized (SystemProperties.class) {
+      try {
+        if (getProperty(randomSeedKey) == null) {
+          System.setProperty(randomSeedKey, Long.toString(currentTimeMillis()));
+        }
+        return Long.parseLong(
+            getProperty(randomSeedKey)
+        );
+      } catch (NumberFormatException e) {
+        Checks.checkenv(
+            false,
+            "The value '%s' specified for system property '%s' is not an integer.",
+            getProperty(randomSeedKey),
+            randomSeedKey
+        );
+      }
+    }
+    ////
+    // This path will not be executed.
+    throw new RuntimeException();
+  }
+
 
 }

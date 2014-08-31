@@ -92,6 +92,11 @@ public class Checks {
     throw new InvalidPluginException(composeMessage(msgOrFmt, args), throwable);
   }
 
+  public static void rethrowtesterror(Throwable throwable, String msgOrFmt, Object... args) {
+    throw new InvalidTestException(composeMessage(msgOrFmt, args), throwable);
+  }
+
+
   private static String composeMessage(String msgOrFmt, Object... args) {
     if (msgOrFmt != null) return String.format(msgOrFmt, args);
     return String.format("Message:'%s'", Utils.join(",", args));

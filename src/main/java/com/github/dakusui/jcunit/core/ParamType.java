@@ -108,7 +108,13 @@ public abstract class ParamType implements Cloneable {
     @Override
     public Object parse(String[] parameters) {
       checkParameters(parameters);
-      return this.parse(parameters[0]);
+      try {
+        return this.parse(parameters[0]);
+      } catch (IllegalArgumentException e) {
+        Checks.rethrowtesterror(e, "Invalid parameter(s) are given.: %s", Utils.join(",", parameters));
+      }
+      // This path should never be executed.
+      throw new RuntimeException("Something went wrong");
     }
 
     protected void checkParameters(String[] parameters) {
@@ -256,7 +262,7 @@ public abstract class ParamType implements Cloneable {
   public static final ParamType StringArray  = new ArrayType(String);
 
   private static Object NO_DEFAULT_VALUE;
-  protected Object defaultValue;
+  protected      Object defaultValue;
   private boolean varArgs = false;
 
   protected ParamType() {
@@ -305,5 +311,6 @@ public abstract class ParamType implements Cloneable {
     throw new RuntimeException("Something went wrong.");
   }
 
-  private static class DefaultValue {}
+  private static class DefaultValue {
+  }
 }

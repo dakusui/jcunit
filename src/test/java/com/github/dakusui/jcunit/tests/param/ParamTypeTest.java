@@ -19,7 +19,7 @@ public class ParamTypeTest {
     assertEquals("boolean", ParamType.Boolean.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Boolean, true, "true");
     whenValidValue$thenParsedValueReturned(ParamType.BooleanArray, new Object[] { true, false }, "true", "false");
-    whenInvalidValue$thenExceptionThrown(ParamType.Boolean, IllegalArgumentException.class, "TRuE");
+    whenInvalidValue$thenExceptionThrown(ParamType.Boolean, InvalidTestException.class, "TRuE");
   }
 
   @Test
@@ -27,7 +27,7 @@ public class ParamTypeTest {
     assertEquals("byte", ParamType.Byte.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Byte, (byte) 3, "3");
     whenValidValue$thenParsedValueReturned(ParamType.ByteArray, new Object[] { (byte) 1, (byte) 2 }, "1", "2");
-    whenInvalidValue$thenExceptionThrown(ParamType.Byte, IllegalArgumentException.class, "ZZZ");
+    whenInvalidValue$thenExceptionThrown(ParamType.Byte, InvalidTestException.class, "ZZZ");
   }
 
   @Test
@@ -35,7 +35,7 @@ public class ParamTypeTest {
     assertEquals("char", ParamType.Char.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Char, 't', "t");
     whenValidValue$thenParsedValueReturned(ParamType.CharArray, new Object[] { 'a', 'b', 'c' }, "a", "b", "c");
-    whenInvalidValue$thenExceptionThrown(ParamType.Char, IllegalArgumentException.class, "ABC");
+    whenInvalidValue$thenExceptionThrown(ParamType.Char, InvalidTestException.class, "ABC");
   }
 
   @Test
@@ -43,7 +43,7 @@ public class ParamTypeTest {
     assertEquals("short", ParamType.Short.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Short, (short) 3, "3");
     whenValidValue$thenParsedValueReturned(ParamType.ShortArray, new Object[] { (short) 1, (short) 2 }, "1", "2");
-    whenInvalidValue$thenExceptionThrown(ParamType.Short, IllegalArgumentException.class, "ZZZ");
+    whenInvalidValue$thenExceptionThrown(ParamType.Short, InvalidTestException.class, "ZZZ");
   }
 
   @Test
@@ -51,7 +51,7 @@ public class ParamTypeTest {
     assertEquals("int", ParamType.Int.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Int, 3, "3");
     whenValidValue$thenParsedValueReturned(ParamType.IntArray, new Object[] { 1, 2 }, "1", "2");
-    whenInvalidValue$thenExceptionThrown(ParamType.Int, IllegalArgumentException.class, "ZZZ");
+    whenInvalidValue$thenExceptionThrown(ParamType.Int, InvalidTestException.class, "ZZZ");
   }
 
   @Test
@@ -59,7 +59,7 @@ public class ParamTypeTest {
     assertEquals("long", ParamType.Long.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Long, (long) 3, "3");
     whenValidValue$thenParsedValueReturned(ParamType.LongArray, new Object[] { (long) 1, (long) 2 }, "1", "2");
-    whenInvalidValue$thenExceptionThrown(ParamType.Long, IllegalArgumentException.class, "ZZZ");
+    whenInvalidValue$thenExceptionThrown(ParamType.Long, InvalidTestException.class, "ZZZ");
   }
 
   @Test
@@ -67,7 +67,7 @@ public class ParamTypeTest {
     assertEquals("float", ParamType.Float.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Float, (float) 3.1, "3.1");
     whenValidValue$thenParsedValueReturned(ParamType.FloatArray, new Object[] { (float) 1.2, (float) 2.3 }, "1.2", "2.3");
-    whenInvalidValue$thenExceptionThrown(ParamType.Float, IllegalArgumentException.class, "ZZZ");
+    whenInvalidValue$thenExceptionThrown(ParamType.Float, InvalidTestException.class, "ZZZ");
   }
 
   @Test
@@ -75,7 +75,7 @@ public class ParamTypeTest {
     assertEquals("double", ParamType.Double.toString());
     whenValidValue$thenParsedValueReturned(ParamType.Double, 3.1, "3.1");
     whenValidValue$thenParsedValueReturned(ParamType.DoubleArray, new Object[] { 1.2, 2.3 }, "1.2", "2.3");
-    whenInvalidValue$thenExceptionThrown(ParamType.Double, IllegalArgumentException.class, "ZZZ");
+    whenInvalidValue$thenExceptionThrown(ParamType.Double, InvalidTestException.class, "ZZZ");
   }
 
   @Test
