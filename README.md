@@ -328,7 +328,7 @@ The output will be a text whose lines are JSON objects and look like,
 ```
 
 You can refer to an example below for this use case. 
-* [TestGen.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/testgen/TestGen.jav)a
+* [TestGen.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/testgen/TestGen.java)
 
 # Examples
 For more examples, see
