@@ -8,7 +8,7 @@ Very roughly to say, it's a technique to generate test cases with good 'coverage
 
 # First test with JCUnit
 Below is JCUnit's most basic example 'QuadraticEquationSolver.java'.
-Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@FactorLevels' annotations.
+Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@FactorField' annotations.
 
 ## QuadraticEquationSolver program example
 To understand JCUnit's functions, let's test 'QuadraticEquationSolver.java' program, which solves 'quadratic equations' using a formula.
@@ -39,7 +39,7 @@ Please add it to your project's pom.xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.4.10</version>
+      <version>0.4.12</version>
     </dependency>
     
 ```
@@ -188,7 +188,7 @@ In this example, the line
 
 configures the strength of the t-wise tests performed by JCUnit.
 
-And '@Param' annotation is a standard way to give a parameter to JCUnit plugins (excepting '@FactorLevels', which requires more conciseness). 
+And '@Param' annotation is a standard way to give a parameter to JCUnit plugins (excepting '@FactorField', which requires more conciseness). 
 It takes a string array as its 'value'(and remember that you can omit curly braces if there is only one element in the array). 
 JCUnit internally translates those values accordingly.
 
@@ -260,7 +260,7 @@ You can do it by overriding 'getViolations' method of a constraint manager and s
 
 First, by overriding method, return test cases that explicitly violate the constraint represented by the constraint manager class itself.
 
-```
+```java
 
     public static class CM extends ConstraintManagerBase {
         @Override
@@ -286,7 +286,7 @@ First, by overriding method, return test cases that explicitly violate the const
 Now you enhance your test case so that it verifies the software under test behaves correctly in case invalid parameters are given.
 Let's assume that the SUT should return null if one of the parameters 'a', 'b', or 'c' is not valid. 
 
-```
+```java
 
     @Test
     public void test() {
@@ -304,6 +304,31 @@ Let's assume that the SUT should return null if one of the parameters 'a', 'b', 
         }
     }
 ```
+
+## Tip 6: As a pairwise test generator
+
+By creating a test method below, which just prints test case definition, you can use JCUnit as a pairwise (or t-wise) test case generator.
+
+```
+  @Test
+  public void printTestCase() {
+    System.out.println(TupleUtils.toString(TestCaseUtils.toTestCase(this)));
+  }
+```
+
+The output will be a text whose lines are JSON objects and look like,
+
+```
+{"browser":"IE","cpuClockInGHz":1.5,"edition":"Home Premium","gramInMB":128,"hddSizeInGB":100,"ramInGB":8}
+{"browser":"IE","cpuClockInGHz":2.5,"edition":"Enterprise","gramInMB":256,"hddSizeInGB":30,"ramInGB":1}
+{"browser":"IE","cpuClockInGHz":3.0,"edition":"Home Basic","gramInMB":512,"hddSizeInGB":50,"ramInGB":2}
+{"browser":"Opera","cpuClockInGHz":1.5,"edition":"Ultimate","gramInMB":512,"hddSizeInGB":20,"ramInGB":1}
+{"browser":"Opera","cpuClockInGHz":2.0,"edition":"Professional","gramInMB":256,"hddSizeInGB":50,"ramInGB":8}
+...
+```
+
+You can refer to an example below for this use case. 
+* [TestGen.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/TestGen.java)
 
 # Examples
 For more examples, see

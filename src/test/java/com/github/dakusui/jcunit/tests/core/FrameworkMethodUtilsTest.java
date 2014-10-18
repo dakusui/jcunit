@@ -59,57 +59,57 @@ public class FrameworkMethodUtilsTest {
     }
 
     @Test
-    @Given("precondition1")
+    @When("precondition1")
     public void scenario1() {
     }
 
     @Test
-    @Given("precondition2&&precondition3")
+    @When("precondition2&&precondition3")
     public void scenario2() {
     }
 
     @Test
-    @Given("!precondition2&&precondition3")
+    @When("!precondition2&&precondition3")
     public void scenario3() {
     }
 
     @Test
-    @Given("precondition2&&!precondition3")
+    @When("precondition2&&!precondition3")
     public void scenario4() {
     }
 
     @Test
-    @Given({ "!precondition2&&!precondition3", "precondition1" })
+    @When({ "!precondition2&&!precondition3", "precondition1" })
     public void scenario5() {
     }
 
     @Test
-    @Given("invalidPrecondition1")
+    @When("invalidPrecondition1")
     public void invalidScenario1() {
     }
 
     @Test
-    @Given("invalidPrecondition2")
+    @When("invalidPrecondition2")
     public void invalidScenario2() {
     }
 
     @Test
-    @Given("invalidPrecondition3")
+    @When("invalidPrecondition3")
     public void invalidScenario3() {
     }
 
     @Test
-    @Given("invalidPrecondition4")
+    @When("invalidPrecondition4")
     public void invalidScenario4() {
     }
 
     @Test
-    @Given("invalidPrecondition5")
+    @When("invalidPrecondition5")
     public void invalidScenario5() {
     }
 
     @Test
-    @Given("undefinedPrecondition")
+    @When("undefinedPrecondition")
     public void invalidScenario6() {
     }
   }
@@ -132,10 +132,10 @@ public class FrameworkMethodUtilsTest {
 
   @Test
   public void testMethodsReferredToByGivenAnnotation() throws Throwable {
-    List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.REFERENCED_BY_GIVEN.getMethods(RetrieverTestClass.class);
+    List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.REFERENCED_BY_WHEN.getMethods(RetrieverTestClass.class);
     assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "precondition1"));
     List<String> emptyList = Collections.emptyList();
-    FrameworkMethodUtils.FrameworkMethodValidator validator = FrameworkMethodUtils.FrameworkMethodValidator.VALIDATOR_FOR_METHOD_REFERENCEDBY_GIVEN;
+    FrameworkMethodUtils.FrameworkMethodValidator validator = FrameworkMethodUtils.FrameworkMethodValidator.VALIDATOR_FOR_METHOD_REFERENCEDBY_WHEN;
     Class<?> testClass = RetrieverTestClass.class;
     assertEquals(emptyList, validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "precondition1")));
     assertEquals(emptyList, validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "(precondition2&&precondition3)")));

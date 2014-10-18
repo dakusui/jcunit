@@ -15,7 +15,7 @@ import org.junit.runners.model.TestClass;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
-class JCUnitRunner extends BlockJUnit4ClassRunner {
+public class JCUnitRunner extends BlockJUnit4ClassRunner {
     private final Tuple testCase;
     private final int id;
     private final JCUnit.TestCaseType type;
@@ -32,7 +32,7 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
      * @param testCase A test case itself.
      * @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
      */
-    JCUnitRunner(Class<?> clazz, int id, JCUnit.TestCaseType testType,
+    public JCUnitRunner(Class<?> clazz, int id, JCUnit.TestCaseType testType,
                  Factors factors, Tuple testCase)
             throws InitializationError {
         super(clazz);
@@ -42,11 +42,11 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
         this.id = id;
         this.type = testType;
         List<String> errors = new LinkedList<String>();
-        for (FrameworkMethod each : FrameworkMethodUtils.FrameworkMethodRetriever.REFERENCED_BY_GIVEN.getMethods(clazz)) {
+        for (FrameworkMethod each : FrameworkMethodUtils.FrameworkMethodRetriever.REFERENCED_BY_WHEN.getMethods(clazz)) {
             FrameworkMethodUtils.validateFrameworkMethod(
                     clazz,
                     each,
-                    FrameworkMethodUtils.FrameworkMethodValidator.VALIDATOR_FOR_METHOD_REFERENCEDBY_GIVEN,
+                    FrameworkMethodUtils.FrameworkMethodValidator.VALIDATOR_FOR_METHOD_REFERENCEDBY_WHEN,
                     errors
             );
             this.methods.put(each.getName(), each);
@@ -134,9 +134,9 @@ class JCUnitRunner extends BlockJUnit4ClassRunner {
     }
 
     private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
-        Given given = testMethod.getAnnotation(Given.class);
-        if (given == null) return true;
-        String preconditionMethodName = FrameworkMethodUtils.getPreconditionMethodNameFor(given);
+        When when = testMethod.getAnnotation(When.class);
+        if (when == null) return true;
+        String preconditionMethodName = FrameworkMethodUtils.getPreconditionMethodNameFor(when);
         FrameworkMethod preconditionMethod = this.methods.get(preconditionMethodName);
         Checks.checkcond(preconditionMethod != null, "Something went wrong: name=%s, methdos=%s", preconditionMethodName, this.methods);
         assert preconditionMethod != null;

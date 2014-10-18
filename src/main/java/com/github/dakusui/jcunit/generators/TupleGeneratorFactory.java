@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
+import org.junit.runners.model.InitializationError;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -57,10 +58,10 @@ public class TupleGeneratorFactory {
     return generator;
   }
 
-  Factors loadFactors(Class<?> klazz) {
+  protected Factors loadFactors(Class<?> klass) {
     // //
     // Initialize the factor levels for every '@FactorField' annotated field.
-    Field[] fields = Utils.getAnnotatedFields(klazz, FactorField.class);
+    Field[] fields = Utils.getAnnotatedFields(klass, FactorField.class);
     Factors.Builder factorsBuilder = new Factors.Builder();
     List<InvalidTestException> errors = new LinkedList<InvalidTestException>();
     for (Field f : fields) {

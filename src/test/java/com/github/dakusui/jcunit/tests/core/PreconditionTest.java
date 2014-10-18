@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.tests.core;
 
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.Given;
+import com.github.dakusui.jcunit.core.When;
 import com.github.dakusui.jcunit.core.JCUnit;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -26,7 +26,7 @@ public class PreconditionTest {
     }
 
     @Test
-    @Given("precondition")
+    @When("precondition")
     public void test1() {
     }
   }

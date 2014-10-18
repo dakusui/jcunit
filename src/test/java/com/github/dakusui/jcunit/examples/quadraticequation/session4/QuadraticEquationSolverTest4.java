@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session4;
 
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
@@ -49,7 +48,7 @@ public class QuadraticEquationSolverTest4 {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  @Given({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
+  @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
   public void whenSolveEquation$thenIllegalArgumentExceptionWillBeThrown() {
     new QuadraticEquationSolver(
         a,
@@ -58,7 +57,7 @@ public class QuadraticEquationSolverTest4 {
   }
 
   @Test
-  @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
+  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void whenSolveEquation$thenSolved() {
     System.out.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b*b, -4*c*a, b*b-4*c*a));
     System.out.println(this.coefficientsAreValid());

@@ -8,6 +8,7 @@ import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
@@ -46,7 +47,7 @@ public class JCUnit extends Suite {
 
     ////
     // Generate a list of test cases using a specified tuple generator
-    TupleGenerator tupleGenerator = TupleGeneratorFactory.INSTANCE
+    TupleGenerator tupleGenerator = getTupleGeneratorFactory()
         .createTupleGeneratorForClass(klass);
     Factors factors = tupleGenerator.getFactors();
     int id;
@@ -54,10 +55,7 @@ public class JCUnit extends Suite {
          id >= 0; id = (int) tupleGenerator.nextId(id)) {
       Tuple testCase = tupleGenerator.get(id);
       if (shouldPerform(testCase, preconditionMethods)) {
-        runners.add(new JCUnitRunner(getTestClass().getJavaClass(),
-            id, TestCaseType.Generated,
-            factors,
-            testCase));
+        runners.add(createRunner(id, factors, TestCaseType.Generated, testCase));
       }
     }
     // Skip to number of test cases generated.
@@ -81,6 +79,10 @@ public class JCUnit extends Suite {
         TestCaseType.Custom,
         preconditionMethods);
     Checks.checkenv(runners.size() > 0, "No test to be run was found.");
+  }
+
+  protected TupleGeneratorFactory getTupleGeneratorFactory() {
+    return TupleGeneratorFactory.INSTANCE;
   }
 
   static Object createTestObject(TestClass testClass, Tuple testCase) {
@@ -113,16 +115,20 @@ public class JCUnit extends Suite {
       throws Throwable {
     for (Tuple testCase : testCases) {
       if (shouldPerform(testCase, preconditionMethods)) {
-        runners.add(new JCUnitRunner(
-            getTestClass().getJavaClass(),
-            id,
-            testCaseType,
-            factors,
-            testCase));
+        runners.add(createRunner(id, factors, testCaseType, testCase));
       }
       id++;
     }
     return id;
+  }
+
+  protected JCUnitRunner createRunner(int id, Factors factors, TestCaseType testCaseType, Tuple testCase) throws InitializationError {
+    return new JCUnitRunner(
+        getTestClass().getJavaClass(),
+        id,
+        testCaseType,
+        factors,
+        testCase);
   }
 
   @Override

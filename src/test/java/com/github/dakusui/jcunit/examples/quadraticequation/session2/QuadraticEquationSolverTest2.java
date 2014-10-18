@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session2;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
@@ -38,7 +37,7 @@ public class QuadraticEquationSolverTest2 {
   }
 
   @Test
-  @Given({ "aIsNonZero&&discriminantIsNonNegative" })
+  @When({ "aIsNonZero&&discriminantIsNonNegative" })
   public void solveEquation() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();

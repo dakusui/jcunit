@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session3;
 
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.Given;
+import com.github.dakusui.jcunit.core.When;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
 import org.junit.Test;
@@ -50,7 +50,7 @@ public class QuadraticEquationSolverTest3 {
   }
 
   @Test
-  @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
+  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void whenSolveEquation$thenSolved() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
