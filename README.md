@@ -394,7 +394,7 @@ And, to express 'OR', do
 ```java
 
     @Test
-    @When( "!discriminantIsNonNegative", "!aIsNonZero" )
+    @When({"!discriminantIsNonNegative", "!aIsNonZero"})
     public void thenAnErrorWillBeReported() {
         ....
     }
