@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.examples.bdd.turnstile;
 
-import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.examples.bdd.Given;
-import com.github.dakusui.jcunit.examples.bdd.Then;
+import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.core.When;
+import com.github.dakusui.jcunit.examples.bdd.JCBehavior;
 import org.junit.Test;
 
 public class TurnstileTest {
@@ -16,33 +16,33 @@ public class TurnstileTest {
     sut.setState(Turnstile.State.unlocked);
   }
 
-  @Given("turnstileIsLocked")
+  @JCBehavior.Given(@Param("turnstileIsLocked"))
   @When("coin")
-  @Then({"unlock"})
+  @JCBehavior.Then(@Param("unlock"))
   @Test
   public void test1() {
   }
 
-  @Given("turnstileIsLocked")
+  @JCBehavior.Given(@Param("turnstileIsLocked"))
   @When("pass")
-  @Then({"alarm"})
+  @JCBehavior.Then(@Param("alarm"))
   @Test
   public void test2() {
 
   }
 
-  @Given("turnstileIsUnlocked")
+  @JCBehavior.Given(@Param("turnstileIsUnlocked"))
   @When("coin")
-  @Then({"thankyou"})
+  @JCBehavior.Then(@Param("thankyou"))
   @Test
   public void test3() {
 
   }
 
 
-  @Given("turnstileIsUnlocked")
+  @JCBehavior.Given(@Param("turnstileIsUnlocked"))
   @When("pass")
-  @Then({"lock"})
+  @JCBehavior.Then(@Param("lock"))
   @Test
   public void test4() {
 

@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.examples.bdd;
 
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.JCUnitRunner;
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -13,6 +14,10 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -95,5 +100,23 @@ public class JCBehavior extends JCUnit {
   protected List<FrameworkMethod> getMethodsReferencedByThen(Class<?> klass) {
     List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
     return ret;
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  public static @interface Given {
+    Param[] value() default {};
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  public static @interface When {
+    Param[] value() default {};
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  public static @interface Then {
+    Param[] value() default {};
   }
 }
