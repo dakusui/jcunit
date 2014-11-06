@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.examples.bdd.turnstile;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.When;
 import com.github.dakusui.jcunit.examples.bdd.JCBehavior;
+import com.github.dakusui.jcunit.examples.dfsm.Turnstile;
 import org.junit.Test;
 
 public class TurnstileTest {

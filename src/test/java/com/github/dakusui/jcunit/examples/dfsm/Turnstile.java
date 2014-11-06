@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.bdd.turnstile;
+package com.github.dakusui.jcunit.examples.dfsm;
 
 /**
  * Created by hiroshi on 10/18/14.
@@ -24,5 +24,16 @@ public class Turnstile {
   public static enum State {
     locked,
     unlocked
+  }
+
+  public void coin() {
+  }
+
+  public String pass() {
+    return "Thank you!";
+  }
+
+  public boolean isOpened() {
+    return false;
   }
 }
