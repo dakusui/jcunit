@@ -1,9 +1,8 @@
 package com.github.dakusui.jcunit.experimentals.fsm;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class ScenarioSequence<SUT>  {
+public class ScenarioSequence<SUT> {
   private final LinkedList<Scenario<SUT>> seq;
 
   public ScenarioSequence() {
@@ -12,5 +11,9 @@ public class ScenarioSequence<SUT>  {
 
   public ScenarioSequence<SUT> subsequence(int begin) {
     return new ScenarioSequence<SUT>();
+  }
+
+  public void add(ScenarioSequence<SUT> seq) {
+
   }
 }
