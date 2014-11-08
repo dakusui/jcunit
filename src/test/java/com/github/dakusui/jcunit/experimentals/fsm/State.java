@@ -6,6 +6,14 @@ package com.github.dakusui.jcunit.experimentals.fsm;
  * @param <SUT> A class of software under test.
  */
 public interface State<SUT> {
+  /**
+   * Returns an {@code Expectation} when an {@code action} is performed with specified {@code args}
+   * on an SUT in given state defined by this object.
+   *
+   * @param action  An action to be performed.
+   * @param args Arguments with which {@code action} is performed.
+   * @return An expectation.
+   */
   Expectation expectation(Action action, Args args);
 
   /**

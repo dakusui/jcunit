@@ -5,6 +5,8 @@ package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
+import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
@@ -50,4 +52,40 @@ public interface TupleGenerator extends
    */
   public long size();
 
+  public static class Builder {
+
+    private Class<? extends TupleGenerator> tupleGeneratorClass;
+    private Factors                         factors;
+    private ConstraintManager               constraintManager;
+    private Object[]                        parameters;
+
+    public Builder setTupleGeneratorClass(Class<? extends TupleGenerator> tupleGeneratorClass) {
+      this.tupleGeneratorClass = tupleGeneratorClass;
+      return this;
+    }
+
+    public Builder setFactors(Factors factors) {
+      this.factors = factors;
+      return this;
+    }
+
+    public Builder setConstraintManager(ConstraintManager constraintManager) {
+      this.constraintManager = constraintManager;
+      return this;
+    }
+
+    public Builder setParameters(Object[] parameters) {
+      this.parameters = parameters;
+      return this;
+    }
+
+    public TupleGenerator build() {
+      TupleGenerator ret = Utils.createNewInstanceUsingNoParameterConstructor(this.tupleGeneratorClass);
+      ret.setFactors(this.factors);
+      ret.setConstraintManager(this.constraintManager);
+      ret.init(this.parameters);
+      return ret;
+    }
+
+  }
 }
