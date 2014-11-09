@@ -1,5 +1,8 @@
 package com.github.dakusui.jcunit.experimentals.fsm;
 
+import com.github.dakusui.jcunit.examples.dfsm.DFSMTest;
+import sun.security.pkcs11.wrapper.CK_SESSION_INFO;
+
 /**
  *
  *
@@ -24,6 +27,4 @@ public interface State<SUT> {
    * @return true - {@code sut} satisfies this state / false - otherwise.
    */
   boolean matches(SUT sut);
-
-
 }

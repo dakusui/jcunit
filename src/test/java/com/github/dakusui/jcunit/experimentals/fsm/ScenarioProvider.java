@@ -1,11 +1,14 @@
 package com.github.dakusui.jcunit.experimentals.fsm;
 
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
@@ -36,9 +39,24 @@ public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioS
   private TupleGenerator createTupleGenerator(Field targetField,
       FactorField annotation,
       Object[] parameters, int historySize) {
-    TupleGenerator tupleGenerator = Utils.createNewInstanceUsingNoParameterConstructor(IPO2TupleGenerator.class);
-    tupleGenerator.setFactors(loadFactors(createFSM(), historySize()));
-    return null;
+    Class<? extends TupleGenerator> tupleGeneratorClass = IPO2TupleGenerator.class;
+    ConstraintManager constraintManager = createConstraintManager();
+    TupleGenerator ret = new TupleGenerator.Builder()
+        .setTupleGeneratorClass(tupleGeneratorClass)
+        .setFactors(loadFactors(createFSM(), historySize()))
+        .setConstraintManager(constraintManager)
+        .setParameters(parameters)
+        .build();
+    return ret;
+  }
+
+  protected ConstraintManager createConstraintManager() {
+    return new ConstraintManagerBase() {
+      @Override
+      public boolean check(Tuple tuple) throws UndefinedSymbol {
+        return false;
+      }
+    };
   }
 
   protected abstract FSM createFSM();
