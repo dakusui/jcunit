@@ -6,6 +6,8 @@ package com.github.dakusui.jcunit.experimentals.fsm;
  * @param <SUT> A software under test.
  */
 public interface FSM<SUT> {
+  State<SUT> initialState();
+  
   State<SUT>[] states();
 
   Action<SUT>[] actions();

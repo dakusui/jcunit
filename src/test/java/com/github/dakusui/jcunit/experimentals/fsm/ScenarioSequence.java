@@ -1,19 +1,23 @@
 package com.github.dakusui.jcunit.experimentals.fsm;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScenarioSequence<SUT> {
-  private final LinkedList<Scenario<SUT>> seq;
+  private final List<Scenario<SUT>> seq;
 
   public ScenarioSequence() {
-    seq = new LinkedList<Scenario<SUT>>();
+    seq = new ArrayList<Scenario<SUT>>();
   }
 
   public ScenarioSequence<SUT> subsequence(int begin) {
-    return new ScenarioSequence<SUT>();
+    return null;
   }
 
-  public void add(ScenarioSequence<SUT> seq) {
+  public void append(ScenarioSequence<SUT> seq) {
+  }
 
+  public Scenario<SUT> get(int i) {
+    return seq.get(i);
   }
 }
