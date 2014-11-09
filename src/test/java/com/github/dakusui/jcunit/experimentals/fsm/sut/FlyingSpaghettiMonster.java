@@ -6,6 +6,7 @@ public class FlyingSpaghettiMonster {
     System.out.println(msg);
     return msg;
   }
+
   public void eat() {
     System.out.println("yummy!");
   }

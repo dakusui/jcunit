@@ -2,6 +2,9 @@ package com.github.dakusui.jcunit.constraint;
 
 import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
+import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.core.ParamType;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -36,4 +39,36 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
 
   List<Tuple> getViolations();
 
+  public static class Builder {
+    private Class<? extends ConstraintManager> constraintManagerClass;
+    private Param[]                            parameters;
+    private Factors                            factors;
+
+    public ConstraintManager build() {
+      ConstraintManager ret = Utils
+          .createNewInstanceUsingNoParameterConstructor(constraintManagerClass);
+      ret.init(ParamType.processParams(ret.parameterTypes(), this.parameters));
+      return ret;
+    }
+
+    public Builder setParameters(Param[] parameters) {
+      this.parameters = parameters;
+      return this;
+    }
+
+    public Builder setConstraintManagerClass(
+        Class<? extends ConstraintManager> constraintManagerClass) {
+      this.constraintManagerClass = constraintManagerClass;
+      return this;
+    }
+
+    public Builder setFactors(Factors factors) {
+      this.factors = factors;
+      return this;
+    }
+
+    public Factors getFactors() {
+      return factors;
+    }
+  }
 }

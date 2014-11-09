@@ -60,6 +60,11 @@ public interface JCUnitConfigurablePlugin {
    *
    * A 'varargs' element can only be placed at the last of the array and if it appears in the
    * array, it processes the corresponding param value and following values.
+   *
+   * This method needs to be able to be executed even before {@code init} method is executed
+   * since it is used to compute values to be given to the method as its parameter
+   * ({@code processedParameters}).
+   * and must return the same value always regardless of the internal state of this object.
    */
   public ParamType[] parameterTypes();
 }
