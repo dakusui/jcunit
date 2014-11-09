@@ -4,9 +4,10 @@ package com.github.dakusui.jcunit.generators;
  */
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
+import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
@@ -58,8 +59,10 @@ public interface TupleGenerator extends
     private Factors                         factors;
     private ConstraintManager               constraintManager;
     private Object[]                        parameters;
+    private Class<?>                        targetClass;
 
-    public Builder setTupleGeneratorClass(Class<? extends TupleGenerator> tupleGeneratorClass) {
+    public Builder setTupleGeneratorClass(
+        Class<? extends TupleGenerator> tupleGeneratorClass) {
       this.tupleGeneratorClass = tupleGeneratorClass;
       return this;
     }
@@ -79,13 +82,23 @@ public interface TupleGenerator extends
       return this;
     }
 
+    public Builder setTargetClass(Class<?> targetClass) {
+      this.targetClass = targetClass;
+      return this;
+    }
+
     public TupleGenerator build() {
-      TupleGenerator ret = Utils.createNewInstanceUsingNoParameterConstructor(this.tupleGeneratorClass);
+      Checks.checknotnull(this.constraintManager);
+      Checks.checknotnull(this.tupleGeneratorClass);
+      Checks.checknotnull(this.factors);
+      Checks.checknotnull(this.constraintManager);
+      TupleGenerator ret = Utils.createNewInstanceUsingNoParameterConstructor(
+          this.tupleGeneratorClass);
       ret.setFactors(this.factors);
       ret.setConstraintManager(this.constraintManager);
+      ret.setTargetClass(this.targetClass);
       ret.init(this.parameters);
       return ret;
     }
-
   }
 }

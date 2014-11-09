@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import org.junit.runners.model.InitializationError;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
@@ -18,7 +17,7 @@ public class TupleGeneratorFactory {
   public static final TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory();
 
   /**
-   * Creates a {@code SchemafulTupleGenerator} using annotations attached to the class
+   * Creates a {@code TupleGenerator} using annotations attached to the class
    * for which the returned generator is created.
    */
   public TupleGenerator createTupleGeneratorForClass(
@@ -41,20 +40,21 @@ public class TupleGeneratorFactory {
   private TupleGenerator createTupleGenerator(Class<?> klazz,
       TupleGeneration tupleGenerationAnn) {
     Factors factors = loadFactors(klazz);
-    Generator generatorAnn = tupleGenerationAnn.generator();
-    TupleGenerator generator = createSchemafulTupleGeneratorInstance(
-        generatorAnn);
-    Constraint constraintAnn = tupleGenerationAnn.constraint();
-    ConstraintManager constraintManager = createConstraintManager(
-        constraintAnn);
     ////
-    // Wire objects.
-    constraintManager.setFactors(factors);
-    constraintManager.init(ParamType.processParams(constraintManager.parameterTypes(), constraintAnn.params()));
-    generator.setFactors(factors);
-    generator.setConstraintManager(constraintManager);
-    generator.setTargetClass(klazz);
-    generator.init(ParamType.processParams(generator.parameterTypes(), generatorAnn.params()));
+    // Wire and build objects.
+    Constraint constraintAnn = tupleGenerationAnn.constraint();
+    ConstraintManager constraintManager =
+        new ConstraintManager.Builder()
+            .setConstraintManagerClass(constraintAnn.value())
+            .setParameters(constraintAnn.params())
+            .setFactors(factors).build();
+    Generator generatorAnn = tupleGenerationAnn.generator();
+    TupleGenerator generator = new TupleGenerator.Builder()
+        .setConstraintManager(constraintManager)
+        .setParameters(generatorAnn.params())
+        .setTargetClass(klazz)
+        .setFactors(factors)
+        .build();
     return generator;
   }
 
@@ -73,12 +73,14 @@ public class TupleGeneratorFactory {
         errors.add(e);
       }
     }
-    Checks.checktest(errors.isEmpty(), "One or more factors failed to be initialized.: [%s]", Utils.join(", ", new Utils.Formatter<InvalidTestException>() {
-      @Override
-      public String format(InvalidTestException elem) {
-        return elem.getMessage();
-      }
-    }, errors.toArray(new InvalidTestException[errors.size()])));
+    Checks.checktest(errors.isEmpty(),
+        "One or more factors failed to be initialized.: [%s]",
+        Utils.join(", ", new Utils.Formatter<InvalidTestException>() {
+          @Override
+          public String format(InvalidTestException elem) {
+            return elem.getMessage();
+          }
+        }, errors.toArray(new InvalidTestException[errors.size()])));
 
     // //
     // Instantiates the test array generator.
@@ -116,16 +118,4 @@ public class TupleGeneratorFactory {
     }
     return ret;
   }
-
-  TupleGenerator createSchemafulTupleGeneratorInstance(
-      Generator generatorAnn) {
-    return Utils.createNewInstanceUsingNoParameterConstructor(
-        generatorAnn.value());
-  }
-
-  ConstraintManager createConstraintManager(Constraint constraintAnn) {
-    return Utils.createNewInstanceUsingNoParameterConstructor(
-        constraintAnn.value());
-  }
-
 }
