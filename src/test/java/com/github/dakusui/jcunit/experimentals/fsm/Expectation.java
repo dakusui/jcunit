@@ -2,12 +2,12 @@ package com.github.dakusui.jcunit.experimentals.fsm;
 
 import org.hamcrest.Matcher;
 
-public class Expectation {
-  public final State   state;
+public class Expectation<SUT> {
+  public final State<SUT>   state;
   public final Matcher returnedValue;
   public final Matcher thrownException;
 
-  public Expectation(State state,
+  public Expectation(State<SUT> state,
       Matcher returnedValue,
       Matcher thrownException) {
     this.state = state;

@@ -25,7 +25,7 @@ public class Scenario<SUT> {
     return previous.then() == this.given;
   }
 
-  public State<SUT> then() {
-    return this.given.expectation(this.when, this.with).state;
+  public Expectation<SUT> then() {
+    return this.given.expectation(this.when, this.with);
   }
 }

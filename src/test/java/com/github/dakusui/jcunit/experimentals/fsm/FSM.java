@@ -7,7 +7,7 @@ package com.github.dakusui.jcunit.experimentals.fsm;
  */
 public interface FSM<SUT> {
   State<SUT> initialState();
-  
+
   State<SUT>[] states();
 
   Action<SUT>[] actions();

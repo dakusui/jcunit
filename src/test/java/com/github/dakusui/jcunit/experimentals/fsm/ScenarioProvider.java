@@ -12,10 +12,7 @@ import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 
 public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioSequence<SUT>> {
   private List<ScenarioSequence> scenarioSequences;
@@ -67,6 +64,31 @@ public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioS
         .build();
     return ret;
   }
+
+  private void findRoutes(FSM<SUT> fsm, ScenarioSequence<SUT> scenarioSequence, Map<State<SUT>, ScenarioSequence<SUT>> routes) {
+    State<SUT> from = scenarioSequence.size() == 0
+        ? fsm.initialState()
+        : scenarioSequence.get(scenarioSequence.size() - 1).then().state;
+    List<State<SUT>> remainingStates = new ArrayList<State<SUT>>();
+    for (State<SUT> each : fsm.states()) {
+      if (!routes.containsKey(each)) {
+        remainingStates.add(each);
+      }
+    }
+    for (Action<SUT> each : fsm.actions()) {
+      for (Args args : each.args()) {
+        Expectation expectation = from.expectation(each, args);
+        if (expectation.state != null) {
+          if (routes.containsKey(expectation.state)) continue;
+          ScenarioSequence<SUT> newScnarioSequence = new ScenarioSequence<SUT>();
+          newScnarioSequence.add(new Scenario<SUT>(from, each, args));
+          routes.put(expectation.state, newScnarioSequence);
+          remainingStates.remove(expectation.state);
+        }
+      }
+    }
+  }
+
 
   protected ConstraintManager createConstraintManager() {
     return new ConstraintManagerBase() {
