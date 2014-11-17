@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.experimentals.fsm;
+package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
@@ -65,30 +65,11 @@ public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioS
     return ret;
   }
 
-  private void findRoutes(FSM<SUT> fsm, ScenarioSequence<SUT> scenarioSequence, Map<State<SUT>, ScenarioSequence<SUT>> routes) {
-    State<SUT> from = scenarioSequence.size() == 0
-        ? fsm.initialState()
-        : scenarioSequence.get(scenarioSequence.size() - 1).then().state;
-    List<State<SUT>> remainingStates = new ArrayList<State<SUT>>();
-    for (State<SUT> each : fsm.states()) {
-      if (!routes.containsKey(each)) {
-        remainingStates.add(each);
-      }
-    }
-    for (Action<SUT> each : fsm.actions()) {
-      for (Args args : each.args()) {
-        Expectation expectation = from.expectation(each, args);
-        if (expectation.state != null) {
-          if (routes.containsKey(expectation.state)) continue;
-          ScenarioSequence<SUT> newScnarioSequence = new ScenarioSequence<SUT>();
-          newScnarioSequence.add(new Scenario<SUT>(from, each, args));
-          routes.put(expectation.state, newScnarioSequence);
-          remainingStates.remove(expectation.state);
-        }
-      }
+  private void findRoutes(List<ScenarioSequence<SUT>> routes, FSM<SUT> fsm, State<SUT> from, State<SUT> to) {
+    for (State each : fsm.states()) {
+
     }
   }
-
 
   protected ConstraintManager createConstraintManager() {
     return new ConstraintManagerBase() {
@@ -115,23 +96,20 @@ public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioS
         }
         b.add(bb.build());
       }
-      LinkedHashSet<Args> allArgs = new LinkedHashSet<Args>();
+      LinkedHashSet<Param> allParams = new LinkedHashSet<Param>();
       {
         Factor.Builder bb = new Factor.Builder();
         bb.setName(actionName(i));
         for (Action each : fsm.actions()) {
           bb.addLevel(each);
-          allArgs.addAll(Arrays.asList(each.args()));
+          allParams.addAll(Arrays.asList(each.params()));
         }
         b.add(bb.build());
       }
       {
-        Factor.Builder bb = new Factor.Builder();
-        bb.setName(argsName(i));
-        for (Args each : allArgs) {
-          bb.addLevel(each);
+        for (Param each : allParams) {
+          b.add(each);
         }
-        b.add(bb.build());
       }
     }
     return b.build();

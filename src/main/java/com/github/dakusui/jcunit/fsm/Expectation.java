@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.experimentals.fsm;
+package com.github.dakusui.jcunit.fsm;
 
 import org.hamcrest.Matcher;
 

@@ -1,13 +1,13 @@
-package com.github.dakusui.jcunit.experimentals.fsm;
+package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 
 public class Scenario<SUT> {
   public final State<SUT>  given;
   public final Action<SUT> when;
-  public final Args        with;
+  public final Object[]    with;
 
-  public Scenario(State<SUT> given, Action<SUT> when, Args with) {
+  public Scenario(State<SUT> given, Action<SUT> when, Object[] with) {
     Checks.checknotnull(given);
     Checks.checknotnull(when);
     Checks.checknotnull(with);
@@ -18,11 +18,6 @@ public class Scenario<SUT> {
 
   public Object perform(SUT sut) throws Throwable {
     return when.perform(sut, this.with);
-  }
-
-  public boolean canFollow(Scenario previous) {
-    Checks.checknotnull(previous);
-    return previous.then() == this.given;
   }
 
   public Expectation<SUT> then() {

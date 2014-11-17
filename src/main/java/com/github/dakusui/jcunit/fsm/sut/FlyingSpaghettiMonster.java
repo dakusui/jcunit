@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.experimentals.fsm.sut;
+package com.github.dakusui.jcunit.fsm.sut;
 
 public class FlyingSpaghettiMonster {
   public String cook() {
