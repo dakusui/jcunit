@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.ArrayList;
@@ -23,9 +24,9 @@ public class Args {
     }
 
     public static class Factory {
-        final Map<Action, Param[]> paramsMap = new HashMap<Action, Param[]>();
+        final Map<Action, Factor[]> paramsMap = new HashMap<Action, Factor[]>();
 
-        public void register(Action action, Param[] params) {
+        public void register(Action action, Factor[] params) {
             Checks.checknotnull(action);
             Checks.checknotnull(params);
             this.paramsMap.put(action, params);
@@ -34,9 +35,9 @@ public class Args {
         public Args createArgs(Action action, Tuple testCase) {
             Checks.checknotnull(testCase);
             Checks.checkcond(paramsMap.containsKey(action));
-            Param[] params = paramsMap.get(action);
+            Factor[] params = paramsMap.get(action);
             List<Object> values = new ArrayList<Object>(params.length);
-            for (Param each : params) {
+            for (Factor each : params) {
                 Checks.checkcond(testCase.containsKey(each.name));
                 Object v = testCase.get(each.name);
                 values.add(v);

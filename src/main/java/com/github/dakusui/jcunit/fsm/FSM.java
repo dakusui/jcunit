@@ -5,10 +5,10 @@ package com.github.dakusui.jcunit.fsm;
  *
  * @param <SUT> A software under test.
  */
-public interface FSM<SUT> extends Param.Holder {
-  State<SUT> initialState();
+public interface FSM<SUT> {
+    State<SUT> initialState();
 
-  State<SUT>[] states();
+    State<SUT>[] states();
 
-  Action<SUT>[] actions();
+    Action<SUT>[] actions();
 }

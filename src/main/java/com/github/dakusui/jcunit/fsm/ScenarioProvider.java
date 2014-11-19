@@ -3,8 +3,6 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -13,8 +11,6 @@ import com.github.dakusui.jcunit.generators.TupleGenerator;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioSequence<SUT>> {
@@ -61,7 +57,7 @@ public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioS
         ConstraintManager constraintManager = createConstraintManager();
         TupleGenerator ret = new TupleGenerator.Builder()
                 .setTupleGeneratorClass(tupleGeneratorClass)
-                .setFactors(loadFactors(createFSM(), historySize()))
+//                .setFactors(loadFactors(createFSM(), historySize()))
                 .setConstraintManager(constraintManager)
                 .setParameters(parameters)
                 .build();
@@ -87,44 +83,4 @@ public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioS
 
     protected abstract int historySize();
 
-
-    private Factors loadFactors(FSM fsm, int historySize) {
-        Factors.Builder b = new Factors.Builder();
-        LinkedHashSet<Param> allParams = new LinkedHashSet<Param>();
-        for (int i = 0; i < historySize; i++) {
-            {
-                Factor.Builder bb = new Factor.Builder();
-                bb.setName(stateName(i));
-                for (State each : fsm.states()) {
-                    bb.addLevel(each);
-                }
-                b.add(bb.build());
-            }
-            {
-                Factor.Builder bb = new Factor.Builder();
-                bb.setName(actionName(i));
-                for (Action each : fsm.actions()) {
-                    bb.addLevel(each);
-                    allParams.addAll(Arrays.asList(each.params()));
-                }
-                b.add(bb.build());
-            }
-        }
-        for (Param each : allParams) {
-            b.add(each);
-        }
-        return b.build();
-    }
-
-    private String stateName(int i) {
-        return String.format("s%d", i);
-    }
-
-    private String actionName(int i) {
-        return String.format("action%d", i);
-    }
-
-    private String argsName(int i) {
-        return String.format("args%d", i);
-    }
 }
