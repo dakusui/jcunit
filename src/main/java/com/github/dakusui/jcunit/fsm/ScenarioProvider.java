@@ -13,74 +13,77 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ScenarioProvider<SUT> extends LevelsProviderBase<ScenarioSequence<SUT>> {
-    private List<ScenarioSequence> scenarioSequences;
+public abstract class ScenarioProvider<SUT>
+    extends LevelsProviderBase<ScenarioSequence<SUT>> {
+  private List<ScenarioSequence> scenarioSequences;
 
-    @Override
-    protected void init(Field targetField, FactorField annotation,
-                        Object[] parameters) {
-        TupleGenerator generator = createTupleGenerator(targetField, annotation,
-                parameters, 3);
-        List<ScenarioSequence<SUT>> partialScenarioSequences = new ArrayList<ScenarioSequence<SUT>>();
-        for (long i = 0; i < generator.size(); i++) {
-            Tuple tuple = generator.get(i);
-            partialScenarioSequences.add(
-                    createScenarioSequenceFromTuple(tuple));
-        }
-        this.scenarioSequences = organizeScenarioSequences(partialScenarioSequences);
+  @Override
+  protected void init(Field targetField, FactorField annotation,
+      Object[] parameters) {
+    TupleGenerator generator = createTupleGenerator(targetField, annotation,
+        parameters, 3);
+    List<ScenarioSequence<SUT>> partialScenarioSequences = new ArrayList<ScenarioSequence<SUT>>();
+    for (long i = 0; i < generator.size(); i++) {
+      Tuple tuple = generator.get(i);
+      partialScenarioSequences.add(
+          createScenarioSequenceFromTuple(tuple));
     }
+    this.scenarioSequences = organizeScenarioSequences(
+        partialScenarioSequences);
+  }
 
-    private List<ScenarioSequence> organizeScenarioSequences(
-            List<ScenarioSequence<SUT>> partialScenarioSequences) {
-        return null;
+  private List<ScenarioSequence> organizeScenarioSequences(
+      List<ScenarioSequence<SUT>> partialScenarioSequences) {
+    return null;
+  }
+
+  private ScenarioSequence<SUT> createScenarioSequenceFromTuple(
+      Tuple tuple) {
+    return null;
+  }
+
+  @Override
+  public int size() {
+    return this.scenarioSequences.size();
+  }
+
+  @Override
+  public ScenarioSequence<SUT> get(int n) {
+    return this.scenarioSequences.get(n);
+  }
+
+  private TupleGenerator createTupleGenerator(Field targetField,
+      FactorField annotation,
+      Object[] parameters, int historySize) {
+    Class<? extends TupleGenerator> tupleGeneratorClass = IPO2TupleGenerator.class;
+    ConstraintManager constraintManager = createConstraintManager();
+    TupleGenerator ret = new TupleGenerator.Builder()
+        .setTupleGeneratorClass(tupleGeneratorClass)
+            //                .setFactors(loadFactors(createFSM(), historySize()))
+        .setConstraintManager(constraintManager)
+        .setParameters(parameters)
+        .build();
+    return ret;
+  }
+
+  private void findRoutes(List<ScenarioSequence<SUT>> routes, FSM<SUT> fsm,
+      State<SUT> from, State<SUT> to) {
+    for (State each : fsm.states()) {
+
     }
+  }
 
-    private ScenarioSequence<SUT> createScenarioSequenceFromTuple(
-            Tuple tuple) {
-        return null;
-    }
+  protected ConstraintManager createConstraintManager() {
+    return new ConstraintManagerBase() {
+      @Override
+      public boolean check(Tuple tuple) throws UndefinedSymbol {
+        return false;
+      }
+    };
+  }
 
-    @Override
-    public int size() {
-        return this.scenarioSequences.size();
-    }
+  protected abstract FSM createFSM();
 
-    @Override
-    public ScenarioSequence<SUT> get(int n) {
-        return this.scenarioSequences.get(n);
-    }
-
-    private TupleGenerator createTupleGenerator(Field targetField,
-                                                FactorField annotation,
-                                                Object[] parameters, int historySize) {
-        Class<? extends TupleGenerator> tupleGeneratorClass = IPO2TupleGenerator.class;
-        ConstraintManager constraintManager = createConstraintManager();
-        TupleGenerator ret = new TupleGenerator.Builder()
-                .setTupleGeneratorClass(tupleGeneratorClass)
-//                .setFactors(loadFactors(createFSM(), historySize()))
-                .setConstraintManager(constraintManager)
-                .setParameters(parameters)
-                .build();
-        return ret;
-    }
-
-    private void findRoutes(List<ScenarioSequence<SUT>> routes, FSM<SUT> fsm, State<SUT> from, State<SUT> to) {
-        for (State each : fsm.states()) {
-
-        }
-    }
-
-    protected ConstraintManager createConstraintManager() {
-        return new ConstraintManagerBase() {
-            @Override
-            public boolean check(Tuple tuple) throws UndefinedSymbol {
-                return false;
-            }
-        };
-    }
-
-    protected abstract FSM createFSM();
-
-    protected abstract int historySize();
+  protected abstract int historySize();
 
 }

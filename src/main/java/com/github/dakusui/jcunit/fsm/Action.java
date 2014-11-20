@@ -9,14 +9,30 @@ import com.github.dakusui.jcunit.core.factor.Factor;
  * @param <SUT> A software under test.
  */
 public interface Action<SUT> {
-    /**
-     * Performs this action with {@code args} on a given SUT {@code sut}.
-     * An implementation of this method should usually represent and execute a method of
-     * {@code sut} and return the value the method returns.
-     */
-    Object perform(SUT sut, Object[] args) throws Throwable;
+  /**
+   * Performs this action with {@code args} on a given SUT {@code sut}.
+   * An implementation of this method should usually represent and execute a method of
+   * {@code sut} and return the value the method returns.
+   *
+   * {@code args} is composed from the returned value of {@code params} method.
+   * The framework will pick up a value from a factor's levels returned by the method
+   * one by one and creates an array of objects.
+   *
+   * The array will be passed to this method's second argument.
+   */
+  Object perform(SUT sut, Object[] args) throws Throwable;
 
-    Factor[] params();
+  /**
+   * Returns factors of this action.
+   *
+   * The returned factors have the levels each of which can be an argument for
+   * {@code perform} method of this class.
+   *
+   * @see Action#perform(Object, Object[])
+   * @param builder A builder object by which this method is called.
+   * @return Factors to be used to perform this action.
+   */
+  Factor[] params(ScenarioFactorsBuilder builder);
 
-    ConstraintManager createConstraintManager();
+  ConstraintManager createConstraintManager();
 }
