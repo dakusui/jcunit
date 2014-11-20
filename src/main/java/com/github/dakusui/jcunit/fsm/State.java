@@ -12,7 +12,7 @@ public interface State<SUT> {
    * @param args   Arguments with which {@code action} is performed.
    * @return An expectation.
    */
-  Expectation expectation(Action action, Object[] args);
+  Expectation expectation(Action action, Args args);
 
   /**
    * Checks if the given {@code sut} (software under test) satisfies the conditions

@@ -165,7 +165,7 @@ public class Factors implements Iterable<Factor> {
   }
 
   public static class Builder {
-    private final List<Factor> factors = new LinkedList<Factor>();
+    protected final List<Factor> factors = new LinkedList<Factor>();
 
     public Builder add(Factor f) {
       Checks.checknotnull(f);

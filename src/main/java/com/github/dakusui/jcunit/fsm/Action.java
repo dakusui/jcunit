@@ -20,7 +20,7 @@ public interface Action<SUT> {
    *
    * The array will be passed to this method's second argument.
    */
-  Object perform(SUT sut, Object[] args) throws Throwable;
+  Object perform(SUT sut, Args args) throws Throwable;
 
   /**
    * Returns factors of this action.
@@ -28,11 +28,11 @@ public interface Action<SUT> {
    * The returned factors have the levels each of which can be an argument for
    * {@code perform} method of this class.
    *
-   * @see Action#perform(Object, Object[])
+   * @see Action#perform(Object, com.github.dakusui.jcunit.fsm.Args)
    * @param builder A builder object by which this method is called.
    * @return Factors to be used to perform this action.
    */
-  Factor[] params(ScenarioFactorsBuilder builder);
+  Factor[] params(ScenarioFactors.Builder builder);
 
   ConstraintManager createConstraintManager();
 }

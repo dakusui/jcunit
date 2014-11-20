@@ -5,9 +5,9 @@ import com.github.dakusui.jcunit.core.Checks;
 public class Scenario<SUT> {
   public final State<SUT>  given;
   public final Action<SUT> when;
-  public final Object[]    with;
+  public final Args        with;
 
-  public Scenario(State<SUT> given, Action<SUT> when, Object[] with) {
+  public Scenario(State<SUT> given, Action<SUT> when, Args with) {
     Checks.checknotnull(given);
     Checks.checknotnull(when);
     Checks.checknotnull(with);
