@@ -22,17 +22,9 @@ public interface Action<SUT> {
    */
   Object perform(SUT sut, Args args) throws Throwable;
 
-  /**
-   * Returns factors of this action.
-   *
-   * The returned factors have the levels each of which can be an argument for
-   * {@code perform} method of this class.
-   *
-   * @see Action#perform(Object, com.github.dakusui.jcunit.fsm.Args)
-   * @param builder A builder object by which this method is called.
-   * @return Factors to be used to perform this action.
-   */
-  Factor[] params(ScenarioFactors.Builder builder);
+  Object[] param(int i);
+
+  int numArgs();
 
   ConstraintManager createConstraintManager();
 }

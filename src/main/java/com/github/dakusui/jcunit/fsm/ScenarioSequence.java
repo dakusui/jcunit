@@ -1,8 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.ArrayList;
@@ -25,11 +23,9 @@ public class ScenarioSequence<SUT> {
     return seq.size();
   }
 
-
   public static class Builder<SUT> {
     private FactorNameResolver resolver;
     private Tuple              tuple;
-    private Factors            factors;
     private int                size;
 
     public Builder() {
@@ -45,11 +41,6 @@ public class ScenarioSequence<SUT> {
       return this;
     }
 
-    public Builder setFactors(Factors factors) {
-      this.factors = factors;
-      return this;
-    }
-
     public Builder setSize(int size) {
       this.size = size;
       return this;
@@ -58,19 +49,24 @@ public class ScenarioSequence<SUT> {
     public ScenarioSequence<SUT> build() {
       Checks.checknotnull(resolver);
       Checks.checknotnull(tuple);
-      Checks.checknotnull(factors);
       Checks.checkcond(size > 0);
       List<Scenario<SUT>> work = new ArrayList<Scenario<SUT>>(this.size);
       for (int i = 0; i < this.size; i++) {
-        String stateName = this.resolver.stateName(i);
-        String actionName = this.resolver.actionName(i);
-        int numParams = this.resolver.numParams(actionName);
+        String stateName = this.resolver.stateFactorName(i);
+        Object givenObj = this.tuple.get(stateName);
+        Checks.checkcond(givenObj instanceof State);
+        State<SUT> given = (State<SUT>) givenObj;
+
+        String actionName = this.resolver.actionFactorName(i);
+        Object whenObj = this.tuple.get(actionName);
+        Checks.checkcond(whenObj instanceof Action);
+        Action<SUT> when = (Action<SUT>) whenObj;
+
+        int numParams = this.resolver.numParamFactors(i);
         String[] paramNames = new String[numParams];
         for (int j = 0; j < numParams; j++) {
-          paramNames[j] = this.resolver.paramName(actionName, j);
+          paramNames[j] = this.resolver.paramFactorName(i, j);
         }
-        State<SUT> given = (State<SUT>) this.factors.get(stateName);
-        Action<SUT> when = (Action<SUT>) this.factors.get(actionName);
         Args with = createArgs(paramNames, this.tuple);
         Scenario<SUT> cur = new Scenario<SUT>(given, when, with);
         work.add(cur);

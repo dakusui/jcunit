@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit.fsm;
 
 public interface FactorNameResolver {
-  public String stateName(int i);
+  int numScenarios();
 
-  public String actionName(int i);
+  String stateFactorName(int i);
 
-  public int numParams(String actionName);
+  String actionFactorName(int i);
 
-  public String paramName(String actionName, int i);
+  int numParamFactors(int i);
+
+  String paramFactorName(int i, int j);
 }

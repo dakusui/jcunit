@@ -4,10 +4,13 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 
-import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ScenarioFactors extends Factors implements FactorNameResolver {
+public abstract class ScenarioFactors extends Factors
+    implements FactorNameResolver {
+  public static final Object VOID = new Object();
+
   public ScenarioFactors(List<Factor> factors) {
     super(factors);
   }
@@ -17,7 +20,6 @@ public abstract class ScenarioFactors extends Factors implements FactorNameResol
   public static class Builder<SUT> extends Factors.Builder {
     private int length = 1;
     private FSM<SUT> fsm;
-    private int      index;
 
     public Builder<SUT> setFSM(FSM<SUT> fsm) {
       Checks.checknotnull(fsm);
@@ -32,8 +34,9 @@ public abstract class ScenarioFactors extends Factors implements FactorNameResol
     }
 
     public ScenarioFactors build() {
-      LinkedHashMap<String, Factor> allParams = new LinkedHashMap<String, Factor>();
-      for (index = 0; index < this.length; index++) {
+      final int len = this.length;
+      final int[] numParams = new int[len];
+      for (int index = 0; index < len; index++) {
         {
           Factor.Builder bb = new Factor.Builder();
           bb.setName(stateName(index));
@@ -42,55 +45,70 @@ public abstract class ScenarioFactors extends Factors implements FactorNameResol
           }
           this.add(bb.build());
         }
+        final List<List<Object>> allParams = new ArrayList<List<Object>>();
         {
           Factor.Builder bb = new Factor.Builder();
           bb.setName(actionName(index));
           for (Action each : fsm.actions()) {
             bb.addLevel(each);
-            for (Factor eachParam : each.params(this)) {
-              if (!allParams.containsKey(eachParam.name)) {
-                allParams.put(eachParam.name, eachParam);
+            for (int i = 0; i < each.numArgs(); i++) {
+              if (i >= allParams.size()) {
+                allParams.add(new ArrayList<Object>());
+              }
+              Object[] paramValues = each.param(i);
+              for (Object v : paramValues) {
+                if (!allParams.get(i).contains(v)) {
+                  allParams.get(i).add(v);
+                }
               }
             }
           }
           this.add(bb.build());
         }
-      }
-      for (Factor each : allParams.values()) {
-        this.add(each);
+        {
+          numParams[index] = allParams.size();
+          int i = 0;
+          for (List<Object> each : allParams) {
+            Factor.Builder bb = new Factor.Builder();
+            bb.setName(paramName(index, i++));
+            bb.addLevel(VOID);
+            for (Object v : each) {
+              bb.addLevel(v);
+            }
+          }
+        }
       }
       return new ScenarioFactors(this.factors) {
         @Override
-        public String stateName(int i) {
+        public String stateFactorName(int i) {
+          Checks.checkcond(0 <= i);
+          Checks.checkcond(i < len);
           return stateName(i);
         }
 
         @Override
-        public String actionName(int i) {
+        public String actionFactorName(int i) {
+          Checks.checkcond(0 <= i);
+          Checks.checkcond(i < len);
           return actionName(i);
         }
 
         @Override
-        public int numParams(String actionName) {
-          return 0;
+        public int numParamFactors(int i) {
+          Checks.checkcond(i >= 0);
+          Checks.checkcond(i < numParams.length);
+          return numParams[i];
+        }
+
+        @Override public String paramFactorName(int i, int j) {
+          return paramName(i, j);
         }
 
         @Override
-        public String paramName(String actionName, int i) {
-          return null;
+        public int numScenarios() {
+          return len;
         }
       };
-    }
-
-    /**
-     * Returned value of this method can be used by implementations of {@code Action} interface
-     * to figure out how many times the {@code Action#params} method is called by this builder so far.
-     *
-     * If it is the first time, this method returns 0.
-     *
-     */
-    public int index() {
-      return this.index;
     }
 
     public String stateName(int i) {
@@ -99,6 +117,10 @@ public abstract class ScenarioFactors extends Factors implements FactorNameResol
 
     public String actionName(int i) {
       return String.format("FSM:action:%d", i);
+    }
+
+    public String paramName(int i, int j) {
+      return String.format("FSM:param:%d:%d", i, j);
     }
   }
 }
