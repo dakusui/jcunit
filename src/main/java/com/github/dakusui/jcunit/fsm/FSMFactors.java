@@ -7,11 +7,11 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ScenarioFactors extends Factors
+public abstract class FSMFactors extends Factors
     implements FactorNameResolver {
   public static final Object VOID = new Object();
 
-  public ScenarioFactors(List<Factor> factors) {
+  public FSMFactors(List<Factor> factors) {
     super(factors);
   }
 
@@ -33,7 +33,7 @@ public abstract class ScenarioFactors extends Factors
       return this;
     }
 
-    public ScenarioFactors build() {
+    public FSMFactors build() {
       final int len = this.length;
       final int[] numParams = new int[len];
       for (int index = 0; index < len; index++) {
@@ -46,12 +46,16 @@ public abstract class ScenarioFactors extends Factors
           this.add(bb.build());
         }
         final List<List<Object>> allParams = new ArrayList<List<Object>>();
+        int smallestNumParams = Integer.MAX_VALUE;
         {
           Factor.Builder bb = new Factor.Builder();
           bb.setName(actionName(index));
           for (Action each : fsm.actions()) {
             bb.addLevel(each);
-            for (int i = 0; i < each.numArgs(); i++) {
+            if (each.numParams() < smallestNumParams) {
+              smallestNumParams = each.numParams();
+            }
+            for (int i = 0; i < each.numParams(); i++) {
               if (i >= allParams.size()) {
                 allParams.add(new ArrayList<Object>());
               }
@@ -71,14 +75,16 @@ public abstract class ScenarioFactors extends Factors
           for (List<Object> each : allParams) {
             Factor.Builder bb = new Factor.Builder();
             bb.setName(paramName(index, i++));
-            bb.addLevel(VOID);
+            if (i >= smallestNumParams) {
+              bb.addLevel(VOID);
+            }
             for (Object v : each) {
               bb.addLevel(v);
             }
           }
         }
       }
-      return new ScenarioFactors(this.factors) {
+      return new FSMFactors(this.factors) {
         @Override
         public String stateFactorName(int i) {
           Checks.checkcond(0 <= i);
@@ -105,21 +111,21 @@ public abstract class ScenarioFactors extends Factors
         }
 
         @Override
-        public int numScenarios() {
+        public int size() {
           return len;
         }
       };
     }
 
-    public String stateName(int i) {
+    private String stateName(int i) {
       return String.format("FSM:state:%d", i);
     }
 
-    public String actionName(int i) {
+    private String actionName(int i) {
       return String.format("FSM:action:%d", i);
     }
 
-    public String paramName(int i, int j) {
+    private String paramName(int i, int j) {
       return String.format("FSM:param:%d:%d", i, j);
     }
   }

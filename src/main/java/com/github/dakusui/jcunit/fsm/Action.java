@@ -24,7 +24,7 @@ public interface Action<SUT> {
 
   Object[] param(int i);
 
-  int numArgs();
+  int numParams();
 
   ConstraintManager createConstraintManager();
 }

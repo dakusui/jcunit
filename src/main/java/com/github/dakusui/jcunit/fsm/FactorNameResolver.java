@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 public interface FactorNameResolver {
-  int numScenarios();
+  int size();
 
   String stateFactorName(int i);
 
