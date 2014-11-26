@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 public interface FactorNameResolver {
-  int size();
+  int historyLength();
 
   String stateFactorName(int i);
 

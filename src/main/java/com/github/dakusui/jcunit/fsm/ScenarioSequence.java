@@ -1,85 +1,117 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
-public class ScenarioSequence<SUT> {
-  private final List<Scenario<SUT>> seq;
+public interface ScenarioSequence<SUT> {
+    int size();
 
-  public ScenarioSequence(List<Scenario<SUT>> seq) {
-    Checks.checknotnull(seq);
-    this.seq = Collections.unmodifiableList(seq);
-  }
+    Scenario<SUT> get(int i);
 
-  public Scenario<SUT> get(int i) {
-    return seq.get(i);
-  }
+    State<SUT> state(int i);
 
-  public int size() {
-    return seq.size();
-  }
+    Action<SUT> action(int i);
 
-  public static class Builder<SUT> {
-    private FactorNameResolver resolver;
-    private Tuple              tuple;
-    private int                size;
+    Args args(int i);
 
-    public Builder() {
-    }
+    public static class Verifier<SUT> {
+        public static class ErrorMessage {
 
-    public Builder setFactorNameResolver(FactorNameResolver resolver) {
-      this.resolver = resolver;
-      return this;
-    }
-
-    public Builder setTuple(Tuple tuple) {
-      this.tuple = tuple;
-      return this;
-    }
-
-    public Builder setSize(int size) {
-      this.size = size;
-      return this;
-    }
-
-    public ScenarioSequence<SUT> build() {
-      Checks.checknotnull(resolver);
-      Checks.checknotnull(tuple);
-      Checks.checkcond(size > 0);
-      List<Scenario<SUT>> work = new ArrayList<Scenario<SUT>>(this.size);
-      for (int i = 0; i < this.size; i++) {
-        String stateName = this.resolver.stateFactorName(i);
-        Object givenObj = this.tuple.get(stateName);
-        Checks.checkcond(givenObj instanceof State);
-        State<SUT> given = (State<SUT>) givenObj;
-
-        String actionName = this.resolver.actionFactorName(i);
-        Object whenObj = this.tuple.get(actionName);
-        Checks.checkcond(whenObj instanceof Action);
-        Action<SUT> when = (Action<SUT>) whenObj;
-
-        int numParams = this.resolver.numParamFactors(i);
-        String[] paramNames = new String[numParams];
-        for (int j = 0; j < numParams; j++) {
-          paramNames[j] = this.resolver.paramFactorName(i, j);
         }
-        Args with = createArgs(paramNames, this.tuple);
-        Scenario<SUT> cur = new Scenario<SUT>(given, when, with);
-        work.add(cur);
-      }
-      return new ScenarioSequence<SUT>(work);
+        public List<ErrorMessage> verifyArgs(Action<SUT> action, Args args) {
+            List<ErrorMessage> errorMessages = new LinkedList<ErrorMessage>();
+            int numArgs = args.size();
+            int numParams = action.numParams();
+            if (numArgs != numParams) errorMessages.add(new ErrorMessage(/*TODO*/));
+            Object[] params = args.values();
+            for (int i = 0; i < numArgs; i++) {
+                if (i >= numParams) break;
+                if (!isPossible(action.param(i), params[i]))
+                    errorMessages.add(new ErrorMessage(/*TODO*/));
+
+            }
+            return errorMessages;
+        }
+
+        private boolean isPossible(Object[] possibleValues, Object value) {
+            for (Object pv : possibleValues) {
+                if (Utils.eq(pv, value)) return true;
+            }
+            return false;
+        }
     }
 
-    private Args createArgs(String[] paramNames, Tuple tuple) {
-      Object[] values = new Object[paramNames.length];
-      for (int i = 0; i < paramNames.length; i++) {
-        values[i] = tuple.get(paramNames[i]);
-      }
-      return new Args(values);
+    /**
+     * Builds a {@code ScenarioSequence} object from a {@code Tuple} and a {@code FactorNameResolver}.
+     *
+     * @param <SUT> A class of software under test.
+     */
+    public static class Builder<SUT> {
+        private FactorNameResolver resolver;
+        private Tuple tuple;
+
+        public Builder() {
+        }
+
+        public Builder setFactorNameResolver(FactorNameResolver resolver) {
+            this.resolver = resolver;
+            return this;
+        }
+
+        public Builder setTuple(Tuple tuple) {
+            this.tuple = tuple;
+            return this;
+        }
+
+        public ScenarioSequence<SUT> build() {
+            Checks.checknotnull(tuple);
+            Checks.checknotnull(resolver);
+            Checks.checkcond(resolver.historyLength() > 0);
+            return new ScenarioSequence<SUT>() {
+                @Override
+                public Scenario<SUT> get(int i) {
+                    Checks.checkcond(i >= 0);
+                    Checks.checkcond(i < this.size());
+                    State<SUT> given = this.state(i);
+                    Action<SUT> when = this.action(i);
+                    Args with = this.args(i);
+                    return new Scenario<SUT>(given, when, with);
+                }
+
+                @Override
+                public State<SUT> state(int i) {
+                    Checks.checkcond(i >= 0);
+                    Checks.checkcond(i < this.size());
+                    return (State<SUT>) tuple.get(resolver.stateFactorName(i));
+                }
+
+                @Override
+                public Action<SUT> action(int i) {
+                    Checks.checkcond(i >= 0);
+                    Checks.checkcond(i < this.size());
+                    return (Action<SUT>) tuple.get(resolver.actionFactorName(i));
+                }
+
+                @Override
+                public Args args(int i) {
+                    Checks.checkcond(i >= 0);
+                    Checks.checkcond(i < this.size());
+                    Object[] values = new Object[resolver.numParamFactors(i)];
+                    for (int j = 0; j < values.length; j++) {
+                        values[j] = tuple.get(resolver.paramFactorName(i, j));
+                    }
+                    return new Args(values);
+                }
+
+                @Override
+                public int size() {
+                    return resolver.historyLength();
+                }
+            };
+        }
     }
-  }
 }

@@ -110,8 +110,7 @@ public abstract class FSMFactors extends Factors
           return paramName(i, j);
         }
 
-        @Override
-        public int size() {
+        public int historyLength() {
           return len;
         }
       };
