@@ -99,13 +99,6 @@ public abstract class FSMFactors extends Factors
           return actionName(i);
         }
 
-        @Override
-        public int numParamFactors(int i) {
-          Checks.checkcond(i >= 0);
-          Checks.checkcond(i < numParams.length);
-          return numParams[i];
-        }
-
         @Override public String paramFactorName(int i, int j) {
           return paramName(i, j);
         }

@@ -7,7 +7,5 @@ public interface FactorNameResolver {
 
   String actionFactorName(int i);
 
-  int numParamFactors(int i);
-
   String paramFactorName(int i, int j);
 }

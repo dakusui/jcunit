@@ -1,11 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public interface ScenarioSequence<SUT> {
     int size();
@@ -17,33 +13,6 @@ public interface ScenarioSequence<SUT> {
     Action<SUT> action(int i);
 
     Args args(int i);
-
-    public static class Verifier<SUT> {
-        public static class ErrorMessage {
-
-        }
-        public List<ErrorMessage> verifyArgs(Action<SUT> action, Args args) {
-            List<ErrorMessage> errorMessages = new LinkedList<ErrorMessage>();
-            int numArgs = args.size();
-            int numParams = action.numParams();
-            if (numArgs != numParams) errorMessages.add(new ErrorMessage(/*TODO*/));
-            Object[] params = args.values();
-            for (int i = 0; i < numArgs; i++) {
-                if (i >= numParams) break;
-                if (!isPossible(action.param(i), params[i]))
-                    errorMessages.add(new ErrorMessage(/*TODO*/));
-
-            }
-            return errorMessages;
-        }
-
-        private boolean isPossible(Object[] possibleValues, Object value) {
-            for (Object pv : possibleValues) {
-                if (Utils.eq(pv, value)) return true;
-            }
-            return false;
-        }
-    }
 
     /**
      * Builds a {@code ScenarioSequence} object from a {@code Tuple} and a {@code FactorNameResolver}.
@@ -100,7 +69,7 @@ public interface ScenarioSequence<SUT> {
                 public Args args(int i) {
                     Checks.checkcond(i >= 0);
                     Checks.checkcond(i < this.size());
-                    Object[] values = new Object[resolver.numParamFactors(i)];
+                    Object[] values = new Object[action(i).numParams()];
                     for (int j = 0; j < values.length; j++) {
                         values[j] = tuple.get(resolver.paramFactorName(i, j));
                     }
