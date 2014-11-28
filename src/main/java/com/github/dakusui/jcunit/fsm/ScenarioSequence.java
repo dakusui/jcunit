@@ -8,9 +8,27 @@ public interface ScenarioSequence<SUT> {
 
   Scenario<SUT> get(int i);
 
+  /**
+   * Returns the {@code i}-th state in this sequence.
+   * Since {@code null} isn't allowed as a level for state factors, you can tell if the corresponding
+   * factor already has a value or not by simply checking this method returns non-null.
+   *
+   * @param i history index
+   */
   State<SUT> state(int i);
 
+  /**
+   * Returns the {@code i}-th action in this sequence.
+   * Since {@code null} isn't allowed as a level for action factors, you can tell if the corresponding
+   * factor already has a value or not by simply checking this method returns non-null.
+   *
+   * @param i history index
+   */
   Action<SUT> action(int i);
+
+  Object arg(int i, int j);
+
+  boolean hasArg(int i, int j);
 
   Args args(int i);
 
@@ -21,7 +39,7 @@ public interface ScenarioSequence<SUT> {
    */
   public static class Builder<SUT> {
     private FSMFactors factors;
-    private Tuple      tuple;
+    private Tuple tuple;
 
     public Builder() {
     }
@@ -63,6 +81,24 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           return (Action<SUT>) tuple.get(factors.actionFactorName(i));
+        }
+
+        @Override
+        public Object arg(int i, int j) {
+          Checks.checkcond(i >= 0);
+          Checks.checkcond(i < this.size());
+          Checks.checkcond(j >= 0);
+          Checks.checkcond(j < action(i).numParams());
+          return tuple.get(factors.paramFactorName(i, j));
+        }
+
+        @Override
+        public boolean hasArg(int i, int j) {
+          Checks.checkcond(i >= 0);
+          Checks.checkcond(i < this.size());
+          Checks.checkcond(j >= 0);
+          Checks.checkcond(j < action(i).numParams());
+          return tuple.containsKey(factors.paramFactorName(i, j));
         }
 
         @Override

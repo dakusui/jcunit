@@ -1,7 +1,5 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
-
 /**
  * An interface that represents an action that can be performed on {@code SUT}.
  *
@@ -23,11 +21,6 @@ public interface Action<SUT> {
         public int numParams() {
             return 0;
         }
-
-        @Override
-        public ConstraintManager createConstraintManager() {
-            return ConstraintManager.DEFAULT_CONSTRAINT_MANAGER;
-        }
     };
 
     /**
@@ -46,6 +39,4 @@ public interface Action<SUT> {
     Object[] param(int i);
 
     int numParams();
-
-    ConstraintManager createConstraintManager();
 }

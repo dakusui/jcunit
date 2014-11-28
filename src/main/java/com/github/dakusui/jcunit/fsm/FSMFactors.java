@@ -18,6 +18,11 @@ public abstract class FSMFactors extends Factors {
 
   public abstract String actionFactorName(int i);
 
+  /**
+   * Returns a number of parameter factors.
+   *
+   * @param i history index.
+   */
   public abstract int numParamFactors(int i);
 
   public abstract String paramFactorName(int i, int j);
