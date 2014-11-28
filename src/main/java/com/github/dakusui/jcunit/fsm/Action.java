@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.factor.Factor;
 
 /**
  * An interface that represents an action that can be performed on {@code SUT}.
@@ -9,22 +8,44 @@ import com.github.dakusui.jcunit.core.factor.Factor;
  * @param <SUT> A software under test.
  */
 public interface Action<SUT> {
-  /**
-   * Performs this action with {@code args} on a given SUT {@code sut}.
-   * An implementation of this method should usually represent and execute a method of
-   * {@code sut} and return the value the method returns.
-   *
-   * {@code args} is composed from the returned value of {@code params} method.
-   * The framework will pick up a value from a factor's levels returned by the method
-   * one by one and creates an array of objects.
-   *
-   * The array will be passed to this method's second argument.
-   */
-  Object perform(SUT sut, Args args) throws Throwable;
+    public static final Action<?> VOID = new Action() {
+        @Override
+        public Object perform(Object o, Args args) throws Throwable {
+            return FSMFactors.VOID;
+        }
 
-  Object[] param(int i);
+        @Override
+        public Object[] param(int i) {
+            return new Object[0];
+        }
 
-  int numParams();
+        @Override
+        public int numParams() {
+            return 0;
+        }
 
-  ConstraintManager createConstraintManager();
+        @Override
+        public ConstraintManager createConstraintManager() {
+            return ConstraintManager.DEFAULT_CONSTRAINT_MANAGER;
+        }
+    };
+
+    /**
+     * Performs this action with {@code args} on a given SUT {@code sut}.
+     * An implementation of this method should usually represent and execute a method of
+     * {@code sut} and return the value the method returns.
+     * <p/>
+     * {@code args} is composed from the returned value of {@code params} method.
+     * The framework will pick up a value from a factor's levels returned by the method
+     * one by one and creates an array of objects.
+     * <p/>
+     * The array will be passed to this method's second argument.
+     */
+    Object perform(SUT sut, Args args) throws Throwable;
+
+    Object[] param(int i);
+
+    int numParams();
+
+    ConstraintManager createConstraintManager();
 }
