@@ -7,13 +7,22 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class FSMFactors extends Factors
-    implements FactorNameResolver {
+public abstract class FSMFactors extends Factors {
   public static final Object VOID = new Object();
 
   public FSMFactors(List<Factor> factors) {
     super(factors);
   }
+
+  public abstract String stateFactorName(int i);
+
+  public abstract String actionFactorName(int i);
+
+  public abstract int numParamFactors(int i);
+
+  public abstract String paramFactorName(int i, int j);
+
+  public abstract int historyLength();
 
   /**
    */
@@ -85,28 +94,25 @@ public abstract class FSMFactors extends Factors
         }
       }
       return new FSMFactors(this.factors) {
-        @Override
         public String stateFactorName(int i) {
           Checks.checkcond(0 <= i);
           Checks.checkcond(i < len);
           return stateName(i);
         }
 
-        @Override
         public String actionFactorName(int i) {
           Checks.checkcond(0 <= i);
           Checks.checkcond(i < len);
           return actionName(i);
         }
 
-        @Override
         public int numParamFactors(int i) {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < numParams.length);
           return numParams[i];
         }
 
-        @Override public String paramFactorName(int i, int j) {
+        public String paramFactorName(int i, int j) {
           return paramName(i, j);
         }
 
