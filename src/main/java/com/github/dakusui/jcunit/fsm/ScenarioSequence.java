@@ -4,6 +4,30 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 public interface ScenarioSequence<SUT> {
+  public static final ScenarioSequence<?> EMPTY = new ScenarioSequence() {
+    @Override public int size() {
+      return 0;
+    }
+    @Override public Scenario<?> get(int i) {
+      throw new IllegalStateException();
+    }
+    @Override public State<?> state(int i) {
+      throw new IllegalStateException();
+    }
+    @Override public Action<?> action(int i) {
+      throw new IllegalStateException();
+    }
+    @Override public Object arg(int i, int j) {
+      throw new IllegalStateException();
+    }
+    @Override public boolean hasArg(int i, int j) {
+      throw new IllegalStateException();
+    }
+    @Override public Args args(int i) {
+      throw new IllegalStateException();
+    }
+  };
+
   int size();
 
   Scenario<SUT> get(int i);
