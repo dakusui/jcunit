@@ -57,6 +57,16 @@ public interface State<SUT> {
   Expectation expectation(Action action, Args args);
 
   /**
+   * Returns an {@code Args} object which makes makes a state transition to {@code nextState}happen
+   *
+   * if it is given to this object with
+   *
+   * @param nextState
+   * @return
+   */
+  Args args(Action action, State nextState);
+
+  /**
    * Checks if the given {@code sut} (software under test) satisfies the conditions
    * for it to be in the state that this object represents.
    *
@@ -64,7 +74,6 @@ public interface State<SUT> {
    * @return true - {@code sut} satisfies this state / false - otherwise.
    */
   boolean matches(SUT sut);
-
 
   static class Example {
     public static void main(String... args) {
