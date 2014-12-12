@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.exceptions.*;
+import com.github.dakusui.jcunit.fsm.State;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -330,6 +331,23 @@ public class Utils {
       }
     }
     return ret && path.delete();
+  }
+
+  /**
+   * Returns a list whose members are coming from a parameter list {@code in}, but
+   * each of them appears only once.
+   *
+   * Note that this method is not efficient if the size of {@code in} is very big.
+   * it is implemented only for internal use of JCUnit.
+   */
+  public static <T> List<T> singleton(List<T> in) {
+    Checks.checknotnull(in);
+    List<T> ret = new ArrayList<T>(in.size());
+    for (T each : in) {
+      if (ret.contains(each)) continue;
+      ret.add(each);
+    }
+    return ret;
   }
 
   public static interface Formatter<T> {

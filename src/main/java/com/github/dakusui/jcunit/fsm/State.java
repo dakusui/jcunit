@@ -57,16 +57,6 @@ public interface State<SUT> {
   Expectation expectation(Action action, Args args);
 
   /**
-   * Returns an {@code Args} object which makes makes a state transition to {@code nextState}happen
-   *
-   * if it is given to this object with
-   *
-   * @param nextState
-   * @return
-   */
-  Args args(Action action, State nextState);
-
-  /**
    * Checks if the given {@code sut} (software under test) satisfies the conditions
    * for it to be in the state that this object represents.
    *

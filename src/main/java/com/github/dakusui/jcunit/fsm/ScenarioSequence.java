@@ -57,23 +57,23 @@ public interface ScenarioSequence<SUT> {
   Args args(int i);
 
   /**
-   * Builds a {@code ScenarioSequence} object from a {@code Tuple} and a {@code FactorNameResolver}.
+   * Builds a {@code ScenarioSequence} object from a {@code Tuple} using  a given {@code FSMFactorbs}.
    *
    * @param <SUT> A class of software under test.
    */
-  public static class Builder<SUT> {
+  public static class BuilderFromTuple<SUT> {
     private FSMFactors factors;
     private Tuple tuple;
 
-    public Builder() {
+    public BuilderFromTuple() {
     }
 
-    public Builder setFSMFactors(FSMFactors factors) {
+    public BuilderFromTuple setFSMFactors(FSMFactors factors) {
       this.factors = factors;
       return this;
     }
 
-    public Builder setTuple(Tuple tuple) {
+    public BuilderFromTuple setTuple(Tuple tuple) {
       this.tuple = tuple;
       return this;
     }

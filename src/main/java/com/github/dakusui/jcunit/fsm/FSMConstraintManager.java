@@ -11,7 +11,7 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
   @Override
   public boolean check(Tuple tuple) throws UndefinedSymbol {
     FSMFactors fsmFactors = (FSMFactors) this.getFactors();
-    ScenarioSequence<SUT> seq = new ScenarioSequence.Builder<SUT>().setFSMFactors(fsmFactors).setTuple(tuple).build();
+    ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>().setFSMFactors(fsmFactors).setTuple(tuple).build();
     State<SUT> expectedState = null;
     for (int i = 0; i < fsmFactors.historyLength(); i++) {
       State<SUT> state = seq.state(i);

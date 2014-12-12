@@ -47,7 +47,7 @@ public abstract class ScenarioTupleGenerator<SUT> extends TupleGeneratorBase {
     this.tuples = new LinkedList<Tuple>();
     for (Tuple each : tupleGenerator) {
       Tuple.Builder b = new Tuple.Builder();
-      ScenarioSequence main = new ScenarioSequence.Builder<SUT>()
+      ScenarioSequence main = new ScenarioSequence.BuilderFromTuple<SUT>()
           .setFSMFactors(factors)
           .setTuple(each)
           .build();
