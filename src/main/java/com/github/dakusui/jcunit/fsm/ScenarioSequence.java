@@ -68,12 +68,12 @@ public interface ScenarioSequence<SUT> {
     public BuilderFromTuple() {
     }
 
-    public BuilderFromTuple setFSMFactors(FSMFactors factors) {
+    public BuilderFromTuple<SUT> setFSMFactors(FSMFactors factors) {
       this.factors = factors;
       return this;
     }
 
-    public BuilderFromTuple setTuple(Tuple tuple) {
+    public BuilderFromTuple<SUT> setTuple(Tuple tuple) {
       this.tuple = tuple;
       return this;
     }
