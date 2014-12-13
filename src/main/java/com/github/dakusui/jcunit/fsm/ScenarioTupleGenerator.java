@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.ParamType;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
@@ -20,6 +21,9 @@ public abstract class ScenarioTupleGenerator<SUT> extends TupleGeneratorBase {
 
   @Override
   protected long initializeTuples(Object[] params) {
+    Factors baseFactors = this.getFactors();
+    ConstraintManager baseCM = this.getConstraintManager();
+
     int historyLength = (Integer) params[0];
     int strength = (Integer) params[1];
     FSM<SUT> fsm = createFSM();
