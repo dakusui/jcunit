@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
+import com.github.dakusui.jcunit.fsm.example.FlyingSpaghettiMonster;
 import org.hamcrest.CoreMatchers;
 
 /**
@@ -8,7 +9,7 @@ import org.hamcrest.CoreMatchers;
 public interface State<SUT> {
   public static final State<?> VOID = new State() {
     @Override
-    public Expectation expectation(Action action, Args args) {
+    public Expectation<?> expectation(Action action, Args args) {
       /////
       // Since no action should be performed on VOID state, which represents  a state after
       // invalid operation is performed, only VOID action, which represents 'no action',
@@ -54,7 +55,7 @@ public interface State<SUT> {
    * @param args   Arguments with which {@code action} is performed.
    * @return An expectation.
    */
-  Expectation expectation(Action action, Args args);
+  Expectation<SUT> expectation(Action action, Args args);
 
   /**
    * Checks if the given {@code sut} (software under test) satisfies the conditions
@@ -64,11 +65,4 @@ public interface State<SUT> {
    * @return true - {@code sut} satisfies this state / false - otherwise.
    */
   boolean matches(SUT sut);
-
-  static class Example {
-    public static void main(String... args) {
-      State<Example> s = (State<Example>) VOID;
-      System.out.println(s);
-    }
-  }
 }

@@ -34,6 +34,7 @@ public abstract class FSMFactors extends Factors {
   public static class Builder<SUT> extends Factors.Builder {
     private int length = 1;
     private FSM<SUT> fsm;
+    private Factors baseFactors;
 
     public Builder<SUT> setFSM(FSM<SUT> fsm) {
       Checks.checknotnull(fsm);
@@ -47,7 +48,16 @@ public abstract class FSMFactors extends Factors {
       return this;
     }
 
+    public Builder<SUT> setBaseFactors(Factors baseFactors) {
+      this.baseFactors = baseFactors;
+      return this;
+    }
+
     public FSMFactors build() {
+      for (int index = 0; index < this.baseFactors.size(); index++) {
+        this.add(this.baseFactors.get(index));
+      }
+
       final int len = this.length;
       final int[] numParams = new int[len];
       for (int index = 0; index < len; index++) {

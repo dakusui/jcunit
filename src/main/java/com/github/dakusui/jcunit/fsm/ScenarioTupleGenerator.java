@@ -2,7 +2,9 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.ParamType;
+import com.github.dakusui.jcunit.core.TupleGeneration;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
@@ -30,8 +32,9 @@ public abstract class ScenarioTupleGenerator<SUT> extends TupleGeneratorBase {
     FSMFactors factors = new FSMFactors.Builder<SUT>()
             .setFSM(fsm)
             .setLength(historyLength)
+            .setBaseFactors(baseFactors)
             .build();
-    ConstraintManager cm = new FSMConstraintManager<SUT>();
+    ConstraintManager cm = new FSMConstraintManager<SUT>(baseCM);
     cm.setFactors(factors);
     TupleGenerator tupleGenerator = new Builder()
             .setConstraintManager(cm)
@@ -90,15 +93,49 @@ public abstract class ScenarioTupleGenerator<SUT> extends TupleGeneratorBase {
 
   protected abstract FSM<SUT> createFSM();
 
-  protected abstract String mainScenarioFactorName();
+  protected String mainScenarioFactorName() {
+    return "FSM:main";
+  }
 
-  protected abstract String setUpScenarioFactorName();
+  protected String setUpScenarioFactorName() {
+    return "FSM:setUp";
+  }
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[]{
-            ParamType.Int.withDefaultValue(2),
-            ParamType.Int.withDefaultValue(2)
-    };
+    return new ParamType[]{};
   }
+
+  protected TupleGenerator createTupleGenerator(Factors baseFactors) {
+    return null;
+  }
+
+  protected ConstraintManager createConstraintManager(Factors baseFactors) {
+    return new ConstraintManager.Builder()
+        .setFactors(baseFactors)
+        .setConstraintManagerClass(getConstraintManagerClass())
+        .setParameters(getConstraintManagerParams())
+        .build();
+  }
+
+  protected Class<? extends TupleGenerator> getTupleGeneratorClass() {
+    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
+    return ann.generator().value();
+  }
+
+  protected Param[] getTupleGeneratorParams() {
+    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
+    return ann.generator().params();
+  }
+
+  protected Class<? extends ConstraintManager> getConstraintManagerClass() {
+    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
+    return ann.constraint().value();
+  }
+
+  protected Param[] getConstraintManagerParams() {
+    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
+    return ann.constraint().params();
+  }
+
 }

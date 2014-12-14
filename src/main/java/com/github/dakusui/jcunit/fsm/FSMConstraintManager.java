@@ -1,17 +1,36 @@
 package com.github.dakusui.jcunit.fsm;
 
+import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 /**
+ * A constraint manager which validates tuples which describes an FSM scenario.
+ *
+ * An instance of this object is created only by {@code ScenarioTupleGenerator}.
  */
 public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
+  private final ConstraintManager baseConstraintManager;
+
+  /**
+   * Creates an object of this class.
+   *
+   * @param baseCM A constraint manager which validates 'non-FSM' attributes.
+   */
+  FSMConstraintManager(ConstraintManager baseCM) {
+    Checks.checknotnull(baseCM);
+    this.baseConstraintManager = baseCM;
+  }
+
   @Override
   public boolean check(Tuple tuple) throws UndefinedSymbol {
+    if (!this.baseConstraintManager.check(tuple)) return false;
     FSMFactors fsmFactors = (FSMFactors) this.getFactors();
-    ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>().setFSMFactors(fsmFactors).setTuple(tuple).build();
+    ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>()
+        .setFSMFactors(fsmFactors).setTuple(tuple).build();
     State<SUT> expectedState = null;
     for (int i = 0; i < fsmFactors.historyLength(); i++) {
       State<SUT> state = seq.state(i);
