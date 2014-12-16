@@ -14,7 +14,7 @@ import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class ScenarioTupleGenerator<SUT> extends TupleGeneratorBase {
+public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   private List<Tuple> tuples;
   @Override
   public Tuple getTuple(int tupleId) {

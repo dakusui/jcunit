@@ -98,7 +98,7 @@ public class FlyingSpaghettiMonsterTest {
   }
 
   public static class Generator
-      extends ScenarioTupleGenerator<FlyingSpaghettiMonster> {
+      extends FSMTupleGenerator<FlyingSpaghettiMonster> {
     @Override protected FSM<FlyingSpaghettiMonster> createFSM() {
       return new FSMFSM();
     }
