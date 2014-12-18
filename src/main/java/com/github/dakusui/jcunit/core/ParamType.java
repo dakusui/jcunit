@@ -250,6 +250,17 @@ public abstract class ParamType implements Cloneable {
       return "String";
     }
   };
+  public static final NonArrayType Class = new NonArrayType() {
+    @Override
+    protected Object parse(String str) {
+      try {
+        return java.lang.Class.forName(str);
+      } catch (ClassNotFoundException e) {
+        throw new IllegalArgumentException(java.lang.String.format("Failed to load class '%s'", str), e);
+      }
+    }
+  };
+
 
   public static final ParamType BooleanArray = new ArrayType(Boolean);
   public static final ParamType ByteArray    = new ArrayType(Byte);

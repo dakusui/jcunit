@@ -2,9 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.TupleGeneration;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
@@ -103,39 +101,10 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[]{};
+    return new ParamType[]{
+            ParamType.Int, /* Length of FSM history */
+            ParamType.Class.withDefaultValue(IPO2TupleGenerator.class), /* The underlying tuple generator FQCN */
+            ParamType.StringArray /* Parameters to the underlying tuple generator */
+    };
   }
-
-  protected TupleGenerator createTupleGenerator(Factors baseFactors) {
-    return null;
-  }
-
-  protected ConstraintManager createConstraintManager(Factors baseFactors) {
-    return new ConstraintManager.Builder()
-        .setFactors(baseFactors)
-        .setConstraintManagerClass(getConstraintManagerClass())
-        .setParameters(getConstraintManagerParams())
-        .build();
-  }
-
-  protected Class<? extends TupleGenerator> getTupleGeneratorClass() {
-    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
-    return ann.generator().value();
-  }
-
-  protected Param[] getTupleGeneratorParams() {
-    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
-    return ann.generator().params();
-  }
-
-  protected Class<? extends ConstraintManager> getConstraintManagerClass() {
-    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
-    return ann.constraint().value();
-  }
-
-  protected Param[] getConstraintManagerParams() {
-    TupleGeneration ann = this.getClass().getAnnotation(TupleGeneration.class);
-    return ann.constraint().params();
-  }
-
 }
