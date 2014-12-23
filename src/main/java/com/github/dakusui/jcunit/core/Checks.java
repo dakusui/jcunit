@@ -101,4 +101,8 @@ public class Checks {
     if (msgOrFmt != null) return String.format(msgOrFmt, args);
     return String.format("Message:'%s'", Utils.join(",", args));
   }
+
+  public static void fail() {
+    throw new IllegalStateException();
+  }
 }

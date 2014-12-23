@@ -6,9 +6,41 @@ package com.github.dakusui.jcunit.fsm;
  * @param <SUT> A software under test.
  */
 public interface FSM<SUT> {
-    State<SUT> initialState();
+  public static class EasyFSM<SUT> implements FSM<SUT> {
 
-    State<SUT>[] states();
+    @Override
+    public State<SUT> initialState() {
+      return this.states()[0];
+    }
 
-    Action<SUT>[] actions();
+    @Override
+    public State<SUT>[] states() {
+      return new State[] {
+          new State<SUT>() {
+
+            @Override
+            public Expectation<SUT> expectation(Action action, Args args) {
+              return null;
+            }
+
+            @Override
+            public boolean matches(SUT sut) {
+              return false;
+            }
+          }
+      };
+    }
+
+    @Override
+    public Action<SUT>[] actions() {
+      return new Action[]{
+
+      };
+    }
+  }
+  State<SUT> initialState();
+
+  State<SUT>[] states();
+
+  Action<SUT>[] actions();
 }

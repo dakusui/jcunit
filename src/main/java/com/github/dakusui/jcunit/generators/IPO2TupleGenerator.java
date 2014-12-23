@@ -12,6 +12,7 @@ import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 import java.util.List;
 
 public class IPO2TupleGenerator extends TupleGeneratorBase {
+  public static final String className = IPO2TupleGenerator.class.getCanonicalName();
   List<Tuple> tests;
 
   /**

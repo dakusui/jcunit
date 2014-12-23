@@ -134,7 +134,7 @@ public class Replayer extends TupleGeneratorBase {
           protected Class<? extends TupleGeneratorBase> parse(
               String str) {
             try {
-              Class<?> ret = Class.forName(str);
+              Class<?> ret = java.lang.Class.forName(str);
               Checks.checktest(
                   TupleGeneratorBase.class.isAssignableFrom(ret),
                   "'%s' isn't a sub class of '%s'", ret.getClass(),
