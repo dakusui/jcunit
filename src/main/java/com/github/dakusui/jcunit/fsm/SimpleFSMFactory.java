@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
@@ -22,6 +23,11 @@ public class SimpleFSMFactory<SUT> implements FSMFactory {
   }
 
   @Retention(RetentionPolicy.RUNTIME)
+  public static @interface Initial {
+
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
   public static @interface Parameter {
     /**
      * Must return a name of public static method which returns an array whose
@@ -30,11 +36,18 @@ public class SimpleFSMFactory<SUT> implements FSMFactory {
     public String value();
   }
 
+  public static interface SimpleState<SUT> {
+    boolean check(SUT sut);
+  }
+
+  /**
+   * Example SUT
+   */
   public static class Turnstile {
   }
 
-  public static enum ExampleFSM {
-    I {
+  public static enum ExampleFSM implements SimpleState<Turnstile> {
+    @Initial I {
     },
     OK {
       @Override
@@ -44,6 +57,11 @@ public class SimpleFSMFactory<SUT> implements FSMFactory {
     },
     NG {
     };
+
+    @Override
+    public boolean check(Turnstile sut) {
+      return true;
+    }
 
     @Transition
     public ExampleFSM insert(Turnstile sut, @Parameter("coin") int coin) {
@@ -56,23 +74,26 @@ public class SimpleFSMFactory<SUT> implements FSMFactory {
       throw new IllegalStateException();
     }
 
-
+    @SuppressWarnings("unused") // In order not to let IntelliJ complain of 'unused'.
     public static int[] coin(Turnstile sut) {
       return new int[] { 1, 5, 10, 50, 100, 500 };
     }
   }
 
   private final State<SUT>[] states;
+  private final Class<? extends Enum> fsmSpecClass;
+  private final State<SUT> initialState;
 
   public SimpleFSMFactory(Class<? extends Enum> clazz) {
     Checks.checknotnull(clazz);
     Checks.checktest(
         State.class.isAssignableFrom(clazz),
-        "'%s' isn't a state (%s)", clazz.getCanonicalName(), State.class.getCanonicalName()
+        "'%s' isn't a state (%s), the enum class given to this class must implement it.",
+        clazz.getCanonicalName(), State.class.getCanonicalName()
     );
-
+    this.fsmSpecClass = clazz;
     try {
-      this.states = (State[])clazz.getMethod("values").invoke(null);
+      this.states = (State<SUT>[])fsmSpecClass.getMethod("values").invoke(null);
     } catch (IllegalAccessException e) {
       throw new JCUnitException(e.getMessage(), e);
     } catch (InvocationTargetException e) {
@@ -80,6 +101,22 @@ public class SimpleFSMFactory<SUT> implements FSMFactory {
     } catch (NoSuchMethodException e) {
       throw new JCUnitException(e.getMessage(), e);
     }
+
+    State<SUT> initial = null;
+    for (State<SUT> each : this.states) {
+      try {
+        String name = ((Enum<?>)each).name();
+        Field f = this.fsmSpecClass.getField(name);
+        if (f.getAnnotation(Initial.class) != null) {
+          Checks.checktest(initial == null, "More than one state is marked 'initial', while one and only one state must be: %s", Arrays.toString(this.states));
+          initial = each;
+        }
+      } catch (NoSuchFieldException e) {
+        // This mustn't happen, since the name is coming from
+        throw new JCUnitException(e.getMessage(), e);
+      }
+    }
+    this.initialState = initial;
   }
 
   @Override
@@ -88,7 +125,7 @@ public class SimpleFSMFactory<SUT> implements FSMFactory {
 
       @Override
       public State<SUT> initialState() {
-        return null;
+        return SimpleFSMFactory.this.initialState;
       }
 
       @Override
