@@ -12,7 +12,6 @@ import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 import java.util.List;
 
 public class IPO2TupleGenerator extends TupleGeneratorBase {
-  public static final String className = IPO2TupleGenerator.class.getCanonicalName();
   List<Tuple> tests;
 
   /**
@@ -32,35 +31,35 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
    */
   @Override
   protected long initializeTuples(
-      Object[] processedParameters) {
+          Object[] processedParameters) {
     // Since the processed parameters are already validated by ParamType mechanism,
     // we can simply cast and assign the first element to an integer variable without checking.
     int strength = ((Number) processedParameters[0]).intValue();
     Factors factors = this.getFactors();
     Checks.checktest(factors.size() >= 2,
-        "There must be 2 or more factors, but only %d (%s) given.",
-        factors.size(),
-        Utils.join(",", new Utils.Formatter<Factor>() {
-              @Override
-              public String format(Factor elem) {
-                return elem.name;
-              }
-            },
-            factors.asFactorList().toArray(new Factor[factors.size()])
-        ));
+            "There must be 2 or more factors, but only %d (%s) given.",
+            factors.size(),
+            Utils.join(",", new Utils.Formatter<Factor>() {
+                      @Override
+                      public String format(Factor elem) {
+                        return elem.name;
+                      }
+                    },
+                    factors.asFactorList().toArray(new Factor[factors.size()])
+            ));
     Checks.checktest(factors.size() >= strength,
-        "The strength must be greater than 1 and less than %d, but %d was given.",
-        factors.size(),
-        strength);
+            "The strength must be greater than 1 and less than %d, but %d was given.",
+            factors.size(),
+            strength);
     Checks.checktest(strength >= 2,
-        "The strength must be greater than 1 and less than %d, but %d was given.",
-        factors.size(),
-        strength);
+            "The strength must be greater than 1 and less than %d, but %d was given.",
+            factors.size(),
+            strength);
     IPO2 ipo2 = new IPO2(
-        this.getFactors(),
-        strength,
-        this.getConstraintManager(),
-        new GreedyIPO2Optimizer());
+            this.getFactors(),
+            strength,
+            this.getConstraintManager(),
+            new GreedyIPO2Optimizer());
     ////
     // Wire constraint manager.
     this.getConstraintManager().addObserver(ipo2);
@@ -73,6 +72,6 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[] { ParamType.Int.withDefaultValue(2) };
+    return new ParamType[]{ParamType.Int.withDefaultValue(2)};
   }
 }

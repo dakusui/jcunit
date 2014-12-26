@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -9,6 +10,7 @@ import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 
+import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,7 +27,17 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
     ConstraintManager baseCM = this.getConstraintManager();
 
     int historyLength = (Integer) params[0];
-    int strength = (Integer) params[1];
+    Param[] restParams = new Param[] {new Param() {
+      @Override
+      public String[] value() {
+        return new String[]{"2"};
+      }
+
+      @Override
+      public Class<? extends Annotation> annotationType() {
+        return this.getClass();
+      }
+    }} ;
     FSM<SUT> fsm = createFSM();
     FSMFactors factors = new FSMFactors.Builder<SUT>()
             .setFSM(fsm)
@@ -37,7 +49,7 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
     TupleGenerator tupleGenerator = new Builder()
             .setConstraintManager(cm)
             .setFactors(factors)
-            .setParameters(new Object[]{strength})
+            .setParameters(restParams)
             .setTargetClass(this.getTargetClass())
             .setTupleGeneratorClass(IPO2TupleGenerator.class)
             .build();

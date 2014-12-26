@@ -35,7 +35,6 @@ public abstract class TupleGeneratorBase
   protected Object[] params;
   private Factors factors = null;
   private long    size    = -1;
-  private long    cur     = -1;
   private ConstraintManager constraintManager;
   private Class<?>          targetClass;
 
@@ -43,40 +42,32 @@ public abstract class TupleGeneratorBase
    * {@inheritDoc}
    */
   @Override
-  public void remove() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasNext() {
-    if (size < 0 || this.cur < 0) {
-      throw new IllegalStateException();
-    }
-    return cur < size;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public Iterator<Tuple> iterator() {
-    return this;
-  }
+    return new Iterator<Tuple>() {
+      private long    cur     = -1;
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Tuple next() {
-    if (cur >= size) {
-      throw new NoSuchElementException();
-    }
-    Tuple ret = get(cur);
-    cur++;
-    return ret;
+      @Override
+      public boolean hasNext() {
+        if (size < 0 || this.cur < 0) {
+          throw new IllegalStateException();
+        }
+        return cur < size;
+      }
+
+      @Override
+      public Tuple next() {
+        if (cur >= size) {
+          throw new NoSuchElementException();
+        }
+        Tuple ret = get(cur);
+        cur++;
+        return ret;
+      }
+    };
   }
 
   /**
@@ -111,13 +102,14 @@ public abstract class TupleGeneratorBase
     return this.constraintManager;
   }
 
+
+
   /**
    * {@inheritDoc}
    */
   @Override
   final public void init(Object[] processedParameters) {
     this.params = processedParameters;
-    this.cur = 0;
     this.size = initializeTuples(processedParameters);
   }
 

@@ -4,21 +4,16 @@ package com.github.dakusui.jcunit.generators;
  */
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
-import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-
-import java.util.Iterator;
 
 /**
  * Implementations of this interface must guarantee that a public constructor without
  * any parameters exists.
  */
 public interface TupleGenerator extends
-    JCUnitConfigurablePlugin, Iterator<Tuple>,
+    JCUnitConfigurablePlugin,
     Iterable<Tuple> {
 
   public Factors getFactors();
@@ -58,7 +53,7 @@ public interface TupleGenerator extends
     private Class<? extends TupleGenerator> tupleGeneratorClass;
     private Factors                         factors;
     private ConstraintManager               constraintManager;
-    private Object[]                        parameters;
+    private Param[]                         parameters;
     private Class<?>                        targetClass;
 
     public Builder setTupleGeneratorClass(
@@ -77,7 +72,7 @@ public interface TupleGenerator extends
       return this;
     }
 
-    public Builder setParameters(Object[] parameters) {
+    public Builder setParameters(Param[] parameters) {
       this.parameters = parameters;
       return this;
     }
@@ -97,7 +92,7 @@ public interface TupleGenerator extends
       ret.setFactors(this.factors);
       ret.setConstraintManager(this.constraintManager);
       ret.setTargetClass(this.targetClass);
-      ret.init(this.parameters);
+      ret.init(ParamType.processParams(ret.parameterTypes(), this.parameters));
       return ret;
     }
   }
