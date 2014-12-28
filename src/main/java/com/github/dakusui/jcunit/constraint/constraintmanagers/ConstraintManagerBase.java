@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.constraint.constraintmanagers;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
+import com.github.dakusui.jcunit.core.JCUnitConfigurablePluginBase;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -11,12 +12,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ConstraintManagerBase implements ConstraintManager {
+public abstract class ConstraintManagerBase extends JCUnitConfigurablePluginBase implements ConstraintManager {
   private final Set<ConstraintObserver> observers = new LinkedHashSet<ConstraintObserver>();
   private Factors factors;
 
   @Override
-  public void init(Object[] params) {
+  protected void init(Object[] params) {
   }
 
   @Override

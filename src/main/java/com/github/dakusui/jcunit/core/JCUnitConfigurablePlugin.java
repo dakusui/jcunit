@@ -36,12 +36,9 @@ public interface JCUnitConfigurablePlugin {
    * So the {@code processedParameters} will be an array whose first and only element
    * is an int, 2.
    *
-   * The implementations of this method must clarify the expectations for
-   * {@code processedParameters}.
-   *
-   * @param processedParameters An array of processed parameter values.
+   * @param params An array of parameter values.
    */
-  public void init(Object[] processedParameters);
+  public void init(Param[] params);
 
   /**
    * Returns an array of parameter types that describes expectations a plugin (an implementation

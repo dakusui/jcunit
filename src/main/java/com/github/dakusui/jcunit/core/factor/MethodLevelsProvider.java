@@ -86,6 +86,7 @@ public class MethodLevelsProvider<T> extends LevelsProviderBase<T> {
   }
 
   @Override public T get(int index) {
+    //noinspection unchecked
     return (T) Array.get(levels, index);
   }
 

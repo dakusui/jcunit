@@ -47,7 +47,7 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
     public ConstraintManager build() {
       ConstraintManager ret = Utils
           .createNewInstanceUsingNoParameterConstructor(constraintManagerClass);
-      ret.init(ParamType.processParams(ret.parameterTypes(), this.parameters));
+      ret.init(this.parameters);
       return ret;
     }
 

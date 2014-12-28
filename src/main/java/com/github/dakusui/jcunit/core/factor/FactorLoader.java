@@ -31,7 +31,7 @@ public class FactorLoader {
         if (errors.isEmpty()) {
             levelsProvider.setAnnotation(ann);
             levelsProvider.setTargetField(field);
-            levelsProvider.init(ParamType.processParams(levelsProvider.parameterTypes(), ann.providerParams()));
+            levelsProvider.init(ann.providerParams());
             ret = new ValidationResult(true, levelsProvider, null);
         } else {
             ret = new ValidationResult(false, null,

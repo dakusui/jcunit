@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.JCUnitConfigurablePluginBase;
 import com.github.dakusui.jcunit.core.ParamType;
 
 import java.lang.reflect.Field;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * {@inheritDoc}
  */
-public abstract class LevelsProviderBase<T> implements LevelsProvider<T> {
+public abstract class LevelsProviderBase<T> extends JCUnitConfigurablePluginBase implements LevelsProvider<T> {
   private         Field              targetField;
   private         FactorField        annotation;
   protected final LinkedList<String> errors;

@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.generators.TupleGenerator;
 
 import java.util.Arrays;
 
@@ -149,10 +150,11 @@ public abstract class ParamType implements Cloneable {
     }
   }
 
-  public static final NonArrayType Boolean = new NonArrayType() {
+  public static final NonArrayType Boolean             = new NonArrayType() {
     @Override
     protected Object parse(String str) {
-      Checks.checkparam("false".equals(str) || "true".equals(str), "Only 'true' and 'false' are acceptable here.");
+      Checks.checkparam("false".equals(str) || "true".equals(str),
+          "Only 'true' and 'false' are acceptable here.");
       return java.lang.Boolean.parseBoolean(str);
     }
 
@@ -161,7 +163,7 @@ public abstract class ParamType implements Cloneable {
       return "boolean";
     }
   };
-  public static final NonArrayType Byte    = new NonArrayType() {
+  public static final NonArrayType Byte                = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       return java.lang.Byte.parseByte(str);
@@ -172,7 +174,7 @@ public abstract class ParamType implements Cloneable {
       return "byte";
     }
   };
-  public static final NonArrayType Char    = new NonArrayType() {
+  public static final NonArrayType Char                = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       Checks.checkparam(str.length() == 1);
@@ -184,7 +186,7 @@ public abstract class ParamType implements Cloneable {
       return "char";
     }
   };
-  public static final NonArrayType Short   = new NonArrayType() {
+  public static final NonArrayType Short               = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       return java.lang.Short.parseShort(str);
@@ -195,7 +197,7 @@ public abstract class ParamType implements Cloneable {
       return "short";
     }
   };
-  public static final NonArrayType Int     = new NonArrayType() {
+  public static final NonArrayType Int                 = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       return Integer.parseInt(str);
@@ -206,7 +208,7 @@ public abstract class ParamType implements Cloneable {
       return "int";
     }
   };
-  public static final NonArrayType Long    = new NonArrayType() {
+  public static final NonArrayType Long                = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       return java.lang.Long.parseLong(str);
@@ -217,7 +219,7 @@ public abstract class ParamType implements Cloneable {
       return "long";
     }
   };
-  public static final NonArrayType Float   = new NonArrayType() {
+  public static final NonArrayType Float               = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       return java.lang.Float.parseFloat(str);
@@ -228,7 +230,7 @@ public abstract class ParamType implements Cloneable {
       return "float";
     }
   };
-  public static final NonArrayType Double  = new NonArrayType() {
+  public static final NonArrayType Double              = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       return java.lang.Double.parseDouble(str);
@@ -239,7 +241,7 @@ public abstract class ParamType implements Cloneable {
       return "double";
     }
   };
-  public static final NonArrayType String  = new NonArrayType() {
+  public static final NonArrayType String              = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       return str;
@@ -250,17 +252,22 @@ public abstract class ParamType implements Cloneable {
       return "String";
     }
   };
-  public static final NonArrayType Class = new NonArrayType() {
+  public static final NonArrayType TupleGeneratorClass = new NonArrayType() {
     @Override
     protected Object parse(String str) {
       try {
-        return java.lang.Class.forName(str);
+        java.lang.Class ret = java.lang.Class.forName(str);
+        if (!TupleGenerator.class.isAssignableFrom(ret))
+          throw new ClassCastException(
+              java.lang.String.format("'%s' isn't a %s", ret.getCanonicalName(), TupleGenerator.class.getCanonicalName())
+          );
+        return ret;
       } catch (ClassNotFoundException e) {
-        throw new IllegalArgumentException(java.lang.String.format("Failed to load class '%s'", str), e);
+        throw new IllegalArgumentException(
+            java.lang.String.format("Failed to load class '%s'", str), e);
       }
     }
   };
-
 
   public static final ParamType BooleanArray = new ArrayType(Boolean);
   public static final ParamType ByteArray    = new ArrayType(Byte);

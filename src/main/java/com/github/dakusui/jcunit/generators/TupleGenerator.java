@@ -92,7 +92,7 @@ public interface TupleGenerator extends
       ret.setFactors(this.factors);
       ret.setConstraintManager(this.constraintManager);
       ret.setTargetClass(this.targetClass);
-      ret.init(ParamType.processParams(ret.parameterTypes(), this.parameters));
+      ret.init(this.parameters);
       return ret;
     }
   }

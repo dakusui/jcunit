@@ -10,15 +10,42 @@ import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 
-import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   private List<Tuple> tuples;
+
   @Override
   public Tuple getTuple(int tupleId) {
     return tuples.get(tupleId);
+  }
+
+  @Override
+  public void init(Param[] params) {
+    List<Object> processedParams = new LinkedList<Object>();
+    if (params.length > 0) {
+      processedParams.add(processParam(ParamType.Int, params[0]));
+      if (params.length > 1) {
+        processedParams
+            .add(processParam(ParamType.TupleGeneratorClass, params[1]));
+        if (params.length > 2) {
+          processedParams.addAll(
+              Arrays.asList(params).subList(2, params.length));
+        }
+      } else {
+        processedParams.add(IPO2TupleGenerator.class);
+      }
+    } else {
+      processedParams.add(2);
+    }
+    this.init(processedParams.toArray());
+  }
+
+  Object processParam(ParamType paramType, Param param) {
+    return ParamType
+        .processParams(new ParamType[] { paramType }, new Param[] { param })[0];
   }
 
   @Override
@@ -27,39 +54,31 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
     ConstraintManager baseCM = this.getConstraintManager();
 
     int historyLength = (Integer) params[0];
-    Param[] restParams = new Param[] {new Param() {
-      @Override
-      public String[] value() {
-        return new String[]{"2"};
-      }
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
-        return this.getClass();
-      }
-    }} ;
+    Class<? extends TupleGenerator> childTupleGeneratorClass = (Class<? extends TupleGenerator>) params[1];
+    Param[] paramsForChild = new Param[params.length - 2];
+    //noinspection SuspiciousSystemArraycopy
+    System.arraycopy(params, 2, paramsForChild, 0, paramsForChild.length);
     FSM<SUT> fsm = createFSM();
     FSMFactors factors = new FSMFactors.Builder<SUT>()
-            .setFSM(fsm)
-            .setLength(historyLength)
-            .setBaseFactors(baseFactors)
-            .build();
+        .setFSM(fsm)
+        .setLength(historyLength)
+        .setBaseFactors(baseFactors)
+        .build();
     ConstraintManager cm = new FSMConstraintManager<SUT>(baseCM);
     cm.setFactors(factors);
     TupleGenerator tupleGenerator = new Builder()
-            .setConstraintManager(cm)
-            .setFactors(factors)
-            .setParameters(restParams)
-            .setTargetClass(this.getTargetClass())
-            .setTupleGeneratorClass(IPO2TupleGenerator.class)
-            .build();
-    tupleGenerator.init(params);
+        .setConstraintManager(cm)
+        .setFactors(factors)
+        .setParameters(paramsForChild)
+        .setTargetClass(this.getTargetClass())
+        .setTupleGeneratorClass(childTupleGeneratorClass)
+        .build();
     final List<ScenarioSequence<SUT>> mainScenarios = new LinkedList<ScenarioSequence<SUT>>();
     for (Tuple each : tupleGenerator) {
       ScenarioSequence<SUT> main = new ScenarioSequence.BuilderFromTuple<SUT>()
-              .setFSMFactors(factors)
-              .setTuple(each)
-              .build();
+          .setFSMFactors(factors)
+          .setTuple(each)
+          .build();
       mainScenarios.add(main);
     }
     ////
@@ -72,8 +91,10 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
         for (ScenarioSequence<SUT> eachScenario : mainScenarios) {
           for (int i = 0; i < eachScenario.size(); i++) {
             Scenario<SUT> each = eachScenario.get(i);
-            if (each.given.equals(state) && !each.then().state.equals(State.VOID)) {
-              ret.add(new Transition<SUT>(eachScenario.action(i), eachScenario.args(i)));
+            if (each.given.equals(state) && !each.then().state
+                .equals(State.VOID)) {
+              ret.add(new Transition<SUT>(eachScenario.action(i),
+                  eachScenario.args(i)));
             }
           }
         }
@@ -85,9 +106,9 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
     String mainScenarioFactorName = this.mainScenarioFactorName();
     String setUpScenarioFactorName = this.setUpScenarioFactorName();
     Checks.checkplugin(mainScenarioFactorName != null,
-            "mainScenarioFactorName() must not return null.");
+        "mainScenarioFactorName() must not return null.");
     Checks.checkplugin(setUpScenarioFactorName != null,
-            "setUpScenarioFactorName() must not return null.");
+        "setUpScenarioFactorName() must not return null.");
     this.tuples = new LinkedList<Tuple>();
     for (ScenarioSequence<SUT> each : mainScenarios) {
       Tuple.Builder b = new Tuple.Builder();
@@ -113,10 +134,10 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[]{
-            ParamType.Int, /* Length of FSM history */
-            ParamType.Class.withDefaultValue(IPO2TupleGenerator.class), /* The underlying tuple generator FQCN */
-            ParamType.StringArray /* Parameters to the underlying tuple generator */
+    return new ParamType[] {
+        ParamType.Int, /* Length of FSM history */
+        ParamType.TupleGeneratorClass
+            .withDefaultValue(IPO2TupleGenerator.class), /* The underlying tuple generator FQCN */
     };
   }
 }

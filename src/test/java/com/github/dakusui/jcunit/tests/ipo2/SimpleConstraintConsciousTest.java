@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.tests.ipo2;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -124,7 +125,7 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
       return true;
     }
 
-    @Override public void init(Object[] params) {
+    @Override public void init(Param[] params) {
     }
 
     @Override public ParamType[] parameterTypes() {
