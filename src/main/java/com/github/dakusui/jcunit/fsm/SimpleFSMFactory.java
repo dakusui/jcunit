@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.fsm.simplefsmexample.ExampleFSM;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,46 +39,6 @@ public class SimpleFSMFactory<SUT> implements FSMFactory {
 
   public static interface SimpleState<SUT> {
     boolean check(SUT sut);
-  }
-
-  /**
-   * Example SUT
-   */
-  public static class Turnstile {
-  }
-
-  public static enum ExampleFSM implements SimpleState<Turnstile> {
-    @Initial I {
-    },
-    OK {
-      @Override
-      public ExampleFSM pass(Turnstile sut) {
-        return I;
-      }
-    },
-    NG {
-    };
-
-    @Override
-    public boolean check(Turnstile sut) {
-      return true;
-    }
-
-    @Transition
-    public ExampleFSM insert(Turnstile sut, @Parameter("coin") int coin) {
-      if (coin < 100) return this;
-      return OK;
-    }
-
-    @Transition
-    public ExampleFSM pass(Turnstile sut) {
-      throw new IllegalStateException();
-    }
-
-    @SuppressWarnings("unused") // In order not to let IntelliJ complain of 'unused'.
-    public static int[] coin(Turnstile sut) {
-      return new int[] { 1, 5, 10, 50, 100, 500 };
-    }
   }
 
   private final State<SUT>[] states;
