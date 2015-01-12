@@ -45,7 +45,7 @@ public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
   @Override
   final public void init(Object[] processedParameters) {
     this.params = processedParameters;
-    this.size = initializeTuples(processedParameters);
+    this.size = initializeTuples(params);
   }
 
   /**

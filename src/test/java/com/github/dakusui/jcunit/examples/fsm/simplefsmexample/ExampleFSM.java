@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.fsm.simplefsmexample;
+package com.github.dakusui.jcunit.examples.fsm.simplefsmexample;
 
 import com.github.dakusui.jcunit.fsm.SimpleFSMFactory;
 

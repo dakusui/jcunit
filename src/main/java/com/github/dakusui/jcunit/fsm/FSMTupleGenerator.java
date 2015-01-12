@@ -2,85 +2,46 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
-  private List<Tuple> tuples;
+public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
+  private final FSM<SUT>       fsm;
+  final private TupleGenerator baseTG;
+  private       List<Tuple>    tuples;
 
-  @Override
-  public Tuple getTuple(int tupleId) {
-    return tuples.get(tupleId);
-  }
-
-  @Override
-  public void init(Param[] params) {
-    List<Object> processedParams = new LinkedList<Object>();
-    if (params.length > 0) {
-      processedParams.add(processParam(ParamType.Int, params[0]));
-      if (params.length > 1) {
-        processedParams
-            .add(processParam(ParamType.TupleGeneratorClass, params[1]));
-        if (params.length > 2) {
-          processedParams.addAll(
-              Arrays.asList(params).subList(2, params.length));
-        }
-      } else {
-        processedParams.add(IPO2TupleGenerator.class);
-      }
-    } else {
-      processedParams.add(2);
-    }
-    this.init(processedParams.toArray());
-  }
-
-  Object processParam(ParamType paramType, Param param) {
-    return ParamType
-        .processParams(new ParamType[] { paramType }, new Param[] { param })[0];
+  protected FSMTupleGenerator(TupleGenerator baseTG, FSM<SUT> fsm) {
+    this.fsm = fsm;
+    this.baseTG = baseTG;
   }
 
   @Override
   protected long initializeTuples(Object[] params) {
     Factors baseFactors = this.getFactors();
-    ConstraintManager baseCM = this.getConstraintManager();
-
     int historyLength = (Integer) params[0];
-    Class<? extends TupleGenerator> childTupleGeneratorClass = (Class<? extends TupleGenerator>) params[1];
-    Param[] paramsForChild = new Param[params.length - 2];
-    //noinspection SuspiciousSystemArraycopy
-    System.arraycopy(params, 2, paramsForChild, 0, paramsForChild.length);
-    FSM<SUT> fsm = createFSM();
-    FSMFactors factors = new FSMFactors.Builder<SUT>()
+    FSMFactors fsmFactors = new FSMFactors.Builder<SUT>()
         .setFSM(fsm)
         .setLength(historyLength)
         .setBaseFactors(baseFactors)
         .build();
-    ConstraintManager cm = new FSMConstraintManager<SUT>(baseCM);
-    cm.setFactors(factors);
-    TupleGenerator tupleGenerator = new Builder()
-        .setConstraintManager(cm)
-        .setFactors(factors)
-        .setParameters(paramsForChild)
-        .setTargetClass(this.getTargetClass())
-        .setTupleGeneratorClass(childTupleGeneratorClass)
-        .build();
+
+    ConstraintManager fsmCM = new FSMConstraintManager<SUT>(this.baseTG.getConstraintManager());
+    fsmCM.setFactors(fsmFactors);
     final List<ScenarioSequence<SUT>> mainScenarios = new LinkedList<ScenarioSequence<SUT>>();
-    for (Tuple each : tupleGenerator) {
+    for (Tuple each : new TupleGenerator.Builder(this.baseTG).setConstraintManager(fsmCM).setFactors(fsmFactors).build()) {
       ScenarioSequence<SUT> main = new ScenarioSequence.BuilderFromTuple<SUT>()
-          .setFSMFactors(factors)
+          .setFSMFactors(fsmFactors)
           .setTuple(each)
           .build();
       mainScenarios.add(main);
     }
+
     ////
     // Create a state router.
     List<State<SUT>> destinations = new LinkedList<State<SUT>>();
@@ -122,8 +83,6 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
     return this.tuples.size();
   }
 
-  protected abstract FSM<SUT> createFSM();
-
   protected String mainScenarioFactorName() {
     return "FSM:main";
   }
@@ -133,11 +92,15 @@ public abstract class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   }
 
   @Override
+  public Tuple getTuple(int tupleId) {
+    return tuples.get(tupleId);
+  }
+
+  @Override
   public ParamType[] parameterTypes() {
     return new ParamType[] {
-        ParamType.Int, /* Length of FSM history */
-        ParamType.TupleGeneratorClass
-            .withDefaultValue(IPO2TupleGenerator.class), /* The underlying tuple generator FQCN */
+        /* Length of FSM history */
+        ParamType.Int.withDefaultValue(2)
     };
   }
 }

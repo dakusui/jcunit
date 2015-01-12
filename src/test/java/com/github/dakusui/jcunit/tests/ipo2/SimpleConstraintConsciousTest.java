@@ -92,6 +92,7 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
 
   public static class TestConstraintManager implements ConstraintManager {
     private final Set<Tuple> constraints;
+    private       Param[]    params;
 
     TestConstraintManager(List<Tuple> constraints) {
       this.constraints = new HashSet<Tuple>();
@@ -125,25 +126,36 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
       return true;
     }
 
-    @Override public void init(Param[] params) {
+    @Override
+    public void init(Param[] params) {
+      this.params = params;
     }
 
-    @Override public ParamType[] parameterTypes() {
+    @Override
+    public ParamType[] parameterTypes() {
       return new ParamType[0];
     }
 
-    @Override public Factors getFactors() {
+    @Override
+    public Param[] getParams() {
+      return this.params;
+    }
+
+    @Override
+    public Factors getFactors() {
       return null;
     }
 
-    @Override public void setFactors(Factors factors) {
+    @Override
+    public void setFactors(Factors factors) {
     }
 
     @Override
     public void addObserver(ConstraintObserver observer) {
     }
 
-    @Override public Set<ConstraintObserver> observers() {
+    @Override
+    public Set<ConstraintObserver> observers() {
       return null;
     }
 
@@ -152,7 +164,8 @@ public class SimpleConstraintConsciousTest extends IPO2Test {
 
     }
 
-    @Override public List<Tuple> getViolations() {
+    @Override
+    public List<Tuple> getViolations() {
       return Collections.emptyList();
     }
   }

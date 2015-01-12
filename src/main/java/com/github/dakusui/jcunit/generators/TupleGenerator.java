@@ -56,6 +56,16 @@ public interface TupleGenerator extends
     private Param[]                         parameters;
     private Class<?>                        targetClass;
 
+    public Builder() {
+    }
+
+    public Builder(TupleGenerator base) {
+      this.tupleGeneratorClass = base.getClass();
+      this.factors = base.getFactors();
+      this.constraintManager = base.getConstraintManager();
+      this.parameters = base.getParams();
+    }
+
     public Builder setTupleGeneratorClass(
         Class<? extends TupleGenerator> tupleGeneratorClass) {
       this.tupleGeneratorClass = tupleGeneratorClass;

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.fsm.example;
+package com.github.dakusui.jcunit.examples.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 

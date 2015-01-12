@@ -64,4 +64,10 @@ public interface JCUnitConfigurablePlugin {
    * and must return the same value always regardless of the internal state of this object.
    */
   public ParamType[] parameterTypes();
+
+  /**
+   * Returns an array of {@code Param} which is used as an argument of {@code init}.
+   * If the method isn't called yet, an exception will be thrown.
+   */
+  Param[] getParams();
 }

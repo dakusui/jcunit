@@ -37,7 +37,7 @@ public interface Action<SUT> {
   Object perform(SUT sut, Args args) throws Throwable;
 
   /**
-   * Returns {@code i}th factor.
+   * Returns {@code i}th factor's levels.
    *
    * @param i a factor's index.
    */

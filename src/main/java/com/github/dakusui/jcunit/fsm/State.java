@@ -1,12 +1,14 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.fsm.example.FlyingSpaghettiMonster;
 import org.hamcrest.CoreMatchers;
 
 /**
  * @param <SUT> A class of software under test.
  */
 public interface State<SUT> {
+  /**
+   * When an invalid operation is performed, JCUnit
+   */
   public static final State<?> VOID = new State() {
     @Override
     public Expectation<?> expectation(Action action, Args args) {
@@ -44,16 +46,16 @@ public interface State<SUT> {
    * In this case, by making this method return {@code null}, users can exclude test patterns those arguments
    * are set to zero at once.
    * <code>
-   *   @Override Expectation expectation(Action action, Args args) {
-   *     ...
-   *     if (args.values()[0].equals(0) && args.values()[1].equals(0) return null;
-   *     ...
-   *   }
-   * </code>
    *
    * @param action An action to be performed.
    * @param args   Arguments with which {@code action} is performed.
    * @return An expectation.
+   * @Override Expectation expectation(Action action, Args args) {
+   * ...
+   * if (args.values()[0].equals(0) && args.values()[1].equals(0) return null;
+   * ...
+   * }
+   * </code>
    */
   Expectation<SUT> expectation(Action action, Args args);
 
