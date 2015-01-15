@@ -14,7 +14,7 @@ public class FlyingSpaghettiMonster {
     if (dish != null) {
       return String.format("%s is yummy!", this.dish);
     }
-    throw new RuntimeException();
+    throw new IllegalStateException();
   }
 
   public boolean isReady() {

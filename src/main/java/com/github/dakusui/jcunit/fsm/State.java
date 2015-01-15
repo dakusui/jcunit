@@ -5,7 +5,7 @@ import org.hamcrest.CoreMatchers;
 /**
  * @param <SUT> A class of software under test.
  */
-public interface State<SUT> {
+public interface State<SUT> extends StateChecker<SUT> {
   /**
    * When an invalid operation is performed, JCUnit
    */
@@ -25,7 +25,7 @@ public interface State<SUT> {
     }
 
     @Override
-    public boolean matches(Object o) {
+    public boolean check(Object o) {
       ////
       // Once the FSM is given an invalid input (action and args), nothing
       // can be guaranteed.
@@ -58,13 +58,4 @@ public interface State<SUT> {
    * </code>
    */
   Expectation<SUT> expectation(Action action, Args args);
-
-  /**
-   * Checks if the given {@code sut} (software under test) satisfies the conditions
-   * for it to be in the state that this object represents.
-   *
-   * @param sut An object that represents software under test.
-   * @return true - {@code sut} satisfies this state / false - otherwise.
-   */
-  boolean matches(SUT sut);
 }
