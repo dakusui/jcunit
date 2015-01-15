@@ -2,6 +2,10 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  */
 public class Args {
@@ -18,5 +22,13 @@ public class Args {
 
   public int size() {
     return this.values.length;
+  }
+
+  public Type[] types() {
+    List<Type> ret = new ArrayList<Type>(this.size());
+    for (Object each : this.values()) {
+      ret.add(each != null ? each.getClass() : null);
+    }
+    return ret.toArray(new Type[this.size()]);
   }
 }

@@ -57,5 +57,5 @@ public interface State<SUT> extends StateChecker<SUT> {
    * }
    * </code>
    */
-  Expectation<SUT> expectation(Action action, Args args);
+  Expectation<SUT> expectation(Action<SUT> action, Args args);
 }
