@@ -62,7 +62,7 @@ public class Checks {
 
   public static void checktest(boolean cond, String msg, Object... args) {
     if (!cond) {
-      throw new InvalidTestException(composeMessage(msg, args), null);
+      throw new InvalidTestException(composeMessage(msg, args));
     }
   }
 

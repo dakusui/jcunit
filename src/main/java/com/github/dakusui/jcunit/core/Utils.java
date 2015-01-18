@@ -1,18 +1,24 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.exceptions.*;
-import com.github.dakusui.jcunit.fsm.State;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
+/**
+ * A utility class of JCUnit.
+ *
+ * In case there is a good library and I want to use the functionality of it in JCUnit, I
+ * usually mimic it here (except {@code Preconditions} of Guava, it's in {@code Checks})
+ * instead of adding dependency on it.
+ *
+ * This is because JCUnit's nature which should be able to be used for any other software
+ * (at least as much as possible, I want to make it so).
+ */
 public class Utils {
 
   public static Field getField(Object obj, String fieldName,
@@ -364,4 +370,35 @@ public class Utils {
     public String format(T elem);
   }
 
+  public static <K, V> Map<K, V> toMap(List<V> in, Form<V, K> form) {
+    Checks.checknotnull(in);
+    Checks.checknotnull(form);
+    ////
+    // In most cases, it's better to use LinkedHashMap in JCUnit because
+    // it needs to guarantee the test case generation result the same always.
+    // So I return LinkedHashMap instead of HashMap.
+    Map<K, V> ret = new LinkedHashMap<K, V>();
+    for (V each : in) {
+      ret.put(form.apply(each), each);
+    }
+    return ret;
+  }
+
+  public static interface Form<I, O> {
+    O apply(I in);
+  }
+
+  public static <V> List filter(List<V> unfiltered, Predicate<V> predicate) {
+    Checks.checknotnull(unfiltered);
+    Checks.checknotnull(predicate);
+    List<V> ret = new LinkedList<V>();
+    for (V each : unfiltered) {
+      if (predicate.apply(each)) ret.add(each);
+    }
+    return ret;
+  }
+
+  public static interface Predicate<I> {
+    boolean apply(I in);
+  }
 }
