@@ -376,7 +376,7 @@ public class Utils {
     ////
     // In most cases, it's better to use LinkedHashMap in JCUnit because
     // it needs to guarantee the test case generation result the same always.
-    // So I return LinkedHashMap instead of HashMap.
+    // So this method returns LinkedHashMap instead of HashMap.
     Map<K, V> ret = new LinkedHashMap<K, V>();
     for (V each : in) {
       ret.put(form.apply(each), each);

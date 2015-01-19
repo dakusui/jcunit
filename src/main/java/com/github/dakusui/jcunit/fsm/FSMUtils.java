@@ -212,7 +212,7 @@ public class FSMUtils {
             // I know it's possible to support non-public method test by accessing
             // security manager and it's easy. But I can't be sure it's useful
             // yet and a careless introduction of a new feature can create a
-            // compatibility conflict in future, so I'm not supporting it for now.
+            // compatibility conflicts in future, so I'm not supporting it for now.
             Checks.rethrowtesterror(e, "Non-public method testing isn't supported (%s#%s isn't public)");
           } catch (InvocationTargetException e) {
             throw e.getTargetException();
@@ -287,7 +287,15 @@ public class FSMUtils {
           Expectation<SUT> ret = null;
           try {
             Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
-            Checks.checktest(Expectation.class.isAssignableFrom(m.getReturnType()), "");
+            Checks.checktest(
+                Expectation.class.isAssignableFrom(m.getReturnType()),
+                "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
+                m.getName(),
+                m.getParameterTypes().length,
+                m.getDeclaringClass().getCanonicalName(),
+                Expectation.class.getCanonicalName(),
+                m.getReturnType().getCanonicalName()
+                );
             ret = (Expectation<SUT>) m.invoke(stateSpec, args.values());
           } catch (IllegalAccessException e) {
             Checks.rethrowtesterror(e, "");
