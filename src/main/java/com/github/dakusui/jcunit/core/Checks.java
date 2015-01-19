@@ -8,9 +8,9 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 /**
  * This class provides static methods each of which tests a given object/condition
  * and throws an appropriate exception in case it is {@code null} or {@code false}.
- *
+ * <p/>
  * The methods of this class are similar to ones in {@code Precondition} class of Guava.
- *
+ * <p/>
  * This utility class is introduced because JCUnit should create dependencies on
  * external libraries as less as possible in order not to prevent users from using
  * any version of any libraries,
@@ -39,7 +39,7 @@ public class Checks {
    * If it is, a {@code NullPointerException} will be thrown.
    * <p/>
    * A message given to the thrown exception will be composed as follows.
-   *
+   * <p/>
    * If {@code msgOrFmt} is non-null value,
    * <pre>
    *   String.format(msgOrFmt, args)
@@ -54,10 +54,10 @@ public class Checks {
    * This method should be used for values which shouldn't be {@code null} unless
    * there is a framework bug.
    *
-   * @param obj A variable to be checked.
-   * @param <T> The type of {@code obj}
+   * @param obj      A variable to be checked.
+   * @param <T>      The type of {@code obj}
    * @param msgOrFmt The string used for the first parameter of {@code String.format}.
-   * @param args The arguments used for the second and the latter parameters of {@code String.format}.
+   * @param args     The arguments used for the second and the latter parameters of {@code String.format}.
    * @return {@code obj} itself
    */
   public static <T> T checknotnull(T obj, String msgOrFmt, Object... args) {
@@ -80,7 +80,7 @@ public class Checks {
   /**
    * Checks if the parameters satisfy a certain condition which should be {@code true}
    * unless there is a framework bug.
-   *
+   * <p/>
    * This method has the same effect as the call of {@code checkparam(b, null)}.
    */
   public static void checkparam(boolean b) {
@@ -90,8 +90,12 @@ public class Checks {
   /**
    * Checks if the parameters satisfy a certain condition which should be {@code true}
    * unless there is a framework bug.
-   *
+   * <p/>
    * If {@code b} becomes {@code false}, an {@code IllegalArgumentException} will be thrown.
+   * <p/>
+   * A message set to the exception will be composed in the same manner as {@code checknotnull} method.
+   *
+   * @see com.github.dakusui.jcunit.core.Checks#checknotnull(Object, String, Object...)
    */
   public static void checkparam(@SuppressWarnings("SameParameterValue") boolean b, String msgOrFmt, Object... args) {
     if (!b) {
@@ -108,6 +112,11 @@ public class Checks {
     }
   }
 
+  /**
+   * A message set to the exception will be composed in the same manner as {@code checknotnull} method.
+   *
+   * @see com.github.dakusui.jcunit.core.Checks#checknotnull(Object, String, Object...)
+   */
   public static void checkenv(boolean cond, String msg, Object... args) {
     if (!cond) {
       throw new JCUnitEnvironmentException(composeMessage(msg, args), null);
@@ -115,7 +124,6 @@ public class Checks {
   }
 
   /**
-   *
    * @see com.github.dakusui.jcunit.exceptions.InvalidTestException
    */
   public static void checktest(boolean cond, String msg, Object... args) {
@@ -156,7 +164,8 @@ public class Checks {
 
 
   private static String composeMessage(String msgOrFmt, Object... args) {
-    if (msgOrFmt != null) return String.format(msgOrFmt, args);
+    if (msgOrFmt != null)
+      return String.format(msgOrFmt, args);
     return String.format("Message:'%s'", Utils.join(",", args));
   }
 
