@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.FunctionallyDependentLevelsProviderBase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.FSMTupleGenerator;
+import com.github.dakusui.jcunit.fsm.FSMUtils;
 import com.github.dakusui.jcunit.fsm.ScenarioSequence;
 
 import java.lang.reflect.Field;
@@ -18,15 +18,16 @@ public class FSMLevelsProvider<SUT> extends FunctionallyDependentLevelsProviderB
     setup {
       @Override
       String composeFactorName(String fsmName) {
-        return FSMTupleGenerator.composeSetUpScenarioName(fsmName);
+        return FSMUtils.composeSetUpScenarioName(fsmName);
       }
     },
     main {
       @Override
       String composeFactorName(String fsmName) {
-        return FSMTupleGenerator.composeMainScenarioName(fsmName);
+        return FSMUtils.composeMainScenarioName(fsmName);
       }
     };
+
     abstract String composeFactorName(String fsmName);
   }
 

@@ -86,19 +86,11 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   }
 
   protected String mainScenarioFactorName() {
-    return composeMainScenarioName(this.fsmName);
+    return FSMUtils.composeMainScenarioName(this.fsmName);
   }
 
   protected String setUpScenarioFactorName() {
-    return composeSetUpScenarioName(this.fsmName);
-  }
-
-  public static String composeMainScenarioName(String fsmName) {
-    return String.format("FSM:main:%s", fsmName);
-  }
-
-  public static String composeSetUpScenarioName(String fsmName) {
-    return String.format("FSM:setUp:%s", fsmName);
+    return FSMUtils.composeSetUpScenarioName(this.fsmName);
   }
 
   @Override

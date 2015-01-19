@@ -83,6 +83,14 @@ public class FSMUtils {
     return null;
   }
 
+  public static String composeMainScenarioName(String fsmName) {
+    return String.format("FSM:main:%s", fsmName);
+  }
+
+  public static String composeSetUpScenarioName(String fsmName) {
+    return String.format("FSM:setUp:%s", fsmName);
+  }
+
   public static class SimpleFSM<SUT> implements FSM<SUT> {
     private List<State<SUT>>  states;
     private List<Action<SUT>> actions;

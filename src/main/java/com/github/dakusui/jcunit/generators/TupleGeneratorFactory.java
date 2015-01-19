@@ -14,8 +14,10 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public class TupleGeneratorFactory {
   public static final TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory();
@@ -60,8 +62,10 @@ public class TupleGeneratorFactory {
             .setTargetClass(klazz)
             .setFactors(factors)
             .build();
-    Method m;
-    if ((m = getFSMProviderMethod(klazz, factors)) != null) {
+    List<Method> methods;
+    if ((methods = getFSMProviderMethod(klazz, factors)).isEmpty()) {
+      Checks.checktest(methods.size() == 1, "One and only one provider method can be used.");
+      Method m = methods.get(0);
       generator = new FSMTupleGenerator(generator, createFSM(m), m.getName());
     }
     return generator;
@@ -80,8 +84,26 @@ public class TupleGeneratorFactory {
     return ret;
   }
 
-  private Method getFSMProviderMethod(Class<?> klazz, Factors factors) {
+  private List<Method> getFSMProviderMethod(Class<?> klazz, Factors factors) {
+    Set<String> fsmNames = new HashSet<String>();
+    for (Factor each : factors) {
+      String fsmName;
+      if ((fsmName = getFSMName(each)) != null) {
+        fsmNames.add(fsmName);
+      }
+    }
+    List<Method> ret = new LinkedList<Method>();
+    for (String each : fsmNames) {
+
+    }
+    return ret;
+  }
+
+  private String getFSMName(Factor factor) {
     return null;
+  }
+
+  private void validateFSMProviderMethod(Method m) {
   }
 
   protected Factors loadFactors(Class<?> klass) {
