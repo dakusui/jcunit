@@ -6,10 +6,14 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
+import com.github.dakusui.jcunit.fsm.FSM;
+import com.github.dakusui.jcunit.fsm.FSMTupleGenerator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,7 +53,6 @@ public class TupleGeneratorFactory {
                     .setParameters(constraintAnn.params())
                     .setFactors(factors).build();
     Generator generatorAnn = tupleGenerationAnn.generator();
-    List<Object> params = new LinkedList<Object>();
     TupleGenerator generator = new TupleGenerator.Builder()
             .setTupleGeneratorClass(generatorAnn.value())
             .setConstraintManager(constraintManager)
@@ -57,7 +60,28 @@ public class TupleGeneratorFactory {
             .setTargetClass(klazz)
             .setFactors(factors)
             .build();
+    Method m;
+    if ((m = getFSMProviderMethod(klazz, factors)) != null) {
+      generator = new FSMTupleGenerator(generator, createFSM(m), m.getName());
+    }
     return generator;
+  }
+
+  private FSM<?> createFSM(Method m) {
+    FSM<?> ret = null;
+    try {
+      ret = (FSM<?>) m.invoke(null);
+    } catch (IllegalAccessException e) {
+      // Since the scope is validated in advance, this path shouldn't be executed.
+      Checks.checkcond(false);
+    } catch (InvocationTargetException e) {
+      Checks.rethrowtesterror(e, "FSM creation was failed. ('%s' method in '%s' class)", m.getName(), m.getDeclaringClass().getCanonicalName());
+    }
+    return ret;
+  }
+
+  private Method getFSMProviderMethod(Class<?> klazz, Factors factors) {
+    return null;
   }
 
   protected Factors loadFactors(Class<?> klass) {

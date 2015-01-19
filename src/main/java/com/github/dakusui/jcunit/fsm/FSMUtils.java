@@ -285,8 +285,8 @@ public class FSMUtils {
         @Override
         public Expectation<SUT> expectation(Action<SUT> action, Args args) {
           Expectation<SUT> ret = null;
+          Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
           try {
-            Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
             Checks.checktest(
                 Expectation.class.isAssignableFrom(m.getReturnType()),
                 "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
@@ -298,9 +298,14 @@ public class FSMUtils {
                 );
             ret = (Expectation<SUT>) m.invoke(stateSpec, args.values());
           } catch (IllegalAccessException e) {
-            Checks.rethrowtesterror(e, "");
+            // Since the method is validated in advance, this path should never be executed.
+            Checks.fail();
           } catch (InvocationTargetException e) {
-            Checks.rethrowtesterror(e, "");
+            Checks.rethrowtesterror(
+                e,
+                "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
+                m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
+                );
           }
           return ret;
         }

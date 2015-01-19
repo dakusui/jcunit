@@ -15,10 +15,12 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   private final FSM<SUT>       fsm;
   final private TupleGenerator baseTG;
   private       List<Tuple>    tuples;
+  private       String         fsmName;
 
-  protected FSMTupleGenerator(TupleGenerator baseTG, FSM<SUT> fsm) {
+  public FSMTupleGenerator(TupleGenerator baseTG, FSM<SUT> fsm, String fsmName) {
     this.fsm = fsm;
     this.baseTG = baseTG;
+    this.fsmName = fsmName;
   }
 
   @Override
@@ -84,11 +86,19 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   }
 
   protected String mainScenarioFactorName() {
-    return "FSM:main";
+    return composeMainScenarioName(this.fsmName);
   }
 
   protected String setUpScenarioFactorName() {
-    return "FSM:setUp";
+    return composeSetUpScenarioName(this.fsmName);
+  }
+
+  public static String composeMainScenarioName(String fsmName) {
+    return String.format("FSM:main:%s", fsmName);
+  }
+
+  public static String composeSetUpScenarioName(String fsmName) {
+    return String.format("FSM:setUp:%s", fsmName);
   }
 
   @Override

@@ -1,51 +1,66 @@
 package com.github.dakusui.jcunit.examples.fsm;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.factor.LevelsProvider;
+import com.github.dakusui.jcunit.core.factor.FunctionallyDependentLevelsProviderBase;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.fsm.FSMTupleGenerator;
+import com.github.dakusui.jcunit.fsm.ScenarioSequence;
 
 import java.lang.reflect.Field;
-import java.util.List;
 
-public class FSMLevelsProvider implements LevelsProvider {
-  @Override
-  public int size() {
-    return 0;
+public class FSMLevelsProvider<SUT> extends FunctionallyDependentLevelsProviderBase<ScenarioSequence<SUT>> {
+  private ScenarioType scenarioType;
+  private String fsmName;
+
+  private static enum ScenarioType {
+    setup {
+      @Override
+      String composeFactorName(String fsmName) {
+        return FSMTupleGenerator.composeSetUpScenarioName(fsmName);
+      }
+    },
+    main {
+      @Override
+      String composeFactorName(String fsmName) {
+        return FSMTupleGenerator.composeMainScenarioName(fsmName);
+      }
+    };
+    abstract String composeFactorName(String fsmName);
   }
 
   @Override
-  public Object get(int n) {
-    return null;
+  protected void init(Field targetField, FactorField annotation, Object[] parameters) {
+    this.fsmName = (String) parameters[0];
+    this.scenarioType = (ScenarioType) parameters[1];
   }
 
   @Override
-  public void setTargetField(Field targetField) {
-
-  }
-
-  @Override
-  public void setAnnotation(FactorField ann) {
-
-  }
-
-  @Override
-  public List<String> getErrorsOnInitialization() {
-    return null;
-  }
-
-  @Override
-  public void init(Param[] params) {
-
+  public ScenarioSequence<SUT> apply(Tuple tuple) {
+    Object retObject = tuple.get(this.scenarioType.composeFactorName(this.fsmName));
+    Checks.checknotnull(retObject);
+    Checks.checkplugin(
+        retObject instanceof ScenarioSequence,
+        "A generated factor level for '%s' isn't an instance of '%s'",
+        this.scenarioType.composeFactorName(this.fsmName),
+        ScenarioSequence.class
+    );
+    // The line above already checked the type of the returned value.
+    //noinspection unchecked
+    return (ScenarioSequence<SUT>) retObject;
   }
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[0];
-  }
-
-  @Override
-  public Param[] getParams() {
-    return new Param[0];
+    return new ParamType[] {
+        ParamType.String,
+        new ParamType.NonArrayType() {
+          @Override
+          protected Object parse(String str) {
+            return ScenarioType.valueOf(str);
+          }
+        }
+    };
   }
 }
