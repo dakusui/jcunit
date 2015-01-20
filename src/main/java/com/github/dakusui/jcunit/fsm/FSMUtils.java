@@ -12,6 +12,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -20,7 +22,8 @@ import static org.junit.Assert.fail;
  * A utility class for FSM (finite state machine) support of JCUnit.
  */
 public class FSMUtils {
-  private static final Class<? extends Object[][]> doubleArrayedObjectClass = new Object[0][0].getClass();
+  private static final Class<? extends Object[][]> DOUBLE_ARRAYED_OBJECT_CLASS = new Object[0][0].getClass();
+  private static final Pattern                     fsmFactorPattern            = Pattern.compile("FSM:(main|setUp):([^:]+)");
 
   private FSMUtils() {
   }
@@ -91,6 +94,20 @@ public class FSMUtils {
     return String.format("FSM:setUp:%s", fsmName);
   }
 
+  /**
+   * Returns a name of FSM which is referred to be the given factor name.
+   * Returns {@code null} if factorName doesn't appear to be an FSM factor's name.
+   *
+   * @param factorName A factor name to be examined.
+   */
+  public static String getFSMNameFromScenarioFactorName(String factorName) {
+    Matcher m;
+    if ((m = fsmFactorPattern.matcher(factorName)).matches()) {
+      return m.group(2);
+    }
+    return null;
+  }
+
   public static class SimpleFSM<SUT> implements FSM<SUT> {
     private List<State<SUT>>  states;
     private List<Action<SUT>> actions;
@@ -131,7 +148,8 @@ public class FSMUtils {
       State<SUT> initialState = null;
       for (Map.Entry<String, Field> each : stateFields.entrySet()) {
         states.add(createState(each.getValue(), actionMethods));
-        if ("I".equals(each.getKey())) initialState = states.get(states.size() - 1);
+        if ("I".equals(each.getKey()))
+          initialState = states.get(states.size() - 1);
       }
       Checks.checktest(initialState != null, "A state whose name is 'I' couldn't be found in '%s'", specClass.getCanonicalName());
       this.states = Collections.unmodifiableList(states);
@@ -163,11 +181,11 @@ public class FSMUtils {
       return ret;
     }
 
-    private List< Field> getParamsFields(Class<? extends FSMSpec<SUT>> specClass) {
+    private List<Field> getParamsFields(Class<? extends FSMSpec<SUT>> specClass) {
       List<Field> ret = new LinkedList<Field>();
       for (final Field each : specClass.getFields()) {
         if (each.isAnnotationPresent(ParametersSpec.class) && !isAlreadyAddedIn(each, ret))
-        ret.add(each);
+          ret.add(each);
       }
       return ret;
     }
@@ -275,7 +293,7 @@ public class FSMUtils {
       Field ret = Checks.checknotnull(fsmField);
       int m = ret.getModifiers();
       Checks.checktest(
-          Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) && doubleArrayedObjectClass.getClass().isAssignableFrom(fsmField.getType()),
+          Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) && DOUBLE_ARRAYED_OBJECT_CLASS.getClass().isAssignableFrom(fsmField.getType()),
           "Field '%s' of '%s' must be public, static, final, and of Object[][].",
           ret.getName(), ret.getType().getCanonicalName()
       );
@@ -303,7 +321,7 @@ public class FSMUtils {
                 m.getDeclaringClass().getCanonicalName(),
                 Expectation.class.getCanonicalName(),
                 m.getReturnType().getCanonicalName()
-                );
+            );
             ret = (Expectation<SUT>) m.invoke(stateSpec, args.values());
           } catch (IllegalAccessException e) {
             // Since the method is validated in advance, this path should never be executed.
@@ -313,7 +331,7 @@ public class FSMUtils {
                 e,
                 "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
                 m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
-                );
+            );
           }
           return ret;
         }
@@ -344,5 +362,11 @@ public class FSMUtils {
       );
       return ret;
     }
+  }
+
+  public static void main(String[] args) {
+    System.out.println(getFSMNameFromScenarioFactorName("FSM:main:helloFSM"));
+    System.out.println(getFSMNameFromScenarioFactorName("FSM:setUp:helloFSM"));
+    System.out.println(getFSMNameFromScenarioFactorName("FSM:dummy:helloFSM"));
   }
 }

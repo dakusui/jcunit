@@ -49,4 +49,7 @@ public class NestableException extends JCUnitException {
     return ret;
   }
 
+  public boolean hasChildren() {
+    return !nested.isEmpty();
+  }
 }
