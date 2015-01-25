@@ -2,6 +2,8 @@ package com.github.dakusui.jcunit.exceptions;
 
 import com.github.dakusui.jcunit.core.Checks;
 
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,4 +54,27 @@ public class NestableException extends JCUnitException {
   public boolean hasChildren() {
     return !nested.isEmpty();
   }
+
+  public void printStackTrace(PrintStream ps) {
+    synchronized (ps) {
+      //tps.println(super.getMessage());
+      super.printStackTrace(ps);
+      ps.println();
+      for (NestableException each : this.nested) {
+        each.printStackTrace(ps);
+      }
+    }
+  }
+  @Override
+  public void printStackTrace(PrintWriter pw) {
+    synchronized (pw) {
+      //tpw.println(super.getMessage());
+      super.printStackTrace(pw);
+      pw.println();
+      for (NestableException each : this.nested) {
+        each.printStackTrace(pw);
+      }
+    }
+  }
+
 }

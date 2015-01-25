@@ -57,7 +57,7 @@ public class Factors implements Iterable<Factor> {
   }
 
   public Factor get(int index) {
-    Checks.checkcond(index > 0);
+    Checks.checkcond(index >= 0);
     Checks.checkcond(index < this.factors.size());
     return this.factors.get(index);
   }

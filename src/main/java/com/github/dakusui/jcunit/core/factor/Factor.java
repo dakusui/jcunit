@@ -41,5 +41,9 @@ public class Factor implements Iterable<Object> {
         public Factor build() {
             return new Factor(this.name, this.levels);
         }
+
+        public int numLevels() {
+            return levels.size();
+        }
     }
 }

@@ -59,11 +59,11 @@ public interface TupleGenerator extends
     public Builder() {
     }
 
-    public Builder(TupleGenerator base) {
-      this.tupleGeneratorClass = base.getClass();
-      this.factors = base.getFactors();
+    public Builder(TupleGenerator.Builder base) {
+      this.tupleGeneratorClass = base.tupleGeneratorClass;
+      this.factors = base.factors;
       this.constraintManager = base.getConstraintManager();
-      this.parameters = base.getParams();
+      this.parameters = base.parameters;
     }
 
     public Builder setTupleGeneratorClass(
@@ -104,6 +104,14 @@ public interface TupleGenerator extends
       ret.setTargetClass(this.targetClass);
       ret.init(this.parameters);
       return ret;
+    }
+
+    public ConstraintManager getConstraintManager() {
+      return constraintManager;
+    }
+
+    public Factors getFactors() {
+      return factors;
     }
   }
 }

@@ -60,6 +60,7 @@ public abstract class LevelsProviderBase<T> extends JCUnitConfigurablePluginBase
    */
   @Override
   final public void setTargetField(Field targetField) {
+    Checks.checknotnull(targetField);
     this.targetField = targetField;
   }
 

@@ -7,6 +7,18 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Defines factors for FSM using conventions below.
+ *
+ * <pre>
+ * FSM:state:{i}      - {i}th state
+ * FSM:action:{i}     - Action which should be performed on {i}th
+ * FSM:param:{i}:{j}  - Parameters given to the {i}th action.
+ * </pre>
+ * Levels for FSM:param:{i}:{j} are not intuitive.
+ * They are union of {j}'s arguments of all the actions.
+ *
+ */
 public abstract class FSMFactors extends Factors {
   public static final Object VOID = new Object();
 
@@ -54,13 +66,15 @@ public abstract class FSMFactors extends Factors {
     }
 
     public FSMFactors build() {
-      for (int index = 0; index < this.baseFactors.size(); index++) {
+      for (int index = 1; index < this.baseFactors.size(); index++) {
         this.add(this.baseFactors.get(index));
       }
 
       final int len = this.length;
       final int[] numParams = new int[len];
       for (int index = 0; index < len; index++) {
+        ////
+        // Build a factor for {index}th state
         {
           Factor.Builder bb = new Factor.Builder();
           bb.setName(stateName(index));
@@ -69,16 +83,17 @@ public abstract class FSMFactors extends Factors {
           }
           this.add(bb.build());
         }
+        ////
+        // Build a factor for {index}th action
+        // {i}th element of allParams (List<Object>) is a list of possible levels
+        //
         final List<List<Object>> allParams = new ArrayList<List<Object>>();
-        int smallestNumParams = Integer.MAX_VALUE;
+        int maxNumParams = 0;
         {
           Factor.Builder bb = new Factor.Builder();
           bb.setName(actionName(index));
           for (Action each : fsm.actions()) {
             bb.addLevel(each);
-            if (each.numParams() < smallestNumParams) {
-              smallestNumParams = each.numParams();
-            }
             for (int i = 0; i < each.numParams(); i++) {
               if (i >= allParams.size()) {
                 allParams.add(new ArrayList<Object>());
@@ -93,19 +108,24 @@ public abstract class FSMFactors extends Factors {
           }
           this.add(bb.build());
         }
+        ////
+        // Build factors for {index}th action's parameters
         {
-          numParams[index] = allParams.size();
+          /////
+          // TODO
           int i = 0;
           for (List<Object> each : allParams) {
             Factor.Builder bb = new Factor.Builder();
             bb.setName(paramName(index, i++));
-            if (i >= smallestNumParams) {
+            if (i >= 0/*smallestNumParams*/) {
               bb.addLevel(VOID);
             }
             for (Object v : each) {
               bb.addLevel(v);
             }
+            this.add(bb.build());
           }
+          numParams[index] = 0;
         }
       }
       return new FSMFactors(this.factors) {

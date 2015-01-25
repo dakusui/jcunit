@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -50,6 +51,12 @@ public class FlyingSpaghettiMonsterTest {
       return FSMUtils.invalid();
     }
 
+    @ParametersSpec
+    public static final Object[][] cook = new Object[][]{
+        {"spaghetti"},
+        {"spaghettini"}
+    };
+
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
       return FSMUtils.invalid();
@@ -85,6 +92,6 @@ public class FlyingSpaghettiMonsterTest {
 
   @Test
   public void test() throws Throwable {
-    FSMUtils.performScenarioSequence(this.setUp, this.sut);
+    FSMUtils.performScenarioSequence(this.main, this.sut);
   }
 }

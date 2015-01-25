@@ -63,7 +63,7 @@ public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
   @Override
   public Iterator<Tuple> iterator() {
     return new Iterator<Tuple>() {
-      private long    cur     = -1;
+      private long    cur     = 0;
       @Override
       public void remove() {
         throw new UnsupportedOperationException();

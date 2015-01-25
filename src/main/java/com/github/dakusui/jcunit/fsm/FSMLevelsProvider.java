@@ -1,21 +1,22 @@
-package com.github.dakusui.jcunit.examples.fsm;
+package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.factor.FunctionallyDependentLevelsProviderBase;
+import com.github.dakusui.jcunit.core.factor.MappingLevelsProviderBase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
 import com.github.dakusui.jcunit.fsm.ScenarioSequence;
 
 import java.lang.reflect.Field;
 
-public class FSMLevelsProvider<SUT> extends FunctionallyDependentLevelsProviderBase<ScenarioSequence<SUT>> {
+public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<ScenarioSequence<SUT>> {
   private ScenarioType scenarioType;
-  private String fsmName;
+  private String       fsmName;
+  private String       factorName;
 
   private static enum ScenarioType {
-    setup {
+    setUp {
       @Override
       String composeFactorName(String fsmName) {
         return FSMUtils.composeSetUpScenarioName(fsmName);
@@ -35,6 +36,12 @@ public class FSMLevelsProvider<SUT> extends FunctionallyDependentLevelsProviderB
   protected void init(Field targetField, FactorField annotation, Object[] parameters) {
     this.fsmName = (String) parameters[0];
     this.scenarioType = (ScenarioType) parameters[1];
+    this.factorName = targetField.getName();
+  }
+
+  @Override
+  public String factorName() {
+    return factorName;
   }
 
   @Override
@@ -63,5 +70,9 @@ public class FSMLevelsProvider<SUT> extends FunctionallyDependentLevelsProviderB
           }
         }
     };
+  }
+
+  public String getFSMName() {
+    return this.fsmName;
   }
 }

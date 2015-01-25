@@ -3,6 +3,8 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.ParamType;
+import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorMapper;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
@@ -12,20 +14,22 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
-  private final FSM<SUT>       fsm;
-  final private TupleGenerator baseTG;
-  private       List<Tuple>    tuples;
-  private       String         fsmName;
+  private final FSM<SUT>               fsm;
+  private final TupleGenerator.Builder baseTupleGeneratorBuilder;
+  private final List<FactorMapper<?>>  factorMappers;
+  private       List<Tuple>            tuples;
+  private       String                 fsmName;
 
-  public FSMTupleGenerator(TupleGenerator baseTG, FSM<SUT> fsm, String fsmName) {
-    this.fsm = fsm;
-    this.baseTG = baseTG;
-    this.fsmName = fsmName;
+  public FSMTupleGenerator(TupleGenerator.Builder baseTG, FSM<SUT> fsm, String fsmName, List<FactorMapper<?>> factorMappers) {
+    this.fsm = Checks.checknotnull(fsm);
+    this.baseTupleGeneratorBuilder = Checks.checknotnull(baseTG);
+    this.fsmName = Checks.checknotnull(fsmName);
+    this.factorMappers = factorMappers;
   }
 
   @Override
   protected long initializeTuples(Object[] params) {
-    Factors baseFactors = this.getFactors();
+    Factors baseFactors = baseTupleGeneratorBuilder.getFactors();
     int historyLength = (Integer) params[0];
     FSMFactors fsmFactors = new FSMFactors.Builder<SUT>()
         .setFSM(fsm)
@@ -33,10 +37,10 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
         .setBaseFactors(baseFactors)
         .build();
 
-    ConstraintManager fsmCM = new FSMConstraintManager<SUT>(this.baseTG.getConstraintManager());
+    ConstraintManager fsmCM = new FSMConstraintManager<SUT>(this.baseTupleGeneratorBuilder.getConstraintManager());
     fsmCM.setFactors(fsmFactors);
     final List<ScenarioSequence<SUT>> mainScenarios = new LinkedList<ScenarioSequence<SUT>>();
-    for (Tuple each : new TupleGenerator.Builder(this.baseTG).setConstraintManager(fsmCM).setFactors(fsmFactors).build()) {
+    for (Tuple each : new TupleGenerator.Builder(this.baseTupleGeneratorBuilder).setConstraintManager(fsmCM).setFactors(fsmFactors).build()) {
       ScenarioSequence<SUT> main = new ScenarioSequence.BuilderFromTuple<SUT>()
           .setFSMFactors(fsmFactors)
           .setTuple(each)
@@ -80,9 +84,20 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
       if (setUp != null) {
         b.put(setUpScenarioFactorName, setUp);
       }
-      this.tuples.add(b.build());
+      this.tuples.add(translateFSMTupleToNormalTuple(b.build()));
     }
     return this.tuples.size();
+  }
+
+  private Tuple translateFSMTupleToNormalTuple(Tuple fsmTuple) {
+    Tuple.Builder b = new Tuple.Builder();
+    for (Factor each : this.baseTupleGeneratorBuilder.getFactors()) {
+      b.put(each.name, fsmTuple.get(each.name));
+    }
+    for (FactorMapper<?> each : this.factorMappers) {
+      b.put(each.factorName(), each.apply(fsmTuple));
+    }
+    return b.build();
   }
 
   protected String mainScenarioFactorName() {

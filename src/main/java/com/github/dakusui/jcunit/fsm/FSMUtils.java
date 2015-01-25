@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
@@ -120,13 +121,13 @@ public class FSMUtils {
       Map<String, Method> actionMethods = Utils.toMap(getActionMethods(specClass), new Utils.Form<Method, String>() {
         @Override
         public String apply(Method in) {
-          return in.toString();
+          return in.getName();
         }
       });
       Map<String, Field> paramsFields = Utils.toMap(getParamsFields(specClass), new Utils.Form<Field, String>() {
         @Override
         public String apply(Field in) {
-          return in.toString();
+          return in.getName();
         }
       });
       List<Action<SUT>> actions = new LinkedList<Action<SUT>>();
@@ -141,7 +142,7 @@ public class FSMUtils {
       Map<String, Field> stateFields = Utils.toMap(getStateFields(specClass), new Utils.Form<Field, String>() {
         @Override
         public String apply(Field in) {
-          return in.toString();
+          return in.getName();
         }
       });
       List<State<SUT>> states = new LinkedList<State<SUT>>();
@@ -202,7 +203,7 @@ public class FSMUtils {
     private List<Method> getActionMethods(Class<? extends FSMSpec<SUT>> specClass) {
       List<Method> ret = new LinkedList<Method>();
       for (Method each : specClass.getMethods()) {
-        if (each.isAnnotationPresent(StateSpec.class)) {
+        if (each.isAnnotationPresent(ActionSpec.class)) {
           ret.add(each);
         }
       }
@@ -211,7 +212,12 @@ public class FSMUtils {
 
     private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
       final String name = actionMethod.getName();
-      final Object[][] params = getParamsValue(validateParamsField(paramsField));
+      final Object[][] params;
+      if (paramsField == null) {
+        params = new Object[][]{};
+      } else {
+        params = getParamsValue(validateParamsField(paramsField));
+      }
       return new Action<SUT>() {
         @Override
         public String toString() {
@@ -293,7 +299,7 @@ public class FSMUtils {
       Field ret = Checks.checknotnull(fsmField);
       int m = ret.getModifiers();
       Checks.checktest(
-          Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) && DOUBLE_ARRAYED_OBJECT_CLASS.getClass().isAssignableFrom(fsmField.getType()),
+          Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) && DOUBLE_ARRAYED_OBJECT_CLASS.isAssignableFrom(fsmField.getType()),
           "Field '%s' of '%s' must be public, static, final, and of Object[][].",
           ret.getName(), ret.getType().getCanonicalName()
       );

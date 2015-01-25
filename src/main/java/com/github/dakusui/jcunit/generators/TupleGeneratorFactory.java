@@ -2,20 +2,16 @@ package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.FactorLoader;
-import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.factor.*;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.FSM;
+import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.FSMTupleGenerator;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class TupleGeneratorFactory {
   public static final TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory();
@@ -43,7 +39,8 @@ public class TupleGeneratorFactory {
 
   private TupleGenerator createTupleGenerator(Class<?> klazz,
       TupleGeneration tupleGenerationAnn) {
-    Factors factors = loadFactors(klazz);
+    Map<Field, LevelsProvider<?>> levelsProviders = new LinkedHashMap<Field, LevelsProvider<?>>();
+    Factors factors = loadFactors(klazz, levelsProviders);
     ////
     // Wire and build objects.
     Constraint constraintAnn = tupleGenerationAnn.constraint();
@@ -53,18 +50,28 @@ public class TupleGeneratorFactory {
             .setParameters(constraintAnn.params())
             .setFactors(factors).build();
     Generator generatorAnn = tupleGenerationAnn.generator();
-    TupleGenerator generator = new TupleGenerator.Builder()
+    TupleGenerator.Builder b = new TupleGenerator.Builder()
         .setTupleGeneratorClass(generatorAnn.value())
         .setConstraintManager(constraintManager)
         .setParameters(generatorAnn.params())
         .setTargetClass(klazz)
-        .setFactors(factors)
-        .build();
+        .setFactors(factors);
+    TupleGenerator generator;
     List<Method> methods;
-    if ((methods = getFSMProviderMethod(klazz, factors)).isEmpty()) {
+    if (!(methods = getFSMProviderMethods(klazz, levelsProviders)).isEmpty()) {
       Checks.checktest(methods.size() == 1, "One and only one provider method can be used.");
       Method m = methods.get(0);
-      generator = new FSMTupleGenerator(generator, createFSM(m), m.getName());
+      List<FactorMapper<?>> factorMappers = new LinkedList<FactorMapper<?>>();
+      for (LevelsProvider<?> each : levelsProviders.values()) {
+        if (each instanceof FactorMapper) {
+          factorMappers.add((FactorMapper<?>) each);
+        }
+      }
+      //noinspection unchecked
+      generator = new FSMTupleGenerator(b, createFSM(m), m.getName(), factorMappers);
+      generator.init(new Param[]{});
+    } else {
+      generator = b.build();
     }
     return generator;
   }
@@ -77,17 +84,20 @@ public class TupleGeneratorFactory {
       // Since the scope is validated in advance, this path shouldn't be executed.
       Checks.checkcond(false);
     } catch (InvocationTargetException e) {
-      Checks.rethrowtesterror(e, "FSM creation was failed. ('%s' method in '%s' class)", m.getName(), m.getDeclaringClass().getCanonicalName());
+      Checks.rethrowtesterror(e.getTargetException(), "FSM creation was failed. ('%s' method in '%s' class)", m.getName(), m.getDeclaringClass().getCanonicalName());
     }
     return ret;
   }
 
-  private List<Method> getFSMProviderMethod(Class<?> klazz, Factors factors) {
+  /*
+   * Returns a list of methods whose names are FSMs'
+   */
+  private List<Method> getFSMProviderMethods(Class<?> klazz, Map<Field, LevelsProvider<?>> levelsProviders) {
     Set<String> fsmNames = new HashSet<String>();
-    for (Factor each : factors) {
+    for (LevelsProvider<?> each : levelsProviders.values()) {
       String fsmName;
-      if ((fsmName = FSMUtils.getFSMNameFromScenarioFactorName(each.name)) != null) {
-        fsmNames.add(fsmName);
+      if (each instanceof FSMLevelsProvider) {
+        fsmNames.add(((FSMLevelsProvider)each).getFSMName());
       }
     }
     List<Method> ret = new LinkedList<Method>();
@@ -119,30 +129,25 @@ public class TupleGeneratorFactory {
     );
   }
 
-  protected Factors loadFactors(Class<?> klass) {
+  protected Factors loadFactors(Class<?> klass, Map<Field, LevelsProvider<?>> providers) {
     // //
     // Initialize the factor levels for every '@FactorField' annotated field.
     Field[] fields = Utils.getAnnotatedFields(klass, FactorField.class);
     Factors.Builder factorsBuilder = new Factors.Builder();
-    List<InvalidTestException> errors = new LinkedList<InvalidTestException>();
+    InvalidTestException invalidTestException = new InvalidTestException("One or more factors failed to be initialized.");
     for (Field f : fields) {
       try {
         FactorLoader factorLoader = new FactorLoader(f);
         Factor factor = factorLoader.getFactor();
         factorsBuilder.add(factor);
+        providers.put(f, factorLoader.getLevelsProvider());
       } catch (InvalidTestException e) {
-        errors.add(e);
+        invalidTestException.addChild(e);
       }
     }
-    Checks.checktest(errors.isEmpty(),
-        "One or more factors failed to be initialized.: [%s]",
-        Utils.join(", ", new Utils.Formatter<InvalidTestException>() {
-          @Override
-          public String format(InvalidTestException elem) {
-            return elem.getMessage();
-          }
-        }, errors.toArray(new InvalidTestException[errors.size()])));
-
+    if (invalidTestException.hasChildren()) {
+      throw invalidTestException;
+    }
     // //
     // Instantiates the test array generator.
     Factors factors;
