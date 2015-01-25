@@ -84,6 +84,12 @@ public class FSMUtils {
   }
 
   private static <SUT> State<SUT> chooseState(FSM<SUT> fsm, StateChecker<SUT> stateChecker) {
+    Checks.checknotnull(fsm);
+    Checks.checknotnull(stateChecker);
+    for (State<SUT> each : fsm.states()) {
+      if (each == stateChecker) return each;
+    }
+    Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
     return null;
   }
 
@@ -328,7 +334,16 @@ public class FSMUtils {
                 Expectation.class.getCanonicalName(),
                 m.getReturnType().getCanonicalName()
             );
-            ret = (Expectation<SUT>) m.invoke(stateSpec, args.values());
+            ret = (Expectation<SUT>) m.invoke(stateSpec, FSMUtils.SimpleFSM.this, args.values());
+          } catch (IllegalArgumentException e) {
+            Checks.rethrowtesterror(
+                e,
+                "Wrong types: '%s/%s' of '%s' can't be executed with %s",
+                m.getName(),
+                m.getParameterTypes().length,
+                m.getDeclaringClass(),
+                Arrays.toString(args.values())
+            );
           } catch (IllegalAccessException e) {
             // Since the method is validated in advance, this path should never be executed.
             Checks.fail();

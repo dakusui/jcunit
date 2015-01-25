@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.examples.fsm;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Param;
@@ -36,6 +37,7 @@ public class FlyingSpaghettiMonsterTest {
 
       @ActionSpec
       public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish) {
+        Checks.checknotnull(fsm);
         return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
       }
     },
@@ -52,9 +54,9 @@ public class FlyingSpaghettiMonsterTest {
     }
 
     @ParametersSpec
-    public static final Object[][] cook = new Object[][]{
-        {"spaghetti"},
-        {"spaghettini"}
+    public static final Object[][] cook = new Object[][] {
+        { "spaghetti" },
+        { "spaghettini" }
     };
 
     @ActionSpec
