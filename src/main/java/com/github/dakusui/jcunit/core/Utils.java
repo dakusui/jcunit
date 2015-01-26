@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.exceptions.*;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -400,5 +401,17 @@ public class Utils {
 
   public static interface Predicate<I> {
     boolean apply(I in);
+  }
+
+  public static <T> T[] concatenate (T[] a, T[] b) {
+    int aLen = a.length;
+    int bLen = b.length;
+
+    @SuppressWarnings("unchecked")
+    T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
+    System.arraycopy(a, 0, c, 0, aLen);
+    System.arraycopy(b, 0, c, aLen, bLen);
+
+    return c;
   }
 }

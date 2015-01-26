@@ -13,12 +13,12 @@ public interface Action<SUT> {
     }
 
     @Override
-    public Object[] param(int i) {
+    public Object[] parameterFactorLevels(int i) {
       return new Object[0];
     }
 
     @Override
-    public int numParams() {
+    public int numParameterFactors() {
       return 0;
     }
   };
@@ -41,10 +41,10 @@ public interface Action<SUT> {
    *
    * @param i a factor's index.
    */
-  Object[] param(int i);
+  Object[] parameterFactorLevels(int i);
 
   /**
    * Returns a number of parameters that this action takes.
    */
-  int numParams();
+  int numParameterFactors();
 }

@@ -51,6 +51,11 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
     ////
     // Create a state router.
     List<State<SUT>> destinations = new LinkedList<State<SUT>>();
+    for (ScenarioSequence<SUT> each : mainScenarios) {
+      if (each.size() > 0) {
+        destinations.add(each.get(0).given);
+      }
+    }
     StateRouter<SUT> router = new StateRouter<SUT>(fsm, destinations) {
       @Override
       protected List<Transition> possibleTransitionsFrom(State<SUT> state) {

@@ -5,11 +5,13 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Defines factors for FSM using conventions below.
- *
+ * <p/>
  * <pre>
  * FSM:state:{i}      - {i}th state
  * FSM:action:{i}     - Action which should be performed on {i}th
@@ -17,7 +19,6 @@ import java.util.List;
  * </pre>
  * Levels for FSM:param:{i}:{j} are not intuitive.
  * They are union of {j}'s arguments of all the actions.
- *
  */
 public abstract class FSMFactors extends Factors {
   public static final Object VOID = new Object();
@@ -30,13 +31,6 @@ public abstract class FSMFactors extends Factors {
 
   public abstract String actionFactorName(int i);
 
-  /**
-   * Returns a number of parameter factors.
-   *
-   * @param i history index.
-   */
-  public abstract int numParamFactors(int i);
-
   public abstract String paramFactorName(int i, int j);
 
   public abstract int historyLength();
@@ -46,7 +40,7 @@ public abstract class FSMFactors extends Factors {
   public static class Builder<SUT> extends Factors.Builder {
     private int length = 1;
     private FSM<SUT> fsm;
-    private Factors baseFactors;
+    private Factors  baseFactors;
 
     public Builder<SUT> setFSM(FSM<SUT> fsm) {
       Checks.checknotnull(fsm);
@@ -71,7 +65,6 @@ public abstract class FSMFactors extends Factors {
       }
 
       final int len = this.length;
-      final int[] numParams = new int[len];
       for (int index = 0; index < len; index++) {
         ////
         // Build a factor for {index}th state
@@ -87,22 +80,22 @@ public abstract class FSMFactors extends Factors {
         // Build a factor for {index}th action
         // {i}th element of allParams (List<Object>) is a list of possible levels
         //
-        final List<List<Object>> allParams = new ArrayList<List<Object>>();
-        int maxNumParams = 0;
+        final List<Set<Object>> allParams = new ArrayList<Set<Object>>();
+        int smallestNumParams = Integer.MAX_VALUE;
         {
           Factor.Builder bb = new Factor.Builder();
           bb.setName(actionName(index));
           for (Action each : fsm.actions()) {
             bb.addLevel(each);
-            for (int i = 0; i < each.numParams(); i++) {
+            if (each.numParameterFactors() < smallestNumParams)
+              smallestNumParams = each.numParameterFactors();
+            for (int i = 0; i < each.numParameterFactors(); i++) {
               if (i >= allParams.size()) {
-                allParams.add(new ArrayList<Object>());
+                allParams.add(new LinkedHashSet<Object>());
               }
-              Object[] paramValues = each.param(i);
+              Object[] paramValues = each.parameterFactorLevels(i);
               for (Object v : paramValues) {
-                if (!allParams.get(i).contains(v)) {
-                  allParams.get(i).add(v);
-                }
+                allParams.get(i).add(v);
               }
             }
           }
@@ -111,21 +104,19 @@ public abstract class FSMFactors extends Factors {
         ////
         // Build factors for {index}th action's parameters
         {
-          /////
-          // TODO
           int i = 0;
-          for (List<Object> each : allParams) {
+          for (Set<Object> each : allParams) {
             Factor.Builder bb = new Factor.Builder();
             bb.setName(paramName(index, i++));
-            if (i >= 0/*smallestNumParams*/) {
+            if (i >= smallestNumParams) {
               bb.addLevel(VOID);
+              continue;
             }
             for (Object v : each) {
               bb.addLevel(v);
             }
             this.add(bb.build());
           }
-          numParams[index] = 0;
         }
       }
       return new FSMFactors(this.factors) {
@@ -139,12 +130,6 @@ public abstract class FSMFactors extends Factors {
           Checks.checkcond(0 <= i);
           Checks.checkcond(i < len);
           return actionName(i);
-        }
-
-        public int numParamFactors(int i) {
-          Checks.checkcond(i >= 0);
-          Checks.checkcond(i < numParams.length);
-          return numParams[i];
         }
 
         public String paramFactorName(int i, int j) {

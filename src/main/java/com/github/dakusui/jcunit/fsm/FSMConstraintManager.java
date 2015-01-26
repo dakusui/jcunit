@@ -44,13 +44,14 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
       if (state == State.VOID) {
         if (action != Action.VOID) return false;
       }
-      int numParams = action.numParams();
-      for (int j = 0; j < fsmFactors.numParamFactors(i); j++) {
+      int numParams = action.numParameterFactors();
+      System.out.printf("%d,%s,%s,%d\n", i, fsmFactors.actionFactorName(i), action.toString(), numParams);
+      for (int j = 0; j < numParams; j++) {
         if (!seq.hasArg(i, j)) throw new UndefinedSymbol();
         if (j >= numParams) {
           if (seq.arg(i, j) != FSMFactors.VOID) return false;
         }
-        if (!isPossible(action.param(j), seq.arg(i, j))) {
+        if (!isPossible(action.parameterFactorLevels(j), seq.arg(i, j))) {
           return false;
         }
       }

@@ -42,7 +42,7 @@ public abstract class StateRouter<SUT> {
       }
     }
     Checks.checktest(
-            unreachableDestinations.size() > 0,
+            unreachableDestinations.size() == 0,
             "The states '%s' can't be reached from the initial state of the given FSM.",
             unreachableDestinations,
             this.fsm.initialState()

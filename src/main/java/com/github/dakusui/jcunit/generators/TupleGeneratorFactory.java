@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.FSM;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.FSMTupleGenerator;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -69,7 +68,8 @@ public class TupleGeneratorFactory {
       }
       //noinspection unchecked
       generator = new FSMTupleGenerator(b, createFSM(m), m.getName(), factorMappers);
-      generator.init(new Param[]{});
+      gen
+      generator.init(new Param[] { });
     } else {
       generator = b.build();
     }
@@ -95,9 +95,8 @@ public class TupleGeneratorFactory {
   private List<Method> getFSMProviderMethods(Class<?> klazz, Map<Field, LevelsProvider<?>> levelsProviders) {
     Set<String> fsmNames = new HashSet<String>();
     for (LevelsProvider<?> each : levelsProviders.values()) {
-      String fsmName;
       if (each instanceof FSMLevelsProvider) {
-        fsmNames.add(((FSMLevelsProvider)each).getFSMName());
+        fsmNames.add(((FSMLevelsProvider) each).getFSMName());
       }
     }
     List<Method> ret = new LinkedList<Method>();

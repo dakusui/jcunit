@@ -87,7 +87,7 @@ public class FSMUtils {
     Checks.checknotnull(fsm);
     Checks.checknotnull(stateChecker);
     for (State<SUT> each : fsm.states()) {
-      if (each == stateChecker) return each;
+      if (((SimpleFSM.SimpleFSMState)each).stateSpec == stateChecker) return each;
     }
     Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
     return null;
@@ -218,11 +218,11 @@ public class FSMUtils {
 
     private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
       final String name = actionMethod.getName();
-      final Object[][] params;
+      final Object[][] paramFactors;
       if (paramsField == null) {
-        params = new Object[][]{};
+        paramFactors = new Object[][]{new Object[]{}};
       } else {
-        params = getParamsValue(validateParamsField(paramsField));
+        paramFactors = getParamsValue(validateParamsField(paramsField));
       }
       return new Action<SUT>() {
         @Override
@@ -271,13 +271,15 @@ public class FSMUtils {
         }
 
         @Override
-        public Object[] param(int i) {
-          return params[i];
+        public Object[] parameterFactorLevels(int i) {
+          Checks.checkcond(0 <=i && i < paramFactors.length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
+          return paramFactors[i];
         }
 
         @Override
-        public int numParams() {
-          return params.length;
+        public int numParameterFactors() {
+          // It's safe to access the first parameter because it's already validated.
+          return paramFactors[0].length;
         }
       };
     }
@@ -290,7 +292,17 @@ public class FSMUtils {
     private Object[][] getParamsValue(Field field) {
       try {
         Object ret = field.get(null);
-        Checks.checktest(ret != null, "The field '%s' of '%s' must be assigned a non-null value.", field.getName(), field.getType().getCanonicalName());
+        Checks.checktest(
+            ret != null && ((Object[][]) ret).length > 0,
+            "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
+            field.getName(), field.getType().getCanonicalName());
+        int len = -1;
+        for (Object[] each : (Object[][])ret) {
+          Checks.checktest(
+              len == -1 || len == each.length,
+              "All the elements in '%s' of '%s' have the same length.",
+              field.getName(), field.getType().getCanonicalName());
+        }
         ////
         // Casting to Object[][] is safe because validateParamsField checks it.
         return (Object[][]) ret;
@@ -314,49 +326,7 @@ public class FSMUtils {
 
     private State<SUT> createState(final Field stateSpecField, final Map<String, Method> actionMethods) {
       final FSMSpec<SUT> stateSpec = getStateSpecValue(validateStateSpecField(stateSpecField));
-      return new State<SUT>() {
-        @Override
-        public boolean check(SUT sut) {
-          return stateSpec.check(sut);
-        }
-
-        @Override
-        public Expectation<SUT> expectation(Action<SUT> action, Args args) {
-          Expectation<SUT> ret = null;
-          Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
-          try {
-            Checks.checktest(
-                Expectation.class.isAssignableFrom(m.getReturnType()),
-                "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
-                m.getName(),
-                m.getParameterTypes().length,
-                m.getDeclaringClass().getCanonicalName(),
-                Expectation.class.getCanonicalName(),
-                m.getReturnType().getCanonicalName()
-            );
-            ret = (Expectation<SUT>) m.invoke(stateSpec, FSMUtils.SimpleFSM.this, args.values());
-          } catch (IllegalArgumentException e) {
-            Checks.rethrowtesterror(
-                e,
-                "Wrong types: '%s/%s' of '%s' can't be executed with %s",
-                m.getName(),
-                m.getParameterTypes().length,
-                m.getDeclaringClass(),
-                Arrays.toString(args.values())
-            );
-          } catch (IllegalAccessException e) {
-            // Since the method is validated in advance, this path should never be executed.
-            Checks.fail();
-          } catch (InvocationTargetException e) {
-            Checks.rethrowtesterror(
-                e,
-                "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
-                m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
-            );
-          }
-          return ret;
-        }
-      };
+      return new SimpleFSMState<SUT>(stateSpec, actionMethods, stateSpecField);
     }
 
     private FSMSpec<SUT> getStateSpecValue(Field field) {
@@ -382,6 +352,69 @@ public class FSMUtils {
           ret.getName(), ret.getType().getCanonicalName(), fsmField.getType().getCanonicalName()
       );
       return ret;
+    }
+
+    private class SimpleFSMState<SUT> implements State<SUT> {
+      private final FSMSpec<SUT> stateSpec;
+      private final Map<String, Method> actionMethods;
+      private final Field               stateSpecField;
+
+      public SimpleFSMState(FSMSpec<SUT> stateSpec, Map<String, Method> actionMethods, Field stateSpecField) {
+        this.stateSpec = stateSpec;
+        this.actionMethods = actionMethods;
+        this.stateSpecField = stateSpecField;
+      }
+
+      @Override
+    public boolean check(SUT sut) {
+      return stateSpec.check(sut);
+    }
+
+      @Override
+    public Expectation<SUT> expectation(Action<SUT> action, Args args) {
+      Expectation<SUT> ret = null;
+      Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
+      Checks.checktest(
+          Expectation.class.isAssignableFrom(m.getReturnType()),
+          "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
+          m.getName(),
+          m.getParameterTypes().length,
+          m.getDeclaringClass().getCanonicalName(),
+          Expectation.class.getCanonicalName(),
+          m.getReturnType().getCanonicalName()
+      );
+      Object[] argsToMethod = (Object[]) Utils.concatenate(
+          new Object[] { SimpleFSM.this },
+          args.values()
+      );
+      try {
+        ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
+      } catch (IllegalArgumentException e) {
+        Checks.rethrowtesterror(
+            e,
+            "Wrong types: '%s/%s' of '%s' can't be executed with %s",
+            m.getName(),
+            m.getParameterTypes().length,
+            m.getDeclaringClass(),
+            Arrays.toString(argsToMethod)
+        );
+      } catch (IllegalAccessException e) {
+        // Since the method is validated in advance, this path should never be executed.
+        Checks.fail();
+      } catch (InvocationTargetException e) {
+        Checks.rethrowtesterror(
+            e,
+            "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
+            m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
+        );
+      }
+      return ret;
+    }
+
+      @Override
+    public String toString() {
+      return String.format("%s$%s", SimpleFSM.class.getSimpleName(), stateSpecField.getName());
+    }
     }
   }
 

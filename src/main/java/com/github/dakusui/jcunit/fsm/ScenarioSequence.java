@@ -112,7 +112,7 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           Checks.checkcond(j >= 0);
-          Checks.checkcond(j < action(i).numParams());
+          Checks.checkcond(j < action(i).numParameterFactors());
           return tuple.get(factors.paramFactorName(i, j));
         }
 
@@ -121,7 +121,7 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           Checks.checkcond(j >= 0);
-          Checks.checkcond(j < action(i).numParams());
+          Checks.checkcond(j < action(i).numParameterFactors());
           return tuple.containsKey(factors.paramFactorName(i, j));
         }
 
@@ -129,7 +129,7 @@ public interface ScenarioSequence<SUT> {
         public Args args(int i) {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
-          Object[] values = new Object[action(i).numParams()];
+          Object[] values = new Object[action(i).numParameterFactors()];
           for (int j = 0; j < values.length; j++) {
             values[j] = tuple.get(factors.paramFactorName(i, j));
           }
