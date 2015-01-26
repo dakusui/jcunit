@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.exceptions.*;
 
 import java.io.*;

@@ -45,7 +45,6 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
         if (action != Action.VOID) return false;
       }
       int numParams = action.numParameterFactors();
-      System.out.printf("%d,%s,%s,%d\n", i, fsmFactors.actionFactorName(i), action.toString(), numParams);
       for (int j = 0; j < numParams; j++) {
         if (!seq.hasArg(i, j)) throw new UndefinedSymbol();
         if (j >= numParams) {

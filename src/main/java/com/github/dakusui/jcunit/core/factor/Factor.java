@@ -45,5 +45,9 @@ public class Factor implements Iterable<Object> {
         public Factor build() {
             return new Factor(this.name, this.levels);
         }
+
+        public String getName() {
+            return name;
+        }
     }
 }

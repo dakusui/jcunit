@@ -68,7 +68,6 @@ public class TupleGeneratorFactory {
       }
       //noinspection unchecked
       generator = new FSMTupleGenerator(b, createFSM(m), m.getName(), factorMappers);
-      gen
       generator.init(new Param[] { });
     } else {
       generator = b.build();

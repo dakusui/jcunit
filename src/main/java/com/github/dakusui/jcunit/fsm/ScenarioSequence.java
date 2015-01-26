@@ -3,27 +3,44 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public interface ScenarioSequence<SUT> {
   public static final ScenarioSequence<?> EMPTY = new ScenarioSequence() {
-    @Override public int size() {
+    @Override
+    public int size() {
       return 0;
     }
-    @Override public Scenario<?> get(int i) {
+
+    @Override
+    public Scenario<?> get(int i) {
       throw new IllegalStateException();
     }
-    @Override public State<?> state(int i) {
+
+    @Override
+    public State<?> state(int i) {
       throw new IllegalStateException();
     }
-    @Override public Action<?> action(int i) {
+
+    @Override
+    public Action<?> action(int i) {
       throw new IllegalStateException();
     }
-    @Override public Object arg(int i, int j) {
+
+    @Override
+    public Object arg(int i, int j) {
       throw new IllegalStateException();
     }
-    @Override public boolean hasArg(int i, int j) {
+
+    @Override
+    public boolean hasArg(int i, int j) {
       throw new IllegalStateException();
     }
-    @Override public Args args(int i) {
+
+    @Override
+    public Args args(int i) {
       throw new IllegalStateException();
     }
   };
@@ -63,7 +80,7 @@ public interface ScenarioSequence<SUT> {
    */
   public static class BuilderFromTuple<SUT> {
     private FSMFactors factors;
-    private Tuple tuple;
+    private Tuple      tuple;
 
     public BuilderFromTuple() {
     }
@@ -139,6 +156,15 @@ public interface ScenarioSequence<SUT> {
         @Override
         public int size() {
           return factors.historyLength();
+        }
+
+        @Override
+        public String toString() {
+          List<Object> l = new ArrayList<Object>(size());
+          for (int i = 0; i < l.size(); i++) {
+            l.add(state(i));
+          }
+          return "ScenarioSequence:" + l.toString();
         }
       };
     }

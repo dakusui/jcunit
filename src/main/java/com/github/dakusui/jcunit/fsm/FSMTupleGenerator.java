@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.ParamType;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorMapper;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -10,8 +11,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   private final FSM<SUT>               fsm;
@@ -82,6 +82,7 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
     Checks.checkplugin(setUpScenarioFactorName != null,
         "setUpScenarioFactorName() must not return null.");
     this.tuples = new LinkedList<Tuple>();
+    final Map<String, Factor.Builder> mappedFactors = new LinkedHashMap<String, Factor.Builder>();
     for (ScenarioSequence<SUT> each : mainScenarios) {
       Tuple.Builder b = new Tuple.Builder();
       b.put(mainScenarioFactorName, each);
@@ -89,18 +90,56 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
       if (setUp != null) {
         b.put(setUpScenarioFactorName, setUp);
       }
-      this.tuples.add(translateFSMTupleToNormalTuple(b.build()));
+      this.tuples.add(translateFSMTupleToNormalTuple(b.build(), mappedFactors));
     }
+    super.setFactors(buildFactors(baseFactors, mappedFactors));
+    ////
+    // Constraint manager is used for negative tests generation, which is not supported yet.
+    // This time I'm setting DEFAULT_CONSTRAINT_MANAGER.
+    super.setConstraintManager(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER);
     return this.tuples.size();
   }
 
-  private Tuple translateFSMTupleToNormalTuple(Tuple fsmTuple) {
+  private Factors buildFactors(Factors baseFactors, final Map<String, Factor.Builder> mappedFactors) {
+    Factors.Builder fb = new Factors.Builder(baseFactors.asFactorList());
+    List<Factor> factors = fb.getFactors();
+    List<Factor> matched = Utils.filter(factors, new Utils.Predicate<Factor>() {
+      @Override
+      public boolean apply(Factor in) {
+        for (Factor.Builder each : mappedFactors.values()) {
+          if (each.getName().equals(in.name))
+            return true;
+        }
+        return false;
+      }
+    });
+    if (!matched.isEmpty()) {
+      for (Factor toBeRemoved : matched) factors.remove(toBeRemoved);
+    }
+    for (final Factor.Builder each : mappedFactors.values()) {
+      fb.add(each.build());
+    }
+    return fb.build();
+  }
+
+  private Tuple translateFSMTupleToNormalTuple(Tuple fsmTuple, Map<String, Factor.Builder> mappedValues) {
     Tuple.Builder b = new Tuple.Builder();
     for (Factor each : this.baseTupleGeneratorBuilder.getFactors()) {
       b.put(each.name, fsmTuple.get(each.name));
     }
     for (FactorMapper<?> each : this.factorMappers) {
-      b.put(each.factorName(), each.apply(fsmTuple));
+      String name = each.factorName();
+      Object v = each.apply(fsmTuple);
+      b.put(name, v);
+
+      Factor.Builder bb;
+      if (mappedValues.containsKey(name)) bb = mappedValues.get(name);
+      else {
+        bb = new Factor.Builder();
+        bb.setName(name);
+        mappedValues.put(name, bb);
+      }
+      bb.addLevel(v);
     }
     return b.build();
   }

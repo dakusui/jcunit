@@ -165,12 +165,25 @@ public class Factors implements Iterable<Factor> {
   }
 
   public static class Builder {
-    protected final List<Factor> factors = new LinkedList<Factor>();
+    protected final List<Factor> factors;
+
+    public Builder() {
+      factors = new LinkedList<Factor>();
+    }
+
+    public Builder(List<Factor> factors) {
+      Checks.checknotnull(factors);
+      this.factors = new LinkedList<Factor>(factors);
+    }
 
     public Builder add(Factor f) {
       Checks.checknotnull(f);
       this.factors.add(f);
       return this;
+    }
+
+    public List<Factor> getFactors() {
+      return this.factors;
     }
 
     public Factors build() {
