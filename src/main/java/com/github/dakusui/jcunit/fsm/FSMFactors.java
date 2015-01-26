@@ -108,10 +108,7 @@ public abstract class FSMFactors extends Factors {
           for (Set<Object> each : allParams) {
             Factor.Builder bb = new Factor.Builder();
             bb.setName(paramName(index, i++));
-            if (i >= smallestNumParams) {
-              bb.addLevel(VOID);
-              continue;
-            }
+            if (i >= smallestNumParams) bb.addLevel(VOID);
             for (Object v : each) {
               bb.addLevel(v);
             }
