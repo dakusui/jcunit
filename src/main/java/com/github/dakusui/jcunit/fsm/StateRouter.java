@@ -23,14 +23,15 @@ public abstract class StateRouter<SUT> {
 
     @Override
     public boolean equals(Object anotherObject) {
-      if (!(anotherObject instanceof Transition)) return false;
+      if (!(anotherObject instanceof Transition))
+        return false;
       Transition<SUT> another = (Transition<SUT>) anotherObject;
-      return this.action.equals(another.action) && this.args.equals(another.args);
+      return this.action.equals(another.action) && Arrays.deepEquals(this.args.values(), another.args.values());
     }
   }
 
-  private final FSM<SUT> fsm;
-  private final List<State<SUT>> destinations;
+  private final FSM<SUT>                               fsm;
+  private final List<State<SUT>>                       destinations;
   private final Map<State<SUT>, ScenarioSequence<SUT>> routes;
 
   public StateRouter(FSM<SUT> fsm, List<State<SUT>> destinations) {
@@ -54,10 +55,10 @@ public abstract class StateRouter<SUT> {
       }
     }
     Checks.checktest(
-            unreachableDestinations.size() == 0,
-            "The states '%s' can't be reached from the initial state of the given FSM.",
-            unreachableDestinations,
-            this.fsm.initialState()
+        unreachableDestinations.size() == 0,
+        "The states '%s' can't be reached from the initial state of the given FSM.",
+        unreachableDestinations,
+        this.fsm.initialState()
     );
   }
 
@@ -73,8 +74,9 @@ public abstract class StateRouter<SUT> {
   private void traverse(State<SUT> state, List<Transition> path, Set<State<SUT>> visited) {
     for (Transition each : possibleTransitionsFrom(state)) {
       State<SUT> next = next(state, each);
-      if (next == State.VOID) return;
-      if (visited.contains(visited))
+      if (next == State.VOID)
+        return;
+      if (visited.contains(next))
         continue;
       visited.add(next);
       List<Transition> pathToNext = new LinkedList<Transition>(path);
@@ -128,6 +130,11 @@ public abstract class StateRouter<SUT> {
       @Override
       public Args args(int i) {
         return pathToNext.get(i).args;
+      }
+
+      @Override
+      public String toString() {
+        return FSMUtils.toString(this);
       }
     };
   }

@@ -39,18 +39,21 @@ public class FSMUtils {
 
         boolean outputCheck = false;
         Object actual = null;
+        String valueReturnedOrExceptionThrown = null;
         try {
           reporter.run(each, sut);
           Object r = each.perform(sut);
           if (each.then().returnedValue == null)
-            fail(String.format("'%s' was expected to be thrown.", each.then().thrownException));
+            fail(String.format("'%s' is expected to be thrown.", each.then().thrownException));
           outputCheck = each.then().returnedValue.matches(r);
           actual = r;
+          valueReturnedOrExceptionThrown = "returned";
         } catch (Throwable t) {
           if (each.then().thrownException == null)
             throw t;
           outputCheck = each.then().thrownException.matches(t);
           actual = t;
+          valueReturnedOrExceptionThrown = "thrown";
         } finally {
           boolean stateCheck = each.then().state.check(sut);
           if (outputCheck && stateCheck)
@@ -58,11 +61,11 @@ public class FSMUtils {
           else
             reporter.failed(each, sut);
           assertTrue(
-              String.format("Expected: '%s', but '%s' was returned/thrown.", each.then(), actual),
+              String.format("Expected: '%s', but '%s' is %s.", each.then(), actual, valueReturnedOrExceptionThrown),
               outputCheck
           );
           assertTrue(
-              String.format("Expected status of the SUT is '%s' but it was not satisfied.", each.then().state),
+              String.format("Expected status of the SUT is '%s' but it is not satisfied.", each.then().state),
               stateCheck
           );
         }
@@ -135,6 +138,15 @@ public class FSMUtils {
       return m.group(2);
     }
     return null;
+  }
+
+  public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
+    Checks.checknotnull(scenarioSequence);
+    Object[] scenarios = new Object[scenarioSequence.size()];
+    for (int i = 0; i < scenarios.length; i++) {
+      scenarios[i] = scenarioSequence.get(i);
+    }
+    return String.format("ScenarioSequence:[%s]", Utils.join(",", scenarios));
   }
 
   public static class SimpleFSM<SUT> implements FSM<SUT> {
@@ -241,9 +253,9 @@ public class FSMUtils {
     private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
       final Object[][] paramFactors;
       if (paramsField == null) {
-        paramFactors = new Object[][] { new Object[] { } };
+        paramFactors = new Object[][] { };
       } else {
-        paramFactors = getParamsValue(validateParamsField(paramsField));
+        paramFactors = getParamsFactors(validateParamsField(paramsField));
       }
       return (Action<SUT>) new SimpleFSM.MethodAction(actionMethod, paramFactors);
     }
@@ -253,21 +265,13 @@ public class FSMUtils {
      *
      * @param field A field from which {@code params} values should be retrieved.
      */
-    private Object[][] getParamsValue(Field field) {
+    private Object[][] getParamsFactors(Field field) {
       try {
         Object ret = field.get(null);
         Checks.checktest(
             ret != null && ((Object[][]) ret).length > 0,
             "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
             field.getName(), field.getType().getCanonicalName());
-        int len = -1;
-        for (Object[] each : (Object[][]) ret) {
-          Checks.checktest(
-              len == -1 || len == each.length,
-              "All the elements in '%s' of '%s' have the same length.",
-              field.getName(), field.getType().getCanonicalName());
-          len = each.length;
-        }
         ////
         // Casting to Object[][] is safe because validateParamsField checks it.
         return (Object[][]) ret;
@@ -390,7 +394,7 @@ public class FSMUtils {
       public MethodAction(Method method, Object[][] paramFactors) {
         this.method = method;
         this.name = method.getName();
-        this.paramFactors = transpose(paramFactors);
+        this.paramFactors = paramFactors;
       }
 
       @Override
@@ -423,7 +427,7 @@ public class FSMUtils {
 
       @Override
       public Object[] parameterFactorLevels(int i) {
-        Checks.checkcond(0 <= i && i < paramFactors[i].length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
+        Checks.checkcond(0 <= i && i < paramFactors.length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
         return paramFactors[i];
       }
 
@@ -448,18 +452,6 @@ public class FSMUtils {
         if (!(anotherObject instanceof MethodAction)) return false;
         MethodAction another = (MethodAction) anotherObject;
         return this.method.equals(another.method);
-      }
-
-      private Object[][] transpose(Object[][] paramFactors) {
-        int w = paramFactors.length;
-        int h = paramFactors[0].length;
-        Object[][] ret =  new Object[h][w];
-        for (int i = 0; i < w; i++) {
-          for (int j = 0; j < h; j++) {
-            ret[j][h] = paramFactors[i][j];
-          }
-        }
-        return ret;
       }
 
       private <SUT> Method chooseMethod(Class<SUT> klass, String name, int numArgs) {

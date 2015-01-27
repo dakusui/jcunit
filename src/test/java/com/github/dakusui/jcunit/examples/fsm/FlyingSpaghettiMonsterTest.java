@@ -24,40 +24,45 @@ public class FlyingSpaghettiMonsterTest {
    * And they must be public, static, final fields, and typed by the class itself.
    * Otherwise errors will be reported by JCUnit framework.
    * <p/>
-   * Methods annotated with {@code ActionSpec} will be actions of the FSM.
+   * Methods annotated with {@code ActionSpec} will be considered actions of the FSM.
    * And they must be public, returning {@code Expectation<SUT>}, taking arguments
-   * which define the signature of the methods of SUT.
+   * which define the signature of the methods to be tested in the SUT.
    */
   public static enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
     @StateSpec I {
-      @Override
-      public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+      @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();
       }
 
-      @ActionSpec
-      public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish) {
+      @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
         Checks.checknotnull(fsm);
         return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
       }
     },
     @StateSpec COOKED {
-      @Override
-      public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+      @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();
       }
 
+      @Override public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+        return FSMUtils.valid(fsm, COOKED, CoreMatchers.containsString("yummy"));
+      }
+
+      @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
+        Checks.checknotnull(fsm);
+        return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
+      }
     },;
 
     @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish) {
+    public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
       return FSMUtils.invalid();
     }
 
     @ParametersSpec
     public static final Object[][] cook = new Object[][] {
-        { "spaghetti" },
-        { "spaghettini" }
+        { "spaghetti", "spaghettini" },
+        { "peperoncino", "carbonara", "meat sauce" },
     };
 
     @ActionSpec

@@ -230,11 +230,7 @@ public interface ScenarioSequence<SUT> {
 
         @Override
         public String toString() {
-          Object[] scenarios = new Object[this.size()];
-          for (int i = 0; i < scenarios.length; i++) {
-            scenarios[i] = this.get(i);
-          }
-          return String.format("ScenarioSequence:[%s]", Utils.join(",", scenarios));
+          return FSMUtils.toString(this);
         }
       };
     }

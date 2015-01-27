@@ -31,8 +31,8 @@ public class Expectation<SUT> {
   @Override
   public String toString() {
     if (this.state == State.VOID)
-      return String.format("%s:thrown(%s)", this.state, this.returnedValue);
-    return String.format("%s:returned(%s)", this.state, this.returnedValue);
+      return String.format("%s:%s is thrown", this.state, this.returnedValue);
+    return String.format("%s:%s is returned", this.state, this.returnedValue);
   }
 
 }
