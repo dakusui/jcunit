@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -30,5 +31,10 @@ public class Args {
       ret.add(each != null ? each.getClass() : null);
     }
     return ret.toArray(new Type[this.size()]);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("[%s]", Utils.join(",", values));
   }
 }

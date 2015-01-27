@@ -46,6 +46,7 @@ public class FlyingSpaghettiMonsterTest {
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();
       }
+
     },;
 
     @ActionSpec
@@ -89,11 +90,11 @@ public class FlyingSpaghettiMonsterTest {
 
   @Before
   public void before() throws Throwable {
-    FSMUtils.performScenarioSequence(this.setUp, this.sut);
+    FSMUtils.performScenarioSequence(this.setUp, this.sut, ScenarioSequence.SIMPLE_REPORTER);
   }
 
   @Test
   public void test() throws Throwable {
-    FSMUtils.performScenarioSequence(this.main, this.sut);
+    FSMUtils.performScenarioSequence(this.main, this.sut, ScenarioSequence.SIMPLE_REPORTER);
   }
 }

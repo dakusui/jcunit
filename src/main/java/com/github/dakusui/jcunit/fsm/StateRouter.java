@@ -15,6 +15,18 @@ public abstract class StateRouter<SUT> {
       this.action = action;
       this.args = args;
     }
+
+    @Override
+    public int hashCode() {
+      return this.action.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object anotherObject) {
+      if (!(anotherObject instanceof Transition)) return false;
+      Transition<SUT> another = (Transition<SUT>) anotherObject;
+      return this.action.equals(another.action) && this.args.equals(another.args);
+    }
   }
 
   private final FSM<SUT> fsm;

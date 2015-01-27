@@ -33,6 +33,11 @@ public interface State<SUT> extends StateChecker<SUT> {
       // since anything is possible, this method always return true regardless of SUT state.
       return true;
     }
+
+    @Override
+    public String toString() {
+      return "(VOID)";
+    }
   };
 
   /**

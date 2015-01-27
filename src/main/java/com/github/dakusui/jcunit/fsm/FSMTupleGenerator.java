@@ -11,7 +11,10 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
   private final FSM<SUT>               fsm;
@@ -65,8 +68,10 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
             Scenario<SUT> each = eachScenario.get(i);
             if (each.given.equals(state) && !each.then().state
                 .equals(State.VOID)) {
-              ret.add(new Transition<SUT>(eachScenario.action(i),
-                  eachScenario.args(i)));
+              Transition<SUT> t = new Transition<SUT>(eachScenario.action(i),
+                  eachScenario.args(i));
+              if (!ret.contains(t))
+                ret.add(t);
             }
           }
         }
@@ -114,7 +119,8 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
       }
     });
     if (!matched.isEmpty()) {
-      for (Factor toBeRemoved : matched) factors.remove(toBeRemoved);
+      for (Factor toBeRemoved : matched)
+        factors.remove(toBeRemoved);
     }
     for (final Factor.Builder each : mappedFactors.values()) {
       fb.add(each.build());
@@ -133,7 +139,8 @@ public class FSMTupleGenerator<SUT> extends TupleGeneratorBase {
       b.put(name, v);
 
       Factor.Builder bb;
-      if (mappedValues.containsKey(name)) bb = mappedValues.get(name);
+      if (mappedValues.containsKey(name))
+        bb = mappedValues.get(name);
       else {
         bb = new Factor.Builder();
         bb.setName(name);

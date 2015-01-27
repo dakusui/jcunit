@@ -23,37 +23,52 @@ import static org.junit.Assert.fail;
  * A utility class for FSM (finite state machine) support of JCUnit.
  */
 public class FSMUtils {
-  private static final Class<? extends Object[][]> DOUBLE_ARRAYED_OBJECT_CLASS = new Object[0][0].getClass();
+  private static final Class<? extends Object[][]> DOUBLE_ARRAYED_OBJECT_CLASS = Object[][].class;
   private static final Pattern                     fsmFactorPattern            = Pattern.compile("FSM:(main|setUp):([^:]+)");
 
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(ScenarioSequence<SUT> scenarioSeq, SUT sut) throws Throwable {
+  public static <SUT> void performScenarioSequence(ScenarioSequence<SUT> scenarioSeq, SUT sut, ScenarioSequence.Reporter reporter) throws Throwable {
     Checks.checknotnull(scenarioSeq);
-    for (int i = 0; i < scenarioSeq.size(); i++) {
-      Scenario each = scenarioSeq.get(i);
+    Checks.checknotnull(reporter);
+    reporter.startSequence(scenarioSeq);
+    try {
+      for (int i = 0; i < scenarioSeq.size(); i++) {
+        Scenario each = scenarioSeq.get(i);
 
-      boolean checkState = false;
-      try {
-        Object r = each.perform(sut);
-        if (each.then().returnedValue == null)
-          fail(String.format("'%s' was expected to be thrown.", each.then().thrownException));
-        each.then().returnedValue.matches(r);
-        checkState = true;
-      } catch (Throwable t) {
-        if (each.then().thrownException == null)
-          throw t;
-        each.then().thrownException.matches(t);
-        checkState = true;
-      } finally {
-        if (checkState) {
+        boolean outputCheck = false;
+        Object actual = null;
+        try {
+          reporter.run(each, sut);
+          Object r = each.perform(sut);
+          if (each.then().returnedValue == null)
+            fail(String.format("'%s' was expected to be thrown.", each.then().thrownException));
+          outputCheck = each.then().returnedValue.matches(r);
+          actual = r;
+        } catch (Throwable t) {
+          if (each.then().thrownException == null)
+            throw t;
+          outputCheck = each.then().thrownException.matches(t);
+          actual = t;
+        } finally {
+          boolean stateCheck = each.then().state.check(sut);
+          if (outputCheck && stateCheck)
+            reporter.passed(each, sut);
+          else
+            reporter.failed(each, sut);
+          assertTrue(
+              String.format("Expected: '%s', but '%s' was returned/thrown.", each.then(), actual),
+              outputCheck
+          );
           assertTrue(
               String.format("Expected status of the SUT is '%s' but it was not satisfied.", each.then().state),
-              each.then().state.check(sut)
+              stateCheck
           );
         }
       }
+    } finally {
+      reporter.endSequence(scenarioSeq);
     }
   }
 
@@ -62,12 +77,14 @@ public class FSMUtils {
   }
 
   public static <SUT> Expectation<SUT> invalid(Class<? extends Throwable> klass) {
+    //noinspection unchecked
     return new Expectation(State.VOID, CoreMatchers.instanceOf(klass));
   }
 
   public static <SUT> Expectation<SUT> invalid(FSM<SUT> fsm, FSMSpec<SUT> state, Class<? extends Throwable> klass) {
     Checks.checknotnull(fsm);
     Checks.checknotnull(state);
+    //noinspection unchecked
     return new Expectation(chooseState(fsm, state), CoreMatchers.instanceOf(klass));
   }
 
@@ -76,7 +93,11 @@ public class FSMUtils {
   }
 
   public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, Object returnedValue) {
-    return new Expectation<SUT>(chooseState(fsm, state), CoreMatchers.is(returnedValue));
+    return valid(fsm, state, CoreMatchers.is(returnedValue));
+  }
+
+  public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, org.hamcrest.Matcher matcher) {
+    return new Expectation<SUT>(chooseState(fsm, state), matcher);
   }
 
   public static <SUT> FSM<SUT> createFSM(Class<? extends FSMSpec<SUT>> fsmSpecClass) {
@@ -87,7 +108,8 @@ public class FSMUtils {
     Checks.checknotnull(fsm);
     Checks.checknotnull(stateChecker);
     for (State<SUT> each : fsm.states()) {
-      if (((SimpleFSM.SimpleFSMState)each).stateSpec == stateChecker) return each;
+      if (((SimpleFSM.SimpleFSMState) each).stateSpec == stateChecker)
+        return each;
     }
     Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
     return null;
@@ -217,71 +239,13 @@ public class FSMUtils {
     }
 
     private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
-      final String name = actionMethod.getName();
       final Object[][] paramFactors;
       if (paramsField == null) {
-        paramFactors = new Object[][]{new Object[]{}};
+        paramFactors = new Object[][] { new Object[] { } };
       } else {
         paramFactors = getParamsValue(validateParamsField(paramsField));
       }
-      return new Action<SUT>() {
-        @Override
-        public String toString() {
-          return actionMethod.getName();
-        }
-
-        @Override
-        public Object perform(SUT o, Args args) throws Throwable {
-          Object ret = null;
-          try {
-            Method m = chooseMethod(o.getClass(), name, args.size());
-            try {
-              ret = m.invoke(o, args.values());
-            } catch (IllegalArgumentException e) {
-              throw new IllegalArgumentException(String.format("Method '%s/%d' in '%s' expects %s, but %s are given.",
-                  name, args.size(),
-                  o.getClass().getCanonicalName(),
-                  Arrays.toString(m.getParameterTypes()),
-                  Arrays.toString(args.types())
-              ));
-            }
-          } catch (IllegalAccessException e) {
-            ////
-            // I know it's possible to support non-public method test by accessing
-            // security manager and it's easy. But I can't be sure it's useful
-            // yet and a careless introduction of a new feature can create a
-            // compatibility conflicts in future, so I'm not supporting it for now.
-            Checks.rethrowtesterror(e, "Non-public method testing isn't supported (%s#%s isn't public)");
-          } catch (InvocationTargetException e) {
-            throw e.getTargetException();
-          }
-          return ret;
-        }
-
-        private <SUT> Method chooseMethod(Class<SUT> klass, String name, int numArgs) {
-          Method ret = null;
-          for (Method each : klass.getMethods()) {
-            if (each.getName().equals(name) && each.getParameterTypes().length == numArgs) {
-              Checks.checktest(ret == null, "There are more than 1 method '%s/%d' in '%s'", name, numArgs, klass.getCanonicalName());
-              ret = each;
-            }
-          }
-          Checks.checktest(ret != null, "No method '%s/%d' is found in '%s'", name, numArgs, klass.getCanonicalName());
-          return ret;
-        }
-
-        @Override
-        public Object[] parameterFactorLevels(int i) {
-          Checks.checkcond(0 <=i && i < paramFactors.length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
-          return paramFactors[i];
-        }
-
-        @Override
-        public int numParameterFactors() {
-          // It's safe to access the first parameter because it's already validated.
-          return paramFactors[0].length;
-        }
-      };
+      return (Action<SUT>) new SimpleFSM.MethodAction(actionMethod, paramFactors);
     }
 
     /**
@@ -297,11 +261,12 @@ public class FSMUtils {
             "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
             field.getName(), field.getType().getCanonicalName());
         int len = -1;
-        for (Object[] each : (Object[][])ret) {
+        for (Object[] each : (Object[][]) ret) {
           Checks.checktest(
               len == -1 || len == each.length,
               "All the elements in '%s' of '%s' have the same length.",
               field.getName(), field.getType().getCanonicalName());
+          len = each.length;
         }
         ////
         // Casting to Object[][] is safe because validateParamsField checks it.
@@ -355,7 +320,7 @@ public class FSMUtils {
     }
 
     private class SimpleFSMState<SUT> implements State<SUT> {
-      private final FSMSpec<SUT> stateSpec;
+      private final FSMSpec<SUT>        stateSpec;
       private final Map<String, Method> actionMethods;
       private final Field               stateSpecField;
 
@@ -366,55 +331,148 @@ public class FSMUtils {
       }
 
       @Override
-    public boolean check(SUT sut) {
-      return stateSpec.check(sut);
-    }
+      public boolean check(SUT sut) {
+        return stateSpec.check(sut);
+      }
 
       @Override
-    public Expectation<SUT> expectation(Action<SUT> action, Args args) {
-      Expectation<SUT> ret = null;
-      Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
-      Checks.checktest(
-          Expectation.class.isAssignableFrom(m.getReturnType()),
-          "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
-          m.getName(),
-          m.getParameterTypes().length,
-          m.getDeclaringClass().getCanonicalName(),
-          Expectation.class.getCanonicalName(),
-          m.getReturnType().getCanonicalName()
-      );
-      Object[] argsToMethod = (Object[]) Utils.concatenate(
-          new Object[] { SimpleFSM.this },
-          args.values()
-      );
-      try {
-        ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
-      } catch (IllegalArgumentException e) {
-        Checks.rethrowtesterror(
-            e,
-            "Wrong types: '%s/%s' of '%s' can't be executed with %s",
+      public Expectation<SUT> expectation(Action<SUT> action, Args args) {
+        Expectation<SUT> ret = null;
+        Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
+        Checks.checktest(
+            Expectation.class.isAssignableFrom(m.getReturnType()),
+            "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
             m.getName(),
             m.getParameterTypes().length,
-            m.getDeclaringClass(),
-            Arrays.toString(argsToMethod)
+            m.getDeclaringClass().getCanonicalName(),
+            Expectation.class.getCanonicalName(),
+            m.getReturnType().getCanonicalName()
         );
-      } catch (IllegalAccessException e) {
-        // Since the method is validated in advance, this path should never be executed.
-        Checks.fail();
-      } catch (InvocationTargetException e) {
-        Checks.rethrowtesterror(
-            e,
-            "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
-            m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
+        Object[] argsToMethod = (Object[]) Utils.concatenate(
+            new Object[] { SimpleFSM.this },
+            args.values()
         );
+        try {
+          ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
+        } catch (IllegalArgumentException e) {
+          Checks.rethrowtesterror(
+              e,
+              "Wrong types: '%s/%s' of '%s' can't be executed with %s",
+              m.getName(),
+              m.getParameterTypes().length,
+              m.getDeclaringClass(),
+              Arrays.toString(argsToMethod)
+          );
+        } catch (IllegalAccessException e) {
+          // Since the method is validated in advance, this path should never be executed.
+          Checks.fail();
+        } catch (InvocationTargetException e) {
+          Checks.rethrowtesterror(
+              e,
+              "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
+              m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
+          );
+        }
+        return ret;
       }
-      return ret;
-    }
 
       @Override
-    public String toString() {
-      return String.format("%s$%s", SimpleFSM.class.getSimpleName(), stateSpecField.getName());
+      public String toString() {
+        return String.format("%s", stateSpecField.getName());
+      }
     }
+
+    private class MethodAction<SUT> implements Action<SUT> {
+      final         Method     method;
+      final         String     name;
+      private final Object[][] paramFactors;
+
+      public MethodAction(Method method, Object[][] paramFactors) {
+        this.method = method;
+        this.name = method.getName();
+        this.paramFactors = transpose(paramFactors);
+      }
+
+      @Override
+      public Object perform(SUT o, Args args) throws Throwable {
+        Object ret = null;
+        try {
+          Method m = chooseMethod(o.getClass(), name, args.size());
+          try {
+            ret = m.invoke(o, args.values());
+          } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(String.format("Method '%s/%d' in '%s' expects %s, but %s are given.",
+                name, args.size(),
+                o.getClass().getCanonicalName(),
+                Arrays.toString(m.getParameterTypes()),
+                Arrays.toString(args.types())
+            ));
+          }
+        } catch (IllegalAccessException e) {
+          ////
+          // I know it's possible to support non-public method test by accessing
+          // security manager and it's easy. But I can't be sure it's useful
+          // yet and a careless introduction of a new feature can create a
+          // compatibility conflicts in future, so I'm not supporting it for now.
+          Checks.rethrowtesterror(e, "Non-public method testing isn't supported (%s#%s isn't public)");
+        } catch (InvocationTargetException e) {
+          throw e.getTargetException();
+        }
+        return ret;
+      }
+
+      @Override
+      public Object[] parameterFactorLevels(int i) {
+        Checks.checkcond(0 <= i && i < paramFactors[i].length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
+        return paramFactors[i];
+      }
+
+      @Override
+      public int numParameterFactors() {
+        // It's safe to access the first parameter because it's already validated.
+        return paramFactors.length;
+      }
+
+      @Override
+      public String toString() {
+        return method.getName();
+      }
+
+      @Override
+      public int hashCode() {
+        return method.hashCode();
+      }
+
+      @Override
+      public boolean equals(Object anotherObject) {
+        if (!(anotherObject instanceof MethodAction)) return false;
+        MethodAction another = (MethodAction) anotherObject;
+        return this.method.equals(another.method);
+      }
+
+      private Object[][] transpose(Object[][] paramFactors) {
+        int w = paramFactors.length;
+        int h = paramFactors[0].length;
+        Object[][] ret =  new Object[h][w];
+        for (int i = 0; i < w; i++) {
+          for (int j = 0; j < h; j++) {
+            ret[j][h] = paramFactors[i][j];
+          }
+        }
+        return ret;
+      }
+
+      private <SUT> Method chooseMethod(Class<SUT> klass, String name, int numArgs) {
+        Method ret = null;
+        for (Method each : klass.getMethods()) {
+          if (each.getName().equals(name) && each.getParameterTypes().length == numArgs) {
+            Checks.checktest(ret == null, "There are more than 1 method '%s/%d' in '%s'", name, numArgs, klass.getCanonicalName());
+            ret = each;
+          }
+        }
+        Checks.checktest(ret != null, "No method '%s/%d' is found in '%s'", name, numArgs, klass.getCanonicalName());
+        return ret;
+      }
     }
   }
 

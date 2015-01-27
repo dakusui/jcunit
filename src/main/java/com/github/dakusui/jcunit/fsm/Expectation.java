@@ -5,26 +5,34 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
 public class Expectation<SUT> {
-    public final State<SUT> state;
-    public final Matcher returnedValue;
-    public final Matcher thrownException;
+  public final State<SUT> state;
+  public final Matcher    returnedValue;
+  public final Matcher    thrownException;
 
-    private Expectation(State<SUT> state,
-                        Matcher returnedValue,
-                        Matcher thrownException) {
-        this.state = state;
-        this.returnedValue = returnedValue;
-        this.thrownException = thrownException;
-    }
+  private Expectation(State<SUT> state,
+      Matcher returnedValue,
+      Matcher thrownException) {
+    this.state = state;
+    this.returnedValue = returnedValue;
+    this.thrownException = thrownException;
+  }
 
-    public Expectation(Matcher thrownException) {
-        this((State<SUT>) State.VOID,
-                CoreMatchers.is(FSMFactors.VOID),
-                Checks.checknotnull(thrownException));
-    }
+  public Expectation(Matcher thrownException) {
+    this((State<SUT>) State.VOID,
+        CoreMatchers.is(FSMFactors.VOID),
+        Checks.checknotnull(thrownException));
+  }
 
-    public Expectation(State<SUT> state,
-                       Matcher returnedValue) {
-        this(Checks.checknotnull(state), Checks.checknotnull(returnedValue), null);
-    }
+  public Expectation(State<SUT> state,
+      Matcher returnedValue) {
+    this(Checks.checknotnull(state), Checks.checknotnull(returnedValue), null);
+  }
+
+  @Override
+  public String toString() {
+    if (this.state == State.VOID)
+      return String.format("%s:thrown(%s)", this.state, this.returnedValue);
+    return String.format("%s:returned(%s)", this.state, this.returnedValue);
+  }
+
 }

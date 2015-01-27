@@ -1,13 +1,75 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public interface ScenarioSequence<SUT> {
+  public static interface Reporter<SUT> {
+    void startSequence(ScenarioSequence<SUT> seq);
+
+    void run(Scenario<SUT> scenario, SUT sut);
+
+    void passed(Scenario<SUT> scenario, SUT sut);
+
+    void failed(Scenario<SUT> scenario, SUT sut);
+
+    void endSequence(ScenarioSequence<SUT> seq);
+  }
+
+  public static final Reporter SILENT_REPORTER = new Reporter() {
+    @Override
+    public void startSequence(ScenarioSequence seq) {
+    }
+
+    @Override
+    public void run(Scenario scenario, Object o) {
+    }
+
+    @Override
+    public void passed(Scenario scenario, Object o) {
+    }
+
+    @Override
+    public void failed(Scenario scenario, Object o) {
+    }
+
+    @Override
+    public void endSequence(ScenarioSequence seq) {
+
+    }
+  };
+
+  public static final Reporter SIMPLE_REPORTER = new Reporter() {
+    @Override
+    public void startSequence(ScenarioSequence seq) {
+      System.out.printf("Starting:%s\n", seq);
+    }
+
+    @Override
+    public void run(Scenario scenario, Object o) {
+      System.out.printf("  Running:%s\n", scenario);
+    }
+
+    @Override
+    public void passed(Scenario scenario, Object o) {
+      System.out.println("  Passed");
+    }
+
+    @Override
+    public void failed(Scenario scenario, Object o) {
+      System.out.println("  Failed");
+    }
+
+    @Override
+    public void endSequence(ScenarioSequence seq) {
+      System.out.println("End");
+    }
+  };
+
   public static final ScenarioSequence<?> EMPTY = new ScenarioSequence() {
     @Override
     public int size() {
@@ -43,7 +105,13 @@ public interface ScenarioSequence<SUT> {
     public Args args(int i) {
       throw new IllegalStateException();
     }
+
+    @Override
+    public String toString() {
+      return "ScenarioSequence:[]";
+    }
   };
+
 
   int size();
 
@@ -114,6 +182,7 @@ public interface ScenarioSequence<SUT> {
         public State<SUT> state(int i) {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
+          //noinspection unchecked
           return (State<SUT>) tuple.get(factors.stateFactorName(i));
         }
 
@@ -121,6 +190,7 @@ public interface ScenarioSequence<SUT> {
         public Action<SUT> action(int i) {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
+          //noinspection unchecked
           return (Action<SUT>) tuple.get(factors.actionFactorName(i));
         }
 
@@ -160,11 +230,11 @@ public interface ScenarioSequence<SUT> {
 
         @Override
         public String toString() {
-          List<Object> l = new ArrayList<Object>(size());
-          for (int i = 0; i < l.size(); i++) {
-            l.add(state(i));
+          Object[] scenarios = new Object[this.size()];
+          for (int i = 0; i < scenarios.length; i++) {
+            scenarios[i] = this.get(i);
           }
-          return "ScenarioSequence:" + l.toString();
+          return String.format("ScenarioSequence:[%s]", Utils.join(",", scenarios));
         }
       };
     }
