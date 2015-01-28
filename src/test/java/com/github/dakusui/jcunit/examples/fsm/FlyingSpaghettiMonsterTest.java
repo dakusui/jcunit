@@ -54,19 +54,17 @@ public class FlyingSpaghettiMonsterTest {
       }
     },;
 
-    @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
+
+    @ActionSpec public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
       return FSMUtils.invalid();
     }
 
-    @ParametersSpec
-    public static final Object[][] cook = new Object[][] {
+    @ParametersSpec public static final Object[][] cook = new Object[][] {
         { "spaghetti", "spaghettini" },
         { "peperoncino", "carbonara", "meat sauce" },
     };
 
-    @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+    @ActionSpec public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
       return FSMUtils.invalid();
     }
   }
