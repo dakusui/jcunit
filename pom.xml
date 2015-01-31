@@ -142,7 +142,7 @@
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.10.1</version>
                         <configuration>
-                            <reportOutputDirectory>src/site</reportOutputDirectory>
+                            <reportOutputDirectory>${project.basedir}/src/site</reportOutputDirectory>
                             <destDir>apidocs</destDir>
                         </configuration>
                     </plugin>
