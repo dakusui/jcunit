@@ -20,7 +20,7 @@ public interface State<SUT> extends StateChecker<SUT> {
       // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
       // non-deterministic FSM is not supported by JCUnit yet...
       if (action == Action.VOID && args.size() == 0)
-        return new Expectation(this, CoreMatchers.anything());
+        return new Expectation(Expectation.Type.VALUE_RETURNED, this, CoreMatchers.anything());
       return null;
     }
 

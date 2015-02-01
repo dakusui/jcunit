@@ -39,35 +39,26 @@ public class FSMUtils {
 
         boolean outputCheck = false;
         Object actual = null;
-        String valueReturnedOrExceptionThrown = null;
+        Expectation.Result result = null;
+        reporter.run(each, sut);
         try {
-          reporter.run(each, sut);
           Object r = each.perform(sut);
-          if (each.then().returnedValue == null)
-            fail(String.format("'%s' is expected to be thrown.", each.then().thrownException));
-          outputCheck = each.then().returnedValue.matches(r);
-          actual = r;
-          valueReturnedOrExceptionThrown = "returned";
+          ////
+          // each.perform(sut) didn't throw an exception
+          result = each.then().checkReturnedValue(sut, r);
         } catch (Throwable t) {
-          if (each.then().thrownException == null)
-            throw t;
-          outputCheck = each.then().thrownException.matches(t);
-          actual = t;
-          valueReturnedOrExceptionThrown = "thrown";
+          try {
+            result = each.then().checkThrownException(sut, t);
+          } catch (Throwable tt) {
+            tt.printStackTrace();
+            throw tt;
+          }
         } finally {
-          boolean stateCheck = each.then().state.check(sut);
-          if (outputCheck && stateCheck)
+          if (result.isSuccessful())
             reporter.passed(each, sut);
           else
             reporter.failed(each, sut);
-          assertTrue(
-              String.format("Expected: '%s', but '%s' is %s.", each.then(), actual, valueReturnedOrExceptionThrown),
-              outputCheck
-          );
-          assertTrue(
-              String.format("Expected status of the SUT is '%s' but it is not satisfied.", each.then().state),
-              stateCheck
-          );
+          result.throwIfFailed();
         }
       }
     } finally {
@@ -81,18 +72,18 @@ public class FSMUtils {
 
   public static <SUT> Expectation<SUT> invalid(Class<? extends Throwable> klass) {
     //noinspection unchecked
-    return new Expectation(State.VOID, CoreMatchers.instanceOf(klass));
+    return new Expectation(Expectation.Type.EXCEPTION_THROWN, State.VOID, CoreMatchers.instanceOf(klass));
   }
 
   public static <SUT> Expectation<SUT> invalid(FSM<SUT> fsm, FSMSpec<SUT> state, Class<? extends Throwable> klass) {
     Checks.checknotnull(fsm);
     Checks.checknotnull(state);
     //noinspection unchecked
-    return new Expectation(chooseState(fsm, state), CoreMatchers.instanceOf(klass));
+    return new Expectation(Expectation.Type.EXCEPTION_THROWN, chooseState(fsm, state), CoreMatchers.instanceOf(klass));
   }
 
   public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state) {
-    return new Expectation<SUT>(chooseState(fsm, state), CoreMatchers.anything());
+    return new Expectation<SUT>(Expectation.Type.VALUE_RETURNED, chooseState(fsm, state), CoreMatchers.anything());
   }
 
   public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, Object returnedValue) {
@@ -100,7 +91,7 @@ public class FSMUtils {
   }
 
   public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, org.hamcrest.Matcher matcher) {
-    return new Expectation<SUT>(chooseState(fsm, state), matcher);
+    return new Expectation<SUT>(Expectation.Type.VALUE_RETURNED, chooseState(fsm, state), matcher);
   }
 
   public static <SUT> FSM<SUT> createFSM(Class<? extends FSMSpec<SUT>> fsmSpecClass) {

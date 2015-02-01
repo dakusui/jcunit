@@ -51,7 +51,7 @@ public interface ScenarioSequence<SUT> {
 
     @Override
     public void run(Scenario scenario, Object o) {
-      System.out.printf("  Running:%s\n", scenario);
+      System.out.printf("  Running:%s expecting %s\n", scenario, scenario.then());
     }
 
     @Override

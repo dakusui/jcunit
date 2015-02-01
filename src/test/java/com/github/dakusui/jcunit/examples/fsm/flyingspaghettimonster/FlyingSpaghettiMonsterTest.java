@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.fsm;
+package com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
