@@ -27,31 +27,7 @@ public class Expectation<SUT> {
     this.state = state;
     this.matcher = matcher;
   }
-/*
-          fail(String.format("'%s' is expected to be thrown.", each.then().thrownException));
 
-
-          valueReturnedOrExceptionThrown = "thrown";
-          actual = t;
-          if (each.then().thrownException == null)
-            throw t;
-          outputCheck = each.then().thrownException.matches(t);
-          boolean stateCheck = each.then().state.check(sut);
-          if (outputCheck && stateCheck)
-            reporter.passed(each, sut);
-          else
-            reporter.failed(each, sut);
-          assertTrue(
-              String.format("Expected: %s, but '%s' is %s.", each.then(), actual, valueReturnedOrExceptionThrown),
-              outputCheck
-          );
-
-          assertTrue(
-              String.format("Expected status of the SUT is '%s' but it is not satisfied.", each.then().state),
-              stateCheck
-          );
-
- */
   public Result checkThrownException(SUT sut, Throwable thrownException) {
     Checks.checknotnull(sut);
     Checks.checknotnull(thrownException);
@@ -123,12 +99,16 @@ public class Expectation<SUT> {
   }
 
 
-  public static class Result extends JCUnitException {
+  public static class Result extends NestableException {
     private final List<Reason> failedReasons;
 
     public Result(String message, List<Reason> failedReasons) {
-      super(message, null);
+      super(message);
       this.failedReasons = Collections.unmodifiableList(failedReasons);
+      for (Reason each : this.getFailedReasons()) {
+        if (each.t  != null)
+          this.addChild(each.t);
+      }
     }
 
     public boolean isSuccessful() {

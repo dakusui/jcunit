@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
-public class TurnStileTest {
+public class TurnstileTest {
   public enum Spec implements FSMSpec<Turnstile> {
     @StateSpec I {
       @Override

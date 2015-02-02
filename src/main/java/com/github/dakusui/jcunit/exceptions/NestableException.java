@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class NestableException extends JCUnitException {
-  private final List<InvalidTestException> nested = new LinkedList<InvalidTestException>();
+  private final List<Throwable> nested = new LinkedList<Throwable>();
 
   /**
    * Creates an object of this class.
@@ -29,7 +29,7 @@ public class NestableException extends JCUnitException {
     super(message, null);
   }
 
-  public void addChild(InvalidTestException child) {
+  public void addChild(Throwable child) {
     this.nested.add(Checks.checknotnull(child));
   }
 
@@ -39,7 +39,7 @@ public class NestableException extends JCUnitException {
     if (!nested.isEmpty()) {
       ret += ":[";
       boolean isFirst = true;
-      for (InvalidTestException each : this.nested) {
+      for (Throwable each : this.nested) {
         if (!isFirst) {
           ret += ",";
         }
@@ -56,22 +56,26 @@ public class NestableException extends JCUnitException {
   }
 
   public void printStackTrace(PrintStream ps) {
+    // Keep the same style as java.lang.Throwable.
+    //noinspection SynchronizationOnLocalVariableOrMethodParameter
     synchronized (ps) {
       //tps.println(super.getMessage());
       super.printStackTrace(ps);
       ps.println();
-      for (NestableException each : this.nested) {
+      for (Throwable each : this.nested) {
         each.printStackTrace(ps);
       }
     }
   }
   @Override
   public void printStackTrace(PrintWriter pw) {
+    // Keep the same style as java.lang.Throwable.
+    //noinspection SynchronizationOnLocalVariableOrMethodParameter
     synchronized (pw) {
       //tpw.println(super.getMessage());
       super.printStackTrace(pw);
       pw.println();
-      for (NestableException each : this.nested) {
+      for (Throwable each : this.nested) {
         each.printStackTrace(pw);
       }
     }

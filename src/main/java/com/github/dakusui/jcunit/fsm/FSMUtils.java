@@ -47,18 +47,15 @@ public class FSMUtils {
           // each.perform(sut) didn't throw an exception
           result = each.then().checkReturnedValue(sut, r);
         } catch (Throwable t) {
-          try {
-            result = each.then().checkThrownException(sut, t);
-          } catch (Throwable tt) {
-            tt.printStackTrace();
-            throw tt;
-          }
+          result = each.then().checkThrownException(sut, t);
         } finally {
-          if (result.isSuccessful())
-            reporter.passed(each, sut);
-          else
-            reporter.failed(each, sut);
-          result.throwIfFailed();
+          if (result != null) {
+            if (result.isSuccessful())
+              reporter.passed(each, sut);
+            else
+              reporter.failed(each, sut);
+            result.throwIfFailed();
+          }
         }
       }
     } finally {

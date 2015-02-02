@@ -7,29 +7,6 @@ import java.util.*;
 
 public abstract class StateRouter<SUT> {
 
-  public static class Transition<SUT> {
-    public final Action<SUT> action;
-    public final Args        args;
-
-    public Transition(Action<SUT> action, Args args) {
-      this.action = action;
-      this.args = args;
-    }
-
-    @Override
-    public int hashCode() {
-      return this.action.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object anotherObject) {
-      if (!(anotherObject instanceof Transition))
-        return false;
-      Transition<SUT> another = (Transition<SUT>) anotherObject;
-      return this.action.equals(another.action) && Arrays.deepEquals(this.args.values(), another.args.values());
-    }
-  }
-
   private final FSM<SUT>                               fsm;
   private final List<State<SUT>>                       destinations;
   private final Map<State<SUT>, ScenarioSequence<SUT>> routes;
@@ -38,16 +15,17 @@ public abstract class StateRouter<SUT> {
     Checks.checknotnull(fsm);
     Checks.checknotnull(destinations);
     this.destinations = Collections.unmodifiableList(Utils.singleton(destinations));
-    this.routes = new HashMap<State<SUT>, ScenarioSequence<SUT>>();
+    this.routes = new LinkedHashMap<State<SUT>, ScenarioSequence<SUT>>();
     for (State<SUT> each : destinations) {
       if (each.equals(fsm.initialState())) {
+        //noinspection unchecked
         this.routes.put(each, (ScenarioSequence<SUT>) ScenarioSequence.EMPTY);
       } else {
         this.routes.put(each, null);
       }
     }
     this.fsm = fsm;
-    traverse(fsm.initialState(), new LinkedList<Transition>(), new HashSet<State<SUT>>());
+    traverse(fsm.initialState(), new LinkedList<Transition>(), new LinkedHashSet<State<SUT>>());
     List<State<SUT>> unreachableDestinations = new ArrayList<State<SUT>>(this.destinations.size());
     for (State<SUT> each : this.destinations) {
       if (this.routes.get(each) == null) {
@@ -60,10 +38,6 @@ public abstract class StateRouter<SUT> {
         unreachableDestinations,
         this.fsm.initialState()
     );
-  }
-
-  public boolean isDestination(State<SUT> state) {
-    return this.destinations.contains(state);
   }
 
   public ScenarioSequence<SUT> routeTo(State<SUT> state) {
@@ -144,6 +118,29 @@ public abstract class StateRouter<SUT> {
   }
 
   protected abstract List<Transition> possibleTransitionsFrom(State<SUT> state);
+
+  public static class Transition<SUT> {
+    public final Action<SUT> action;
+    public final Args        args;
+
+    public Transition(Action<SUT> action, Args args) {
+      this.action = action;
+      this.args = args;
+    }
+
+    @Override
+    public int hashCode() {
+      return this.action.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object anotherObject) {
+      if (!(anotherObject instanceof Transition))
+        return false;
+      Transition<SUT> another = (Transition<SUT>) anotherObject;
+      return this.action.equals(another.action) && Arrays.deepEquals(this.args.values(), another.args.values());
+    }
+  }
 
 
 }
