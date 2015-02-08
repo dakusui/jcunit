@@ -16,9 +16,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 /**
  * A utility class for FSM (finite state machine) support of JCUnit.
  */
@@ -29,24 +26,24 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(ScenarioSequence<SUT> scenarioSeq, SUT sut, ScenarioSequence.Reporter reporter) throws Throwable {
+  public static <SUT> void performScenarioSequence(ScenarioSequence<SUT> scenarioSeq, SUT sut, ScenarioSequence.Reporter<SUT> reporter) throws Throwable {
     Checks.checknotnull(scenarioSeq);
     Checks.checknotnull(reporter);
     reporter.startSequence(scenarioSeq);
     try {
       for (int i = 0; i < scenarioSeq.size(); i++) {
-        Scenario each = scenarioSeq.get(i);
+        Scenario<SUT> each = scenarioSeq.get(i);
 
-        boolean outputCheck = false;
-        Object actual = null;
         Expectation.Result result = null;
         reporter.run(each, sut);
         try {
           Object r = each.perform(sut);
           ////
           // each.perform(sut) didn't throw an exception
+          //noinspection unchecked,ThrowableResultOfMethodCallIgnored
           result = each.then().checkReturnedValue(sut, r);
         } catch (Throwable t) {
+          //noinspection unchecked,ThrowableResultOfMethodCallIgnored
           result = each.then().checkThrownException(sut, t);
         } finally {
           if (result != null) {
@@ -135,6 +132,12 @@ public class FSMUtils {
       scenarios[i] = scenarioSequence.get(i);
     }
     return String.format("ScenarioSequence:[%s]", Utils.join(",", scenarios));
+  }
+
+  public static void main(String[] args) {
+    System.out.println(getFSMNameFromScenarioFactorName("FSM:main:helloFSM"));
+    System.out.println(getFSMNameFromScenarioFactorName("FSM:setUp:helloFSM"));
+    System.out.println(getFSMNameFromScenarioFactorName("FSM:dummy:helloFSM"));
   }
 
   public static class SimpleFSM<SUT> implements FSM<SUT> {
@@ -245,6 +248,7 @@ public class FSMUtils {
       } else {
         paramFactors = getParamsFactors(validateParamsField(paramsField));
       }
+      //noinspection unchecked
       return (Action<SUT>) new SimpleFSM.MethodAction(actionMethod, paramFactors);
     }
 
@@ -283,7 +287,7 @@ public class FSMUtils {
 
     private State<SUT> createState(final Field stateSpecField, final Map<String, Method> actionMethods) {
       final FSMSpec<SUT> stateSpec = getStateSpecValue(validateStateSpecField(stateSpecField));
-      return new SimpleFSMState<SUT>(stateSpec, actionMethods, stateSpecField);
+      return new SimpleFSMState(stateSpec, actionMethods, stateSpecField);
     }
 
     private FSMSpec<SUT> getStateSpecValue(Field field) {
@@ -292,6 +296,7 @@ public class FSMUtils {
         Checks.checktest(ret != null, "The field '%s' of '%s' must be assigned a non-null value.", field.getName(), field.getType().getCanonicalName());
         ////
         // Casting to Object[][] is safe because validateParamsField checks it.
+        //noinspection unchecked
         return (FSMSpec<SUT>) ret;
       } catch (IllegalAccessException e) {
         ////
@@ -311,7 +316,7 @@ public class FSMUtils {
       return ret;
     }
 
-    private class SimpleFSMState<SUT> implements State<SUT> {
+    private class SimpleFSMState implements State<SUT> {
       private final FSMSpec<SUT>        stateSpec;
       private final Map<String, Method> actionMethods;
       private final Field               stateSpecField;
@@ -340,11 +345,12 @@ public class FSMUtils {
             Expectation.class.getCanonicalName(),
             m.getReturnType().getCanonicalName()
         );
-        Object[] argsToMethod = (Object[]) Utils.concatenate(
+        Object[] argsToMethod = Utils.concatenate(
             new Object[] { SimpleFSM.this },
             args.values()
         );
         try {
+          //noinspection unchecked
           ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
         } catch (IllegalArgumentException e) {
           Checks.rethrowtesterror(
@@ -374,7 +380,7 @@ public class FSMUtils {
       }
     }
 
-    private class MethodAction<SUT> implements Action<SUT> {
+    private static class MethodAction<SUT> implements Action<SUT> {
       final         Method     method;
       final         String     name;
       private final Object[][] paramFactors;
@@ -387,6 +393,7 @@ public class FSMUtils {
 
       @Override
       public Object perform(SUT o, Args args) throws Throwable {
+        Checks.checknotnull(o);
         Object ret = null;
         try {
           Method m = chooseMethod(o.getClass(), name, args.size());
@@ -437,12 +444,15 @@ public class FSMUtils {
 
       @Override
       public boolean equals(Object anotherObject) {
-        if (!(anotherObject instanceof MethodAction)) return false;
+        if (!(anotherObject instanceof MethodAction))
+          return false;
+        // It's safe to cast to MethodAction because it's already checked.
+        //noinspection unchecked
         MethodAction another = (MethodAction) anotherObject;
         return this.method.equals(another.method);
       }
 
-      private <SUT> Method chooseMethod(Class<SUT> klass, String name, int numArgs) {
+      private Method chooseMethod(Class<?> klass, String name, int numArgs) {
         Method ret = null;
         for (Method each : klass.getMethods()) {
           if (each.getName().equals(name) && each.getParameterTypes().length == numArgs) {
@@ -454,11 +464,5 @@ public class FSMUtils {
         return ret;
       }
     }
-  }
-
-  public static void main(String[] args) {
-    System.out.println(getFSMNameFromScenarioFactorName("FSM:main:helloFSM"));
-    System.out.println(getFSMNameFromScenarioFactorName("FSM:setUp:helloFSM"));
-    System.out.println(getFSMNameFromScenarioFactorName("FSM:dummy:helloFSM"));
   }
 }

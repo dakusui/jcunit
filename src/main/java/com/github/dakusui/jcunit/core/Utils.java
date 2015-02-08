@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.exceptions.*;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -9,15 +8,17 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
  * A utility class of JCUnit.
- *
+ * <p/>
  * In case there is a good library and I want to use the functionality of it in JCUnit, I
  * usually mimic it here (except {@code Preconditions} of Guava, it's in {@code Checks})
  * instead of adding dependency on it.
- *
+ * <p/>
  * This is because JCUnit's nature which should be able to be used for any other software
  * (at least as much as possible, I want to make it so).
  */
@@ -344,7 +345,7 @@ public class Utils {
   /**
    * Returns a list whose members are coming from a parameter list {@code in}, but
    * each of them appears only once.
-   *
+   * <p/>
    * Note that this method is not efficient if the size of {@code in} is very big.
    * it is implemented only for internal use of JCUnit.
    */
@@ -352,24 +353,11 @@ public class Utils {
     Checks.checknotnull(in);
     List<T> ret = new ArrayList<T>(in.size());
     for (T each : in) {
-      if (ret.contains(each)) continue;
+      if (ret.contains(each))
+        continue;
       ret.add(each);
     }
     return ret;
-  }
-
-  public static interface Formatter<T> {
-    public static final Formatter INSTANCE = new Formatter<Object>() {
-      @Override
-      public String format(Object elem) {
-        if (elem == null) {
-          return null;
-        }
-        return elem.toString();
-      }
-    };
-
-    public String format(T elem);
   }
 
   public static <K, V> Map<K, V> toMap(List<V> in, Form<V, K> form) {
@@ -386,25 +374,18 @@ public class Utils {
     return ret;
   }
 
-  public static interface Form<I, O> {
-    O apply(I in);
-  }
-
   public static <V> List filter(List<V> unfiltered, Predicate<V> predicate) {
     Checks.checknotnull(unfiltered);
     Checks.checknotnull(predicate);
     List<V> ret = new LinkedList<V>();
     for (V each : unfiltered) {
-      if (predicate.apply(each)) ret.add(each);
+      if (predicate.apply(each))
+        ret.add(each);
     }
     return ret;
   }
 
-  public static interface Predicate<I> {
-    boolean apply(I in);
-  }
-
-  public static <T> T[] concatenate (T[] a, T[] b) {
+  public static <T> T[] concatenate(T[] a, T[] b) {
     int aLen = a.length;
     int bLen = b.length;
 
@@ -414,5 +395,38 @@ public class Utils {
     System.arraycopy(b, 0, c, aLen, bLen);
 
     return c;
+  }
+
+  public static void main(String... args) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance("SHA-1");
+    System.out.println(Arrays.toString(md.digest()));
+    md.update((byte) 1);
+    System.out.println(Arrays.toString(md.digest()));
+    md.update(new byte[] { 1, 2, 3 });
+    System.out.println(Arrays.toString(md.digest()));
+    md.update(new byte[] { 1, 2, 3 });
+    System.out.println(Arrays.toString(md.digest()));
+  }
+
+  public static interface Formatter<T> {
+    public static final Formatter INSTANCE = new Formatter<Object>() {
+      @Override
+      public String format(Object elem) {
+        if (elem == null) {
+          return null;
+        }
+        return elem.toString();
+      }
+    };
+
+    public String format(T elem);
+  }
+
+  public static interface Form<I, O> {
+    O apply(I in);
+  }
+
+  public static interface Predicate<I> {
+    boolean apply(I in);
   }
 }
