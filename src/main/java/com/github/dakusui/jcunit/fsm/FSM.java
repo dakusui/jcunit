@@ -13,4 +13,8 @@ public interface FSM<SUT> {
   List<State<SUT>> states();
 
   List<Action<SUT>> actions();
+
+  int historyLength();
+
+  String name();
 }

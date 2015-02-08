@@ -89,7 +89,11 @@ public class FSMUtils {
   }
 
   public static <SUT> FSM<SUT> createFSM(Class<? extends FSMSpec<SUT>> fsmSpecClass) {
-    return new SimpleFSM<SUT>(fsmSpecClass);
+    return createFSM(fsmSpecClass, 2);
+  }
+
+  public static <SUT> FSM<SUT> createFSM(Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
+    return new SimpleFSM<SUT>(fsmSpecClass, historyLength);
   }
 
   private static <SUT> State<SUT> chooseState(FSM<SUT> fsm, StateChecker<SUT> stateChecker) {
@@ -141,11 +145,13 @@ public class FSMUtils {
   }
 
   public static class SimpleFSM<SUT> implements FSM<SUT> {
-    private List<State<SUT>>  states;
-    private List<Action<SUT>> actions;
-    private State<SUT>        initialState;
+    private final int               historyLength;
+    private       List<State<SUT>>  states;
+    private       List<Action<SUT>> actions;
+    private       State<SUT>        initialState;
+    private final String name;
 
-    public SimpleFSM(Class<? extends FSMSpec<SUT>> specClass) {
+    public SimpleFSM(Class<? extends FSMSpec<SUT>> specClass, int historyLength) {
       Checks.checknotnull(specClass);
       ////
       // Build 'actions'.
@@ -186,6 +192,8 @@ public class FSMUtils {
       Checks.checktest(initialState != null, "A state whose name is 'I' couldn't be found in '%s'", specClass.getCanonicalName());
       this.states = Collections.unmodifiableList(states);
       this.initialState = initialState;
+      this.historyLength = historyLength;
+      this.name = specClass.getSimpleName();
     }
 
     @Override
@@ -201,6 +209,16 @@ public class FSMUtils {
     @Override
     public List<Action<SUT>> actions() {
       return this.actions;
+    }
+
+    @Override
+    public int historyLength() {
+      return historyLength;
+    }
+
+    @Override
+    public String name() {
+      return null;
     }
 
     private List<Field> getStateFields(Class<? extends FSMSpec<SUT>> specClass) {

@@ -1,11 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public interface ScenarioSequence<SUT> {
   public static interface Reporter<SUT> {
@@ -149,6 +145,7 @@ public interface ScenarioSequence<SUT> {
   public static class BuilderFromTuple<SUT> {
     private FSMFactors factors;
     private Tuple      tuple;
+    private String     fsmName;
 
     public BuilderFromTuple() {
     }
@@ -163,10 +160,16 @@ public interface ScenarioSequence<SUT> {
       return this;
     }
 
+    public BuilderFromTuple<SUT> setFSMName(String fsmName) {
+      this.fsmName = fsmName;
+      return this;
+    }
+
     public ScenarioSequence<SUT> build() {
       Checks.checknotnull(tuple);
       Checks.checknotnull(factors);
-      Checks.checkcond(factors.historyLength() > 0);
+      Checks.checknotnull(fsmName);
+      Checks.checkcond(factors.historyLength(fsmName) > 0);
       return new ScenarioSequence<SUT>() {
         @Override
         public Scenario<SUT> get(int i) {
@@ -183,7 +186,7 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           //noinspection unchecked
-          return (State<SUT>) tuple.get(factors.stateFactorName(i));
+          return (State<SUT>) tuple.get(factors.stateFactorName(fsmName, i));
         }
 
         @Override
@@ -191,7 +194,7 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           //noinspection unchecked
-          return (Action<SUT>) tuple.get(factors.actionFactorName(i));
+          return (Action<SUT>) tuple.get(factors.actionFactorName(fsmName, i));
         }
 
         @Override
@@ -200,7 +203,7 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i < this.size());
           Checks.checkcond(j >= 0);
           Checks.checkcond(j < action(i).numParameterFactors());
-          return tuple.get(factors.paramFactorName(i, j));
+          return tuple.get(factors.paramFactorName(fsmName, i, j));
         }
 
         @Override
@@ -209,7 +212,7 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i < this.size());
           Checks.checkcond(j >= 0);
           Checks.checkcond(j < action(i).numParameterFactors());
-          return tuple.containsKey(factors.paramFactorName(i, j));
+          return tuple.containsKey(factors.paramFactorName(fsmName, i, j));
         }
 
         @Override
@@ -218,14 +221,14 @@ public interface ScenarioSequence<SUT> {
           Checks.checkcond(i < this.size());
           Object[] values = new Object[action(i).numParameterFactors()];
           for (int j = 0; j < values.length; j++) {
-            values[j] = tuple.get(factors.paramFactorName(i, j));
+            values[j] = tuple.get(factors.paramFactorName(fsmName, i, j));
           }
           return new Args(values);
         }
 
         @Override
         public int size() {
-          return factors.historyLength();
+          return factors.historyLength(fsmName);
         }
 
         @Override

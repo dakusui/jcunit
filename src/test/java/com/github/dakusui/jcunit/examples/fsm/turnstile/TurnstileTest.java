@@ -54,7 +54,7 @@ public class TurnstileTest {
   public ScenarioSequence<Turnstile> main;
 
   public static FSM<Turnstile> turnstileFSM() {
-    return FSMUtils.createFSM(Spec.class);
+    return FSMUtils.createFSM(Spec.class, 3);
   }
 
   @Test

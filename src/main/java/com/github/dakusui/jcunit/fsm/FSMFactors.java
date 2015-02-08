@@ -4,10 +4,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Defines factors for FSM using conventions below.
@@ -20,41 +17,80 @@ import java.util.Set;
  * Levels for FSM:param:{i}:{j} are not intuitive.
  * They are union of {j}'s arguments of all the actions.
  */
-public abstract class FSMFactors extends Factors {
+public class FSMFactors extends Factors {
   public static final Object VOID = new Object();
 
-  public FSMFactors(List<Factor> factors) {
+  private final Map<String, FSM<?>> fsmMap;
+
+  protected FSMFactors(List<Factor> factors, List<FSM<?>> fsms) {
     super(factors);
+    Map<String, FSM<?>> fsmMap = new LinkedHashMap<String, FSM<?>>();
+    for (FSM<?> each : fsms) {
+      fsmMap.put(each.name(), each);
+    }
+    Checks.checkcond(fsms.size() == fsmMap.size(), "A name of fsm must be unique.:%s", fsmMap.keySet());
+    this.fsmMap = Collections.unmodifiableMap(fsmMap);
   }
 
-  public abstract String stateFactorName(int i);
+  private static String stateName(String fsmName, int i) {
+    return String.format("FSM:%s:state:%d", fsmName, i);
+  }
 
-  public abstract String actionFactorName(int i);
+  private static String actionName(String fsmName, int i) {
+    return String.format("FSM:%s:action:%d", fsmName, i);
+  }
 
-  public abstract String paramFactorName(int i, int j);
+  private static String paramName(String fsmName, int i, int j) {
+    return String.format("FSM:%s:param:%d:%d", fsmName, i, j);
+  }
 
-  public abstract int historyLength();
+  public List<String> getFSMNames() {
+    List<String> ret = new ArrayList<String>(this.fsmMap.size());
+    ret.addAll(this.fsmMap.keySet());
+    return Collections.unmodifiableList(ret);
+  }
+
+  public String stateFactorName(String fsmName, int i) {
+    Checks.checknotnull(fsmName);
+    Checks.checkcond(this.fsmMap.get(fsmName) != null);
+    Checks.checkcond(0 <= i);
+    Checks.checkcond(i < historyLength(fsmName));
+    return stateName(fsmName, i);
+  }
+
+  public String actionFactorName(String fsmName, int i) {
+    Checks.checknotnull(fsmName);
+    Checks.checkcond(this.fsmMap.get(fsmName) != null);
+    Checks.checkcond(0 <= i);
+    Checks.checkcond(i < historyLength(fsmName));
+    return actionName(fsmName, i);
+  }
+
+  public String paramFactorName(String fsmName, int i, int j) {
+    Checks.checknotnull(fsmName);
+    Checks.checkcond(this.fsmMap.get(fsmName) != null);
+    return paramName(fsmName, i, j);
+  }
+
+  public int historyLength(String fsmName) {
+    Checks.checknotnull(fsmName);
+    Checks.checkcond(this.fsmMap.get(fsmName) != null);
+    return this.fsmMap.get(fsmName).historyLength();
+  }
 
   /**
    */
-  public static class Builder<SUT> extends Factors.Builder {
-    private int length = 1;
-    private FSM<SUT> fsm;
-    private Factors  baseFactors;
+  public static class Builder extends Factors.Builder {
+    private List<FSM<?>> fsms = new LinkedList<FSM<?>>();
+    private Factors baseFactors;
 
-    public Builder<SUT> setFSM(FSM<SUT> fsm) {
+    public Builder addFSM(FSM<?> fsm) {
       Checks.checknotnull(fsm);
-      this.fsm = fsm;
+      this.fsms.add(fsm);
       return this;
     }
 
-    public Builder<SUT> setLength(int length) {
-      Checks.checkcond(length > 0);
-      this.length = length;
-      return this;
-    }
-
-    public Builder<SUT> setBaseFactors(Factors baseFactors) {
+    public Builder setBaseFactors(Factors baseFactors) {
       this.baseFactors = baseFactors;
       return this;
     }
@@ -64,91 +100,63 @@ public abstract class FSMFactors extends Factors {
         this.add(this.baseFactors.get(index));
       }
 
-      final int len = this.length;
-      for (int index = 0; index < len; index++) {
-        ////
-        // Build a factor for {index}th state
-        {
-          Factor.Builder bb = new Factor.Builder();
-          bb.setName(stateName(index));
-          for (State each : fsm.states()) {
-            bb.addLevel(each);
-          }
-          this.add(bb.build());
-        }
-        ////
-        // Build a factor for {index}th action
-        // {i}th element of allParams (List<Object>) is a list of possible levels
-        //
-        final List<Set<Object>> allParams = new ArrayList<Set<Object>>();
-        int smallestNumParams = Integer.MAX_VALUE;
-        {
-          Factor.Builder bb = new Factor.Builder();
-          bb.setName(actionName(index));
-          for (Action each : fsm.actions()) {
-            bb.addLevel(each);
-            if (each.numParameterFactors() < smallestNumParams)
-              smallestNumParams = each.numParameterFactors();
-            for (int i = 0; i < each.numParameterFactors(); i++) {
-              if (i >= allParams.size()) {
-                allParams.add(new LinkedHashSet<Object>());
-              }
-              Object[] paramValues = each.parameterFactorLevels(i);
-              for (Object v : paramValues) {
-                allParams.get(i).add(v);
-              }
-            }
-          }
-          this.add(bb.build());
-        }
-        ////
-        // Build factors for {index}th action's parameters
-        {
-          int i = 0;
-          for (Set<Object> each : allParams) {
+      for (FSM<?> fsm : fsms) {
+        int len = fsm.historyLength();
+        String fsmName = fsm.name();
+        for (int index = 0; index < len; index++) {
+          ////
+          // Build a factor for {index}th state
+          {
             Factor.Builder bb = new Factor.Builder();
-            bb.setName(paramName(index, i++));
-            if (i >= smallestNumParams) bb.addLevel(VOID);
-            for (Object v : each) {
-              bb.addLevel(v);
+            bb.setName(stateName(fsmName, index));
+            for (State each : fsm.states()) {
+              bb.addLevel(each);
             }
             this.add(bb.build());
           }
+          ////
+          // Build a factor for {index}th action
+          // {i}th element of allParams (List<Object>) is a list of possible levels
+          //
+          final List<Set<Object>> allParams = new ArrayList<Set<Object>>();
+          int smallestNumParams = Integer.MAX_VALUE;
+          {
+            Factor.Builder bb = new Factor.Builder();
+            bb.setName(actionName(fsmName, index));
+            for (Action each : fsm.actions()) {
+              bb.addLevel(each);
+              if (each.numParameterFactors() < smallestNumParams)
+                smallestNumParams = each.numParameterFactors();
+              for (int i = 0; i < each.numParameterFactors(); i++) {
+                if (i >= allParams.size()) {
+                  allParams.add(new LinkedHashSet<Object>());
+                }
+                Object[] paramValues = each.parameterFactorLevels(i);
+                for (Object v : paramValues) {
+                  allParams.get(i).add(v);
+                }
+              }
+            }
+            this.add(bb.build());
+          }
+          ////
+          // Build factors for {index}th action's parameters
+          {
+            int i = 0;
+            for (Set<Object> each : allParams) {
+              Factor.Builder bb = new Factor.Builder();
+              bb.setName(paramName(fsmName, index, i++));
+              if (i >= smallestNumParams)
+                bb.addLevel(VOID);
+              for (Object v : each) {
+                bb.addLevel(v);
+              }
+              this.add(bb.build());
+            }
+          }
         }
       }
-      return new FSMFactors(this.factors) {
-        public String stateFactorName(int i) {
-          Checks.checkcond(0 <= i);
-          Checks.checkcond(i < len);
-          return stateName(i);
-        }
-
-        public String actionFactorName(int i) {
-          Checks.checkcond(0 <= i);
-          Checks.checkcond(i < len);
-          return actionName(i);
-        }
-
-        public String paramFactorName(int i, int j) {
-          return paramName(i, j);
-        }
-
-        public int historyLength() {
-          return len;
-        }
-      };
-    }
-
-    private String stateName(int i) {
-      return String.format("FSM:state:%d", i);
-    }
-
-    private String actionName(int i) {
-      return String.format("FSM:action:%d", i);
-    }
-
-    private String paramName(int i, int j) {
-      return String.format("FSM:param:%d:%d", i, j);
+      return new FSMFactors(this.factors, this.fsms);
     }
   }
 }
