@@ -66,9 +66,11 @@ public class TupleGeneratorFactory {
         }
       }
       Map<String, FSM<?>> fsms = new LinkedHashMap<String, FSM<?>>();
+      int i = 0;
       for (Method m : methods) {
         FSM<?> fsm = createFSM(m);
-        fsms.put(fsm.name(), fsm);
+        fsms.put(String.format("FSM-%02d", i), fsm);
+        i++;
       }
       //noinspection unchecked
       generator = new FSMTupleGenerator(b, fsms, factorMappers);

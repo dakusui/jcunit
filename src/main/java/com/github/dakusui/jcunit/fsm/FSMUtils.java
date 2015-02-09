@@ -216,11 +216,6 @@ public class FSMUtils {
       return historyLength;
     }
 
-    @Override
-    public String name() {
-      return null;
-    }
-
     private List<Field> getStateFields(Class<? extends FSMSpec<SUT>> specClass) {
       List<Field> ret = new LinkedList<Field>();
       for (Field each : specClass.getFields()) {

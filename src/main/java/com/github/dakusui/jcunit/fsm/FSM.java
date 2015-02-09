@@ -15,6 +15,4 @@ public interface FSM<SUT> {
   List<Action<SUT>> actions();
 
   int historyLength();
-
-  String name();
 }

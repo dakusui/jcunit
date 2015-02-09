@@ -22,13 +22,8 @@ public class FSMFactors extends Factors {
 
   private final Map<String, FSM<?>> fsmMap;
 
-  protected FSMFactors(List<Factor> factors, List<FSM<?>> fsms) {
+  protected FSMFactors(List<Factor> factors, Map<String, FSM<?>> fsmMap) {
     super(factors);
-    Map<String, FSM<?>> fsmMap = new LinkedHashMap<String, FSM<?>>();
-    for (FSM<?> each : fsms) {
-      fsmMap.put(each.name(), each);
-    }
-    Checks.checkcond(fsms.size() == fsmMap.size(), "A name of fsm must be unique.:%s", fsmMap.keySet());
     this.fsmMap = Collections.unmodifiableMap(fsmMap);
   }
 
@@ -81,12 +76,12 @@ public class FSMFactors extends Factors {
   /**
    */
   public static class Builder extends Factors.Builder {
-    private List<FSM<?>> fsms = new LinkedList<FSM<?>>();
+    private Map<String, FSM<?>> fsms = new LinkedHashMap<String, FSM<?>>();
     private Factors baseFactors;
 
-    public Builder addFSM(FSM<?> fsm) {
+    public Builder addFSM(String name, FSM<?> fsm) {
       Checks.checknotnull(fsm);
-      this.fsms.add(fsm);
+      this.fsms.put(name, fsm);
       return this;
     }
 
@@ -100,9 +95,10 @@ public class FSMFactors extends Factors {
         this.add(this.baseFactors.get(index));
       }
 
-      for (FSM<?> fsm : fsms) {
+      for (Map.Entry<String, FSM<?>> entry : fsms.entrySet()) {
+        String fsmName = entry.getKey();
+        FSM<?> fsm = entry.getValue();
         int len = fsm.historyLength();
-        String fsmName = fsm.name();
         for (int index = 0; index < len; index++) {
           ////
           // Build a factor for {index}th state

@@ -27,8 +27,8 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
 
   private static FSMFactors buildFSMFactors(Factors baseFactors, Map<String, FSM<?>> fsms) {
     FSMFactors.Builder b = new FSMFactors.Builder();
-    for (FSM<?> each : fsms.values()) {
-      b.addFSM(each);
+    for (Map.Entry<String, FSM<?>> each : fsms.entrySet()) {
+      b.addFSM(each.getKey(), each.getValue());
     }
     return b.setBaseFactors(baseFactors).build();
   }
@@ -44,13 +44,13 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     for (Tuple eachTuple : new TupleGenerator.Builder(this.baseTupleGeneratorBuilder).setConstraintManager(fsmCM).setFactors(fsmFactors).build()) {
       Map<String, ScenarioSequence<?>> cur = new LinkedHashMap<String, ScenarioSequence<?>>();
       for (Map.Entry<String, FSM<?>> entry : this.fsms.entrySet()) {
-        FSM<?> eachFSM = entry.getValue();
+        String fsmName = entry.getKey();
         ScenarioSequence<?> main = new ScenarioSequence.BuilderFromTuple()
             .setFSMFactors(fsmFactors)
             .setTuple(eachTuple)
-            .setFSMName(eachFSM.name())
+            .setFSMName(fsmName)
             .build();
-        cur.put(entry.getKey(), main);
+        cur.put(fsmName, main);
       }
       mainScenarios.add(cur);
     }
