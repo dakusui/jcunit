@@ -19,13 +19,12 @@ import java.util.List;
  * A 'recorder' class which stores test execution information in a local file system.
  * The default directory is {@code .jcunit} under the current directory.
  * This class records 'Generated' test cases and 'Custom' and 'Violation' test cases are ignored.
- * <p/>
- * <p/>
+ *
  * This rule should be used in a test class annotated with {@literal @}{@code RunWith(JCUnit.class)}.
- * <p/>
+ *
  * An exception thrown while test execution, a test case, field annotated with {@literal @}Record in a test class are
  * saved in the directory structure below.
- * <p/>
+ *
  * <pre>
  *     {basedir}/                          ... baseDir
  *         {FQCN}/                         ... test class dataDir
@@ -36,7 +35,7 @@ import java.util.List;
  *                   exception.ser
  *                   {field name}.ser
  * </pre>
- * <p/>
+ *
  * , where <ul>
  * <li>{basedir} is a base directory of JCUnit, which can be configured by a system property {@code "jcunit.basedir"}.</li>
  * <li>{FQCN} is an FQCN of the test class.</li>
@@ -46,8 +45,6 @@ import java.util.List;
  * <li>'failed' is an empty file. If one or more test methods, this file will be created.</li>
  * <li>'exception.ser' is a file which contains serialized exception thrown during the execution of a test method.</li>
  * </ul>
- * <p/>
- * <p/>
  * This class doesn't do anything in case a system property {@code jcunit.recorder} isn't
  * set {@code true}.
  */

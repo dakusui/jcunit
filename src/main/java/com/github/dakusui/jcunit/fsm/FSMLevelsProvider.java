@@ -46,8 +46,9 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<ScenarioSe
 
   @Override
   public ScenarioSequence<SUT> apply(Tuple tuple) {
-    Object retObject = tuple.get(this.scenarioType.composeFactorName(this.fsmName));
-    Checks.checknotnull(retObject);
+    String factorName;
+    Object retObject = tuple.get(factorName = this.scenarioType.composeFactorName(this.fsmName));
+    Checks.checknotnull(retObject, "'%s' was not found in tuple. (%s)", factorName, tuple);
     Checks.checkplugin(
         retObject instanceof ScenarioSequence,
         "A generated factor level for '%s' isn't an instance of '%s'",

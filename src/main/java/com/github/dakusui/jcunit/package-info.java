@@ -2,7 +2,7 @@
  * JCUnit is a combinatorial testing framework for Java.
  * Below is a diagram which describes JCUnit's object model.
  *
- * <pre>
+ * {@code
  *                                                        +------------------------+
  *                                                        |JCUnitConfigurablePlugin|
  *                                                        +------------------------+
@@ -30,7 +30,7 @@
  *                                      |    +-----------+       +-------------------+
  *                                      +--->|Test method|------>|Precondition method|
  *                                         * +-----------+1     *+-------------------+
- * </pre>
+ * }
  *
  */
 package com.github.dakusui.jcunit;

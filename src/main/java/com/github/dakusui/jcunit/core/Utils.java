@@ -348,6 +348,8 @@ public class Utils {
    * <p/>
    * Note that this method is not efficient if the size of {@code in} is very big.
    * it is implemented only for internal use of JCUnit.
+   *
+   * @param in List to be made a singleton.
    */
   public static <T> List<T> singleton(List<T> in) {
     Checks.checknotnull(in);

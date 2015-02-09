@@ -9,11 +9,11 @@ import java.util.*;
 /**
  * Defines factors for FSM using conventions below.
  * <p/>
- * <pre>
- * FSM:state:{i}      - {i}th state
- * FSM:action:{i}     - Action which should be performed on {i}th
- * FSM:param:{i}:{j}  - Parameters given to the {i}th action.
- * </pre>
+ * <code>
+ * FSM:{FSM name}:state:{i}      - {i}th state
+ * FSM:{FSM name}:action:{i}     - Action which should be performed on {i}th
+ * FSM:{FSM name}:param:{i}:{j}  - Parameters given to the {i}th action.
+ * </code>
  * Levels for FSM:param:{i}:{j} are not intuitive.
  * They are union of {j}'s arguments of all the actions.
  */

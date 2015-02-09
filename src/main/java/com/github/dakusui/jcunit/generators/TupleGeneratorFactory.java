@@ -58,7 +58,6 @@ public class TupleGeneratorFactory {
     TupleGenerator generator;
     List<Method> methods;
     if (!(methods = getFSMProviderMethods(klazz, levelsProviders)).isEmpty()) {
-//      Checks.checktest(methods.size() == 1, "One and only one provider method can be used.");
       List<FactorMapper<?>> factorMappers = new LinkedList<FactorMapper<?>>();
       for (LevelsProvider<?> each : levelsProviders.values()) {
         if (each instanceof FactorMapper) {
@@ -66,11 +65,8 @@ public class TupleGeneratorFactory {
         }
       }
       Map<String, FSM<?>> fsms = new LinkedHashMap<String, FSM<?>>();
-      int i = 0;
       for (Method m : methods) {
-        FSM<?> fsm = createFSM(m);
-        fsms.put(String.format("FSM-%02d", i), fsm);
-        i++;
+        fsms.put(m.getName(), createFSM(m));
       }
       //noinspection unchecked
       generator = new FSMTupleGenerator(b, fsms, factorMappers);
