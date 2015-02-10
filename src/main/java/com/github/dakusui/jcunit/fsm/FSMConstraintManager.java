@@ -30,7 +30,7 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
     if (!this.baseConstraintManager.check(tuple)) return false;
     FSMFactors fsmFactors = (FSMFactors) this.getFactors();
     for (String each : fsmFactors.getFSMNames()) {
-      ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>()
+      Story<SUT> seq = new Story.BuilderFromTuple<SUT>()
           .setFSMFactors(fsmFactors)
           .setTuple(tuple)
           .setFSMName(each)

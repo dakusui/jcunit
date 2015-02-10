@@ -7,19 +7,19 @@ import java.util.*;
 
 public abstract class StateRouter<SUT> {
 
-  private final FSM<SUT>                               fsm;
-  private final List<State<SUT>>                       destinations;
-  private final Map<State<SUT>, ScenarioSequence<SUT>> routes;
+  private final FSM<SUT>                    fsm;
+  private final List<State<SUT>>            destinations;
+  private final Map<State<SUT>, Story<SUT>> routes;
 
   public StateRouter(FSM<SUT> fsm, List<State<SUT>> destinations) {
     Checks.checknotnull(fsm);
     Checks.checknotnull(destinations);
     this.destinations = Collections.unmodifiableList(Utils.singleton(destinations));
-    this.routes = new LinkedHashMap<State<SUT>, ScenarioSequence<SUT>>();
+    this.routes = new LinkedHashMap<State<SUT>, Story<SUT>>();
     for (State<SUT> each : destinations) {
       if (each.equals(fsm.initialState())) {
         //noinspection unchecked
-        this.routes.put(each, (ScenarioSequence<SUT>) ScenarioSequence.EMPTY);
+        this.routes.put(each, (Story<SUT>) Story.EMPTY);
       } else {
         this.routes.put(each, null);
       }
@@ -40,7 +40,7 @@ public abstract class StateRouter<SUT> {
     );
   }
 
-  public ScenarioSequence<SUT> routeTo(State<SUT> state) {
+  public Story<SUT> routeTo(State<SUT> state) {
     Checks.checkcond(this.destinations.contains(state));
     return this.routes.get(state);
   }
@@ -57,14 +57,14 @@ public abstract class StateRouter<SUT> {
       pathToNext.add(each);
 
       if (this.destinations.contains(next)) {
-        this.routes.put(next, buildScenarioSequenceFromTransitions(pathToNext));
+        this.routes.put(next, buildStoryFromTransitions(pathToNext));
       }
       traverse(next, pathToNext, visited);
     }
   }
 
-  private ScenarioSequence<SUT> buildScenarioSequenceFromTransitions(final List<Transition> pathToNext) {
-    return new ScenarioSequence<SUT>() {
+  private Story<SUT> buildStoryFromTransitions(final List<Transition> pathToNext) {
+    return new Story<SUT>() {
       @Override
       public int size() {
         return pathToNext.size();

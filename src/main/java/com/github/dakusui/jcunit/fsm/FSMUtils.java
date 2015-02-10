@@ -13,26 +13,23 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A utility class for FSM (finite state machine) support of JCUnit.
  */
 public class FSMUtils {
   private static final Class<? extends Object[][]> DOUBLE_ARRAYED_OBJECT_CLASS = Object[][].class;
-  private static final Pattern                     fsmFactorPattern            = Pattern.compile("FSM:(main|setUp):([^:]+)");
 
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(ScenarioSequence<SUT> scenarioSeq, SUT sut, ScenarioSequence.Reporter<SUT> reporter) throws Throwable {
-    Checks.checknotnull(scenarioSeq);
+  public static <SUT> void performStory(Story<SUT> story, SUT sut, Story.Reporter<SUT> reporter) throws Throwable {
+    Checks.checknotnull(story);
     Checks.checknotnull(reporter);
-    reporter.startSequence(scenarioSeq);
+    reporter.startStory(story);
     try {
-      for (int i = 0; i < scenarioSeq.size(); i++) {
-        Scenario<SUT> each = scenarioSeq.get(i);
+      for (int i = 0; i < story.size(); i++) {
+        Scenario<SUT> each = story.get(i);
 
         Expectation.Result result = null;
         reporter.run(each, sut);
@@ -56,7 +53,7 @@ public class FSMUtils {
         }
       }
     } finally {
-      reporter.endSequence(scenarioSeq);
+      reporter.endStory(story);
     }
   }
 
@@ -115,33 +112,13 @@ public class FSMUtils {
     return String.format("FSM:setUp:%s", fsmName);
   }
 
-  /**
-   * Returns a name of FSM which is referred to be the given factor name.
-   * Returns {@code null} if factorName doesn't appear to be an FSM factor's name.
-   *
-   * @param factorName A factor name to be examined.
-   */
-  public static String getFSMNameFromScenarioFactorName(String factorName) {
-    Matcher m;
-    if ((m = fsmFactorPattern.matcher(factorName)).matches()) {
-      return m.group(2);
-    }
-    return null;
-  }
-
-  public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
-    Checks.checknotnull(scenarioSequence);
-    Object[] scenarios = new Object[scenarioSequence.size()];
+  public static <SUT> String toString(Story<SUT> story) {
+    Checks.checknotnull(story);
+    Object[] scenarios = new Object[story.size()];
     for (int i = 0; i < scenarios.length; i++) {
-      scenarios[i] = scenarioSequence.get(i);
+      scenarios[i] = story.get(i);
     }
-    return String.format("ScenarioSequence:[%s]", Utils.join(",", scenarios));
-  }
-
-  public static void main(String[] args) {
-    System.out.println(getFSMNameFromScenarioFactorName("FSM:main:helloFSM"));
-    System.out.println(getFSMNameFromScenarioFactorName("FSM:setUp:helloFSM"));
-    System.out.println(getFSMNameFromScenarioFactorName("FSM:dummy:helloFSM"));
+    return String.format("Story:[%s]", Utils.join(",", scenarios));
   }
 
   public static class SimpleFSM<SUT> implements FSM<SUT> {
@@ -149,7 +126,6 @@ public class FSMUtils {
     private       List<State<SUT>>  states;
     private       List<Action<SUT>> actions;
     private       State<SUT>        initialState;
-    private final String name;
 
     public SimpleFSM(Class<? extends FSMSpec<SUT>> specClass, int historyLength) {
       Checks.checknotnull(specClass);
@@ -193,7 +169,6 @@ public class FSMUtils {
       this.states = Collections.unmodifiableList(states);
       this.initialState = initialState;
       this.historyLength = historyLength;
-      this.name = specClass.getSimpleName();
     }
 
     @Override

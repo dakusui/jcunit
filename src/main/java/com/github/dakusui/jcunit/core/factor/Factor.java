@@ -8,46 +8,46 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Factor implements Iterable<Object> {
-    public final String name;
-    public final List<Object> levels;
+  public final String       name;
+  public final List<Object> levels;
 
-    public Factor(String name, List<Object> levels) {
-        Checks.checknotnull(name, "A factor's 'name' mustn't be null");
-        Checks.checknotnull(levels, "A factor's 'levels' mustn't be null(factor:'%s')", name);
-        Checks.checkcond(levels.size() > 0, "Factor '%s' has no levels.", name);
-        this.name = name;
-        this.levels = Collections.unmodifiableList(levels);
+  public Factor(String name, List<Object> levels) {
+    Checks.checknotnull(name, "A factor's 'name' mustn't be null");
+    Checks.checknotnull(levels, "A factor's 'levels' mustn't be null(factor:'%s')", name);
+    Checks.checkcond(levels.size() > 0, "Factor '%s' has no levels.", name);
+    this.name = name;
+    this.levels = Collections.unmodifiableList(levels);
+  }
+
+  @Override
+  public Iterator<Object> iterator() {
+    return this.levels.iterator();
+  }
+
+  public static class Builder {
+    private String name;
+    private List<Object> levels = new LinkedList<Object>();
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
     }
 
-    @Override
-    public Iterator<Object> iterator() {
-        return this.levels.iterator();
+    public Builder addLevel(Object level) {
+      this.levels.add(level);
+      return this;
     }
 
-    public static class Builder {
-        private String name;
-        private List<Object> levels = new LinkedList<Object>();
-
-        public Builder setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder addLevel(Object level) {
-            this.levels.add(level);
-            return this;
-        }
-
-        public int numLevels() {
-            return levels.size();
-        }
-
-        public Factor build() {
-            return new Factor(this.name, this.levels);
-        }
-
-        public String getName() {
-            return name;
-        }
+    public Factor build() {
+      return new Factor(this.name, this.levels);
     }
+
+    public String getName() {
+      return name;
+    }
+
+    public boolean hasLevel(Object v) {
+      return this.levels.contains(v);
+    }
+  }
 }

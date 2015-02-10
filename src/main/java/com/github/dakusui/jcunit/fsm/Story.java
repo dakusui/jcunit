@@ -3,9 +3,9 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
-public interface ScenarioSequence<SUT> {
+public interface Story<SUT> {
   public static interface Reporter<SUT> {
-    void startSequence(ScenarioSequence<SUT> seq);
+    void startStory(Story<SUT> seq);
 
     void run(Scenario<SUT> scenario, SUT sut);
 
@@ -13,12 +13,12 @@ public interface ScenarioSequence<SUT> {
 
     void failed(Scenario<SUT> scenario, SUT sut);
 
-    void endSequence(ScenarioSequence<SUT> seq);
+    void endStory(Story<SUT> seq);
   }
 
   public static final Reporter SILENT_REPORTER = new Reporter() {
     @Override
-    public void startSequence(ScenarioSequence seq) {
+    public void startStory(Story seq) {
     }
 
     @Override
@@ -34,15 +34,15 @@ public interface ScenarioSequence<SUT> {
     }
 
     @Override
-    public void endSequence(ScenarioSequence seq) {
+    public void endStory(Story seq) {
 
     }
   };
 
   public static final Reporter SIMPLE_REPORTER = new Reporter() {
     @Override
-    public void startSequence(ScenarioSequence seq) {
-      System.out.printf("Starting:%s\n", seq);
+    public void startStory(Story story) {
+      System.out.printf("Starting:%s\n", story);
     }
 
     @Override
@@ -61,12 +61,12 @@ public interface ScenarioSequence<SUT> {
     }
 
     @Override
-    public void endSequence(ScenarioSequence seq) {
+    public void endStory(Story seq) {
       System.out.println("End");
     }
   };
 
-  public static final ScenarioSequence<?> EMPTY = new ScenarioSequence() {
+  public static final Story<?> EMPTY = new Story() {
     @Override
     public int size() {
       return 0;
@@ -104,7 +104,7 @@ public interface ScenarioSequence<SUT> {
 
     @Override
     public String toString() {
-      return "ScenarioSequence:[]";
+      return "Story:[]";
     }
   };
 
@@ -138,7 +138,7 @@ public interface ScenarioSequence<SUT> {
   Args args(int i);
 
   /**
-   * Builds a {@code ScenarioSequence} object from a {@code Tuple} using  a given {@code FSMFactorbs}.
+   * Builds a {@code Story} object from a {@code Tuple} using  a given {@code FSMFactorbs}.
    *
    * @param <SUT> A class of software under test.
    */
@@ -165,12 +165,12 @@ public interface ScenarioSequence<SUT> {
       return this;
     }
 
-    public ScenarioSequence<SUT> build() {
+    public Story<SUT> build() {
       Checks.checknotnull(tuple);
       Checks.checknotnull(factors);
       Checks.checknotnull(fsmName);
       Checks.checkcond(factors.historyLength(fsmName) > 0);
-      return new ScenarioSequence<SUT>() {
+      return new Story<SUT>() {
         @Override
         public Scenario<SUT> get(int i) {
           Checks.checkcond(i >= 0);

@@ -42,13 +42,13 @@ A scenario consists of three items, which are listed below.
 and ```then``` represents an expectation for the action represented by ```when```.
 
 
-### Scenario Sequence (Story)
+### Story
 
 history length
 
 (t.b.d.)
 
-### main and setUp scenario sequences
+### main and setUp stories
 (t.b.d.)
 
 
@@ -67,13 +67,96 @@ By collecting values in a flat FSM tuple, JCUnit can define a scenario sequence 
 (t.b.d.)
 
 # Extras
-### Simple FSM
+## Simple FSM
+Implementing FSM interface is a cumbersome task and in order to ease the pain JCUnit provides an easy way to
+define an FSM using annotations.
+
 (t.b.d.)
 
-#### Annotations
+### Annotations
 - StateSpec
 - ActionSpec
 - ParametersSpec
+
+Below is an example.
+```java
+
+    @RunWith(JCUnit.class)
+    public class FlyingSpaghettiMonsterTest {
+      public static enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
+        @StateSpec I {
+          @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+            return flyingSpaghettiMonster.isReady();
+          }
+
+          @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
+            Checks.checknotnull(fsm);
+            return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
+          }
+        },
+        @StateSpec COOKED {
+          @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+            return flyingSpaghettiMonster.isReady();
+          }
+
+          @Override public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+            return FSMUtils.valid(fsm, COOKED, CoreMatchers.containsString("yummy"));
+          }
+
+          @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
+            Checks.checknotnull(fsm);
+            return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
+          }
+        },;
+
+
+        @ActionSpec public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
+          return FSMUtils.invalid();
+        }
+
+        @ParametersSpec public static final Object[][] cook = new Object[][] {
+            { "spaghetti", "spaghettini" },
+            { "peperoncino", "carbonara", "meat sauce" },
+        };
+
+        @ActionSpec public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+          return FSMUtils.invalid();
+        }
+      }
+
+      @FactorField(
+          levelsProvider = FSMLevelsProvider.class,
+          providerParams = {
+              @Param("flyingSpaghettiMonster"),
+              @Param("setUp")
+          })
+      public Story<FlyingSpaghettiMonster> setUp;
+
+      @FactorField(
+          levelsProvider = FSMLevelsProvider.class,
+          providerParams = {
+              @Param("flyingSpaghettiMonster"),
+              @Param("main")
+          })
+      public Story<FlyingSpaghettiMonster> main;
+
+      public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+
+      public static FSM flyingSpaghettiMonster() {
+        return FSMUtils.createFSM(Spec.class);
+      }
+
+      @Before
+      public void before() throws Throwable {
+        FSMUtils.performStory(this.setUp, this.sut, Story.SIMPLE_REPORTER);
+      }
+
+      @Test
+      public void test() throws Throwable {
+        FSMUtils.performStory(this.main, this.sut, Story.SIMPLE_REPORTER);
+      }
+    }
+```
 
 # References
 * (t.b.d.) Combinatorial FSM tests, Tsurumaki, Toshiro

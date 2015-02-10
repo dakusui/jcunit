@@ -75,7 +75,7 @@ public class FlyingSpaghettiMonsterTest {
           @Param("flyingSpaghettiMonster"),
           @Param("setUp")
       })
-  public ScenarioSequence<FlyingSpaghettiMonster> setUp;
+  public Story<FlyingSpaghettiMonster> setUp;
 
   @FactorField(
       levelsProvider = FSMLevelsProvider.class,
@@ -83,7 +83,7 @@ public class FlyingSpaghettiMonsterTest {
           @Param("flyingSpaghettiMonster"),
           @Param("main")
       })
-  public ScenarioSequence<FlyingSpaghettiMonster> main;
+  public Story<FlyingSpaghettiMonster> main;
 
   public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
@@ -93,11 +93,11 @@ public class FlyingSpaghettiMonsterTest {
 
   @Before
   public void before() throws Throwable {
-    FSMUtils.performScenarioSequence(this.setUp, this.sut, ScenarioSequence.SIMPLE_REPORTER);
+    FSMUtils.performStory(this.setUp, this.sut, Story.SIMPLE_REPORTER);
   }
 
   @Test
   public void test() throws Throwable {
-    FSMUtils.performScenarioSequence(this.main, this.sut, ScenarioSequence.SIMPLE_REPORTER);
+    FSMUtils.performStory(this.main, this.sut, Story.SIMPLE_REPORTER);
   }
 }
