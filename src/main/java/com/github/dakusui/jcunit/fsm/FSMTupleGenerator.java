@@ -51,10 +51,26 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     // Create a state router.
     // 1. Build a map from state name to a state which can be seen in the first place of a story.
     Map<String, List<State<?>>> setUpDestinations = collectSetupDestinations(mainStories);
-    Map<String, StateRouter> routerMap = new HashMap<String, StateRouter>();
+    Map<String, StateRouter<?>> stateRouters = prepareStateRouters(mainStories, setUpDestinations);
+    ////
+    // Build the final tuples
+    // all the possible levels will be accumulated to this variable 'mappedFactors' through 'buildTuples' process.
+    final Map<String, Factor.Builder> mappedFactors = new LinkedHashMap<String, Factor.Builder>();
+    this.tuples = buildTuples(this.fsms, mainStories, stateRouters, mappedFactors);
+    super.setFactors(buildFactors(baseFactors, mappedFactors));
+    ////
+    // Constraint manager is used for negative tests generation, which is not supported yet.
+    // This time I'm setting DEFAULT_CONSTRAINT_MANAGER.
+    super.setConstraintManager(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER);
+    return this.tuples.size();
+  }
+
+  private Map<String, StateRouter<?>> prepareStateRouters(final List<Map<String, Story<?>>> mainStories, final Map<String, List<State<?>>> setUpDestinations) {
+    Map<String, StateRouter<?>> routerMap = new HashMap<String, StateRouter<?>>();
     for (final String fsmName : this.fsms.keySet()) {
       final FSM<?> fsm = this.fsms.get(fsmName);
-      StateRouter router = new StateRouter(fsm, setUpDestinations.get(fsmName)) {
+      //noinspection unchecked
+      StateRouter<?> router = new StateRouter(fsm, setUpDestinations.get(fsmName)) {
         @Override
         protected List<Transition> possibleTransitionsFrom(State state) {
           List<Transition> ret = new LinkedList<Transition>();
@@ -63,7 +79,8 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
               Scenario each = eachScenario.get(i);
               if (each.given.equals(state) && !each.then().state
                   .equals(State.VOID)) {
-                Transition t = new Transition(eachScenario.action(i),
+                //noinspection unchecked
+                Transition<?> t = new Transition(eachScenario.action(i),
                     eachScenario.args(i));
                 if (!ret.contains(t))
                   ret.add(t);
@@ -75,19 +92,10 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
       };
       routerMap.put(fsmName, router);
     }
-    ////
-    // Build the final tuples
-    final Map<String, Factor.Builder> mappedFactors = new LinkedHashMap<String, Factor.Builder>();
-    this.tuples = buildTuples(this.fsms, mainStories, routerMap, mappedFactors);
-    super.setFactors(buildFactors(baseFactors, mappedFactors));
-    ////
-    // Constraint manager is used for negative tests generation, which is not supported yet.
-    // This time I'm setting DEFAULT_CONSTRAINT_MANAGER.
-    super.setConstraintManager(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER);
-    return this.tuples.size();
+    return routerMap;
   }
 
-  private List<Tuple> buildTuples(Map<String, FSM<?>> fsms, List<Map<String, Story<?>>> mainStories, Map<String, StateRouter> routerMap, Map<String, Factor.Builder> mappedFactors) {
+  private List<Tuple> buildTuples(Map<String, FSM<?>> fsms, List<Map<String, Story<?>>> mainStories, Map<String, StateRouter<?>> routerMap, Map<String, Factor.Builder> mappedFactors) {
     List<Tuple> tuples = new LinkedList<Tuple>();
     for (Map<String, Story<?>> each : mainStories) {
       Tuple.Builder b = new Tuple.Builder();
@@ -97,6 +105,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
         String setUpScenarioFactorName = FSMUtils.composeSetUpScenarioName(fsmName);
         Story<?> mainStory = each.get(fsmName);
         b.put(mainScenarioFactorName, mainStory);
+        @SuppressWarnings("unchecked")
         Story<?> setUp = router.routeTo(mainStory.state(0));
         if (setUp != null) {
           b.put(setUpScenarioFactorName, setUp);

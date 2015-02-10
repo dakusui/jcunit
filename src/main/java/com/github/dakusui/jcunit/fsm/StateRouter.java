@@ -25,7 +25,7 @@ public abstract class StateRouter<SUT> {
       }
     }
     this.fsm = fsm;
-    traverse(fsm.initialState(), new LinkedList<Transition>(), new LinkedHashSet<State<SUT>>());
+    traverse(fsm.initialState(), new LinkedList<Transition<SUT>>(), new LinkedHashSet<State<SUT>>());
     List<State<SUT>> unreachableDestinations = new ArrayList<State<SUT>>(this.destinations.size());
     for (State<SUT> each : this.destinations) {
       if (this.routes.get(each) == null) {
@@ -45,15 +45,15 @@ public abstract class StateRouter<SUT> {
     return this.routes.get(state);
   }
 
-  private void traverse(State<SUT> state, List<Transition> path, Set<State<SUT>> visited) {
-    for (Transition each : possibleTransitionsFrom(state)) {
+  private void traverse(State<SUT> state, List<Transition<SUT>> path, Set<State<SUT>> visited) {
+    for (Transition<SUT> each : possibleTransitionsFrom(state)) {
       State<SUT> next = next(state, each);
       if (next == State.VOID)
         return;
       if (visited.contains(next))
         continue;
       visited.add(next);
-      List<Transition> pathToNext = new LinkedList<Transition>(path);
+      List<Transition<SUT>> pathToNext = new LinkedList<Transition<SUT>>(path);
       pathToNext.add(each);
 
       if (this.destinations.contains(next)) {
@@ -63,7 +63,7 @@ public abstract class StateRouter<SUT> {
     }
   }
 
-  private Story<SUT> buildStoryFromTransitions(final List<Transition> pathToNext) {
+  private Story<SUT> buildStoryFromTransitions(final List<Transition<SUT>> pathToNext) {
     return new Story<SUT>() {
       @Override
       public int size() {
@@ -117,7 +117,7 @@ public abstract class StateRouter<SUT> {
     return state.expectation(t.action, t.args).state;
   }
 
-  protected abstract List<Transition> possibleTransitionsFrom(State<SUT> state);
+  protected abstract List<Transition<SUT>> possibleTransitionsFrom(State<SUT> state);
 
   public static class Transition<SUT> {
     public final Action<SUT> action;
@@ -137,6 +137,7 @@ public abstract class StateRouter<SUT> {
     public boolean equals(Object anotherObject) {
       if (!(anotherObject instanceof Transition))
         return false;
+      //noinspection unchecked
       Transition<SUT> another = (Transition<SUT>) anotherObject;
       return this.action.equals(another.action) && Arrays.deepEquals(this.args.values(), another.args.values());
     }
