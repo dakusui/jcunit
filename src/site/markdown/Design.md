@@ -5,4 +5,4 @@
 Annotations are the UI of JCUnit.
 
 FSM feature of JCUnit provides several more annotations.
-Refer to [FSM](http://github.com/dakusui/jcunit/src/site/docs/features/FSM.md) page
+Refer to [FSM](/src/site/docs/features/FSM.md) page

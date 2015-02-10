@@ -1,18 +1,30 @@
-# Background
+# Motivations
 
-FSM is everywhere.
-A software system can be considered as an FSM.
+A finite state machine (FSM) is everywhere in software.
+And as discussed in a well known article [The Truth about BDD](https://sites.google.com/site/unclebobconsultingllc/the-truth-about-bdd),
+a software system can be considered as an FSM in some sense.
 
-Combinatorial explosion.
+Then, in order to test a software system, we can simply create a test suite
+consists of N times M test cases, where N is a number of possible states and M is
+number of events, if we can model it as an FSM.
 
+But these N states and M events are just the model of the software under test (SUT).
+and SUT might have hidden states and it can behave unexpectedly when it experiences a
+certain state transition history.
+If we want to test the state transition history exhaustively, the test cases we'll
+have to execute would be (N*M)^n, where n is the number of the states the SUT goes
+through during one test case is being executed.
 
+Reducing the number of test cases by applying combinatorial testing technique is
+the first motivation of JCUnit's FSM support.
+
+# Design
+(t.b.d.)
 ## Combinatorial tests for FSMs
 What are factors and what are levels?
 (t.b.d.)
 
 
-# Design
-(t.b.d.)
 
 ## Software components and basic ideas
 ### FSM interface
