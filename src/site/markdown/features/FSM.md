@@ -1,10 +1,21 @@
 # Motivations
 
 A finite state machine (FSM) is everywhere in software.
-And as discussed in a well known article [The Truth about BDD](https://sites.google.com/site/unclebobconsultingllc/the-truth-about-bdd),
+And as discussed in a well known article about [BDD][1],
 a software system can be considered as an FSM in some sense.
 
-Then, in order to test a software system, we can simply create a test suite
+Then, in order to test a software product/system, the most important thing how we model it as an FSM.
+Once it is modeled, can't we generate a test suite and run it automatically?
+
+"Model the software under test and let the computer do the rest" is the goal of this feature.
+
+
+# Background
+What type of FSM?
+Mealy machine
+
+
+we can simply create a test suite
 consists of N times M test cases, where N is a number of possible states and M is
 number of events, if we can model it as an FSM.
 
@@ -19,7 +30,69 @@ Reducing the number of test cases by applying combinatorial testing technique is
 the first motivation of JCUnit's FSM support.
 
 # Design
+The 6 tuple below defines a [Mealy machine][3].
+
+```
+(S, S0, Sigma, Lambda, T, G)
+```
+
+They respectively represent the following
+
+1. a finite set of states S
+2. a start state (also called initial state) S0 which is an element of S
+3. a finite set called the input alphabet Sigma
+4. a finite set called the output alphabet Lambda
+5. a transition function T : S x Sbigma -> S mapping pairs of a state and an input symbol to the corresponding next state.
+6. an output function G : S x Sigma -> Lambda mapping pairs of a state and an input symbol to the corresponding output symbol.
+
+To model a Mealy machine in JCUnit, you can implement an interface 'FSM.java' below.
+
+```java
+
+    /**
+     * An interface that represents a finite state machine's (FSM) specification.
+     *
+     * @param <SUT> A software under test.
+     */
+    public interface FSM<SUT> {
+      State<SUT> initialState();
+
+      List<State<SUT>> states();
+
+      List<Action<SUT>> actions();
+
+      int historyLength();
+    }
+```
+
+By creating an implementation of this interface, a user can model the SUT and pass
+ it to JCUnit to let it generate a test suite and execute the suite.
+
+```
+
+                +-----------------------------+------------------------------+
+                |                             |                              |
+                |1                            V*                             V*
+       +---------------+       +-----------------------------+      +-----------------+
+       |    FSM<SUT>   |       |          State<SUT>         |      |   Action<SUT>   |
+       +---------------+       +-----------------------------+      +-----------------+
+       |initialState() |       |expectation(Action<SUT>,Args)|      |perform(SUT,Args)|
+       |states()       |       +-----------------------------+      +-----------------+
+       |historyLength()|                      |
+       +---------------+                      |
+                                              |
+                                              V
+                                     +------------------+
+                                     | Expectation<SUT> |
+                                     +------------------+
+
+
+```
+
 (t.b.d.)
+
+[1] discusses how an FSM can be modeled in combinatorial testing.
+
 ## Combinatorial tests for FSMs
 What are factors and what are levels?
 (t.b.d.)
@@ -170,8 +243,9 @@ Below is an example.
     }
 ```
 
+
 # References
-* (t.b.d.) Combinatorial FSM tests, Tsurumaki, Toshiro
-* (t.b.d.)
-* (t.b.d.) http://en.wikipedia.org/wiki/Mealy_machine
+[1]: https://sites.google.com/site/unclebobconsultingllc/the-truth-about-bdd "The Truth about BDD(Uncle Bob)"
+[2]: http://www.jasst.jp/archives/jasst09e/pdf/D4-2.pdf "Developing an open source combinatorial testing tool(Toshiro Tsurumaki and Yukihide Yanagida)"
+[3]: http://en.wikipedia.org/wiki/Mealy_machine "Wikipedia article about Mealy machine"
 

@@ -1,8 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.NestableException;
 import org.hamcrest.Matcher;
 
@@ -12,8 +10,8 @@ import java.util.List;
 
 public class Expectation<SUT> {
 
+  public final  State<SUT> state;
   private final Type       type;
-  public final State<SUT>  state;
   private final Matcher    matcher;
 
   public Expectation(
@@ -77,11 +75,13 @@ public class Expectation<SUT> {
 
   public static enum Type {
     EXCEPTION_THROWN {
-      @Override public String toString() {
+      @Override
+      public String toString() {
         return "thrown";
       }
     },
     VALUE_RETURNED {
+      @Override
       public String toString() {
         return "returned";
       }
@@ -106,7 +106,7 @@ public class Expectation<SUT> {
       super(message);
       this.failedReasons = Collections.unmodifiableList(failedReasons);
       for (Reason each : this.getFailedReasons()) {
-        if (each.t  != null)
+        if (each.t != null)
           this.addChild(each.t);
       }
     }
@@ -154,7 +154,7 @@ public class Expectation<SUT> {
 
       Builder addFailedReason(String message) {
         Checks.checknotnull(message);
-        return this.addFailedReason(message, (Throwable)null);
+        return this.addFailedReason(message, (Throwable) null);
       }
 
       Builder addFailedReason(String message, Throwable t) {
