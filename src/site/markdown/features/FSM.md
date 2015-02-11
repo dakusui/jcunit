@@ -1,36 +1,71 @@
+(This documentation is currently in progress)
+
+* [Motivations](#motivations)
+* [Background](#background)
+* [Design](#design)
+    1. Finite state machine representation
+      1. Mealy machine
+      2. JCUnit object model
+        1. FSM and related objects
+        2. ```Story``` and ```Scenario```
+    2. Test suite generation
+      1. Flat FSM tuple
+      2. setUp and main story
+      3. Generating constraints
+      4. ```SimpleFSM``` mechanism
+* [References](#references)
+
+<a name="motivations"/>
 # Motivations
 
 A finite state machine (FSM) is everywhere in software.
 And as discussed in a well known article about [BDD][1],
-a software system can be considered as an FSM in some sense.
+BDD scenarios can be considered as descriptions of FSM behaviours.
 
-Then, in order to test a software product/system, the most important thing how we model it as an FSM.
-Once it is modeled, can't we generate a test suite and run it automatically?
+Then, once a software product/system is modeled as FSM, can't we generate a test
+suite and execute it automatically? And doesn't it sound useful?
 
 "Model the software under test and let the computer do the rest" is the goal of this feature.
 
 
+<a name="motivations"/>
 # Background
-What type of FSM?
-Mealy machine
+If we can model an SUT as a finite state machine, we should simply be able to create
+a test suite which consists of N times M test cases, where N is a number of possible
+states and M is number of events.
+
+But these N states and M events are just the model of the software under test (SUT) or
+we can say that it is just a tester's understanding about SUT.
+
+And SUT might have hidden or unknown states, so it can behave unexpectedly
+only when it experiences a certain state transition history.
+In FSM support feature of JCUnit, the transition history is called a 'Story'.
+
+If we want to test the state transition history exhaustively (all the possible path on FSM),
+the test cases we'll have to execute would be (N*M)^n, where n is the number of the states
+the SUT goes through during one Story is being executed.
+
+Obviously, this can easily be a too big number to finish within a pragmatical amount of time.
+
+In 2006, [Tsurumaki and Yanagida][2] (in Japanese) discussed how an FSM can be modeled in combinatorial testing.
+The method they presented in the material is like below,
+
+1. For each state (S0, S1, ... Sn-1), generate k factors. So you will have n times k factors ([S(0,0), S(1,0), ..., S(n-1,0)], ..., [S(0,k-1),S(1,k-1),...S(n-1,k-1)]) in total.
+2. For each factor , its levels are all possible transitions from the state to which it belongs and special level which represents 'invalid'.
+3. Constraints are defined by a user so that only valid transitions can happen.
+3. Let pairwise engine (e.g. [PICT][4]) process the factors and their levels and generate a test suite.
+4. By tracing the transitions in a test case from S00, you can interpret a generated test case into a sequence of state transitions.
 
 
-we can simply create a test suite
-consists of N times M test cases, where N is a number of possible states and M is
-number of events, if we can model it as an FSM.
-
-But these N states and M events are just the model of the software under test (SUT).
-and SUT might have hidden states and it can behave unexpectedly when it experiences a
-certain state transition history.
-If we want to test the state transition history exhaustively, the test cases we'll
-have to execute would be (N*M)^n, where n is the number of the states the SUT goes
-through during one test case is being executed.
-
-Reducing the number of test cases by applying combinatorial testing technique is
-the first motivation of JCUnit's FSM support.
-
+<a name="design">
 # Design
-The 6 tuple below defines a [Mealy machine][3].
+## Finite state machine representation
+### Mealy machine
+Unlike an acceptor nor recognizer, a usual software product gives outputs on input which need to be tested.
+In order to allow users to test not only state transitions but them, FSM support of JCUnit
+provides a way to define a [Mealy machine][3], which is also known as a finite state transducer.
+
+A 6 tuple below defines a Mealy machine.
 
 ```
 (S, S0, Sigma, Lambda, T, G)
@@ -42,9 +77,11 @@ They respectively represent the following
 2. a start state (also called initial state) S0 which is an element of S
 3. a finite set called the input alphabet Sigma
 4. a finite set called the output alphabet Lambda
-5. a transition function T : S x Sbigma -> S mapping pairs of a state and an input symbol to the corresponding next state.
+5. a transition function T : S x Sigma -> S mapping pairs of a state and an input symbol to the corresponding next state.
 6. an output function G : S x Sigma -> Lambda mapping pairs of a state and an input symbol to the corresponding output symbol.
 
+### JCUnit's object model
+#### FSM and related objects
 To model a Mealy machine in JCUnit, you can implement an interface 'FSM.java' below.
 
 ```java
@@ -66,7 +103,11 @@ To model a Mealy machine in JCUnit, you can implement an interface 'FSM.java' be
 ```
 
 By creating an implementation of this interface, a user can model the SUT and pass
- it to JCUnit to let it generate a test suite and execute the suite.
+it to JCUnit to let it generate a test suite and execute the suite.
+
+Then the next question would be what State and Action, which should be returned by the implementation.
+
+Below is a class diagram of FSM and its related classes.
 
 ```
 
@@ -79,9 +120,9 @@ By creating an implementation of this interface, a user can model the SUT and pa
        |initialState() |       |expectation(Action<SUT>,Args)|      |perform(SUT,Args)|
        |states()       |       +-----------------------------+      +-----------------+
        |historyLength()|                      |
-       +---------------+                      |
-                                              |
-                                              V
+       +---------------+                      |                        +------------+
+                                              |                        |    Args    |
+                                              V                        +------------+
                                      +------------------+
                                      | Expectation<SUT> |
                                      +------------------+
@@ -89,33 +130,16 @@ By creating an implementation of this interface, a user can model the SUT and pa
 
 ```
 
+For the reasons discussed later and to keep the software simple, the items listed above
+are not necessarily corresponding to the classes in the diagram directly.
+
+S is represented by `State` and an element in the list returned by `states()` method of `FSM` is S0.
+Sigma is represented by `Action` and `Args`.
+And Lambda, T, and G are represented by `Expectation`.
+
+#### ```Story``` and ```Scenario```
 (t.b.d.)
-
-[1] discusses how an FSM can be modeled in combinatorial testing.
-
-## Combinatorial tests for FSMs
-What are factors and what are levels?
-(t.b.d.)
-
-
-
-## Software components and basic ideas
-### FSM interface
-Defines an FSM to be tested.
-Implementation of this interface represents an understanding of the tester (a JCUnit's user)
-about the software under test.
-
-In other words, SUT will be modeled as an FSM and JCUnit generates a test suite using it.
-
-It must define the things below
-
-* states the FSM has
-* initial state
-* actions
-* history length
-
-### Scenario
-This component is named after an idea in [BDD](http://en.wikipedia.org/wiki/Behavior-driven_development) area.
+```Scenario``` component is named after an idea in [BDD](http://en.wikipedia.org/wiki/Behavior-driven_development) area.
 A scenario consists of three items, which are listed below.
 
 * given
@@ -127,41 +151,22 @@ A scenario consists of three items, which are listed below.
 and ```then``` represents an expectation for the action represented by ```when```.
 
 
-### Story
-
-history length
-
+## Test suite generation
 (t.b.d.)
-
-### main and setUp stories
-(t.b.d.)
-
-
 ### Flat FSM tuple
-(t.b.d)
 By collecting values in a flat FSM tuple, JCUnit can define a scenario sequence for a test case.
-
-### FSMConstraintManager
+(t.b.d.)
+### setUp and main story
+(t.b.d.)
+### Generating constraints
+(t.b.d.)
+### ```SimpleFSM``` mechanism
 (t.b.d.)
 
-## FSM support
-### Flat FSM tuple generation
-(t.b.d.)
-
-## Scenario Sequence generation
-(t.b.d.)
-
-# Extras
-## Simple FSM
 Implementing FSM interface is a cumbersome task and in order to ease the pain JCUnit provides an easy way to
 define an FSM using annotations.
 
 (t.b.d.)
-
-### Annotations
-- StateSpec
-- ActionSpec
-- ParametersSpec
 
 Below is an example.
 ```java
@@ -242,10 +247,19 @@ Below is an example.
       }
     }
 ```
+#### Annotations
+- StateSpec
+- ActionSpec
+- ParametersSpec
 
-
+<a name="references"/>
 # References
-[1]: https://sites.google.com/site/unclebobconsultingllc/the-truth-about-bdd "The Truth about BDD(Uncle Bob)"
-[2]: http://www.jasst.jp/archives/jasst09e/pdf/D4-2.pdf "Developing an open source combinatorial testing tool(Toshiro Tsurumaki and Yukihide Yanagida)"
-[3]: http://en.wikipedia.org/wiki/Mealy_machine "Wikipedia article about Mealy machine"
+* [1] "The Truth about BDD(Uncle Bob)"
+* [2] "Developing an open source combinatorial testing tool(Toshiro Tsurumaki and Yukihide Yanagida)"
+* [3] "Wikipedia article about Mealy machine"
+* [4] "Pairwise Testing & PICT Tool"
 
+[1]: https://sites.google.com/site/unclebobconsultingllc/the-truth-about-bdd
+[2]: http://www.jasst.jp/archives/jasst09e/pdf/D4-2.pdf
+[3]: http://en.wikipedia.org/wiki/Mealy_machine
+[4]: http://blogs.msdn.com/b/nagasatish/archive/2006/11/30/pairwise-testing-pict-tool.aspx

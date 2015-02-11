@@ -1,6 +1,6 @@
 # JCUnit
 JCUnit is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') technique.
-About what combinatorial testings are, an Wikipedia article below might be helpful as a starting point.
+About what combinatorial testings are, articles below are useful as a starting point.
 
 * [All-pairs testing](http://en.wikipedia.org/wiki/All-pairs_testing)
 * [Introduction to Combinatorial Testing](http://mse.isri.cmu.edu/software-engineering/documents/faculty-publications/miranda/kuhnintroductioncombinatorialtesting.pdf)

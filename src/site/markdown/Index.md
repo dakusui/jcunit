@@ -26,11 +26,15 @@ Very roughly to say, it's a technique to generate test cases with good 'coverage
 * [Tips](tips/Index.md)
 * [Exmples](examples/Index.md)
 
-# Limitations
-1. Constraint support
+# Limitations and future works
+1. Enhance constraint support
   - JCUnit's constraint support is still in initial phase. It tries 50 different tuples to find
   values that satisfy constraints given by a constraint manager. This can result in reducing
   the pairwise/t-wise coverage.
+2. AETG support
+  - Currently JCUnit supports only IPO algorithm as its pairwise/t-wise test suite generation engine.
+  but there is another well-known algorithm called AETG, which seems easier to handle complex constraints.
+3.
 
 # FAQ
 Frequently asked questions are found [here](FAQ.md)
