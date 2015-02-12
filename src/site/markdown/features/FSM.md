@@ -13,6 +13,7 @@
       2. setUp and main story
       3. Generating constraints
       4. ```SimpleFSM``` mechanism
+* [Examples](#examples)
 * [References](#references)
 
 <a name="motivations"/>
@@ -35,17 +36,17 @@ a test suite which consists of N times M test cases, where N is a number of poss
 states and M is number of events.
 
 But these N states and M events are just the model of the software under test (SUT) or
-we can say that it is just a tester's understanding about SUT.
+we can say that it is just a tester's understanding about SUT. Not the SUT itself.
 
-And SUT might have hidden or unknown states, so it can behave unexpectedly
-only when it experiences a certain state transition history.
+This means that SUT might have hidden or unknown states, so it can behave unexpectedly,
+which means you find a bug, only when it experiences a certain state transition history.
 In FSM support feature of JCUnit, the transition history is called a 'Story'.
 
 If we want to test the state transition history exhaustively (all the possible path on FSM),
 the test cases we'll have to execute would be (N*M)^n, where n is the number of the states
 the SUT goes through during one Story is being executed.
 
-Obviously, this can easily be a too big number to finish within a pragmatical amount of time.
+Obviously, this can easily be a too big number to finish within a practical amount of time.
 
 In 2006, [Tsurumaki and Yanagida][2] (in Japanese) discussed how an FSM can be modeled in combinatorial testing.
 The method they presented in the material is like below,
@@ -54,8 +55,9 @@ The method they presented in the material is like below,
 2. For each factor , its levels are all possible transitions from the state to which it belongs and special level which represents 'invalid'.
 3. Constraints are defined by a user so that only valid transitions can happen.
 3. Let pairwise engine (e.g. [PICT][4]) process the factors and their levels and generate a test suite.
-4. By tracing the transitions in a test case from S00, you can interpret a generated test case into a sequence of state transitions.
+4. By tracing the transitions in a test case from S(0,0), you can interpret a generated test case into a sequence of state transitions.
 
+The approach JCUnit took is inspired by this procedure but very different.
 
 <a name="design">
 # Design
