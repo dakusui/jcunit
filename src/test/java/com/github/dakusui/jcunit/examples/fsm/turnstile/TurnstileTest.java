@@ -42,7 +42,7 @@ public class TurnstileTest {
           @Param("setUp"),
       }
   )
-  public Story<Turnstile> setUp;
+  public ScenarioSequence<Turnstile> setUp;
 
   @FactorField(
       levelsProvider = FSMLevelsProvider.class,
@@ -51,7 +51,7 @@ public class TurnstileTest {
           @Param("main"),
       }
   )
-  public Story<Turnstile> main;
+  public ScenarioSequence<Turnstile> main;
 
   public static FSM<Turnstile> turnstileFSM() {
     return FSMUtils.createFSM(Spec.class, 3);
@@ -60,7 +60,7 @@ public class TurnstileTest {
   @Test
   public void test() throws Throwable {
     Turnstile sut = new Turnstile();
-    FSMUtils.performStory(this.setUp, sut, Story.SILENT_REPORTER);
-    FSMUtils.performStory(this.main, sut, Story.SIMPLE_REPORTER);
+    FSMUtils.performScenarioSequence(Story.ContextType.setUp, this.setUp, sut, Story.SILENT_REPORTER);
+    FSMUtils.performScenarioSequence(Story.ContextType.main, this.main, sut, Story.SIMPLE_REPORTER);
   }
 }

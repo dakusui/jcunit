@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.lang.reflect.Field;
 
-public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT>> {
+public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<ScenarioSequence<SUT>> {
   private ScenarioType scenarioType;
   private String       fsmName;
   private String       factorName;
@@ -43,19 +43,19 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT>
   }
 
   @Override
-  public Story<SUT> apply(Tuple tuple) {
+  public ScenarioSequence<SUT> apply(Tuple tuple) {
     String factorName;
     Object retObject = tuple.get(factorName = this.scenarioType.composeFactorName(this.fsmName));
     Checks.checknotnull(retObject, "'%s' was not found in tuple. (%s)", factorName, tuple);
     Checks.checkplugin(
-        retObject instanceof Story,
+        retObject instanceof ScenarioSequence,
         "A generated factor level for '%s' isn't an instance of '%s'",
         this.scenarioType.composeFactorName(this.fsmName),
-        Story.class
+        ScenarioSequence.class
     );
     // The line above already checked the type of the returned value.
     //noinspection unchecked
-    return (Story<SUT>) retObject;
+    return (ScenarioSequence<SUT>) retObject;
   }
 
   @Override

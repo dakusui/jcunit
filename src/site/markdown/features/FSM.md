@@ -1,4 +1,4 @@
-(This documentation is currently in progress)
+(This documentation is a draft)
 
 * [Motivations](#motivations)
 * [Background](#background)
@@ -26,29 +26,44 @@ BDD scenarios can be considered as descriptions of FSM behaviours.
 Then, once a software product/system is modeled as FSM, can't we generate a test
 suite and execute it automatically? And doesn't it sound useful?
 
-"Model the software under test and let the computer do the rest" is the goal of this feature.
+"Model the software under test as FSM and let your computer do the rest" is the goal of this feature.
 
-
-<a name="motivations"/>
+<a name="background"/>
 # Background
 If we can model an SUT as a finite state machine, we should simply be able to create
 a test suite which consists of N times M test cases, where N is a number of possible
-states and M is number of events.
+states and M is a number of event types.
 
-But these N states and M events are just the model of the software under test (SUT) or
-we can say that it is just a tester's understanding about SUT. Not the SUT itself.
+Chapter 6 of [Introduction to combinatorial testings][5] discusses how we can design
+a test suite for a state machine in detail.
 
-This means that SUT might have hidden or unknown states, so it can behave unexpectedly,
+## Path
+But these N states and M events are the model of the software under test (SUT) or
+we can say that it is just a tester's understanding about SUT. Not the FSM of SUT itself.
+
+Since SUT might have internal, hidden or unknown states, it can behave unexpectedly,
 which means you find a bug, only when it experiences a certain state transition history.
-In FSM support feature of JCUnit, the transition history is called a 'Story'.
+In FSM support feature of JCUnit, the transition history (or path) is called a ```Story```.
 
-If we want to test the state transition history exhaustively (all the possible path on FSM),
+If we want to test the state transition history exhaustively (all the possible paths on FSM),
 the test cases we'll have to execute would be (N*M)^n, where n is the number of the states
-the SUT goes through during one Story is being executed.
+the SUT goes through during one ```Story``` is being executed.
 
 Obviously, this can easily be a too big number to finish within a practical amount of time.
 
-In 2006, [Tsurumaki and Yanagida][2] (in Japanese) discussed how an FSM can be modeled in combinatorial testing.
+
+(draft)
+How can we determine which state the SUT is in?
+No, we cannot.
+Usually, SUTs do not expose their states directly.
+Even if one does, is the state the SUT tells you really correct? Isn't it one thing we must 'test'?
+We can only make sure that an SUT is meeting some conditions which should be satisfied in a certain state.
+
+(draft)
+
+## Tsurumaki and Yanagida's method
+[Tsurumaki and Yanagida][2] discussed how a combinatorial test suite can be implemented
+for an FSM using their open source tool PictMaster and Microsoft's PICT.
 The method they presented in the material is like below,
 
 1. For each state (S0, S1, ... Sn-1), generate k factors. So you will have n times k factors ([S(0,0), S(1,0), ..., S(n-1,0)], ..., [S(0,k-1),S(1,k-1),...S(n-1,k-1)]) in total.
@@ -57,7 +72,10 @@ The method they presented in the material is like below,
 3. Let pairwise engine (e.g. [PICT][4]) process the factors and their levels and generate a test suite.
 4. By tracing the transitions in a test case from S(0,0), you can interpret a generated test case into a sequence of state transitions.
 
-The approach JCUnit took is inspired by this procedure but very different.
+The approach JCUnit took is inspired by this procedure but a different one.
+
+## Spec explorer
+(t.b.d.)
 
 <a name="design">
 # Design
@@ -152,21 +170,36 @@ A scenario consists of three items, which are listed below.
 ```when``` represents an 'action' to be performed.
 and ```then``` represents an expectation for the action represented by ```when```.
 
+A ```Story``` is a sequence of ```Scenario```s.
+
+    |abc  |def |
+    | --- | --- |
+
+
 
 ## Test suite generation
 (t.b.d.)
+### Generating constraints
+(t.b.d.)
+
 ### Flat FSM tuple
 By collecting values in a flat FSM tuple, JCUnit can define a scenario sequence for a test case.
 (t.b.d.)
 ### setUp and main story
 (t.b.d.)
-### Generating constraints
-(t.b.d.)
+
+
 ### ```SimpleFSM``` mechanism
 (t.b.d.)
 
 Implementing FSM interface is a cumbersome task and in order to ease the pain JCUnit provides an easy way to
 define an FSM using annotations.
+
+* Nesting state machines
+
+What you cannot do with ```SimpleFSM```
+* You cannot test overloaded methods, which have same names and different parameter sets.
+* Negative tests
 
 (t.b.d.)
 
@@ -249,6 +282,23 @@ Below is an example.
       }
     }
 ```
+
+```FlyingSpaghettiMonster```'s State machine
+
+```
+
+          +---+eat / ERR         +---+eat / "yummy"
+          |   |                  |   |
+          |   V                  |   V
+       +---------+            +----------+
+       |    I    |----------->|  COOKED  |
+       +---------+    cook    +----------+
+                                 A   |
+                                 |   |
+                                 +---+cook
+```
+
+
 #### Annotations
 - StateSpec
 - ActionSpec
@@ -260,8 +310,10 @@ Below is an example.
 * [2] "Developing an open source combinatorial testing tool(Toshiro Tsurumaki and Yukihide Yanagida)"
 * [3] "Wikipedia article about Mealy machine"
 * [4] "Pairwise Testing & PICT Tool"
+* [5] "Introduction to Combinatorial Testing" (Kuhn et al)
 
 [1]: https://sites.google.com/site/unclebobconsultingllc/the-truth-about-bdd
 [2]: http://www.jasst.jp/archives/jasst09e/pdf/D4-2.pdf
 [3]: http://en.wikipedia.org/wiki/Mealy_machine
 [4]: http://blogs.msdn.com/b/nagasatish/archive/2006/11/30/pairwise-testing-pict-tool.aspx
+[5]: http://kobo.rakuten.com/

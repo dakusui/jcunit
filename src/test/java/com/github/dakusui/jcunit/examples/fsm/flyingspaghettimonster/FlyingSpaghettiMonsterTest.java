@@ -19,6 +19,36 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JCUnit.class)
 public class FlyingSpaghettiMonsterTest {
+  @FactorField(
+      levelsProvider = FSMLevelsProvider.class,
+      providerParams = {
+          @Param("flyingSpaghettiMonster"),
+          @Param("setUp")
+      })
+  public ScenarioSequence<FlyingSpaghettiMonster> setUp;
+  @FactorField(
+      levelsProvider = FSMLevelsProvider.class,
+      providerParams = {
+          @Param("flyingSpaghettiMonster"),
+          @Param("main")
+      })
+  public ScenarioSequence<FlyingSpaghettiMonster> main;
+  public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+
+  public static FSM flyingSpaghettiMonster() {
+    return FSMUtils.createFSM(Spec.class);
+  }
+
+  @Before
+  public void before() throws Throwable {
+    FSMUtils.performScenarioSequence(Story.ContextType.setUp, this.setUp, this.sut, Story.SIMPLE_REPORTER);
+  }
+
+  @Test
+  public void test() throws Throwable {
+    FSMUtils.performScenarioSequence(Story.ContextType.main, this.main, this.sut, Story.SIMPLE_REPORTER);
+  }
+
   /**
    * Fields annotated with {@code StateSpec} will be considered states of the FSM.
    * And they must be public, static, final fields, and typed by the class itself.
@@ -30,74 +60,50 @@ public class FlyingSpaghettiMonsterTest {
    */
   public static enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
     @StateSpec I {
-      @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+      @Override
+      public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();
       }
 
-      @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
+      @Override
+      public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
         Checks.checknotnull(fsm);
         return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
       }
     },
     @StateSpec COOKED {
-      @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+      @Override
+      public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();
       }
 
-      @Override public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+      @Override
+      public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
         return FSMUtils.valid(fsm, COOKED, CoreMatchers.containsString("yummy"));
       }
 
-      @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
+      @Override
+      public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
         Checks.checknotnull(fsm);
         return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
       }
     },;
 
 
-    @ActionSpec public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
-      return FSMUtils.invalid();
-    }
-
-    @ParametersSpec public static final Object[][] cook = new Object[][] {
+    @ParametersSpec
+    public static final Object[][] cook = new Object[][] {
         { "spaghetti", "spaghettini" },
         { "peperoncino", "carbonara", "meat sauce" },
     };
 
-    @ActionSpec public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+    @ActionSpec
+    public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
       return FSMUtils.invalid();
     }
-  }
 
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("flyingSpaghettiMonster"),
-          @Param("setUp")
-      })
-  public Story<FlyingSpaghettiMonster> setUp;
-
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("flyingSpaghettiMonster"),
-          @Param("main")
-      })
-  public Story<FlyingSpaghettiMonster> main;
-
-  public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-
-  public static FSM flyingSpaghettiMonster() {
-    return FSMUtils.createFSM(Spec.class);
-  }
-
-  @Before
-  public void before() throws Throwable {
-    FSMUtils.performStory(this.setUp, this.sut, Story.SIMPLE_REPORTER);
-  }
-
-  @Test
-  public void test() throws Throwable {
-    FSMUtils.performStory(this.main, this.sut, Story.SIMPLE_REPORTER);
+    @ActionSpec
+    public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+      return FSMUtils.invalid();
+    }
   }
 }

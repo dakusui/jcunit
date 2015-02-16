@@ -23,16 +23,16 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <SUT> void performStory(Story<SUT> story, SUT sut, Story.Reporter<SUT> reporter) throws Throwable {
-    Checks.checknotnull(story);
+  public static <SUT> void performScenarioSequence(Story.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Reporter<SUT> reporter) throws Throwable {
+    Checks.checknotnull(scenarioSequence);
     Checks.checknotnull(reporter);
-    reporter.startStory(story);
+    reporter.startStory(contextType, scenarioSequence);
     try {
-      for (int i = 0; i < story.size(); i++) {
-        Scenario<SUT> each = story.get(i);
+      for (int i = 0; i < scenarioSequence.size(); i++) {
+        Scenario<SUT> each = scenarioSequence.get(i);
 
         Expectation.Result result = null;
-        reporter.run(each, sut);
+        reporter.run(contextType, each, sut);
         try {
           Object r = each.perform(sut);
           ////
@@ -45,15 +45,15 @@ public class FSMUtils {
         } finally {
           if (result != null) {
             if (result.isSuccessful())
-              reporter.passed(each, sut);
+              reporter.passed(contextType, each, sut);
             else
-              reporter.failed(each, sut);
+              reporter.failed(contextType, each, sut);
             result.throwIfFailed();
           }
         }
       }
     } finally {
-      reporter.endStory(story);
+      reporter.endStory(contextType, scenarioSequence);
     }
   }
 
@@ -112,11 +112,11 @@ public class FSMUtils {
     return String.format("FSM:setUp:%s", fsmName);
   }
 
-  public static <SUT> String toString(Story<SUT> story) {
-    Checks.checknotnull(story);
-    Object[] scenarios = new Object[story.size()];
+  public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
+    Checks.checknotnull(scenarioSequence);
+    Object[] scenarios = new Object[scenarioSequence.size()];
     for (int i = 0; i < scenarios.length; i++) {
-      scenarios[i] = story.get(i);
+      scenarios[i] = scenarioSequence.get(i);
     }
     return String.format("Story:[%s]", Utils.join(",", scenarios));
   }

@@ -8,7 +8,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
@@ -400,14 +399,8 @@ public class Utils {
   }
 
   public static void main(String... args) throws NoSuchAlgorithmException {
-    MessageDigest md = MessageDigest.getInstance("SHA-1");
-    System.out.println(Arrays.toString(md.digest()));
-    md.update((byte) 1);
-    System.out.println(Arrays.toString(md.digest()));
-    md.update(new byte[] { 1, 2, 3 });
-    System.out.println(Arrays.toString(md.digest()));
-    md.update(new byte[] { 1, 2, 3 });
-    System.out.println(Arrays.toString(md.digest()));
+    MultiMap<String, Integer> map = new MultiMap<String, Integer>();
+
   }
 
   public static interface Formatter<T> {
@@ -430,5 +423,21 @@ public class Utils {
 
   public static interface Predicate<I> {
     boolean apply(I in);
+  }
+
+  public static class MultiMap<K, V> extends LinkedHashMap<K, List<V>> {
+    @Override
+    public List<V> put(K k, List<V> values) {
+      ////
+      // Adding null as a value must be prohibited.
+      return super.put(k, Checks.checknotnull(values));
+    }
+
+    public void add(K k, V v) {
+      if (!this.containsKey(k)) {
+        this.put(k, new LinkedList<V>());
+      }
+      this.get(k).add(v);
+    }
   }
 }
