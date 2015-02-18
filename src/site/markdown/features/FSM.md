@@ -8,6 +8,7 @@
       2. JCUnit object model
         1. FSM and related objects
         2. ```Story``` and ```Scenario```
+        3. FSM factors, their levels, and constraints
     2. Test suite generation
       1. Flat FSM tuple
       2. setUp and main story
@@ -157,7 +158,7 @@ S is represented by `State` and an element in the list returned by `states()` me
 Sigma is represented by `Action` and `Args`.
 And Lambda, T, and G are represented by `Expectation`.
 
-#### ```Story``` and ```Scenario```
+#### ```Story```, ```ScenarioSequence```, and ```Scenario```
 (t.b.d.)
 ```Scenario``` component is named after an idea in [BDD](http://en.wikipedia.org/wiki/Behavior-driven_development) area.
 A scenario consists of three items, which are listed below.
@@ -170,12 +171,10 @@ A scenario consists of three items, which are listed below.
 ```when``` represents an 'action' to be performed.
 and ```then``` represents an expectation for the action represented by ```when```.
 
-A ```Story``` is a sequence of ```Scenario```s.
+A ```ScenarioSequence``` is a sequence of ```Scenario```s.
 
-    |abc  |def |
-    | --- | --- |
-
-
+### FSM factors, their levels, and constraints
+(t.b.d.)
 
 ## Test suite generation
 (t.b.d.)
