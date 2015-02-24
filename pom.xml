@@ -137,7 +137,7 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
+                    <!-- plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.10.1</version>
@@ -146,8 +146,7 @@
                             <destDir>apidocs</destDir>
                             <additionalparam>-Xdoclint:none</additionalparam>
                         </configuration>
-                    </plugin>
-
+                    </plugin -->
                 </plugins>
             </build>
         </profile>
