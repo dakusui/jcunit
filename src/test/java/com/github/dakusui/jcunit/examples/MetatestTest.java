@@ -5,7 +5,7 @@ import junit.framework.AssertionFailedError;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class MetatestExample extends Metatest {
+public class MetatestTest extends Metatest {
   public static class T1 {
     // Should fail
     @Test

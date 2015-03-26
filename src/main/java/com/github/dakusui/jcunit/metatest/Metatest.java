@@ -39,7 +39,7 @@ public class Metatest {
     composeTestExpectation(testClass, testMethodName).check(runTestMethod(testClass, testMethodName));
   }
 
-  private Expectation composeTestExpectation(Class<?> testClass, String testMethodName) {
+  protected Expectation composeTestExpectation(Class<?> testClass, String testMethodName) {
     try {
       Method m = testClass.getMethod(testMethodName);
       String testName = String.format("%s#%s", testClass.getCanonicalName(), testMethodName);
@@ -61,7 +61,7 @@ public class Metatest {
     return new JUnitCore().run(composeRequestForTestMethod(testClass, methodName));
   }
 
-  private Request composeRequestForTestMethod(final Class<?> testClass, final String methodName) {
+  protected Request composeRequestForTestMethod(final Class<?> testClass, final String methodName) {
     return new FilterRequest(new ClassRequest(testClass), new Filter() {
       @Override
       public boolean shouldRun(Description description) {
@@ -107,7 +107,7 @@ public class Metatest {
     public String messagePattern() default "";
   }
 
-  private class Expectation {
+  protected static class Expectation {
     private final Expected expected;
     private final String   testName;
 
@@ -139,7 +139,7 @@ public class Metatest {
       } else /* The test should fail */ {
         check(!result.wasSuccessful(), "Test was expected to fail but passed", violations);
         int c = result.getFailureCount();
-        check(c == 1, String.format("Failure count was expected to 1 but %d", c), violations);
+        check(c == 1, String.format("Failure count was expected to be 1 but %d", c), violations);
       }
 
       ////
@@ -200,5 +200,3 @@ public class Metatest {
     }
   }
 }
-
-
