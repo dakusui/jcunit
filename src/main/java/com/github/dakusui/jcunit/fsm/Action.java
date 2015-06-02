@@ -6,7 +6,7 @@ package com.github.dakusui.jcunit.fsm;
  * @param <SUT> A software under test.
  */
 public interface Action<SUT> {
-  public static final Action<?> VOID = new Action() {
+  Action<?> VOID = new Action() {
     @Override
     public Object perform(Object o, Args args) throws Throwable {
       return FSMFactors.VOID;

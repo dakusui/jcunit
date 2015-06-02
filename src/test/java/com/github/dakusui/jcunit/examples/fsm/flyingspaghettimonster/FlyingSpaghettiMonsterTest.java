@@ -41,25 +41,30 @@ public class FlyingSpaghettiMonsterTest {
 
   @Before
   public void before() throws Throwable {
+    //noinspection unchecked
     FSMUtils.performScenarioSequence(Story.ContextType.setUp, this.setUp, this.sut, Story.SIMPLE_REPORTER);
   }
 
   @Test
   public void test() throws Throwable {
+    //noinspection unchecked
     FSMUtils.performScenarioSequence(Story.ContextType.main, this.main, this.sut, Story.SIMPLE_REPORTER);
   }
 
   /**
    * Fields annotated with {@code StateSpec} will be considered states of the FSM.
-   * And they must be public, static, final fields, and typed by the class itself.
+   * And they must be public, static, final fields, and typed by an enclosing class.
    * Otherwise errors will be reported by JCUnit framework.
+   * In this example, {@code Spec} is an enclosing class of {@code I} and {@code COOKED}
+   * and they are typed with {@code Spec} because it is a Java {@code enum}, whose
+   * members are typed with it.
    * <p/>
    * Methods annotated with {@code ActionSpec} will be considered actions of the FSM.
    * And they must be public, returning {@code Expectation<SUT>}, taking arguments
    * which define the signature of the methods to be tested in the SUT.
    */
-  public static enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
-    @StateSpec I {
+  public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
+    @SuppressWarnings("unused") @StateSpec I {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();
