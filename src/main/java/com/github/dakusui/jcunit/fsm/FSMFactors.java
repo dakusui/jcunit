@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import java.util.*;
 
 /**
- * Defines factors for FSM using conventions below.
+ * Defines factors for FSM(s) using conventions below.
  * <p/>
  * <code>
  * FSM:{FSM name}:state:{i}      - {i}th state

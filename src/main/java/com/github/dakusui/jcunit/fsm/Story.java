@@ -61,12 +61,12 @@ public class Story<SUT> {
 
   }
 
-  public static enum ContextType {
+  public enum ContextType {
     setUp,
     main,
     optional
   }
-  public static interface Reporter<SUT> {
+  public interface Reporter<SUT> {
     void startStory(ContextType contextTypeType, ScenarioSequence<SUT> seq);
 
     void run(ContextType contextType, Scenario<SUT> scenario, SUT sut);
@@ -76,5 +76,24 @@ public class Story<SUT> {
     void failed(ContextType contextType, Scenario<SUT> scenario, SUT sut);
 
     void endStory(ContextType contextType, ScenarioSequence<SUT> seq);
+  }
+
+  public static class Builder<SUT> {
+    private ScenarioSequence<SUT> main;
+    private ScenarioSequence<SUT> setUp;
+
+    public Builder<SUT> main(ScenarioSequence<SUT> main) {
+      this.main = main;
+      return this;
+    }
+
+    public Builder<SUT> setUp(ScenarioSequence<SUT> setUp) {
+      this.setUp = setUp;
+      return this;
+    }
+
+    public Story build() {
+      return new Story(main, setUp);
+    }
   }
 }

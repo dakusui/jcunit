@@ -80,7 +80,7 @@ public class NestedFSMTest {
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> train(FSM<FlyingSpaghettiMonster> fsm) {
-      return FSMUtils.valid(fsm, this, CoreMatchers.notNullValue());
+      return FSMUtils.valid(fsm, this, CoreMatchers.instanceOf(FlyingSpaghettiMonster.class));
     }
   }
 
@@ -88,7 +88,7 @@ public class NestedFSMTest {
     ;
 
     @Override
-    public boolean check(String stringBuilder) {
+    public boolean check(String s) {
       return true;
     }
   }
