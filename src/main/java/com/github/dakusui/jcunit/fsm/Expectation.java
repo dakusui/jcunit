@@ -10,8 +10,17 @@ import java.util.List;
 
 public class Expectation<SUT> {
 
+  /**
+   * Expected state.
+   */
   public final  State<SUT> state;
+  /**
+   * Expected type. {@code VALUE_RETURNED} or {@code EXCEPTION_THROWN}.
+   */
   private final Type       type;
+  /**
+   * A matcher which verifies a returned value or a thrown exception.
+   */
   private final Matcher    matcher;
 
   public Expectation(

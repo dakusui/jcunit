@@ -14,7 +14,7 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(Story.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Reporter<SUT> reporter) throws Throwable {
+  public static <SUT> void performScenarioSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Reporter<SUT> reporter) throws Throwable {
     Checks.checknotnull(scenarioSequence);
     Checks.checknotnull(reporter);
     reporter.startStory(contextType, scenarioSequence);

@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 public interface ScenarioSequence<SUT> {
 
-  public static final ScenarioSequence<?> EMPTY = new ScenarioSequence() {
+   ScenarioSequence<?> EMPTY = new ScenarioSequence() {
     @Override
     public int size() {
       return 0;
@@ -76,12 +76,18 @@ public interface ScenarioSequence<SUT> {
 
   Args args(int i);
 
+  enum ContextType {
+    setUp,
+    main,
+    optional
+  }
+
   /**
    * Builds a {@code Story} object from a {@code Tuple} using  a given {@code FSMFactorbs}.
    *
    * @param <SUT> A class of software under test.
    */
-  public static class BuilderFromTuple<SUT> {
+  class BuilderFromTuple<SUT> {
     private FSMFactors factors;
     private Tuple      tuple;
     private String     fsmName;

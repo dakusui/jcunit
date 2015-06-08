@@ -42,13 +42,13 @@ public class FlyingSpaghettiMonsterTest {
   @Before
   public void before() throws Throwable {
     //noinspection unchecked
-    FSMUtils.performScenarioSequence(Story.ContextType.setUp, this.setUp, this.sut, Story.SIMPLE_REPORTER);
+    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.setUp, this.setUp, this.sut, Story.SIMPLE_REPORTER);
   }
 
   @Test
   public void test() throws Throwable {
     //noinspection unchecked
-    FSMUtils.performScenarioSequence(Story.ContextType.main, this.main, this.sut, Story.SIMPLE_REPORTER);
+    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.main, this.main, this.sut, Story.SIMPLE_REPORTER);
   }
 
   /**
