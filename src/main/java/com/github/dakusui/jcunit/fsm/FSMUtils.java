@@ -84,17 +84,6 @@ public class FSMUtils {
     return new SimpleFSM<SUT>(fsmSpecClass, historyLength);
   }
 
-  private static <SUT> State<SUT> chooseState(FSM<SUT> fsm, StateChecker<SUT> stateChecker) {
-    Checks.checknotnull(fsm);
-    Checks.checknotnull(stateChecker);
-    for (State<SUT> each : fsm.states()) {
-      if (((SimpleFSM.SimpleFSMState) each).stateSpec == stateChecker)
-        return each;
-    }
-    Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
-    return null;
-  }
-
   public static String composeMainScenarioName(String fsmName) {
     return String.format("FSM:main:%s", fsmName);
   }
@@ -112,4 +101,15 @@ public class FSMUtils {
     return String.format("Story:[%s]", Utils.join(",", scenarios));
   }
 
+
+  private static <SUT> State<SUT> chooseState(FSM<SUT> fsm, StateChecker<SUT> stateChecker) {
+    Checks.checknotnull(fsm);
+    Checks.checknotnull(stateChecker);
+    for (State<SUT> each : fsm.states()) {
+      if (((SimpleFSM.SimpleFSMState) each).stateSpec == stateChecker)
+        return each;
+    }
+    Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
+    return null;
+  }
 }
