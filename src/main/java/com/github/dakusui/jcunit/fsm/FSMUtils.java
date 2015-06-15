@@ -29,7 +29,7 @@ public class FSMUtils {
           ////
           // each.perform(sut) didn't throw an exception
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkReturnedValue(sut, r);
+          result = each.then().checkReturnedValue(, sut, r, );
         } catch (Throwable t) {
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
           result = each.then().checkThrownException(sut, t);

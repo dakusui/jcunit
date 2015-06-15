@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Expectation<SUT> {
+  static class 
 
   /**
    * Expected state.
@@ -56,7 +57,7 @@ public class Expectation<SUT> {
     return b.build();
   }
 
-  public Result checkReturnedValue(SUT sut, Object returnedValue) {
+  public Result checkReturnedValue(FSMContext context, SUT sut, Object returnedValue) {
     Checks.checknotnull(sut);
     Result.Builder b = new Result.Builder(String.format("Expectation: [%s] was not satisfied", this));
     if (this.type != Type.VALUE_RETURNED) {

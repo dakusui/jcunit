@@ -55,19 +55,59 @@ public class Story<SUT> {
     }
   };
 
-  public void perform() {
+  public void perform(FSMContext fsmContext) {
   }
 
-  public interface Reporter<SUT> {
-    void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence<SUT> seq);
+  private void performScenarioSequence(ScenarioSequence scenarioSequence, Object sut) {
+    Checks.checknotnull(scenarioSequence);
+    Reporter reporter = SILENT_REPORTER;
+    ScenarioSequence.ContextType contextType = ScenarioSequence.ContextType.main;
+    Checks.checknotnull(reporter);
+    reporter.startStory(contextType, scenarioSequence);
+    try {
+      for (int i = 0; i < scenarioSequence.size(); i++) {
+        Scenario<SUT> each = scenarioSequence.get(i);
 
-    void run(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+        performScenario((SUT) sut, reporter, contextType, each);
+      }
+    } finally {
+      reporter.endStory(contextType, scenarioSequence);
+    }
+  }
 
-    void passed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+  private void performScenario(SUT sut, Reporter reporter, ScenarioSequence.ContextType contextType, Scenario<SUT> each) {
+    Expectation.Result result = null;
+    reporter.run(contextType, each, sut);
+    try {
+      Object r = each.perform(sut);
+      ////
+      // each.perform(sut) didn't throw an exception
+      //noinspection unchecked,ThrowableResultOfMethodCallIgnored
+      result = each.then().checkReturnedValue(, sut, r, );
+    } catch (Throwable t) {
+      //noinspection unchecked,ThrowableResultOfMethodCallIgnored
+      result = each.then().checkThrownException(sut, t);
+    } finally {
+      if (result != null) {
+        if (result.isSuccessful())
+          reporter.passed(contextType, each, sut);
+        else
+          reporter.failed(contextType, each, sut);
+        result.throwIfFailed();
+      }
+    }
+  }
 
-    void failed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+  public interface Reporter {
+    <SUT> void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence<SUT> seq);
 
-    void endStory(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> seq);
+    <SUT> void run(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void passed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void failed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void endStory(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> seq);
   }
 
   public static class Builder<SUT> {
