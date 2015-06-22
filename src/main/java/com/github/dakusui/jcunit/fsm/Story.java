@@ -78,15 +78,16 @@ public class Story<SUT> {
   private void performScenario(SUT sut, Reporter reporter, ScenarioSequence.ContextType contextType, Scenario<SUT> each) {
     Expectation.Result result = null;
     reporter.run(contextType, each, sut);
+    FSMContext context = null;
     try {
       Object r = each.perform(sut);
       ////
       // each.perform(sut) didn't throw an exception
       //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-      result = each.then().checkReturnedValue(, sut, r, );
+      result = each.then().checkReturnedValue(context, sut, r);
     } catch (Throwable t) {
       //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-      result = each.then().checkThrownException(sut, t);
+      result = each.then().checkThrownException(context, sut, t);
     } finally {
       if (result != null) {
         if (result.isSuccessful())

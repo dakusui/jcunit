@@ -9,7 +9,27 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Expectation<SUT> {
-  static class 
+  public interface Checker {
+    class MatcherBased implements Checker {
+      private final Matcher matcher;
+
+      public MatcherBased(Matcher matcher) {
+        this.matcher = Checks.checknotnull(matcher);
+      }
+
+      @Override
+      public boolean check(FSMContext context, Object item) {
+        return this.matcher.matches(item);
+      }
+
+      public String toString() {
+        return this.matcher.toString();
+      }
+    }
+
+    boolean check(FSMContext context, Object item);
+  }
+
 
   /**
    * Expected state.
@@ -20,9 +40,9 @@ public class Expectation<SUT> {
    */
   private final Type       type;
   /**
-   * A matcher which verifies a returned value or a thrown exception.
+   * A checker which verifies a returned value or a thrown exception.
    */
-  private final Matcher    matcher;
+  private final Checker    matcher;
 
   public Expectation(
       Type type,
@@ -33,17 +53,18 @@ public class Expectation<SUT> {
     Checks.checknotnull(matcher);
     this.type = type;
     this.state = state;
-    this.matcher = matcher;
+    this.matcher = new Checker.MatcherBased(matcher);
   }
 
-  public Result checkThrownException(SUT sut, Throwable thrownException) {
+  public Result checkThrownException(FSMContext context, SUT sut, Throwable thrownException) {
     Checks.checknotnull(sut);
+    //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
     if (this.type != Type.EXCEPTION_THROWN) {
       b.addFailedReason(String.format("Exception was expected to be thrown but not. (%s)", this.matcher));
     }
-    if (!this.matcher.matches(thrownException)) {
+    if (!this.matcher.check(context, thrownException)) {
       b.addFailedReason(
           String.format("'%s' is expected to be %s but '%s' was thrown. (%s)", this.matcher, this.type, thrownException, thrownException.getMessage()),
           thrownException
@@ -51,7 +72,7 @@ public class Expectation<SUT> {
     }
     if (!this.state.check(sut)) {
       b.addFailedReason(
-          String.format("'%s' is in '%s' state but not.", this.state)
+          String.format("'%s' is expected to be in '%s' state but not.", sut, this.state)
       );
     }
     return b.build();
@@ -63,14 +84,14 @@ public class Expectation<SUT> {
     if (this.type != Type.VALUE_RETURNED) {
       b.addFailedReason(String.format("Exception was expected not to be thrown but it was. (%s)", this.matcher));
     }
-    if (!this.matcher.matches(returnedValue)) {
+    if (!this.matcher.check(context, returnedValue)) {
       b.addFailedReason(
           String.format("'%s' is expected to be %s but '%s' was thrown.", this.matcher, this.type, returnedValue)
       );
     }
     if (!this.state.check(sut)) {
       b.addFailedReason(
-          String.format("'%s' is in '%s' state but not.", this.state)
+          String.format("'%s' is expected to be in '%s' state but not.", sut, this.state)
       );
     }
     return b.build();
@@ -83,7 +104,7 @@ public class Expectation<SUT> {
     return String.format("Status is '%s' and %s is returned", this.state, this.matcher);
   }
 
-  public static enum Type {
+  public enum Type {
     EXCEPTION_THROWN {
       @Override
       public String toString() {
@@ -164,7 +185,7 @@ public class Expectation<SUT> {
 
       Builder addFailedReason(String message) {
         Checks.checknotnull(message);
-        return this.addFailedReason(message, (Throwable) null);
+        return this.addFailedReason(message, null);
       }
 
       Builder addFailedReason(String message, Throwable t) {

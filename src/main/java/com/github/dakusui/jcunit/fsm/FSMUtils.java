@@ -14,10 +14,11 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Reporter<SUT> reporter) throws Throwable {
+  public static <SUT> void performScenarioSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Reporter reporter) throws Throwable {
     Checks.checknotnull(scenarioSequence);
     Checks.checknotnull(reporter);
     reporter.startStory(contextType, scenarioSequence);
+    FSMContext context = null;
     try {
       for (int i = 0; i < scenarioSequence.size(); i++) {
         Scenario<SUT> each = scenarioSequence.get(i);
@@ -29,10 +30,10 @@ public class FSMUtils {
           ////
           // each.perform(sut) didn't throw an exception
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkReturnedValue(, sut, r, );
+          result = each.then().checkReturnedValue(context, sut, r);
         } catch (Throwable t) {
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkThrownException(sut, t);
+          result = each.then().checkThrownException(context, sut, t);
         } finally {
           if (result != null) {
             if (result.isSuccessful())
@@ -100,7 +101,6 @@ public class FSMUtils {
     }
     return String.format("Story:[%s]", Utils.join(",", scenarios));
   }
-
 
   private static <SUT> State<SUT> chooseState(FSM<SUT> fsm, StateChecker<SUT> stateChecker) {
     Checks.checknotnull(fsm);
