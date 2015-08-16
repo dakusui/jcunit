@@ -64,15 +64,10 @@ public abstract class StateRouter<SUT> {
   }
 
   private ScenarioSequence<SUT> buildStoryFromTransitions(final List<Transition<SUT>> pathToNext) {
-    return new ScenarioSequence<SUT>() {
+    return new ScenarioSequence.Base<SUT>() {
       @Override
       public int size() {
         return pathToNext.size();
-      }
-
-      @Override
-      public Scenario<SUT> get(int i) {
-        return new Scenario<SUT>(state(i), action(i), args(i));
       }
 
       @Override

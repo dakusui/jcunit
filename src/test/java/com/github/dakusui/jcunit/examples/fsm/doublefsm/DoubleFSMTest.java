@@ -58,9 +58,9 @@ public class DoubleFSMTest {
   @Test
   public void test() throws Throwable {
     Turnstile sut = new Turnstile();
-    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.setUp, this.setUp1, sut, Story.SILENT_REPORTER);
-    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.setUp, this.setUp2, sut, Story.SILENT_REPORTER);
-    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.main, this.main1, sut, Story.SIMPLE_REPORTER);
-    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.main, this.main2, sut, Story.SIMPLE_REPORTER);
+    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.setUp, this.setUp1, sut, Story.SILENT_OBSERVER);
+    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.setUp, this.setUp2, sut, Story.SILENT_OBSERVER);
+    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.main, this.main1, sut, Story.SIMPLE_OBSERVER);
+    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.main, this.main2, sut, Story.SIMPLE_OBSERVER);
   }
 }

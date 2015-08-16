@@ -14,17 +14,17 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Reporter reporter) throws Throwable {
+  public static <SUT> void performScenarioSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Observer observer) {
     Checks.checknotnull(scenarioSequence);
-    Checks.checknotnull(reporter);
-    reporter.startStory(contextType, scenarioSequence);
+    Checks.checknotnull(observer);
+    observer.startStory(contextType, scenarioSequence);
     FSMContext context = null;
     try {
       for (int i = 0; i < scenarioSequence.size(); i++) {
         Scenario<SUT> each = scenarioSequence.get(i);
 
         Expectation.Result result = null;
-        reporter.run(contextType, each, sut);
+        observer.run(contextType, each, sut);
         try {
           Object r = each.perform(sut);
           ////
@@ -37,15 +37,15 @@ public class FSMUtils {
         } finally {
           if (result != null) {
             if (result.isSuccessful())
-              reporter.passed(contextType, each, sut);
+              observer.passed(contextType, each, sut);
             else
-              reporter.failed(contextType, each, sut);
+              observer.failed(contextType, each, sut);
             result.throwIfFailed();
           }
         }
       }
     } finally {
-      reporter.endStory(contextType, scenarioSequence);
+      observer.endStory(contextType, scenarioSequence);
     }
   }
 
@@ -74,8 +74,13 @@ public class FSMUtils {
   }
 
   public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, org.hamcrest.Matcher matcher) {
-    return new Expectation<SUT>(Expectation.Type.VALUE_RETURNED, chooseState(fsm, state), matcher);
+    return valid(fsm, state, new Expectation.Checker.MatcherBased(matcher));
   }
+
+  public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, Expectation.Checker checker) {
+    return new Expectation<SUT>(Expectation.Type.VALUE_RETURNED, chooseState(fsm, state), checker);
+  }
+
 
   public static <SUT> FSM<SUT> createFSM(Class<? extends FSMSpec<SUT>> fsmSpecClass) {
     return createFSM(fsmSpecClass, 2);

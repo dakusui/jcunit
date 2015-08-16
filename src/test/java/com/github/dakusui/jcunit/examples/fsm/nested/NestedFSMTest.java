@@ -79,8 +79,10 @@ public class NestedFSMTest {
     }
 
     @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> train(FSM<FlyingSpaghettiMonster> fsm) {
-      return FSMUtils.valid(fsm, this, CoreMatchers.instanceOf(FlyingSpaghettiMonster.class));
+    public Expectation<FlyingSpaghettiMonster> train(final FSM<FlyingSpaghettiMonster> fsm) {
+      //return FSMUtils.valid(fsm, this, CoreMatchers.instanceOf(FlyingSpaghettiMonster.class));
+      final String fsmName = "nested";
+      return FSMUtils.valid(fsm, this, new Expectation.Checker.FSM("nested"));
     }
   }
 

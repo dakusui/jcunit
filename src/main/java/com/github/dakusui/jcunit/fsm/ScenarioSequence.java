@@ -3,9 +3,40 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
+/**
+ * An interface that represents a sequence of scenarios.
+ *
+ * @param <SUT> A software (class) under test.
+ */
 public interface ScenarioSequence<SUT> {
+  abstract class Base<SUT> implements ScenarioSequence<SUT> {
+    @Override
+    public void perform(ContextType type, SUT sut, Story.Observer observer) {
+      FSMUtils.performScenarioSequence(type, this, sut, observer);
+    }
 
-   ScenarioSequence<?> EMPTY = new ScenarioSequence() {
+    @Override
+    public Scenario<SUT> get(int i) {
+      Checks.checkcond(i >= 0);
+      Checks.checkcond(i < this.size());
+      State<SUT> given = this.state(i);
+      Action<SUT> when = this.action(i);
+      Args with = this.args(i);
+      return new Scenario<SUT>(given, when, with);
+    }
+
+    @Override
+    public String toString() {
+      return FSMUtils.toString(this);
+    }
+  }
+
+  ScenarioSequence<?> EMPTY = new ScenarioSequence() {
+    @Override
+    public void perform(ContextType type, Object sut, Story.Observer observer) {
+      // Does nothing since this is an emptry scenario object.
+    }
+
     @Override
     public int size() {
       return 0;
@@ -43,13 +74,29 @@ public interface ScenarioSequence<SUT> {
 
     @Override
     public String toString() {
-      return "Story:[]";
+      return "Empty Story:[]";
     }
   };
 
+  /**
+   * Performs this scenario with given {@code sut} object.
+   *
+   * @param sut An objects that represents software under test.
+   */
+  void perform(ContextType type, SUT sut, Story.Observer observer);
 
+  /**
+   * Returns the number of scenarios in this sequence
+   *
+   * @return The size of this object.
+   */
   int size();
 
+  /**
+   * Returns the {@code i}-th scenario in this sequence.
+   *
+   * @param i history index
+   */
   Scenario<SUT> get(int i);
 
   /**
@@ -70,10 +117,27 @@ public interface ScenarioSequence<SUT> {
    */
   Action<SUT> action(int i);
 
+  /**
+   * Returns {@code j}-th element of {@code i}-th argument list.
+   *
+   * @param i history index
+   * @param j index for argument
+   */
   Object arg(int i, int j);
 
+  /**
+   * Checks if {@code i}-th argument list has the {@code i}-th element.
+   *
+   * @param i history index
+   * @param j index for argument
+   */
   boolean hasArg(int i, int j);
 
+  /**
+   * Returns arguments object of {@code i}-th action.
+   *
+   * @param i history index
+   */
   Args args(int i);
 
   enum ContextType {
@@ -115,7 +179,7 @@ public interface ScenarioSequence<SUT> {
       Checks.checknotnull(factors);
       Checks.checknotnull(fsmName);
       Checks.checkcond(factors.historyLength(fsmName) > 0);
-      return new ScenarioSequence<SUT>() {
+      return new ScenarioSequence.Base<SUT>() {
         @Override
         public Scenario<SUT> get(int i) {
           Checks.checkcond(i >= 0);

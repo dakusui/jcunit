@@ -9,25 +9,50 @@ import java.util.Map;
 
 public class FSMContext {
   private final Map<String, Story> stories;
+  private final Map<String, Boolean> performed = new HashMap<String, Boolean>();
 
-  public FSMContext(Map<String, Story> stories) {
+  private FSMContext(Map<String, Story> stories) {
     ////
     // To guarantee the order returned by this.stories.keySet() consistent, wrap
     // original stories with LinkedHashMap.
     Map<String, Story> tmpStories = new LinkedHashMap<String, Story>();
     tmpStories.putAll(stories);
     this.stories = Collections.unmodifiableMap(tmpStories);
+    for (String each : this.storyNames()) {
+      this.performed.put(each, false);
+    }
   }
 
   public String[] storyNames() {
     return stories.keySet().toArray(new String[this.stories.size()]);
   }
 
-  public void performStory(String storyName) {
-    Checks.checknotnull(storyName);
-    Checks.checkcond(this.stories.containsKey(storyName));
-    Story story = this.stories.get(storyName);
-    story.perform(this);
+  public Story<Object> lookupStory(String name) {
+    Checks.checknotnull(name);
+    return this.stories.get(name);
+  }
+
+  public boolean hasStory(String name) {
+    Checks.checknotnull(name);
+    return this.stories.containsKey(name);
+  }
+
+  public boolean isAlreadyPerformed(String name) {
+    Checks.checknotnull(name);
+    Checks.checkcond(this.stories.containsKey(name));
+    return this.performed.containsKey(name);
+  }
+
+  public void perform(String name) throws Throwable {
+    Checks.checknotnull(name);
+    Checks.checkcond(this.stories.containsKey(name));
+    Checks.checkcond(this.performed.containsKey(name));
+    Checks.checkcond(this.performed.get(name));
+    try {
+      this.lookupStory(name).perform(this);
+    } finally {
+      this.performed.put(name, true);
+    }
   }
 
   public static class Builder {
