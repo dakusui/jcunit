@@ -22,15 +22,7 @@ public class FlyingSpaghettiMonsterTest {
   @FactorField(
       levelsProvider = FSMLevelsProvider.class,
       providerParams = {
-          @Param("flyingSpaghettiMonster"),
-          @Param("setUp")
-      })
-  public ScenarioSequence<FlyingSpaghettiMonster> setUp;
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("flyingSpaghettiMonster"),
-          @Param("main")
+          @Param("flyingSpaghettiMonster")
       })
   public ScenarioSequence<FlyingSpaghettiMonster> main;
   public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();

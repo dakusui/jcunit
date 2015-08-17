@@ -19,20 +19,20 @@ import java.util.*;
  * @link http://www.google.com
  */
 public class FSMTupleGenerator extends TupleGeneratorBase {
-  private final Map<String, FSM<?>>    fsms;
+  private final Map<String, FSM<Object>>    fsms;
   private final TupleGenerator.Builder baseTupleGeneratorBuilder;
-  private final List<FactorMapper<?>>  factorMappers;
+  private final List<FactorMapper<Object>>  factorMappers;
   private       List<Tuple>            tuples;
 
-  public FSMTupleGenerator(TupleGenerator.Builder baseTG, Map<String, FSM<?>> fsms, List<FactorMapper<?>> factorMappers) {
+  public FSMTupleGenerator(TupleGenerator.Builder baseTG, Map<String, FSM<Object>> fsms, List<FactorMapper<Object>> factorMappers) {
     this.fsms = Checks.checknotnull(fsms);
     this.baseTupleGeneratorBuilder = Checks.checknotnull(baseTG);
     this.factorMappers = factorMappers;
   }
 
-  private static FSMFactors buildFSMFactors(Factors baseFactors, Map<String, FSM<?>> fsms) {
+  private static FSMFactors buildFSMFactors(Factors baseFactors, Map<String, FSM<Object>> fsms) {
     FSMFactors.Builder b = new FSMFactors.Builder();
-    for (Map.Entry<String, FSM<?>> each : fsms.entrySet()) {
+    for (Map.Entry<String, FSM<Object>> each : fsms.entrySet()) {
       b.addFSM(each.getKey(), each.getValue());
     }
     return b.setBaseFactors(baseFactors).build();
@@ -45,13 +45,13 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
 
     ConstraintManager fsmCM = new FSMConstraintManager(this.baseTupleGeneratorBuilder.getConstraintManager());
     fsmCM.setFactors(fsmFactors);
-    final List<Map<String, ScenarioSequence<?>>> mainStories = generateMainStories(fsmFactors, fsmCM);
+    final List<Map<String, ScenarioSequence<Object>>> mainStories = generateMainStories(fsmFactors, fsmCM);
 
     ////
     // Create a state router.
     // 1. Build a map from state name to a state which can be seen in the first place of a story.
-    Map<String, List<State<?>>> setUpDestinations = collectSetupDestinations(mainStories);
-    Map<String, StateRouter<?>> stateRouters = prepareStateRouters(mainStories, setUpDestinations);
+    Map<String, List<State<Object>>> setUpDestinations = collectSetupDestinations(mainStories);
+    Map<String, StateRouter<Object>> stateRouters = prepareStateRouters(mainStories, setUpDestinations);
     ////
     // Build the final tuples
     // all the possible levels will be accumulated to this variable 'mappedFactors' through 'buildTuples' process.
@@ -65,12 +65,12 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     return this.tuples.size();
   }
 
-  private Map<String, StateRouter<?>> prepareStateRouters(final List<Map<String, ScenarioSequence<?>>> mainStories, final Map<String, List<State<?>>> setUpDestinations) {
-    Map<String, StateRouter<?>> routerMap = new HashMap<String, StateRouter<?>>();
+  private Map<String, StateRouter<Object>> prepareStateRouters(final List<Map<String, ScenarioSequence<Object>>> mainStories, final Map<String, List<State<Object>>> setUpDestinations) {
+    Map<String, StateRouter<Object>> routerMap = new HashMap<String, StateRouter<Object>>();
     for (final String fsmName : this.fsms.keySet()) {
       final FSM<?> fsm = this.fsms.get(fsmName);
       //noinspection unchecked
-      StateRouter<?> router = new StateRouter(fsm, setUpDestinations.get(fsmName)) {
+      StateRouter<Object> router = new StateRouter(fsm, setUpDestinations.get(fsmName)) {
         @Override
         protected List<Transition> possibleTransitionsFrom(State state) {
           List<Transition> ret = new LinkedList<Transition>();
@@ -95,38 +95,34 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     return routerMap;
   }
 
-  private List<Tuple> buildTuples(Map<String, FSM<?>> fsms, List<Map<String, ScenarioSequence<?>>> mainStories, Map<String, StateRouter<?>> routerMap, Map<String, Factor.Builder> mappedFactors) {
+  private List<Tuple> buildTuples(Map<String, FSM<Object>> fsms, List<Map<String, ScenarioSequence<Object>>> mainStories, Map<String, StateRouter<Object>> routerMap, Map<String, Factor.Builder> mappedFactors) {
     List<Tuple> tuples = new LinkedList<Tuple>();
-    for (Map<String, ScenarioSequence<?>> each : mainStories) {
+    for (Map<String, ScenarioSequence<Object>> each : mainStories) {
       Tuple.Builder b = new Tuple.Builder();
       for (String fsmName : fsms.keySet()) {
         StateRouter router = routerMap.get(fsmName);
         String mainScenarioFactorName = FSMUtils.composeMainScenarioName(fsmName);
-        String setUpScenarioFactorName = FSMUtils.composeSetUpScenarioName(fsmName);
-        ScenarioSequence<?> mainScenarioSequence = each.get(fsmName);
-        b.put(mainScenarioFactorName, mainScenarioSequence);
+        ScenarioSequence<Object> mainScenarioSequence = each.get(fsmName);
         @SuppressWarnings("unchecked")
-        ScenarioSequence<?> setUp = router.routeTo(mainScenarioSequence.state(0));
-        if (setUp != null) {
-          b.put(setUpScenarioFactorName, setUp);
-        }
+        ScenarioSequence<Object> setUp = router.routeTo(mainScenarioSequence.state(0));
+        b.put(mainScenarioFactorName, new Story<Object>(setUp, mainScenarioSequence));
       }
       tuples.add(translateFSMTupleToNormalTuple(b.build(), mappedFactors));
     }
     return tuples;
   }
 
-  private Map<String, List<State<?>>> collectSetupDestinations(List<Map<String, ScenarioSequence<?>>> mainStories) {
-    Map<String, List<State<?>>> destinations = new LinkedHashMap<String, List<State<?>>>();
-    for (Map<String, ScenarioSequence<?>> each : mainStories) {
-      for (Map.Entry<String, ScenarioSequence<?>> ent : each.entrySet()) {
-        List<State<?>> cur = destinations.get(ent.getKey());
+  private Map<String, List<State<Object>>> collectSetupDestinations(List<Map<String, ScenarioSequence<Object>>> mainStories) {
+    Map<String, List<State<Object>>> destinations = new LinkedHashMap<String, List<State<Object>>>();
+    for (Map<String, ScenarioSequence<Object>> each : mainStories) {
+      for (Map.Entry<String, ScenarioSequence<Object>> ent : each.entrySet()) {
+        List<State<Object>> cur = destinations.get(ent.getKey());
         if (cur == null) {
-          cur = new LinkedList<State<?>>();
+          cur = new LinkedList<State<Object>>();
           destinations.put(ent.getKey(), cur);
         }
         if (ent.getValue().size() > 0) {
-          State<?> state = ent.getValue().get(0).given;
+          State<Object> state = ent.getValue().get(0).given;
           if (!cur.contains(state)) {
             cur.add(ent.getValue().get(0).given);
           }
@@ -136,13 +132,13 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     return destinations;
   }
 
-  private List<Map<String, ScenarioSequence<?>>> generateMainStories(FSMFactors fsmFactors, ConstraintManager fsmCM) {
-    final List<Map<String, ScenarioSequence<?>>> mainScenarios = new LinkedList<Map<String, ScenarioSequence<?>>>();
+  private List<Map<String, ScenarioSequence<Object>>> generateMainStories(FSMFactors fsmFactors, ConstraintManager fsmCM) {
+    final List<Map<String, ScenarioSequence<Object>>> mainScenarios = new LinkedList<Map<String, ScenarioSequence<Object>>>();
     for (Tuple eachTuple : generatePlainTuples(fsmFactors, fsmCM)) {
-      Map<String, ScenarioSequence<?>> cur = new LinkedHashMap<String, ScenarioSequence<?>>();
-      for (Map.Entry<String, FSM<?>> entry : this.fsms.entrySet()) {
+      Map<String, ScenarioSequence<Object>> cur = new LinkedHashMap<String, ScenarioSequence<Object>>();
+      for (Map.Entry<String, FSM<Object>> entry : this.fsms.entrySet()) {
         String fsmName = entry.getKey();
-        ScenarioSequence<?> main = new ScenarioSequence.BuilderFromTuple()
+        ScenarioSequence<Object> main = new ScenarioSequence.BuilderFromTuple()
             .setFSMFactors(fsmFactors)
             .setTuple(eachTuple)
             .setFSMName(fsmName)
@@ -158,9 +154,9 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     return new Builder(this.baseTupleGeneratorBuilder).setConstraintManager(fsmCM).setFactors(fsmFactors).build();
   }
 
-  private static List<ScenarioSequence<?>> collectStoriesForFSM(List<Map<String, ScenarioSequence<?>>> storyMap, String fsmName) {
+  private static List<ScenarioSequence<?>> collectStoriesForFSM(List<Map<String, ScenarioSequence<Object>>> storyMap, String fsmName) {
     List<ScenarioSequence<?>> ret = new ArrayList<ScenarioSequence<?>>(storyMap.size());
-    for (Map<String, ScenarioSequence<?>> each : storyMap) {
+    for (Map<String, ScenarioSequence<Object>> each : storyMap) {
       ret.add(each.get(fsmName));
     }
     return ret;

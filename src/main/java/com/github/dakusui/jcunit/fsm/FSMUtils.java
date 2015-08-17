@@ -94,10 +94,6 @@ public class FSMUtils {
     return String.format("FSM:main:%s", fsmName);
   }
 
-  public static String composeSetUpScenarioName(String fsmName) {
-    return String.format("FSM:setUp:%s", fsmName);
-  }
-
   public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
     Checks.checknotnull(scenarioSequence);
     Object[] scenarios = new Object[scenarioSequence.size()];

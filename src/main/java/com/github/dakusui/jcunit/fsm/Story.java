@@ -1,7 +1,5 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Checks;
-
 public class Story<SUT> {
   public interface Observer {
     <SUT> void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence<SUT> seq);
@@ -71,10 +69,6 @@ public class Story<SUT> {
   public Story(ScenarioSequence<SUT> setUp, ScenarioSequence<SUT> main) {
     this.setUp = setUp;
     this.main = main;
-  }
-
-  public Story(ScenarioSequence<SUT> main, StateRouter<SUT> router) {
-    this(Checks.checknotnull(router).routeTo(Checks.checknotnull(main).state(0)), main);
   }
 
   public void perform(SUT sut) {

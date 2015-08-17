@@ -12,31 +12,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 
 public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<ScenarioSequence<SUT>> {
-  private ScenarioType scenarioType;
   private String       fsmName;
   private String       factorName;
-
-  private static enum ScenarioType {
-    setUp {
-      @Override
-      String composeFactorName(String fsmName) {
-        return FSMUtils.composeSetUpScenarioName(fsmName);
-      }
-    },
-    main {
-      @Override
-      String composeFactorName(String fsmName) {
-        return FSMUtils.composeMainScenarioName(fsmName);
-      }
-    };
-
-    abstract String composeFactorName(String fsmName);
-  }
 
   @Override
   protected void init(Field targetField, FactorField annotation, Object[] parameters) {
     this.fsmName = (String) parameters[0];
-    this.scenarioType = (ScenarioType) parameters[1];
     this.factorName = targetField.getName();
   }
 
@@ -48,12 +29,12 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<ScenarioSe
   @Override
   public ScenarioSequence<SUT> apply(Tuple tuple) {
     String factorName;
-    Object retObject = tuple.get(factorName = this.scenarioType.composeFactorName(this.fsmName));
+    Object retObject = tuple.get(factorName = FSMUtils.composeMainScenarioName(this.fsmName));
     Checks.checknotnull(retObject, "'%s' was not found in tuple. (%s)", factorName, tuple);
     Checks.checkplugin(
         retObject instanceof ScenarioSequence,
         "A generated factor level for '%s' isn't an instance of '%s'",
-        this.scenarioType.composeFactorName(this.fsmName),
+        factorName,
         ScenarioSequence.class
     );
     // The line above already checked the type of the returned value.
@@ -64,13 +45,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<ScenarioSe
   @Override
   public ParamType[] parameterTypes() {
     return new ParamType[] {
-        ParamType.String,
-        new ParamType.NonArrayType() {
-          @Override
-          protected Object parse(String str) {
-            return ScenarioType.valueOf(str);
-          }
-        }
+        ParamType.String
     };
   }
 
@@ -81,7 +56,6 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<ScenarioSe
   @Retention(RetentionPolicy.RUNTIME)
   public @interface Parameters {
     Class<? extends FSMSpec> value();
-    Class<? extends SimpleFSMFactory> factory() default SimpleFSMFactory.class;
   }
 
   public interface SimpleFSMFactory {
