@@ -1,6 +1,20 @@
 package com.github.dakusui.jcunit.fsm;
 
+import com.github.dakusui.jcunit.core.Checks;
+
 public class Story<SUT> {
+  public interface Observer {
+    <SUT> void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence<SUT> seq);
+
+    <SUT> void run(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void passed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void failed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void endStory(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> seq);
+  }
+
   public static final Observer SILENT_OBSERVER = new Observer() {
     @Override
     public void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence seq) {
@@ -23,6 +37,7 @@ public class Story<SUT> {
 
     }
   };
+
   public static final Observer SIMPLE_OBSERVER = new Observer() {
     @Override
     public void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence scenarioSequence) {
@@ -50,24 +65,16 @@ public class Story<SUT> {
     }
   };
 
-  public interface Observer {
-    <SUT> void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence<SUT> seq);
-
-    <SUT> void run(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
-
-    <SUT> void passed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
-
-    <SUT> void failed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
-
-    <SUT> void endStory(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> seq);
-  }
-
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
 
   public Story(ScenarioSequence<SUT> setUp, ScenarioSequence<SUT> main) {
     this.setUp = setUp;
     this.main = main;
+  }
+
+  public Story(ScenarioSequence<SUT> main, StateRouter<SUT> router) {
+    this(Checks.checknotnull(router).routeTo(Checks.checknotnull(main).state(0)), main);
   }
 
   public void perform(SUT sut) {
