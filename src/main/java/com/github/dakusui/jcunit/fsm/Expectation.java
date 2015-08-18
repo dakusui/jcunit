@@ -32,10 +32,13 @@ public class Expectation<SUT> {
     }
 
     class FSM implements Checker {
+      private final Story.Observer observer;
       String fsmName;
 
-      public FSM(String fsmName) {
+      public FSM(String fsmName, Story.Observer observer) {
+        Checks.checknotnull(observer);
         this.fsmName = fsmName;
+        this.observer = observer;
       }
 
       @Override
@@ -44,7 +47,7 @@ public class Expectation<SUT> {
         // TODO: elaborate this.
         Checks.checkcond(context.hasStory(fsmName));
         if (!context.isAlreadyPerformed(fsmName)) {
-          context.lookupStory(fsmName).perform(item);
+          context.lookupStory(fsmName).perform(item, this.observer);
         }
         return true;
       }

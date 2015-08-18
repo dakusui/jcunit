@@ -10,7 +10,6 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,23 +23,16 @@ public class FlyingSpaghettiMonsterTest {
       providerParams = {
           @Param("flyingSpaghettiMonster")
       })
-  public ScenarioSequence<FlyingSpaghettiMonster> main;
+  public Story<FlyingSpaghettiMonster> main;
   public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
   public static FSM flyingSpaghettiMonster() {
     return FSMUtils.createFSM(Spec.class);
   }
 
-  @Before
-  public void before() throws Throwable {
-    //noinspection unchecked
-    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.setUp, this.setUp, this.sut, Story.SIMPLE_OBSERVER);
-  }
-
   @Test
   public void test() throws Throwable {
-    //noinspection unchecked
-    FSMUtils.performScenarioSequence(ScenarioSequence.ContextType.main, this.main, this.sut, Story.SIMPLE_OBSERVER);
+    this.main.perform(this.sut, Story.SIMPLE_OBSERVER);
   }
 
   /**

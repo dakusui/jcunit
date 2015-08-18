@@ -43,13 +43,13 @@ public class FSMContext {
     return this.performed.containsKey(name);
   }
 
-  public void perform(String name) throws Throwable {
+  public void perform(String name, Story.Observer observer) throws Throwable {
     Checks.checknotnull(name);
     Checks.checkcond(this.stories.containsKey(name));
     Checks.checkcond(this.performed.containsKey(name));
     Checks.checkcond(this.performed.get(name));
     try {
-      this.lookupStory(name).perform(this);
+      this.lookupStory(name).perform(this, observer);
     } finally {
       this.performed.put(name, true);
     }

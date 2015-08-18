@@ -38,7 +38,7 @@ public class TupleGeneratorFactory {
 
   private TupleGenerator createTupleGenerator(Class<?> klazz,
       TupleGeneration tupleGenerationAnn) {
-    Map<Field, LevelsProvider<?>> levelsProviders = new LinkedHashMap<Field, LevelsProvider<?>>();
+    Map<Field, LevelsProvider<Object>> levelsProviders = new LinkedHashMap<Field, LevelsProvider<Object>>();
     Factors factors = loadFactors(klazz, levelsProviders);
     ////
     // Wire and build objects.
@@ -58,13 +58,13 @@ public class TupleGeneratorFactory {
     TupleGenerator generator;
     List<Method> methods;
     if (!(methods = getFSMProviderMethods(klazz, levelsProviders)).isEmpty()) {
-      List<FactorMapper<?>> factorMappers = new LinkedList<FactorMapper<?>>();
-      for (LevelsProvider<?> each : levelsProviders.values()) {
+      List<FactorMapper<Object>> factorMappers = new LinkedList<FactorMapper<Object>>();
+      for (LevelsProvider<Object> each : levelsProviders.values()) {
         if (each instanceof FactorMapper) {
-          factorMappers.add((FactorMapper<?>) each);
+          factorMappers.add((FactorMapper<Object>) each);
         }
       }
-      Map<String, FSM<?>> fsms = new LinkedHashMap<String, FSM<?>>();
+      Map<String, FSM<Object>> fsms = new LinkedHashMap<String, FSM<Object>>();
       for (Method m : methods) {
         fsms.put(m.getName(), createFSM(m));
       }
@@ -77,10 +77,10 @@ public class TupleGeneratorFactory {
     return generator;
   }
 
-  private FSM<?> createFSM(Method m) {
-    FSM<?> ret = null;
+  private FSM<Object> createFSM(Method m) {
+    FSM<Object> ret = null;
     try {
-      ret = (FSM<?>) m.invoke(null);
+      ret = (FSM<Object>) m.invoke(null);
     } catch (IllegalAccessException e) {
       // Since the scope is validated in advance, this path shouldn't be executed.
       Checks.checkcond(false);
@@ -93,7 +93,7 @@ public class TupleGeneratorFactory {
   /*
    * Returns a list of methods whose names are FSMs'
    */
-  private List<Method> getFSMProviderMethods(Class<?> klazz, Map<Field, LevelsProvider<?>> levelsProviders) {
+  private List<Method> getFSMProviderMethods(Class<?> klazz, Map<Field, LevelsProvider<Object>> levelsProviders) {
     Set<String> fsmNames = new HashSet<String>();
     for (LevelsProvider<?> each : levelsProviders.values()) {
       if (each instanceof FSMLevelsProvider) {
@@ -129,7 +129,7 @@ public class TupleGeneratorFactory {
     );
   }
 
-  protected Factors loadFactors(Class<?> klass, Map<Field, LevelsProvider<?>> providers) {
+  protected Factors loadFactors(Class<?> klass, Map<Field, LevelsProvider<Object>> providers) {
     // //
     // Initialize the factor levels for every '@FactorField' annotated field.
     Field[] fields = Utils.getAnnotatedFields(klass, FactorField.class);
@@ -140,7 +140,7 @@ public class TupleGeneratorFactory {
         FactorLoader factorLoader = new FactorLoader(f);
         Factor factor = factorLoader.getFactor();
         factorsBuilder.add(factor);
-        providers.put(f, factorLoader.getLevelsProvider());
+        providers.put(f, (LevelsProvider<Object>) factorLoader.getLevelsProvider());
       } catch (InvalidTestException e) {
         invalidTestException.addChild(e);
       }

@@ -71,8 +71,8 @@ public class Story<SUT> {
     this.main = main;
   }
 
-  public void perform(SUT sut) {
-    this.setUp.perform(ScenarioSequence.ContextType.setUp, sut, null);
-    this.main.perform(ScenarioSequence.ContextType.main, sut, null);
+  public void perform(SUT sut, Observer observer) {
+    this.setUp.perform(ScenarioSequence.ContextType.setUp, sut, observer);
+    this.main.perform(ScenarioSequence.ContextType.main, sut, observer);
   }
 }
