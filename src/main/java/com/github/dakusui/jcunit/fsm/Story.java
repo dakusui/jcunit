@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 public class Story<SUT> {
   public interface Observer {
-    <SUT> void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence<SUT> seq);
+    <SUT> void startSequence(ScenarioSequence.ContextType contextTypeType, ScenarioSequence<SUT> seq);
 
     <SUT> void run(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
 
@@ -10,12 +10,14 @@ public class Story<SUT> {
 
     <SUT> void failed(ScenarioSequence.ContextType contextType, Scenario<SUT> scenario, SUT sut);
 
-    <SUT> void endStory(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> seq);
+    <SUT> void endSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> seq);
+
+    <SUT> void skipSequence(ScenarioSequence.ContextType contextType, ScenarioSequence seq);
   }
 
   public static final Observer SILENT_OBSERVER = new Observer() {
     @Override
-    public void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence seq) {
+    public void startSequence(ScenarioSequence.ContextType contextTypeType, ScenarioSequence seq) {
     }
 
     @Override
@@ -31,35 +33,43 @@ public class Story<SUT> {
     }
 
     @Override
-    public void endStory(ScenarioSequence.ContextType contextType, ScenarioSequence seq) {
+    public void endSequence(ScenarioSequence.ContextType contextType, ScenarioSequence seq) {
+    }
 
+    @Override
+    public void skipSequence(ScenarioSequence.ContextType contextType, ScenarioSequence seq) {
     }
   };
 
   public static final Observer SIMPLE_OBSERVER = new Observer() {
     @Override
-    public void startStory(ScenarioSequence.ContextType contextTypeType, ScenarioSequence scenarioSequence) {
-      System.out.printf("Starting:%s\n", scenarioSequence);
+    public void startSequence(ScenarioSequence.ContextType contextType, ScenarioSequence scenarioSequence) {
+      System.out.printf("Starting(%s):%s\n", contextType, scenarioSequence);
     }
 
     @Override
     public void run(ScenarioSequence.ContextType contextType, Scenario scenario, Object o) {
-      System.out.printf("  Running:%s expecting %s\n", scenario, scenario.then());
+      System.out.printf("  Running(%s):%s expecting %s\n", contextType, scenario, scenario.then());
     }
 
     @Override
     public void passed(ScenarioSequence.ContextType contextType, Scenario scenario, Object o) {
-      System.out.println("  Passed");
+      System.out.printf("  Passed(%s)\n", contextType);
     }
 
     @Override
     public void failed(ScenarioSequence.ContextType contextType, Scenario scenario, Object o) {
-      System.out.println("  Failed");
+      System.out.printf("  Failed(%s)\n", contextType);
     }
 
     @Override
-    public void endStory(ScenarioSequence.ContextType contextType, ScenarioSequence seq) {
-      System.out.println("End");
+    public void endSequence(ScenarioSequence.ContextType contextType, ScenarioSequence seq) {
+      System.out.printf("End(%s)\n", contextType);
+    }
+
+    @Override
+    public void skipSequence(ScenarioSequence.ContextType contextType, ScenarioSequence seq) {
+      System.out.printf("Skip(%s)\n", contextType);
     }
   };
 

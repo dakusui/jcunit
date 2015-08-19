@@ -2,6 +2,8 @@ package com.github.dakusui.jcunit.examples.fsm.nested;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
@@ -9,25 +11,36 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(JCUnit.class)
 public class NestedFSMTest {
-  @FactorField(levelsProvider = FSMLevelsProvider.class)
-  @FSMLevelsProvider.Parameters(Spec.class)
-  public ScenarioSequence<FlyingSpaghettiMonster> main;
+  @FactorField(levelsProvider = FSMLevelsProvider.class,
+      providerParams = {
+      @Param("flyingSpaghettiMonster")
+  })
+  public Story<FlyingSpaghettiMonster> main;
 
-  @FactorField(levelsProvider = FSMLevelsProvider.class)
-  @FSMLevelsProvider.Parameters(NestedSpec.class)
-  public ScenarioSequence<FlyingSpaghettiMonster> nested;
+  @FactorField(levelsProvider = FSMLevelsProvider.class,
+      providerParams = {
+          @Param("nestedFlyingSpaghettiMonster")
+      })
+  public Story<FlyingSpaghettiMonster> nested;
 
-  @Before
-  public void before() {
-
+  public static FSM flyingSpaghettiMonster() {
+    return FSMUtils.createFSM(Spec.class);
   }
+
+  public static FSM nestedFlyingSpaghettiMonster() {
+    return FSMUtils.createFSM(NestedSpec.class);
+  }
+
+  public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
   @Test
   public void test() {
+    this.main.perform(this.sut, Story.SIMPLE_OBSERVER);
   }
 
   public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
@@ -82,16 +95,24 @@ public class NestedFSMTest {
     public Expectation<FlyingSpaghettiMonster> train(final FSM<FlyingSpaghettiMonster> fsm) {
       //return FSMUtils.valid(fsm, this, CoreMatchers.instanceOf(FlyingSpaghettiMonster.class));
       final String fsmName = "nested";
-      return FSMUtils.valid(fsm, this, new Expectation.Checker.FSM("nested", Story.SIMPLE_OBSERVER));
+      return FSMUtils.valid(fsm, this, new Expectation.Checker.FSM(fsmName, Story.SIMPLE_OBSERVER));
     }
   }
 
   public enum NestedSpec implements FSMSpec<String> {
+    @StateSpec I {
+    }
     ;
 
     @Override
     public boolean check(String s) {
       return true;
     }
+
+    @ActionSpec
+    public Expectation<String> toString(final FSM<String> nestedFSM) {
+      return FSMUtils.valid(nestedFSM, this, CoreMatchers.instanceOf(String.class));
+    }
+
   }
 }

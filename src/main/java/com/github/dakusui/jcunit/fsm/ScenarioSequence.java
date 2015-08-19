@@ -35,6 +35,7 @@ public interface ScenarioSequence<SUT> {
     @Override
     public void perform(ContextType type, Object sut, Story.Observer observer) {
       // Does nothing since this is an emptry scenario object.
+      observer.skipSequence(type, this);
     }
 
     @Override

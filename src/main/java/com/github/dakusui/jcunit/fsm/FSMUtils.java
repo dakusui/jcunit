@@ -17,7 +17,7 @@ public class FSMUtils {
   public static <SUT> void performScenarioSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Observer observer) {
     Checks.checknotnull(scenarioSequence);
     Checks.checknotnull(observer);
-    observer.startStory(contextType, scenarioSequence);
+    observer.startSequence(contextType, scenarioSequence);
     FSMContext context = null;
     try {
       for (int i = 0; i < scenarioSequence.size(); i++) {
@@ -45,7 +45,7 @@ public class FSMUtils {
         }
       }
     } finally {
-      observer.endStory(contextType, scenarioSequence);
+      observer.endSequence(contextType, scenarioSequence);
     }
   }
 
