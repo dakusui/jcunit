@@ -44,7 +44,6 @@ public class Expectation<SUT> {
       @Override
       public boolean check(FSMContext context, Object item) {
         Checks.checknotnull(context);
-        // TODO: elaborate this.
         Checks.checkcond(context.hasStory(fsmName));
         if (!context.isAlreadyPerformed(fsmName)) {
           context.lookupStory(fsmName).perform(item, this.observer);

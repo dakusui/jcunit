@@ -25,15 +25,21 @@ public class FSMUtils {
 
         Expectation.Result result = null;
         observer.run(contextType, each, sut);
+        boolean passed = false;
         try {
           Object r = each.perform(sut);
+          passed = true;
           ////
           // each.perform(sut) didn't throw an exception
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
           result = each.then().checkReturnedValue(context, sut, r);
         } catch (Throwable t) {
-          //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkThrownException(context, sut, t);
+          if (!passed) {
+            //noinspection unchecked,ThrowableResultOfMethodCallIgnored
+            result = each.then().checkThrownException(context, sut, t);
+          } else {
+            throw new RuntimeException("Expectation#checkReturnedValue threw an exception. This is considered to be a framework side's bug.", t);
+          }
         } finally {
           if (result != null) {
             if (result.isSuccessful())
