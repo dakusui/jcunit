@@ -32,7 +32,7 @@ public class FlyingSpaghettiMonsterTest {
 
   @Test
   public void test() throws Throwable {
-    this.main.perform(this.sut, Story.SIMPLE_OBSERVER);
+    this.main.perform(null, this.sut, Story.SIMPLE_OBSERVER);
   }
 
   /**

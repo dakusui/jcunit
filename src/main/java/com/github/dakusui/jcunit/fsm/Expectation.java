@@ -46,14 +46,14 @@ public class Expectation<SUT> {
         Checks.checknotnull(context);
         Checks.checkcond(context.hasStory(fsmName));
         if (!context.isAlreadyPerformed(fsmName)) {
-          context.lookupStory(fsmName).perform(item, this.observer);
+          context.lookupStory(fsmName).perform(context, item, this.observer);
         }
         return true;
       }
 
       @Override
       public String format() {
-        return null;
+        return String.format("FSM:%s", fsmName);
       }
     }
 

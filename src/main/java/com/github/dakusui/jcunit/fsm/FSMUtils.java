@@ -14,17 +14,16 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(ScenarioSequence.ContextType contextType, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Observer observer) {
+  public static <SUT> void performScenarioSequence(FSMContext context, ScenarioSequence.Type type, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Observer observer) {
     Checks.checknotnull(scenarioSequence);
     Checks.checknotnull(observer);
-    observer.startSequence(contextType, scenarioSequence);
-    FSMContext context = null;
+    observer.startSequence(type, scenarioSequence);
     try {
       for (int i = 0; i < scenarioSequence.size(); i++) {
         Scenario<SUT> each = scenarioSequence.get(i);
 
         Expectation.Result result = null;
-        observer.run(contextType, each, sut);
+        observer.run(type, each, sut);
         boolean passed = false;
         try {
           Object r = each.perform(sut);
@@ -43,15 +42,15 @@ public class FSMUtils {
         } finally {
           if (result != null) {
             if (result.isSuccessful())
-              observer.passed(contextType, each, sut);
+              observer.passed(type, each, sut);
             else
-              observer.failed(contextType, each, sut);
+              observer.failed(type, each, sut);
             result.throwIfFailed();
           }
         }
       }
     } finally {
-      observer.endSequence(contextType, scenarioSequence);
+      observer.endSequence(type, scenarioSequence);
     }
   }
 

@@ -40,7 +40,7 @@ public class FSMContext {
   public boolean isAlreadyPerformed(String name) {
     Checks.checknotnull(name);
     Checks.checkcond(this.stories.containsKey(name));
-    return this.performed.containsKey(name);
+    return this.performed.get(name);
   }
 
   public void perform(String name, Object sut, Story.Observer observer) throws Throwable {
@@ -49,7 +49,7 @@ public class FSMContext {
     Checks.checkcond(this.performed.containsKey(name));
     Checks.checkcond(this.performed.get(name));
     try {
-      this.lookupStory(name).perform(sut, observer);
+      this.lookupStory(name).perform(this, sut, observer);
     } finally {
       this.performed.put(name, true);
     }
