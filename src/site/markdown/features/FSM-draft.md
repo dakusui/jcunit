@@ -2,7 +2,7 @@
 JCUnit's FSM support uses a 'modified' Mealy Machine as a basic model of SUT.
 Mealy Machine is also known as a finite state transducer. [Wikipedia article](http://en.wikipedia.org/wiki/Mealy_machine)
 
-We can consider a certain system as a finite state machine, but in testing, outputs of it matter
+We can consider a software system as a finite state machine, but in testing, outputs of it matter
 and we must verify them.
 So, simple FSM model, which doesn't have outputs is not enough powerful to describe the
 specification of the system under test.

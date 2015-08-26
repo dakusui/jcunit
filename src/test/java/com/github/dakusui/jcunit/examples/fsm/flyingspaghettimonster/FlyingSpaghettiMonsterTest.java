@@ -24,7 +24,6 @@ public class FlyingSpaghettiMonsterTest {
           @Param("flyingSpaghettiMonster")
       })
   public Story<FlyingSpaghettiMonster> main;
-  public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
   public static FSM flyingSpaghettiMonster() {
     return FSMUtils.createFSM(Spec.class);
@@ -32,7 +31,9 @@ public class FlyingSpaghettiMonsterTest {
 
   @Test
   public void test() throws Throwable {
-    this.main.perform(null, this.sut, Story.SIMPLE_OBSERVER);
+    FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+
+    this.main.perform(null, sut, Story.SIMPLE_OBSERVER);
   }
 
   /**

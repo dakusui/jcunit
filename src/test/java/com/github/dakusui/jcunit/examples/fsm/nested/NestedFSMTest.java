@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
+import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.NestedFSMBase;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
@@ -15,11 +16,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
-public class NestedFSMTest {
+public class NestedFSMTest extends NestedFSMBase {
   @FactorField(levelsProvider = FSMLevelsProvider.class,
       providerParams = {
-      @Param("flyingSpaghettiMonster")
-  })
+          @Param("flyingSpaghettiMonster")
+      })
   public Story<FlyingSpaghettiMonster> main;
 
   @FactorField(levelsProvider = FSMLevelsProvider.class,

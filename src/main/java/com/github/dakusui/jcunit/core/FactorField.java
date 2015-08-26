@@ -40,15 +40,15 @@ public @interface FactorField {
       ""
   };
 
-  public Class<? extends Enum> enumLevels() default Enum.class;
+  Class<? extends Enum> enumLevels() default Enum.class;
 
   /**
    * If {@code stringLevels} or {@code enumLevels} are being used, determines
    * if a {@code null} value is included in the levels.
    */
-  public boolean includeNull() default false;
+  boolean includeNull() default false;
 
-  public Class<? extends LevelsProvider> levelsProvider() default DefaultLevelsProvider.class;
+  Class<? extends LevelsProvider> levelsProvider() default DefaultLevelsProvider.class;
 
-  public Param[] providerParams() default { };
+  Param[] providerParams() default { };
 }
