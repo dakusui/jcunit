@@ -7,3 +7,5 @@
 * [Tip 6: Filtering test cases](Tip06.md)
 * [Tip 7: Executing test methods based on given conditions](Tip07.md)
 * [Tip 8: As a pairwise test generator](Tip08.md)
+* [Tip 9: Running a single test case from your IntelliJ](Tip09.md) 
+

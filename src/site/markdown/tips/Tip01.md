@@ -1,4 +1,4 @@
-#C ustomizing domains of @FactorField annotated fields (1)
+# Customizing domains of @FactorField annotated fields (1)
  JCUnit creates test cases by assigning a value, picked up from a hardcoded set of values defined for each type, to each '@FactorField' annotated field in a test class.
  For example, if a member is annotated with '@FactorField' and its type is int, JCUnit will pick up a value from a set
  {1, 0, -1, 100, -100, Integer.MAX_VALUE, Integer.MIN_VALUE}.
