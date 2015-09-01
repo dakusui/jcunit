@@ -1,3 +1,17 @@
+# JCUnit FSM testing model
+## 'Modified' Mealy machines
+* In real world output matters
+* Input symbols have parameters
+* Why using modified Mealy machines in JCUnit?
+  discussed in detail about the modification.
+## JCUnit's FSM Factor model
+factors and their levels
+* states
+* symbols (methods and parameters)
+* path-length
+* setup (routing) mechanism for paths which do not start with ```I```.
+----
+
 ### Modified Mealy Machine
 JCUnit's FSM support uses a 'modified' Mealy Machine as a basic model of SUT.
 Mealy Machine is also known as a finite state transducer. [Wikipedia article](http://en.wikipedia.org/wiki/Mealy_machine)
@@ -214,3 +228,234 @@ Once it covers a pair (S0, A0) = (```I```, ```cook```), it does not try to cover
 ```cook(cond2 = true)```. It just tries to cover all possible pairs and cond1/2 have 3 parameters.
 So, it can miss the combinations which make cond2 false.
 
+----
+How can we determine which state the SUT is in?
+No, we cannot.
+Usually, SUTs do not expose their states directly.
+Even if one does, is the state the SUT tells you really correct? Isn't it one thing we must 'test'?
+We can only make sure that an SUT is meeting some conditions which should be satisfied in a certain state.
+
+
+# Design
+## Finite state machine representation
+### Mealy machine
+Unlike an acceptor nor recognizer, a usual software product gives outputs on input which need to be tested.
+In order to allow users to test not only state transitions but them, FSM support of JCUnit
+provides a way to define a [Mealy machine][3], which is also known as a finite state transducer.
+
+A 6 tuple below defines a Mealy machine.
+
+```
+(S, S0, Sigma, Lambda, T, G)
+```
+
+They respectively represent the following
+
+1. a finite set of states S
+2. a start state (also called initial state) S0 which is an element of S
+3. a finite set called the input alphabet Sigma
+4. a finite set called the output alphabet Lambda
+5. a transition function T : S x Sigma -> S mapping pairs of a state and an input symbol to the corresponding next state.
+6. an output function G : S x Sigma -> Lambda mapping pairs of a state and an input symbol to the corresponding output symbol.
+
+### JCUnit's object model
+#### FSM and related objects
+To model a Mealy machine in JCUnit, you can implement an interface 'FSM.java' below.
+
+```java
+
+    /**
+     * An interface that represents a finite state machine's (FSM) specification.
+     *
+     * @param <SUT> A software under test.
+     */
+    public interface FSM<SUT> {
+      State<SUT> initialState();
+
+      List<State<SUT>> states();
+
+      List<Action<SUT>> actions();
+
+      int historyLength();
+    }
+```
+
+By creating an implementation of this interface, a user can model the SUT and pass
+it to JCUnit to let it generate a test suite and execute the suite.
+
+Then the next question would be what State and Action, which should be returned by the implementation.
+
+Below is a class diagram of FSM and its related classes.
+
+```
+
+                +-----------------------------+------------------------------+
+                |                             |                              |
+                |1                            V*                             V*
+       +---------------+       +-----------------------------+      +-----------------+
+       |    FSM<SUT>   |       |          State<SUT>         |      |   Action<SUT>   |
+       +---------------+       +-----------------------------+      +-----------------+
+       |initialState() |       |expectation(Action<SUT>,Args)|      |perform(SUT,Args)|
+       |states()       |       +-----------------------------+      +-----------------+
+       |historyLength()|                      |
+       +---------------+                      |                        +------------+
+                                              |                        |    Args    |
+                                              V                        +------------+
+                                     +------------------+
+                                     | Expectation<SUT> |
+                                     +------------------+
+
+
+```
+
+For the reasons discussed later and to keep the software simple, the items listed above
+are not necessarily corresponding to the classes in the diagram directly.
+
+S is represented by `State` and an element in the list returned by `states()` method of `FSM` is S0.
+Sigma is represented by `Action` and `Args`.
+And Lambda, T, and G are represented by `Expectation`.
+
+#### ```Story```, ```ScenarioSequence```, and ```Scenario```
+(t.b.d.)
+```Scenario``` component is named after an idea in [BDD](http://en.wikipedia.org/wiki/Behavior-driven_development) area.
+A scenario consists of three items, which are listed below.
+
+* given
+* when
+* then
+
+```given``` represents a state on which the scenario should be performed.
+```when``` represents an 'action' to be performed.
+and ```then``` represents an expectation for the action represented by ```when```.
+
+A ```ScenarioSequence``` is a sequence of ```Scenario```s.
+
+### FSM factors, their levels, and constraints
+(t.b.d.)
+
+## Test suite generation
+(t.b.d.)
+### Generating constraints
+(t.b.d.)
+
+### Flat FSM tuple
+By collecting values in a flat FSM tuple, JCUnit can define a scenario sequence for a test case.
+(t.b.d.)
+### setUp and main story
+(t.b.d.)
+
+
+### ```SimpleFSM``` mechanism
+(t.b.d.)
+
+Implementing FSM interface is a cumbersome task and in order to ease the pain JCUnit provides an easy way to
+define an FSM using annotations.
+
+* Nesting state machines
+
+What you cannot do with ```SimpleFSM```
+* You cannot test overloaded methods, which have same names and different parameter sets.
+* Negative tests
+
+(t.b.d.)
+
+Below is an example.
+```java
+
+    @RunWith(JCUnit.class)
+    public class FlyingSpaghettiMonsterTest {
+      public static enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
+        @StateSpec I {
+          @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+            return flyingSpaghettiMonster.isReady();
+          }
+
+          @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
+            Checks.checknotnull(fsm);
+            return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
+          }
+        },
+        @StateSpec COOKED {
+          @Override public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+            return flyingSpaghettiMonster.isReady();
+          }
+
+          @Override public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+            return FSMUtils.valid(fsm, COOKED, CoreMatchers.containsString("yummy"));
+          }
+
+          @Override public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
+            Checks.checknotnull(fsm);
+            return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
+          }
+        },;
+
+
+        @ActionSpec public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
+          return FSMUtils.invalid();
+        }
+
+        @ParametersSpec public static final Object[][] cook = new Object[][] {
+            { "spaghetti", "spaghettini" },
+            { "peperoncino", "carbonara", "meat sauce" },
+        };
+
+        @ActionSpec public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
+          return FSMUtils.invalid();
+        }
+      }
+
+      @FactorField(
+          levelsProvider = FSMLevelsProvider.class,
+          providerParams = {
+              @Param("flyingSpaghettiMonster"),
+              @Param("setUp")
+          })
+      public Story<FlyingSpaghettiMonster> setUp;
+
+      @FactorField(
+          levelsProvider = FSMLevelsProvider.class,
+          providerParams = {
+              @Param("flyingSpaghettiMonster"),
+              @Param("main")
+          })
+      public Story<FlyingSpaghettiMonster> main;
+
+      public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+
+      public static FSM flyingSpaghettiMonster() {
+        return FSMUtils.createFSM(Spec.class);
+      }
+
+      @Before
+      public void before() throws Throwable {
+        FSMUtils.performStory(this.setUp, this.sut, Story.SIMPLE_REPORTER);
+      }
+
+      @Test
+      public void test() throws Throwable {
+        FSMUtils.performStory(this.main, this.sut, Story.SIMPLE_REPORTER);
+      }
+    }
+```
+
+```FlyingSpaghettiMonster```'s State machine
+
+```
+
+          +---+eat / ERR         +---+eat / "yummy"
+          |   |                  |   |
+          |   V                  |   V
+       +---------+            +----------+
+       |    I    |----------->|  COOKED  |
+       +---------+    cook    +----------+
+                                 A   |
+                                 |   |
+                                 +---+cook
+```
+
+
+#### Annotations
+- StateSpec
+- ActionSpec
+- ParametersSpec
