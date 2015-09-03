@@ -18,6 +18,7 @@ Recursive (nested) model is necessary.
 * Sample FSM Diagram
 * Java sample code (SUT)
 * Java sample code (JCUnit)
+* Java sample code with 'FSMTestBase'
 
 # Writing a test suite
 
@@ -30,7 +31,13 @@ To define states in FSM, the first step would be
 ```java
 
     public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
-      @StateSpec I,
+      @StateSpec I {
+        @Override
+        public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
+          boolean result= ...;
+          return result;
+        }
+      },
       @StateSpec COOKED
     }
 

@@ -1,3 +1,8 @@
+# Abstract
+For the author of JCUnit, the goal of JCUnit is to implement a testing framework which allows him to
+
+
+
 # Introduction
 ## About FSMs
 A finite state machine (FSM) is everywhere in software.
@@ -59,7 +64,7 @@ Input/output/parameters
 But in this document, if we call a model FSM, it refers to a Mealy machine.
 
 
-## Mealy machine
+### Mealy machine
 
 
 ```
@@ -90,13 +95,12 @@ The method they presented in the material is like below,
 The approach JCUnit took is inspired by this procedure but a different one.
 
 
-### Spec explorer
-(t.b.d.)
+### Spec Explorer
+Spec Explorer supports both state modeling and combinatorial value selection.
+But value selection is only applied to values given to functions.
+
 
 Map ideas in Java to FSM's ones
-## Prerequisites
-* Combinatorial testings
-* 
 
 ## How this document is organized
 (t.b.d.)
@@ -110,9 +114,11 @@ Map ideas in Java to FSM's ones
 * [3] "Wikipedia article about Mealy machine"
 * [4] "Pairwise Testing & PICT Tool"
 * [5] "Introduction to Combinatorial Testing" (Kuhn et al)
+* [6] "Spec Explorer"
 
 [1]: https://sites.google.com/site/unclebobconsultingllc/the-truth-about-bdd
 [2]: http://www.jasst.jp/archives/jasst09e/pdf/D4-2.pdf
 [3]: http://en.wikipedia.org/wiki/Mealy_machine
 [4]: http://blogs.msdn.com/b/nagasatish/archive/2006/11/30/pairwise-testing-pict-tool.aspx
 [5]: http://books.rakuten.co.jp/rk/bac16b7ae73b3e53b076cc479a7e870a/
+[6]: https://msdn.microsoft.com/en-us/library/ee620411.aspx
