@@ -86,11 +86,15 @@ But in this document, if we call a model FSM, it refers to a Mealy machine.
 for an FSM using their open source tool PictMaster and Microsoft's PICT.
 The method they presented in the material is like below,
 
-1. For each state (S0, S1, ... Sn-1), generate k factors. So you will have n times k factors ([S(0,0), S(1,0), ..., S(n-1,0)], ..., [S(0,k-1),S(1,k-1),...S(n-1,k-1)]) in total.
-2. For each factor , its levels are all possible transitions from the state to which it belongs and special level which represents 'invalid'.
+1. For each state (S0, S1, ... Sn-1), generate k factors, where k is a length of a 'test scenario'. 
+   So you will have n times k factors [S(0,0), S(1,0), ..., S(n-1,0)], ..., [S(0,k-1),S(1,k-1),...S(n-1,k-1)]) 
+   in total.
+2. For each factor , its levels are all possible transitions from the state to which 
+   it belongs and special level which represents 'invalid'.
 3. Constraints are defined by a user so that only valid transitions can happen.
 3. Let pairwise engine (e.g. [PICT][4]) process the factors and their levels and generate a test suite.
-4. By tracing the transitions in a test case from S(0,0), you can interpret a generated test case into a sequence of state transitions.
+4. By tracing the transitions in a test case from S(0,0), you can interpret a generated 
+   test case into a sequence of state transitions.
 
 The approach JCUnit took is inspired by this procedure but a different one.
 
