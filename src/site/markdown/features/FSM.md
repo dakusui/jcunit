@@ -1,5 +1,21 @@
 # Introduction
-* Theme: Model software and let JCUnit do the rest.
+* Theme: Model software and let JCUnit do the rest. This is the goal of JCUnit.
+** Modeling or documenting your software is essential to development. You cannot avoid it.
+** Without a sound mental model, which can define "how should it behave?", for your product, you shouldn't be able to test it.
+* What model are we going to use?
+* Is your SUT stateless? -> Generally not.
+  - Those can be considered as 'constraints'
+* What are tests
+* We want to achieve a methodology where developers only need to do
+  - Write software
+  - Model software spec
+  - And let computers do the rest
+  The first two are essential to a software product.
+* FSM looks useful to model a software product.
+* We are going to allow users to model their SUT's as state machines. In 
+  whatever manner it is achieved, the number of factors and their levels would be
+  big. This results in unmanageable huge test suite.
+  To limit number of test cases, combinatorial testing technique will be used.
 ## Modeling a system as FSM
 * BDD (Behavior driven development)
 * Turing machine
@@ -25,8 +41,10 @@
 ### Spec Explorer
 * It doesn't treat states and actions as factors. 
 * It just applies combinatorial testing idea to function parameters
-### Tsurumaki and Yanagida's method
-* 
+### Tsurumaki and Yanagida's methody 
+* Forcing PICT to put a FSM in a certain state.
+* All states are exercised as long as it is possible.
+
 ## How this document is organized 
 # Design of FSM support
 ## History
