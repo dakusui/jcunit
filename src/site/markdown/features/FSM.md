@@ -1,14 +1,20 @@
 # Introduction
-* Model software and let JCUnit do the rest
+* Theme: Model software and let JCUnit do the rest.
 ## Modeling a system as FSM
 * BDD (Behavior driven development)
 * Turing machine
-* Java object
+* Java object is also an FSM
 
 ## Challenges in FSM testing
-* What to cover
-* Coverage
+* FSM testing looks very general and useful, if it is possible. But there are some challenges.
 * Explosion
+  By whatever a way we are going to take to test FSM, a large number of input values would involve.
+  As in all the other tests, we'll need to limit number of test cases to avoid combinatorial explosion.
+  And to avoid combinatorial explosion, a tool we have to solve it is 'Combinatorial testing' testing techniques
+  including 'pairwise', 'all-pair', or 't-wise'. Those can be used through JCUnit.
+* What to cover and how?
+** 
+* Coverage
 ### Normal FSM
 * Not enough powerful to model usual software
 * Methods return values, and they need to be verified.
