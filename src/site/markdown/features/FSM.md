@@ -1,11 +1,14 @@
 # Introduction
 * Theme: Model software and let JCUnit do the rest. This is the goal of JCUnit.
 ** Modeling or documenting your software is essential to development. You cannot avoid it.
-** Without a sound mental model, which can define "how should it behave?", for your product, you shouldn't be able to test it.
+** Without a sound mental model, what can define "how should it behave?", for your product, you shouldn't be able to test it.
 * What model are we going to use?
 * Is your SUT stateless? -> Generally not.
   - Those can be considered as 'constraints'
-* What are tests
+  - I realized that I am creating a similar constraint manager over and over again for
+   different SUT's. And it is because they generally have states inside it and
+   my constraint managers are trying to eliminate invalid scenarios from generated 
+    scenarios expressed as factors and levels.
 * We want to achieve a methodology where developers only need to do
   - Write software
   - Model software spec
