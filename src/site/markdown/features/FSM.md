@@ -1,24 +1,25 @@
 # Introduction
-* Theme: Model software and let JCUnit do the rest. This is the goal of JCUnit.
-** Modeling or documenting your software is essential to development. You cannot avoid it.
-** Without a sound mental model, what can define "how should it behave?", for your product, you shouldn't be able to test it.
-* What model are we going to use?
-* Is your SUT stateless? -> Generally not.
-  - Those can be considered as 'constraints'
-  - I realized that I am creating a similar constraint manager over and over again for
-   different SUT's. And it is because they generally have states inside it and
-   my constraint managers are trying to eliminate invalid scenarios from generated 
-    scenarios expressed as factors and levels.
-* We want to achieve a methodology where developers only need to do
-  - Write software
-  - Model software spec
-  - And let computers do the rest
-  The first two are essential to a software product.
-* FSM looks useful to model a software product.
-* We are going to allow users to model their SUT's as state machines. In 
-  whatever manner it is achieved, the number of factors and their levels would be
-  big. This results in unmanageable huge test suite.
-  To limit number of test cases, combinatorial testing technique will be used.
+  * Theme: Model software and let JCUnit do the rest. This is the goal of JCUnit.
+    * Modeling or documenting your software is essential to development. You cannot avoid it.
+    * Without a sound mental model, what can define "how should it behave?", for your product, you shouldn't be able to test it.
+  * What model are we going to use?
+  * Is your SUT stateless? -> Generally not.
+    - In JCUnit, those can be considered as 'constraints'
+    - I realized that I am creating a similar constraint manager over and over again for
+      different SUT's. And it is because they generally have states inside it and
+      my constraint managers are trying to eliminate invalid scenarios from generated 
+      scenarios expressed as factors and levels.
+  * We want to achieve a methodology where developers only need to do
+    - Write software
+    - Model software spec
+    - And let computers do the rest
+      The first two are essential to a software product.
+  * FSM looks useful to model a software product.
+  * We are going to allow users to model their SUT's as state machines. In 
+    whatever manner it is achieved, the number of factors and their levels would be
+    big. This results in unmanageable huge test suite.
+    To limit number of test cases, combinatorial testing technique will be used.
+
 ## Modeling a system as FSM
 * BDD (Behavior driven development)
 * Turing machine
