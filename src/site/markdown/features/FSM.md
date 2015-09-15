@@ -1,7 +1,15 @@
 # Introduction
-  * Theme: Model software and let JCUnit do the rest. This is the goal of JCUnit.
-    * Modeling or documenting your software is essential to development. You cannot avoid it.
-    * Without a sound mental model, what can define "how should it behave?", for your product, you shouldn't be able to test it.
+In testing, it is very often to realize that there are some sort of 'sequence' to be executed like,
+"In order to use function A, you must do function X with parameter x1 and x2, then execute function Y, which
+will return object y. Pass the object as parameter a of function A to execute it."
+"To execute function B, you can use the object y, mentioned in the procedure above,  as its first parameter."
+If we are using JCUnit, "ConstraintManager" is a mechanism to handle this sort of situation, 
+but it happens too often.
+Writing custom constraint manager every time is boring, dependent on individual, and very error prone
+procedure.
+Model software and let JCUnit do the rest. This is the goal of JCUnit from the first place.
+    
+    
   * What model are we going to use?
   * Is your SUT stateless? -> Generally not.
     - In JCUnit, those can be considered as 'constraints'
@@ -19,6 +27,9 @@
     whatever manner it is achieved, the number of factors and their levels would be
     big. This results in unmanageable huge test suite.
     To limit number of test cases, combinatorial testing technique will be used.
+  * (t.b.d.)
+    * Modeling or documenting your software is essential to development. You cannot avoid it.
+    * Without a sound mental model, what can define "how should it behave?", for your product, you shouldn't be able to test it.
 
 ## Modeling a system as FSM
 * BDD (Behavior driven development)
