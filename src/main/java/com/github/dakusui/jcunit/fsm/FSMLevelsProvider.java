@@ -5,10 +5,11 @@ import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.MappingLevelsProviderBase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
 import java.lang.reflect.Field;
 
-public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT>> {
+public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMSpec<SUT>, SUT>> {
   private String       fsmName;
   private String       factorName;
 
@@ -24,7 +25,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT>
   }
 
   @Override
-  public Story<SUT> apply(Tuple tuple) {
+  public Story<FSMSpec<SUT>, SUT> apply(Tuple tuple) {
     String factorName;
     Object retObject = tuple.get(factorName = FSMUtils.composeMainScenarioName(this.fsmName));
     Checks.checknotnull(retObject, "'%s' was not found in tuple. (%s)", factorName, tuple);
@@ -36,7 +37,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT>
     );
     // The line above already checked the type of the returned value.
     //noinspection unchecked
-    return (Story<SUT>) retObject;
+    return (Story<FSMSpec<SUT>, SUT>) retObject;
   }
 
   @Override

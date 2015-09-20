@@ -8,6 +8,7 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorMapper;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 
@@ -105,7 +106,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
         ScenarioSequence<Object> mainScenarioSequence = each.get(fsmName);
         @SuppressWarnings("unchecked")
         ScenarioSequence<Object> setUp = router.routeTo(mainScenarioSequence.state(0));
-        b.put(mainScenarioFactorName, new Story<Object>(setUp, mainScenarioSequence));
+        b.put(mainScenarioFactorName, new Story<FSMSpec<Object>, Object>(setUp, mainScenarioSequence));
       }
       tuples.add(translateFSMTupleToNormalTuple(b.build(), mappedFactors));
     }

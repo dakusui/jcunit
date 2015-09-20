@@ -1,6 +1,8 @@
 package com.github.dakusui.jcunit.fsm;
 
-public class Story<SUT> {
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+
+public class Story<S extends FSMSpec<SUT>, SUT extends Object> {
   public interface Observer {
     <SUT> void startSequence(ScenarioSequence.Type type, ScenarioSequence<SUT> seq);
 

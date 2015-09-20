@@ -23,7 +23,7 @@ public class FlyingSpaghettiMonsterTest {
       providerParams = {
           @Param("flyingSpaghettiMonster")
       })
-  public Story<FlyingSpaghettiMonster> main;
+  public Story<Spec, FlyingSpaghettiMonster> main;
 
   public static FSM flyingSpaghettiMonster() {
     return FSMUtils.createFSM(Spec.class);

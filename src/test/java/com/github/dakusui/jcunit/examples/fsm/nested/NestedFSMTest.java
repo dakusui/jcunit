@@ -21,13 +21,13 @@ public class NestedFSMTest extends NestedFSMBase {
       providerParams = {
           @Param("flyingSpaghettiMonster")
       })
-  public Story<FlyingSpaghettiMonster> main;
+  public Story<Spec, FlyingSpaghettiMonster> main;
 
   @FactorField(levelsProvider = FSMLevelsProvider.class,
       providerParams = {
           @Param("nestedFlyingSpaghettiMonster")
       })
-  public Story<FlyingSpaghettiMonster> nested;
+  public Story<NestedSpec, String> nested;
 
   public static FSM flyingSpaghettiMonster() {
     return FSMUtils.createFSM(Spec.class);
@@ -102,8 +102,7 @@ public class NestedFSMTest extends NestedFSMBase {
       public boolean check(String s) {
         return "Cooking spaghetti meat sauce".equals(s);
       }
-    }
-    ;
+    };
 
     @ActionSpec
     public Expectation<String> toString(final FSM<String> nestedFSM) {

@@ -7,6 +7,8 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.FSM;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.FSMTupleGenerator;
+import com.github.dakusui.jcunit.fsm.FSMUtils;
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -118,6 +120,18 @@ public class TupleGeneratorFactory {
     if (invalidTestException.hasChildren())
       throw invalidTestException;
     return ret;
+  }
+
+  /**
+   * {@code f} Must be annotated with {@code FactorField}. Its {@code levelsProvider} must be an FSMLevelsProvider.
+   * Typed with {@code Story} class.
+   * @param f
+   * @return
+   */
+  private FSM createFSM(Field f) {
+    Checks.checknotnull(f);
+    Class<?> clazz = (Class<?>) ((ParameterizedType)f.getGenericType()).getActualTypeArguments()[0];
+    return FSMUtils.createFSM((Class<? extends FSMSpec<Object>>) clazz);
   }
 
   private void validateFSMProviderMethod(Method m) {

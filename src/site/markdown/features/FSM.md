@@ -5,9 +5,15 @@ will return object y. Pass the object as parameter a of function A to execute it
 "To execute function B, you can use the object y, mentioned in the procedure above,  as its first parameter."
 If we are using JCUnit, "ConstraintManager" is a mechanism to handle this sort of situation, 
 but it happens too often.
-Writing custom constraint manager every time is boring, dependent on individual, and very error prone
+Writing custom constraint manager every time is boring, dependent on individuals, and very error prone
 procedure.
-Model software and let JCUnit do the rest. This is the goal of JCUnit from the first place.
+Model software and let JCUnit do the rest. This is the goal of JCUnit. Then what sort of model would be
+useful, would be the next question. And so called 'finite state machine' is what I'm going to introduce 
+as an answer to it.
+
+## What is a finite state machine?
+
+## How much is it powerful?
     
     
   * What model are we going to use?
