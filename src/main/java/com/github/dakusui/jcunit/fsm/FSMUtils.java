@@ -14,7 +14,7 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <SUT> void performScenarioSequence(FSMContext context, ScenarioSequence.Type type, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Observer observer) {
+  public static <T, SUT> void performScenarioSequence(T context, ScenarioSequence.Type type, ScenarioSequence<SUT> scenarioSequence, SUT sut, Story.Observer observer) {
     Checks.checknotnull(scenarioSequence);
     Checks.checknotnull(observer);
     observer.startSequence(type, scenarioSequence);

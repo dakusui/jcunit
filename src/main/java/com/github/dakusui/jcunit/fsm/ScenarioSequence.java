@@ -11,7 +11,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 public interface ScenarioSequence<SUT> {
   abstract class Base<SUT> implements ScenarioSequence<SUT> {
     @Override
-    public void perform(FSMContext context, Type type, SUT sut, Story.Observer observer) {
+    public <T> void perform(T context, Type type, SUT sut, Story.Observer observer) {
       FSMUtils.performScenarioSequence(context, type, this, sut, observer);
     }
 
@@ -33,7 +33,7 @@ public interface ScenarioSequence<SUT> {
 
   ScenarioSequence<?> EMPTY = new ScenarioSequence() {
     @Override
-    public void perform(FSMContext context, Type type, Object sut, Story.Observer observer) {
+    public void perform(Object context, Type type, Object sut, Story.Observer observer) {
       // Does nothing since this is an emptry scenario object.
       observer.skipSequence(type, this);
     }
@@ -84,7 +84,7 @@ public interface ScenarioSequence<SUT> {
    *
    * @param sut An objects that represents software under test.
    */
-  void perform(FSMContext context, Type type, SUT sut, Story.Observer observer);
+  <T> void perform(T context, Type type, SUT sut, Story.Observer observer);
 
   /**
    * Returns the number of scenarios in this sequence

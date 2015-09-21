@@ -19,7 +19,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
   private       List<Action<SUT>> actions;
   private       State<SUT>        initialState;
 
-  public SimpleFSM(Class<? extends FSMSpec<SUT>> specClass, int historyLength) {
+  public <T> SimpleFSM(Class<? extends FSMSpec<SUT>> specClass, int historyLength) {
     Checks.checknotnull(specClass);
     ////
     // Build 'actions'.
@@ -276,7 +276,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     }
 
     @Override
-    public Object perform(FSMContext context, SUT o, Args args) throws Throwable {
+    public <T> Object perform(T context, SUT o, Args args) throws Throwable {
       Checks.checknotnull(o);
       Object ret = null;
       try {

@@ -8,7 +8,7 @@ package com.github.dakusui.jcunit.fsm;
 public interface Action<SUT> {
   Action<?> VOID = new Action() {
     @Override
-    public Object perform(FSMContext context, Object o, Args args) throws Throwable {
+    public Object perform(Object context, Object o, Args args) throws Throwable {
       return FSMFactors.VOID;
     }
 
@@ -34,7 +34,7 @@ public interface Action<SUT> {
    * <p/>
    * The array will be passed to this method's second argument.
    */
-  Object perform(FSMContext context, SUT sut, Args args) throws Throwable;
+  <T> Object perform(T context, SUT sut, Args args) throws Throwable;
 
   /**
    * Returns {@code i}th factor's levels.

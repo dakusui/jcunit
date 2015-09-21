@@ -21,7 +21,7 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public boolean check(FSMContext context, Object item) {
+      public <T> boolean check(T context, Object item) {
         return this.matcher.matches(item);
       }
 
@@ -42,12 +42,15 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public boolean check(FSMContext context, Object item) {
+      public <T> boolean check(T context, Object item) {
         Checks.checknotnull(context);
+        assert false;
+        /* TODO!
         Checks.checkcond(context.hasStory(fsmName));
         if (!context.isAlreadyPerformed(fsmName)) {
           context.lookupStory(fsmName).perform(context, item, this.observer);
         }
+        */
         return true;
       }
 
@@ -64,7 +67,7 @@ public class Expectation<SUT> {
      * @param context A context on which this check is performed.
      * @param item An item to be checked.
      */
-    boolean check(FSMContext context, Object item);
+    <T> boolean check(T context, Object item);
 
     String format();
   }
@@ -102,7 +105,7 @@ public class Expectation<SUT> {
     this.checker = checker;
   }
 
-  public Result checkThrownException(FSMContext context, SUT sut, Throwable thrownException) {
+  public <T> Result checkThrownException(T context, SUT sut, Throwable thrownException) {
     Checks.checknotnull(sut);
     //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
@@ -124,7 +127,7 @@ public class Expectation<SUT> {
     return b.build();
   }
 
-  public Result checkReturnedValue(FSMContext context, SUT sut, Object returnedValue) {
+  public <T> Result checkReturnedValue(T context, SUT sut, Object returnedValue) {
     Checks.checknotnull(sut);
     Result.Builder b = new Result.Builder(String.format("Expectation: [%s] was not satisfied", this));
     if (this.type != Type.VALUE_RETURNED) {

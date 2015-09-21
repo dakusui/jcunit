@@ -83,6 +83,10 @@ public class Story<S extends FSMSpec<SUT>, SUT extends Object> {
     this.main = main;
   }
 
+  public <T> void perform(T context, SUT sut, Observer observer) {
+
+  }
+
   public void perform(FSMContext context, SUT sut, Observer observer) {
     this.setUp.perform(context, ScenarioSequence.Type.setUp, sut, observer);
     this.main.perform(context, ScenarioSequence.Type.main, sut, observer);

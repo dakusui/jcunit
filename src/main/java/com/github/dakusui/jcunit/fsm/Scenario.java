@@ -17,7 +17,7 @@ public class Scenario<SUT> {
     this.with = with;
   }
 
-  public Object perform(FSMContext context, SUT sut) throws Throwable {
+  public <T> Object perform(T context, SUT sut) throws Throwable {
     return when.perform(context, sut, this.with);
   }
 
