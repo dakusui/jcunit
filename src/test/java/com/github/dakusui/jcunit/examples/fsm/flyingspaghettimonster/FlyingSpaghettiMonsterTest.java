@@ -18,16 +18,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JCUnit.class)
 public class FlyingSpaghettiMonsterTest {
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("flyingSpaghettiMonster")
-      })
+  @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Spec, FlyingSpaghettiMonster> main;
-
-  public static FSM flyingSpaghettiMonster() {
-    return FSMUtils.createFSM(Spec.class);
-  }
 
   @Test
   public void test() throws Throwable {

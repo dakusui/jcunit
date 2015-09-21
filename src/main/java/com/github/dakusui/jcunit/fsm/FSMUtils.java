@@ -26,7 +26,7 @@ public class FSMUtils {
         observer.run(type, each, sut);
         boolean passed = false;
         try {
-          Object r = each.perform(sut);
+          Object r = each.perform(context, sut);
           passed = true;
           ////
           // each.perform(sut) didn't throw an exception

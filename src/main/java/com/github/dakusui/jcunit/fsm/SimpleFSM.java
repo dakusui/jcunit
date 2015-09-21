@@ -57,7 +57,11 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
       if ("I".equals(each.getKey()))
         initialState = states.get(states.size() - 1);
     }
-    Checks.checktest(initialState != null, "A state whose name is 'I' couldn't be found in '%s'", specClass.getCanonicalName());
+    Checks.checktest(initialState != null,
+        "A state whose name is 'I'(annotated with %s) couldn't be found in '%s'",
+        StateSpec.class.getSimpleName(),
+        specClass.getCanonicalName()
+    );
     this.states = Collections.unmodifiableList(states);
     this.initialState = initialState;
     this.historyLength = historyLength;
@@ -272,10 +276,11 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     }
 
     @Override
-    public Object perform(SUT o, Args args) throws Throwable {
+    public Object perform(FSMContext context, SUT o, Args args) throws Throwable {
       Checks.checknotnull(o);
       Object ret = null;
       try {
+        // +1 is for a context object to ba passed to the method on invocation.
         Method m = chooseMethod(o.getClass(), name, args.size());
         try {
           ret = m.invoke(o, args.values());

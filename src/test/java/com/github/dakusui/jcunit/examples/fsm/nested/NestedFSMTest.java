@@ -16,26 +16,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
-public class NestedFSMTest extends NestedFSMBase {
-  @FactorField(levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("flyingSpaghettiMonster")
-      })
+public class NestedFSMTest {
+  @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Spec, FlyingSpaghettiMonster> main;
 
-  @FactorField(levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("nestedFlyingSpaghettiMonster")
-      })
+  @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<NestedSpec, String> nested;
-
-  public static FSM flyingSpaghettiMonster() {
-    return FSMUtils.createFSM(Spec.class);
-  }
-
-  public static FSM nestedFlyingSpaghettiMonster() {
-    return FSMUtils.createFSM(NestedSpec.class);
-  }
 
   public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
@@ -74,6 +60,7 @@ public class NestedFSMTest extends NestedFSMBase {
       @Override
       public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
         final String fsmName = "nested";
+
         return FSMUtils.valid(fsm, this, new Expectation.Checker.FSM(fsmName, Story.SIMPLE_OBSERVER));
       }
     },;

@@ -2,65 +2,34 @@ package com.github.dakusui.jcunit.examples.fsm.doublefsm;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.TurnstileTest;
-import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit.fsm.FSMContext;
+import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
+import com.github.dakusui.jcunit.fsm.Story;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class DoubleFSMTest {
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("turnstileFSM1"),
-          @Param("setUp"),
-      }
-  )
-  public ScenarioSequence<Turnstile> setUp1;
+  @FactorField(levelsProvider = FSMLevelsProvider.class)
+  public Story<TurnstileTest.Spec, Turnstile> fsm1;
 
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("turnstileFSM1"),
-          @Param("main"),
-      }
-  )
-  public ScenarioSequence<Turnstile> main1;
+  @FactorField(levelsProvider = FSMLevelsProvider.class)
+  public Story<TurnstileTest.Spec, Turnstile> fsm2;
 
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("turnstileFSM2"),
-          @Param("setUp"),
-      }
-  )
-  public ScenarioSequence<Turnstile> setUp2;
-
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("turnstileFSM2"),
-          @Param("main"),
-      }
-  )
-  public ScenarioSequence<Turnstile> main2;
-
-  public static FSM<Turnstile> turnstileFSM1() {
-    return FSMUtils.createFSM(TurnstileTest.Spec.class, 2);
-  }
-
-  public static FSM<Turnstile> turnstileFSM2() {
-    return FSMUtils.createFSM(TurnstileTest.Spec.class, 2);
-  }
+  Turnstile sut1 = new Turnstile();
+  Turnstile sut2 = new Turnstile();
 
   @Test
   public void test() throws Throwable {
-    Turnstile sut = new Turnstile();
-    FSMUtils.performScenarioSequence(null, ScenarioSequence.Type.setUp, this.setUp1, sut, Story.SILENT_OBSERVER);
-    FSMUtils.performScenarioSequence(null, ScenarioSequence.Type.setUp, this.setUp2, sut, Story.SILENT_OBSERVER);
-    FSMUtils.performScenarioSequence(null, ScenarioSequence.Type.main, this.main1, sut, Story.SIMPLE_OBSERVER);
-    FSMUtils.performScenarioSequence(null, ScenarioSequence.Type.main, this.main2, sut, Story.SIMPLE_OBSERVER);
+    this.fsm1.perform(
+        new FSMContext.Builder().add("fsm1", this.fsm1).build(),
+        this.sut1,
+        Story.SIMPLE_OBSERVER);
+    this.fsm2.perform(
+        new FSMContext.Builder().add("fsm2", this.fsm2).build(),
+        this.sut2,
+        Story.SIMPLE_OBSERVER);
   }
 }

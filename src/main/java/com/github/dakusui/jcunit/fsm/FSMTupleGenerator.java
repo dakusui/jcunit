@@ -15,25 +15,22 @@ import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 import java.util.*;
 
 /**
- * Hello world
- *
- * @link http://www.google.com
  */
 public class FSMTupleGenerator extends TupleGeneratorBase {
-  private final Map<String, FSM<Object>>    fsms;
+  private final Map<String, FSM>       fsms;
   private final TupleGenerator.Builder baseTupleGeneratorBuilder;
-  private final List<FactorMapper<Object>>  factorMappers;
+  private final List<FactorMapper>     factorMappers;
   private       List<Tuple>            tuples;
 
-  public FSMTupleGenerator(TupleGenerator.Builder baseTG, Map<String, FSM<Object>> fsms, List<FactorMapper<Object>> factorMappers) {
+  public FSMTupleGenerator(TupleGenerator.Builder baseTG, Map<String, FSM> fsms, List<FactorMapper> factorMappers) {
     this.fsms = Checks.checknotnull(fsms);
     this.baseTupleGeneratorBuilder = Checks.checknotnull(baseTG);
     this.factorMappers = factorMappers;
   }
 
-  private static FSMFactors buildFSMFactors(Factors baseFactors, Map<String, FSM<Object>> fsms) {
+  private static FSMFactors buildFSMFactors(Factors baseFactors, Map<String, FSM> fsms) {
     FSMFactors.Builder b = new FSMFactors.Builder();
-    for (Map.Entry<String, FSM<Object>> each : fsms.entrySet()) {
+    for (Map.Entry<String, FSM> each : fsms.entrySet()) {
       b.addFSM(each.getKey(), each.getValue());
     }
     return b.setBaseFactors(baseFactors).build();
@@ -96,7 +93,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     return routerMap;
   }
 
-  private List<Tuple> buildTuples(Map<String, FSM<Object>> fsms, List<Map<String, ScenarioSequence<Object>>> mainStories, Map<String, StateRouter<Object>> routerMap, Map<String, Factor.Builder> mappedFactors) {
+  private List<Tuple> buildTuples(Map<String, FSM> fsms, List<Map<String, ScenarioSequence<Object>>> mainStories, Map<String, StateRouter<Object>> routerMap, Map<String, Factor.Builder> mappedFactors) {
     List<Tuple> tuples = new LinkedList<Tuple>();
     for (Map<String, ScenarioSequence<Object>> each : mainStories) {
       Tuple.Builder b = new Tuple.Builder();
@@ -137,7 +134,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     final List<Map<String, ScenarioSequence<Object>>> mainScenarios = new LinkedList<Map<String, ScenarioSequence<Object>>>();
     for (Tuple eachTuple : generatePlainTuples(fsmFactors, fsmCM)) {
       Map<String, ScenarioSequence<Object>> cur = new LinkedHashMap<String, ScenarioSequence<Object>>();
-      for (Map.Entry<String, FSM<Object>> entry : this.fsms.entrySet()) {
+      for (Map.Entry<String, FSM> entry : this.fsms.entrySet()) {
         String fsmName = entry.getKey();
         ScenarioSequence<Object> main = new ScenarioSequence.BuilderFromTuple()
             .setFSMFactors(fsmFactors)
@@ -218,6 +215,6 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[] { };
+    return new ParamType[] {};
   }
 }

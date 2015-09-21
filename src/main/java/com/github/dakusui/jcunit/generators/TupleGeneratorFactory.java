@@ -3,16 +3,20 @@ package com.github.dakusui.jcunit.generators;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.*;
+import com.github.dakusui.jcunit.exceptions.Errors;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.fsm.FSM;
-import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
-import com.github.dakusui.jcunit.fsm.FSMTupleGenerator;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class TupleGeneratorFactory {
   public static final TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory();
@@ -40,7 +44,7 @@ public class TupleGeneratorFactory {
 
   private TupleGenerator createTupleGenerator(Class<?> klazz,
       TupleGeneration tupleGenerationAnn) {
-    Map<Field, LevelsProvider<Object>> levelsProviders = new LinkedHashMap<Field, LevelsProvider<Object>>();
+    Map<Field, LevelsProvider> levelsProviders = new LinkedHashMap<Field, LevelsProvider>();
     Factors factors = loadFactors(klazz, levelsProviders);
     ////
     // Wire and build objects.
@@ -58,92 +62,100 @@ public class TupleGeneratorFactory {
         .setTargetClass(klazz)
         .setFactors(factors);
     TupleGenerator generator;
-    List<Method> methods;
-    if (!(methods = getFSMProviderMethods(klazz, levelsProviders)).isEmpty()) {
-      List<FactorMapper<Object>> factorMappers = new LinkedList<FactorMapper<Object>>();
-      for (LevelsProvider<Object> each : levelsProviders.values()) {
+    List<Field> fsmFields;
+    if (!(fsmFields = extractFSMFactorFields(levelsProviders)).isEmpty()) {
+      List<FactorMapper> factorMappers = new LinkedList<FactorMapper>();
+      for (LevelsProvider each : levelsProviders.values()) {
         if (each instanceof FactorMapper) {
-          factorMappers.add((FactorMapper<Object>) each);
+          factorMappers.add((FactorMapper) each);
         }
       }
-      Map<String, FSM<Object>> fsms = new LinkedHashMap<String, FSM<Object>>();
-      for (Method m : methods) {
-        fsms.put(m.getName(), createFSM(m));
+      Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
+      Errors.Builder bb = new Errors.Builder();
+      for (Field each : fsmFields) {
+        validateFSMFactorField(bb, each);
+        fsms.put(each.getName(), createFSM(each));
       }
+      Errors errors = bb.build();
+      Checks.checktest(
+          errors.size() == 0,
+          "Error(s) are found in test class.'%s' : %s",
+          klazz.getCanonicalName(),
+          errors);
       //noinspection unchecked
       generator = new FSMTupleGenerator(b, fsms, factorMappers);
-      generator.init(new Param[] { });
+      generator.init(new Param[] {});
     } else {
       generator = b.build();
     }
     return generator;
   }
 
-  private FSM<Object> createFSM(Method m) {
-    FSM<Object> ret = null;
-    try {
-      ret = (FSM<Object>) m.invoke(null);
-    } catch (IllegalAccessException e) {
-      // Since the scope is validated in advance, this path shouldn't be executed.
-      Checks.checkcond(false);
-    } catch (InvocationTargetException e) {
-      Checks.rethrowtesterror(e.getTargetException(), "FSM creation was failed. ('%s' method in '%s' class)", m.getName(), m.getDeclaringClass().getCanonicalName());
-    }
-    return ret;
-  }
-
-  /*
-   * Returns a list of methods whose names are FSMs'
-   */
-  private List<Method> getFSMProviderMethods(Class<?> klazz, Map<Field, LevelsProvider<Object>> levelsProviders) {
-    Set<String> fsmNames = new HashSet<String>();
-    for (LevelsProvider<?> each : levelsProviders.values()) {
-      if (each instanceof FSMLevelsProvider) {
-        fsmNames.add(((FSMLevelsProvider) each).getFSMName());
+  private static List<Field> extractFSMFactorFields(Map<Field, LevelsProvider> providers) {
+    List<Field> ret = new LinkedList<Field>();
+    for (Map.Entry<Field, LevelsProvider> each : providers.entrySet()) {
+      if (each.getValue() instanceof FSMLevelsProvider) {
+        ret.add(each.getKey());
       }
     }
-    List<Method> ret = new LinkedList<Method>();
-    InvalidTestException invalidTestException = new InvalidTestException(String.format("Error(s) are found in '%s'", klazz.getCanonicalName()));
-    for (String each : fsmNames) {
-      try {
-        try {
-          Method m = klazz.getMethod(each);
-          validateFSMProviderMethod(m);
-          ret.add(m);
-        } catch (NoSuchMethodException e) {
-          Checks.rethrowtesterror(e, "Method '%s/0' was specified as an FSM provider but not found in '%s'", each, klazz.getCanonicalName());
-        }
-      } catch (InvalidTestException e) {
-        invalidTestException.addChild(e);
-      }
-    }
-    if (invalidTestException.hasChildren())
-      throw invalidTestException;
     return ret;
   }
 
   /**
    * {@code f} Must be annotated with {@code FactorField}. Its {@code levelsProvider} must be an FSMLevelsProvider.
    * Typed with {@code Story} class.
-   * @param f
-   * @return
+   *
+   * @param f A field from which an FSM is created.
+   * @return Created FSM object
    */
-  private FSM createFSM(Field f) {
+  private static FSM<?> createFSM(Field f) {
     Checks.checknotnull(f);
-    Class<?> clazz = (Class<?>) ((ParameterizedType)f.getGenericType()).getActualTypeArguments()[0];
+    Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
+    //noinspection unchecked
     return FSMUtils.createFSM((Class<? extends FSMSpec<Object>>) clazz);
   }
 
-  private void validateFSMProviderMethod(Method m) {
-    int mod = m.getModifiers();
-    Checks.checktest(
-        Modifier.isStatic(mod) && Modifier.isPublic(mod) && FSM.class.isAssignableFrom(m.getReturnType()),
-        "Method '%s/0' in '%s' must be static, be public, and return '%s'",
-        m.getName(), m.getDeclaringClass().getCanonicalName()
+  private static void validateFSMFactorField(Errors.Builder errors, Field f) {
+    Checks.checknotnull(f);
+    FactorField ann = f.getAnnotation(FactorField.class);
+    Checks.checknotnull(ann);
+    Checks.checkcond(ann.levelsProvider() != null);
+    Class<? extends LevelsProvider> levelsProvider = ann.levelsProvider();
+    Checks.checknotnull(levelsProvider);
+    Checks.checkcond(
+        FSMLevelsProvider.class.isAssignableFrom(levelsProvider),
+        "'%s' must be a sub-class of '%s', but isn't",
+        levelsProvider.getCanonicalName(),
+        FSMLevelsProvider.class.getCanonicalName()
     );
+    ////
+    // Another design choice is to allow sub types of Story for FSM factor fields.
+    // But Dakusui considered it hurts readability of tests and thus allowed
+    // to use Story<FSMSpec<SUT>, SUT> directly.
+    if (!(Story.class.equals(f.getType()))) {
+      errors.add(
+          "For FSM factor field (field annotated with '%s' whose levelsProvider is '%s') must be exactly '%s', but was '%s'",
+          FactorField.class.getSimpleName(),
+          FSMLevelsProvider.class.getSimpleName(),
+          Story.class.getCanonicalName(),
+          f.getType()
+      );
+    }
+    Type genericType = f.getGenericType();
+    if (!(genericType instanceof ParameterizedType)) {
+      errors.add(
+          "FSM factor field must have a parameterized type as its generic type. But '%s'(%s)'s generic type was '%s'",
+          f.getName(),
+          f.getDeclaringClass().getCanonicalName(),
+          genericType != null
+              ? genericType.getClass().getCanonicalName()
+              : null
+      );
+    }
+
   }
 
-  protected Factors loadFactors(Class<?> klass, Map<Field, LevelsProvider<Object>> providers) {
+  protected Factors loadFactors(Class<?> klass, Map<Field, LevelsProvider> providers) {
     // //
     // Initialize the factor levels for every '@FactorField' annotated field.
     Field[] fields = Utils.getAnnotatedFields(klass, FactorField.class);
@@ -154,7 +166,7 @@ public class TupleGeneratorFactory {
         FactorLoader factorLoader = new FactorLoader(f);
         Factor factor = factorLoader.getFactor();
         factorsBuilder.add(factor);
-        providers.put(f, (LevelsProvider<Object>) factorLoader.getLevelsProvider());
+        providers.put(f, (LevelsProvider) factorLoader.getLevelsProvider());
       } catch (InvalidTestException e) {
         invalidTestException.addChild(e);
       }

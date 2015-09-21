@@ -15,7 +15,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMS
 
   @Override
   protected void init(Field targetField, FactorField annotation, Object[] parameters) {
-    this.fsmName = (String) parameters[0];
+    this.fsmName = targetField.getName();
     this.factorName = targetField.getName();
   }
 
@@ -42,9 +42,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMS
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[] {
-        ParamType.String
-    };
+    return new ParamType[] {};
   }
 
   public String getFSMName() {
