@@ -2,8 +2,10 @@ package com.github.dakusui.jcunit.examples.fsm.turnstile;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit.fsm.Expectation;
+import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
+import com.github.dakusui.jcunit.fsm.FSMUtils;
+import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
@@ -26,18 +28,18 @@ public class TurnstileTest {
       }
     };
 
-    @ActionSpec public Expectation<Turnstile> coin(FSM<Turnstile> fsm) {
-      return FSMUtils.valid(fsm, UNLOCKED);
+    @ActionSpec
+    public Expectation<Turnstile> coin(Expectation.Builder<Turnstile> b) {
+      return b.valid(UNLOCKED).build();
     }
 
-    @ActionSpec public Expectation<Turnstile> pass(FSM<Turnstile> fsm) {
-      return FSMUtils.invalid(fsm, RuntimeException.class);
+    @ActionSpec
+    public Expectation<Turnstile> pass(Expectation.Builder<Turnstile> b) {
+      return b.invalid(RuntimeException.class).build();
     }
   }
 
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class
-  )
+  @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Spec, Turnstile> main;
 
   @Test

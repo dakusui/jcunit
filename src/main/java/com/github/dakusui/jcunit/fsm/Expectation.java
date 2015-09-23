@@ -2,6 +2,8 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
 import java.io.PrintStream;
@@ -11,86 +13,85 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Expectation<SUT> {
-  /**
-   * An interface that models checking process for a returned value/thrown exception.
-   */
-  public interface Checker {
-    class MatcherBased implements Checker {
-      private final Matcher matcher;
+  public static class Builder<SUT> {
+    private final FSM<SUT>   fsm;
+    private final String     fsmName;
+    private       Type       type;
+    private       Checker    checker;
+    private       State<SUT> state;
 
-      public MatcherBased(Matcher matcher) {
-        this.matcher = Checks.checknotnull(matcher);
-      }
-
-      @Override
-      public <T> boolean check(T context, Object item, Story.Observer observer) {
-        return this.matcher.matches(item);
-      }
-
-      @Override
-      public String format() {
-        return this.matcher.toString();
-      }
+    Builder(String fsmName, FSM<SUT> fsm) {
+      this.fsm = fsm;
+      this.fsmName = fsmName;
     }
 
-    class FSM implements Checker {
-      String fsmName;
-
-      public FSM(String fsmName) {
-        Checks.checknotnull(fsmName);
-        this.fsmName = fsmName;
-      }
-
-      @Override
-      public <T> boolean check(T context, Object item, Story.Observer observer) {
-        Checks.checknotnull(context);
-        Story story = lookupStory(context, this.fsmName);
-        if (!Checks.checknotnull(story).isPerformed()) {
-          story.perform(context, item, observer.createChild(this.fsmName));
-        }
-        return true;
-      }
-
-      private static Story<?,?> lookupStory(Object context, String fsmName) {
-        Checks.checknotnull(context);
-        Checks.checknotnull(fsmName);
-        Field f;
-        try {
-          f = context.getClass().getField(fsmName);
-          return (Story<?, ?>) Checks.checknotnull(f).get(context);
-        } catch (NoSuchFieldException e) {
-          Checks.rethrow(e);
-        } catch (IllegalAccessException e) {
-          Checks.rethrow(e);
-        }
-        Checks.checkcond(false, "This path shouldn't be executed.");
-        assert false;
-        return null;
-      }
-
-      @Override
-      public String format() {
-        return String.format("FSM:%s", fsmName);
-      }
+    public Builder<SUT> invalid() {
+      return this.invalid(IllegalArgumentException.class);
     }
 
-    /**
-     * Checks the {@code item} matches the criterion that this object defines.
-     * {@code true} will be returned if it does, {@code false} otherwise.
-     *  @param context A context on which this check is performed.
-     * @param item An item to be checked.
-     * @param observer An observer to which the checking result will be reported.
-     */
-    <T> boolean check(T context, Object item, Story.Observer observer);
+    public Builder<SUT> invalid(Class<? extends Throwable> klass) {
+      Checks.checknotnull(klass);
+      //noinspection unchecked
+      return this.invalid((FSMSpec<SUT>)FSMSpec.VOID, klass);
+    }
 
-    String format();
+    public Builder<SUT> invalid(FSMSpec<SUT> state, Class<? extends Throwable> klass) {
+      Checks.checknotnull(state);
+      this.type = Type.EXCEPTION_THROWN;
+      this.state = chooseState(state);
+      this.checker = new Checker.MatcherBased(CoreMatchers.instanceOf(klass));
+      return this;
+    }
+
+    public Builder<SUT> valid(FSMSpec<SUT> state) {
+      return valid(state, CoreMatchers.anything());
+    }
+
+    public Builder<SUT> valid(FSMSpec<SUT> state, Object returnedValue) {
+      return valid(state, CoreMatchers.is(returnedValue));
+    }
+
+    public Builder<SUT> valid(FSMSpec<SUT> state, Matcher matcher) {
+      Checks.checknotnull(matcher);
+      return valid(state, new Expectation.Checker.MatcherBased(matcher));
+    }
+
+    public Builder<SUT> valid(FSMSpec<SUT> state, Expectation.Checker checker) {
+      Checks.checknotnull(state);
+      Checks.checknotnull(checker);
+      this.type = Type.VALUE_RETURNED;
+      this.state = chooseState(state);
+      this.checker = checker;
+      return this;
+    }
+
+    private State<SUT> chooseState(StateChecker<SUT> stateChecker) {
+      Checks.checknotnull(fsm);
+      Checks.checknotnull(stateChecker);
+      if (stateChecker == FSMSpec.VOID) {
+        //noinspection unchecked
+        return (State<SUT>) State.VOID;
+      }
+      for (State<SUT> each : fsm.states()) {
+        if (((SimpleFSM.SimpleFSMState) each).stateSpec == stateChecker)
+          return each;
+      }
+      Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
+      return null;
+    }
+
+    public Expectation<SUT> build() {
+      return new Expectation<SUT>(this.fsmName, this.type, this.state, this.checker);
+    }
   }
 
-
+  /**
+   * A name of FSM from which this object is derived.
+   */
   private final String fsmName;
 
   /**
-   * Expected state.
+   * Expected state after an action is performed.
    */
   public final  State<SUT> state;
   /**
@@ -102,15 +103,7 @@ public class Expectation<SUT> {
    */
   private final Checker    checker;
 
-  public Expectation(
-      String fsmName,
-      Type type,
-      State<SUT> state,
-      Matcher matcher) {
-    this(fsmName, type, state, new Checker.MatcherBased(matcher));
-  }
-
-  public Expectation(
+  protected Expectation(
       String fsmName,
       Type type,
       State<SUT> state,
@@ -203,6 +196,29 @@ public class Expectation<SUT> {
 
 
   public static class Result extends AssertionError {
+    static class Builder {
+      private List<Reason> failures = new LinkedList<Reason>();
+      private String message;
+
+      Builder(String message) {
+        this.message = message;
+      }
+
+      Builder addFailedReason(String message) {
+        Checks.checknotnull(message);
+        return this.addFailedReason(message, null);
+      }
+
+      Builder addFailedReason(String message, Throwable t) {
+        this.failures.add(new Reason(message, t));
+        return this;
+      }
+
+      Result build() {
+        return new Result(message, failures);
+      }
+    }
+
     private final List<Reason> failedReasons;
 
     public Result(String message, List<Reason> failedReasons) {
@@ -240,28 +256,81 @@ public class Expectation<SUT> {
         }
       }
     }
+  }
 
-    static class Builder {
-      private List<Reason> failures = new LinkedList<Reason>();
-      private String message;
+  /**
+   * An interface that models checking process for a returned value/thrown exception.
+   */
+  public interface Checker {
+    class MatcherBased implements Checker {
+      private final Matcher matcher;
 
-      Builder(String message) {
-        this.message = message;
+      public MatcherBased(Matcher matcher) {
+        this.matcher = Checks.checknotnull(matcher);
       }
 
-      Builder addFailedReason(String message) {
-        Checks.checknotnull(message);
-        return this.addFailedReason(message, null);
+      @Override
+      public <T> boolean check(T context, Object item, Story.Observer observer) {
+        return this.matcher.matches(item);
       }
 
-      Builder addFailedReason(String message, Throwable t) {
-        this.failures.add(new Reason(message, t));
-        return this;
-      }
-
-      Result build() {
-        return new Result(message, failures);
+      @Override
+      public String format() {
+        return this.matcher.toString();
       }
     }
+
+    class FSM implements Checker {
+      String fsmName;
+
+      public FSM(String fsmName) {
+        Checks.checknotnull(fsmName);
+        this.fsmName = fsmName;
+      }
+
+      @Override
+      public <T> boolean check(T context, Object item, Story.Observer observer) {
+        Checks.checknotnull(context);
+        Story story = lookupStory(context, this.fsmName);
+        if (!Checks.checknotnull(story).isPerformed()) {
+          story.perform(context, item, observer.createChild(this.fsmName));
+        }
+        return true;
+      }
+
+      private static Story<?, ?> lookupStory(Object context, String fsmName) {
+        Checks.checknotnull(context);
+        Checks.checknotnull(fsmName);
+        Field f;
+        try {
+          f = context.getClass().getField(fsmName);
+          return (Story<?, ?>) Checks.checknotnull(f).get(context);
+        } catch (NoSuchFieldException e) {
+          Checks.rethrow(e);
+        } catch (IllegalAccessException e) {
+          Checks.rethrow(e);
+        }
+        Checks.checkcond(false, "This path shouldn't be executed.");
+        assert false;
+        return null;
+      }
+
+      @Override
+      public String format() {
+        return String.format("FSM:%s", fsmName);
+      }
+    }
+
+    /**
+     * Checks the {@code item} matches the criterion that this object defines.
+     * {@code true} will be returned if it does, {@code false} otherwise.
+     *
+     * @param context  A context on which this check is performed.
+     * @param item     An item to be checked.
+     * @param observer An observer to which the checking result will be reported.
+     */
+    <T> boolean check(T context, Object item, Story.Observer observer);
+
+    String format();
   }
 }

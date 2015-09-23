@@ -103,7 +103,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
         ScenarioSequence<Object> mainScenarioSequence = each.get(fsmName);
         @SuppressWarnings("unchecked")
         ScenarioSequence<Object> setUp = router.routeTo(mainScenarioSequence.state(0));
-        b.put(mainScenarioFactorName, new Story<FSMSpec<Object>, Object>(setUp, mainScenarioSequence));
+        b.put(mainScenarioFactorName, new Story<FSMSpec<Object>, Object>(fsmName, setUp, mainScenarioSequence));
       }
       tuples.add(translateFSMTupleToNormalTuple(b.build(), mappedFactors));
     }

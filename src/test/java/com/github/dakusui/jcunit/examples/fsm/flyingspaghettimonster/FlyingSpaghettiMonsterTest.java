@@ -47,9 +47,8 @@ public class FlyingSpaghettiMonsterTest {
       }
 
       @Override
-      public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
-        Checks.checknotnull(fsm);
-        return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
+      public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
+        return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
       }
     },
     @StateSpec("must be ready") COOKED {
@@ -59,14 +58,13 @@ public class FlyingSpaghettiMonsterTest {
       }
 
       @Override
-      public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
-        return FSMUtils.valid(fsm, COOKED, CoreMatchers.containsString("yummy"));
+      public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
+        return b.valid(COOKED, CoreMatchers.containsString("yummy")).build();
       }
 
       @Override
-      public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
-        Checks.checknotnull(fsm);
-        return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
+      public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
+        return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
       }
     },;
 
@@ -78,13 +76,13 @@ public class FlyingSpaghettiMonsterTest {
     };
 
     @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
-      return FSMUtils.invalid(fsm);
+    public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {
+      return b.invalid().build();
     }
 
     @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
-      return FSMUtils.invalid(fsm);
+    public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
+      return b.invalid().build();
     }
   }
 }

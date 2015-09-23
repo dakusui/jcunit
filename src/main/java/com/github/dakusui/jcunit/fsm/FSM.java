@@ -3,7 +3,8 @@ package com.github.dakusui.jcunit.fsm;
 import java.util.List;
 
 /**
- * An interface that represents a finite state machine's (FSM) specification.
+ * An interface that models a finite state machine.
+ *
  *
  * @param <SUT> A software under test.
  */
@@ -15,6 +16,4 @@ public interface FSM<SUT> {
   List<Action<SUT>> actions();
 
   int historyLength();
-
-  String name();
 }

@@ -6,7 +6,8 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import java.io.PrintStream;
 
 public class Story<S extends FSMSpec<SUT>, SUT extends Object> {
-  private boolean performed;
+  private final String  name;
+  private       boolean performed;
 
   public interface Observer {
     Observer SILENT = new Observer() {
@@ -127,15 +128,19 @@ public class Story<S extends FSMSpec<SUT>, SUT extends Object> {
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
 
-  public Story(ScenarioSequence<SUT> setUp, ScenarioSequence<SUT> main) {
+  public Story(String name, ScenarioSequence<SUT> setUp, ScenarioSequence<SUT> main) {
+    Checks.checknotnull(name);
+    Checks.checknotnull(setUp);
+    Checks.checknotnull(main);
+    this.name = name;
     this.setUp = setUp;
     this.main = main;
   }
 
   public <T> void perform(T context, SUT sut, Observer observer) {
     this.performed = true;
-    this.setUp.perform(context, ScenarioSequence.Type.setUp, sut, observer);
-    this.main.perform(context, ScenarioSequence.Type.main, sut, observer);
+    this.setUp.perform(context, name, ScenarioSequence.Type.setUp, sut, observer);
+    this.main.perform(context, name, ScenarioSequence.Type.main, sut, observer);
   }
 
   public boolean isPerformed() {

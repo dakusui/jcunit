@@ -11,7 +11,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 public interface ScenarioSequence<SUT> {
   abstract class Base<SUT> implements ScenarioSequence<SUT> {
     @Override
-    public <T> void perform(T context, Type type, SUT sut, Story.Observer observer) {
+    public <T> void perform(T context, String name, Type type, SUT sut, Story.Observer observer) {
       Checks.checknotnull(observer);
       observer.startSequence(type, this);
       try {
@@ -21,10 +21,14 @@ public interface ScenarioSequence<SUT> {
           observer.run(type, each, sut);
           boolean passed = false;
           try {
+            ////
+            // Only for the first scenario, make sure SUT is in the 'given' state.
+            // We'll see broken test results later on in case it doesn't meet the
+            // precondition described as the state, otherwise.
             if (i == 0) {
               if (!each.given.check(sut)) {
                 throw new Expectation.Result.Builder("Precondition was not satisfied.").addFailedReason(String.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
-              };
+              }
             }
             Object r = each.perform(context, sut);
             passed = true;
@@ -74,7 +78,7 @@ public interface ScenarioSequence<SUT> {
 
   ScenarioSequence<?> EMPTY = new ScenarioSequence() {
     @Override
-    public void perform(Object context, Type type, Object sut, Story.Observer observer) {
+    public void perform(Object context, String name, Type type, Object sut, Story.Observer observer) {
       // Does nothing since this is an emptry scenario object.
       observer.skipSequence(type, this);
     }
@@ -125,7 +129,7 @@ public interface ScenarioSequence<SUT> {
    *
    * @param sut An objects that represents software under test.
    */
-  <T> void perform(T context, Type type, SUT sut, Story.Observer observer);
+  <T> void perform(T context, String name, Type type, SUT sut, Story.Observer observer);
 
   /**
    * Returns the number of scenarios in this sequence

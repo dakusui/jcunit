@@ -58,45 +58,12 @@ public class FSMUtils {
     }
   }
 
-  public static <SUT> Expectation<SUT> invalid(FSM<SUT> fsm) {
-    return invalid(fsm, IllegalStateException.class);
+  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass) {
+    return createFSM(fsmName, fsmSpecClass, 2);
   }
 
-  public static <SUT> Expectation<SUT> invalid(FSM<SUT> fsm, Class<? extends Throwable> klass) {
-    //noinspection unchecked
-    return new Expectation(fsm.name(), Expectation.Type.EXCEPTION_THROWN, State.VOID, CoreMatchers.instanceOf(klass));
-  }
-
-  public static <SUT> Expectation<SUT> invalid(FSM<SUT> fsm, FSMSpec<SUT> state, Class<? extends Throwable> klass) {
-    Checks.checknotnull(fsm);
-    Checks.checknotnull(state);
-    //noinspection unchecked
-    return new Expectation(fsm.name(), Expectation.Type.EXCEPTION_THROWN, chooseState(fsm, state), CoreMatchers.instanceOf(klass));
-  }
-
-  public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state) {
-    return new Expectation<SUT>(fsm.name(), Expectation.Type.VALUE_RETURNED, chooseState(fsm, state), CoreMatchers.anything());
-  }
-
-  public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, Object returnedValue) {
-    return valid(fsm, state, CoreMatchers.is(returnedValue));
-  }
-
-  public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, org.hamcrest.Matcher matcher) {
-    return valid(fsm, state, new Expectation.Checker.MatcherBased(matcher));
-  }
-
-  public static <SUT> Expectation<SUT> valid(FSM<SUT> fsm, FSMSpec<SUT> state, Expectation.Checker checker) {
-    return new Expectation<SUT>(fsm.name(), Expectation.Type.VALUE_RETURNED, chooseState(fsm, state), checker);
-  }
-
-
-  public static <SUT> FSM<SUT> createFSM(String name, Class<? extends FSMSpec<SUT>> fsmSpecClass) {
-    return createFSM(name, fsmSpecClass, 2);
-  }
-
-  public static <SUT> FSM<SUT> createFSM(String name, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
-    return new SimpleFSM<SUT>(name, fsmSpecClass, historyLength);
+  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
+    return new SimpleFSM<SUT>(fsmName, fsmSpecClass, historyLength);
   }
 
   public static String composeMainScenarioName(String fsmName) {
@@ -112,14 +79,4 @@ public class FSMUtils {
     return String.format("Story:[%s]", Utils.join(",", scenarios));
   }
 
-  private static <SUT> State<SUT> chooseState(FSM<SUT> fsm, StateChecker<SUT> stateChecker) {
-    Checks.checknotnull(fsm);
-    Checks.checknotnull(stateChecker);
-    for (State<SUT> each : fsm.states()) {
-      if (((SimpleFSM.SimpleFSMState) each).stateSpec == stateChecker)
-        return each;
-    }
-    Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
-    return null;
-  }
 }
