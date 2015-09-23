@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.TurnstileTest;
-import com.github.dakusui.jcunit.fsm.FSMContext;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.Story;
 import org.junit.Test;
@@ -24,12 +23,12 @@ public class DoubleFSMTest {
   @Test
   public void test() throws Throwable {
     this.fsm1.perform(
-        new FSMContext.Builder().add("fsm1", this.fsm1).build(),
+        this,
         this.sut1,
-        Story.SIMPLE_OBSERVER);
+        Story.createSimpleObserver("fsm1"));
     this.fsm2.perform(
-        new FSMContext.Builder().add("fsm2", this.fsm2).build(),
+        this,
         this.sut2,
-        Story.SIMPLE_OBSERVER);
+        Story.createSimpleObserver("fsm2"));
   }
 }

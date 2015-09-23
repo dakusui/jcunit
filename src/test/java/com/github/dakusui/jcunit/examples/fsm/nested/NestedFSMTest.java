@@ -13,22 +13,30 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Map;
+
 @RunWith(JCUnit.class)
 public class NestedFSMTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<Spec, FlyingSpaghettiMonster> main;
+  public Story<Spec, FlyingSpaghettiMonster> primary;
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<NestedSpec, String> nested;
 
-  public FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
   @Test
-  public void test() {
-    this.main.perform(
-        new FSMContext.Builder().add("main", this.main).add("nested", this.nested).build(),
-        this.sut,
-        Story.SIMPLE_OBSERVER);
+  public void test1() {
+    FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+    FSMUtils.performStory(this, "primary", sut);
+    if (!this.nested.isPerformed()) {
+      FSMUtils.performStory(this, "nested", "hello");
+    }
+  }
+
+  @Test
+  public void test2() {
+    FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+    FSMUtils.performStory(this, "primary", sut, new Story.Observer.Factory.ForSilent());
   }
 
   public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
@@ -57,9 +65,7 @@ public class NestedFSMTest {
 
       @Override
       public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String dish, String sauce) {
-        final String fsmName = "nested";
-
-        return FSMUtils.valid(fsm, this, new Expectation.Checker.FSM(fsmName, Story.SIMPLE_OBSERVER));
+        return FSMUtils.valid(fsm, this, new Expectation.Checker.FSM("nested"));
       }
     },;
 
@@ -72,26 +78,26 @@ public class NestedFSMTest {
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
-      return FSMUtils.invalid();
+      return FSMUtils.invalid(fsm);
     }
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
-      return FSMUtils.invalid();
+      return FSMUtils.invalid(fsm);
     }
   }
 
   public enum NestedSpec implements FSMSpec<String> {
-    @SuppressWarnings("unused") @StateSpec I {
+    @SuppressWarnings("unused") @StateSpec("spaghetti meat sauce") I {
       @Override
       public boolean check(String s) {
-        return "Cooking spaghetti meat sauce".equals(s);
+        //return "Cooking spaghetti meat sauce".equals(s);
+        return true;
       }
     };
-
     @ActionSpec
     public Expectation<String> toString(final FSM<String> nestedFSM) {
-      return FSMUtils.valid(nestedFSM, this, CoreMatchers.instanceOf(String.class));
+      return FSMUtils.valid(nestedFSM, this, CoreMatchers.instanceOf(Map.class));
     }
   }
 }

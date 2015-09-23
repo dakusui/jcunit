@@ -101,7 +101,7 @@ public class ParamTypeTest {
           String.format("Expected exception=%s, actual exception=%s\n\t%s",
               expectedException.getCanonicalName(),
               t.getClass().getCanonicalName(),
-              Utils.join("\n\t", t.getStackTrace())),
+              Utils.join("\n\t", new Object[] { t.getStackTrace() })),
           expectedException.isAssignableFrom(t.getClass())
       );
       return;

@@ -1,79 +1,128 @@
 package com.github.dakusui.jcunit.fsm;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
+import java.io.PrintStream;
+
 public class Story<S extends FSMSpec<SUT>, SUT extends Object> {
+  private boolean performed;
+
   public interface Observer {
+    Observer SILENT = new Observer() {
+      @Override
+      public Observer createChild(String childName) {
+        return this;
+      }
+
+      @Override
+      public void startSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
+      }
+
+      @Override
+      public void run(ScenarioSequence.Type type, Scenario scenario, Object o) {
+      }
+
+      @Override
+      public void passed(ScenarioSequence.Type type, Scenario scenario, Object o) {
+      }
+
+      @Override
+      public void failed(ScenarioSequence.Type type, Scenario scenario, Object o, Expectation.Result result) {
+      }
+
+      @Override
+      public void endSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
+      }
+
+      @Override
+      public void skipSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
+      }
+    };
+
     <SUT> void startSequence(ScenarioSequence.Type type, ScenarioSequence<SUT> seq);
 
     <SUT> void run(ScenarioSequence.Type type, Scenario<SUT> scenario, SUT sut);
 
     <SUT> void passed(ScenarioSequence.Type type, Scenario<SUT> scenario, SUT sut);
 
-    <SUT> void failed(ScenarioSequence.Type type, Scenario<SUT> scenario, SUT sut);
+    <SUT> void failed(ScenarioSequence.Type type, Scenario<SUT> scenario, SUT sut, Expectation.Result result);
 
     <SUT> void endSequence(ScenarioSequence.Type type, ScenarioSequence<SUT> seq);
 
-    <SUT> void skipSequence(ScenarioSequence.Type type, ScenarioSequence seq);
+    <SUT> void skipSequence(ScenarioSequence.Type type, ScenarioSequence<SUT> seq);
+
+    Observer createChild(String childName);
+
+    interface Factory {
+      Observer createObserver(String fsmName);
+      class ForSilent implements Factory {
+        @Override
+        public Observer createObserver(String fsmName) {
+          return SILENT;
+        }
+      }
+
+      class ForSimple implements Factory {
+        @Override
+        public Observer createObserver(String fsmName) {
+          return createSimpleObserver(fsmName);
+        }
+      }
+    }
   }
 
-  public static final Observer SILENT_OBSERVER = new Observer() {
-    @Override
-    public void startSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
-    }
+  public static final Observer createSimpleObserver(String fsmName) {
+    return createSimpleObserver(fsmName, System.out);
+  }
 
-    @Override
-    public void run(ScenarioSequence.Type type, Scenario scenario, Object o) {
-    }
+  public static final Observer createSimpleObserver(String fsmName, final PrintStream ps) {
+    return createSimpleObserver(fsmName, System.out, 0);
+  }
 
-    @Override
-    public void passed(ScenarioSequence.Type type, Scenario scenario, Object o) {
-    }
+  private static final Observer createSimpleObserver(final String fsmName, final PrintStream ps, final int generation) {
+    Checks.checknotnull(ps);
+    return new Observer() {
+      private String indent(int level) {
+        return new String(new char[2 * level]).replace("\0", " ");
+      }
 
-    @Override
-    public void failed(ScenarioSequence.Type type, Scenario scenario, Object o) {
-    }
+      @Override
+      public Observer createChild(String childName) {
+        return createSimpleObserver(childName, ps, generation + 1);
+      }
 
-    @Override
-    public void endSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
-    }
+      @Override
+      public void startSequence(ScenarioSequence.Type type, ScenarioSequence scenarioSequence) {
+        ps.printf("%sStarting(%s#%s):%s\n", indent(generation), fsmName, type, scenarioSequence);
+      }
 
-    @Override
-    public void skipSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
-    }
-  };
+      @Override
+      public void run(ScenarioSequence.Type type, Scenario scenario, Object o) {
+        ps.printf("%sRunning(%s#%s):%s expecting %s\n", indent(generation + 1), fsmName, type, scenario, scenario.then());
+      }
 
-  public static final Observer SIMPLE_OBSERVER = new Observer() {
-    @Override
-    public void startSequence(ScenarioSequence.Type type, ScenarioSequence scenarioSequence) {
-      System.out.printf("Starting(%s):%s\n", type, scenarioSequence);
-    }
+      @Override
+      public void passed(ScenarioSequence.Type type, Scenario scenario, Object o) {
+        ps.printf("%sPassed(%s#%s)\n", indent(generation + 1), fsmName, type);
+      }
 
-    @Override
-    public void run(ScenarioSequence.Type type, Scenario scenario, Object o) {
-      System.out.printf("  Running(%s):%s expecting %s\n", type, scenario, scenario.then());
-    }
+      @Override
+      public void failed(ScenarioSequence.Type type, Scenario scenario, Object o, Expectation.Result result) {
+        ps.printf("%sFailed(%s#%s): %s\n", indent(generation + 1), fsmName, type, result.getMessage());
+      }
 
-    @Override
-    public void passed(ScenarioSequence.Type type, Scenario scenario, Object o) {
-      System.out.printf("  Passed(%s)\n", type);
-    }
+      @Override
+      public void endSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
+        ps.printf("%sEnd(%s#%s)\n", indent(generation), fsmName, type);
+      }
 
-    @Override
-    public void failed(ScenarioSequence.Type type, Scenario scenario, Object o) {
-      System.out.printf("  Failed(%s)\n", type);
-    }
-
-    @Override
-    public void endSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
-      System.out.printf("End(%s)\n", type);
-    }
-
-    @Override
-    public void skipSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
-      System.out.printf("Skip(%s)\n", type);
-    }
-  };
+      @Override
+      public void skipSequence(ScenarioSequence.Type type, ScenarioSequence seq) {
+        ps.printf("%sSkip(%s#%s)\n", indent(generation), fsmName, type);
+      }
+    };
+  }
 
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
@@ -84,11 +133,12 @@ public class Story<S extends FSMSpec<SUT>, SUT extends Object> {
   }
 
   public <T> void perform(T context, SUT sut, Observer observer) {
-
-  }
-
-  public void perform(FSMContext context, SUT sut, Observer observer) {
+    this.performed = true;
     this.setUp.perform(context, ScenarioSequence.Type.setUp, sut, observer);
     this.main.perform(context, ScenarioSequence.Type.main, sut, observer);
+  }
+
+  public boolean isPerformed() {
+    return this.performed;
   }
 }

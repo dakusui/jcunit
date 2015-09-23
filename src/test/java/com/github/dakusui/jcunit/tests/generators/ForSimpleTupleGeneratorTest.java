@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
-public class SimpleTupleGeneratorTest {
+public class ForSimpleTupleGeneratorTest {
   @RunWith(JCUnit.class)
   @TupleGeneration(
       generator = @Generator(SimpleTupleGenerator.class),

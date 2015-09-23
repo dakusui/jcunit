@@ -112,7 +112,7 @@ public abstract class ParamType implements Cloneable {
       try {
         return this.parse(parameters[0]);
       } catch (IllegalArgumentException e) {
-        Checks.rethrowtesterror(e, "Invalid parameter(s) are given.: %s", Utils.join(",", parameters));
+        Checks.rethrowtesterror(e, "Invalid parameter(s) are given.: %s", Utils.join(",", new Object[] { parameters }));
       }
       // This path should never be executed.
       throw new RuntimeException("Something went wrong");

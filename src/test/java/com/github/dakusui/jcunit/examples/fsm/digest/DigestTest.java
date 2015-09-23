@@ -23,7 +23,7 @@ public class DigestTest {
       }
 
     },
-    @StateSpec(mandatory=true) Instantiated {
+    @StateSpec Instantiated {
       @Override
       public boolean check(Class<MessageDigest> messageDigestClass) {
         return false;

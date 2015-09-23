@@ -36,7 +36,7 @@ public class FactorLoader {
     return this.levelsProvider;
   }
 
-  private ValidationResult validate(Field f) {
+  public static ValidationResult validate(Field f) {
     Checks.checknotnull(f);
     FactorField ann = f.getAnnotation(FactorField.class);
     Checks.checknotnull(ann);

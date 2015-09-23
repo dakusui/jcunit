@@ -1,9 +1,11 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.exceptions.NestableException;
+import com.github.dakusui.jcunit.core.Utils;
 import org.hamcrest.Matcher;
 
+import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +23,7 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public <T> boolean check(T context, Object item) {
+      public <T> boolean check(T context, Object item, Story.Observer observer) {
         return this.matcher.matches(item);
       }
 
@@ -32,26 +34,38 @@ public class Expectation<SUT> {
     }
 
     class FSM implements Checker {
-      private final Story.Observer observer;
       String fsmName;
 
-      public FSM(String fsmName, Story.Observer observer) {
-        Checks.checknotnull(observer);
+      public FSM(String fsmName) {
+        Checks.checknotnull(fsmName);
         this.fsmName = fsmName;
-        this.observer = observer;
       }
 
       @Override
-      public <T> boolean check(T context, Object item) {
+      public <T> boolean check(T context, Object item, Story.Observer observer) {
         Checks.checknotnull(context);
-        assert false;
-        /* TODO!
-        Checks.checkcond(context.hasStory(fsmName));
-        if (!context.isAlreadyPerformed(fsmName)) {
-          context.lookupStory(fsmName).perform(context, item, this.observer);
+        Story story = lookupStory(context, this.fsmName);
+        if (!Checks.checknotnull(story).isPerformed()) {
+          story.perform(context, item, observer.createChild(this.fsmName));
         }
-        */
         return true;
+      }
+
+      private static Story<?,?> lookupStory(Object context, String fsmName) {
+        Checks.checknotnull(context);
+        Checks.checknotnull(fsmName);
+        Field f;
+        try {
+          f = context.getClass().getField(fsmName);
+          return (Story<?, ?>) Checks.checknotnull(f).get(context);
+        } catch (NoSuchFieldException e) {
+          Checks.rethrow(e);
+        } catch (IllegalAccessException e) {
+          Checks.rethrow(e);
+        }
+        Checks.checkcond(false, "This path shouldn't be executed.");
+        assert false;
+        return null;
       }
 
       @Override
@@ -63,15 +77,17 @@ public class Expectation<SUT> {
     /**
      * Checks the {@code item} matches the criterion that this object defines.
      * {@code true} will be returned if it does, {@code false} otherwise.
-     *
-     * @param context A context on which this check is performed.
+     *  @param context A context on which this check is performed.
      * @param item An item to be checked.
+     * @param observer An observer to which the checking result will be reported.
      */
-    <T> boolean check(T context, Object item);
+    <T> boolean check(T context, Object item, Story.Observer observer);
 
     String format();
   }
 
+
+  private final String fsmName;
 
   /**
    * Expected state.
@@ -87,25 +103,28 @@ public class Expectation<SUT> {
   private final Checker    checker;
 
   public Expectation(
+      String fsmName,
       Type type,
       State<SUT> state,
       Matcher matcher) {
-    this(type, state, new Checker.MatcherBased(matcher));
+    this(fsmName, type, state, new Checker.MatcherBased(matcher));
   }
 
   public Expectation(
+      String fsmName,
       Type type,
       State<SUT> state,
       Checker checker) {
     Checks.checknotnull(type);
     Checks.checknotnull(state);
     Checks.checknotnull(checker);
+    this.fsmName = fsmName;
     this.type = type;
     this.state = state;
     this.checker = checker;
   }
 
-  public <T> Result checkThrownException(T context, SUT sut, Throwable thrownException) {
+  public <T> Result checkThrownException(T context, SUT sut, Throwable thrownException, Story.Observer observer) {
     Checks.checknotnull(sut);
     //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
@@ -113,7 +132,7 @@ public class Expectation<SUT> {
     if (this.type != Type.EXCEPTION_THROWN) {
       b.addFailedReason(String.format("Exception was expected to be thrown but not. (%s)", this.checker.format()));
     }
-    if (!this.checker.check(context, thrownException)) {
+    if (!this.checker.check(context, thrownException, observer)) {
       b.addFailedReason(
           String.format("'%s' is expected to be %s but '%s' was thrown. (%s)", this.checker.format(), this.type, thrownException, thrownException.getMessage()),
           thrownException
@@ -127,20 +146,20 @@ public class Expectation<SUT> {
     return b.build();
   }
 
-  public <T> Result checkReturnedValue(T context, SUT sut, Object returnedValue) {
+  public <T> Result checkReturnedValue(T context, SUT sut, Object returnedValue, Story.Observer observer) {
     Checks.checknotnull(sut);
-    Result.Builder b = new Result.Builder(String.format("Expectation: [%s] was not satisfied", this));
+    Result.Builder b = new Result.Builder("Expectation was not satisfied");
     if (this.type != Type.VALUE_RETURNED) {
       b.addFailedReason(String.format("Exception was expected not to be thrown but it was. (%s)", this.checker.format()));
     }
-    if (!this.checker.check(context, returnedValue)) {
+    if (!this.checker.check(context, returnedValue, observer)) {
       b.addFailedReason(
-          String.format("'%s' is expected to be %s but '%s' was thrown.", this.checker.format(), this.type, returnedValue)
+          String.format("'%s' is expected to be %s but '%s' was returned.", this.checker.format(), this.type, returnedValue)
       );
     }
     if (!this.state.check(sut)) {
       b.addFailedReason(
-          String.format("'%s' is expected to be in '%s' state but not.", sut, this.state)
+          String.format("FSM '%s' is expected to be in '%s' state but not.(actual='%s')", this.fsmName, this.state, sut)
       );
     }
     return b.build();
@@ -149,8 +168,8 @@ public class Expectation<SUT> {
   @Override
   public String toString() {
     if (this.type == Type.EXCEPTION_THROWN)
-      return String.format("Status is '%s' and %s is thrown", this.state, this.checker.format());
-    return String.format("Status is '%s' and %s is returned", this.state, this.checker.format());
+      return String.format("status of '%s' is '%s' and %s is thrown", this.fsmName, this.state, this.checker.format());
+    return String.format("status of '%s' is '%s' and %s is returned", this.fsmName, this.state, this.checker.format());
   }
 
   public enum Type {
@@ -176,19 +195,19 @@ public class Expectation<SUT> {
       this.message = message;
       this.t = t;
     }
+
+    public String toString() {
+      return this.message;
+    }
   }
 
 
-  public static class Result extends NestableException {
+  public static class Result extends AssertionError {
     private final List<Reason> failedReasons;
 
     public Result(String message, List<Reason> failedReasons) {
       super(message);
       this.failedReasons = Collections.unmodifiableList(failedReasons);
-      for (Reason each : this.getFailedReasons()) {
-        if (each.t != null)
-          this.addChild(each.t);
-      }
     }
 
     public boolean isSuccessful() {
@@ -206,22 +225,20 @@ public class Expectation<SUT> {
     public String getMessage() {
       String ret = super.getMessage();
       if (!failedReasons.isEmpty()) {
-        ret += ":[";
-        boolean isFirst = true;
-        for (Reason each : this.failedReasons) {
-          if (!isFirst) {
-            ret += ",";
-          }
-          ret += each.message;
-          isFirst = false;
-        }
-        ret += "]";
+        ret += String.format(": [%s]", Utils.join(",", this.failedReasons.toArray()));
       }
       return ret;
     }
 
-    public List<Reason> getFailedReasons() {
-      return this.failedReasons;
+    @Override
+    public void printStackTrace(PrintStream ps) {
+      Checks.checknotnull(ps);
+      for (Reason each : this.failedReasons) {
+        ps.println(each.message);
+        if (each.t != null) {
+          each.t.printStackTrace(ps);
+        }
+      }
     }
 
     static class Builder {

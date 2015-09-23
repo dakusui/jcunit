@@ -23,9 +23,9 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
 @TupleGeneration(
-    constraint = @Constraint(ReproducibilityWithSimpleConstraintTest.CM.class)
+    constraint = @Constraint(ReproducibilityWithForSimpleConstraintTest.CM.class)
 )
-public class ReproducibilityWithSimpleConstraintTest {
+public class ReproducibilityWithForSimpleConstraintTest {
   public static class CM extends ConstraintManagerBase {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {

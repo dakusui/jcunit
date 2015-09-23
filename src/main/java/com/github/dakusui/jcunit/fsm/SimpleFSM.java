@@ -14,13 +14,16 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class SimpleFSM<SUT> implements FSM<SUT> {
+  private final String            name;
   private final int               historyLength;
   private       List<State<SUT>>  states;
   private       List<Action<SUT>> actions;
   private       State<SUT>        initialState;
 
-  public <T> SimpleFSM(Class<? extends FSMSpec<SUT>> specClass, int historyLength) {
+  public <T> SimpleFSM(String name, Class<? extends FSMSpec<SUT>> specClass, int historyLength) {
+    Checks.checknotnull(name);
     Checks.checknotnull(specClass);
+    this.name = name;
     ////
     // Build 'actions'.
     Map<String, Method> actionMethods = Utils.toMap(getActionMethods(specClass), new Utils.Form<Method, String>() {
@@ -85,6 +88,11 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
   @Override
   public int historyLength() {
     return historyLength;
+  }
+
+  @Override
+  public String name() {
+    return this.name;
   }
 
   private List<Field> getStateFields(Class<? extends FSMSpec<SUT>> specClass) {
@@ -171,7 +179,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
 
   private State<SUT> createState(final Field stateSpecField, final Map<String, Method> actionMethods) {
     final FSMSpec<SUT> stateSpec = getStateSpecValue(validateStateSpecField(stateSpecField));
-    return new SimpleFSMState(stateSpec, actionMethods, stateSpecField);
+    return new SimpleFSMState(stateSpecField.getName(), stateSpec, actionMethods, stateSpecField);
   }
 
   private FSMSpec<SUT> getStateSpecValue(Field field) {
@@ -204,8 +212,10 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     final         FSMSpec<SUT>        stateSpec;
     private final Map<String, Method> actionMethods;
     private final Field               stateSpecField;
+    private final String              fsmName;
 
-    public SimpleFSMState(FSMSpec<SUT> stateSpec, Map<String, Method> actionMethods, Field stateSpecField) {
+    public SimpleFSMState(String fsmName, FSMSpec<SUT> stateSpec, Map<String, Method> actionMethods, Field stateSpecField) {
+      this.fsmName = fsmName;
       this.stateSpec = stateSpec;
       this.actionMethods = actionMethods;
       this.stateSpecField = stateSpecField;
@@ -260,6 +270,10 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
 
     @Override
     public String toString() {
+      StateSpec ann = this.stateSpecField.getAnnotation(StateSpec.class);
+      if (ann.value().length() > 0) {
+        return String.format("%s(%s)", stateSpecField.getName(), ann.value());
+      }
       return String.format("%s", stateSpecField.getName());
     }
   }

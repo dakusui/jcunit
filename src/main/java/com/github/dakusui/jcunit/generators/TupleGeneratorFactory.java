@@ -112,7 +112,7 @@ public class TupleGeneratorFactory {
     Checks.checknotnull(f);
     Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
     //noinspection unchecked
-    return FSMUtils.createFSM((Class<? extends FSMSpec<Object>>) clazz);
+    return FSMUtils.createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz);
   }
 
   private static void validateFSMFactorField(Errors.Builder errors, Field f) {

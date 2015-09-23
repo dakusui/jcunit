@@ -136,11 +136,12 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
       Map<String, ScenarioSequence<Object>> cur = new LinkedHashMap<String, ScenarioSequence<Object>>();
       for (Map.Entry<String, FSM> entry : this.fsms.entrySet()) {
         String fsmName = entry.getKey();
-        ScenarioSequence<Object> main = new ScenarioSequence.BuilderFromTuple()
+        ScenarioSequence main = new ScenarioSequence.BuilderFromTuple()
             .setFSMFactors(fsmFactors)
             .setTuple(eachTuple)
             .setFSMName(fsmName)
             .build();
+        //noinspection unchecked
         cur.put(fsmName, main);
       }
       mainScenarios.add(cur);

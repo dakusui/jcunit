@@ -17,7 +17,7 @@ import java.util.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class SimpleConstraintConsciousTest extends IPO2Test {
+public class ForSimpleConstraintConsciousTest extends IPO2Test {
   private List<Tuple> prohibitedTuples = null;
 
   public List<Tuple> getProhibitedTuples() {

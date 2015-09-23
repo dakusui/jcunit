@@ -12,7 +12,44 @@ public interface ScenarioSequence<SUT> {
   abstract class Base<SUT> implements ScenarioSequence<SUT> {
     @Override
     public <T> void perform(T context, Type type, SUT sut, Story.Observer observer) {
-      FSMUtils.performScenarioSequence(context, type, this, sut, observer);
+      Checks.checknotnull(observer);
+      observer.startSequence(type, this);
+      try {
+        for (int i = 0; i < this.size(); i++) {
+          Scenario<SUT> each = this.get(i);
+
+          Expectation.Result result = null;
+          observer.run(type, each, sut);
+          boolean passed = false;
+          try {
+            Object r = each.perform(context, sut);
+            passed = true;
+            ////
+            // each.perform(sut) didn't throw an exception
+            //noinspection unchecked,ThrowableResultOfMethodCallIgnored
+            result = each.then().checkReturnedValue(context, sut, r, observer);
+          } catch (Expectation.Result r) {
+            result = r;
+          } catch (Throwable t) {
+            if (!passed) {
+              //noinspection unchecked,ThrowableResultOfMethodCallIgnored
+              result = each.then().checkThrownException(context, sut, t, observer);
+            } else {
+              throw new RuntimeException("Expectation#checkReturnedValue threw an exception. This is considered to be a framework side's bug.", t);
+            }
+          } finally {
+            if (result != null) {
+              if (result.isSuccessful())
+                observer.passed(type, each, sut);
+              else
+                observer.failed(type, each, sut, result);
+              result.throwIfFailed();
+            }
+          }
+        }
+      } finally {
+        observer.endSequence(type, this);
+      }
     }
 
     @Override

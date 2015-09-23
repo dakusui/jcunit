@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
@@ -25,7 +24,7 @@ public class FlyingSpaghettiMonsterTest {
   public void test() throws Throwable {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
-    this.main.perform(null, sut, Story.SIMPLE_OBSERVER);
+    this.main.perform(null, sut, Story.createSimpleObserver("main"));
   }
 
   /**
@@ -80,12 +79,12 @@ public class FlyingSpaghettiMonsterTest {
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> cook(FSM<FlyingSpaghettiMonster> fsm, String pasta, String sauce) {
-      return FSMUtils.invalid();
+      return FSMUtils.invalid(fsm);
     }
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> eat(FSM<FlyingSpaghettiMonster> fsm) {
-      return FSMUtils.invalid();
+      return FSMUtils.invalid(fsm);
     }
   }
 }

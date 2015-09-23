@@ -9,7 +9,7 @@ public interface State<SUT> extends StateChecker<SUT> {
   /**
    * When an invalid operation is performed, JCUnit
    */
-  public static final State<?> VOID = new State() {
+  State<?> VOID = new State() {
     @Override
     public Expectation<?> expectation(Action action, Args args) {
       /////
@@ -20,7 +20,7 @@ public interface State<SUT> extends StateChecker<SUT> {
       // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
       // non-deterministic FSM is not supported by JCUnit yet...
       if (action == Action.VOID && args.size() == 0)
-        return new Expectation(Expectation.Type.VALUE_RETURNED, this, CoreMatchers.anything());
+        return new Expectation("VOID", Expectation.Type.VALUE_RETURNED, this, CoreMatchers.anything());
       return null;
     }
 
@@ -55,7 +55,7 @@ public interface State<SUT> extends StateChecker<SUT> {
    * @param action An action to be performed.
    * @param args   Arguments with which {@code action} is performed.
    * @return An expectation.
-   * @Override Expectation expectation(Action action, Args args) {
+   * Expectation expectation(Action action, Args args) {
    * ...
    * if (args.values()[0].equals(0) && args.values()[1].equals(0) return null;
    * ...

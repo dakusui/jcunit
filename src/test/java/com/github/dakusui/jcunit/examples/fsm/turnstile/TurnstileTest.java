@@ -31,36 +31,18 @@ public class TurnstileTest {
     }
 
     @ActionSpec public Expectation<Turnstile> pass(FSM<Turnstile> fsm) {
-      return FSMUtils.invalid(RuntimeException.class);
+      return FSMUtils.invalid(fsm, RuntimeException.class);
     }
   }
 
   @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("turnstileFSM"),
-          @Param("setUp"),
-      }
+      levelsProvider = FSMLevelsProvider.class
   )
-  public ScenarioSequence<Turnstile> setUp;
-
-  @FactorField(
-      levelsProvider = FSMLevelsProvider.class,
-      providerParams = {
-          @Param("turnstileFSM"),
-          @Param("main"),
-      }
-  )
-  public ScenarioSequence<Turnstile> main;
-
-  public static FSM<Turnstile> turnstileFSM() {
-    return FSMUtils.createFSM(Spec.class, 3);
-  }
+  public Story<Spec, Turnstile> main;
 
   @Test
   public void test() throws Throwable {
     Turnstile sut = new Turnstile();
-    FSMUtils.performScenarioSequence(null, ScenarioSequence.Type.setUp, this.setUp, sut, Story.SILENT_OBSERVER);
-    FSMUtils.performScenarioSequence(null, ScenarioSequence.Type.main, this.main, sut, Story.SIMPLE_OBSERVER);
+    FSMUtils.performStory(this, "main", sut);
   }
 }
