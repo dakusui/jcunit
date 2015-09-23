@@ -73,8 +73,13 @@ public class TupleGeneratorFactory {
       Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
       Errors.Builder bb = new Errors.Builder();
       for (Field each : fsmFields) {
+        int switchCoverage = 1;
+        ////
+        // It's safe to assume fsmLevelsProvider becomes non-null since we are
+        // iterating over fsmFields.
+        FSMLevelsProvider fsmLevelsProvider = (FSMLevelsProvider) levelsProviders.get(each);
         validateFSMFactorField(bb, each);
-        fsms.put(each.getName(), createFSM(each));
+        fsms.put(each.getName(), createFSM(each, fsmLevelsProvider.getSwitchCoverage()));
       }
       Errors errors = bb.build();
       Checks.checktest(
@@ -106,13 +111,14 @@ public class TupleGeneratorFactory {
    * Typed with {@code Story} class.
    *
    * @param f A field from which an FSM is created.
+   * @param switchCoverage A switch coverage number, which is equal to number of scenarios in a main sequence -1.
    * @return Created FSM object
    */
-  private static FSM<?> createFSM(Field f) {
+  private static FSM<?> createFSM(Field f, int switchCoverage) {
     Checks.checknotnull(f);
     Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
     //noinspection unchecked
-    return FSMUtils.createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz);
+    return FSMUtils.createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz, switchCoverage + 1);
   }
 
   private static void validateFSMFactorField(Errors.Builder errors, Field f) {

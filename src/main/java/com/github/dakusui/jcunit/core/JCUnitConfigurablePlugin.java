@@ -38,7 +38,7 @@ public interface JCUnitConfigurablePlugin {
    *
    * @param params An array of parameter values.
    */
-  public void init(Param[] params);
+  void init(Param[] params);
 
   /**
    * Returns an array of parameter types that describes expectations a plugin (an implementation
@@ -63,11 +63,5 @@ public interface JCUnitConfigurablePlugin {
    * ({@code processedParameters}).
    * and must return the same value always regardless of the internal state of this object.
    */
-  public ParamType[] parameterTypes();
-
-  /**
-   * Returns an array of {@code Param} which is used as an argument of {@code init}.
-   * If the method isn't called yet, an exception will be thrown.
-   */
-  Param[] getParams();
+  ParamType[] parameterTypes();
 }

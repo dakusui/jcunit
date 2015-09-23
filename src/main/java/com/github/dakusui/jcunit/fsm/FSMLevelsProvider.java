@@ -10,13 +10,16 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import java.lang.reflect.Field;
 
 public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMSpec<SUT>, SUT>> {
-  private String       fsmName;
-  private String       factorName;
+  private String fsmName;
+  private String factorName;
+  private int    switchCoverage;
 
   @Override
   protected void init(Field targetField, FactorField annotation, Object[] parameters) {
     this.fsmName = targetField.getName();
     this.factorName = targetField.getName();
+    this.switchCoverage = ((Integer)parameters[0]);
+    Checks.checkplugin(this.switchCoverage >= 1, "switchCoverage must be equal to or greater than 1");
   }
 
   @Override
@@ -42,10 +45,12 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMS
 
   @Override
   public ParamType[] parameterTypes() {
-    return new ParamType[] {};
+    return new ParamType[] {
+        ParamType.Int.withDefaultValue(1) // Default is '1-switch coverage'
+    };
   }
 
-  public String getFSMName() {
-    return this.fsmName;
+  public int getSwitchCoverage() {
+    return this.switchCoverage;
   }
 }

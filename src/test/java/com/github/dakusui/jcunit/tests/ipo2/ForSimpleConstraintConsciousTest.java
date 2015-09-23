@@ -137,11 +137,6 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     }
 
     @Override
-    public Param[] getParams() {
-      return this.params;
-    }
-
-    @Override
     public Factors getFactors() {
       return null;
     }

@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.examples.fsm.nested;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.fsm.Expectation;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
@@ -83,7 +84,7 @@ public class NestedFSMTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Spec, FlyingSpaghettiMonster> primary;
 
-  @FactorField(levelsProvider = FSMLevelsProvider.class)
+  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Param("2") })
   public Story<NestedSpec, String> nested;
 
   @Test

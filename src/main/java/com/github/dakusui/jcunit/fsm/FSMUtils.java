@@ -58,10 +58,6 @@ public class FSMUtils {
     }
   }
 
-  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass) {
-    return createFSM(fsmName, fsmSpecClass, 2);
-  }
-
   public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
     return new SimpleFSM<SUT>(fsmName, fsmSpecClass, historyLength);
   }
