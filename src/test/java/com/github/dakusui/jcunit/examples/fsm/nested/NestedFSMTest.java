@@ -13,8 +13,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Map;
-
 @RunWith(JCUnit.class)
 public class NestedFSMTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
@@ -29,7 +27,7 @@ public class NestedFSMTest {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
     FSMUtils.performStory(this, "primary", sut);
     if (!this.nested.isPerformed()) {
-      FSMUtils.performStory(this, "nested", "hello");
+      FSMUtils.performStory(this, "nested", "Cooking spaghetti meat sauce");
     }
   }
 
@@ -43,7 +41,7 @@ public class NestedFSMTest {
     @SuppressWarnings("unused") @StateSpec I {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
-        return flyingSpaghettiMonster.isReady();
+        return !flyingSpaghettiMonster.isReady();
       }
 
       @Override
@@ -88,16 +86,19 @@ public class NestedFSMTest {
   }
 
   public enum NestedSpec implements FSMSpec<String> {
-    @SuppressWarnings("unused") @StateSpec("spaghetti meat sauce") I {
+    @SuppressWarnings("unused") @StateSpec("spaghetti meat sauce")I {
       @Override
       public boolean check(String s) {
-        //return "Cooking spaghetti meat sauce".equals(s);
-        return true;
+        return s != null && s.startsWith("Cooking spaghetti");
+      }
+
+      @Override
+      public Expectation<String> toString(final FSM<String> nestedFSM) {
+        return FSMUtils.valid(nestedFSM, I, CoreMatchers.instanceOf(String.class));
       }
     };
+
     @ActionSpec
-    public Expectation<String> toString(final FSM<String> nestedFSM) {
-      return FSMUtils.valid(nestedFSM, this, CoreMatchers.instanceOf(Map.class));
-    }
+    public abstract Expectation<String> toString(final FSM<String> nestedFSM);
   }
 }

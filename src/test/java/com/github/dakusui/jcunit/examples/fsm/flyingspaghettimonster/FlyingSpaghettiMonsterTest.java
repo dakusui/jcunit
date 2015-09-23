@@ -24,7 +24,7 @@ public class FlyingSpaghettiMonsterTest {
   public void test() throws Throwable {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
 
-    this.main.perform(null, sut, Story.createSimpleObserver("main"));
+    FSMUtils.performStory(this, "main", sut);
   }
 
   /**
@@ -40,10 +40,10 @@ public class FlyingSpaghettiMonsterTest {
    * which define the signature of the methods to be tested in the SUT.
    */
   public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
-    @SuppressWarnings("unused") @StateSpec I {
+    @SuppressWarnings("unused") @StateSpec("must NOT be ready") I {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
-        return flyingSpaghettiMonster.isReady();
+        return !flyingSpaghettiMonster.isReady();
       }
 
       @Override
@@ -52,7 +52,7 @@ public class FlyingSpaghettiMonsterTest {
         return FSMUtils.valid(fsm, COOKED, CoreMatchers.startsWith("Cooking"));
       }
     },
-    @StateSpec COOKED {
+    @StateSpec("must be ready") COOKED {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();

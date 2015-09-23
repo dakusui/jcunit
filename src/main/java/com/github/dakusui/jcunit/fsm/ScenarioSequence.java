@@ -17,11 +17,15 @@ public interface ScenarioSequence<SUT> {
       try {
         for (int i = 0; i < this.size(); i++) {
           Scenario<SUT> each = this.get(i);
-
           Expectation.Result result = null;
           observer.run(type, each, sut);
           boolean passed = false;
           try {
+            if (i == 0) {
+              if (!each.given.check(sut)) {
+                throw new Expectation.Result.Builder("Precondition was not satisfied.").addFailedReason(String.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
+              };
+            }
             Object r = each.perform(context, sut);
             passed = true;
             ////
