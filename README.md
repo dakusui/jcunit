@@ -1,15 +1,18 @@
 # JCUnit
-JCUnit is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') technique.
+JCUnit is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') 
+technique.
 About what combinatorial testings are, articles below are useful as a starting point.
 
 * [All-pairs testing](http://en.wikipedia.org/wiki/All-pairs_testing)
 * [Introduction to Combinatorial Testing](http://mse.isri.cmu.edu/software-engineering/documents/faculty-publications/miranda/kuhnintroductioncombinatorialtesting.pdf)
 
-Very roughly to say, it's a technique to generate test cases with good 'coverage' without making the number of test cases explode.
+Very roughly to say, it's a technique to generate test cases with good 'coverage' 
+without making the number of test cases explode.
 
 # First test with JCUnit
 Below is JCUnit's most basic example 'QuadraticEquationSolver.java'.
-Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit will automatically generate test cases based on '@FactorField' annotations.
+Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit will 
+automatically generate test cases based on '@FactorField' annotations.
 
 ## QuadraticEquationSolver program example
 To understand JCUnit's functions, let's test 'QuadraticEquationSolver.java' program, which solves 'quadratic equations' using a formula.
@@ -87,11 +90,14 @@ The class provides a function to solve a quadratic equation using a quadratic fo
 ```
 
 Did you already notice the bugs that this program has?
+
 * It doesn't consider equations that do not have solutions in real.
 * If it's not a quadratic equation but a linear one, how should it behave?
 * Errors. How should it handle errors? To what extent error is acceptable?
-* Overflows. If b * b, 4 * c * a, etc become bigger than Double.MAX_VALUE (or smaller than Double.MIN_VALUE), how should it handle it?
-* Shouldn't we set some limits for a, b, and c? Both to make errors small enough and prevent overflows happen.
+* Overflows. If b * b, 4 * c * a, etc become bigger than Double.MAX_VALUE (or 
+smaller than Double.MIN_VALUE), how should it handle them?
+* Shouldn't we set some limits for a, b, and c? Both to make errors small enough 
+and prevent overflows from happening.
 * etc. (maybe)
 
 Try to find (and reproduce) these bugs using JCUnit and fix them.
