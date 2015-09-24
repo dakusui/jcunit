@@ -49,8 +49,8 @@ public class NestedFSMTest {
 
     @ParametersSpec
     public static final Object[][] cook = new Object[][] {
-        { "spaghetti", "spaghettini", "penne" },
-        { "peperoncino", "carbonara", "meat sauce" },
+        { "spaghetti", "spaghettini"/*, "penne" */},
+        { "peperoncino",  "meat sauce", "carbonara" },
     };
 
     @ActionSpec
