@@ -432,8 +432,21 @@ The output will be a text whose lines are JSON objects and look like,
 ...
 ```
 
-You can refer to an example below for this use case. 
+You can refer to a following example for this use case. 
 * [TestGen.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/testgen/TestGen.java)
+
+## Tip 9: Modeling a finite state machine
+
+Probably your SUT might have a specification where users need to follow a certain 
+manner like "1. You will initialize the object, 2. Now you can do A or B, 3.
+If you did A in step 2, you can do A1, A2, or B1. Otherwise you can only do B1.",
+and A, B, etc can take a few parameters respectively.
+
+You might be able to write a constraint manager to describe this sort of specification
+ but it would be very complicated, boring, and error prone task.
+ 
+JCUnit has a feature called "FSM support" and the detail and how to use it are 
+discussed in a separate document. Please refer to [FSM/JCUnit](FSM-README.md) 
 
 # Examples
 For more examples, see

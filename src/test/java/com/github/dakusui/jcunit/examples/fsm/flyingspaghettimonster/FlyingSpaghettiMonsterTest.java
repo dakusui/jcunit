@@ -17,16 +17,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(JCUnit.class)
 public class FlyingSpaghettiMonsterTest {
-  @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<Spec, FlyingSpaghettiMonster> main;
-
-  @Test
-  public void test() throws Throwable {
-    FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-
-    FSMUtils.performStory(this, "main", sut);
-  }
-
   /**
    * Fields annotated with {@code StateSpec} will be considered states of the FSM.
    * And they must be public, static, final fields, and typed by an enclosing class.
@@ -84,5 +74,14 @@ public class FlyingSpaghettiMonsterTest {
     public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
       return b.invalid().build();
     }
+  }
+
+  @FactorField(levelsProvider = FSMLevelsProvider.class)
+  public Story<Spec, FlyingSpaghettiMonster> main;
+
+  @Test
+  public void test() throws Throwable {
+    FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+    FSMUtils.performStory(this, "main", sut);
   }
 }

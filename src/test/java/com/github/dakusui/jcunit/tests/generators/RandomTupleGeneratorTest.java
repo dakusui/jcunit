@@ -43,7 +43,6 @@ public class RandomTupleGeneratorTest {
     }
   }
 
-
   @RunWith(JCUnit.class)
   @TupleGeneration(
       generator = @Generator(value = RandomTupleGenerator.class, params = {@Param("100"), @Param("1")}),
