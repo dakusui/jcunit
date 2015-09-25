@@ -687,17 +687,16 @@ Values that a tester want to use in tests as arguments of each method are
 A state machine defined above will be translated into a set of factors, shown in 
 a following matrix, by FSM/JCUnit. 
 
-
-| #| Factor               | Levels                                                          |
-|-:| -------------------- |:----------------------------------------------------------------|
-| 1| FSM:myfsm:state:0    | I, S0, S1                                                       |
-| 2| FSM:myfsm:action:0   | cook, drink, eatWith, pay, VOID                                 |
-| 3| FSM:myfsm:param:0:0  | 10, 30, "spaghetti", ..., "fork", ..., "tea", "coffee", or VOID |
-| 4| FSM:myfsm:param:0:1  | "peperoncino","meat sauce", "carbonara", VOID                   |
-| 5| FSM:myfsm:state:0    | I, S0, S1, VOID                                                 |
-| 6| FSM:myfsm:action:1   | cook, drink, eatWith, pay, VOID                                 |
-| 7| FSM:myfsm:param:1:0  | (see above)                                                     |
-| 8| FSM:myfsm:param:1:1  | (see above)                                                     |
+| Factor               | Levels                                                          |
+| -------------------- |:--------------------------------------------------------------- |
+| FSM:myfsm:state:0    | I, S0, S1                                                       |
+| FSM:myfsm:action:0   | cook, drink, eatWith, pay, VOID                                 |
+| FSM:myfsm:param:0:0  | 10, 30, "spaghetti", ..., "fork", ..., "tea", "coffee", or VOID |
+| FSM:myfsm:param:0:1  | "peperoncino","meat sauce", "carbonara", VOID                   |
+| FSM:myfsm:state:0    | I, S0, S1, VOID                                                 |
+| FSM:myfsm:action:1   | cook, drink, eatWith, pay, VOID                                 |
+| FSM:myfsm:param:1:0  | (see above)                                                     |
+| FSM:myfsm:param:1:1  | (see above)                                                     |
 
 
 # Advanced techniques
