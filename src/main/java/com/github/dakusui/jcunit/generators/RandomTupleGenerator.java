@@ -12,9 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * A tuple generator which generates a test suite using random.
+ * A user can specify a random seed to be used in the generation.
+ *
+ * @see RandomTupleGenerator#parameterTypes()
+ */
 public class RandomTupleGenerator extends TupleGeneratorBase {
   private List<Tuple> tests;
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Tuple getTuple(int tupleId) {
     return tests.get(tupleId);

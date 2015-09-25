@@ -8,8 +8,15 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * A tuple generator which generates a test suite each of whose test cases
+ * has only one factor is set to non-default level.
+ *
+ * The default value is the first level of each factor.
+ */
 public class SimpleTupleGenerator extends TupleGeneratorBase {
   private List<Tuple> tests;
+
   /**
    * {@inheritDoc}
    */
@@ -52,6 +59,9 @@ public class SimpleTupleGenerator extends TupleGeneratorBase {
     return b.build();
   }
 
+  /**
+   * A user can configure nothing for this tuple generator.
+   */
   @Override
   public ParamType[] parameterTypes() {
     return new ParamType[0];

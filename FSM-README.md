@@ -571,9 +571,13 @@ You don't need to initialize this field by yourself, JCUnit will do it for you.
 
 A factor field whose ```levelsProvider``` is ```FSMLevelsProvider``` must be typed
 with ```Story<S, SUT>``` where S is a spec class that you defined for the SUT 
-```FSMonster``` in the previous section.
+```FSMonster``` in the previous section. As other regular factors, the field must 
+be public instance member.
 
-As other regular factors, the field must be public instance member.
+In [the next section](#Inside FSM/JCUnit), internal structure of ```Story<S,SUT>```
+ object will be discussed in detail but for now you can consider it is just an object
+that stores a sequence of events (methods) and expected states after they are given
+to the FSM.
 
 ### Instantiating a class
 JCUnit tests an object, not a class. A user needs to create an object to be tested 
@@ -593,11 +597,11 @@ In this subsection, how test requirements, e.g., number of test cases in a test
 suite to be generated, to what extent paths on a SUT's FSM will be covered, etc.,
 can be configured in JCUnit will be discussed.
 
-#### Switch coverage
+### Switch coverage
 In a Japanese book [ソフトウェアテスト技法ドリル(Drills for software testing techniques)][3],
 an idea called 'switch coverage' is discussed (pp. 149).
 
-You can specify switch coverage through ```providerParams```.
+You can specify a number of switches through ```providerParams```.
 
 ```java
 
@@ -606,9 +610,24 @@ You can specify switch coverage through ```providerParams```.
   
 ```
 
-### Test strength 
-#### TupleGenerator
-All-pair (or t-wise) test generation can be very time consuming process.
+Shortly to say, if you specify "2" for this parameter, it means 3 actions (at least) 
+will be executed from a state chosen by FSM/JCUnit as a starting point in a test 
+case. Because during the sequence 2 states are passed through.
+
+By applying combinatorial method to a state machine, FSM/JCUnit generates
+ a test suite with relatively a small (manageable) number. And this means not all
+the possible paths whose length are the same as the number specified by this
+parameter are actually executed unless you are giving the same number as a number
+of all the factors FSM/JCUnit internally creates. 
+
+For more details, refer to [Inside FSM/JCUnit](#Inside FSM/JCUnit) section.
+
+### TupleGenerator
+ All-pair (or t-wise) test generation can be very time consuming process.
+ Some times probably you want to test your SUT more quickly even if you sacrifice
+coverage on your FSM.
+ In such a situation, you can configure your test class to use ```RandomTupleGenerator```
+instead of ```IPO2TupleGenerator```, which is used by default.
 
 ```java
 
@@ -624,9 +643,61 @@ All-pair (or t-wise) test generation can be very time consuming process.
 # Inside FSM/JCUnit
 (t.b.d.)
 
-* Story/ScenarioSequence/Scenario
 * Switch coverage
+* Story/ScenarioSequence/Scenario
 * Internal FSM factors
+
+## Internal FSM factors
+Suppose your FSM has 3 states and 4 actions. And it's named "myfsm".
+And you have configured your test class that the number of switches is 1.
+FSM/JCUnit will create following factors internally.
+
+[Figure 2. State machine for example of factor expansion]
+```
+
+          pay         drink
+      +---------+  +-----------+
+      |         |  |           |
+      V         |  V           |
+    +---+      +----+        +----+
+    | I |----->| S0 |------->| S1 |
+    +---+ cook +----+eatWith +----+
+      |                        A
+      |                        |
+      +------------------------+
+                drink/1
+
+```
+
+And following  is a list of definitions of methods mentioned in the previous diagram.
+Values that a tester want to use in tests as arguments of each method are
+ given in comments.
+
+```java
+
+    public void drink(String beverage)  // beverage can be "tea" or "coffee"
+    public void eatWith(String silver)  // silver can be "fork" or "spoon"
+    public void cook(String pasta, String sauce)
+                                        // pasta can be "spaghetti", "spaghettini", or "penne"
+                                        // sauce can be "peperoncino", "meat sauce", or "carbonara"
+    public void pay(int money)          // money can be 10 or 30.
+
+```
+
+A state machine defined above will be translated into a set of factors, shown in 
+a following matrix, by FSM/JCUnit. 
+
+
+| #| Factor               | Levels                                                          |
+|-:| -------------------- |:----------------------------------------------------------------|
+| 1| FSM:myfsm:state:0    | I, S0, S1                                                       |
+| 2| FSM:myfsm:action:0   | cook, drink, eatWith, pay, VOID                                 |
+| 3| FSM:myfsm:param:0:0  | 10, 30, "spaghetti", ..., "fork", ..., "tea", "coffee", or VOID |
+| 4| FSM:myfsm:param:0:1  | "peperoncino","meat sauce", "carbonara", VOID                   |
+| 5| FSM:myfsm:state:0    | I, S0, S1, VOID                                                 |
+| 6| FSM:myfsm:action:1   | cook, drink, eatWith, pay, VOID                                 |
+| 7| FSM:myfsm:param:1:0  | (see above)                                                     |
+| 8| FSM:myfsm:param:1:1  | (see above)                                                     |
 
 
 # Advanced techniques
@@ -642,12 +713,20 @@ All-pair (or t-wise) test generation can be very time consuming process.
   under complicated constraints is a very time consuming task. Instead, relying on
   random generation and assessing how much possible value pairs are covered might be
   more practical and good enough.
+* **Simplify test suite generation**: right now (Sep/2015), FSM/JCUnit chooses states
+ not only events as factors. But, except for the first one, states should always be 
+ determined by the previous state and an input symbol (event) given to the FSM.
+ As discussed in [Introduction to Combinatorial Testing][4] (pp.119), in this situation
+ we can exclude them during test suite generation from factors and after the process
+ finishes we can append states determined by previous states and input to each test 
+ case. By this optimization, we should be able to improve FSM/JCUnit's performance.
 
 # References
 * [0] "Wikipedia article about Model-based testing" 
 * [1] "Wikipedia article about Mealy machine"
 * [2] "Wikipedia article about Finite state transducer"
 * [3] "ソフトウェアテスト技法ドリル テスト設計の考え方と実際", 秋山浩一, ISBN97804-8171-9360-5, 日科技連, 2010
+* [4] "Introduction to Combinatorial Testing", D. Richard Kuhn, Raghu N. Kacker, Yu Lei, CRC Press, 2013
 
 [0]: https://en.wikipedia.org/wiki/Model-based_testing
 [1]: http://en.wikipedia.org/wiki/Mealy_machine
