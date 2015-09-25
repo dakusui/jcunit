@@ -498,7 +498,7 @@ first argument. Of course the rest of the array will be treated in the same mann
 i.e., for the method ```cook(String,String)```, one of ```{ "spaghetti", "spaghettini", "penne" }```,
 e.g., ```penne``` will be picked up and given to ```cook```'s first argument.
 For the second parameter, one of ```{ "peperoncino", "carbonara", "meat sauce" }```,
-e.g., ```meat sauce``` will be picked up and used as ```coook```'s second parameter.
+e.g., ```meat sauce``` will be picked up and used as ```cook```'s second parameter.
 
 JCUnit will automatically generates combinations of actual arguments from ```@ParameterSpec```.
 Probably you might get concerned if a method has only several parameters each of which
@@ -551,6 +551,10 @@ now is to define 'test requirements'(2) and 'IXIT'(3).
 and users do not need to pay attention to them unless they want to. 
 
 ## IXIT
+In this sub section, it will be discussed how to let JCUnit generate test cases
+and how to execute those test cases.
+
+### ```Story``` object
 Let JCUnit know a field to store information about what path on FSM diagram should 
 be executed.  
 
@@ -571,13 +575,9 @@ with ```Story<S, SUT>``` where S is a spec class that you defined for the SUT
 
 As other regular factors, the field must be public instance member.
 
-## Test requirements
-```java
-
-    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Param("2") })
-    public Story<Spec, FSMonster> main;
-  
-```
+### Instantiating a class
+JCUnit tests an object, not a class. A user needs to create an object to be tested 
+first.
 
 ```java
 
@@ -586,6 +586,24 @@ As other regular factors, the field must be public instance member.
       FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
       FSMUtils.performStory(this, "main", sut);
     }
+```
+
+## Test requirements
+In this subsection, how test requirements, e.g., number of test cases in a test 
+suite to be generated, to what extent paths on a SUT's FSM will be covered, etc.,
+can be configured in JCUnit will be discussed.
+
+#### Switch coverage
+In a Japanese book [ソフトウェアテスト技法ドリル(Drills for software testing techniques)][3],
+an idea called 'switch coverage' is discussed (pp. 149).
+
+You can specify switch coverage through ```providerParams```.
+
+```java
+
+    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Param("2") })
+    public Story<Spec, FSMonster> main;
+  
 ```
 
 ### Test strength 
@@ -601,13 +619,12 @@ All-pair (or t-wise) test generation can be very time consuming process.
     public static class TestClass1 extends TestClass {
     }
 ```
-#### Switch coverage
-[ソフトウェアテスト技法ドリル(Drills for software testing techniques)][3]
 
 
 # Inside FSM/JCUnit
 (t.b.d.)
 
+* Story/ScenarioSequence/Scenario
 * Switch coverage
 * Internal FSM factors
 
@@ -617,6 +634,14 @@ All-pair (or t-wise) test generation can be very time consuming process.
 
 * Nested FSM
 * Multi-threaded
+
+# Future works
+* **Local constraints**: probably we want to define constraints applied to parameters 
+  of a method. 
+* **Coverage report**: generating test suite which covers all the possible value-pairs
+  under complicated constraints is a very time consuming task. Instead, relying on
+  random generation and assessing how much possible value pairs are covered might be
+  more practical and good enough.
 
 # References
 * [0] "Wikipedia article about Model-based testing" 
