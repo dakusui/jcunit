@@ -4,10 +4,7 @@ import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
-import com.github.dakusui.jcunit.fsm.Expectation;
-import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.Story;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
@@ -99,6 +96,6 @@ public class NestedFSMTest {
   @Test
   public void test2() {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "primary", sut, new Story.Observer.Factory.ForSilent());
+    FSMUtils.performStory(this, "primary", sut, new ScenarioSequence.Observer.Factory.ForSilent());
   }
 }

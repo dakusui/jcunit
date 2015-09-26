@@ -29,7 +29,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMS
   @Override
   public Story<FSMSpec<SUT>, SUT> apply(Tuple tuple) {
     String factorName;
-    Object retObject = tuple.get(factorName = FSMUtils.composeMainScenarioName(this.fsmName));
+    Object retObject = tuple.get(factorName = FSMTupleGenerator.composeMainScenarioName(this.fsmName));
     Checks.checknotnull(retObject, "'%s' was not found in tuple. (%s)", factorName, tuple);
     Checks.checkplugin(
         retObject instanceof Story,
@@ -61,7 +61,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMS
           Checks.checktest(ret >= 0, "switchCoverage must be equal to or greater than 0");
           return ret;
         }
-      },
+      }.withDefaultValue(1),
     };
   }
 

@@ -103,7 +103,7 @@ public abstract class StateRouter<SUT> {
 
       @Override
       public String toString() {
-        return FSMUtils.toString(this);
+        return Utils.toString(this);
       }
     };
   }

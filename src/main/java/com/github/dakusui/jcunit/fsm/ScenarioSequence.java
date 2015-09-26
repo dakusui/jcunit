@@ -3,15 +3,145 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
+import java.io.PrintStream;
+
 /**
  * An interface that represents a sequence of scenarios.
  *
  * @param <SUT> A software (class) under test.
  */
 public interface ScenarioSequence<SUT> {
+  interface Observer {
+    Observer SILENT = new Observer() {
+      @Override
+      public Observer createChild(String childName) {
+        return this;
+      }
+
+      @Override
+      public void startSequence(Type type, ScenarioSequence seq) {
+      }
+
+      @Override
+      public void run(Type type, Scenario scenario, Object o) {
+      }
+
+      @Override
+      public void passed(Type type, Scenario scenario, Object o) {
+      }
+
+      @Override
+      public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
+      }
+
+      @Override
+      public void endSequence(Type type, ScenarioSequence seq) {
+      }
+
+      @Override
+      public void skipSequence(Type type, ScenarioSequence seq) {
+      }
+    };
+
+    <SUT> void startSequence(Type type, ScenarioSequence<SUT> seq);
+
+    <SUT> void run(Type type, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void passed(Type type, Scenario<SUT> scenario, SUT sut);
+
+    <SUT> void failed(Type type, Scenario<SUT> scenario, SUT sut, Expectation.Result result);
+
+    <SUT> void endSequence(Type type, ScenarioSequence<SUT> seq);
+
+    <SUT> void skipSequence(Type type, ScenarioSequence<SUT> seq);
+
+    Observer createChild(String childName);
+
+    interface Factory {
+      Observer createObserver(String fsmName);
+      class ForSilent implements Factory {
+        @Override
+        public Observer createObserver(String fsmName) {
+          return SILENT;
+        }
+      }
+
+      class ForSimple implements Factory {
+        @Override
+        public Observer createObserver(String fsmName) {
+          return Utils.createSimpleObserver(fsmName);
+        }
+      }
+    }
+  }
+
+  class Utils {
+    public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
+      Checks.checknotnull(scenarioSequence);
+      Object[] scenarios = new Object[scenarioSequence.size()];
+      for (int i = 0; i < scenarios.length; i++) {
+        scenarios[i] = scenarioSequence.get(i);
+      }
+      return String.format("ScenarioSequence:[%s]", com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
+    }
+
+    static Observer createSimpleObserver(String fsmName) {
+      return createSimpleObserver(fsmName, System.out);
+    }
+
+    static Observer createSimpleObserver(String fsmName, final PrintStream ps) {
+      Checks.checknotnull(ps);
+      return createSimpleObserver(fsmName, ps, 0);
+    }
+
+    private static Observer createSimpleObserver(final String fsmName, final PrintStream ps, final int generation) {
+      Checks.checknotnull(ps);
+      return new Observer() {
+        private String indent(int level) {
+          return new String(new char[2 * level]).replace("\0", " ");
+        }
+
+        @Override
+        public Observer createChild(String childName) {
+          return createSimpleObserver(childName, ps, generation + 1);
+        }
+
+        @Override
+        public void startSequence(Type type, ScenarioSequence scenarioSequence) {
+          ps.printf("%sStarting(%s#%s):%s\n", indent(generation), fsmName, type, scenarioSequence);
+        }
+
+        @Override
+        public void run(Type type, Scenario scenario, Object o) {
+          ps.printf("%sRunning(%s#%s):%s expecting %s\n", indent(generation + 1), fsmName, type, scenario, scenario.then());
+        }
+
+        @Override
+        public void passed(Type type, Scenario scenario, Object o) {
+          ps.printf("%sPassed(%s#%s)\n", indent(generation + 1), fsmName, type);
+        }
+
+        @Override
+        public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
+          ps.printf("%sFailed(%s#%s): %s\n", indent(generation + 1), fsmName, type, result.getMessage());
+        }
+
+        @Override
+        public void endSequence(Type type, ScenarioSequence seq) {
+          ps.printf("%sEnd(%s#%s)\n", indent(generation), fsmName, type);
+        }
+
+        @Override
+        public void skipSequence(Type type, ScenarioSequence seq) {
+          ps.printf("%sSkip(%s#%s)\n", indent(generation), fsmName, type);
+        }
+      };
+    }
+  }
   abstract class Base<SUT> implements ScenarioSequence<SUT> {
+
     @Override
-    public <T> void perform(T context, String name, Type type, SUT sut, Story.Observer observer) {
+    public <T> void perform(T context, String name, Type type, SUT sut, Observer observer) {
       Checks.checknotnull(observer);
       observer.startSequence(type, this);
       try {
@@ -72,13 +202,13 @@ public interface ScenarioSequence<SUT> {
 
     @Override
     public String toString() {
-      return FSMUtils.toString(this);
+      return Utils.toString(this);
     }
   }
 
   ScenarioSequence<?> EMPTY = new ScenarioSequence() {
     @Override
-    public void perform(Object context, String name, Type type, Object sut, Story.Observer observer) {
+    public void perform(Object context, String name, Type type, Object sut, Observer observer) {
       // Does nothing since this is an emptry scenario object.
       observer.skipSequence(type, this);
     }
@@ -129,7 +259,7 @@ public interface ScenarioSequence<SUT> {
    *
    * @param sut An objects that represents software under test.
    */
-  <T> void perform(T context, String name, Type type, SUT sut, Story.Observer observer);
+  <T> void perform(T context, String name, Type type, SUT sut, Observer observer);
 
   /**
    * Returns the number of scenarios in this sequence
@@ -287,7 +417,7 @@ public interface ScenarioSequence<SUT> {
 
         @Override
         public String toString() {
-          return FSMUtils.toString(this);
+          return Utils.toString(this);
         }
       };
     }

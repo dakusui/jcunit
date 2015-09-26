@@ -1,9 +1,11 @@
 package com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster;
 
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit.fsm.Expectation;
+import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
+import com.github.dakusui.jcunit.fsm.FSMUtils;
+import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
@@ -30,7 +32,7 @@ public class FlyingSpaghettiMonsterTest {
    * which define the signature of the methods to be tested in the SUT.
    */
   public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
-    @SuppressWarnings("unused") @StateSpec("must NOT be ready") I {
+    @SuppressWarnings("unused") @StateSpec("must NOT be ready")I {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return !flyingSpaghettiMonster.isReady();
@@ -41,7 +43,7 @@ public class FlyingSpaghettiMonsterTest {
         return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
       }
     },
-    @StateSpec("must be ready") COOKED {
+    @StateSpec("must be ready")COOKED {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();

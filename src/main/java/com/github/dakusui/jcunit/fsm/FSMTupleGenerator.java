@@ -36,6 +36,10 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     return b.setBaseFactors(baseFactors).build();
   }
 
+  public static String composeMainScenarioName(String fsmName) {
+    return String.format("FSM:main:%s", fsmName);
+  }
+
   @Override
   protected long initializeTuples(Object[] params) {
     Factors baseFactors = baseTupleGeneratorBuilder.getFactors();
@@ -99,7 +103,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
       Tuple.Builder b = new Tuple.Builder();
       for (String fsmName : fsms.keySet()) {
         StateRouter router = routerMap.get(fsmName);
-        String mainScenarioFactorName = FSMUtils.composeMainScenarioName(fsmName);
+        String mainScenarioFactorName = composeMainScenarioName(fsmName);
         ScenarioSequence<Object> mainScenarioSequence = each.get(fsmName);
         @SuppressWarnings("unchecked")
         ScenarioSequence<Object> setUp = router.routeTo(mainScenarioSequence.state(0));

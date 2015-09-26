@@ -21,6 +21,10 @@ import java.util.Map;
 public class TupleGeneratorFactory {
   public static final TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory();
 
+  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
+    return new SimpleFSM<SUT>(fsmName, fsmSpecClass, historyLength);
+  }
+
   /**
    * Creates a {@code TupleGenerator} using annotations attached to the class
    * for which the returned generator is created.
@@ -118,7 +122,7 @@ public class TupleGeneratorFactory {
     Checks.checknotnull(f);
     Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
     //noinspection unchecked
-    return FSMUtils.createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz, switchCoverage + 1);
+    return createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz, switchCoverage + 1);
   }
 
   private static void validateFSMFactorField(Errors.Builder errors, Field f) {
@@ -178,6 +182,7 @@ public class TupleGeneratorFactory {
       }
     }
     if (invalidTestException.hasChildren()) {
+      invalidTestException.fillInStackTrace();
       throw invalidTestException;
     }
     // //

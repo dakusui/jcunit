@@ -117,7 +117,7 @@ public class Expectation<SUT> {
     this.checker = checker;
   }
 
-  public <T> Result checkThrownException(T context, SUT sut, Throwable thrownException, Story.Observer observer) {
+  public <T> Result checkThrownException(T context, SUT sut, Throwable thrownException, ScenarioSequence.Observer observer) {
     Checks.checknotnull(sut);
     //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
@@ -139,7 +139,7 @@ public class Expectation<SUT> {
     return b.build();
   }
 
-  public <T> Result checkReturnedValue(T context, SUT sut, Object returnedValue, Story.Observer observer) {
+  public <T> Result checkReturnedValue(T context, SUT sut, Object returnedValue, ScenarioSequence.Observer observer) {
     Checks.checknotnull(sut);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
     if (this.type != Type.VALUE_RETURNED) {
@@ -270,7 +270,7 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public <T> boolean check(T context, Object item, Story.Observer observer) {
+      public <T> boolean check(T context, Object item, ScenarioSequence.Observer observer) {
         return this.matcher.matches(item);
       }
 
@@ -289,7 +289,7 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public <T> boolean check(T context, Object item, Story.Observer observer) {
+      public <T> boolean check(T context, Object item, ScenarioSequence.Observer observer) {
         Checks.checknotnull(context);
         Story story = lookupStory(context, this.fsmName);
         if (!Checks.checknotnull(story).isPerformed()) {
@@ -329,7 +329,7 @@ public class Expectation<SUT> {
      * @param item     An item to be checked.
      * @param observer An observer to which the checking result will be reported.
      */
-    <T> boolean check(T context, Object item, Story.Observer observer);
+    <T> boolean check(T context, Object item, ScenarioSequence.Observer observer);
 
     String format();
   }
