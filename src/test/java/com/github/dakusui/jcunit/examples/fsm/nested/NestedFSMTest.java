@@ -87,15 +87,15 @@ public class NestedFSMTest {
   @Test
   public void test1() {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "primary", sut);
-    if (!this.nested.isPerformed()) {
-      FSMUtils.performStory(this, "nested", "Cooking spaghetti meat sauce");
-    }
+    FSMUtils.performStory(this, "primary", sut, new ScenarioSequence.Observer.Factory.ForSilent());
   }
 
   @Test
   public void test2() {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "primary", sut, new ScenarioSequence.Observer.Factory.ForSilent());
+    FSMUtils.performStory(this, "primary", sut);
+    if (!this.nested.isPerformed()) {
+      FSMUtils.performStory(this, "nested", "Cooking spaghetti meat sauce");
+    }
   }
 }

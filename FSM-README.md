@@ -1,5 +1,6 @@
 # Introduction
-FSM support of JCUnit (FSM/JCUnit) offers you automated 'Model-based testing' functionality. 
+FSM support of JCUnit (FSM/JCUnit) offers you automated 'Model-based testing' functionality
+for Java classes. 
 The basic idea is to let users model their SUT(System under test)s as finite state 
 machines and the other things should be taken care of by computers.
 
@@ -13,13 +14,13 @@ and IXIT, which stands for "Implementation extra information".
 [FIG.0] "Model-based testing pipeline and JCUnit's process"
 ```
 
-                                              (1)User
+                                    (1)User
                                     +---------------+
                                     |     Model     |
                                     +---------------+
                                             |       Inside FSM/JCUnit
                          +------------------------------------------+
-                (2)User  |                  V  JCUnit               |
+    (2)User              |                  V  JCUnit               |
     +-----------------+  |         +---------------+                |
     |Test requirements|--|-------->|Test derivation|                |
     +-----------------+  |         +---------------+                |
@@ -211,12 +212,12 @@ in ```COOKED``` state, you can do following
 
     public enum Spec implements FSMSpec<FSMonster> {
       @StateSpec I {
-        @Override public boolean check(FlyingSpaghettiMonster fsm) {
+        @Override public boolean check(FSMonster fsm) {
           return !fsm.isReady();
         }
       },
       @StateSpec COOKED {
-        @Override public boolean check(FlyingSpaghettiMonster fsm) {
+        @Override public boolean check(FSMonster fsm) {
           return fsm.isReady();
         }
       },;
@@ -225,8 +226,9 @@ in ```COOKED``` state, you can do following
 
 ```
 
-If there is not an easy (and safe) way to check it, simply you can return ```true```
-always like following.
+But this is actually a part of 'IXIT', which should be discussed in [a later section](#Running tests).
+For now, define it at one level upper and let it return ```true``` always. 
+
 
 ```java
 
@@ -238,41 +240,6 @@ always like following.
     }
 
 ```
-
-Without making sure the SUT is in expected state, should we really return OK?
-Yes, it's inevitable.
-
-If the SUT has ```getState()```, it would be good to write something like following,
-
-```java
-
-    @StateSpec I {
-      @Override public boolean check(FlyingSpaghettiMonster fsm) {
-        return "Initial".equals(fsm.getState().getName());
-      }
-    },
-    @StateSpec COOKED {
-      @Override public boolean check(FlyingSpaghettiMonster fsm) {
-        return "Cooked".equals(fsm.getState().getName());
-      }
-    },;
-
-```
-
-But it is not necessarily the case always, and more importantly the FSM we modeled
-first (Figure. 1) is independent of its actual implementation. Even if "getState()"
-method is provided, is the method really giving a correct state always? Isn't it
-what we are very testing?
-Yes, if it is giving a state different from expectation, the SUT might be actually
-in wrong state. Or it might be a bug where it is not giving a correct state. Either
-way, we can say that it's a bug. Therefore, it's a good idea to check if the returned
-state is correct.
-But even if it is giving an expected state, it might be just deceiving us. What
-we can do here is to check SUT's state if it violates any known constraints derived
-from its specification at most.
-Of course, if there is a very good way to make sure if and only if the SUT is in the state,
-you should implement it in the 'check' method.
-
 
 ## Modeling actions
 As we already mentioned, if it is not explicitly allowed in a state machine diagram,
@@ -294,7 +261,7 @@ Therefore, we should test if 'eat' on 'I' and 'cook' on 'COOKED' result in error
 
 ```
 
-The idea that 'unless it is explicitly allowed, it should result in an error' can
+The idea that unless it is explicitly allowed, it should result in an error' can
 be expressed in a following way.
 
 [CODE.4] "Implementing actions (1) Defining default behaviours"
@@ -323,17 +290,11 @@ And then you will override these methods in the states accordingly.
 
     public enum Spec implements FSMSpec<FSMonster> {
       @StateSpec I {
-        @Override public boolean check(FlyingSpaghettiMonster fsm) {
-          return !fsm.isReady();
-        }
         @Override public Expectation<FSMonster> cook(Expectation.Builder<FSMonster> b) {
           return b.valid(COOKED).build();
         }
       },
       @StateSpec COOKED {
-        @Override public boolean check(FlyingSpaghettiMonster fsm) {
-          return fsm.isReady();
-        }
         @Override public Expectation<FSMonster> eat(Expectation.Builder<FSMonster> b) {
           return b.valid(COOKED).build();
         }
@@ -344,6 +305,9 @@ And then you will override these methods in the states accordingly.
       }
       @ActionSpec public Expectation<FSMonster> eat(Expectation.Builder<FSMonster> b) {
         return b.invalid().build();
+      }
+      @Override public boolean check(FlyingSpaghettiMonster fsm) {
+        return true;
       }
     }
 
@@ -556,10 +520,24 @@ now is to define 'test requirements'(2) and 'IXIT'(3).
 and users do not need to pay attention to them unless they want to. 
 
 ## IXIT
-In this sub section, it will be discussed how to let JCUnit generate executable
-test cases and how to execute those test cases.
+Other Model-based testing solutions, e.g., [ModelJUnit][6] and [GraphWalker][8],
+usually require users to implement adapters to talk to their SUTs.
+FSM/JCUnit, since it automatically determines a method to be executed in SUT, which 
+is assumed to be a Java object, based on an action's name and its signature in model 
+side, users do not need to write adapters almost at all.
 
-### ```Story``` object
+The only thing a user needs to do in order to run the generated test suite is
+to call a method ```FSMUtils.perform```. The procedure is straightforward and
+discussed in this subsection. See [Performing a story] chapter. The author believes 
+this characteristic makes it a lot easiew to start trying Model-based testing with 
+FSM/JCUnit.
+
+That being said, implementing ```check(SUT)`` method in each state in the model
+ will be very helpful for some reasons. The background and how to implement the
+  method will be discussed in a chapter [Implementing check method].
+ 
+
+### Performing a story
 Let JCUnit know a field to store information about what path on FSM diagram should 
 be executed.  
 
@@ -570,12 +548,12 @@ be executed.
   
 ```
 
-```Spec``` is the (enum) class we have modeled our FSM in the previous section.
+```Spec``` is the (enum) class that models our FSM in the previous section.
 And ```FSMonster``` is the class of our SUT.
 You don't need to initialize this field by yourself, JCUnit will do it for you.
 
 A factor field whose ```levelsProvider``` is ```FSMLevelsProvider``` must be typed
-with ```Story<S, SUT>``` where S is a spec class that you defined for the SUT 
+with ```Story<S, SUT>``` where ```S``` is a spec class that you defined for the SUT 
 ```FSMonster``` in the previous section. As other regular factors, the field must 
 be public instance member.
 
@@ -584,29 +562,104 @@ In [the next section](#Inside FSM/JCUnit), internal structure of ```Story<S,SUT>
 that stores a sequence of events (methods) and expected states after they are given
 to the FSM.
 
-### Instantiating a class and perform a test story
-JCUnit tests an object, not a class. A user needs to create an object to be tested 
-first.
+Now you can perform the story you have declared in the test class by just writing 
+following code.
 
 ```java
 
     @Test
     public void test() throws Throwable {
       FSMonster sut = new FSMonster();
-      ...
-    
-```
-
-And then you can perform the story you have declared in the previous chapter.
-
-```java
-
-      ...
-      FSMonster sut = new FSMonster();
       FSMUtils.performStory(this, "main", sut);
     }
     
 ```
+
+
+### Implementing check method
+If there is not an easy (and safe) way to check it, simply you can return ```true```
+always like following.
+
+```java
+
+    public enum Spec implements FSMSpec<FSMonster> {
+      ...
+      public boolean check(FSMonster fsm) {
+          return true.
+      }
+    }
+
+```
+
+But from a debugging perspective, defining ```check(SUT)``` method in each state
+as much as possible is a very good idea. 
+
+
+```java
+
+    public enum Spec implements FSMSpec<FSMonster> {
+      @StateSpec I {
+        @Override public boolean check(FlyingSpaghettiMonster fsm) {
+          return !fsm.isReady();
+        }
+      },
+      @StateSpec COOKED {
+        @Override public boolean check(FlyingSpaghettiMonster fsm) {
+          return fsm.isReady();
+        }
+      },;
+      ...
+    }
+
+```
+
+FSM/JCUnit makes sure if the method ```check(SUT)``` returns ```true``` whenever it
+ performs a scenario.
+ Since even if it doesn't check it, some expectation for returned values or exceptions 
+would be broken later on in case your SUT has a bug, it is not mandatory to implement 
+the method. 
+But you probably want to know from what point SUT's internal state becomes different 
+from the expected one as immediately as possible. Otherwise, you will need to figure 
+out what really happened to the SUT, e.g., oh the returned value became unexpected 
+from this point on. This would mean some internal information of my FSM was broken 
+before this action but this action itself doesn't modify the object's state. Then 
+let's go back to even one previous before it... 
+
+On the other hand, without making sure the SUT is in expected state, should we 
+really return ```true```?
+Yes, it's inevitable at least in some cases.
+
+If the SUT has ```getState()```, it would be good to write something like following,
+
+```java
+
+    @StateSpec I {
+      @Override public boolean check(FlyingSpaghettiMonster fsm) {
+        return "Initial".equals(fsm.getState().getName());
+      }
+    },
+    @StateSpec COOKED {
+      @Override public boolean check(FlyingSpaghettiMonster fsm) {
+        return "Cooked".equals(fsm.getState().getName());
+      }
+    },;
+
+```
+
+But it is not necessarily the case always, a developer might not draw or might not
+be able to draw state machine diagram for some reasons, you might be testing a 
+class someone you don't know, etc. 
+And more importantly, the FSM we modeled first [FIG.1] is independent of its actual 
+implementation. Even if "getState()" method is provided, is the method really giving 
+a correct state always? Isn't it what we are very testing?
+If it is giving a state different from expectation, the SUT might be actually
+in wrong state. Or it might be a bug where it is not giving a correct state. Either
+way, we can say that it's a bug. Therefore, it's a good idea to check if the returned
+state is correct.
+But even if it is giving an expected state, it might be just deceiving us by a bug. 
+Thus, what we can/should do here is to check SUT's state if it violates any known 
+constraints derived from its other behaviours. In our example above, it is the value 
+returned by ```isReady``` method.
 
 ## Test requirements
 In this subsection, how test requirements, e.g., number of test cases in a test 
@@ -971,7 +1024,7 @@ a following matrix, by FSM/JCUnit.
 | FSM:myfsm:param:0:0  | 1, 10, 30, "spaghetti", ..., 2, "tea", "coffee", or VOID        |
 | FSM:myfsm:param:0:1  | "peperoncino","meat sauce", "carbonara", VOID                   |
 | FSM:myfsm:state:1    | I, S0, S1, VOID                                                 |
-| FSM:myfsm:action:1   | cook, drink, eatWith, pay, VOID                                 |
+| FSM:myfsm:action:1   | cook, drink, eat, pay, VOID                                     |
 | FSM:myfsm:param:1:0  | (see above)                                                     |
 | FSM:myfsm:param:1:1  | (see above)                                                     |
 
@@ -990,10 +1043,126 @@ and 'FSM:myfsm:action:0' is 'pay', this test case must be wrong" (actual checkin
 # Advanced techniques
 (t.b.d.)
 
-* Nested FSM
-* Multi-threaded
-* SUT adapter
-* Offline testing
+## Nested FSM
+In real world, things are nested. In FSMs it is so, too. An object with states has 
+a ```createXyz``` method. And then the returned object by the method has its own 
+states, too.
+
+FSM/JCUnit supports this sort of structure. Suppose that we are going to test
+an FSM that creates another one, and we want to test both of them.
+[FIG.5] shows an example for this situation.
+
+
+[FIG.5] "Nested FSM"
+```
+
+    primary FSM
+                                +--+
+                                |  |eat 
+                                |  V 
+    +-----+                   +------+
+    |  I  |------------------>|COOKED|
+    +-----+ cook(pasta,sauce) +------+
+                                |  A
+                                |  |cook(pasta,sauce): nested FSM
+                                +--+
+    nested FSM
+   
+
+     +---+
+     |   |toString
+     |   V
+    +-----+
+    |  I  |
+    +-----+
+
+```
+
+In order to implement tests for these FSM, things to be done are described in [CODE.6].
+
+[CODE.6] "Nested FSM example"
+```java
+
+    /**
+     * Spec of parent FSM. This create a child FSM to be tested when cook method
+     * is called on COOKED state.
+     */
+    public enum Spec implements FSMSpec<FSMonster> {
+      @StateSpec I {
+        ...
+      },
+      @StateSpec COOKED {
+        ...
+        @Override
+        public Expectation<FSMonster> cook(Expectation.Builder<FSMonster> b, String dish, String sauce) {
+          ////
+          //  (*) Building an Expectation object for nested FSM. 
+          return b.valid(this, new Expectation.Checker.FSM("nested")).build();
+        }        
+      }
+
+
+    /**
+     * Spec of nested FSM, in this case a string, which is immutable and its
+     * spec as FSM is trivial.
+     */
+    public enum NestedSpec implements FSMSpec<String> {
+      ...
+    }
+
+    @FactorField(levelsProvider = FSMLevelsProvider.class)
+    public Story<Spec, FlyingSpaghettiMonster> primary;
+    
+    @FactorField(levelsProvider = FSMLevelsProvider.class)
+    public Story<NestedSpec, String> nested;
+    
+    @Test
+    public void test1() {
+      FSMonster sut = new FSMonster();
+      FSMUtils.performStory(this, "primary", sut, new ScenarioSequence.Observer.Factory.ForSilent());
+    }
+
+```
+
+The line commented "(*) Building an Expectation object for nested FSM" is the trick.
+By doing this, you are able to let FSM/JCUnit know the returned expectation is
+for another FSM. And the argument ```"nested"``` is a name of the ```Story``` field 
+you want to let FSM/JCUnit perform.
+
+If a user creates a cyclic link, what will happen?
+Don't worry ```FSMUtils.performStory``` executes a story at most once by checking 
+```Story``` object's state.
+
+And as usual, you can now perform the story by doing ```test1()```.
+
+But it might be a good idea to do following because, as it is mentioned, ```FSMUtils.performStory```
+method tries 'at most' once each story. It means that if the story doesn't execute
+```cook``` method on ```COOKED``` state, the nested FSM will not be tested in the
+test case.
+
+
+```java
+
+      @Test
+      public void test2() {
+        FSMonster sut = new FSMonster();
+        FSMUtils.performStory(this, "primary", sut);
+        if (!this.nested.isPerformed()) {
+          FSMUtils.performStory(this, "nested", "Cooking spaghetti meat sauce");
+        }
+      }
+```
+
+Working example is found [here](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/fsm/nested/NestedFSMTest.java).
+
+
+
+## Multi-threaded
+(t.b.d.)
+## SUT adapter
+(t.b.d.)
+## Offline testing
+(t.b.d.)
 
 # Future works
 * **Local constraints**: probably we want to define constraints applied to parameters 
@@ -1019,7 +1188,9 @@ and 'FSM:myfsm:action:0' is 'pay', this test case must be wrong" (actual checkin
 * [3] "ソフトウェアテスト技法ドリル テスト設計の考え方と実際", 秋山浩一, ISBN97804-8171-9360-5, 日科技連, 2010
 * [4] "Introduction to Combinatorial Testing", D. Richard Kuhn, Raghu N. Kacker, Yu Lei, CRC Press, 2013
 * [5] "ModelJUnit"
-* [6] Model Based Testing (MBT), hcltech.com
+* [6] "Model Based Testing (MBT)", hcltech.com
+* [7] "Practical Model-Based Testing - a tools approach"
+* [8] "GraphWalker"
 
 [0]: http://en.wikipedia.org/wiki/Model-based_testing
 [1]: http://en.wikipedia.org/wiki/Mealy_machine
@@ -1028,3 +1199,5 @@ and 'FSM:myfsm:action:0' is 'pay', this test case must be wrong" (actual checkin
 [4]: http://books.rakuten.co.jp/rk/bac16b7ae73b3e53b076cc479a7e870a/
 [5]: http://sourceforge.net/projects/modeljunit/
 [6]: http://www.hcltech.com/white-papers/engineering-services/model-based-testing
+[7]: http://books.rakuten.co.jp/rk/9c45f93d48a24f7d8541d2271b183294/
+[8]: http://graphwalker.org/
