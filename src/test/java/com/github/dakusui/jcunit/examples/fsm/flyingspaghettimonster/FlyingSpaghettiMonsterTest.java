@@ -32,7 +32,7 @@ public class FlyingSpaghettiMonsterTest {
    * which define the signature of the methods to be tested in the SUT.
    */
   public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
-    @SuppressWarnings("unused") @StateSpec("must NOT be ready")I {
+    @SuppressWarnings("unused") @StateSpec/*("must NOT be ready")*/I {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return !flyingSpaghettiMonster.isReady();
@@ -43,7 +43,7 @@ public class FlyingSpaghettiMonsterTest {
         return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
       }
     },
-    @StateSpec("must be ready")COOKED {
+    @StateSpec/*("must be ready")*/COOKED {
       @Override
       public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
         return flyingSpaghettiMonster.isReady();
@@ -79,11 +79,11 @@ public class FlyingSpaghettiMonsterTest {
   }
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<Spec, FlyingSpaghettiMonster> main;
+  public Story<Spec, FlyingSpaghettiMonster> primary;
 
   @Test
   public void test() throws Throwable {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "main", sut);
+    FSMUtils.performStory(this, "primary", sut);
   }
 }

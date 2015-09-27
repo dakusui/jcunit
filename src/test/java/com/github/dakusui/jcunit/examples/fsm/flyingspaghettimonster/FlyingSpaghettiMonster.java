@@ -20,4 +20,8 @@ public class FlyingSpaghettiMonster {
   public boolean isReady() {
     return dish != null;
   }
+
+  public String toString() {
+    return String.format("%s@%s(%s)", this.getClass().getSimpleName(), System.identityHashCode(this), this.isReady());
+  }
 }

@@ -137,8 +137,8 @@ Let's go back to the diagram [FIG.1], as we already saw, there are 2 states and 
 In JCUnit, to model a finite state machine, you need to implement ```FSMSpec<SUT>```
 interface. ```SUT``` is a class name of your software under test.
 And inside your implementation, you will use a few annotations, ```@StateSpec```, ```@ActionSpec```,
-and ```@ParameterSpec```. Only first two will be necessary to model the machine 
-and ```@ParameterSpec``` will be discussed later to model an action with parameters.
+and ```@ParametersSpec```. Only first two will be necessary to model the machine 
+and ```@ParametersSpec``` will be discussed later to model an action with parameters.
 
 ```public static final``` fields annotated with ```@StateSpec``` will be treated 
 as states by JCUnit.
@@ -381,7 +381,8 @@ library, which is used in JUnit itself.
 
 ### About the finite state machine model we are using
 As you may noticed, you can test a method which returns a different value when the
-state machine is in a different state.
+state machine is in a different state by overriding ```@ActionSpec``` annotated
+method differently in states.
 
 ```java
 
@@ -423,11 +424,11 @@ and [Finite state transducer][2]).
 Following is a matrix that summarizes specifications of annotations used to model
 FSMs.
 
-| Annotation     | Target  | Modifiers           | Type                   |
-| -------------- |:-------:|:------------------- |:----------------------:|
-| @StateSpec     | Field   | public static final | Enclosing class        |
-| @ActionSpec    | Method  | public              | Expectation&lt;SUT&gt; |
-| @ParameterSpec | Field   | public static final | Object[][]             |
+| Annotation      | Target  | Modifiers           | Type                   |
+| --------------- |:-------:|:------------------- |:----------------------:|
+| @StateSpec      | Field   | public static final | Enclosing class        |
+| @ActionSpec     | Method  | public              | Expectation&lt;SUT&gt; |
+| @ParametersSpec | Field   | public static final | Object[][]             |
 
 A list of behaviours of those annotations follows. 
 
@@ -439,13 +440,13 @@ in the enclosing class and annotated with ```@ActionSpec```)
 the method you are going to model by it. The first parameter must be ```Expectation.Builder<SUT>```.
 And the rest of the parameters must exactly be the same as ones of the method 
 to be tested in SUT.
-* **```@ParameterSpec```**: A field annotated with this defines arguments given 
+* **```@ParametersSpec```**: A field annotated with this defines arguments given 
 to a method which has the same name as it. The first argument will be picked up from
  the first array,  the second argument will be from the second array.
 This manner will be followed to the last element, respectively.
 
 ### Testing a method with parameters
-Methods have parameters. JCUnit has another annotation ```@ParameterSpec``` to define 
+Methods have parameters. JCUnit has another annotation ```@ParametersSpec``` to define 
 arguments given to actions that represent methods.
 
 ```
@@ -504,7 +505,7 @@ e.g., ```penne``` will be picked up and given to ```cook```'s first argument.
 For the second parameter, one of ```{ "peperoncino", "carbonara", "meat sauce" }```,
 e.g., ```meat sauce``` will be picked up and used as ```cook```'s second parameter.
 
-JCUnit will automatically generates combinations of actual arguments from ```@ParameterSpec```.
+JCUnit will automatically generates combinations of actual arguments from ```@ParametersSpec```.
 Probably you might get concerned if a method has only several parameters each of which
 has only several possible values, it results in a thousands of test cases.
 But it will not happen usually, because JCUnit applies all-pair techniques here.
@@ -655,17 +656,17 @@ instead of ```IPO2TupleGenerator```, which is used by default.
 ```
 
 
-# Reading reports
+# Reviewing reports
 When you run a test, JCUnit will generate a report as follows.
 
 ```
 
      1:Starting(primary#setUp):ScenarioSequence:[I#cook(spaghettini,carbonara)]
-     2:  Running(primary#setUp):I#cook(spaghettini,carbonara) expecting status of 'main' is 'COOKED' and a string starting with "Cooking" is returned
+     2:  Running(primary#setUp):I#cook(spaghettini,carbonara) expecting status of 'primary' is 'COOKED' and a string starting with "Cooking" is returned
      3:  Passed(primary#setUp)
      4:End(primary#setUp)
      5:Starting(primary#main):ScenarioSequence:[COOKED#cook(spaghetti,peperoncino),COOKED#eat()]
-     6:  Running(primary#main):COOKED#cook(spaghetti,peperoncino) expecting status of 'main' is 'COOKED' and a string starting with "Cooking" is returned
+     6:  Running(primary#main):COOKED#cook(spaghetti,peperoncino) expecting status of 'primary' is 'COOKED' and a string starting with "Cooking" is returned
      7:  Passed(primary#main)
      8:  Running(primary#main):COOKED#eat() expecting status of 'main' is 'COOKED' and a string containing "yummy" is returned
      9:  Passed(primary#main)
@@ -724,6 +725,76 @@ state as you see following.
 This line explains the main scenario sequence is going to perform ```cook``` with
  arguments and then perform another ```eat``` action again. 
 
+## Execution report
+Following will be output during test case execution.
+According to the line 5, 2 scenarios are going to be executed in this sequence, 
+```cook(pasta,sauce)``` and ```eat```.
+
+```
+
+     5:Starting(primary#main):ScenarioSequence:[COOKED#cook(spaghetti,peperoncino),COOKED#eat()]
+     6:  Running(primary#main):COOKED#cook(spaghetti,peperoncino) expecting status of 'primary' is 'COOKED' and a string starting with "Cooking" is returned
+     7:  Passed(primary#main)
+     8:  Running(primary#main):COOKED#eat() expecting status of 'primary' is 'COOKED' and a string containing "yummy" is returned
+     9:  Passed(primary#main)
+    10:End(primary#main)
+    
+```
+
+line 6 and 6 shows what FSM/JCUnit is going to do and what it is expecting as a 
+result of those scenarios.
+
+Pick up line 6.
+
+```
+
+     6:  Running(primary#main):COOKED#cook(spaghetti,peperoncino) expecting \ 
+             status of 'primary' is 'COOKED' and a string starting with "Cooking" is returned
+```
+
+It is almost what it is.
+FSM/JCUnit is going to run a scenario ```cook``` with arguments ```spaghetti``` and 
+```peperoncino```. And it expects that the SUT remains ```COOKED``` state and the
+method returns a string that starts with ```Cooking```.
+
+If the SUT's behaviour doesn't meet this expectation we will receive following output.
+
+```
+
+    Starting(primary#main):ScenarioSequence:[I#cook(spaghetti,peperoncino)]
+      Running(primary#main):I#cook(spaghetti,peperoncino) expecting status of 'primary' is 'COOKED' and a string starting with "Cooking" is returned
+      Failed(primary#main): Expectation was not satisfied: ['a string starting with "Cooking"' is expected to be returned but 'Creating spaghetti peperontino' was returned.]
+    End(primary#main)
+
+    com.github.dakusui.jcunit.fsm.Expectation$Result: Expectation was not satisfied: ['a string starting with "Cooking"' is expected to be returned but 'Creating spaghettini carbonara' was returned.]
+        at com.github.dakusui.jcunit.fsm.Expectation$Result.throwIfFailed(Expectation.java:235)
+        at com.github.dakusui.jcunit.fsm.ScenarioSequence$Base.perform(ScenarioSequence.java:184)
+        at com.github.dakusui.jcunit.fsm.Story.perform(Story.java:26)
+```
+
+As you can see, the message is self-descriptive.
+
+```
+
+      Failed(primary#main): Expectation was not satisfied: \ 
+          ['a string starting with "Cooking"' is expected to be returned but 'Creating spaghetti peperoncino' was returned.]
+
+```
+
+In this case, in spite that we are expecting a string which starts with "Cooking", 
+but the returned one was starting with "Creating". 
+
+In case a state error is detected, the message will be like this
+
+```
+
+    [FSM 'primary' is expected to be in 'COOKED' state but not.(actual='FlyingSpaghettiMonster@1197515375(false)')]
+
+```
+
+The portion ```actual='FlyingSpaghettiMonster@1197515375(false)'``` is printed by
+```toString``` method. So it is a good idea to override ```toString``` method in your
+SUT to return a string that represents the object's internal state.
 
 # Inside FSM/JCUnit
 In this section, following technical details will be discussed.
@@ -784,17 +855,17 @@ Also as discussed in the previous section,
 
 ```java
 
-  @Test
-  public void test() {
-    FSMonster sut = new FSMonster();
-    FSMUtils.performStory(this, "main", sut);
-  }
+    @Test
+    public void test() {
+      FSMonster sut = new FSMonster();
+      FSMUtils.performStory(this, "main", sut);
+    }
 
 ```
  
  
 
-Following is a excerpt from [CODE.2](#CODE.2).
+Following is an excerpt from [CODE.2](#CODE.2).
 
 ```java
 
@@ -921,6 +992,8 @@ and 'FSM:myfsm:action:0' is 'pay', this test case must be wrong" (actual checkin
 
 * Nested FSM
 * Multi-threaded
+* SUT adapter
+* Offline testing
 
 # Future works
 * **Local constraints**: probably we want to define constraints applied to parameters 
@@ -945,8 +1018,13 @@ and 'FSM:myfsm:action:0' is 'pay', this test case must be wrong" (actual checkin
 * [2] "Wikipedia article about Finite state transducer"
 * [3] "ソフトウェアテスト技法ドリル テスト設計の考え方と実際", 秋山浩一, ISBN97804-8171-9360-5, 日科技連, 2010
 * [4] "Introduction to Combinatorial Testing", D. Richard Kuhn, Raghu N. Kacker, Yu Lei, CRC Press, 2013
+* [5] "ModelJUnit"
+* [6] Model Based Testing (MBT), hcltech.com
 
-[0]: https://en.wikipedia.org/wiki/Model-based_testing
+[0]: http://en.wikipedia.org/wiki/Model-based_testing
 [1]: http://en.wikipedia.org/wiki/Mealy_machine
 [2]: http://en.wikipedia.org/wiki/Finite_state_transducer
 [3]: http://product.rakuten.co.jp/product/915fc02482596e7ebe6a4eec576a553d/
+[4]: http://books.rakuten.co.jp/rk/bac16b7ae73b3e53b076cc479a7e870a/
+[5]: http://sourceforge.net/projects/modeljunit/
+[6]: http://www.hcltech.com/white-papers/engineering-services/model-based-testing

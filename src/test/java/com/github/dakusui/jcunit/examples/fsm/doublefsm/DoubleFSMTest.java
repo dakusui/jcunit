@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.TurnstileTest;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
+import com.github.dakusui.jcunit.fsm.FSMUtils;
 import com.github.dakusui.jcunit.fsm.ScenarioSequence;
 import com.github.dakusui.jcunit.fsm.Story;
 import org.junit.Test;
@@ -23,13 +24,7 @@ public class DoubleFSMTest {
 
   @Test
   public void test() throws Throwable {
-    this.fsm1.perform(
-        this,
-        this.sut1,
-        ScenarioSequence.Utils.createSimpleObserver("fsm1"));
-    this.fsm2.perform(
-        this,
-        this.sut2,
-        ScenarioSequence.Utils.createSimpleObserver("fsm2"));
+    FSMUtils.performStory(this, "fsm1", sut1);
+    FSMUtils.performStory(this, "fsm2", sut2);
   }
 }
