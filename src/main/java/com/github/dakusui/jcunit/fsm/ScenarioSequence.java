@@ -4,13 +4,14 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 
 /**
  * An interface that represents a sequence of scenarios.
  *
  * @param <SUT> A software (class) under test.
  */
-public interface ScenarioSequence<SUT> {
+public interface ScenarioSequence<SUT> extends Serializable {
   interface Observer {
     Observer SILENT = new Observer() {
       @Override

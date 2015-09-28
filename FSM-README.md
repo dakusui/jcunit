@@ -63,14 +63,15 @@ The rest of this document consists of following sections.
 + **Reviewing reports**: JCUnit generates report in test execution phase. How to
  read those reports will be discussed in this section.
 + **Inside FSM/JCUnit**: The mechanism of FSM support will be discussed in this
-section.
-+ **Advanced techniques**: More practical techniques, e.g., how to test 2 FSMs at the same time 
- concurrently, how to model nested FSMs, etc., will be discussed. 
+  section.
++ **Tips**: More practical techniques, e.g., how to model nested FSMs, how to implement
+  adapters when necessary, etc., will be discussed. 
 
 Author recommends you to follow steps described in this document (especially
-the first section of it)  with your hands. The procedure might look complicated
-initially, but once you try it, you should notice it's designed intuitive and straightforward
-(at least the author tried very hard to make it intuitive and straightforward).
+the first section of it) with your hands to understand ideas behind the product. 
+The procedures might look complicated initially, but once you try it, you should 
+notice it's designed intuitive and straightforward (at least the author tried very 
+hard to make it intuitive and straightforward).
 
 # Modeling FSM
 Let's model your FSM. If you are creating a finite state machine which has two actions, 
@@ -667,8 +668,35 @@ suite to be generated, to what extent paths on a SUT's FSM will be covered, etc.
 can be configured in JCUnit will be discussed.
 
 ### Switch coverage
-In a Japanese book [ソフトウェアテスト技法ドリル(Drills for software testing techniques)][3],
-an idea called 'switch coverage' is discussed (pp. 149).
+In order to test FSMs, state coverage and transition coverage have been widely used[7](pp.150).
+But it easy to come up with a bug which cannot be detected by test suite which make
+both of them 100%. E.g., on a certain transition, some internal variable gets broken and
+FSM reaches a state A. Later on the broken variable will be used and the SUT malfunctions. 
+If there is another transition that makes our FSM's state A, the bug will possibly not 
+be detected.  
+
+A Japanese book [ソフトウェアテスト技法ドリル(Drills for software testing techniques)][3]
+discusses this issue and they introduce an idea called 'switch coverage' (pp. 149).
+
+If all the possible 2 adjacent transitions are covered, it will be called "1 switch coverage",
+because in between those 2 transitions there is 1 state (switch). Similarly, "2 switch coverage"
+ is defined that all the possible 3 successive transitions need to be covered.
+
+But obviously the number of test cases would very quickly explode as N of "N-switch coverage"
+increases.
+
+And even worse, FSM/JCUnit considers two same actions which have different sets of 
+arguments as two different transitions. This makes the number of transitions very 
+big.
+
+To balance those 2 requirements, which are switch coverage and number of test cases,
+you can use some parameters. 
+
+To tune switch coverage, you can configure number of switches through ```FSMLevelsProvider```'s 
+parameter.
+And for the other, you can configure tuple generation algorithms and their parameters.
+
+### Number of switches
 
 You can specify a number of switches through ```providerParams```.
 
@@ -691,7 +719,32 @@ of all the factors FSM/JCUnit internally creates.
 
 For more details, refer to [Inside FSM/JCUnit](#Inside FSM/JCUnit) section.
 
-### TupleGenerator
+### TupleGenerators
+In this chapter, a few built-in tuple generators of JCUnit and its characteristics
+ when you use them with FSM feature will be discussed.
+
+#### IPO2TupleGenerator
+```IPO2TupleGenerator``` is a default of FSM/JCUnit. And by changing its parameter,
+you can control the balance between test strength and test suite size.
+
+
+Following is an example to give 3 instead of default(2) to ```IPO2TupleGenerator```.
+
+```java
+
+      @RunWith(JCUnit.class)
+      @TupleGeneration(
+          generator = @Generator(value = IPO2TupleGenerator.class, params = @Param("3"))
+      )
+      public static class TestClass3 {
+        ...
+      }
+```
+
+But this increases number of test cases and test generation time.
+
+
+#### RandomTupleGenerator
  All-pair (or t-wise) test generation can be very time consuming process.
  Some times probably you want to test your SUT more quickly even if you sacrifice
 coverage on your FSM.
@@ -708,6 +761,8 @@ instead of ```IPO2TupleGenerator```, which is used by default.
     }
 ```
 
+ As shown, you can control the number of test cases in a suite explicitly (100 in 
+this example).
 
 # Reviewing reports
 When you run a test, JCUnit will generate a report as follows.
@@ -1040,8 +1095,8 @@ and 'FSM:myfsm:action:0' is 'pay', this test case must be wrong" (actual checkin
  procedure is slightly more complicated than this, because FSM/JCUnit tries to
  generate test cases which tests if SUT gives an appropriate exception).
 
-# Advanced techniques
-(t.b.d.)
+# Tips
+In this section, some useful tips for FSM/JCUnit in real usages. 
 
 ## Nested FSM
 In real world, things are nested. In FSMs it is so, too. An object with states has 
@@ -1155,14 +1210,134 @@ test case.
 
 Working example is found [here](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/fsm/nested/NestedFSMTest.java).
 
-
-
-## Multi-threaded
-(t.b.d.)
 ## SUT adapter
-(t.b.d.)
+FSM/JCUnit requires almost not 'adapter' implementation work, but you can do it 
+if you want.
+
+What you need to do is simple.
+
++ Create an adapter class. Let's call  it ```MyAdapter```, here. 
++ Model your SUT by implementing ```FSMSpec<MyAdapter>``` as in normal use cases of 
+  FSM/JCUnit. Let's call the model ```MySpec``` here.[CODE.7]
++ Implement all the methods annotated with ```@ActionSpec``` so that they operate 
+  actual SUT (but exclude the first parameter ```Expectation.Builder<MyAdapter>``` 
+  from the parameters).[CODE.8]
++ Consider implementing ```check(MyAdapter)``` method in ```MySpec``` class by
+  delegating to ```MyAdapter#check(MySpec)```.
+
+Inside ```MyAdapter``` you can do whatever you want. You can use Selenium to 
+manipulate GUI, issue CLI commands, HTTP requests, etc.
+Another benefit of this approach is that you will have a good Java wrapper API to 
+access your SUT which can be re-used for other purposes like creating admin utilities, 
+value added services on top of your SUT, etc.
+
+[CODE.7] "Spec example"
+```java
+
+    public enum MySpec {
+      @StateSpec I {
+      },
+      @StateSpec ... {
+      }
+      @ActionSpec public Expectation<MyAdapter> initialize(Expectation.Builder<MyAdapter> b) { ... }
+      @ActionSpec public Expectation<MyAdapter> perform(Expectation.Builder<MyAdapter> b) { ... }
+      @ActionSpec public Expectation<MyAdapter> print(Expectation.Builder<MyAdapter> b, PrintStream ps) { ... }
+      @ActionSpec public Expectation<MyAdapter> toString(Expectation.Builder<MyAdapter> b) { ... }
+      
+      public boolean check(MyAdapter myAdapter) {
+        return myAdapter.check(this);
+      }
+    }
+    
+```
+
+[CODE.8] "An adapter"
+```java
+
+    public class MyAdapter {
+      public void initialize() {
+        ...
+      }
+      
+      public void perform() {
+        ...
+      }
+      
+      public void print(PrintStream ps) {
+        ...
+      }
+      
+      public String toString() {
+        ...
+      }
+      
+      public boolean check(MySpec spec) {
+          return ...;
+      }
+    }
+```
+
 ## Offline testing
-(t.b.d.)
+Doing offline testing with FSM/JCUnit is simple.
+You have already had a test case in your test object as ```@FactorField``` annotated 
+fields (```fsm1``` and ```fsm2``` in this example). Keep them and use them later.
+
+```java
+
+    @RunWith(JCUnit.class)
+    public class DoubleFSMTest {
+      @FactorField(levelsProvider = FSMLevelsProvider.class)
+      public Story<TurnstileTest.Spec, Turnstile> fsm1;
+    
+      @FactorField(levelsProvider = FSMLevelsProvider.class)
+      public Story<TurnstileTest.Spec, Turnstile> fsm2;
+```
+
+Probably it is a good idea to separate the class into two (or more if necessary), one of
+which is for generating test suite and the other is for later execution (see the example 
+below).
+
+
+```java
+
+    @RunWith(JCUnit.class)
+    public abstract class DoubleFSMTestBase {
+      @FactorField(levelsProvider = FSMLevelsProvider.class)
+      public Story<TurnstileTest.Spec, Turnstile> fsm1;
+    
+      @FactorField(levelsProvider = FSMLevelsProvider.class)
+      public Story<TurnstileTest.Spec, Turnstile> fsm2;
+
+    }
+    
+    public class DoubleFSMTestGenerator extends DoubleFSMTestBase {
+        @Rule
+        public               Recorder recorder      = new Recorder();
+        ...
+    }
+  
+    @TupleGeneration(
+        generator = @Generator(
+            value = Replayer.class,
+            params = {
+                @Param("FailedOnly"),
+                @Param("src/test/resources")
+            }
+        )
+    )
+    public class DoubleFSMTestExecutor extends DoubleFSMTestBase {
+        public void testFSMs() {
+          ...
+        }
+    }
+    
+```
+
+You can refer to following files for how ```Recorder``` and ```Replayer``` work.
+
+* [Recorder.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/core/rules/Recorder.java)
+* [Replayer.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/generators/Replayer.java)
+
 
 # Future works
 * **Local constraints**: probably we want to define constraints applied to parameters 
@@ -1180,6 +1355,13 @@ Working example is found [here](https://github.com/dakusui/jcunit/tree/develop/s
  case. By this optimization, we should be able to improve FSM/JCUnit's performance.
 * **Support overloading methods with the same number of arguments**: Right now FSM/JCUnit
  doesn't support those methods. But it would be nice to have. 
+* **Multi-threading support**: FSM/JCUnit treats each state in each FSM as an independent
+ factor. Therefore it guarantees a fair coverage for multi-threading situation where
+ Step. 1, client 1 requests op.A the server and at the same time client 2 requests Op.B,
+ Step. 2, ...
+ with relatively small number of test cases since you can use pairwise/t-wise technique
+ as its test suite generation method. 
+ 
 
 # References
 * [0] "Wikipedia article about Model-based testing" 
@@ -1191,6 +1373,7 @@ Working example is found [here](https://github.com/dakusui/jcunit/tree/develop/s
 * [6] "Model Based Testing (MBT)", hcltech.com
 * [7] "Practical Model-Based Testing - a tools approach"
 * [8] "GraphWalker"
+* [9] "Selenium WebDriver"
 
 [0]: http://en.wikipedia.org/wiki/Model-based_testing
 [1]: http://en.wikipedia.org/wiki/Mealy_machine
@@ -1201,3 +1384,4 @@ Working example is found [here](https://github.com/dakusui/jcunit/tree/develop/s
 [6]: http://www.hcltech.com/white-papers/engineering-services/model-based-testing
 [7]: http://books.rakuten.co.jp/rk/9c45f93d48a24f7d8541d2271b183294/
 [8]: http://graphwalker.org/
+[9]: http://www.seleniumhq.org/

@@ -3,11 +3,11 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
-import java.io.PrintStream;
+import java.io.Serializable;
 
-public class Story<S extends FSMSpec<SUT>, SUT extends Object> {
-  private final String  name;
-  private       boolean performed;
+public class Story<S extends FSMSpec<SUT>, SUT extends Object> implements Serializable {
+  private final     String  name;
+  transient private boolean performed;
 
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;

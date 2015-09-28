@@ -55,7 +55,6 @@ public class Replayer extends TupleGeneratorBase {
    */
   @Override
   public long nextId(long tupleId) {
-    assert this.generationMode != null;
     return this.generationMode.nextId(this, tupleId);
   }
 
@@ -64,7 +63,6 @@ public class Replayer extends TupleGeneratorBase {
    */
   @Override
   public long firstId() {
-    assert this.generationMode != null;
     return this.generationMode.firstId(this);
   }
 
@@ -299,7 +297,7 @@ public class Replayer extends TupleGeneratorBase {
     abstract long firstId(Replayer tuplePlayer);
   }
 
-  public static enum ReplayMode {
+  public enum ReplayMode {
     All {
       @Override
       public boolean shouldBeReplayed(File testStoreDir) {
@@ -317,8 +315,7 @@ public class Replayer extends TupleGeneratorBase {
     public abstract boolean shouldBeReplayed(File testStoreDir);
   }
 
-  private static interface FoundTupleObserver {
+  private interface FoundTupleObserver {
     void found(File f);
   }
-
 }

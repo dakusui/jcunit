@@ -3,7 +3,9 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 
-public class Scenario<SUT> {
+import java.io.Serializable;
+
+public class Scenario<SUT> implements Serializable {
   public final State<SUT>  given;
   public final Action<SUT> when;
   public final Args        with;

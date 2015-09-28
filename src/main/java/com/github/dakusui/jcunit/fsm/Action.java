@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit.fsm;
 
+import java.io.Serializable;
+
 /**
  * An interface that represents an action that can be performed on {@code SUT}.
  *
  * @param <SUT> A software under test.
  */
-public interface Action<SUT> {
+public interface Action<SUT> extends Serializable {
   Action<?> VOID = new Action() {
     @Override
     public Object perform(Object context, Object o, Args args) throws Throwable {

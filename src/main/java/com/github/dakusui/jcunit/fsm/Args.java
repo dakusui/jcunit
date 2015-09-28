@@ -3,13 +3,12 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- */
-public class Args {
+public class Args implements Serializable {
   private final Object[] values;
 
   Args(Object[] values) {

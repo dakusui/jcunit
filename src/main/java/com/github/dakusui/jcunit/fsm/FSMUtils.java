@@ -55,8 +55,8 @@ public class FSMUtils {
     Checks.checktest(observerFactory != null, "");
 
     Field storyField = lookupStoryField(context, fsmName);
-    validateStoryFiled(storyField);
     Checks.checktest(storyField != null, "The field '%s' was not found or not public in the context '%s'", fsmName, context);
+    validateStoryFiled(storyField);
 
     try {
       Story<? extends FSMSpec<SUT>, SUT> story = (Story<? extends FSMSpec<SUT>, SUT>) storyField.get(context);

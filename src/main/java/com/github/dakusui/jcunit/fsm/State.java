@@ -2,10 +2,12 @@ package com.github.dakusui.jcunit.fsm;
 
 import org.hamcrest.CoreMatchers;
 
+import java.io.Serializable;
+
 /**
  * @param <SUT> A class of software under test.
  */
-public interface State<SUT> extends StateChecker<SUT> {
+public interface State<SUT> extends StateChecker<SUT>, Serializable {
   /**
    * When an invalid operation is performed, JCUnit
    */
