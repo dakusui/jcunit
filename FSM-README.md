@@ -61,7 +61,7 @@ The rest of this document consists of following sections.
  generated, etc) and 'IXIT'(how should SUT be set up before starting each test case,
  etc) in JCUnit will be discussed in this section. ((2) and (3) in the diagram)
 + **Reviewing reports**: JCUnit generates report in test execution phase. How to
- read those reports will be discussed in this section.
+ read those reports will be discussed in this section. ((4) in the diagram)
 + **Inside FSM/JCUnit**: The mechanism of FSM support will be discussed in this
   section.
 + **Tips**: More practical techniques, e.g., how to model nested FSMs, how to implement
