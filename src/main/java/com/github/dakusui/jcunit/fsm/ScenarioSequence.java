@@ -379,7 +379,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           //noinspection unchecked
-          return (Action<SUT>) tuple.get(factors.actionFactorName(fsmName, i));
+          return Checks.checknotnull((Action<SUT>) tuple.get(factors.actionFactorName(fsmName, i)));
         }
 
         @Override

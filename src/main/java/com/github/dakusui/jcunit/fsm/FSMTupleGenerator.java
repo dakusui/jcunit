@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorMapper;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -47,19 +46,12 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
 
     ConstraintManager fsmCM = new FSMConstraintManager(this.baseTupleGeneratorBuilder.getConstraintManager());
     fsmCM.setFactors(fsmFactors);
-    final List<Map<String, ScenarioSequence<Object>>> mainStories = generateMainStories(fsmFactors, fsmCM);
 
+    this.tuples = generateTuples(fsmFactors, fsmCM);
     ////
-    // Create a state router.
-    // 1. Build a map from state name to a state which can be seen in the first place of a story.
-    Map<String, List<State<Object>>> setUpDestinations = collectSetupDestinations(mainStories);
-    Map<String, StateRouter<Object>> stateRouters = prepareStateRouters(mainStories, setUpDestinations);
-    ////
-    // Build the final tuples
-    // all the possible levels will be accumulated to this variable 'mappedFactors' through 'buildTuples' process.
-    final Map<String, Factor.Builder> mappedFactors = new LinkedHashMap<String, Factor.Builder>();
-    this.tuples = buildTuples(this.fsms, mainStories, stateRouters, mappedFactors);
-    super.setFactors(buildFactors(baseFactors, mappedFactors));
+    // In order to make behaviour of this object compatible with super class's,
+    // set factors.
+    super.setFactors(buildFactors(baseFactors));
     ////
     // Constraint manager is used for negative tests generation, which is not supported yet.
     // This time I'm setting DEFAULT_CONSTRAINT_MANAGER.
@@ -67,78 +59,14 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     return this.tuples.size();
   }
 
-  private Map<String, StateRouter<Object>> prepareStateRouters(final List<Map<String, ScenarioSequence<Object>>> mainStories, final Map<String, List<State<Object>>> setUpDestinations) {
-    Map<String, StateRouter<Object>> routerMap = new HashMap<String, StateRouter<Object>>();
-    for (final String fsmName : this.fsms.keySet()) {
-      final FSM<?> fsm = this.fsms.get(fsmName);
-      //noinspection unchecked
-      StateRouter<Object> router = new StateRouter(fsm, setUpDestinations.get(fsmName)) {
-        @Override
-        protected List<Transition> possibleTransitionsFrom(State state) {
-          List<Transition> ret = new LinkedList<Transition>();
-          for (ScenarioSequence<?> eachScenario : collectStoriesForFSM(mainStories, fsmName)) {
-            for (int i = 0; i < eachScenario.size(); i++) {
-              Scenario each = eachScenario.get(i);
-              if (each.given.equals(state) && !each.then().state
-                  .equals(State.VOID)) {
-                //noinspection unchecked
-                Transition<?> t = new Transition(eachScenario.action(i),
-                    eachScenario.args(i));
-                if (!ret.contains(t))
-                  ret.add(t);
-              }
-            }
-          }
-          return ret;
-        }
-      };
-      routerMap.put(fsmName, router);
-    }
-    return routerMap;
-  }
-
-  private List<Tuple> buildTuples(Map<String, FSM> fsms, List<Map<String, ScenarioSequence<Object>>> mainStories, Map<String, StateRouter<Object>> routerMap, Map<String, Factor.Builder> mappedFactors) {
-    List<Tuple> tuples = new LinkedList<Tuple>();
-    for (Map<String, ScenarioSequence<Object>> each : mainStories) {
-      Tuple.Builder b = new Tuple.Builder();
-      for (String fsmName : fsms.keySet()) {
-        StateRouter router = routerMap.get(fsmName);
-        String mainScenarioFactorName = composeMainScenarioName(fsmName);
-        ScenarioSequence<Object> mainScenarioSequence = each.get(fsmName);
-        @SuppressWarnings("unchecked")
-        ScenarioSequence<Object> setUp = router.routeTo(mainScenarioSequence.state(0));
-        b.put(mainScenarioFactorName, new Story<FSMSpec<Object>, Object>(fsmName, setUp, mainScenarioSequence));
-      }
-      tuples.add(translateFSMTupleToNormalTuple(b.build(), mappedFactors));
-    }
-    return tuples;
-  }
-
-  private Map<String, List<State<Object>>> collectSetupDestinations(List<Map<String, ScenarioSequence<Object>>> mainStories) {
-    Map<String, List<State<Object>>> destinations = new LinkedHashMap<String, List<State<Object>>>();
-    for (Map<String, ScenarioSequence<Object>> each : mainStories) {
-      for (Map.Entry<String, ScenarioSequence<Object>> ent : each.entrySet()) {
-        List<State<Object>> cur = destinations.get(ent.getKey());
-        if (cur == null) {
-          cur = new LinkedList<State<Object>>();
-          destinations.put(ent.getKey(), cur);
-        }
-        if (ent.getValue().size() > 0) {
-          State<Object> state = ent.getValue().get(0).given;
-          if (!cur.contains(state)) {
-            cur.add(ent.getValue().get(0).given);
-          }
-        }
-      }
-    }
-    return destinations;
-  }
-
-  private List<Map<String, ScenarioSequence<Object>>> generateMainStories(FSMFactors fsmFactors, ConstraintManager fsmCM) {
-    final List<Map<String, ScenarioSequence<Object>>> mainScenarios = new LinkedList<Map<String, ScenarioSequence<Object>>>();
+  private List<Tuple> generateTuples(FSMFactors fsmFactors, ConstraintManager fsmCM) {
+    final List<Tuple> ret = new LinkedList<Tuple>();
     for (Tuple eachTuple : generatePlainTuples(fsmFactors, fsmCM)) {
-      Map<String, ScenarioSequence<Object>> cur = new LinkedHashMap<String, ScenarioSequence<Object>>();
+      Tuple.Builder cur = new Tuple.Builder();
       for (Map.Entry<String, FSM> entry : this.fsms.entrySet()) {
+        StateRouter router = new StateRouter(
+            this.fsms.get(entry.getKey()),
+            new StateRouter.EdgeLister(null));
         String fsmName = entry.getKey();
         ScenarioSequence main = new ScenarioSequence.BuilderFromTuple()
             .setFSMFactors(fsmFactors)
@@ -146,47 +74,39 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
             .setFSMName(fsmName)
             .build();
         //noinspection unchecked
-        cur.put(fsmName, main);
+        Story<?, ?> story = new Story(fsmName, router.routeTo(main.state(0)), main);
+        cur.put(fsmName, story);
       }
-      mainScenarios.add(cur);
-    }
-    return mainScenarios;
-  }
-
-  private TupleGenerator generatePlainTuples(FSMFactors fsmFactors, ConstraintManager fsmCM) {
-    return new Builder(this.baseTupleGeneratorBuilder).setConstraintManager(fsmCM).setFactors(fsmFactors).build();
-  }
-
-  private static List<ScenarioSequence<?>> collectStoriesForFSM(List<Map<String, ScenarioSequence<Object>>> storyMap, String fsmName) {
-    List<ScenarioSequence<?>> ret = new ArrayList<ScenarioSequence<?>>(storyMap.size());
-    for (Map<String, ScenarioSequence<Object>> each : storyMap) {
-      ret.add(each.get(fsmName));
+      for (String eachFactorName : eachTuple.keySet()) {
+        if (!isFSMFactorName(eachFactorName)) {
+          Object v = eachTuple.get(eachFactorName);
+          cur.put(eachFactorName, v);
+        }
+      }
+      ret.add(cur.build());
     }
     return ret;
   }
 
-  private Factors buildFactors(Factors baseFactors, final Map<String, Factor.Builder> mappedFactors) {
-    Factors.Builder fb = new Factors.Builder(baseFactors.asFactorList());
-    List<Factor> factors = fb.getFactors();
-    //noinspection unchecked
-    List<Factor> matched = (List<Factor>) Utils.filter(factors, new Utils.Predicate<Factor>() {
-      @Override
-      public boolean apply(Factor in) {
-        for (Factor.Builder each : mappedFactors.values()) {
-          if (each.getName().equals(in.name))
-            return true;
-        }
-        return false;
+  private boolean isFSMFactorName(String eachFactorName) {
+    return Checks.checknotnull(eachFactorName.contains(":"));
+  }
+
+  private TupleGenerator generatePlainTuples(FSMFactors fsmFactors, ConstraintManager fsmCM) {
+    return new Builder(this.baseTupleGeneratorBuilder).setConstraintManager(fsmCM).addFactors(fsmFactors).build();
+  }
+
+  /*
+   * Return normal factors.
+   */
+  private Factors buildFactors(Factors baseFactors) {
+    Factors.Builder b = new Factors.Builder();
+    for (Factor each : baseFactors) {
+      if (!isFSMFactorName(each.name)) {
+        b.add(each);
       }
-    });
-    if (!matched.isEmpty()) {
-      for (Factor toBeRemoved : matched)
-        factors.remove(toBeRemoved);
     }
-    for (final Factor.Builder each : mappedFactors.values()) {
-      fb.add(each.build());
-    }
-    return fb.build();
+    return b.build();
   }
 
   private Tuple translateFSMTupleToNormalTuple(Tuple fsmTuple, Map<String, Factor.Builder> mappedFactorBuilders) {
@@ -221,5 +141,22 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
   @Override
   public ParamType[] parameterTypes() {
     return new ParamType[] {};
+  }
+
+  private List<Tuple> buildTuples(Map<String, FSM> fsms, List<Map<String, ScenarioSequence<Object>>> mainStories, Map<String, StateRouter<Object>> routerMap, Map<String, Factor.Builder> mappedFactors) {
+    List<Tuple> tuples = new LinkedList<Tuple>();
+    for (Map<String, ScenarioSequence<Object>> each : mainStories) {
+      Tuple.Builder b = new Tuple.Builder();
+      for (String fsmName : fsms.keySet()) {
+        StateRouter router = routerMap.get(fsmName);
+        String mainScenarioFactorName = composeMainScenarioName(fsmName);
+        ScenarioSequence<Object> mainScenarioSequence = each.get(fsmName);
+        @SuppressWarnings("unchecked")
+        ScenarioSequence<Object> setUp = router.routeTo(mainScenarioSequence.state(0));
+        b.put(mainScenarioFactorName, new Story<FSMSpec<Object>, Object>(fsmName, setUp, mainScenarioSequence));
+      }
+      tuples.add(translateFSMTupleToNormalTuple(b.build(), mappedFactors));
+    }
+    return tuples;
   }
 }

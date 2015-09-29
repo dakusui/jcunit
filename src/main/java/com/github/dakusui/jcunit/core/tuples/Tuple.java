@@ -5,9 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
-  public Tuple cloneTuple();
+  Tuple cloneTuple();
 
-  public static class Builder {
+  class Builder {
     LinkedHashMap<String, Object> attrs = new LinkedHashMap<String, Object>();
     private boolean unmodifiable;
 
@@ -38,5 +38,5 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
     }
   }
 
-  public boolean isSubtupleOf(Tuple another);
+  boolean isSubtupleOf(Tuple another);
 }

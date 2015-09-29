@@ -8,8 +8,10 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.fsm.Expectation;
 
 /**
  * Implementations of this interface must guarantee that a public constructor without
@@ -77,6 +79,15 @@ public interface TupleGenerator extends
 
     public Builder setFactors(Factors factors) {
       this.factors = factors;
+      return this;
+    }
+
+    public Builder addFactors(Factors factors) {
+      for (Factor each : factors) {
+        if (!this.factors.contains(each)) {
+          this.factors.add(each);
+        }
+      }
       return this;
     }
 

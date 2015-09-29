@@ -5,17 +5,23 @@ import com.github.dakusui.jcunit.core.Utils;
 
 import java.util.*;
 
-public abstract class StateRouter<SUT> {
-
+/**
+ * Routes to a given state.
+ *
+ * @param <SUT> Software under test.
+ */
+public class StateRouter<SUT> {
   private final FSM<SUT>                               fsm;
   private final List<State<SUT>>                       destinations;
   private final Map<State<SUT>, ScenarioSequence<SUT>> routes;
+  private final EdgeLister                             lister;
 
-  public StateRouter(FSM<SUT> fsm, List<State<SUT>> destinations) {
+  public StateRouter(FSM<SUT> fsm, EdgeLister lister) {
     Checks.checknotnull(fsm);
-    Checks.checknotnull(destinations);
-    this.destinations = Collections.unmodifiableList(Utils.singleton(destinations));
+    Checks.checknotnull(lister);
+    this.destinations = Collections.unmodifiableList(Utils.singleton(fsm.states()));
     this.routes = new LinkedHashMap<State<SUT>, ScenarioSequence<SUT>>();
+    this.lister = lister;
     for (State<SUT> each : destinations) {
       if (each.equals(fsm.initialState())) {
         //noinspection unchecked
@@ -25,7 +31,7 @@ public abstract class StateRouter<SUT> {
       }
     }
     this.fsm = fsm;
-    traverse(fsm.initialState(), new LinkedList<Transition<SUT>>(), new LinkedHashSet<State<SUT>>());
+    traverse(fsm.initialState(), new LinkedList<Edge<SUT>>(), new LinkedHashSet<State<SUT>>());
     List<State<SUT>> unreachableDestinations = new ArrayList<State<SUT>>(this.destinations.size());
     for (State<SUT> each : this.destinations) {
       if (this.routes.get(each) == null) {
@@ -45,15 +51,15 @@ public abstract class StateRouter<SUT> {
     return this.routes.get(state);
   }
 
-  private void traverse(State<SUT> state, List<Transition<SUT>> path, Set<State<SUT>> visited) {
-    for (Transition<SUT> each : possibleTransitionsFrom(state)) {
+  private void traverse(State<SUT> state, List<Edge<SUT>> path, Set<State<SUT>> visited) {
+    for (Edge<SUT> each : lister.possibleEdgesFrom(state)) {
       State<SUT> next = next(state, each);
       if (next == State.VOID)
         return;
       if (visited.contains(next))
         continue;
       visited.add(next);
-      List<Transition<SUT>> pathToNext = new LinkedList<Transition<SUT>>(path);
+      List<Edge<SUT>> pathToNext = new LinkedList<Edge<SUT>>(path);
       pathToNext.add(each);
 
       if (this.destinations.contains(next)) {
@@ -63,7 +69,7 @@ public abstract class StateRouter<SUT> {
     }
   }
 
-  private ScenarioSequence<SUT> buildStoryFromTransitions(final List<Transition<SUT>> pathToNext) {
+  private ScenarioSequence<SUT> buildStoryFromTransitions(final List<Edge<SUT>> pathToNext) {
     return new ScenarioSequence.Base<SUT>() {
       @Override
       public int size() {
@@ -75,7 +81,7 @@ public abstract class StateRouter<SUT> {
         Checks.checkcond(i >= 0 && i < size());
         State<SUT> ret = StateRouter.this.fsm.initialState();
         for (int c = 0; c < i; c++) {
-          next(ret, new Transition<SUT>(action(i), args(i)));
+          next(ret, new Edge<SUT>(action(i), args(i)));
         }
         return ret;
       }
@@ -108,17 +114,15 @@ public abstract class StateRouter<SUT> {
     };
   }
 
-  private State<SUT> next(State<SUT> state, Transition<SUT> t) {
+  private State<SUT> next(State<SUT> state, Edge<SUT> t) {
     return state.expectation(t.action, t.args).state;
   }
 
-  protected abstract List<Transition<SUT>> possibleTransitionsFrom(State<SUT> state);
-
-  public static class Transition<SUT> {
+  public static class Edge<SUT> {
     public final Action<SUT> action;
     public final Args        args;
 
-    public Transition(Action<SUT> action, Args args) {
+    public Edge(Action<SUT> action, Args args) {
       this.action = action;
       this.args = args;
     }
@@ -130,13 +134,37 @@ public abstract class StateRouter<SUT> {
 
     @Override
     public boolean equals(Object anotherObject) {
-      if (!(anotherObject instanceof Transition))
+      if (!(anotherObject instanceof Edge))
         return false;
       //noinspection unchecked
-      Transition<SUT> another = (Transition<SUT>) anotherObject;
+      Edge<SUT> another = (Edge<SUT>) anotherObject;
       return this.action.equals(another.action) && Arrays.deepEquals(this.args.values(), another.args.values());
     }
   }
 
+  static class EdgeLister {
+    private final List<ScenarioSequence> mainScenarioSequences;
 
+    EdgeLister(List<ScenarioSequence> scenarioSequences) {
+      this.mainScenarioSequences = Checks.checknotnull(scenarioSequences);
+    }
+
+    protected List<Edge> possibleEdgesFrom(State state) {
+      List<Edge> ret = new LinkedList<Edge>();
+      for (ScenarioSequence<?> eachScenario : this.mainScenarioSequences) {
+        for (int i = 0; i < eachScenario.size(); i++) {
+          Scenario each = eachScenario.get(i);
+          if (each.given.equals(state) && !each.then().state
+              .equals(State.VOID)) {
+            //noinspection unchecked
+            Edge<?> t = new Edge(eachScenario.action(i),
+                eachScenario.args(i));
+            if (!ret.contains(t))
+              ret.add(t);
+          }
+        }
+      }
+      return ret;
+    }
+  }
 }
