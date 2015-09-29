@@ -82,15 +82,6 @@ public interface TupleGenerator extends
       return this;
     }
 
-    public Builder addFactors(Factors factors) {
-      for (Factor each : factors) {
-        if (!this.factors.contains(each)) {
-          this.factors.add(each);
-        }
-      }
-      return this;
-    }
-
     public Builder setConstraintManager(ConstraintManager constraintManager) {
       this.constraintManager = constraintManager;
       return this;

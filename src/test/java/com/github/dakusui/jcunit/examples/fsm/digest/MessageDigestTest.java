@@ -8,54 +8,71 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 @RunWith(JCUnit.class)
 public class MessageDigestTest {
   @FactorField(stringLevels = {"SHA1", "MD5"})
   public String algotithmName;
 
-  public enum MessageDigestSpec implements FSMSpec<MessageDigest> {
+  public class Adapter {
+    private final MessageDigest messageDigest;
+
+    public Adapter(MessageDigest messageDigest) {
+      this.messageDigest = messageDigest;
+    }
+
+    public byte[] digest() {
+      return this.messageDigest.digest();
+    }
+
+    public void update(byte[] input) {
+      this.messageDigest.update(input);
+    }
+  }
+
+  public enum Spec implements FSMSpec<Adapter> {
     @StateSpec I {
       @Override
-      public Expectation<MessageDigest> digest(Expectation.Builder<MessageDigest> b) {
+      public Expectation<Adapter> digest(Expectation.Builder<Adapter> b) {
         return b.valid(I, CoreMatchers.instanceOf(new byte[0].getClass())).build();
       }
 
       @Override
-      public Expectation<MessageDigest> update(Expectation.Builder<MessageDigest> b, byte[] data) {
+      public Expectation<Adapter> update(Expectation.Builder<Adapter> b, byte[] data) {
         return b.valid(I).build();
       }
     },;
 
     @ActionSpec
-    public abstract Expectation<MessageDigest> digest(Expectation.Builder<MessageDigest> b);
+    public abstract Expectation<Adapter> digest(Expectation.Builder<Adapter> b);
 
     @ParametersSpec
     public static final Object[][] update = new Object[][] {
-        new Object[]{
-            new byte[]{0}
+        new Object[] {
+            new byte[] { 0 }
         }
     };
 
     @ActionSpec
-    public abstract Expectation<MessageDigest> update(Expectation.Builder<MessageDigest> b, byte[] data);
+    public abstract Expectation<Adapter> update(Expectation.Builder<Adapter> b, byte[] data);
 
     @Override
-    public boolean check(MessageDigest messageDigest) {
+    public boolean check(Adapter messageDigest) {
       return true;
     }
   }
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<MessageDigestSpec, MessageDigest> messageDigest;
+  public Story<Spec, Adapter> messageDigest;
 
+  @Test
   public void test() throws NoSuchAlgorithmException {
-    MessageDigest md = MessageDigest.getInstance(this.algotithmName);
+    Adapter md = new Adapter(MessageDigest.getInstance(this.algotithmName));
     FSMUtils.performStory(this, "messageDigest", md);
   }
 }

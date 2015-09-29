@@ -63,7 +63,7 @@ public class FSMUtils {
       ////
       // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
       // should assign an appropriate value to the factor field.
-      Checks.checknotnull(story);
+      Checks.checktest(story != null, "story parameter must not be null.");
       story.perform(context, sut, observerFactory.createObserver(fsmName));
     } catch (IllegalAccessException e) {
       ////

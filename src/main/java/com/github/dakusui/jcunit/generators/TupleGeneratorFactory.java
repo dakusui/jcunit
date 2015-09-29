@@ -68,12 +68,6 @@ public class TupleGeneratorFactory {
     TupleGenerator generator;
     List<Field> fsmFields;
     if (!(fsmFields = extractFSMFactorFields(levelsProviders)).isEmpty()) {
-      List<FactorMapper> factorMappers = new LinkedList<FactorMapper>();
-      for (LevelsProvider each : levelsProviders.values()) {
-        if (each instanceof FactorMapper) {
-          factorMappers.add((FactorMapper) each);
-        }
-      }
       Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
       Errors.Builder bb = new Errors.Builder();
       for (Field each : fsmFields) {
@@ -92,7 +86,7 @@ public class TupleGeneratorFactory {
           klazz.getCanonicalName(),
           errors);
       //noinspection unchecked
-      generator = new FSMTupleGenerator(b, fsms, factorMappers);
+      generator = new FSMTupleGenerator(b, fsms);
       generator.init(new Param[] {});
     } else {
       generator = b.build();

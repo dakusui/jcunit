@@ -91,12 +91,10 @@ public class FSMFactors extends Factors {
     }
 
     public FSMFactors build() {
-      for (int index = 1; index < this.baseFactors.size(); index++) {
-        this.add(this.baseFactors.get(index));
-      }
-
+      Set<String> processedFSMfactors = new HashSet<String>();
       for (Map.Entry<String, FSM<?>> entry : fsms.entrySet()) {
         String fsmName = entry.getKey();
+        processedFSMfactors.add(fsmName);
         FSM<?> fsm = entry.getValue();
         int len = fsm.historyLength();
         for (int index = 0; index < len; index++) {
@@ -150,6 +148,11 @@ public class FSMFactors extends Factors {
               this.add(bb.build());
             }
           }
+        }
+      }
+      for (int index = 0; index < this.baseFactors.size(); index++) {
+        if (!processedFSMfactors.contains(this.baseFactors.get(index).name)) {
+          this.add(this.baseFactors.get(index));
         }
       }
       return new FSMFactors(this.factors, this.fsms);

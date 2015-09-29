@@ -30,4 +30,18 @@ public class Story<S extends FSMSpec<SUT>, SUT extends Object> implements Serial
   public boolean isPerformed() {
     return this.performed;
   }
+
+  public int hashCode() {
+    return this.name.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object another) {
+    if (another instanceof Story) {
+      Story anotherStory = ((Story)another);
+      return this.name.equals(anotherStory.name) && this.setUp.equals(anotherStory.setUp) && this.main.equals(anotherStory.main);
+    }
+    return false;
+  }
+
 }

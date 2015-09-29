@@ -7,6 +7,7 @@ import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -123,7 +124,11 @@ public class Expectation<SUT> {
     Checks.checknotnull(thrownException);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
     if (this.type != Type.EXCEPTION_THROWN) {
-      b.addFailedReason(String.format("Exception was expected to be thrown but not. (%s)", this.checker.format()));
+      b.addFailedReason(String.format(
+          "Exception was not expected to be thrown but %s was thrown. (%s)",
+          thrownException.getClass().getSimpleName(),
+          this.checker.format()),
+          thrownException);
     }
     if (!this.checker.check(context, thrownException, observer)) {
       b.addFailedReason(
@@ -253,6 +258,17 @@ public class Expectation<SUT> {
         ps.println(each.message);
         if (each.t != null) {
           each.t.printStackTrace(ps);
+        }
+      }
+    }
+
+    @Override
+    public void printStackTrace(PrintWriter pw) {
+      Checks.checknotnull(pw);
+      for (Reason each : this.failedReasons) {
+        pw.println(each.message);
+        if (each.t != null) {
+          each.t.printStackTrace(pw);
         }
       }
     }

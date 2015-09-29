@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit.core.JCUnitConfigurablePluginBase;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -63,7 +62,8 @@ public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
   @Override
   public Iterator<Tuple> iterator() {
     return new Iterator<Tuple>() {
-      private long    cur     = 0;
+      private long cur = 0;
+
       @Override
       public void remove() {
         throw new UnsupportedOperationException();
@@ -147,10 +147,10 @@ public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
       }
     }
     Checks.checkcond(ret >= 0,
-        "'%s' was not found in factor '%s'. Failed to find '%s' in '%s'",
+        "%s cannot find '%s' in factor '%s'('%s')",
+        this.getClass().getSimpleName(),
         l,
         factorName,
-        TupleUtils.toString(new Tuple.Builder().put("obj", l).build()),
         levels
     );
     return ret;

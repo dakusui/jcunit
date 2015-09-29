@@ -1,8 +1,7 @@
 package com.github.dakusui.jcunit.core.factor;
 
 public abstract class MappingLevelsProviderBase<T>
-    extends LevelsProviderBase<T>
-    implements FactorMapper<T> {
+    extends LevelsProviderBase<T> {
   @Override
   public int size() {
     return 1;

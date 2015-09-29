@@ -60,6 +60,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
     interface Factory {
       Observer createObserver(String fsmName);
+
       class ForSilent implements Factory {
         @Override
         public Observer createObserver(String fsmName) {
@@ -139,6 +140,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       };
     }
   }
+
   abstract class Base<SUT> implements ScenarioSequence<SUT> {
 
     @Override
@@ -200,6 +202,19 @@ public interface ScenarioSequence<SUT> extends Serializable {
       Args with = this.args(i);
       return new Scenario<SUT>(given, when, with);
     }
+
+    @Override public int hashCode() {
+      return this.toString().hashCode();
+    }
+
+    @Override public boolean equals(Object another) {
+      if (another instanceof ScenarioSequence) {
+        ScenarioSequence anotherSequence = (ScenarioSequence) another;
+        return Utils.toString(this).equals(Utils.toString(anotherSequence));
+      }
+      return false;
+    }
+
 
     @Override
     public String toString() {
@@ -264,7 +279,6 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
   /**
    * Returns the number of scenarios in this sequence
-   *
    */
   int size();
 
@@ -379,7 +393,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           //noinspection unchecked
-          return Checks.checknotnull((Action<SUT>) tuple.get(factors.actionFactorName(fsmName, i)));
+          return (Action<SUT>) tuple.get(factors.actionFactorName(fsmName, i));
         }
 
         @Override
