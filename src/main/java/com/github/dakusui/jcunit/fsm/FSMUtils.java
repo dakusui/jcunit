@@ -16,6 +16,10 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
+  public static <T> void resetStories(T context) {
+
+  }
+
   /**
    * Invokes {@code FSMUtils#performStory(Object, String, Object, Story.Observer.Factory)}
    * with a new {@code Story.Observer.Factory.ForSimple} object.
@@ -64,6 +68,7 @@ public class FSMUtils {
       // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
       // should assign an appropriate value to the factor field.
       Checks.checktest(story != null, "story parameter must not be null.");
+      story.reset();
       story.perform(context, sut, observerFactory.createObserver(fsmName));
     } catch (IllegalAccessException e) {
       ////

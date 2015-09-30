@@ -10,6 +10,7 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -83,6 +84,11 @@ public class NestedFSMTest {
 
   @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Param("2") })
   public Story<NestedSpec, String> nested;
+
+  @Before
+  public void before() {
+    FSMUtils.resetStories(this);
+  }
 
   @Test
   public void test1() {

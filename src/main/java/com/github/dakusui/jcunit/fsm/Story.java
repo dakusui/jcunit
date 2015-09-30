@@ -5,7 +5,22 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
 import java.io.Serializable;
 
-public class Story<S extends FSMSpec<SUT>, SUT extends Object> implements Serializable {
+/**
+ * A story comprises setUp and main scenario sequences.
+ * Users can perform a story through {@code FSMUtils#performStory}.
+ *
+ * @see FSMUtils#performStory(Object, String, Object, ScenarioSequence.Observer.Factory)
+ * @param <S> FSMSpec implementation. This information is used reflectively.
+ * @param <SUT> SUT class
+ */
+public class Story<
+    S extends FSMSpec<SUT>, // Do not remove to refactor. See Javadoc of this parameter.
+    SUT
+    > implements Serializable {
+  /*
+   * A dummy field to suppress a warning for S.
+   */
+  @SuppressWarnings("unused") private Class<S>  klazz;
   private final     String  name;
   transient private boolean performed;
 
@@ -19,12 +34,17 @@ public class Story<S extends FSMSpec<SUT>, SUT extends Object> implements Serial
     this.name = name;
     this.setUp = setUp;
     this.main = main;
+    this.klazz = null;
   }
 
   public <T> void perform(T context, SUT sut, ScenarioSequence.Observer observer) {
     this.performed = true;
     this.setUp.perform(context, name, ScenarioSequence.Type.setUp, sut, observer);
     this.main.perform(context, name, ScenarioSequence.Type.main, sut, observer);
+  }
+
+  public void reset() {
+    this.performed = false;
   }
 
   public boolean isPerformed() {
