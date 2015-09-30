@@ -1341,26 +1341,26 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
 
 # Future works
 * **Local constraints**: probably we want to define constraints applied to parameters 
-  of a method. 
+  of a method. [10]
 * **Coverage report**: generating test suite which covers all the possible value-pairs
   under complicated constraints is a very time consuming task. Instead, relying on
   random generation and assessing how much possible value pairs are covered might be
-  more practical and good enough.
+  more practical and good enough.[11]
 * **Simplify test suite generation**: right now (Sep/2015), FSM/JCUnit chooses states
  not only events as factors. But, except for the first one, states should always be 
  determined by the previous state and an input symbol (event) given to the FSM.
  As discussed in [Introduction to Combinatorial Testing][4] (pp.119), in this situation
  we can exclude them during test suite generation from factors and after the process
  finishes we can append states determined by previous states and input to each test 
- case. By this optimization, we should be able to improve FSM/JCUnit's performance.
+ case. By this optimization, we should be able to improve FSM/JCUnit's performance.[12]
 * **Support overloading methods with the same number of arguments**: Right now FSM/JCUnit
- doesn't support those methods. But it would be nice to have. 
+ doesn't support those methods. But it would be nice to have. [13]
 * **Multi-threading support**: FSM/JCUnit treats each state in each FSM as an independent
  factor. Therefore it guarantees a fair coverage for multi-threading situation where
  Step. 1, client 1 requests op.A the server and at the same time client 2 requests Op.B,
  Step. 2, ...
  with relatively small number of test cases since you can use pairwise/t-wise technique
- as its test suite generation method. 
+ as its test suite generation method. [14]
  
 
 # References
@@ -1374,6 +1374,11 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
 * [7] "Practical Model-Based Testing - a tools approach"
 * [8] "GraphWalker"
 * [9] "Selenium WebDriver"
+* [10] "Issue-9:(FSM)Local constraints" 
+* [11] "Issue-10:(FSM)Coverage report"
+* [12] "Issue-11:(FSM)Simplify test suite generation" 
+* [13] "Issue-12:(FSM)Support overloading methods with the same number of arguments" 
+* [14] "Issue-13:(FSM)Multi-threading support"
 
 [0]: http://en.wikipedia.org/wiki/Model-based_testing
 [1]: http://en.wikipedia.org/wiki/Mealy_machine
@@ -1385,3 +1390,8 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
 [7]: http://books.rakuten.co.jp/rk/9c45f93d48a24f7d8541d2271b183294/
 [8]: http://graphwalker.org/
 [9]: http://www.seleniumhq.org/
+[10]: https://github.com/dakusui/jcunit/issues/9
+[11]: https://github.com/dakusui/jcunit/issues/10
+[12]: https://github.com/dakusui/jcunit/issues/11
+[13]: https://github.com/dakusui/jcunit/issues/12
+[14]: https://github.com/dakusui/jcunit/issues/13
