@@ -45,7 +45,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
       String paramsFieldName = each.getValue().getAnnotation(ActionSpec.class).parametersSpec();
       if (m.getParameterTypes().length > 1) {
         if (ActionSpec.DEFAULT_PARAMS_SPEC.equals(paramsFieldName)) {
-          paramsFieldName = each.getKey();
+          paramsFieldName = m.getName();
         }
         f = paramsFields.get(paramsFieldName);
         Checks.checktest(
@@ -291,7 +291,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
   }
 
   static String generateMethodId(Method m) {
-    return Checks.checknotnull(m) + "/" +
+    return Checks.checknotnull(m).getName() + "/" +
         Utils.join(
             ",",
             Utils.transform(Arrays.asList(m.getParameterTypes()).subList(1, m.getParameterTypes().length),
