@@ -63,7 +63,7 @@ public class FSMUtils {
     validateStoryFiled(storyField);
 
     try {
-      Story<? extends FSMSpec<SUT>, SUT> story = (Story<? extends FSMSpec<SUT>, SUT>) storyField.get(context);
+      Story<SUT, ? extends FSMSpec<SUT>> story = (Story<SUT, ? extends FSMSpec<SUT>>) storyField.get(context);
       ////
       // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
       // should assign an appropriate value to the factor field.

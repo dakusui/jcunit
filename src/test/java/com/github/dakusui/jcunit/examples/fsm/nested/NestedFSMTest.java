@@ -80,10 +80,10 @@ public class NestedFSMTest {
   }
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<Spec, FlyingSpaghettiMonster> primary;
+  public Story<FlyingSpaghettiMonster, Spec> primary;
 
   @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Param("2") })
-  public Story<NestedSpec, String> nested;
+  public Story<String, NestedSpec> nested;
 
   @Before
   public void before() {

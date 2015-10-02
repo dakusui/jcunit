@@ -40,7 +40,7 @@ public class TurnstileTest {
   }
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<Spec, Turnstile> main;
+  public Story<Turnstile, Spec> main;
 
   @Test
   public void test() throws Throwable {

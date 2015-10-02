@@ -114,7 +114,7 @@ public class TupleGeneratorFactory {
    */
   private static FSM<?> createFSM(Field f, int switchCoverage) {
     Checks.checknotnull(f);
-    Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0];
+    Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
     //noinspection unchecked
     return createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz, switchCoverage + 1);
   }

@@ -8,7 +8,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -341,6 +340,13 @@ public class Utils {
     return ret && path.delete();
   }
 
+  public static <T> List<T> dedup(Iterable<T> in) {
+    List<T> ret = new LinkedList<T>();
+    for (T each : Checks.checknotnull(in)) {
+      if (!ret.contains(each)) ret.add(each);
+    }
+    return ret;
+  }
   /**
    * Returns a list whose members are coming from a parameter list {@code in}, but
    * each of them appears only once.
@@ -357,6 +363,14 @@ public class Utils {
       if (ret.contains(each))
         continue;
       ret.add(each);
+    }
+    return ret;
+  }
+
+  public static <I, O> List<O> transform(Iterable<I> in, Form<I, O> form) {
+    List<O> ret = new ArrayList<O>();
+    for (I each : in) {
+      ret.add(form.apply(each));
     }
     return ret;
   }
@@ -398,13 +412,8 @@ public class Utils {
     return c;
   }
 
-  public static void main(String... args) throws NoSuchAlgorithmException {
-    MultiMap<String, Integer> map = new MultiMap<String, Integer>();
-
-  }
-
-  public static interface Formatter<T> {
-    public static final Formatter INSTANCE = new Formatter<Object>() {
+  public interface Formatter<T> {
+    Formatter INSTANCE = new Formatter<Object>() {
       @Override
       public String format(Object elem) {
         if (elem == null) {
@@ -414,30 +423,14 @@ public class Utils {
       }
     };
 
-    public String format(T elem);
+    String format(T elem);
   }
 
-  public static interface Form<I, O> {
+  public interface Form<I, O> {
     O apply(I in);
   }
 
-  public static interface Predicate<I> {
+  public interface Predicate<I> {
     boolean apply(I in);
-  }
-
-  public static class MultiMap<K, V> extends LinkedHashMap<K, List<V>> {
-    @Override
-    public List<V> put(K k, List<V> values) {
-      ////
-      // Adding null as a value must be prohibited.
-      return super.put(k, Checks.checknotnull(values));
-    }
-
-    public void add(K k, V v) {
-      if (!this.containsKey(k)) {
-        this.put(k, new LinkedList<V>());
-      }
-      this.get(k).add(v);
-    }
   }
 }

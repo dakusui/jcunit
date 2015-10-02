@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.TurnstileTest;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.ScenarioSequence;
 import com.github.dakusui.jcunit.fsm.Story;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,10 +13,10 @@ import org.junit.runner.RunWith;
 @RunWith(JCUnit.class)
 public class DoubleFSMTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<TurnstileTest.Spec, Turnstile> fsm1;
+  public Story<Turnstile, TurnstileTest.Spec> fsm1;
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<TurnstileTest.Spec, Turnstile> fsm2;
+  public Story<Turnstile, TurnstileTest.Spec> fsm2;
 
   Turnstile sut1 = new Turnstile();
   Turnstile sut2 = new Turnstile();

@@ -23,6 +23,16 @@ public interface Action<SUT> extends Serializable {
     public int numParameterFactors() {
       return 0;
     }
+
+    @Override
+    public String id() {
+      return "(VOID)";
+    }
+
+    @Override
+    public Class<?>[] parameterTypes() {
+      return new Class<?>[0];
+    }
   };
 
   /**
@@ -49,4 +59,8 @@ public interface Action<SUT> extends Serializable {
    * Returns a number of parameters that this action takes.
    */
   int numParameterFactors();
+
+  String id();
+
+  Class<?>[] parameterTypes();
 }

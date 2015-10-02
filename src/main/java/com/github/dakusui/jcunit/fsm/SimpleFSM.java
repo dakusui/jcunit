@@ -29,7 +29,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     Map<String, Method> actionMethods = Utils.toMap(getActionMethods(specClass), new Utils.Form<Method, String>() {
       @Override
       public String apply(Method in) {
-        return in.getName();
+        return generateMethodId(in);
       }
     });
     Map<String, Field> paramsFields = Utils.toMap(getParamsFields(specClass), new Utils.Form<Field, String>() {
@@ -41,7 +41,23 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     List<Action<SUT>> actions = new LinkedList<Action<SUT>>();
     for (Map.Entry<String, Method> each : actionMethods.entrySet()) {
       Method m = each.getValue();
-      Field f = paramsFields.get(each.getKey());
+      Field f = null;
+      String paramsFieldName = each.getValue().getAnnotation(ActionSpec.class).parametersSpec();
+      if (m.getParameterTypes().length > 1) {
+        if (ActionSpec.DEFAULT_PARAMS_SPEC.equals(paramsFieldName)) {
+          paramsFieldName = each.getKey();
+        }
+        f = paramsFields.get(paramsFieldName);
+        Checks.checktest(
+            f != null,
+            "A parameter field '%s' referred to by '%s' is not found in '%s'", paramsFieldName, each.getKey(), specClass.getCanonicalName()
+        );
+      } else {
+        Checks.checktest(
+            ActionSpec.DEFAULT_PARAMS_SPEC.equals(paramsFieldName),
+            "An action without parameters but Expectation.Builder must not have 'parametersSpec' attribute."
+        );
+      }
       actions.add(createAction(m, f));
     }
     this.actions = Collections.unmodifiableList(actions);
@@ -128,6 +144,9 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     return ret;
   }
 
+  /**
+   * {@code paramsField} can be numm if {@code actionMethod} doesn't have any parameter.
+   */
   private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
     final Object[][] paramFactors;
     if (paramsField == null) {
@@ -222,7 +241,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     @Override
     public Expectation<SUT> expectation(Action<SUT> action, Args args) {
       Expectation<SUT> ret = null;
-      Method m = Checks.checknotnull(actionMethods.get(action.toString()), "Unknown action '%s' was given.", action);
+      Method m = Checks.checknotnull(actionMethods.get(action.id()), "Unknown action '%s' was given.", action);
       Checks.checktest(
           Expectation.class.isAssignableFrom(m.getReturnType()),
           "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
@@ -271,15 +290,34 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     }
   }
 
+  static String generateMethodId(Method m) {
+    return Checks.checknotnull(m) + "/" +
+        Utils.join(
+            ",",
+            Utils.transform(Arrays.asList(m.getParameterTypes()).subList(1, m.getParameterTypes().length),
+                new Utils.Form<Class<?>, String>() {
+                  @Override
+                  public String apply(Class in) {
+                    return in.getCanonicalName();
+                  }
+                }).toArray());
+  }
+
   private static class MethodAction<SUT> implements Action<SUT> {
     final         Method     method;
     final         String     name;
     private final Object[][] paramFactors;
 
-    public MethodAction(Method method, Object[][] paramFactors) {
+    /**
+     * Creates an object of this class.
+     *
+     * @param method        An {@code ActionSpec}  annotated method in {@code FSMSpec}.
+     * @param paramsFactors A {@code ParametersSpec} annotated field in {@code FSMSpec}.
+     */
+    public MethodAction(Method method, Object[][] paramsFactors) {
       this.method = method;
       this.name = method.getName();
-      this.paramFactors = paramFactors;
+      this.paramFactors = paramsFactors;
     }
 
     @Override
@@ -304,7 +342,13 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
         // security manager and it's easy. But I can't be sure it's useful
         // yet and a careless introduction of a new feature can create a
         // compatibility conflicts in future, so I'm not supporting it for now.
-        Checks.rethrowtesterror(e, "Non-public method testing isn't supported (%s#%s isn't public)");
+        Checks.rethrowtesterror(
+            e,
+            "Non-public method testing isn't supported (%s#%s/%d isn't public)",
+            o.getClass().getCanonicalName(),
+            this.name,
+            args.size()
+        );
       } catch (InvocationTargetException e) {
         throw e.getTargetException();
       }
@@ -321,6 +365,16 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     public int numParameterFactors() {
       // It's safe to access the first parameter because it's already validated.
       return paramFactors.length;
+    }
+
+    @Override
+    public String id() {
+      return generateMethodId(this.method);
+    }
+
+    @Override
+    public Class<?>[] parameterTypes() {
+      return this.getParameterTypes();
     }
 
     @Override
@@ -346,13 +400,26 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     private Method chooseMethod(Class<?> klass, String name, int numArgs) {
       Method ret = null;
       for (Method each : klass.getMethods()) {
-        if (each.getName().equals(name) && each.getParameterTypes().length == numArgs) {
-          Checks.checktest(ret == null, "There are more than 1 method '%s/%d' in '%s'", name, numArgs, klass.getCanonicalName());
+        if (each.getName().equals(name) && equals(this.getParameterTypes(), each.getParameterTypes())) {
           ret = each;
+          break;
         }
       }
       Checks.checktest(ret != null, "No method '%s/%d' is found in '%s'", name, numArgs, klass.getCanonicalName());
       return ret;
+    }
+
+    /**
+     * Returns parameter types of a method that this action represents in SUT (not in Spec).
+     */
+    private Class<?>[] getParameterTypes() {
+      Class<?>[] ret = this.method.getParameterTypes();
+      ret = Arrays.asList(this.method.getParameterTypes()).subList(1, ret.length).toArray(new Class<?>[ret.length - 1]);
+      return ret;
+    }
+
+    private static boolean equals(Class<?>[] parameterTypesA, Class<?>[] parameterTypesB) {
+      return Arrays.equals(parameterTypesA, parameterTypesB);
     }
   }
 }

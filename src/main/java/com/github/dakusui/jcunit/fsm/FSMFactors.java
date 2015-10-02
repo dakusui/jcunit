@@ -8,6 +8,11 @@ import java.util.*;
 
 /**
  * Defines factors for FSM(s) using conventions below.
+ * A builder of this class creates an adapter for a regular {@code Factors} object,
+ * which is this class, {@code FSMFactors}, itself.
+ *
+ * The builder internally generates following factors from an {@code FSM} object
+ * given to it.
  * <p/>
  * <code>
  * FSM:{FSM name}:state:{i}      - {i}th state
@@ -16,6 +21,9 @@ import java.util.*;
  * </code>
  * Levels for FSM:param:{i}:{j} are not intuitive.
  * They are union of {j}'s arguments of all the actions.
+ *
+ * This class provides some useful methods like {@code stateName()}, etc, that
+ * return the FSM's information in an abstract way.
  */
 public class FSMFactors extends Factors {
   public static final Object VOID = new Object();
@@ -73,8 +81,6 @@ public class FSMFactors extends Factors {
     return this.fsmMap.get(fsmName).historyLength();
   }
 
-  /**
-   */
   public static class Builder extends Factors.Builder {
     private Map<String, FSM<?>> fsms = new LinkedHashMap<String, FSM<?>>();
     private Factors baseFactors;
@@ -113,6 +119,13 @@ public class FSMFactors extends Factors {
           // {i}th element of allParams (List<Object>) is a list of possible levels
           //
           final List<Set<Object>> allParams = new ArrayList<Set<Object>>();
+          ////
+          // 'smallestNumParams' holds the smallest number of parameters of
+          // 'action' methods.
+          // All the actions share the same parameter factors.
+          // This means some parameter factors (e.g., the last one) will not be
+          // used sometimes unless corresponding action's level is set to the method
+          // with the most parameters.
           int smallestNumParams = Integer.MAX_VALUE;
           {
             Factor.Builder bb = new Factor.Builder();
@@ -141,6 +154,12 @@ public class FSMFactors extends Factors {
               Factor.Builder bb = new Factor.Builder();
               bb.setName(paramName(fsmName, index, i++));
               if (i >= smallestNumParams)
+                ////
+                // Add VOID action as a level. 'smallestNumParams' is the number of
+                // parameters of the method with the least parameters.
+                // Parameter factors after this point must have VOID level.
+                // Because if a method whose parameters are little than the largest,
+                // it means the last some parameters cannot have any arguments.
                 bb.addLevel(VOID);
               for (Object v : each) {
                 bb.addLevel(v);

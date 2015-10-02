@@ -4,12 +4,11 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.MappingLevelsProviderBase;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
 import java.lang.reflect.Field;
 
-public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<FSMSpec<SUT>, SUT>> {
+public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT, FSMSpec<SUT>>> {
   private int    switchCoverage;
 
   @Override

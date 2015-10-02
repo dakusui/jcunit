@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.ParamType;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -34,7 +35,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     ConstraintManager fsmCM = new FSMConstraintManager(this.baseTupleGeneratorBuilder.getConstraintManager());
     fsmCM.setFactors(fsmFactors);
 
-    this.tuples = generateTestCaseTuples(this.fsms, fsmFactors, fsmCM);
+    this.tuples = Utils.dedup(generateTestCaseTuples(this.fsms, fsmFactors, fsmCM));
     ////
     // Rebuild factors from tuples.
     // Rebuilt factor should only contain
@@ -110,6 +111,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     Map<String, StateRouter> stateRouters = new LinkedHashMap<String, StateRouter>();
     for (Map.Entry<String, List<ScenarioSequence>> each : sequences.entrySet()) {
       String fsmName = each.getKey();
+      //noinspection unchecked
       StateRouter cur = new StateRouter(
           fsms.get(fsmName),
           new StateRouter.EdgeLister(each.getValue())
@@ -131,7 +133,14 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
             .build();
         StateRouter router = stateRouters.get(fsmName);
         //noinspection unchecked
-        Story<?, ?> story = new Story(fsmName, router.routeTo(main.state(0)), main);
+        Story<?, ?> story;
+        if (main.state(0) != entry.getValue().initialState()) {
+          //noinspection unchecked
+          story = new Story(fsmName, router.routeTo(main.state(0)), main);
+        } else {
+          //noinspection unchecked
+          story = new Story(fsmName, ScenarioSequence.EMPTY, main);
+        }
         cur.put(fsmName, story);
       }
       for (String eachFactorName : eachTuple.keySet()) {

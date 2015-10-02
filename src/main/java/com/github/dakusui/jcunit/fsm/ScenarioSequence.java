@@ -215,9 +215,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       return false;
     }
 
-
-    @Override
-    public String toString() {
+    @Override public String toString() {
       return Utils.toString(this);
     }
   }
@@ -266,7 +264,21 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
     @Override
     public String toString() {
-      return "Empty Story:[]";
+      return Utils.toString(this);
+    }
+
+    @Override
+    public int hashCode() {
+      return this.toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object another) {
+      if (another instanceof ScenarioSequence) {
+        ScenarioSequence anotherSequence = (ScenarioSequence) another;
+        return Utils.toString(this).equals(Utils.toString(anotherSequence));
+      }
+      return false;
     }
   };
 
@@ -428,11 +440,6 @@ public interface ScenarioSequence<SUT> extends Serializable {
         @Override
         public int size() {
           return factors.historyLength(fsmName);
-        }
-
-        @Override
-        public String toString() {
-          return Utils.toString(this);
         }
       };
     }

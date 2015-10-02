@@ -79,7 +79,7 @@ public class FlyingSpaghettiMonsterTest {
   }
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<Spec, FlyingSpaghettiMonster> primary;
+  public Story<FlyingSpaghettiMonster, Spec> primary;
 
   @Test
   public void test() throws Throwable {

@@ -9,20 +9,20 @@ import java.io.Serializable;
  * A story comprises setUp and main scenario sequences.
  * Users can perform a story through {@code FSMUtils#performStory}.
  *
+ * @param <SPEC> FSMSpec implementation. This information is used reflectively.
+ * @param <SUT>  SUT class
  * @see FSMUtils#performStory(Object, String, Object, ScenarioSequence.Observer.Factory)
- * @param <S> FSMSpec implementation. This information is used reflectively.
- * @param <SUT> SUT class
  */
 public class Story<
-    S extends FSMSpec<SUT>, // Do not remove to refactor. See Javadoc of this parameter.
-    SUT
+    SUT, SPEC extends FSMSpec<SUT> // Do not remove to refactor. See Javadoc of this parameter.
     > implements Serializable {
   /*
-   * A dummy field to suppress a warning for S.
+   * A dummy field to suppress a warning for SPEC.
    */
-  @SuppressWarnings("unused") private Class<S>  klazz;
-  private final     String  name;
-  transient private boolean performed;
+  @SuppressWarnings({ "unused", "FieldCanBeLocal" })
+  private           Class<SPEC> klazz;
+  private final     String      name;
+  transient private boolean     performed;
 
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
@@ -58,7 +58,7 @@ public class Story<
   @Override
   public boolean equals(Object another) {
     if (another instanceof Story) {
-      Story anotherStory = ((Story)another);
+      Story anotherStory = ((Story) another);
       return this.name.equals(anotherStory.name) && this.setUp.equals(anotherStory.setUp) && this.main.equals(anotherStory.main);
     }
     return false;

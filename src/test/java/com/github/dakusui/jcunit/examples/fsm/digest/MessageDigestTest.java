@@ -19,37 +19,21 @@ public class MessageDigestTest {
   @FactorField(stringLevels = {"SHA1", "MD5"})
   public String algotithmName;
 
-  public class Adapter {
-    private final MessageDigest messageDigest;
-
-    public Adapter(MessageDigest messageDigest) {
-      this.messageDigest = messageDigest;
-    }
-
-    public byte[] digest() {
-      return this.messageDigest.digest();
-    }
-
-    public void update(byte[] input) {
-      this.messageDigest.update(input);
-    }
-  }
-
-  public enum Spec implements FSMSpec<Adapter> {
+  public enum Spec implements FSMSpec<MessageDigest> {
     @StateSpec I {
       @Override
-      public Expectation<Adapter> digest(Expectation.Builder<Adapter> b) {
+      public Expectation<MessageDigest> digest(Expectation.Builder<MessageDigest> b) {
         return b.valid(I, CoreMatchers.instanceOf(new byte[0].getClass())).build();
       }
 
       @Override
-      public Expectation<Adapter> update(Expectation.Builder<Adapter> b, byte[] data) {
+      public Expectation<MessageDigest> update(Expectation.Builder<MessageDigest> b, byte[] data) {
         return b.valid(I).build();
       }
     },;
 
     @ActionSpec
-    public abstract Expectation<Adapter> digest(Expectation.Builder<Adapter> b);
+    public abstract Expectation<MessageDigest> digest(Expectation.Builder<MessageDigest> b);
 
     @ParametersSpec
     public static final Object[][] update = new Object[][] {
@@ -58,21 +42,21 @@ public class MessageDigestTest {
         }
     };
 
-    @ActionSpec
-    public abstract Expectation<Adapter> update(Expectation.Builder<Adapter> b, byte[] data);
+    @ActionSpec(parametersSpec="update")
+    public abstract Expectation<MessageDigest> update(Expectation.Builder<MessageDigest> b, byte[] data);
 
     @Override
-    public boolean check(Adapter messageDigest) {
+    public boolean check(MessageDigest messageDigest) {
       return true;
     }
   }
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)
-  public Story<Spec, Adapter> messageDigest;
+  public Story<MessageDigest, Spec> messageDigest;
 
   @Test
   public void test() throws NoSuchAlgorithmException {
-    Adapter md = new Adapter(MessageDigest.getInstance(this.algotithmName));
+    MessageDigest md = MessageDigest.getInstance(this.algotithmName);
     FSMUtils.performStory(this, "messageDigest", md);
   }
 }
