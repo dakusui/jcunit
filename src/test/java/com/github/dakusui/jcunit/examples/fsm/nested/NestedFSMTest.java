@@ -90,11 +90,6 @@ public class NestedFSMTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Param("2") })
   public Story<String, NestedSpec> nested;
 
-  @Before
-  public void before() {
-    FSMUtils.resetStories(this);
-  }
-
   @Test
   public void test1() {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();

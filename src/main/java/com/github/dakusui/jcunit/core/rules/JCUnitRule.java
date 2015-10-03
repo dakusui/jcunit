@@ -22,7 +22,7 @@ public abstract class JCUnitRule extends TestWatcher {
         .getAnnotation(JCUnit.InternalAnnotation.class);
     Checks.checknotnull(ann,
         "This class(%s) should be used with classes annotated @RunWith(%s.class)",
-        this.getClass(), JCUnit.class.getClass());
+        this.getClass(), JCUnit.class.getClass().getSimpleName());
     this.testClass = d.getTestClass();
     this.testName = d.getMethodName();
     this.factors = ann.getFactors();

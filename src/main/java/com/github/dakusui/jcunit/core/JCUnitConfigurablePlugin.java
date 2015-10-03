@@ -44,7 +44,7 @@ public interface JCUnitConfigurablePlugin {
    * Returns an array of parameter types that describes expectations a plugin (an implementation
    * of this interface) has for 'parameters' given to it through '{@literal @}Param' annotations.
    *
-   * JCUnit uses the value returned by this method to validate and convert from strings appeared
+   * JCUnit uses the value returned by this method to validateFactorField and convert from strings appeared
    * in {@code @Param} annotations to Java objects.
    *
    * The converted values will then be given to {@code init(Object[])} method of this interface.

@@ -13,10 +13,7 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TupleGeneratorFactory {
   public static final TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory();
@@ -67,7 +64,7 @@ public class TupleGeneratorFactory {
         .setFactors(factors);
     TupleGenerator generator;
     List<Field> fsmFields;
-    if (!(fsmFields = extractFSMFactorFields(levelsProviders)).isEmpty()) {
+    if (!(fsmFields = extractFSMFactorFields(levelsProviders.keySet())).isEmpty()) {
       Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
       List<Parameters.LocalConstraintManager> localCMs = new LinkedList<Parameters.LocalConstraintManager>();
       Errors.Builder bb = new Errors.Builder();
@@ -115,11 +112,11 @@ public class TupleGeneratorFactory {
     }
   }
 
-  private static List<Field> extractFSMFactorFields(Map<Field, LevelsProvider> providers) {
+  private static List<Field> extractFSMFactorFields(Set<Field> factorFields) {
     List<Field> ret = new LinkedList<Field>();
-    for (Map.Entry<Field, LevelsProvider> each : providers.entrySet()) {
-      if (each.getValue() instanceof FSMLevelsProvider) {
-        ret.add(each.getKey());
+    for (Field each : factorFields) {
+      if (FSMUtils.isStoryField(each)) {
+        ret.add(each);
       }
     }
     return ret;

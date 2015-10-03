@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.core.factor.LevelsProvider;
+import com.github.dakusui.jcunit.core.factor.LevelsProviderFactory;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.*;
@@ -412,6 +414,30 @@ public class Utils {
     return c;
   }
 
+  public static ValidationResult validateFactorField(Field f) {
+    Checks.checknotnull(f);
+    FactorField ann = f.getAnnotation(FactorField.class);
+    Checks.checknotnull(ann);
+    List<String> errors = new LinkedList<String>();
+    LevelsProvider<?> levelsProvider = LevelsProviderFactory.INSTANCE.createLevelsProvider(
+        f,
+        ann,
+        errors
+    );
+    errors.addAll(levelsProvider.getErrorsOnInitialization());
+    ValidationResult ret;
+    if (errors.isEmpty()) {
+      levelsProvider.setAnnotation(ann);
+      levelsProvider.setTargetField(f);
+      levelsProvider.init(ann.providerParams());
+      ret = new ValidationResult(true, levelsProvider, null);
+    } else {
+      ret = new ValidationResult(false, null,
+          join("; ", errors.toArray()));
+    }
+    return ret;
+  }
+
   public interface Formatter<T> {
     Formatter INSTANCE = new Formatter<Object>() {
       @Override
@@ -432,5 +458,31 @@ public class Utils {
 
   public interface Predicate<I> {
     boolean apply(I in);
+  }
+
+  public static class ValidationResult {
+    private final boolean           valid;
+    private final String            errMessage;
+    private final LevelsProvider<?> levelsProvider;
+
+    public ValidationResult(boolean valid,
+        LevelsProvider<?> levelsProvider, String errorMessage) {
+      if (valid) {
+        Checks.checknotnull(levelsProvider);
+      } else {
+        Checks.checknotnull(errorMessage);
+      }
+      this.valid = valid;
+      this.levelsProvider = levelsProvider;
+      this.errMessage = errorMessage;
+    }
+
+    public LevelsProvider<?> getLevelsProvider() {
+      return levelsProvider;
+    }
+
+    public void check() {
+      Checks.checktest(this.valid, errMessage);
+    }
   }
 }

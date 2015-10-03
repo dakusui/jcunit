@@ -1,10 +1,16 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.factor.FactorLoader;
+import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.rules.JCUnitRule;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 
 import java.lang.reflect.Field;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A utility class for FSM (finite state machine) support of JCUnit intended to be
@@ -14,8 +20,20 @@ public class FSMUtils {
   private FSMUtils() {
   }
 
-  public static <T> void resetStories(T context) {
-
+  public static <T> void resetStories(final T context) {
+    for (Story each : Utils.transform(FSMUtils.getStoryFields(Checks.checknotnull(context)), new Utils.Form<Field, Story>() {
+      @Override
+      public Story apply(Field in) {
+        try {
+          return (Story) in.get(context);
+        } catch (IllegalAccessException e) {
+          Checks.checkcond(false, "This code shouldn't be executed, because the field is already validated.");
+        }
+        return Checks.checknotnull(null);
+      }
+    })) {
+      each.reset();
+    }
   }
 
   /**
@@ -58,7 +76,7 @@ public class FSMUtils {
 
     Field storyField = lookupStoryField(context, fsmName);
     Checks.checktest(storyField != null, "The field '%s' was not found or not public in the context '%s'", fsmName, context);
-    validateStoryFiled(storyField);
+    Utils.validateFactorField((storyField)).check();
 
     try {
       Story<SUT, ? extends FSMSpec<SUT>> story = (Story<SUT, ? extends FSMSpec<SUT>>) storyField.get(context);
@@ -75,9 +93,25 @@ public class FSMUtils {
     }
   }
 
-  private static void validateStoryFiled(Field storyField) {
-    FactorLoader.ValidationResult result = FactorLoader.validate(storyField);
-    result.check();
+  /**
+   * Returns {@code true} iff {@code f} is FSM field, whose levels provider is
+   * a {@code FSMLevelsProvider}. Otherwise {@code false} will be returned.
+   *
+   * @param f A field to be checked.
+   */
+  public static boolean isStoryField(Field f) {
+    Utils.validateFactorField((Checks.checknotnull(f))).check();
+    return FSMLevelsProvider.class.isAssignableFrom(f.getAnnotation(FactorField.class).levelsProvider());
+  }
+
+  private static <T> List<Field> getStoryFields(T context) {
+    List<Field> ret = new LinkedList<Field>();
+    for (Field each : Utils.getAnnotatedFields(context.getClass(), FactorField.class)) {
+      if (isStoryField(each)) {
+        ret.add(each);
+      }
+    }
+    return ret;
   }
 
   private static <T> Field lookupStoryField(T context, String fsmName) {

@@ -633,10 +633,13 @@ be executed.
 And ```FSMonster``` is the class of our SUT.
 You don't need to initialize this field by yourself, JCUnit will do it for you.
 
-A factor field whose ```levelsProvider``` is ```FSMLevelsProvider``` must be typed
-with ```Story<SUT, SPEC>``` where ```SPEC``` is a spec class that you defined for the SUT 
-```FSMonster``` in the previous section. As other regular factors, the field must 
-be public instance member.
+A factor field whose ```levelsProvider``` is ```FSMLevelsProvider``` is marked
+FSM field by FSM/JCUnit and must be typed with ```Story<SUT, SPEC>``` where 
+```SPEC``` is a spec class that you defined for the SUT ```FSMonster``` in the
+previous section.
+
+If a test class has one or more FSM fields, FSM/JCUnit feature will be activated.  
+As other regular factors, the field must be public instance member.
 
 In [the next section](#Inside FSM/JCUnit), internal structure of ```Story<SUT, SPEC>```
  object will be discussed in detail but for now you can consider it is just an object
