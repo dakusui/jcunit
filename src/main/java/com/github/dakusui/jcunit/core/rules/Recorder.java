@@ -212,6 +212,6 @@ public class Recorder extends JCUnitRule {
 
   @Target(ElementType.FIELD)
   @Retention(RetentionPolicy.RUNTIME)
-  public static @interface Record {
+  public @interface Record {
   }
 }

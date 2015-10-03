@@ -62,6 +62,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       Observer createObserver(String fsmName);
 
       class ForSilent implements Factory {
+        public static final Factory INSTANCE = new ForSilent();
         @Override
         public Observer createObserver(String fsmName) {
           return SILENT;
@@ -69,6 +70,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       }
 
       class ForSimple implements Factory {
+        public static final Factory INSTANCE = new ForSimple();
         @Override
         public Observer createObserver(String fsmName) {
           return Utils.createSimpleObserver(fsmName);

@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.fsm.FSMUtils;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
@@ -14,125 +15,125 @@ import java.util.List;
  * A class that holds utility methods to retrieve and validate framework methods.
  */
 public class FrameworkMethodUtils {
+  /**
+   * Returns a {@code Method} object or {@code null} if the specified method is not found or not loadable.
+   */
+  private static FrameworkMethod getFrameworkMethodByName(Class<?> testClass, String methodName) {
+    Method foundMethod = null;
+    for (Method m : testClass.getDeclaredMethods()) {
+      if (methodName.equals(m.getName())) {
+        if (foundMethod != null) {
+          return new NotFoundMethod(methodName);
+        }
+        foundMethod = m;
+      }
+    }
+    if (foundMethod == null) {
+      return new NotFoundMethod(methodName);
+    }
+    return new FrameworkMethod(foundMethod);
+  }
+
+  /**
+   * Validates a precondition method.
+   * A precondition method is a method annotated with {@literal @}Precondition or referred to by an annotation {@literal @}Given.
+   * It is mainly used to determine if a test method (or methods) should be executed in advance.
+   * <p/>
+   * It must be public, non-static, returning a boolean value, and must have no parameter.
+   * In case it is not valid, this method add a string message which describes the failure to {@code errors} list.
+   */
+  private static void validatePreconditionFrameworkMethod(Class<?> testClass, FrameworkMethod method, List<String> errors) {
+    if (!method.isPublic()) {
+      errors.add(String.format(
+          "The method '%s' must be public. (in %s)", method.getName(), testClass.getCanonicalName()
+      ));
+    }
+    if (method.isStatic()) {
+      errors.add(String.format(
+          "The method '%s' must not be static. (in %s)", method.getName(), testClass.getCanonicalName()
+      ));
+    }
+    if (!Boolean.TYPE.equals(method.getReturnType())) {
+      errors.add(String.format(
+          "The method '%s' must return a boolean value, but '%s' is returned. (in %s)",
+          method.getName(),
+          method.getReturnType().getName(),
+          testClass.getCanonicalName()
+      ));
+    }
+    Class<?>[] parameterTypes = method.getMethod().getParameterTypes();
+    if (parameterTypes.length != 0) {
+      errors.add(String.format(
+          "The method '%s' must not have any parameter. (in %s)",
+          method.getName(),
+          testClass.getCanonicalName()
+      ));
+    }
+  }
+
+  public static void validateFrameworkMethod(Class<?> testClass, FrameworkMethod method, FrameworkMethodValidator validator, List<String> errors) {
+    Checks.checknotnull(testClass);
+    Checks.checknotnull(method);
+    Checks.checknotnull(validator);
+    Checks.checknotnull(errors);
+    if (method instanceof CompositeFrameworkMethod) {
+      for (FrameworkMethod each : ((CompositeFrameworkMethod) method).methods) {
+        validateFrameworkMethod(testClass, each, validator, errors);
+      }
+    } else if (method instanceof NotFoundMethod) {
+      errors.add(String.format("The method '%s' is not found or not unique in a class '%s'", method.getName(), testClass.getCanonicalName()));
+    } else {
+      validator.validate(testClass, method, errors);
+    }
+  }
+
+
+  public interface FrameworkMethodValidator {
     /**
-     * Returns a {@code Method} object or {@code null} if the specified method is not found or not loadable.
+     * A validator used for custom test case methods.
      */
-    private static FrameworkMethod getFrameworkMethodByName(Class<?> testClass, String methodName) {
-        Method foundMethod = null;
-        for (Method m : testClass.getDeclaredMethods()) {
-            if (methodName.equals(m.getName())) {
-                if (foundMethod != null) {
-                    return new NotFoundMethod(methodName);
-                }
-                foundMethod = m;
-            }
+    FrameworkMethodValidator CUSTOMTESTCASEMETHOD_VALIDATOR = new FrameworkMethodValidator() {
+      @Override
+      public void validate(Class<?> testClass, FrameworkMethod method, List<String> errors) {
+        Method mm = method.getMethod();
+        if (!method.isPublic() && method.isStatic()
+            && mm.getParameterTypes().length == 0 &&
+            (Tuple.class.isAssignableFrom(mm.getReturnType()) ||
+                (Iterable.class.isAssignableFrom(mm.getReturnType())
+                ))) {
+          errors.add("error");
         }
-        if (foundMethod == null) {
-            return new NotFoundMethod(methodName);
-        }
-        return new FrameworkMethod(foundMethod);
-    }
+      }
+    };
 
     /**
-     * Validates a precondition method.
-     * A precondition method is a method annotated with {@literal @}Precondition or referred to by an annotation {@literal @}Given.
-     * It is mainly used to determine if a test method (or methods) should be executed in advance.
-     * <p/>
-     * It must be public, non-static, returning a boolean value, and must have no parameter.
-     * In case it is not valid, this method add a string message which describes the failure to {@code errors} list.
+     * A validator used for methods referenced by a {@literal @}{@code Given} annotation.
      */
-    private static void validatePreconditionFrameworkMethod(Class<?> testClass, FrameworkMethod method, List<String> errors) {
-        if (!method.isPublic()) {
-            errors.add(String.format(
-                    "The method '%s' must be public. (in %s)", method.getName(), testClass.getCanonicalName()
-            ));
-        }
-        if (method.isStatic()) {
-            errors.add(String.format(
-                    "The method '%s' must not be static. (in %s)", method.getName(), testClass.getCanonicalName()
-            ));
-        }
-        if (!Boolean.TYPE.equals(method.getReturnType())) {
-            errors.add(String.format(
-                    "The method '%s' must return a boolean value, but '%s' is returned. (in %s)",
-                    method.getName(),
-                    method.getReturnType().getName(),
-                    testClass.getCanonicalName()
-            ));
-        }
-        Class<?>[] parameterTypes = method.getMethod().getParameterTypes();
-        if (parameterTypes.length != 0) {
-            errors.add(String.format(
-                    "The method '%s' must not have any parameter. (in %s)",
-                    method.getName(),
-                    testClass.getCanonicalName()
-            ));
-        }
-    }
+    FrameworkMethodValidator VALIDATOR_FOR_METHOD_REFERENCEDBY_WHEN = new FrameworkMethodValidator() {
+      @Override
+      public void validate(Class<?> testClass, FrameworkMethod method, List<String> errors) {
+        validatePreconditionFrameworkMethod(testClass, method, errors);
+      }
+    };
 
-    public static void validateFrameworkMethod(Class<?> testClass, FrameworkMethod method, FrameworkMethodValidator validator, List<String> errors) {
-        Checks.checknotnull(testClass);
-        Checks.checknotnull(method);
-        Checks.checknotnull(validator);
-        Checks.checknotnull(errors);
-        if (method instanceof CompositeFrameworkMethod) {
-            for (FrameworkMethod each : ((CompositeFrameworkMethod) method).methods) {
-                validateFrameworkMethod(testClass, each, validator, errors);
-            }
-        } else if (method instanceof NotFoundMethod) {
-            errors.add(String.format("The method '%s' is not found or not unique in a class '%s'", method.getName(), testClass.getCanonicalName()));
-        } else {
-            validator.validate(testClass, method, errors);
-        }
-    }
+    /**
+     * A validator used for precondition methods.
+     */
+    FrameworkMethodValidator PRECONDITIONMETHOD_VALIDATOR = new FrameworkMethodValidator() {
+      @Override
+      public void validate(Class<?> testClass, FrameworkMethod method, List<String> errors) {
+        validatePreconditionFrameworkMethod(testClass, method, errors);
+      }
+    };
 
-
-    public static interface FrameworkMethodValidator {
-      /**
-       * A validator used for custom test case methods.
-       */
-      public static final FrameworkMethodValidator CUSTOMTESTCASEMETHOD_VALIDATOR = new FrameworkMethodValidator() {
-        @Override
-        public void validate(Class<?> testClass, FrameworkMethod method, List<String> errors) {
-          Method mm = method.getMethod();
-          if (!method.isPublic() && method.isStatic()
-              && mm.getParameterTypes().length == 0 &&
-              (Tuple.class.isAssignableFrom(mm.getReturnType()) ||
-                  (Iterable.class.isAssignableFrom(mm.getReturnType())
-                  ))) {
-            errors.add("error");
-          }
-        }
-      };
-
-      /**
-       * A validator used for methods referenced by a {@literal @}{@code Given} annotation.
-       */
-      public static final FrameworkMethodValidator VALIDATOR_FOR_METHOD_REFERENCEDBY_WHEN = new FrameworkMethodValidator() {
-        @Override
-        public void validate(Class<?> testClass, FrameworkMethod method, List<String> errors) {
-          validatePreconditionFrameworkMethod(testClass, method, errors);
-        }
-      };
-
-      /**
-       * A validator used for precondition methods.
-       */
-      public static final FrameworkMethodValidator PRECONDITIONMETHOD_VALIDATOR = new FrameworkMethodValidator() {
-        @Override
-        public void validate(Class<?> testClass, FrameworkMethod method, List<String> errors) {
-          validatePreconditionFrameworkMethod(testClass, method, errors);
-        }
-      };
-
-      /**
-       * A method which validates a {@code FrameworkMethod}.
-       */
-      public void validate(Class<?> testClass, FrameworkMethod method, List<String> errors);
-    }
+    /**
+     * A method which validates a {@code FrameworkMethod}.
+     */
+    void validate(Class<?> testClass, FrameworkMethod method, List<String> errors);
+  }
 
   public interface FrameworkMethodRetriever {
-    abstract static class FrameworkMethodRetrieverBase implements FrameworkMethodRetriever {
+    abstract class FrameworkMethodRetrieverBase implements FrameworkMethodRetriever {
       @Override
       public List<FrameworkMethod> getMethods(Class<?> testClass) {
         return new TestClass(testClass).getAnnotatedMethods(this.getAnnotation());
@@ -141,7 +142,7 @@ public class FrameworkMethodUtils {
       abstract protected Class<? extends Annotation> getAnnotation();
     }
 
-    public static final FrameworkMethodRetriever CUSTOM_TESTCASES = new FrameworkMethodRetrieverBase() {
+    FrameworkMethodRetriever CUSTOM_TESTCASES = new FrameworkMethodRetrieverBase() {
       @Override
       protected Class<? extends Annotation> getAnnotation() {
         return CustomTestCases.class;
@@ -151,7 +152,7 @@ public class FrameworkMethodUtils {
     /**
      * A retriever which gathers methods annotated with {@literal @}{@code Precondition}.
      */
-    public static final FrameworkMethodRetriever PRECONDITION = new FrameworkMethodRetriever.FrameworkMethodRetrieverBase() {
+    FrameworkMethodRetriever PRECONDITION = new FrameworkMethodRetriever.FrameworkMethodRetrieverBase() {
       @Override
       protected Class<? extends Annotation> getAnnotation() {
         return Precondition.class;
@@ -161,7 +162,7 @@ public class FrameworkMethodUtils {
     /**
      * A retriever which gathers {@code FrameworkMethod}s referenced by {@literal @}{@code Given} annotation.
      */
-    public static final FrameworkMethodRetriever REFERENCED_BY_WHEN = new FrameworkMethodRetrieverBase() {
+    FrameworkMethodRetriever REFERENCED_BY_WHEN = new FrameworkMethodRetrieverBase() {
       @Override
       protected Class<? extends Annotation> getAnnotation() {
         return When.class;
@@ -204,7 +205,7 @@ public class FrameworkMethodUtils {
       }
     };
 
-    public List<FrameworkMethod> getMethods(Class<?> testClass);
+    List<FrameworkMethod> getMethods(Class<?> testClass);
   }
 
 
@@ -297,7 +298,7 @@ public class FrameworkMethodUtils {
       }
     }
 
-    static enum Mode {
+    enum Mode {
       And {
         public String toString() {
           return "&&";
@@ -335,6 +336,7 @@ public class FrameworkMethodUtils {
       } else if (mode == Mode.Or) {
         boolean ret = false;
         for (FrameworkMethod each : this.methods) {
+          FSMUtils.resetStories(target);
           ret |= (Boolean) each.invokeExplosively(target, params);
         }
         return ret;

@@ -10,7 +10,6 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,14 +46,14 @@ public class NestedFSMTest {
 
     @ParametersSpec
     public static final Parameters cook = new Parameters.Builder(new Object[][]
+        {
             {
-                {
-                    "spaghetti", "spaghettini"/*, "penne" */
-                },
-                {
-                    "peperoncino", "meat sauce", "carbonara"
-                },
-            }).build();
+                "spaghetti", "spaghettini"/*, "penne" */
+            },
+            {
+                "peperoncino", "meat sauce", "carbonara"
+            },
+        }).build();
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {

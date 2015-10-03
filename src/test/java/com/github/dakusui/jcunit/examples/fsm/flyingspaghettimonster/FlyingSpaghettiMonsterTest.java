@@ -79,8 +79,18 @@ public class FlyingSpaghettiMonsterTest {
   public Story<FlyingSpaghettiMonster, Spec> primary;
 
   @Test
-  public void test() throws Throwable {
+  public void test1() throws Throwable {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "primary", sut);
+    FSMUtils.performStory(this, "primary", sut, ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
+    System.out.println("test1:primary:" + System.identityHashCode(this.primary) + ":this=" + System.identityHashCode(this.primary) + ":isPerformed" + primary.isPerformed());
   }
+
+  @Test
+  public void test2() throws Throwable {
+    FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
+    //FSMUtils.performStory(this, "primary", sut);
+    System.out.println("test2:primary:" + System.identityHashCode(this.primary) + ":this=" + System.identityHashCode(this.primary) + ":isPerformed:" + primary.isPerformed());
+  }
+
+
 }
