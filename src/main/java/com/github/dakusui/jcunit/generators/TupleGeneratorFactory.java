@@ -69,15 +69,18 @@ public class TupleGeneratorFactory {
     List<Field> fsmFields;
     if (!(fsmFields = extractFSMFactorFields(levelsProviders)).isEmpty()) {
       Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
+      List<Parameters.LocalConstraintManager> localCMs = new LinkedList<Parameters.LocalConstraintManager>();
       Errors.Builder bb = new Errors.Builder();
       for (Field each : fsmFields) {
-        int switchCoverage = 1;
         ////
         // It's safe to assume fsmLevelsProvider becomes non-null since we are
         // iterating over fsmFields.
         FSMLevelsProvider fsmLevelsProvider = (FSMLevelsProvider) levelsProviders.get(each);
         validateFSMFactorField(bb, each);
-        fsms.put(each.getName(), createFSM(each, fsmLevelsProvider.getSwitchCoverage()));
+        String fsmName = each.getName();
+        FSM fsm = createFSM(each, fsmLevelsProvider.getSwitchCoverage());
+        fsms.put(fsmName, fsm);
+        collectLocalConstraintManagers(localCMs, fsmName, fsm);
       }
       Errors errors = bb.build();
       Checks.checktest(
@@ -86,12 +89,30 @@ public class TupleGeneratorFactory {
           klazz.getCanonicalName(),
           errors);
       //noinspection unchecked
-      generator = new FSMTupleGenerator(b, fsms);
-      generator.init(new Param[] {});
+      generator = new FSMTupleGenerator(b, fsms, localCMs);
+      generator.init(Param.EMPTY_ARRAY);
     } else {
       generator = b.build();
     }
     return generator;
+  }
+
+  private static void collectLocalConstraintManagers(List<Parameters.LocalConstraintManager> localCMs, String fsmName, FSM fsm) {
+    for (int i = 0; i < fsm.historyLength(); i++) {
+      for (Action eachAction: (List<Action>)fsm.actions()) {
+        Parameters parameters = eachAction.parameters();
+        ConstraintManager baseLocalCM = parameters.getConstraintManager();
+        if (ConstraintManager.DEFAULT_CONSTRAINT_MANAGER.equals(baseLocalCM)) continue;
+        List<String> localPlainParameterNames = Utils.transform(parameters, new Utils.Form<Factor, String>() {
+          @Override
+          public String apply(Factor in) {
+            return Checks.checknotnull(in).name;
+          }
+        });
+        Parameters.LocalConstraintManager localCM = new Parameters.LocalConstraintManager(baseLocalCM, localPlainParameterNames, fsmName, i);
+        localCMs.add(localCM);
+      }
+    }
   }
 
   private static List<Field> extractFSMFactorFields(Map<Field, LevelsProvider> providers) {

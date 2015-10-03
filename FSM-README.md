@@ -393,7 +393,7 @@ FSMs.
 | --------------- |:-------:|:------------------- |:----------------------:|
 | @StateSpec      | Field   | public static final | Enclosing class        |
 | @ActionSpec     | Method  | public              | Expectation&lt;SUT&gt; |
-| @ParametersSpec | Field   | public static final | Object[][]             |
+| @ParametersSpec | Field   | public static final | Parameters             |
 
 A list of behaviours of those annotations follows. 
 
@@ -439,10 +439,10 @@ modeled as following.
           String pasta,
           String sauce) { ... }
       @ParametersSpec
-      public static final Object[][] cook = new Object[][] {
+      public static final Parameters cook = new Parameters.Builder(Object[][] {
           { "spaghetti", "spaghettini", "penne" },
           { "peperoncino", "carbonara", "meat sauce" },
-      };
+      }).build();
       @ActionSpec public Expectation<FSMonster> eat(Expectation.Builder<FSMonster> b) {
         ... }
     }
@@ -454,14 +454,14 @@ static final field whose name is the same as the method.
 
 ```java
 
-      @ParametersSpec public static final Object[][] cook = new Object[][] {
+      @ParametersSpec public static final Parameters cook = new Parameters.Builder(new Object[][] {
           { "spaghetti", "spaghettini", "penne" },
           { "peperoncino", "carbonara", "meat sauce" },
-      };
+      }).build();
 
 ```
 
-The type of it must always be ```Object[][]```. And the first element of it should
+The type of the argument given to the constructer must be ```Object[][]```. And the first element of it should
 be an array each of whose elements will be given to the method ```cook``` as its
 first argument. Of course the rest of the array will be treated in the same manner.
 
@@ -476,7 +476,87 @@ has only several possible values, it results in a thousands of test cases.
 But it will not happen usually, because JCUnit applies all-pair techniques here.
 The detail will be discussed as a part of explanation for how you can describe 
 "test requirements" in JCUnit.
+
+### Testing a method with parameters and their constraints
+
+Probably you want to define a constraint manager for the parameters you give to an action.
+Defining a constraint manager for parameters can be done by doing below. 
+
+```java
+
+      @ParametersSpec public static final Parameters cook = new Parameters.Builder(new Object[][] {
+          { "spaghetti", "spaghettini", "penne" },
+          { "peperoncino", "carbonara", "meat sauce" },
+      }).setConstraintManager(
+        new ConstraintManagerBase() {
+          @Override
+          public boolean check(Tuple tuple) throws UndefinedSymbol {
+            String pasta = (String)tuple.get("p0");
+            String sauce = (String)tuple.get("p1");
+            if ("penne".equals(pasta) && "carbonara".equals(sauce)) return false;
+            return true;
+          }
+        }      
+      ).build();
+
+```
+
+This example precludes a test case for "penne carbonara" which doesn't sound very 
+tasty from the test suite to be generated.
+```p0``` and ```p1``` are parameter names assigned to factors you defined.
  
+Or you can do below to do the same thing.
+ 
+```java
+
+      @ParametersSpec public static final Parameters cook = new Parameters.Builder()
+      .add("pasta", "spaghettini", "penne" )
+      .add("sauce", "peperoncino", "carbonara", "meat sauce" )
+      .setConstraintManager(
+        new ConstraintManagerBase() {
+          @Override
+          public boolean check(Tuple tuple) throws UndefinedSymbol {
+            if ("penne".equals(tuple.get("pasta")) && "carbonara".equals(tuple.get("sauce"))) 
+              return false;
+            return true;
+          }
+      })      
+      .build();
+```
+
+One thing you should be careful here is the names of factor are not associated with
+parameter variable names of an action method.
+
+That is, if you do following 
+
+```java
+
+
+      @ParametersSpec public static final Parameters cook = new Parameters.Builder()
+      .add("sauce", "peperoncino", "carbonara", "meat sauce" )
+      .add("pasta", "spaghettini", "penne" )
+      .setConstraintManager(
+        new ConstraintManagerBase() {
+          @Override
+          public boolean check(Tuple tuple) throws UndefinedSymbol {
+            if ("penne".equals(tuple.get("pasta")) && "carbonara".equals(tuple.get("sauce"))) 
+              return false;
+            return true;
+          }
+      })      
+      .build();
+
+    @ActionSpec
+    public Expectation<FSMonster> cook(Expectation.Builder<FSMonster> b, String pasta, String sauce) {
+      return b.invalid().build();
+    }
+
+```
+
+Values assigned to ```pasta``` and ```sauce``` will be skewed. 
+```pasta``` will be assigned one of "peperoncino", "carbonara", or "meat sauce".
+And ```sauce``` will be assigned one of "spaghetti" or "penne".
+
 ### Testing exceptions thrown by methods
 Same as returned values, we want to test if a method is throwing an appropriate 
 exception. You can do it by writing code as follows,
@@ -1012,25 +1092,53 @@ do it, action definitions will look like following, which would work.
 
 ```
 
+### Overloading a method
 But how can we give parameters to them? Based on what we have discussed, the parameters 
 definitions would look like this,
 
+  
 ```java
 
       @ParametersSpec
-      public static final Object[][] cook = new Object[][] {
+      public static final Parameters cook = new Parameters.Builder(new Object[][] {
           { "spaghetti", "spaghettini", "penne" },
           { "peperoncino", "carbonara", "meat sauce" },
-      };
+      }).build();
 
       @ParametersSpec
-      public static final Object[][] cook = new Object[][] {
+      public static final Parameters cook = new Parameters(new Object[][] {
           { "soup", "primo", "dolce" }
-      };
+      }).build();
 ```
 
 But this results in a compilation error because a Java class can only have one field
 with a certain name.
+
+To model an overloading method like this one, you need to define a field with a different 
+name and refer to it from a method in your model using ```parametersSpec``` attribute.
+
+```java
+
+      @ParametersSpec
+      public static final Parameters cook = new Parameters(new Object[][] {
+          { "soup", "primo", "dolce" }
+      }).build();
+
+      @ActionSpec(parametersSpec="cook1") 
+      public Expectation<FSMonster> cook(Expectation.Builder<FSMonster> b, String dish) {
+        ... }
+
+      @ParametersSpec
+      public static final Parameters cook = new Parameters.Builder(new Object[][] {
+          { "spaghetti", "spaghettini", "penne" },
+          { "peperoncino", "carbonara", "meat sauce" },
+      }).build();
+      
+      @ActionSpec
+      public Expectation<FSMonster> cook(Expectation.Builder<FSMonster> b, String dish) {
+        ... }
+
+```
 
 ## Internal FSM factors
 Suppose your FSM has 3 states and 4 actions. And it's named "myfsm".
@@ -1374,10 +1482,10 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
 * [7] "Practical Model-Based Testing - a tools approach"
 * [8] "GraphWalker"
 * [9] "Selenium WebDriver"
-* [10] "Issue-9:(FSM)Local constraints" 
+* [10] "Issue-9:(FSM)Local constraints" (done)
 * [11] "Issue-10:(FSM)Coverage report"
 * [12] "Issue-11:(FSM)Simplify test suite generation" 
-* [13] "Issue-12:(FSM)Support overloading methods with the same number of arguments" 
+* [13] "Issue-12:(FSM)Support overloading methods with the same number of arguments" (done) 
 * [14] "Issue-13:(FSM)Multi-threading support"
 
 [0]: http://en.wikipedia.org/wiki/Model-based_testing

@@ -97,10 +97,7 @@ public class QuadraticEquationSolverTestX {
     @Override
     public boolean check(QuadraticEquationSolverTestX o, Tuple testCase)
         throws UndefinedSymbol {
-      if (!testCase.containsKey("a") || !testCase.containsKey("b") || !testCase
-          .containsKey("c")) {
-        throw new UndefinedSymbol();
-      }
+      Checks.checksymbols(testCase, "a", "b", "c");
       return o.a != 0 && o.b * o.b - 4 * o.c * o.a >= 0;
     }
 

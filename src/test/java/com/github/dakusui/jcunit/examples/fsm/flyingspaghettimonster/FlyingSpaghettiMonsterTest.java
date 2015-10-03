@@ -2,10 +2,7 @@ package com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.fsm.Expectation;
-import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.Story;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
@@ -62,10 +59,10 @@ public class FlyingSpaghettiMonsterTest {
 
 
     @ParametersSpec
-    public static final Object[][] cook = new Object[][] {
+    public static final Parameters cook = new Parameters.Builder(new Object[][] {
         { "spaghetti", "spaghettini" },
         { "peperoncino", "carbonara", "meat sauce" },
-    };
+    }).build();
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {

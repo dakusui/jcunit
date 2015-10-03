@@ -11,8 +11,6 @@ import java.lang.reflect.Field;
  * used by users of JCUnit.
  */
 public class FSMUtils {
-  static final Class<? extends Object[][]> DOUBLE_ARRAYED_OBJECT_CLASS = Object[][].class;
-
   private FSMUtils() {
   }
 

@@ -10,21 +10,23 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  */
 public class FSMTupleGenerator extends TupleGeneratorBase {
-  private final Map<String, FSM>       fsms;
-  private final TupleGenerator.Builder baseTupleGeneratorBuilder;
-  private       List<Tuple>            tuples;
+  private final Map<String, FSM>                        fsms;
+  private final TupleGenerator.Builder                  baseTupleGeneratorBuilder;
+  private final List<Parameters.LocalConstraintManager> localCMs;
+  private       List<Tuple>                             tuples;
 
-  public FSMTupleGenerator(TupleGenerator.Builder baseTG, Map<String, FSM> fsms) {
+  public FSMTupleGenerator(
+      TupleGenerator.Builder baseTG,
+      Map<String, FSM> fsms,
+      List<Parameters.LocalConstraintManager> localCMs) {
     this.fsms = Checks.checknotnull(fsms);
     this.baseTupleGeneratorBuilder = Checks.checknotnull(baseTG);
+    this.localCMs = Collections.unmodifiableList(localCMs);
   }
 
   @Override
@@ -32,7 +34,10 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     Factors baseFactors = baseTupleGeneratorBuilder.getFactors();
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
-    ConstraintManager fsmCM = new FSMConstraintManager(this.baseTupleGeneratorBuilder.getConstraintManager());
+    ConstraintManager fsmCM = new FSMConstraintManager(
+        this.baseTupleGeneratorBuilder.getConstraintManager(),
+        this.localCMs
+    );
     fsmCM.setFactors(fsmFactors);
 
     this.tuples = Utils.dedup(generateTestCaseTuples(this.fsms, fsmFactors, fsmCM));
@@ -42,7 +47,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     // * all normal (non-fsm) factors.
     // * all 'Story' type factors with its all possible patterns without duplications.
     Factors.Builder factorsRebuilder = new Factors.Builder();
-    for (String eachFSMName: fsms.keySet()) {
+    for (String eachFSMName : fsms.keySet()) {
       Factor.Builder b = new Factor.Builder();
       b.setName(eachFSMName);
       for (Tuple eachTuple : this.tuples) {
@@ -53,7 +58,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
       }
       factorsRebuilder.add(b.build());
     }
-    for (Factor eachFactor: fsmFactors) {
+    for (Factor eachFactor : fsmFactors) {
       if (!isFSMFactorName(eachFactor.name)) {
         factorsRebuilder.add(eachFactor);
       }

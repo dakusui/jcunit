@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 
 @RunWith(JCUnit.class)
 public class MessageDigestTest {
-  @FactorField(stringLevels = {"SHA1", "MD5"})
+  @FactorField(stringLevels = { "SHA1", "MD5" })
   public String algotithmName;
 
   public enum Spec implements FSMSpec<MessageDigest> {
@@ -36,13 +36,15 @@ public class MessageDigestTest {
     public abstract Expectation<MessageDigest> digest(Expectation.Builder<MessageDigest> b);
 
     @ParametersSpec
-    public static final Object[][] update = new Object[][] {
-        new Object[] {
-            new byte[] { 0 }
+    public static final Parameters update = new Parameters.Builder(
+        new Object[][] {
+            new Object[] {
+                new byte[] { 0 }
+            }
         }
-    };
+    ).build();
 
-    @ActionSpec(parametersSpec="update")
+    @ActionSpec(parametersSpec = "update")
     public abstract Expectation<MessageDigest> update(Expectation.Builder<MessageDigest> b, byte[] data);
 
     @Override

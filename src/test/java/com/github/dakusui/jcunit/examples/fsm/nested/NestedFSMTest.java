@@ -46,10 +46,15 @@ public class NestedFSMTest {
     },;
 
     @ParametersSpec
-    public static final Object[][] cook = new Object[][] {
-        { "spaghetti", "spaghettini"/*, "penne" */},
-        { "peperoncino",  "meat sauce", "carbonara" },
-    };
+    public static final Parameters cook = new Parameters.Builder(new Object[][]
+            {
+                {
+                    "spaghetti", "spaghettini"/*, "penne" */
+                },
+                {
+                    "peperoncino", "meat sauce", "carbonara"
+                },
+            }).build();
 
     @ActionSpec
     public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {

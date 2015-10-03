@@ -1,10 +1,7 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.Constraint;
-import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.TupleGeneration;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -29,8 +26,7 @@ public class ReproducibilityWithForSimpleConstraintTest {
   public static class CM extends ConstraintManagerBase {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
-      if (!tuple.containsKey("a") || !tuple.containsKey("b"))
-        throw new UndefinedSymbol();
+      Checks.checksymbols(tuple, "a", "b");
       return !(new Integer(3).equals(tuple.get("a")) && new Integer(3).equals(tuple.get("b")));
     }
   }

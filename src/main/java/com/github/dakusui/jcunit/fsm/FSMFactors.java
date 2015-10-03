@@ -22,6 +22,8 @@ import java.util.*;
  * Levels for FSM:param:{i}:{j} are not intuitive.
  * They are union of {j}'s arguments of all the actions.
  *
+ * As the spec above implies, an object of this class can hold multiple FSMs in it.
+ *
  * This class provides some useful methods like {@code stateName()}, etc, that
  * return the FSM's information in an abstract way.
  */
@@ -33,18 +35,6 @@ public class FSMFactors extends Factors {
   protected FSMFactors(List<Factor> factors, Map<String, FSM<?>> fsmMap) {
     super(factors);
     this.fsmMap = Collections.unmodifiableMap(fsmMap);
-  }
-
-  private static String stateName(String fsmName, int i) {
-    return String.format("FSM:%s:state:%d", fsmName, i);
-  }
-
-  private static String actionName(String fsmName, int i) {
-    return String.format("FSM:%s:action:%d", fsmName, i);
-  }
-
-  private static String paramName(String fsmName, int i, int j) {
-    return String.format("FSM:%s:param:%d:%d", fsmName, i, j);
   }
 
   public List<String> getFSMNames() {
@@ -79,6 +69,28 @@ public class FSMFactors extends Factors {
     Checks.checknotnull(fsmName);
     Checks.checkcond(this.fsmMap.get(fsmName) != null);
     return this.fsmMap.get(fsmName).historyLength();
+  }
+
+  public static boolean isFSMFactorName(String factorName) {
+    return Checks.checknotnull(factorName).startsWith("FSM:");
+  }
+
+  public static int paramIndex(String fsmName) {
+    String[] w = Checks.checknotnull(fsmName).split(":");
+    int ret = Integer.parseInt(w[4]);
+    return ret;
+  }
+
+  public static String stateName(String fsmName, int i) {
+    return String.format("FSM:%s:state:%d", fsmName, i);
+  }
+
+  public static String actionName(String fsmName, int i) {
+    return String.format("FSM:%s:action:%d", fsmName, i);
+  }
+
+  public static String paramName(String fsmName, int i, int j) {
+    return String.format("FSM:%s:param:%d:%d", fsmName, i, j);
   }
 
   public static class Builder extends Factors.Builder {

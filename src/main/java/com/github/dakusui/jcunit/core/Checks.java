@@ -1,9 +1,10 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
-import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.*;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class provides static methods each of which tests a given object/condition
@@ -129,6 +130,18 @@ public class Checks {
   public static void checktest(boolean cond, String msg, Object... args) {
     if (!cond) {
       throw new InvalidTestException(composeMessage(msg, args));
+    }
+  }
+
+  public static void checksymbols(Tuple tuple, String... factorNames) throws UndefinedSymbol {
+    List<String> missings = new LinkedList<String>();
+    for (String each: factorNames) {
+      if (!Checks.checknotnull(tuple).containsKey(each)) {
+        missings.add(each);
+      }
+    }
+    if (!missings.isEmpty()) {
+      throw new UndefinedSymbol(missings.toArray(new String[missings.size()]));
     }
   }
 

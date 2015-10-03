@@ -110,18 +110,19 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
 
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
-      boolean insufficientTuple = false;
+      List<String> missings = new LinkedList<String>();
       for (Tuple c : constraints) {
-        if (!tuple.keySet().containsAll(c.keySet())) {
-          insufficientTuple = true;
-          continue;
+        for (String each: c.keySet()) {
+          if (!tuple.keySet().contains(each)) {
+            missings.add(each);
+          }
         }
         if (matches(c, tuple)) {
           return false;
         }
       }
-      if (insufficientTuple) {
-        throw new UndefinedSymbol();
+      if (!missings.isEmpty()) {
+        throw new UndefinedSymbol(missings.toArray(new String[missings.size()]));
       }
       return true;
     }

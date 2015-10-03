@@ -23,7 +23,7 @@ public class ForSimpleTupleGeneratorTest {
     public static class CM extends ConstraintManagerBase {
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
-        if (!tuple.containsKey("f1")) throw new UndefinedSymbol();
+        Checks.checksymbols(tuple, "f1");
         return !"hello".equals(tuple.get("f1"));
       }
     }

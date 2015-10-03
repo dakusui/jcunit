@@ -39,10 +39,7 @@ public class QuadraticEquationSolverTest6 {
     @Override
     public boolean check(QuadraticEquationSolverTest6 obj, Tuple testCase)
         throws UndefinedSymbol {
-      if (!testCase.containsKey("a") || !testCase.containsKey("b") || !testCase
-          .containsKey("c")) {
-        throw new UndefinedSymbol();
-      }
+      Checks.checksymbols(testCase, "a", "b", "c");
       return obj.discriminantIsNonNegative() && obj.aIsNonZero();
     }
 

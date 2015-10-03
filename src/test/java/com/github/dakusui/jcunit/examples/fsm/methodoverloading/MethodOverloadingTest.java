@@ -1,10 +1,7 @@
 package com.github.dakusui.jcunit.examples.fsm.methodoverloading;
 
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.fsm.Expectation;
-import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.Story;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
@@ -39,9 +36,9 @@ public class MethodOverloadingTest {
 
     };
     @ParametersSpec
-    public static final Object[][] m$s = new Object[][] {
-        new Object[] { "hello" }
-    };
+    public static final Parameters m$s = new Parameters.Builder()
+        .add("a", "hello")
+        .build();
 
     @ActionSpec(parametersSpec = "m$s")
     public Expectation<MethodOverloading> m(Expectation.Builder<MethodOverloading> b, String s) {

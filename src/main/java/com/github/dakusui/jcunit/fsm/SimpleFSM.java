@@ -148,14 +148,14 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
    * {@code paramsField} can be numm if {@code actionMethod} doesn't have any parameter.
    */
   private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
-    final Object[][] paramFactors;
+    final Parameters parameters;
     if (paramsField == null) {
-      paramFactors = new Object[][] {};
+      parameters = Parameters.EMPTY;
     } else {
-      paramFactors = getParamsFactors(validateParamsField(paramsField));
+      parameters = getParamsFactors(validateParamsField(paramsField));
     }
     //noinspection unchecked
-    return (Action<SUT>) new MethodAction(actionMethod, paramFactors);
+    return (Action<SUT>) new MethodAction(actionMethod, parameters);
   }
 
   /**
@@ -163,16 +163,16 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
    *
    * @param field A field from which {@code params} values should be retrieved.
    */
-  private Object[][] getParamsFactors(Field field) {
+  private Parameters getParamsFactors(Field field) {
     try {
-      Object ret = field.get(null);
-      Checks.checktest(
-          ret != null && ((Object[][]) ret).length > 0,
+      Object ret = Checks.checknotnull(field).get(null);
+      Checks.checktest(ret instanceof Parameters, "The field '%s' in %s must be typed %s", field.getName(), field.getDeclaringClass().getCanonicalName(), Parameters.class.getSimpleName());
+      Checks.checktest((((Parameters) ret).values()).length > 0,
           "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
           field.getName(), field.getType().getCanonicalName());
       ////
       // Casting to Object[][] is safe because validateParamsField checks it.
-      return (Object[][]) ret;
+      return ((Parameters) ret);
     } catch (IllegalAccessException e) {
       ////
       // This will never happen because filed should be validated in advance.
@@ -184,9 +184,9 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     Field ret = Checks.checknotnull(fsmField);
     int m = ret.getModifiers();
     Checks.checktest(
-        Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) && FSMUtils.DOUBLE_ARRAYED_OBJECT_CLASS.isAssignableFrom(fsmField.getType()),
-        "Field '%s' of '%s' must be public, static, final, and of Object[][].",
-        ret.getName(), ret.getType().getCanonicalName()
+        Modifier.isPublic(m) && Modifier.isStatic(m) && Modifier.isFinal(m) && Parameters.class.isAssignableFrom(fsmField.getType()),
+        "Field '%s' of '%s' must be public, static, final, and of %s.",
+        ret.getName(), ret.getType().getSimpleName(), Parameters.class.getSimpleName()
     );
     return ret;
   }
@@ -306,18 +306,18 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
   private static class MethodAction<SUT> implements Action<SUT> {
     final         Method     method;
     final         String     name;
-    private final Object[][] paramFactors;
+    private final Parameters parameters;
 
     /**
      * Creates an object of this class.
      *
-     * @param method        An {@code ActionSpec}  annotated method in {@code FSMSpec}.
-     * @param paramsFactors A {@code ParametersSpec} annotated field in {@code FSMSpec}.
+     * @param method     An {@code ActionSpec}  annotated method in {@code FSMSpec}.
+     * @param parameters A {@code ParametersSpec} annotated field's value in {@code FSMSpec}.
      */
-    public MethodAction(Method method, Object[][] paramsFactors) {
+    public MethodAction(Method method, Parameters parameters) {
       this.method = method;
       this.name = method.getName();
-      this.paramFactors = paramsFactors;
+      this.parameters = parameters;
     }
 
     @Override
@@ -356,13 +356,20 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     }
 
     @Override
+    public Parameters parameters() {
+      return this.parameters;
+    }
+
+    @Override
     public Object[] parameterFactorLevels(int i) {
+      Object[][] paramFactors = this.parameters.values();
       Checks.checkcond(0 <= i && i < paramFactors.length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
       return paramFactors[i];
     }
 
     @Override
     public int numParameterFactors() {
+      Object[][] paramFactors = this.parameters.values();
       // It's safe to access the first parameter because it's already validated.
       return paramFactors.length;
     }

@@ -15,6 +15,11 @@ public interface Action<SUT> extends Serializable {
     }
 
     @Override
+    public Parameters parameters() {
+      return Parameters.EMPTY;
+    }
+
+    @Override
     public Object[] parameterFactorLevels(int i) {
       return new Object[0];
     }
@@ -47,6 +52,8 @@ public interface Action<SUT> extends Serializable {
    * The array will be passed to this method's second argument.
    */
   <T> Object perform(T context, SUT sut, Args args) throws Throwable;
+
+  Parameters parameters();
 
   /**
    * Returns {@code i}th factor's levels.

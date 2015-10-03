@@ -1,10 +1,7 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.Constraint;
-import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.TupleGeneration;
+import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -39,8 +36,7 @@ public class ReproducibilityWithComplicatedConstraintTest {
     }
 
     private boolean checkLOandHIareInOrder(Tuple tuple) throws UndefinedSymbol {
-      if (!tuple.containsKey("LO") || !tuple.containsKey("HI"))
-        throw new UndefinedSymbol();
+      Checks.checksymbols(tuple, "LO", "HI");
       double[] LO = toDoubleArray((String) tuple.get("LO"));
       double[] HI = toDoubleArray((String) tuple.get("HI"));
       return (LO[0] < HI[0] &&
@@ -48,11 +44,7 @@ public class ReproducibilityWithComplicatedConstraintTest {
     }
 
     private boolean checkRightIndexIsSane(Tuple tuple) throws UndefinedSymbol {
-      if (!tuple.containsKey("useSharedIndexForRight") ||
-          !tuple.containsKey("useSharedSerializerForRight") ||
-          !tuple.containsKey("rightIndexType")) {
-        throw new UndefinedSymbol();
-      }
+      Checks.checksymbols(tuple, "useSharedIndexForRight", "useSharedSerializerForRight", "rightIndexType");
       boolean useSharedIndexForRight = (Boolean) tuple.get("useSharedIndexForRight");
       boolean useSharedSerializerForRight = (Boolean) tuple.get("useSharedSerializerForRight");
       String rightIndexType = (String) tuple.get("rightIndexType");
@@ -68,8 +60,7 @@ public class ReproducibilityWithComplicatedConstraintTest {
     }
 
     private boolean checkLeftIndexIsSane(Tuple tuple) throws UndefinedSymbol {
-      if (!tuple.containsKey("leftIndexType"))
-        throw new UndefinedSymbol();
+      Checks.checksymbols(tuple, "leftIndexType");
       String leftIndexType = (String) tuple.get("leftIndexType");
       return !leftIndexType.equals("INVALID");
     }
