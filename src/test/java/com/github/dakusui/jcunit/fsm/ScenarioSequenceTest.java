@@ -5,22 +5,40 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class ScenarioSequenceTest {
   @Test
-  @Ignore
   public void testEquals() {
     Story storyA = new Story(
-        "storyA",
-        new ScenarioSequence.BuilderFromTuple().setFSMName("storyA").build(),
-        new ScenarioSequence.BuilderFromTuple().setFSMName("storyA").build()
+        "story",
+        ScenarioSequence.EMPTY,
+        ScenarioSequence.EMPTY
     );
 
     Story storyB = new Story(
-        "storyB",
-        null,
-        null
+        "story",
+        ScenarioSequence.EMPTY,
+        ScenarioSequence.EMPTY
     );
     assertEquals(storyA, storyB);
+    assertEquals(storyB, storyA);
+  }
+
+  @Test
+  public void testNotEquals() {
+    Story storyA = new Story(
+        "story",
+        ScenarioSequence.EMPTY,
+        ScenarioSequence.EMPTY
+    );
+
+    Story storyB = new Story(
+        "STORY",
+        ScenarioSequence.EMPTY,
+        ScenarioSequence.EMPTY
+    );
+    assertNotEquals(storyA, storyB);
+    assertNotEquals(storyB, storyA);
   }
 }

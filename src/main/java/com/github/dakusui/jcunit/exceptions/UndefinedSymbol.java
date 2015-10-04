@@ -28,7 +28,7 @@ public class UndefinedSymbol extends JCUnitCheckedException {
     String last = missingSymbols[missingSymbols.length - 1];
     return String.format(
         "%s, and %s are missing",
-        Utils.join(", ", missings.subList(0, missingSymbols.length - 1).toArray(new String[missingSymbols.length - 1])),
+        Utils.join(", ", (Object[])missings.subList(0, missingSymbols.length - 1).toArray(new String[missingSymbols.length - 1])),
         last
     );
   }

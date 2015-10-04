@@ -3,20 +3,30 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import org.hamcrest.CoreMatchers;
 
 import java.lang.reflect.Field;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
+
+import static org.junit.Assert.assertThat;
 
 /**
  * A utility class for FSM (finite state machine) support of JCUnit intended to be
  * used by users of JCUnit.
  */
 public class FSMUtils {
+
   private FSMUtils() {
   }
 
+  /**
+   * Resets all stories in {@code context} object.
+   *
+   * @param context A test object whose stories to be reset.
+   */
   public static <T> void resetStories(final T context) {
     for (Story each : Utils.transform(FSMUtils.getStoryFields(Checks.checknotnull(context)), new Utils.Form<Field, Story>() {
       @Override
@@ -90,12 +100,106 @@ public class FSMUtils {
       // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
       // should assign an appropriate value to the factor field.
       Checks.checktest(story != null, "story parameter must not be null.");
-      story.reset();
-      story.perform(context, sut, observerFactory.createObserver(fsmName));
+      //noinspection unchecked
+      Story.Performer.Default.INSTANCE.perform(story, context, sut, Synchronizer.DUMMY, observerFactory.createObserver(fsmName));
     } catch (IllegalAccessException e) {
       ////
       // This shouldn't happen because storyField is validated in advance.
       Checks.rethrow(e);
+    }
+  }
+
+  /**
+   * Performs a story object on {@code sut} in an object {@code context} specified
+   * by {@code fsmName}.
+   * <p/>
+   * This method looks up a field whose name is {@code fsmName} and will perform
+   * a value of the field as an appropriate {@code Story}. Before performing the story,
+   * this method validates the field and its value, e.g., the type is correct or
+   * not, value is assigned, etc.
+   * If the field doesn't meet the condition an exception will be thrown.
+   * <p/>
+   * It is recommended to use this method to invoke a story rather than directly
+   * calling {@code Story#perform} method.
+   *
+   * @param context A test object which encloses fsm field(s)
+   * @param stories StoryRequest objects each of which holds information
+   *                about which story is performed with what SUT object
+   * @param <T>     A test class's type.
+   */
+  public static <T> void performStoriesConcurrently(final T context, Story.Request[] stories) {
+    Checks.checktest(context != null, "Context mustn't be null. Simply give your test object.");
+    Checks.checktest(stories != null, "Stories mustn't be null. Give factor field name whose type is Story<SPEC,SUT> of your test object.");
+
+    ////
+    // Validate story fields
+    for (String eachFSMmName : Utils.transform(Arrays.asList(stories), new Utils.Form<Story.Request, String>() {
+      @Override
+      public String apply(Story.Request in) {
+        return in.fsmName;
+      }
+    })) {
+      Field storyField = lookupStoryField(context, eachFSMmName);
+      Checks.checktest(storyField != null, "The field '%s' was not found or not public in the context '%s'", eachFSMmName, context);
+      Utils.validateFactorField((storyField)).check();
+    }
+
+    ////
+    // Ensure stories are reset. By design policy, fields should be immutable.
+    // but I couldn't make FSM stories so to implement "nested-FSM" feature.
+    // In order to guarantee FSM objects' states are always the same at the
+    // beginning of each test (method), I'm calling FSMUtils.resetStories
+    // method here. (Issue-#14)
+    FSMUtils.resetStories(context);
+
+    ////
+    // Perform main scenario sequences concurrently.
+    ExecutorService executorService = Executors.newFixedThreadPool(stories.length);
+    try {
+      @SuppressWarnings("RedundantTypeArguments")
+      final Synchronizer synchronizer = new Synchronizer.Builder(
+          Utils.<Story.Request, Synchronizable>transform(
+              Arrays.asList(stories),
+              new Utils.Form<Story.Request, Synchronizable>() {
+                @Override
+                public Story apply(Story.Request in) {
+                  try {
+                    return (Story) Checks.checknotnull(FSMUtils.lookupStoryField(context, in.fsmName)).get(context);
+                  } catch (IllegalAccessException e) {
+                    Checks.rethrow(e);
+                  }
+                  throw new RuntimeException();
+                }
+              })).build();
+      //noinspection unchecked
+      List<Callable<Boolean>> callables = Utils.transform(
+          Arrays.asList(stories), new Utils.Form<Story.Request, Callable<Boolean>>() {
+            @Override
+            public Callable apply(Story.Request in) {
+              //noinspection unchecked
+              return in.createCallable(Story.Performer.Default.INSTANCE, synchronizer, context);
+            }
+          });
+      for (Future<Boolean> f : executorService.invokeAll(callables)) {
+        assertThat(f.get(), CoreMatchers.is(true));
+      }
+    } catch (InterruptedException e) {
+      Checks.rethrow(e);
+    } catch (ExecutionException e) {
+      Throwable t = e.getCause();
+      try {
+        throw t;
+      } catch (JCUnitException ee) {
+        throw ee;
+      } catch (RuntimeException ee) {
+        throw ee;
+      } catch (Error ee) {
+        throw ee;
+      } catch (Throwable ee) {
+        Checks.rethrow(ee);
+      }
+    } finally {
+      executorService.shutdown();
     }
   }
 
@@ -120,11 +224,92 @@ public class FSMUtils {
     return ret;
   }
 
-  private static <T> Field lookupStoryField(T context, String fsmName) {
+  public static <T> Field lookupStoryField(T context, String fsmName) {
     try {
       return context.getClass().getField(fsmName);
     } catch (NoSuchFieldException e) {
       return null;
+    }
+  }
+
+  public interface Synchronizable {
+  }
+
+  public interface Synchronizer {
+    Synchronizer finishAndSynchronize(Synchronizable task);
+    void unregister(Synchronizable task);
+
+    Synchronizer DUMMY = new Synchronizer() {
+      @Override
+      public Synchronizer finishAndSynchronize(Synchronizable task) {
+        return this;
+      }
+
+      @Override
+      public void unregister(Synchronizable task) {
+      }
+    };
+
+    class Base implements Synchronizer {
+      private final Set<Synchronizable> tasks;
+      private final Set<Synchronizable> allTasks;
+      private       Synchronizer        next;
+
+      public Base(Collection<? extends Synchronizable> tasks) {
+        this.tasks = new HashSet<Synchronizable>();
+        this.tasks.addAll(Checks.checknotnull(tasks));
+        this.allTasks = new LinkedHashSet<Synchronizable>(this.tasks);
+      }
+
+      synchronized void finish(Synchronizable task) {
+        this.tasks.remove(task);
+        this.notifyAll();
+      }
+
+      synchronized Synchronizer synchronize() {
+        while (!checkIfTasksAreAllDone()) {
+          try {
+            this.wait();
+          } catch (InterruptedException ignored) {
+          }
+        }
+        if (this.next == null) {
+          this.next = new Synchronizer.Base(this.allTasks);
+        }
+        return this.next;
+      }
+
+      @Override
+      public Synchronizer finishAndSynchronize(Synchronizable task) {
+        this.finish(Checks.checknotnull(task));
+        return this.synchronize();
+      }
+
+      @Override
+      public synchronized void unregister(Synchronizable task) {
+        Synchronizer cur = this;
+        while (cur != null) {
+          ((Synchronizer.Base)cur).finish(task);
+          cur = ((Base) cur).next;
+        }
+      }
+
+      private boolean checkIfTasksAreAllDone() {
+        return this.tasks.isEmpty();
+      }
+
+    }
+
+    class Builder {
+      public final List<Synchronizable> tasks;
+
+      Builder(List<Synchronizable> tasks) {
+        this.tasks = Utils.dedup(Checks.checknotnull(tasks));
+      }
+
+      Synchronizer build() {
+        return new Synchronizer.Base(Utils.dedup(Checks.checknotnull(this.tasks)));
+      }
     }
   }
 }
