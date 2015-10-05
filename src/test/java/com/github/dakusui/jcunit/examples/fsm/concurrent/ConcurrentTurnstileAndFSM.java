@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.TurnstileTest;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
+import com.github.dakusui.jcunit.fsm.ScenarioSequence;
 import com.github.dakusui.jcunit.fsm.Story;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,11 +23,12 @@ public class ConcurrentTurnstileAndFSM {
 
   @Test(timeout = 1000)
   public void test() {
+    ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
     FSMUtils.performStoriesConcurrently(
         this,
         new Story.Request.ArrayBuilder()
-            .add("turnstile", new Turnstile())
-            .add("fsm", new FlyingSpaghettiMonster())
+            .add("turnstile", new Turnstile(), observerFactory)
+            .add("fsm", new FlyingSpaghettiMonster(), observerFactory)
             .build()
     );
   }

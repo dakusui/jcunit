@@ -10,6 +10,9 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.After;
+import org.junit.Before;
 
 import java.util.*;
 
@@ -17,6 +20,14 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 public abstract class IPO2Test {
+  @Before
+  public void setSilent() {
+    UTUtils.setSilent();
+  }
+  @After
+  public void setVerbose() {
+    UTUtils.setVerbose();
+  }
   protected static Factor factor(String name, Object... factors) {
     return new Factor(name, Arrays.asList(factors));
   }
@@ -53,7 +64,7 @@ public abstract class IPO2Test {
 
   protected void verify(int givenStrength, Factors givenFactors, ConstraintManager givenConstraintManager, List<Tuple> actualTestCases,
       List<Tuple> actualRemainders) {
-    System.out.println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
+    UTUtils.out.println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
     verifyAllValidTuplesAreGenerated(actualTestCases, givenStrength, givenFactors,
         givenConstraintManager);
     verifyNoConstraintViolationOccursInResult(actualTestCases, givenConstraintManager);

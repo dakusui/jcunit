@@ -3,11 +3,15 @@ package com.github.dakusui.jcunit.core;
 import com.github.dakusui.enumerator.tuple.AttrValue;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.Field;
 
 /**
  */
 public class TestCaseUtils {
+
   public static AttrValue<String, Object> factor(String name, Object level) {
     return new AttrValue<String, Object>(name, level);
   }

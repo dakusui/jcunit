@@ -7,17 +7,35 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 public class UTUtils {
-  public static final Factors defaultFactors = new Factors.Builder().add(
+  public static final Factors     defaultFactors    = new Factors.Builder().add(
       new Factor.Builder("A").addLevel("a1").addLevel("a2").build()
   ).add(
       new Factor.Builder("B").addLevel("b1").addLevel("b2").build()
   ).build();
 
+  public static final PrintStream DUMMY_PRINTSTREAM = new PrintStream(new OutputStream() {
+    @Override
+    public void write(int b) throws IOException {
+    }
+  });
+  public static       PrintStream out               = System.out;
+
   private UTUtils() {
   }
 
+  public synchronized static void setSilent() {
+    out = DUMMY_PRINTSTREAM;
+  }
+
+  public synchronized static void setVerbose() {
+    out = System.out;
+  }
+
+  @SuppressWarnings("unused")
   public static File createTempDirectory() throws IOException {
     final File temp = File.createTempFile("temp",
         Long.toString(System.nanoTime()));

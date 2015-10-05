@@ -6,10 +6,8 @@ import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 import java.util.HashMap;
@@ -29,6 +27,16 @@ public class ReproducibilityWithForSimpleConstraintTest {
       Checks.checksymbols(tuple, "a", "b");
       return !(new Integer(3).equals(tuple.get("a")) && new Integer(3).equals(tuple.get("b")));
     }
+  }
+
+  @Before
+  public void setSilent() {
+    UTUtils.setSilent();
+  }
+
+  @After
+  public void setVerbose() {
+    UTUtils.setVerbose();
   }
 
   @Rule
@@ -63,7 +71,7 @@ public class ReproducibilityWithForSimpleConstraintTest {
   @Test
   public void test() {
     String s = this.desc.getId() + ";" + TupleUtils.toString(this.desc.getTestCase());
-    System.out.println(s);
+    UTUtils.out.println(s);
     assertEquals(expectations.get(this.desc.getId()), s);
     expectations.remove(this.desc.getId());
   }

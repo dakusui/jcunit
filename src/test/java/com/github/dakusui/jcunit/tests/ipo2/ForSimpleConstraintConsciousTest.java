@@ -10,6 +10,9 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -79,7 +82,7 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
       List<Tuple> result, ConstraintManager constraintManager) {
     // Since in this test class there is no implicit constraint, we
     // can simply verify them.
-    System.err.println(result);
+    UTUtils.out.println(result);
     for (Tuple tuple : remainders) {
       assertThat(String.format("'%s' is contained in result set.", tuple),
           find(tuple, result), is(false));

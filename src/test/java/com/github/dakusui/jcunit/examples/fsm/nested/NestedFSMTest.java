@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class NestedFSMTest {
+  public static ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
+
   public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
     @SuppressWarnings("unused") @StateSpec I {
       @Override
@@ -92,15 +94,15 @@ public class NestedFSMTest {
   @Test
   public void test1() {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "primary", sut, new ScenarioSequence.Observer.Factory.ForSilent());
+    FSMUtils.performStory(this, "primary", sut, observerFactory);
   }
 
   @Test
   public void test2() {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "primary", sut);
+    FSMUtils.performStory(this, "primary", sut, observerFactory);
     if (!this.nested.isPerformed()) {
-      FSMUtils.performStory(this, "nested", "Cooking spaghetti meat sauce");
+      FSMUtils.performStory(this, "nested", "Cooking spaghetti meat sauce", observerFactory);
     }
   }
 }

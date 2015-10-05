@@ -17,6 +17,8 @@ import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class LocalConstraintManagerTest {
+  public static ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
+
   public enum Spec implements FSMSpec<Object> {
     @StateSpec I {
     };
@@ -47,6 +49,6 @@ public class LocalConstraintManagerTest {
 
   @Test
   public void test() {
-    FSMUtils.performStory(this, "primary", new Object());
+    FSMUtils.performStory(this, "primary", new Object(), observerFactory);
   }
 }
