@@ -93,7 +93,6 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
 
   public static class TestConstraintManager implements ConstraintManager {
     private final Set<Tuple> constraints;
-    private       Param[]    params;
 
     TestConstraintManager(List<Tuple> constraints) {
       this.constraints = new HashSet<Tuple>();
@@ -130,7 +129,6 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
 
     @Override
     public void init(Param[] params) {
-      this.params = params;
     }
 
     @Override
