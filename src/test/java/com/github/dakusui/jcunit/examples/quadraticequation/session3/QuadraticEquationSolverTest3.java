@@ -1,23 +1,21 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session3;
 
 import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.When;
 import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.When;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
-
-import java.io.PrintStream;
 
 import static org.junit.Assert.assertThat;
 
 /**
  * An example that tests QuadraticEquationSolver.
  * <ul>
- *   <li>session 1: Initial version of QuadraticEquationSolverTest.</li>
- *   <li>session 2: Exclude 'invalid' test cases.</li>
- *   <li>session 3: Exclude 'too big' coefficients.</li>
+ * <li>session 1: Initial version of QuadraticEquationSolverTest.</li>
+ * <li>session 2: Exclude 'invalid' test cases.</li>
+ * <li>session 3: Exclude 'too big' coefficients.</li>
  * </ul>
  */
 @RunWith(JCUnit.class)

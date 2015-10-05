@@ -10,11 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.PrintStream;
-
 @RunWith(JCUnit.class)
 public class TestGen {
-  static PrintStream ps = System.out;
   @FactorField(stringLevels = { "Starter", "Home Basic", "Home Premium", "Professional", "Enterprise", "Ultimate" })
   public String edition;
   @FactorField(intLevels = { 1, 2, 4, 8 })

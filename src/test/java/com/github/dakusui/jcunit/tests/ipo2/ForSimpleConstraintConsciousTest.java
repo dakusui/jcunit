@@ -11,8 +11,6 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
@@ -115,7 +113,7 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     public boolean check(Tuple tuple) throws UndefinedSymbol {
       List<String> missings = new LinkedList<String>();
       for (Tuple c : constraints) {
-        for (String each: c.keySet()) {
+        for (String each : c.keySet()) {
           if (!tuple.keySet().contains(each)) {
             missings.add(each);
           }

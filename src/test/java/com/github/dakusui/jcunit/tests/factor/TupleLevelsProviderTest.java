@@ -12,8 +12,6 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import java.io.PrintStream;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
