@@ -10,9 +10,9 @@ import java.io.IOException;
 
 public class UTUtils {
   public static final Factors defaultFactors = new Factors.Builder().add(
-      new Factor.Builder().setName("A").addLevel("a1").addLevel("a2").build()
+      new Factor.Builder("A").addLevel("a1").addLevel("a2").build()
   ).add(
-      new Factor.Builder().setName("B").addLevel("b1").addLevel("b2").build()
+      new Factor.Builder("B").addLevel("b1").addLevel("b2").build()
   ).build();
 
   private UTUtils() {

@@ -45,8 +45,7 @@ public class Parameters extends Factors {
       int i = 0;
       for (Object[] each : params) {
         Checks.checktest(each.length > 0, "Invalid factor data found. Each array of this double-array must have at least one element");
-        Factor.Builder b = new Factor.Builder();
-        b.setName(String.format("p%d", i++));
+        Factor.Builder b = new Factor.Builder(String.format("p%d", i++));
         for (Object o : each) {
           b.addLevel(o);
         }
@@ -55,8 +54,7 @@ public class Parameters extends Factors {
     }
 
     public Builder add(String name, Object firstValue, Object... restValues) {
-      Factor.Builder b = new Factor.Builder();
-      b.setName(Checks.checknotnull(name));
+      Factor.Builder b = new Factor.Builder(Checks.checknotnull(name));
       b.addLevel(firstValue);
       for (Object each : restValues) {
         b.addLevel(each);

@@ -119,8 +119,7 @@ public class FSMFactors extends Factors {
           ////
           // Build a factor for {index}th state
           {
-            Factor.Builder bb = new Factor.Builder();
-            bb.setName(stateName(fsmName, index));
+            Factor.Builder bb = new Factor.Builder(stateName(fsmName, index));
             for (State each : fsm.states()) {
               bb.addLevel(each);
             }
@@ -140,8 +139,7 @@ public class FSMFactors extends Factors {
           // with the most parameters.
           int smallestNumParams = Integer.MAX_VALUE;
           {
-            Factor.Builder bb = new Factor.Builder();
-            bb.setName(actionName(fsmName, index));
+            Factor.Builder bb = new Factor.Builder(actionName(fsmName, index));
             for (Action each : fsm.actions()) {
               bb.addLevel(each);
               if (each.numParameterFactors() < smallestNumParams)
@@ -163,8 +161,7 @@ public class FSMFactors extends Factors {
           {
             int i = 0;
             for (Set<Object> each : allParams) {
-              Factor.Builder bb = new Factor.Builder();
-              bb.setName(paramName(fsmName, index, i++));
+              Factor.Builder bb = new Factor.Builder(paramName(fsmName, index, i++));
               if (i >= smallestNumParams)
                 ////
                 // Add VOID action as a level. 'smallestNumParams' is the number of

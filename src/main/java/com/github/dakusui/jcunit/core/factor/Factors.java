@@ -182,6 +182,15 @@ public class Factors implements Iterable<Factor> {
       return this;
     }
 
+    public Builder add(String factorName, Object first, Object... levels) {
+      Factor.Builder b = new Factor.Builder(Checks.checknotnull(factorName));
+      b.addLevel(first);
+      for (Object each : levels) {
+        b.addLevel(each);
+      }
+      return this.add(b.build());
+    }
+
     public List<Factor> getFactors() {
       return this.factors;
     }

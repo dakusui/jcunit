@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface ConstraintManager extends JCUnitConfigurablePlugin {
-  public static final ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
+  ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
 
   /**
    * Returns {@code true} if the given tuple doesn't violate any known constraints.

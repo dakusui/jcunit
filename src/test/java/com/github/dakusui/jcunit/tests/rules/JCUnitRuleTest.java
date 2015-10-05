@@ -23,7 +23,7 @@ public class JCUnitRuleTest extends JCUnitRule {
     public JCUnit.InternalAnnotation ann;
 
     Class<?> testClass = JCUnitRuleTest.class;
-    Factors factors = new Factors.Builder().add(new Factor.Builder().setName("f1").addLevel(1).build()).build();
+    Factors factors = new Factors.Builder().add(new Factor.Builder("f1").addLevel(1).build()).build();
     Tuple tuple = new Tuple.Builder().build();
     JCUnit.TestCaseType type = JCUnit.TestCaseType.Custom;
 

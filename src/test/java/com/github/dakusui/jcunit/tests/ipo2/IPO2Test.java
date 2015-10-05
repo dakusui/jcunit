@@ -30,8 +30,7 @@ public abstract class IPO2Test {
     char ch = 'A';
     for (FactorsDef fd : factorsDefs) {
       for (int i = 0; i < fd.numFactors; i++) {
-        Factor.Builder b = new Factor.Builder();
-        b.setName(Character.toString(ch));
+        Factor.Builder b = new Factor.Builder(Character.toString(ch));
         for (int j = 0; j < fd.numLevels; j++) {
           b.addLevel(Character.toString(ch) + j);
         }

@@ -17,7 +17,7 @@ public class ConcurrentTurnstileTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Turnstile, Spec> t2;
 
-  @Test//(timeout = 100)
+  @Test(timeout = 100)
   public void test1() {
     FSMUtils.performStoriesConcurrently(
         this,
