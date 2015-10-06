@@ -22,7 +22,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
    */
   State<?> VOID = new State<Object>() {
     @Override
-    public Interaction<Object> interaction(Action<Object> action, Args args) {
+    public Expectation<Object> expectation(Action<Object> action, Args args) {
       /////
       // Since no action should be performed on VOID state, which represents  a state after
       // invalid operation is performed, only VOID action, which represents 'no action',
@@ -31,11 +31,11 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
       // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
       // non-deterministic FSM is not supported by JCUnit yet...
       if (action == Action.VOID && args.size() == 0) {
-        return new Interaction<Object>(
+        return new Expectation<Object>(
             "(VOID)",
-            Interaction.Type.VALUE_RETURNED,
+            Expectation.Type.VALUE_RETURNED,
             this,
-            new Interaction.Checker.MatcherBased(CoreMatchers.anything()));
+            new Expectation.Checker.MatcherBased(CoreMatchers.anything()));
       }
       return null;
     }
@@ -70,15 +70,15 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
    *
    * @param action An action to be performed.
    * @param args   Arguments with which {@code action} is performed.
-   * @return An interaction to be performed with SUT.
-   * Expectation interaction(Action action, Args args) {
+   * @return An expectation to be performed with SUT.
+   * Expectation expectation(Action action, Args args) {
    * ...
    * if (args.values()[0].equals(0) && args.values()[1].equals(0) return null;
    * ...
    * }
    * </code>
    */
-  Interaction<SUT> interaction(Action<SUT> action, Args args);
+  Expectation<SUT> expectation(Action<SUT> action, Args args);
 
   class Base<SUT> implements State<SUT> {
     final         FSMSpec<SUT>        stateSpec;
@@ -101,25 +101,25 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
     }
 
     @Override
-    public Interaction<SUT> interaction(Action<SUT> action, Args args) {
-      Interaction<SUT> ret = null;
+    public Expectation<SUT> expectation(Action<SUT> action, Args args) {
+      Expectation<SUT> ret = null;
       Method m = Checks.checknotnull(actionMethods.get(action.id()), "Unknown action '%s' was given.", action);
       Checks.checktest(
-          Interaction.class.isAssignableFrom(m.getReturnType()),
+          Expectation.class.isAssignableFrom(m.getReturnType()),
           "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
           m.getName(),
           m.getParameterTypes().length,
           m.getDeclaringClass().getCanonicalName(),
-          Interaction.class.getCanonicalName(),
+          Expectation.class.getCanonicalName(),
           m.getReturnType().getCanonicalName()
       );
       Object[] argsToMethod = Utils.concatenate(
-          new Object[] { new Interaction.Builder<SUT>(this.fsmName, fsm) },
+          new Object[] { new Expectation.Builder<SUT>(this.fsmName, fsm) },
           args.values()
       );
       try {
         //noinspection unchecked
-        ret = (Interaction<SUT>) m.invoke(stateSpec, argsToMethod);
+        ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
       } catch (IllegalArgumentException e) {
         Checks.rethrowtesterror(
             e,
@@ -136,7 +136,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
         Checks.rethrowtesterror(
             e,
             "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
-            m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Interaction.class.getCanonicalName()
+            m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
         );
       }
       return ret;

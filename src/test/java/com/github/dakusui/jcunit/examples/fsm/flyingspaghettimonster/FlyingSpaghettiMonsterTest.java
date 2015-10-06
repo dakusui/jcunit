@@ -36,7 +36,7 @@ public class FlyingSpaghettiMonsterTest {
       }
 
       @Override
-      public Interaction<FlyingSpaghettiMonster> cook(Interaction.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
+      public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
         return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
       }
     },
@@ -47,12 +47,12 @@ public class FlyingSpaghettiMonsterTest {
       }
 
       @Override
-      public Interaction<FlyingSpaghettiMonster> eat(Interaction.Builder<FlyingSpaghettiMonster> b) {
+      public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
         return b.valid(COOKED, CoreMatchers.containsString("yummy")).build();
       }
 
       @Override
-      public Interaction<FlyingSpaghettiMonster> cook(Interaction.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
+      public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
         return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
       }
     },;
@@ -65,12 +65,12 @@ public class FlyingSpaghettiMonsterTest {
     }).build();
 
     @ActionSpec
-    public Interaction<FlyingSpaghettiMonster> cook(Interaction.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {
+    public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {
       return b.invalid().build();
     }
 
     @ActionSpec
-    public Interaction<FlyingSpaghettiMonster> eat(Interaction.Builder<FlyingSpaghettiMonster> b) {
+    public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
       return b.invalid().build();
     }
   }

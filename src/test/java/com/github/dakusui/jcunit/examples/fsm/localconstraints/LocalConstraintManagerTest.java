@@ -34,7 +34,7 @@ public class LocalConstraintManagerTest {
         .build();
 
     @ActionSpec
-    public Interaction equals(Interaction.Builder b, Object o) {
+    public Expectation equals(Expectation.Builder b, Object o) {
       return b.valid(I, CoreMatchers.is(false)).build();
     }
 

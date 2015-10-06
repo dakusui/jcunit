@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.examples.fsm.simple;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
-import com.github.dakusui.jcunit.fsm.Interaction;
+import com.github.dakusui.jcunit.fsm.Expectation;
 import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
@@ -67,7 +67,7 @@ public class BrokenFSMTest {
       @StateSpec I;
 
       @ActionSpec
-      public Interaction<SimpleFSM> shouldReturnTrueButReturnsFalse(Interaction.Builder<SimpleFSM> b) {
+      public Expectation<SimpleFSM> shouldReturnTrueButReturnsFalse(Expectation.Builder<SimpleFSM> b) {
         return b.valid(I, CoreMatchers.is(true)).build();
       }
 
@@ -87,7 +87,7 @@ public class BrokenFSMTest {
       @StateSpec I;
 
       @ActionSpec
-      public Interaction<SimpleFSM> shouldReturnTrueButThrowsException(Interaction.Builder<SimpleFSM> b) {
+      public Expectation<SimpleFSM> shouldReturnTrueButThrowsException(Expectation.Builder<SimpleFSM> b) {
         return b.valid(I, CoreMatchers.is(true)).build();
       }
 
@@ -108,7 +108,7 @@ public class BrokenFSMTest {
       @StateSpec I;
 
       @ActionSpec
-      public Interaction<SimpleFSM> shouldThrowsExceptionButReturnsTrue(Interaction.Builder<SimpleFSM> b) {
+      public Expectation<SimpleFSM> shouldThrowsExceptionButReturnsTrue(Expectation.Builder<SimpleFSM> b) {
         return b.invalid(I, FileNotFoundException.class).build();
       }
 
@@ -129,7 +129,7 @@ public class BrokenFSMTest {
       @StateSpec I;
 
       @ActionSpec
-      public Interaction<SimpleFSM> shouldThrowRuntimeExceptionButFileNotFoundThrown(Interaction.Builder<SimpleFSM> b) {
+      public Expectation<SimpleFSM> shouldThrowRuntimeExceptionButFileNotFoundThrown(Expectation.Builder<SimpleFSM> b) {
         return b.invalid(I, RuntimeException.class).build();
       }
 
@@ -150,7 +150,7 @@ public class BrokenFSMTest {
       @StateSpec I;
 
       @ActionSpec
-      public Interaction<SimpleFSM> successfulAction(Interaction.Builder<SimpleFSM> b) {
+      public Expectation<SimpleFSM> successfulAction(Expectation.Builder<SimpleFSM> b) {
         return b.valid(I).build();
       }
 
@@ -189,7 +189,7 @@ public class BrokenFSMTest {
       };
 
       @ActionSpec
-      public Interaction<SimpleFSM> valueReturningAction(Interaction.Builder<SimpleFSM> b) {
+      public Expectation<SimpleFSM> valueReturningAction(Expectation.Builder<SimpleFSM> b) {
         return b.valid(J).build();
       }
     }
@@ -222,7 +222,7 @@ public class BrokenFSMTest {
       };
 
       @ActionSpec
-      public Interaction<SimpleFSM> exceptionThrowingAction(Interaction.Builder<SimpleFSM> b) {
+      public Expectation<SimpleFSM> exceptionThrowingAction(Expectation.Builder<SimpleFSM> b) {
         return b.invalid(J, RuntimeException.class).build();
       }
     }

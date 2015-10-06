@@ -18,7 +18,7 @@ import java.util.List;
 
  * @param <SUT> A type of SUT.
  */
-public class Interaction<SUT> {
+public class Expectation<SUT> {
   public static class Builder<SUT> {
     private final FSM<SUT>   fsm;
     private final String     fsmName;
@@ -59,10 +59,10 @@ public class Interaction<SUT> {
 
     public Builder<SUT> valid(FSMSpec<SUT> state, Matcher matcher) {
       Checks.checknotnull(matcher);
-      return valid(state, new Interaction.Checker.MatcherBased(matcher));
+      return valid(state, new Expectation.Checker.MatcherBased(matcher));
     }
 
-    public Builder<SUT> valid(FSMSpec<SUT> state, Interaction.Checker checker) {
+    public Builder<SUT> valid(FSMSpec<SUT> state, Expectation.Checker checker) {
       Checks.checknotnull(state);
       Checks.checknotnull(checker);
       this.type = Type.VALUE_RETURNED;
@@ -86,8 +86,8 @@ public class Interaction<SUT> {
       return null;
     }
 
-    public Interaction<SUT> build() {
-      return new Interaction<SUT>(this.fsmName, this.type, this.state, this.checker);
+    public Expectation<SUT> build() {
+      return new Expectation<SUT>(this.fsmName, this.type, this.state, this.checker);
     }
   }
 
@@ -109,7 +109,7 @@ public class Interaction<SUT> {
    */
   private final Checker    checker;
 
-  protected Interaction(
+  protected Expectation(
       String fsmName,
       Type type,
       State<SUT> state,

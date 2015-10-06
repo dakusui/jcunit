@@ -115,7 +115,7 @@ public class StateRouter<SUT> {
   }
 
   private State<SUT> next(State<SUT> state, Edge<SUT> t) {
-    return state.interaction(t.action, t.args).state;
+    return state.expectation(t.action, t.args).state;
   }
 
   public static class Edge<SUT> {

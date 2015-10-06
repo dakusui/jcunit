@@ -42,7 +42,7 @@ public class SimpleFSMTest {
       @StateSpec I;
 
       @ActionSpec
-      public Interaction<SimpleFSM> valueReturningAction(Interaction.Builder<SimpleFSM> builder) {
+      public Expectation<SimpleFSM> valueReturningAction(Expectation.Builder<SimpleFSM> builder) {
         return builder.valid(I, CoreMatchers.is(true)).build();
       }
 
@@ -62,7 +62,7 @@ public class SimpleFSMTest {
       @StateSpec I;
 
       @ActionSpec
-      public Interaction<SimpleFSM> exceptionThrowingAction(Interaction.Builder<SimpleFSM> builder) {
+      public Expectation<SimpleFSM> exceptionThrowingAction(Expectation.Builder<SimpleFSM> builder) {
         return builder.invalid(I, RuntimeException.class).build();
       }
 

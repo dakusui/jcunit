@@ -41,12 +41,12 @@ public class MethodOverloadingTest {
         .build();
 
     @ActionSpec(parametersSpec = "m$s")
-    public Interaction<MethodOverloading> m(Interaction.Builder<MethodOverloading> b, String s) {
+    public Expectation<MethodOverloading> m(Expectation.Builder<MethodOverloading> b, String s) {
       return b.valid(I, CoreMatchers.equalTo("m(s)")).build();
     }
 
     @ActionSpec
-    public Interaction<MethodOverloading> m(Interaction.Builder<MethodOverloading> b) {
+    public Expectation<MethodOverloading> m(Expectation.Builder<MethodOverloading> b) {
       return b.valid(I, CoreMatchers.equalTo("m()")).build();
     }
 

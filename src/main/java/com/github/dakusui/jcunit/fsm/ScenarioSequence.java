@@ -96,7 +96,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       try {
         for (int i = 0; i < this.size(); i++) {
           Scenario<SUT> each = this.get(i);
-          Interaction.Result result = null;
+          Expectation.Result result = null;
           observer.run(type, each, sut);
           boolean passed = false;
           try {
@@ -106,7 +106,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
             // precondition described as the state, otherwise.
             if (i == 0) {
               if (!each.given.check(sut)) {
-                throw new Interaction.Result.Builder("Precondition was not satisfied.")
+                throw new Expectation.Result.Builder("Precondition was not satisfied.")
                     .addFailedReason(Utils.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
               }
             }
@@ -123,7 +123,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
             // each.perform(sut) didn't throw an exception
             //noinspection unchecked,ThrowableResultOfMethodCallIgnored
             result = each.then().checkReturnedValue(context, sut, r, type, observer);
-          } catch (Interaction.Result r) {
+          } catch (Expectation.Result r) {
             result = r;
           } catch (Throwable t) {
             if (!passed) {
@@ -359,7 +359,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       }
 
       @Override
-      public void failed(Type type, Scenario scenario, Object o, Interaction.Result result) {
+      public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
       }
 
       @Override
@@ -373,7 +373,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
     <SUT> void passed(Type type, Scenario<SUT> scenario, SUT sut);
 
-    <SUT> void failed(Type type, Scenario<SUT> scenario, SUT sut, Interaction.Result result);
+    <SUT> void failed(Type type, Scenario<SUT> scenario, SUT sut, Expectation.Result result);
 
     <SUT> void endSequence(Type type, ScenarioSequence<SUT> seq);
 
@@ -449,7 +449,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
         }
 
         @Override
-        public void failed(Type type, Scenario scenario, Object o, Interaction.Result result) {
+        public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
           ps.println(Utils.format("%s[%d]Failed(%s#%s): %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, result.getMessage()));
         }
 
