@@ -34,6 +34,6 @@ public class Args implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("[%s]", Utils.join(",", values));
+    return Utils.format("[%s]", Utils.join(",", values));
   }
 }

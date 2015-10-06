@@ -109,13 +109,13 @@ public class StateRouter<SUT> {
 
       @Override
       public String toString() {
-        return Utils.toString(this);
+        return PrivateUtils.toString(this);
       }
     };
   }
 
   private State<SUT> next(State<SUT> state, Edge<SUT> t) {
-    return state.expectation(t.action, t.args).state;
+    return state.interaction(t.action, t.args).state;
   }
 
   public static class Edge<SUT> {

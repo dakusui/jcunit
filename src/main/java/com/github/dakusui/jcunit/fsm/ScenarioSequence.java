@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.io.PrintStream;
@@ -95,7 +96,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       try {
         for (int i = 0; i < this.size(); i++) {
           Scenario<SUT> each = this.get(i);
-          Expectation.Result result = null;
+          Interaction.Result result = null;
           observer.run(type, each, sut);
           boolean passed = false;
           try {
@@ -105,7 +106,8 @@ public interface ScenarioSequence<SUT> extends Serializable {
             // precondition described as the state, otherwise.
             if (i == 0) {
               if (!each.given.check(sut)) {
-                throw new Expectation.Result.Builder("Precondition was not satisfied.").addFailedReason(String.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
+                throw new Interaction.Result.Builder("Precondition was not satisfied.")
+                    .addFailedReason(Utils.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
               }
             }
             Object r = each.perform(context, sut);
@@ -114,7 +116,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
             // each.perform(sut) didn't throw an exception
             //noinspection unchecked,ThrowableResultOfMethodCallIgnored
             result = each.then().checkReturnedValue(context, sut, r, type, observer);
-          } catch (Expectation.Result r) {
+          } catch (Interaction.Result r) {
             result = r;
           } catch (Throwable t) {
             if (!passed) {
@@ -162,14 +164,14 @@ public interface ScenarioSequence<SUT> extends Serializable {
     public boolean equals(Object another) {
       if (another instanceof ScenarioSequence) {
         ScenarioSequence anotherSequence = (ScenarioSequence) another;
-        return Utils.toString(this).equals(Utils.toString(anotherSequence));
+        return PrivateUtils.toString(this).equals(PrivateUtils.toString(anotherSequence));
       }
       return false;
     }
 
     @Override
     public String toString() {
-      return Utils.toString(this);
+      return PrivateUtils.toString(this);
     }
   }
 
@@ -215,7 +217,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
     @Override
     public String toString() {
-      return Utils.toString(this);
+      return PrivateUtils.toString(this);
     }
 
     @Override
@@ -227,7 +229,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
     public boolean equals(Object another) {
       if (another instanceof ScenarioSequence) {
         ScenarioSequence anotherSequence = (ScenarioSequence) another;
-        return Utils.toString(this).equals(Utils.toString(anotherSequence));
+        return PrivateUtils.toString(this).equals(PrivateUtils.toString(anotherSequence));
       }
       return false;
     }
@@ -350,7 +352,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       }
 
       @Override
-      public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
+      public void failed(Type type, Scenario scenario, Object o, Interaction.Result result) {
       }
 
       @Override
@@ -364,7 +366,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
     <SUT> void passed(Type type, Scenario<SUT> scenario, SUT sut);
 
-    <SUT> void failed(Type type, Scenario<SUT> scenario, SUT sut, Expectation.Result result);
+    <SUT> void failed(Type type, Scenario<SUT> scenario, SUT sut, Interaction.Result result);
 
     <SUT> void endSequence(Type type, ScenarioSequence<SUT> seq);
 
@@ -387,20 +389,20 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
         @Override
         public Observer createObserver(String fsmName) {
-          return Utils.createSimpleObserver(fsmName);
+          return PrivateUtils.createSimpleObserver(fsmName);
         }
       }
     }
   }
 
-  class Utils {
+  class PrivateUtils {
     public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
       Checks.checknotnull(scenarioSequence);
       Object[] scenarios = new Object[scenarioSequence.size()];
       for (int i = 0; i < scenarios.length; i++) {
         scenarios[i] = scenarioSequence.get(i);
       }
-      return String.format("[%d]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
+      return Utils.format("[%d]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
     }
 
     static Observer createSimpleObserver(String fsmName) {
@@ -426,27 +428,27 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
         @Override
         public void startSequence(Type type, ScenarioSequence scenarioSequence) {
-          ps.printf("%s[%d]Starting(%s#%s):%s\n", indent(generation), Thread.currentThread().getId(), fsmName, type, scenarioSequence);
+          ps.println(Utils.format("%s[%d]Starting(%s#%s):%s", indent(generation), Thread.currentThread().getId(), fsmName, type, scenarioSequence));
         }
 
         @Override
         public void run(Type type, Scenario scenario, Object o) {
-          ps.printf("%s[%d]Running(%s#%s):%s expecting %s\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, scenario, scenario.then());
+          ps.println(Utils.format("%s[%d]Running(%s#%s):%s expecting %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, scenario, scenario.then()));
         }
 
         @Override
         public void passed(Type type, Scenario scenario, Object o) {
-          ps.printf("%s[%d]Passed(%s#%s)\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type);
+          ps.println(Utils.format("%s[%d]Passed(%s#%s)", indent(generation + 1), Thread.currentThread().getId(), fsmName, type));
         }
 
         @Override
-        public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
-          ps.printf("%s[%d]Failed(%s#%s): %s\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, result.getMessage());
+        public void failed(Type type, Scenario scenario, Object o, Interaction.Result result) {
+          ps.println(Utils.format("%s[%d]Failed(%s#%s): %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, result.getMessage()));
         }
 
         @Override
         public void endSequence(Type type, ScenarioSequence seq) {
-          ps.printf("%s[%d]End(%s#%s)\n", indent(generation), Thread.currentThread().getId(), fsmName, type);
+          ps.println(Utils.format("%s[%d]End(%s#%s)", indent(generation), Thread.currentThread().getId(), fsmName, type));
         }
       };
     }

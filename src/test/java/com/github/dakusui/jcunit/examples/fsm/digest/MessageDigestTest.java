@@ -22,18 +22,18 @@ public class MessageDigestTest {
   public enum Spec implements FSMSpec<MessageDigest> {
     @StateSpec I {
       @Override
-      public Expectation<MessageDigest> digest(Expectation.Builder<MessageDigest> b) {
+      public Interaction<MessageDigest> digest(Interaction.Builder<MessageDigest> b) {
         return b.valid(I, CoreMatchers.instanceOf(new byte[0].getClass())).build();
       }
 
       @Override
-      public Expectation<MessageDigest> update(Expectation.Builder<MessageDigest> b, byte[] data) {
+      public Interaction<MessageDigest> update(Interaction.Builder<MessageDigest> b, byte[] data) {
         return b.valid(I).build();
       }
     },;
 
     @ActionSpec
-    public abstract Expectation<MessageDigest> digest(Expectation.Builder<MessageDigest> b);
+    public abstract Interaction<MessageDigest> digest(Interaction.Builder<MessageDigest> b);
 
     @ParametersSpec
     public static final Parameters update = new Parameters.Builder(
@@ -45,7 +45,7 @@ public class MessageDigestTest {
     ).build();
 
     @ActionSpec(parametersSpec = "update")
-    public abstract Expectation<MessageDigest> update(Expectation.Builder<MessageDigest> b, byte[] data);
+    public abstract Interaction<MessageDigest> update(Interaction.Builder<MessageDigest> b, byte[] data);
 
     @Override
     public boolean check(MessageDigest messageDigest) {

@@ -72,10 +72,10 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
         }
 
         Args args = seq.args(i);
-        Expectation<SUT> expectation = state.expectation(action, args);
-        if (expectation == null)
+        Interaction<SUT> interaction = state.interaction(action, args);
+        if (interaction == null)
           return false;
-        expectedState = expectation.state;
+        expectedState = interaction.state;
       }
     }
     for (Parameters.LocalConstraintManager each : this.localCMs) {

@@ -23,6 +23,26 @@ import java.util.*;
  * (at least as much as possible, I want to make it so).
  */
 public class Utils {
+  public static String format(String format, Object... args) {
+    return String.format(
+        Checks.checknotnull(format),
+        Utils.transform(args, new Utils.Form<Object, Object>() {
+          @Override
+          public Object apply(Object in) {
+            if (in == null)
+              return null;
+            try {
+              Class<? extends Object> toStringDeclaringClass = in.getClass().getMethod("toString").getDeclaringClass();
+              if (Object.class.equals(toStringDeclaringClass)) {
+                return in.getClass().getSimpleName() + "@" + System.identityHashCode(in);
+              }
+              return in;
+            } catch (NoSuchMethodException e) {
+              return "(N/A)";
+            }
+          }
+        }).toArray());
+  }
 
   public static Field getField(Object obj, String fieldName,
       Class<? extends Annotation>... expectedAnnotations) {
@@ -345,10 +365,12 @@ public class Utils {
   public static <T> List<T> dedup(Iterable<T> in) {
     List<T> ret = new LinkedList<T>();
     for (T each : Checks.checknotnull(in)) {
-      if (!ret.contains(each)) ret.add(each);
+      if (!ret.contains(each))
+        ret.add(each);
     }
     return ret;
   }
+
   /**
    * Returns a list whose members are coming from a parameter list {@code in}, but
    * each of them appears only once.
@@ -375,6 +397,13 @@ public class Utils {
       ret.add(form.apply(each));
     }
     return ret;
+  }
+
+  public static <I, O> List<O> transform(I[] in, Form<I, O> form) {
+    return transform(
+        Arrays.asList(in),
+        Checks.checknotnull(form)
+    );
   }
 
   public static <K, V> Map<K, V> toMap(List<V> in, Form<V, K> form) {

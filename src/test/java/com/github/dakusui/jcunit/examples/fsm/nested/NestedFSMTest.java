@@ -25,7 +25,7 @@ public class NestedFSMTest {
       }
 
       @Override
-      public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
+      public Interaction<FlyingSpaghettiMonster> cook(Interaction.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
         return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
       }
     },
@@ -36,13 +36,13 @@ public class NestedFSMTest {
       }
 
       @Override
-      public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
+      public Interaction<FlyingSpaghettiMonster> eat(Interaction.Builder<FlyingSpaghettiMonster> b) {
         return b.valid(COOKED, CoreMatchers.containsString("yummy")).build();
       }
 
       @Override
-      public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
-        return b.valid(this, new Expectation.Checker.FSM("nested")).build();
+      public Interaction<FlyingSpaghettiMonster> cook(Interaction.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
+        return b.valid(this, new Interaction.Checker.FSM("nested")).build();
       }
     },;
 
@@ -58,12 +58,12 @@ public class NestedFSMTest {
         }).build();
 
     @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {
+    public Interaction<FlyingSpaghettiMonster> cook(Interaction.Builder<FlyingSpaghettiMonster> b, String pasta, String sauce) {
       return b.invalid().build();
     }
 
     @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
+    public Interaction<FlyingSpaghettiMonster> eat(Interaction.Builder<FlyingSpaghettiMonster> b) {
       return b.invalid().build();
     }
   }
@@ -76,13 +76,13 @@ public class NestedFSMTest {
       }
 
       @Override
-      public Expectation<String> toString(Expectation.Builder<String> b) {
+      public Interaction<String> toString(Interaction.Builder<String> b) {
         return b.valid(I, CoreMatchers.instanceOf(String.class)).build();
       }
     };
 
     @ActionSpec
-    public abstract Expectation<String> toString(Expectation.Builder<String> b);
+    public abstract Interaction<String> toString(Interaction.Builder<String> b);
   }
 
   @FactorField(levelsProvider = FSMLevelsProvider.class)

@@ -23,8 +23,8 @@ public class Scenario<SUT> implements Serializable {
     return when.perform(context, sut, this.with);
   }
 
-  public Expectation<SUT> then() {
-    return this.given.expectation(this.when, this.with);
+  public Interaction<SUT> then() {
+    return this.given.interaction(this.when, this.with);
   }
 
   @Override

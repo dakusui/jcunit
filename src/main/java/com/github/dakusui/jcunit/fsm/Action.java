@@ -1,6 +1,12 @@
 package com.github.dakusui.jcunit.fsm;
 
+import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
+
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * An interface that represents an action that can be performed on {@code SUT}.
@@ -70,4 +76,131 @@ public interface Action<SUT> extends Serializable {
   String id();
 
   Class<?>[] parameterTypes();
+
+  class Base<SUT> implements Action<SUT> {
+    final         Method     method;
+    final         String     name;
+    private final Parameters parameters;
+
+    /**
+     * Creates an object of this class.
+     *
+     * @param method     An {@code ActionSpec}  annotated method in {@code FSMSpec}.
+     * @param parameters A {@code ParametersSpec} annotated field's value in {@code FSMSpec}.
+     */
+    public Base(Method method, Parameters parameters) {
+      this.method = method;
+      this.name = method.getName();
+      this.parameters = parameters;
+    }
+
+    @Override
+    public <T> Object perform(T context, SUT o, Args args) throws Throwable {
+      Checks.checknotnull(o);
+      Object ret = null;
+      try {
+        Method m = chooseMethod(o.getClass(), name, args.size());
+        try {
+          ret = m.invoke(o, args.values());
+        } catch (IllegalArgumentException e) {
+          throw new IllegalArgumentException(Utils.format("Method '%s/%d' in '%s' expects %s, but %s are given.",
+              name, args.size(),
+              o.getClass().getCanonicalName(),
+              Arrays.toString(m.getParameterTypes()),
+              Arrays.toString(args.types())
+          ));
+        }
+      } catch (IllegalAccessException e) {
+        ////
+        // I know it's possible to support non-public method test by accessing
+        // security manager and it's easy. But I can't be sure it's useful
+        // yet and a careless introduction of a new feature can create a
+        // compatibility conflicts in future, so I'm not supporting it for now.
+        Checks.rethrowtesterror(
+            e,
+            "Non-public method testing isn't supported (%s#%s/%d isn't public)",
+            o.getClass().getCanonicalName(),
+            this.name,
+            args.size()
+        );
+      } catch (InvocationTargetException e) {
+        throw e.getTargetException();
+      }
+      return ret;
+    }
+
+    @Override
+    public Parameters parameters() {
+      return this.parameters;
+    }
+
+    @Override
+    public Object[] parameterFactorLevels(int i) {
+      Object[][] paramFactors = this.parameters.values();
+      Checks.checkcond(0 <= i && i < paramFactors.length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
+      return paramFactors[i];
+    }
+
+    @Override
+    public int numParameterFactors() {
+      Object[][] paramFactors = this.parameters.values();
+      // It's safe to access the first parameter because it's already validated.
+      return paramFactors.length;
+    }
+
+    @Override
+    public String id() {
+      return FSM.Base.generateMethodId(this.method);
+    }
+
+    @Override
+    public Class<?>[] parameterTypes() {
+      return this.getParameterTypes();
+    }
+
+    @Override
+    public String toString() {
+      return method.getName();
+    }
+
+    @Override
+    public int hashCode() {
+      return method.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object anotherObject) {
+      if (!(anotherObject instanceof Base))
+        return false;
+      // It's safe to cast to MethodAction because it's already checked.
+      //noinspection unchecked
+      Base another = (Base) anotherObject;
+      return this.method.equals(another.method);
+    }
+
+    private Method chooseMethod(Class<?> klass, String name, int numArgs) {
+      Method ret = null;
+      for (Method each : klass.getMethods()) {
+        if (each.getName().equals(name) && equals(this.getParameterTypes(), each.getParameterTypes())) {
+          ret = each;
+          break;
+        }
+      }
+      Checks.checktest(ret != null, "No method '%s/%d' is found in '%s'", name, numArgs, klass.getCanonicalName());
+      return ret;
+    }
+
+    /**
+     * Returns parameter types of a method that this action represents in SUT (not in Spec).
+     */
+    private Class<?>[] getParameterTypes() {
+      Class<?>[] ret = this.method.getParameterTypes();
+      ret = Arrays.asList(this.method.getParameterTypes()).subList(1, ret.length).toArray(new Class<?>[ret.length - 1]);
+      return ret;
+    }
+
+    private static boolean equals(Class<?>[] parameterTypesA, Class<?>[] parameterTypesB) {
+      return Arrays.equals(parameterTypesA, parameterTypesB);
+    }
+  }
 }

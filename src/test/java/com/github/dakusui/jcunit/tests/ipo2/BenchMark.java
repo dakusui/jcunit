@@ -33,7 +33,7 @@ public class BenchMark extends IPO2Test {
 
   protected void verify(Factors factors, int strength, ConstraintManager cm,
       TestGenerationResult actual) {
-    System.out.println(String.format(
+    System.out.println(Utils.format(
         "%-40s:(testcases, remainders, time(sec))=(%4d, %4d, %f)",
         name.getMethodName(),
         actual.testCases.size(),

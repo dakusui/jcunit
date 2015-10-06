@@ -26,12 +26,12 @@ public class TurnstileTest {
     };
 
     @ActionSpec
-    public Expectation<Turnstile> coin(Expectation.Builder<Turnstile> b) {
+    public Interaction<Turnstile> coin(Interaction.Builder<Turnstile> b) {
       return b.valid(UNLOCKED).build();
     }
 
     @ActionSpec
-    public Expectation<Turnstile> pass(Expectation.Builder<Turnstile> b) {
+    public Interaction<Turnstile> pass(Interaction.Builder<Turnstile> b) {
       return b.invalid(RuntimeException.class).build();
     }
   }

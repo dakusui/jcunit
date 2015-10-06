@@ -1,8 +1,17 @@
 package com.github.dakusui.jcunit.fsm;
 
+import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Map;
 
 /**
  * @param <SUT> A class of software under test.
@@ -11,9 +20,9 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
   /**
    * When an invalid operation is performed, JCUnit
    */
-  State<?> VOID = new State() {
+  State<?> VOID = new State<Object>() {
     @Override
-    public Expectation<?> expectation(Action action, Args args) {
+    public Interaction<Object> interaction(Action<Object> action, Args args) {
       /////
       // Since no action should be performed on VOID state, which represents  a state after
       // invalid operation is performed, only VOID action, which represents 'no action',
@@ -22,12 +31,11 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
       // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
       // non-deterministic FSM is not supported by JCUnit yet...
       if (action == Action.VOID && args.size() == 0) {
-        Expectation<?> ret = new Expectation(
+        return new Interaction<Object>(
             "(VOID)",
-            Expectation.Type.VALUE_RETURNED,
+            Interaction.Type.VALUE_RETURNED,
             this,
-            new Expectation.Checker.MatcherBased(CoreMatchers.anything()));
-        return ret;
+            new Interaction.Checker.MatcherBased(CoreMatchers.anything()));
       }
       return null;
     }
@@ -62,13 +70,85 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
    *
    * @param action An action to be performed.
    * @param args   Arguments with which {@code action} is performed.
-   * @return An expectation.
-   * Expectation expectation(Action action, Args args) {
+   * @return An interaction to be performed with SUT.
+   * Expectation interaction(Action action, Args args) {
    * ...
    * if (args.values()[0].equals(0) && args.values()[1].equals(0) return null;
    * ...
    * }
    * </code>
    */
-  Expectation<SUT> expectation(Action<SUT> action, Args args);
+  Interaction<SUT> interaction(Action<SUT> action, Args args);
+
+  class Base<SUT> implements State<SUT> {
+    final         FSMSpec<SUT>        stateSpec;
+    private final Map<String, Method> actionMethods;
+    private final Field               stateSpecField;
+    private final FSM<SUT>            fsm;
+    private final String              fsmName;
+
+    public Base(String fsmName, FSM<SUT> fsm, FSMSpec<SUT> stateSpec, Map<String, Method> actionMethods, Field stateSpecField) {
+      this.fsm = fsm;
+      this.stateSpec = stateSpec;
+      this.actionMethods = actionMethods;
+      this.stateSpecField = stateSpecField;
+      this.fsmName = fsmName;
+    }
+
+    @Override
+    public boolean check(SUT sut) {
+      return stateSpec.check(sut);
+    }
+
+    @Override
+    public Interaction<SUT> interaction(Action<SUT> action, Args args) {
+      Interaction<SUT> ret = null;
+      Method m = Checks.checknotnull(actionMethods.get(action.id()), "Unknown action '%s' was given.", action);
+      Checks.checktest(
+          Interaction.class.isAssignableFrom(m.getReturnType()),
+          "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
+          m.getName(),
+          m.getParameterTypes().length,
+          m.getDeclaringClass().getCanonicalName(),
+          Interaction.class.getCanonicalName(),
+          m.getReturnType().getCanonicalName()
+      );
+      Object[] argsToMethod = Utils.concatenate(
+          new Object[] { new Interaction.Builder<SUT>(this.fsmName, fsm) },
+          args.values()
+      );
+      try {
+        //noinspection unchecked
+        ret = (Interaction<SUT>) m.invoke(stateSpec, argsToMethod);
+      } catch (IllegalArgumentException e) {
+        Checks.rethrowtesterror(
+            e,
+            "Wrong types: '%s/%s' of '%s' can't be executed with %s",
+            m.getName(),
+            m.getParameterTypes().length,
+            m.getDeclaringClass(),
+            Arrays.toString(argsToMethod)
+        );
+      } catch (IllegalAccessException e) {
+        // Since the method is validated in advance, this path should never be executed.
+        Checks.fail();
+      } catch (InvocationTargetException e) {
+        Checks.rethrowtesterror(
+            e,
+            "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
+            m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Interaction.class.getCanonicalName()
+        );
+      }
+      return ret;
+    }
+
+    @Override
+    public String toString() {
+      StateSpec ann = this.stateSpecField.getAnnotation(StateSpec.class);
+      if (ann.value().length() > 0) {
+        return String.format("%s(%s)", stateSpecField.getName(), ann.value());
+      }
+      return String.format("%s", stateSpecField.getName());
+    }
+  }
 }

@@ -19,7 +19,7 @@ public class TupleGeneratorFactory {
   public static final TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory();
 
   public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
-    return new SimpleFSM<SUT>(fsmName, fsmSpecClass, historyLength);
+    return new FSM.Base<SUT>(fsmName, fsmSpecClass, historyLength);
   }
 
   /**

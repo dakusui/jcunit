@@ -81,7 +81,7 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
             }
             if (!targetField.getType().isAssignableFrom(compType)) {
                 errors.add(
-                        String.format("Incompatible method '%s' is specified for field '%s' (%s)",
+                        Utils.format("Incompatible method '%s' is specified for field '%s' (%s)",
                                 m.getName(), targetField.getName(), targetField.getType().getCanonicalName()
                         ));
             }
@@ -118,13 +118,13 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
                 // In this case (Non-primitive, non-string typed fields),
                 // levelsProvider must be provided, but not found (because no overriding
                 // method was found).
-                errors.add(String.format(
+                errors.add(Utils.format(
                         "For the field '%s', 'levelsProvider' needs to be provided since there is no pre-defined xyzLevels method for it.",
                         targetField));
             }
             return methodNameMappings.get(fieldType);
         } else if (overridingLevelsMethods.length > 1) {
-            errors.add(String.format(
+            errors.add(Utils.format(
                     "You can give at most one explicit value to FactorField annotation, but %d were given. [%s]",
                     overridingLevelsMethods.length,
                     Utils.join(",", new Utils.Formatter<Method>() {

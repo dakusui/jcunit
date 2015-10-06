@@ -178,8 +178,8 @@ public class Checks {
 
   private static String composeMessage(String msgOrFmt, Object... args) {
     if (msgOrFmt != null)
-      return String.format(msgOrFmt, args);
-    return String.format("Message:'%s'", Utils.join(",", args));
+      return Utils.format(msgOrFmt, args);
+    return Utils.format("Message:'%s'", Utils.join(",", args));
   }
 
   public static void fail() {

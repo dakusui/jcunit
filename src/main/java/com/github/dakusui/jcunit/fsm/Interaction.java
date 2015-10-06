@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Expectation<SUT> {
+public class Interaction<SUT> {
   public static class Builder<SUT> {
     private final FSM<SUT>   fsm;
     private final String     fsmName;
@@ -54,10 +54,10 @@ public class Expectation<SUT> {
 
     public Builder<SUT> valid(FSMSpec<SUT> state, Matcher matcher) {
       Checks.checknotnull(matcher);
-      return valid(state, new Expectation.Checker.MatcherBased(matcher));
+      return valid(state, new Interaction.Checker.MatcherBased(matcher));
     }
 
-    public Builder<SUT> valid(FSMSpec<SUT> state, Expectation.Checker checker) {
+    public Builder<SUT> valid(FSMSpec<SUT> state, Interaction.Checker checker) {
       Checks.checknotnull(state);
       Checks.checknotnull(checker);
       this.type = Type.VALUE_RETURNED;
@@ -74,15 +74,15 @@ public class Expectation<SUT> {
         return (State<SUT>) State.VOID;
       }
       for (State<SUT> each : fsm.states()) {
-        if (((SimpleFSM.SimpleFSMState) each).stateSpec == stateChecker)
+        if (((State.Base) each).stateSpec == stateChecker)
           return each;
       }
       Checks.checkcond(false, "No state for '%s' was found.", stateChecker);
       return null;
     }
 
-    public Expectation<SUT> build() {
-      return new Expectation<SUT>(this.fsmName, this.type, this.state, this.checker);
+    public Interaction<SUT> build() {
+      return new Interaction<SUT>(this.fsmName, this.type, this.state, this.checker);
     }
   }
 
@@ -104,7 +104,7 @@ public class Expectation<SUT> {
    */
   private final Checker    checker;
 
-  protected Expectation(
+  protected Interaction(
       String fsmName,
       Type type,
       State<SUT> state,
@@ -123,22 +123,26 @@ public class Expectation<SUT> {
     //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
-    if (this.type != Type.EXCEPTION_THROWN) {
+    if (this.type == Type.VALUE_RETURNED) {
       b.addFailedReason(String.format(
-              "Exception was not expected to be thrown but %s was thrown. (%s)",
-              thrownException.getClass().getSimpleName(),
-              this.checker.format()),
+              "Exception was not expected but %s was thrown. ",
+              thrownException.getClass().getSimpleName()),
           thrownException);
     }
     if (!this.checker.check(context, thrownException, observer)) {
       b.addFailedReason(
-          String.format("'%s' is expected to be %s but '%s' was thrown. (%s)", this.checker.format(), this.type, thrownException, thrownException.getMessage()),
+          String.format(
+              "Expected %s value/exception: %s but '%s' was thrown. (%s)",
+              this.type,
+              this.checker.format(),
+              thrownException,
+              thrownException.getMessage()),
           thrownException
       );
     }
     if (!this.state.check(sut)) {
       b.addFailedReason(
-          String.format("'%s' is expected to be in '%s' state but not.", sut, this.state)
+          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, sut)
       );
     }
     return b.build();
@@ -147,21 +151,26 @@ public class Expectation<SUT> {
   public <T> Result checkReturnedValue(T context, SUT sut, Object returnedValue, ScenarioSequence.Type type, ScenarioSequence.Observer observer) {
     Checks.checknotnull(sut);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
-    if (this.type != Type.VALUE_RETURNED) {
-      b.addFailedReason(String.format("Exception was expected not to be thrown but it was. (%s)", this.checker.format()));
+    if (this.type == Type.EXCEPTION_THROWN) {
+      b.addFailedReason(Utils.format("Exception was expected to be thrown but it was not. "));
     }
     ////
     // Only when type is 'main', returned FSM value will be checked.
     if (checker.shouldBeCheckedFor(type)) {
       if (!this.checker.check(context, returnedValue, observer)) {
         b.addFailedReason(
-            String.format("'%s' is expected to be %s but '%s' was returned.", this.checker.format(), this.type, returnedValue)
+            Utils.format(
+                "Expected %s value/exception: %s but '%s' was returned.",
+                this.type,
+                this.checker.format(),
+                returnedValue
+            )
         );
       }
     }
     if (!this.state.check(sut)) {
       b.addFailedReason(
-          String.format("FSM '%s' is expected to be in '%s' state but not.(actual='%s')", this.fsmName, this.state, sut)
+          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, sut)
       );
     }
     return b.build();
@@ -170,8 +179,8 @@ public class Expectation<SUT> {
   @Override
   public String toString() {
     if (this.type == Type.EXCEPTION_THROWN)
-      return String.format("status of '%s' is '%s' and %s is thrown", this.fsmName, this.state, this.checker.format());
-    return String.format("status of '%s' is '%s' and %s is returned", this.fsmName, this.state, this.checker.format());
+      return Utils.format("status of '%s' is '%s' and %s is thrown", this.fsmName, this.state, this.checker.format());
+    return Utils.format("status of '%s' is '%s' and %s is returned", this.fsmName, this.state, this.checker.format());
   }
 
   public enum Type {

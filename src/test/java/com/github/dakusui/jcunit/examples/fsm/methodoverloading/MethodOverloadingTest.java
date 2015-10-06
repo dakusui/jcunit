@@ -6,8 +6,6 @@ import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
-import com.github.dakusui.jcunit.generators.RandomTupleGenerator;
-import com.github.dakusui.jcunit.tests.generators.RandomTupleGeneratorTest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,12 +41,12 @@ public class MethodOverloadingTest {
         .build();
 
     @ActionSpec(parametersSpec = "m$s")
-    public Expectation<MethodOverloading> m(Expectation.Builder<MethodOverloading> b, String s) {
+    public Interaction<MethodOverloading> m(Interaction.Builder<MethodOverloading> b, String s) {
       return b.valid(I, CoreMatchers.equalTo("m(s)")).build();
     }
 
     @ActionSpec
-    public Expectation<MethodOverloading> m(Expectation.Builder<MethodOverloading> b) {
+    public Interaction<MethodOverloading> m(Interaction.Builder<MethodOverloading> b) {
       return b.valid(I, CoreMatchers.equalTo("m()")).build();
     }
 
