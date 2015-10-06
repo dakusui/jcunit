@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
+import java.io.PrintStream;
+
 import static org.junit.Assert.assertThat;
 
 /**

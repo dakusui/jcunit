@@ -62,6 +62,13 @@ public interface TupleGenerator extends
     private Class<?>                        targetClass;
 
     public Builder() {
+      this(IPO2TupleGenerator.class, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER);
+    }
+
+    public Builder(Class<? extends TupleGenerator> tupleGeneratorClass, ConstraintManager cm) {
+      this.tupleGeneratorClass = Checks.checknotnull(tupleGeneratorClass);
+      this.constraintManager = Checks.checknotnull(cm);
+      this.parameters = Param.EMPTY_ARRAY;
     }
 
     public Builder(TupleGenerator.Builder base) {

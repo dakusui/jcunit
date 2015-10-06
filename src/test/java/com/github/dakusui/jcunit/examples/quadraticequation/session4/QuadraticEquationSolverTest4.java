@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
+import java.io.PrintStream;
+
 import static org.junit.Assert.assertThat;
 
 /**
@@ -18,6 +20,8 @@ import static org.junit.Assert.assertThat;
  */
 @RunWith(JCUnit.class)
 public class QuadraticEquationSolverTest4 {
+  public static PrintStream ps = System.out;
+
   public static final int runCount     = 53;
   public static final int failureCount = 0;
   public static final int ignoreCount  = 0;
@@ -43,8 +47,8 @@ public class QuadraticEquationSolverTest4 {
   public boolean coefficientsAreValid() {
     return
         -100 <= a && a <= 100 &&
-        -100 <= b && b <= 100 &&
-        -100 <= c && c <= 100;
+            -100 <= b && b <= 100 &&
+            -100 <= c && c <= 100;
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -59,8 +63,8 @@ public class QuadraticEquationSolverTest4 {
   @Test
   @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void whenSolveEquation$thenSolved() {
-    System.out.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b*b, -4*c*a, b*b-4*c*a));
-    System.out.println(this.coefficientsAreValid());
+    ps.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b*b, -4*c*a, b*b-4*c*a));
+    ps.println(this.coefficientsAreValid());
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

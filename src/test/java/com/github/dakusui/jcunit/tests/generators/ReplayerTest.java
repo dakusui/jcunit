@@ -9,6 +9,8 @@ import com.github.dakusui.jcunit.generators.Replayer;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +31,14 @@ public class ReplayerTest {
   public void before() {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+  }
+  @Before
+  public void setSilent() {
+    UTUtils.setSilent();
+  }
+  @After
+  public void setVerbose() {
+    UTUtils.setVerbose();
   }
 
   @RunWith(JCUnit.class)
@@ -54,7 +64,7 @@ public class ReplayerTest {
 
     @Test
     public void test() {
-      System.out.println("f1=" + f1 + ", f2=" + f2);
+      UTUtils.out.println("f1=" + f1 + ", f2=" + f2);
       assertTrue(f1 > f1Threshold);
     }
   }

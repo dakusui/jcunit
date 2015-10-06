@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,6 +32,8 @@ import static org.junit.Assert.assertThat;
         value = QuadraticEquationSolverTest6.CM.class,
         params = { }))
 public class QuadraticEquationSolverTest6 {
+  public static PrintStream ps = System.out;
+
   /**
    * Constraint manager.
    */
@@ -111,8 +114,8 @@ public class QuadraticEquationSolverTest6 {
   @Test
   @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void whenSolveEquation$thenSolved() {
-    System.out.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b * b, -4 * c * a, b * b - 4 * c * a));
-    System.out.println(this.coefficientsAreValid());
+    ps.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b * b, -4 * c * a, b * b - 4 * c * a));
+    ps.println(this.coefficientsAreValid());
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

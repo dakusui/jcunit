@@ -4,10 +4,15 @@ import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.TupleLevelsProvider;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
+
+import java.io.PrintStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -29,7 +34,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      System.out.println(String.format("(f, f1, f2)=(%d, %d, %d)", f, struct.f1, struct.f2));
+      UTUtils.out.println(String.format("(f, f1, f2)=(%d, %d, %d)", f, struct.f1, struct.f2));
     }
   }
 
@@ -47,7 +52,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      System.out.println(String.format("(f1, f2)=(%d, %d)", struct.f1, struct.f2));
+      UTUtils.out.println(String.format("(f1, f2)=(%d, %d)", struct.f1, struct.f2));
     }
   }
 
@@ -74,6 +79,7 @@ public class TupleLevelsProviderTest {
       System.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
     }
   }
+
   @Test(expected = InvalidTestException.class)
   public void negativeTest3() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass3.class);
@@ -95,9 +101,10 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      System.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
+      UTUtils.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
     }
   }
+
   @Test(expected = InvalidTestException.class)
   public void negativeTest4() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass4.class);
@@ -109,7 +116,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = {@Param("2"), @Param("hello!")})
+      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Param("2"), @Param("hello!") })
   )
   public static class TestClass5 {
     @FactorField
@@ -119,9 +126,20 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      System.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
+      UTUtils.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
     }
   }
+
+  @Before
+  public void setSilent() {
+    UTUtils.setSilent();
+  }
+
+  @After
+  public void setVerbose() {
+    UTUtils.setVerbose();
+  }
+
   @Test(expected = InvalidTestException.class)
   public void negativeTest5() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass5.class);

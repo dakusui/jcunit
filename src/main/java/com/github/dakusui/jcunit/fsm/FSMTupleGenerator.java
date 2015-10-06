@@ -48,8 +48,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
     // * all 'Story' type factors with its all possible patterns without duplications.
     Factors.Builder factorsRebuilder = new Factors.Builder();
     for (String eachFSMName : fsms.keySet()) {
-      Factor.Builder b = new Factor.Builder();
-      b.setName(eachFSMName);
+      Factor.Builder b = new Factor.Builder(eachFSMName);
       for (Tuple eachTuple : this.tuples) {
         Story story = (Story) eachTuple.get(eachFSMName);
         if (!b.hasLevel(story)) {

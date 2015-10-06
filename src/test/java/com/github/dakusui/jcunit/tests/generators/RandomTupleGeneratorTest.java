@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.tests.generators;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.RandomTupleGenerator;
@@ -13,9 +12,7 @@ import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
 import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class RandomTupleGeneratorTest {
   public static abstract class TestClass {
@@ -39,16 +36,16 @@ public class RandomTupleGeneratorTest {
     @Test
     public void test() {
       assertNotEquals(f, g);
-      System.out.println(TupleUtils.toString(TestCaseUtils.toTestCase(this)));
     }
   }
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = {@Param("100"), @Param("1")}),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("100"), @Param("1") }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass1 extends TestClass {
   }
+
   @Test
   public void test1() {
     Result result = JUnitCore.runClasses(TestClass1.class);
@@ -59,10 +56,11 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = {@Param("-1"), @Param("1")}),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("-1"), @Param("1") }),
       constraint = @Constraint(TestClass.CM.class))
-  public static class TestClass2 extends  TestClass {
+  public static class TestClass2 extends TestClass {
   }
+
   @Test(expected = InvalidTestException.class)
   public void test2() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass2.class);
@@ -73,10 +71,11 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = {@Param("INVALID"), @Param("1")}),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("INVALID"), @Param("1") }),
       constraint = @Constraint(TestClass.CM.class))
-  public static class TestClass3 extends  TestClass {
+  public static class TestClass3 extends TestClass {
   }
+
   @Test(expected = InvalidTestException.class)
   public void test3() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass3.class);
@@ -87,10 +86,11 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = {@Param("100"), @Param("XYZ")}),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("100"), @Param("XYZ") }),
       constraint = @Constraint(TestClass.CM.class))
-  public static class TestClass4 extends  TestClass {
+  public static class TestClass4 extends TestClass {
   }
+
   @Test(expected = InvalidTestException.class)
   public void test4() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass4.class);
@@ -101,10 +101,11 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = {@Param("123"), @Param("SYSTEM_PROPERTY")}),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("123"), @Param("SYSTEM_PROPERTY") }),
       constraint = @Constraint(TestClass.CM.class))
-  public static class TestClass5 extends  TestClass {
+  public static class TestClass5 extends TestClass {
   }
+
   @Test
   public void test5() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass5.class);

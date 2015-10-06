@@ -5,10 +5,8 @@ import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.Precondition;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 import java.util.HashMap;
@@ -19,6 +17,16 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
 public class ReproducibilityWithPreconditionTest {
+  @Before
+  public void setSilent() {
+    UTUtils.setSilent();
+  }
+
+  @After
+  public void setVerbose() {
+    UTUtils.setVerbose();
+  }
+
   @Rule
   public JCUnitDesc desc = new JCUnitDesc();
 
@@ -49,7 +57,7 @@ public class ReproducibilityWithPreconditionTest {
   @Test
   public void test() {
     String s = this.desc.getId() + ";" + TupleUtils.toString(this.desc.getTestCase());
-    System.out.println(s);
+    UTUtils.out.println(s);
     assertEquals(expectations.get(this.desc.getId()), s);
     expectations.remove(this.desc.getId());
   }
@@ -58,6 +66,7 @@ public class ReproducibilityWithPreconditionTest {
   public void test2() {
 
   }
+
   @AfterClass
   public static void afterClass() {
     assertTrue(expectations.isEmpty());

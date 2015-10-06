@@ -1449,10 +1449,100 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
 * [Recorder.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/core/rules/Recorder.java)
 * [Replayer.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/generators/Replayer.java)
 
+## Multi-threads
 
-# Future works
+Suppose that you are given 2 (or more) FSM and you need to make sure they can work
+concurrently without defects.
+
+```java
+
+    @RunWith(JCUnit.class)
+    public class ConcurrentTurnstileTest {
+      @FactorField(levelsProvider = FSMLevelsProvider.class)
+      public Story<Turnstile, Spec> t1;
+      @FactorField(levelsProvider = FSMLevelsProvider.class)
+      public Story<Turnstile, Spec> t2;
+    
+      @Test(timeout = 100)
+      public void test1() {
+        FSMUtils.performStoriesConcurrently(
+            this,
+            new Story.Request.ArrayBuilder()
+                .add("t1", new Turnstile())
+                .add("t2", new Turnstile())
+                .build()
+        );
+      }
+    }
+```
+
+In order to test a ```Turnstile``` object is thread-safe, you can do try following
+code fragment.
+
+```java
+
+
+      @Test(timeout = 100)
+      public void test1() {
+        Turnstile turnstile = new Turnstile();
+        FSMUtils.performStoriesConcurrently(
+            this,
+            new Story.Request.ArrayBuilder()
+                .add("t1", turnstile)           // The same object is manipulated by 2
+                .add("t2", turnstile)           // threads concurrently.
+                .build()
+        );
+      }
+```
+
+This test will fail miserably because a turnstile isn't thread-safe generally speaking.
+
+Inside the method, FSMUtils.performStoriesConcurrently, scenarios that belong to main 
+scenario sequences of those multiple FSMs' actions are invoked in 'synchronized' way.
+
+The first scenarios of the sequences are executed at the same time, and the next scenarios
+will not be executed until all scenarios finish. Once all the first scenario have
+finished, the second ones will be executed in a same manner, etc.
+
+Factors are organized like a matrix below when test suite is generated internally,
+
+| Factor            | Levels                                               |
+| ----------------- |:---------------------------------------------------- |
+| FSM:t1:state:0    | I, LOCKED                                            |
+| FSM:t1:action:0   | coin, pass                                           |
+| FSM:t1:state:1    | I, LOCKED                                            |
+| FSM:t1:action:1   | coin, pass                                           |
+| FSM:t2:state:0    | I, LOCKED                                            |
+| FSM:t2:action:0   | coin, pass                                           |
+| FSM:t2:state:1    | I, LOCKED                                            |
+| FSM:t2:action:1   | coin, pass                                           |
+
+ If we apply a pairwise test suite generation to this factor space, all the combinations
+between t1's states and t2's states will be tested, t1's first action and t2's first 
+action, etc. But does number of test cases become 256? No just 4. This is because
+the turnstile's model limits possible transitions and also because pairwise technique. 
+
+Thus, we are able to test possible combinations with a reasonably good coverage and
+  small amount of test cases.
+
+# Release notes
+## Changes in 0.5.5
+### Enhancements
 * **Local constraints**: probably we want to define constraints applied to parameters 
   of a method. [10]
+* **Support overloading methods with the same number of arguments**: Right now FSM/JCUnit
+ doesn't support those methods. But it would be nice to have. [13]
+* **Multi-threading support**: FSM/JCUnit treats each state in each FSM as an independent
+ factor. Therefore it guarantees a fair coverage for multi-threading situation where
+ Step. 1, client 1 requests op.A the server and at the same time client 2 requests Op.B,
+ Step. 2, ...
+ with relatively small number of test cases since you can use pairwise/t-wise technique
+ as its test suite generation method. [14]
+### Fixed bugs
+* **Story objects are not refreshed**: Due to this issue, nested FSMs might not be 
+  tested when there is more than one test method in a test class.[15]
+
+# Future works
 * **Coverage report**: generating test suite which covers all the possible value-pairs
   under complicated constraints is a very time consuming task. Instead, relying on
   random generation and assessing how much possible value pairs are covered might be
@@ -1464,15 +1554,14 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
  we can exclude them during test suite generation from factors and after the process
  finishes we can append states determined by previous states and input to each test 
  case. By this optimization, we should be able to improve FSM/JCUnit's performance.[12]
-* **Support overloading methods with the same number of arguments**: Right now FSM/JCUnit
- doesn't support those methods. But it would be nice to have. [13]
-* **Multi-threading support**: FSM/JCUnit treats each state in each FSM as an independent
- factor. Therefore it guarantees a fair coverage for multi-threading situation where
- Step. 1, client 1 requests op.A the server and at the same time client 2 requests Op.B,
- Step. 2, ...
- with relatively small number of test cases since you can use pairwise/t-wise technique
- as its test suite generation method. [14]
- 
+* **AETG algorithm support**: IPO algorithm isn't good at handling constraints and
+ test suite generation can be very time consuming because factors are sorted in 
+ a difficult order for the algorithm. Probably AETG can handle the situation better 
+ since it generates a complete tuple every time. [16]
+
+# Known bugs and limitations
+* **Performance**: Constraints generated by FSM/JCUnit are very complex and make
+ IPO algorithm very slow. This might be mitigated by [this issue][16].
 
 # References
 * [0] "Wikipedia article about Model-based testing" 
@@ -1490,6 +1579,8 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
 * [12] "Issue-11:(FSM)Simplify test suite generation" 
 * [13] "Issue-12:(FSM)Support overloading methods with the same number of arguments" (done) 
 * [14] "Issue-13:(FSM)Multi-threading support"
+* [15] "Issue-14:(FSM)Ensure FSMUtils.resetStories is called before each test method is called every time"
+* [16] "(t.b.d.):(FSM)Support AETG tuple generation algorithm"
 
 [0]: http://en.wikipedia.org/wiki/Model-based_testing
 [1]: http://en.wikipedia.org/wiki/Mealy_machine
@@ -1506,3 +1597,5 @@ You can refer to following files for how ```Recorder``` and ```Replayer``` work.
 [12]: https://github.com/dakusui/jcunit/issues/11
 [13]: https://github.com/dakusui/jcunit/issues/12
 [14]: https://github.com/dakusui/jcunit/issues/13
+[15]: https://github.com/dakusui/jcunit/issues/14
+[16]: https://github.com/dakusui/jcunit/issues/(t.b.d.)

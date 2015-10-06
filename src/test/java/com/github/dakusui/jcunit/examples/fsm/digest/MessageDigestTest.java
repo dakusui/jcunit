@@ -58,7 +58,8 @@ public class MessageDigestTest {
 
   @Test
   public void test() throws NoSuchAlgorithmException {
+    ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
     MessageDigest md = MessageDigest.getInstance(this.algotithmName);
-    FSMUtils.performStory(this, "messageDigest", md);
+    FSMUtils.performStory(this, "messageDigest", md, observerFactory);
   }
 }

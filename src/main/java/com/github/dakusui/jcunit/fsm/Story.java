@@ -110,7 +110,11 @@ public class Story<
       }
 
       public <SUT> ArrayBuilder add(String fsmName, SUT sut) {
-        requests.add(new Request<SUT>(fsmName, sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE));
+        return add(fsmName, sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
+      }
+
+      public <SUT> ArrayBuilder add(String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
+        requests.add(new Request<SUT>(fsmName, sut, Checks.checknotnull(observerFactory)));
         return this;
       }
 

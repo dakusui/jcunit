@@ -28,9 +28,8 @@ public class Factor implements Iterable<Object> {
     private String name;
     private List<Object> levels = new LinkedList<Object>();
 
-    public Builder setName(String name) {
-      this.name = name;
-      return this;
+    public Builder(String name) {
+      this.name = Checks.checknotnull(name);
     }
 
     public Builder addLevel(Object level) {

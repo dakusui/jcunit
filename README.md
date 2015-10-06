@@ -411,6 +411,7 @@ Unfortunately you cannot use parentheses as of now.
 
 ## Tip 8: As a pairwise test generator
 
+### Under JUnit execution (recommended)
 By creating a test method below, which just prints test case definition, you can use JCUnit as a pairwise (or t-wise) test case generator.
 
 ```java
@@ -434,7 +435,50 @@ The output will be a text whose lines are JSON objects and look like,
 ```
 
 You can refer to a following example for this use case. 
-* [TestGen.java](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/testgen/TestGen.java)
+* [TestGen.java](https://github.com/dakusui/jcunit/blob/0.5.x/src/test/java/com/github/dakusui/jcunit/examples/testgen/TestGen.java)
+
+### Without JUnit
+
+Apparently people sometimes want to use JCUnit not as a JUnit runner but as a pairwise (t-wise)
+test generator library.
+
+You can do it by doing this.
+
+```java
+
+      public void moreFluentStyleRun(PrintStream ps) {
+        TupleGenerator tg = new TupleGenerator.Builder().setFactors(
+            new Factors.Builder()
+                .add("OS", "Windows", "Linux")
+                .add("Browser", "Chrome", "Firefox")
+                .add("Bits", "32", "64").build()
+        ).build();
+        for (Tuple each : tg) {
+          ps.println(each);
+        }
+      }
+```
+
+This should print out something like following.
+
+```
+
+    {Bits=32, Browser=Chrome, OS=Windows}
+    {Bits=64, Browser=Firefox, OS=Windows}
+    {Bits=64, Browser=Chrome, OS=Linux}
+    {Bits=32, Browser=Firefox, OS=Linux}
+```
+
+You can refer to a following example for this use case. 
+
+* [TestGenWithoutJUnit.java](https://github.com/dakusui/jcunit/blob/0.5.x/src/test/java/com/github/dakusui/jcunit/examples/testgen/TestGenWithoutJUnit.java)
+
+Above mentioned code doesn't use JUnit's functionality at all and from JCUnit 0.5.4 on, 
+dependency on JUnit is marked optional in pom.xml of JCUnit. Therefore it should even 
+work without having JUnit library in your classpath at all.
+But if you are using earlier version of JCUnit, or somehow unwanted version of JUnit 
+is picked up, probably you need to 'exclude' the dependency. 
+please refer to [Apache Maven Project page](https://maven.apache.org/guides/introduction/introduction-to-optional-and-excludes-dependencies.html)
 
 ## Tip 9: Modeling a finite state machine
 

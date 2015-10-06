@@ -153,7 +153,7 @@ public class FSMUtils {
     FSMUtils.resetStories(context);
 
     ////
-    // Perform main scenario sequences concurrently.
+    // Perform scenario sequences concurrently.
     ExecutorService executorService = Executors.newFixedThreadPool(stories.length);
     try {
       @SuppressWarnings("RedundantTypeArguments")

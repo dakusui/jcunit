@@ -15,8 +15,7 @@ public class FactorLoader {
     validationResult.check();
     LevelsProvider<?> levelsProvider = validationResult.getLevelsProvider();
 
-    Factor.Builder factorBuilder = new Factor.Builder();
-    factorBuilder.setName(f.getName());
+    Factor.Builder factorBuilder = new Factor.Builder(f.getName());
     int numLevels = levelsProvider.size();
     for (int i = 0; i < numLevels; i++) {
       factorBuilder.addLevel(levelsProvider.get(i));

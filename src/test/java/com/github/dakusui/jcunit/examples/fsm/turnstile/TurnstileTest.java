@@ -2,10 +2,7 @@ package com.github.dakusui.jcunit.examples.fsm.turnstile;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.fsm.Expectation;
-import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.Story;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
@@ -45,6 +42,6 @@ public class TurnstileTest {
   @Test
   public void test() throws Throwable {
     Turnstile sut = new Turnstile();
-    FSMUtils.performStory(this, "main", sut);
+    FSMUtils.performStory(this, "main", sut, ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
   }
 }

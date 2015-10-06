@@ -14,6 +14,8 @@ import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class MethodOverloadingTest {
+  public static ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
+
   public class MethodOverloading {
     public String m() {
       return "m()";
@@ -56,11 +58,12 @@ public class MethodOverloadingTest {
     }
   }
 
+
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<MethodOverloading, MethodOverloadingSpec> primary;
 
   @Test
   public void test() {
-    FSMUtils.performStory(this, "primary", new MethodOverloading());
+    FSMUtils.performStory(this, "primary", new MethodOverloading(), observerFactory);
   }
 }
