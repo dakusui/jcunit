@@ -11,16 +11,13 @@ public class Scenario<SUT> implements Serializable {
   public final Args        with;
 
   public Scenario(State<SUT> given, Action<SUT> when, Args with) {
-    Checks.checknotnull(given);
-    Checks.checknotnull(when);
-    Checks.checknotnull(with);
-    this.given = given;
-    this.when = when;
-    this.with = with;
+    this.given = Checks.checknotnull(given);
+    this.when = Checks.checknotnull(when);
+    this.with = Checks.checknotnull(with);
   }
 
-  public <T> Object perform(T context, SUT sut) throws Throwable {
-    return when.perform(context, sut, this.with);
+  public Object perform(SUT sut) throws Throwable {
+    return when.perform(sut, this.with);
   }
 
   public Interaction<SUT> then() {

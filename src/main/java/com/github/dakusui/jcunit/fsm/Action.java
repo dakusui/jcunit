@@ -14,9 +14,49 @@ import java.util.Arrays;
  * @param <SUT> A software under test.
  */
 public interface Action<SUT> extends Serializable {
+  /**
+   * Performs this action with {@code args} on a given SUT {@code sut}.
+   * An implementation of this method should usually represent and execute a method of
+   * {@code sut} and return the value the method returns.
+   * <p/>
+   * {@code args} is composed from the returned value of {@code params} method.
+   * The framework will pick up a value from a factor's levels returned by the method
+   * one by one and creates an array of objects.
+   * <p/>
+   * The array will be passed to this method's second argument.
+   */
+  Object perform(SUT sut, Args args) throws Throwable;
+
+  /**
+   * Returns {@code Parameters} that belong to this object.
+   */
+  Parameters parameters();
+
+  /**
+   * Returns {@code i}th factor's levels.
+   *
+   * @param i a factor's index.
+   */
+  Object[] parameterFactorLevels(int i);
+
+  /**
+   * Returns a number of parameters that this action takes.
+   */
+  int numParameterFactors();
+
+  /**
+   * Returns an identifier of this object.
+   */
+  String id();
+
+  /**
+   * Return types of the parameters.
+   */
+  Class<?>[] parameterTypes();
+
   Action<?> VOID = new Action() {
     @Override
-    public Object perform(Object context, Object o, Args args) throws Throwable {
+    public Object perform(Object o, Args args) throws Throwable {
       return FSMFactors.VOID;
     }
 
@@ -46,37 +86,6 @@ public interface Action<SUT> extends Serializable {
     }
   };
 
-  /**
-   * Performs this action with {@code args} on a given SUT {@code sut}.
-   * An implementation of this method should usually represent and execute a method of
-   * {@code sut} and return the value the method returns.
-   * <p/>
-   * {@code args} is composed from the returned value of {@code params} method.
-   * The framework will pick up a value from a factor's levels returned by the method
-   * one by one and creates an array of objects.
-   * <p/>
-   * The array will be passed to this method's second argument.
-   */
-  <T> Object perform(T context, SUT sut, Args args) throws Throwable;
-
-  Parameters parameters();
-
-  /**
-   * Returns {@code i}th factor's levels.
-   *
-   * @param i a factor's index.
-   */
-  Object[] parameterFactorLevels(int i);
-
-  /**
-   * Returns a number of parameters that this action takes.
-   */
-  int numParameterFactors();
-
-  String id();
-
-  Class<?>[] parameterTypes();
-
   class Base<SUT> implements Action<SUT> {
     final         Method     method;
     final         String     name;
@@ -95,7 +104,7 @@ public interface Action<SUT> extends Serializable {
     }
 
     @Override
-    public <T> Object perform(T context, SUT o, Args args) throws Throwable {
+    public Object perform(SUT o, Args args) throws Throwable {
       Checks.checknotnull(o);
       Object ret = null;
       try {

@@ -13,6 +13,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This class represents how a model of SUT interacts with the actual FSM.
+
+ * @param <SUT> A type of SUT.
+ */
 public class Interaction<SUT> {
   public static class Builder<SUT> {
     private final FSM<SUT>   fsm;

@@ -110,7 +110,14 @@ public interface ScenarioSequence<SUT> extends Serializable {
                     .addFailedReason(Utils.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
               }
             }
-            Object r = each.perform(context, sut);
+            ////
+            // Invoke a method in SUT through action corresponding to it.
+            Object r = each.perform(sut);
+            // 'passed' only means the method in SUT finished without any exceptions.
+            // The returned value will be validated by 'checkReturnedValue'. (if
+            // an exception is thrown, the thrown exception will be validated by
+            // 'checkThrownException'. And if the thrown exception is an expected
+            // one, it conforms the spec.)
             passed = true;
             ////
             // each.perform(sut) didn't throw an exception
