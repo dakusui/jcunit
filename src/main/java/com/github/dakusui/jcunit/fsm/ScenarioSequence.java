@@ -233,65 +233,6 @@ public interface ScenarioSequence<SUT> extends Serializable {
     }
   }
 
-  class Utils {
-    public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
-      Checks.checknotnull(scenarioSequence);
-      Object[] scenarios = new Object[scenarioSequence.size()];
-      for (int i = 0; i < scenarios.length; i++) {
-        scenarios[i] = scenarioSequence.get(i);
-      }
-      return String.format("[%d]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
-    }
-
-    static Observer createSimpleObserver(String fsmName) {
-      return createSimpleObserver(fsmName, System.out);
-    }
-
-    static Observer createSimpleObserver(String fsmName, final PrintStream ps) {
-      Checks.checknotnull(ps);
-      return createSimpleObserver(fsmName, ps, 0);
-    }
-
-    private static Observer createSimpleObserver(final String fsmName, final PrintStream ps, final int generation) {
-      Checks.checknotnull(ps);
-      return new Observer() {
-        private String indent(int level) {
-          return new String(new char[2 * level]).replace("\0", " ");
-        }
-
-        @Override
-        public Observer createChild(String childName) {
-          return createSimpleObserver(childName, ps, generation + 1);
-        }
-
-        @Override
-        public void startSequence(Type type, ScenarioSequence scenarioSequence) {
-          ps.printf("%s[%d]Starting(%s#%s):%s\n", indent(generation), Thread.currentThread().getId(), fsmName, type, scenarioSequence);
-        }
-
-        @Override
-        public void run(Type type, Scenario scenario, Object o) {
-          ps.printf("%s[%d]Running(%s#%s):%s expecting %s\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, scenario, scenario.then());
-        }
-
-        @Override
-        public void passed(Type type, Scenario scenario, Object o) {
-          ps.printf("%s[%d]Passed(%s#%s)\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type);
-        }
-
-        @Override
-        public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
-          ps.printf("%s[%d]Failed(%s#%s): %s\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, result.getMessage());
-        }
-
-        @Override
-        public void endSequence(Type type, ScenarioSequence seq) {
-          ps.printf("%s[%d]End(%s#%s)\n", indent(generation), Thread.currentThread().getId(), fsmName, type);
-        }
-      };
-    }
-  }
-
   /**
    * Builds a {@code Story} object from a {@code Tuple} using  a given {@code FSMFactorbs}.
    *
@@ -449,6 +390,65 @@ public interface ScenarioSequence<SUT> extends Serializable {
           return Utils.createSimpleObserver(fsmName);
         }
       }
+    }
+  }
+
+  class Utils {
+    public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
+      Checks.checknotnull(scenarioSequence);
+      Object[] scenarios = new Object[scenarioSequence.size()];
+      for (int i = 0; i < scenarios.length; i++) {
+        scenarios[i] = scenarioSequence.get(i);
+      }
+      return String.format("[%d]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
+    }
+
+    static Observer createSimpleObserver(String fsmName) {
+      return createSimpleObserver(fsmName, System.out);
+    }
+
+    static Observer createSimpleObserver(String fsmName, final PrintStream ps) {
+      Checks.checknotnull(ps);
+      return createSimpleObserver(fsmName, ps, 0);
+    }
+
+    private static Observer createSimpleObserver(final String fsmName, final PrintStream ps, final int generation) {
+      Checks.checknotnull(ps);
+      return new Observer() {
+        private String indent(int level) {
+          return new String(new char[2 * level]).replace("\0", " ");
+        }
+
+        @Override
+        public Observer createChild(String childName) {
+          return createSimpleObserver(childName, ps, generation + 1);
+        }
+
+        @Override
+        public void startSequence(Type type, ScenarioSequence scenarioSequence) {
+          ps.printf("%s[%d]Starting(%s#%s):%s\n", indent(generation), Thread.currentThread().getId(), fsmName, type, scenarioSequence);
+        }
+
+        @Override
+        public void run(Type type, Scenario scenario, Object o) {
+          ps.printf("%s[%d]Running(%s#%s):%s expecting %s\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, scenario, scenario.then());
+        }
+
+        @Override
+        public void passed(Type type, Scenario scenario, Object o) {
+          ps.printf("%s[%d]Passed(%s#%s)\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type);
+        }
+
+        @Override
+        public void failed(Type type, Scenario scenario, Object o, Expectation.Result result) {
+          ps.printf("%s[%d]Failed(%s#%s): %s\n", indent(generation + 1), Thread.currentThread().getId(), fsmName, type, result.getMessage());
+        }
+
+        @Override
+        public void endSequence(Type type, ScenarioSequence seq) {
+          ps.printf("%s[%d]End(%s#%s)\n", indent(generation), Thread.currentThread().getId(), fsmName, type);
+        }
+      };
     }
   }
 }

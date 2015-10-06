@@ -189,54 +189,20 @@ public class Expectation<SUT> {
     }
   }
 
-  static class Reason {
-    private final String    message;
-    private final Throwable t;
 
-    Reason(String message, Throwable t) {
-      this.message = message;
-      this.t = t;
-    }
-
-    public String toString() {
-      return this.message;
-    }
-  }
-
-
+  /**
+   * A class that represents a result of verification.
+   */
   public static class Result extends AssertionError {
-    static class Builder {
-      private List<Reason> failures = new LinkedList<Reason>();
-      private String message;
+    private final List<FailedReason> failedFailedReasons;
 
-      Builder(String message) {
-        this.message = message;
-      }
-
-      Builder addFailedReason(String message) {
-        Checks.checknotnull(message);
-        return this.addFailedReason(message, null);
-      }
-
-      Builder addFailedReason(String message, Throwable t) {
-        this.failures.add(new Reason(message, t));
-        return this;
-      }
-
-      Result build() {
-        return new Result(message, failures);
-      }
-    }
-
-    private final List<Reason> failedReasons;
-
-    public Result(String message, List<Reason> failedReasons) {
+    public Result(String message, List<FailedReason> failedFailedReasons) {
       super(message);
-      this.failedReasons = Collections.unmodifiableList(failedReasons);
+      this.failedFailedReasons = Collections.unmodifiableList(failedFailedReasons);
     }
 
     public boolean isSuccessful() {
-      return this.failedReasons.isEmpty();
+      return this.failedFailedReasons.isEmpty();
     }
 
     public void throwIfFailed() {
@@ -249,8 +215,8 @@ public class Expectation<SUT> {
     @Override
     public String getMessage() {
       String ret = super.getMessage();
-      if (!failedReasons.isEmpty()) {
-        ret += String.format(": [%s]", Utils.join(",", this.failedReasons.toArray()));
+      if (!failedFailedReasons.isEmpty()) {
+        ret += String.format(": [%s]", Utils.join(",", this.failedFailedReasons.toArray()));
       }
       return ret;
     }
@@ -258,7 +224,7 @@ public class Expectation<SUT> {
     @Override
     public void printStackTrace(PrintStream ps) {
       Checks.checknotnull(ps);
-      for (Reason each : this.failedReasons) {
+      for (FailedReason each : this.failedFailedReasons) {
         ps.println(each.message);
         if (each.t != null) {
           each.t.printStackTrace(ps);
@@ -269,11 +235,48 @@ public class Expectation<SUT> {
     @Override
     public void printStackTrace(PrintWriter pw) {
       Checks.checknotnull(pw);
-      for (Reason each : this.failedReasons) {
+      for (FailedReason each : this.failedFailedReasons) {
         pw.println(each.message);
         if (each.t != null) {
           each.t.printStackTrace(pw);
         }
+      }
+    }
+
+    static class Builder {
+      private List<FailedReason> failures = new LinkedList<FailedReason>();
+      private String message;
+
+      Builder(String message) {
+        this.message = message;
+      }
+
+      Builder addFailedReason(String message) {
+        Checks.checknotnull(message);
+        return this.addFailedReason(message, null);
+      }
+
+      Builder addFailedReason(String message, Throwable t) {
+        this.failures.add(new FailedReason(message, t));
+        return this;
+      }
+
+      Result build() {
+        return new Result(message, failures);
+      }
+    }
+
+    static class FailedReason {
+      private final String    message;
+      private final Throwable t;
+
+      FailedReason(String message, Throwable t) {
+        this.message = message;
+        this.t = t;
+      }
+
+      public String toString() {
+        return this.message;
       }
     }
   }
@@ -282,13 +285,33 @@ public class Expectation<SUT> {
    * An interface that models checking process for a returned value/thrown exception.
    */
   public interface Checker {
+    /**
+     * Checks if this object should be performed for a given scenario type.
+     */
     boolean shouldBeCheckedFor(ScenarioSequence.Type type);
 
+    /**
+     * Checks the {@code item} matches the criterion that this object defines.
+     * {@code true} will be returned if it does, {@code false} otherwise.
+     *
+     * @param context  A context on which this check is performed.
+     * @param value    A value to be checked. (Returned object or thrown exception by a method)
+     * @param observer An observer to which the checking result will be reported.
+     */
+    <T> boolean check(T context, Object value, ScenarioSequence.Observer observer);
+
+    /**
+     * Formats this object to a human readable string.
+     */
+    String format();
+
     abstract class Base implements Checker {
-      @Override public boolean shouldBeCheckedFor(ScenarioSequence.Type type) {
+      @Override
+      public boolean shouldBeCheckedFor(ScenarioSequence.Type type) {
         return true;
       }
     }
+
     class MatcherBased extends Base implements Checker {
       private final Matcher matcher;
 
@@ -297,8 +320,8 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public <T> boolean check(T context, Object item, ScenarioSequence.Observer observer) {
-        return this.matcher.matches(item);
+      public <T> boolean check(T context, Object value, ScenarioSequence.Observer observer) {
+        return this.matcher.matches(value);
       }
 
       @Override
@@ -316,11 +339,12 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public <T> boolean check(T context, Object item, ScenarioSequence.Observer observer) {
+      public <T> boolean check(T context, Object value, ScenarioSequence.Observer observer) {
         Checks.checknotnull(context);
         Story story = lookupStory(context, this.fsmName);
         if (!Checks.checknotnull(story).isPerformed()) {
-          Story.Performer.Default.INSTANCE.perform(story, context, item, FSMUtils.Synchronizer.DUMMY, observer.createChild(this.fsmName));
+          //noinspection unchecked
+          Story.Performer.Default.INSTANCE.perform(story, context, value, FSMUtils.Synchronizer.DUMMY, observer.createChild(this.fsmName));
         }
         return true;
       }
@@ -342,7 +366,8 @@ public class Expectation<SUT> {
         return null;
       }
 
-      @Override public boolean shouldBeCheckedFor(ScenarioSequence.Type type) {
+      @Override
+      public boolean shouldBeCheckedFor(ScenarioSequence.Type type) {
         return type == ScenarioSequence.Type.main;
       }
 
@@ -351,17 +376,5 @@ public class Expectation<SUT> {
         return String.format("FSM:%s", fsmName);
       }
     }
-
-    /**
-     * Checks the {@code item} matches the criterion that this object defines.
-     * {@code true} will be returned if it does, {@code false} otherwise.
-     *
-     * @param context  A context on which this check is performed.
-     * @param item     An item to be checked.
-     * @param observer An observer to which the checking result will be reported.
-     */
-    <T> boolean check(T context, Object item, ScenarioSequence.Observer observer);
-
-    String format();
   }
 }

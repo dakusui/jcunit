@@ -207,6 +207,7 @@ public class SimpleFSM<SUT> implements FSM<SUT> {
     } catch (IllegalAccessException e) {
       ////
       // This will never happen because filed should be validated in advance.
+      // * Bug: when spec isn't marked public, this can happen.
       throw new RuntimeException();
     }
   }
