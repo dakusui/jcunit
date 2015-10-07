@@ -4,13 +4,12 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * A story comprises setUp and main scenario sequences.
+ * A story comprises SET_UP and MAIN scenario sequences.
  * Users can perform a story through {@code FSMUtils#performStory}.
  *
  * @param <SPEC> FSMSpec implementation. This information is used reflectively.
@@ -19,14 +18,17 @@ import java.util.concurrent.Callable;
  */
 public class Story<
     SUT, SPEC extends FSMSpec<SUT> // Do not remove to refactor. See Javadoc of this parameter.
-    > implements Serializable, FSMUtils.Synchronizable {
+    >
+    implements Serializable,
+    FSMUtils.Synchronizable {
   /*
    * A dummy field to suppress a warning for SPEC.
    */
   @SuppressWarnings({ "unused", "FieldCanBeLocal" })
-  private           Class<SPEC> klazz;
-  private final     String      name;
-  transient private boolean     performed;
+  private           Class<SPEC>              klazz;
+  private final     String                   name;
+  transient private boolean                  performed;
+  transient private Expectation.InputHistory inputHistory;
 
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
@@ -43,10 +45,15 @@ public class Story<
 
   public void reset() {
     this.performed = false;
+    this.inputHistory = new Expectation.InputHistory.Base();
   }
 
   public boolean isPerformed() {
     return this.performed;
+  }
+
+  public Expectation.InputHistory inputHitory() {
+    return this.inputHistory;
   }
 
   public int hashCode() {
@@ -63,9 +70,9 @@ public class Story<
   }
 
   public static class Request<SUT> {
-    public final  String                            fsmName;
-    public final  SUT                               sut;
-    public final  ScenarioSequence.Observer.Factory observerFactory;
+    public final String                            fsmName;
+    public final SUT                               sut;
+    public final ScenarioSequence.Observer.Factory observerFactory;
 
     public Request(String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
       this.fsmName = Checks.checknotnull(fsmName);
@@ -73,31 +80,20 @@ public class Story<
       this.observerFactory = Checks.checknotnull(observerFactory);
     }
 
-    public void execute(Performer<SUT> performer, FSMUtils.Synchronizer synchronizer, Object context) {
-      ScenarioSequence.Observer.Factory observerFactory = this.observerFactory;
-      Field storyField = FSMUtils.lookupStoryField(context, this.fsmName);
-      Checks.checktest(storyField != null, "The field '%s' was not found or not public in the context '%s'", this.fsmName, context);
-
-      try {
-        //noinspection unchecked
-        Story story = (Story) storyField.get(context);
-        ////
-        // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
-        // should assign an appropriate value to the factor field.
-        Checks.checktest(story != null, "story parameter must not be null.");
-        //noinspection unchecked
-        performer.perform(story, context, sut, synchronizer, observerFactory.createObserver(fsmName));
-      } catch (IllegalAccessException e) {
-        Checks.rethrow(e);
-      }
+    public <T> void execute(Performer<SUT, T> performer, FSMUtils.Synchronizer synchronizer, T testObject) {
+      //noinspection unchecked
+      Story<SUT, ? extends FSMSpec<SUT>> story = FSMUtils.lookupStory(testObject, this.fsmName);
+      Checks.checktest(story != null, "story parameter must not be null.");
+      //noinspection unchecked
+      performer.perform(story, testObject, sut, synchronizer, observerFactory.createObserver(fsmName));
     }
 
-    public <T> Callable createCallable(final Performer<SUT> performer, final FSMUtils.Synchronizer synchronizer, final T context) {
+    public <T> Callable createCallable(final Performer<SUT, T> performer, final FSMUtils.Synchronizer synchronizer, final T testObject) {
       return new Callable() {
         @Override
         public Boolean call() {
           //noinspection RedundantCast
-          Request.this.execute((Performer<SUT>) performer, synchronizer, context);
+          Request.this.execute((Performer<SUT, T>) performer, synchronizer, testObject);
           return true;
         }
       };
@@ -123,21 +119,22 @@ public class Story<
       }
     }
   }
-  interface Performer<SUT> {
-    void perform(Story<SUT, ? extends FSMSpec<SUT>> story, Object context, SUT sut, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer);
 
-    class Default<SUT> implements Performer<SUT> {
+  interface Performer<SUT, T> {
+    void perform(Story<SUT, ? extends FSMSpec<SUT>> story, T testObject, SUT sut, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer);
+
+    class Default<SUT, T> implements Performer<SUT, T> {
       public static final Performer INSTANCE = new Default();
 
       @Override
-      public void perform(Story<SUT, ? extends FSMSpec<SUT>> story, Object context, SUT sut, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer) {
+      public void perform(Story<SUT, ? extends FSMSpec<SUT>> story, T testObject, SUT sut, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer) {
         story.performed = true;
         try {
-          story.setUp.perform(context, ScenarioSequence.Type.setUp, sut, FSMUtils.Synchronizer.DUMMY, story, observer);
+          story.setUp.perform(testObject, ScenarioSequence.Type.SET_UP, sut, FSMUtils.Synchronizer.DUMMY, story, observer);
         } finally {
           synchronizer.finishAndSynchronize(story);
         }
-        story.main.perform(context, ScenarioSequence.Type.main, sut, synchronizer, story, observer);
+        story.main.perform(testObject, ScenarioSequence.Type.MAIN, sut, synchronizer, story, observer);
       }
     }
   }

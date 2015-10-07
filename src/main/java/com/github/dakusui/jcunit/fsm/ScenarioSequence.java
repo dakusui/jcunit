@@ -21,7 +21,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
    * @param sut   An object that represents software under test.
    * @param token An object to synchronize scenario sequence execution.
    */
-  <T> void perform(T context, Type type, SUT sut, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer);
+  <T> void perform(T testObject, Type type, SUT sut, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer);
 
   /**
    * Returns the number of scenarios in this sequence
@@ -76,9 +76,12 @@ public interface ScenarioSequence<SUT> extends Serializable {
    */
   Args args(int i);
 
+  /**
+   * A type of a scenario sequence.
+   */
   enum Type {
-    setUp,
-    main,
+    SET_UP,
+    MAIN,
   }
 
   abstract class Base<SUT> implements ScenarioSequence<SUT> {
@@ -86,8 +89,8 @@ public interface ScenarioSequence<SUT> extends Serializable {
     }
 
     @Override
-    public <T> void perform(T context, Type type, SUT sut, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer) {
-      Checks.checknotnull(context);
+    public <T> void perform(T testObject, Type type, SUT sut, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer) {
+      Checks.checknotnull(testObject);
       Checks.checknotnull(type);
       Checks.checknotnull(synchronizer);
       Checks.checknotnull(token);
@@ -122,13 +125,13 @@ public interface ScenarioSequence<SUT> extends Serializable {
             ////
             // each.perform(sut) didn't throw an exception
             //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-            result = each.then().checkReturnedValue(context, sut, r, type, observer);
+            result = each.then().checkReturnedValue(testObject, sut, r, type, observer);
           } catch (Expectation.Result r) {
             result = r;
           } catch (Throwable t) {
             if (!passed) {
               //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-              result = each.then().checkThrownException(context, sut, t, observer);
+              result = each.then().checkThrownException(testObject, sut, t, observer);
             } else {
               throw new RuntimeException("Expectation#checkReturnedValue threw an exception. This is considered to be a framework side's bug.", t);
             }
@@ -184,7 +187,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
   class EmptyScenarioSequence implements ScenarioSequence {
     @Override
-    public void perform(Object context, Type type, Object o, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer) {
+    public void perform(Object testObject, Type type, Object o, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer) {
     }
 
     @Override

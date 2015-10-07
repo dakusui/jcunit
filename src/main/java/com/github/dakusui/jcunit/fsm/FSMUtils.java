@@ -23,16 +23,16 @@ public class FSMUtils {
   }
 
   /**
-   * Resets all stories in {@code context} object.
+   * Resets all stories in {@code testObject} object.
    *
-   * @param context A test object whose stories to be reset.
+   * @param testObject A test object whose stories to be reset.
    */
-  public static <T> void resetStories(final T context) {
-    for (Story each : Utils.transform(FSMUtils.getStoryFields(Checks.checknotnull(context)), new Utils.Form<Field, Story>() {
+  public static <T> void resetStories(final T testObject) {
+    for (Story each : Utils.transform(FSMUtils.getStoryFields(Checks.checknotnull(testObject)), new Utils.Form<Field, Story>() {
       @Override
       public Story apply(Field in) {
         try {
-          return (Story) in.get(context);
+          return (Story) in.get(testObject);
         } catch (IllegalAccessException e) {
           Checks.checkcond(false, "This code shouldn't be executed, because the field is already validated.");
         }
@@ -49,12 +49,12 @@ public class FSMUtils {
    *
    * @see FSMUtils#performStory(Object, String, Object, ScenarioSequence.Observer.Factory)
    */
-  public static <T, SUT> void performStory(T context, String fsmName, SUT sut) {
-    performStory(context, fsmName, sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
+  public static <T, SUT> void performStory(T testObject, String fsmName, SUT sut) {
+    performStory(testObject, fsmName, sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
   }
 
   /**
-   * Performs a story object on {@code sut} in an object {@code context} specified
+   * Performs a story object on {@code sut} in an object {@code testObject} specified
    * by {@code fsmName}.
    * <p/>
    * This method looks up a field whose name is {@code fsmName} and will perform
@@ -66,7 +66,7 @@ public class FSMUtils {
    * It is recommended to use this method to invoke a story rather than directly
    * calling {@code Story#perform} method.
    *
-   * @param context         A test object which encloses fsm field(s)
+   * @param testObject      A test object which encloses fsm field(s)
    * @param fsmName         A name of FSM. A field story object is assigned to.
    * @param sut             A object on which the story specified by {@code fsmName}
    *                        will be performed
@@ -75,15 +75,11 @@ public class FSMUtils {
    * @param <T>             A test class's type.
    * @param <SUT>           The type of SUT
    */
-  public static <T, SUT> void performStory(T context, String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
-    Checks.checktest(context != null, "Context mustn't be null. Simply give your test object.");
+  public static <T, SUT> void performStory(T testObject, String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
+    Checks.checktest(testObject != null, "testObject mustn't be null. Simply give your test object.");
     Checks.checktest(fsmName != null, "fsmName mustn't be null. Give factor field name whose type is Story<SPEC,SUT> of your test object.");
     Checks.checktest(sut != null, "SUT mustn't be null. Give your object to be tested.");
     Checks.checktest(observerFactory != null, "");
-
-    Field storyField = lookupStoryField(context, fsmName);
-    Checks.checktest(storyField != null, "The field '%s' was not found or not public in the context '%s'", fsmName, context);
-    Utils.validateFactorField((storyField)).check();
 
     ////
     // Ensure stories are reset. By design policy, fields should be immutable.
@@ -91,26 +87,22 @@ public class FSMUtils {
     // In order to guarantee FSM objects' states are always the same at the
     // beginning of each test (method), I'm calling FSMUtils.resetStories
     // method here. (Issue-#14)
-    FSMUtils.resetStories(context);
+    FSMUtils.resetStories(testObject);
 
-    try {
-      //noinspection unchecked
-      Story<SUT, ? extends FSMSpec<SUT>> story = (Story<SUT, ? extends FSMSpec<SUT>>) storyField.get(context);
-      ////
-      // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
-      // should assign an appropriate value to the factor field.
-      Checks.checktest(story != null, "story parameter must not be null.");
-      //noinspection unchecked
-      Story.Performer.Default.INSTANCE.perform(story, context, sut, Synchronizer.DUMMY, observerFactory.createObserver(fsmName));
-    } catch (IllegalAccessException e) {
-      ////
-      // This shouldn't happen because storyField is validated in advance.
-      Checks.rethrow(e);
-    }
+    //noinspection unchecked
+    Story<SUT, ? extends FSMSpec<SUT>> story = FSMUtils.lookupStory(testObject, fsmName);
+    ////
+    // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
+    // should assign an appropriate value to the factor field.
+    Checks.checktest(story != null, "story parameter must not be null.");
+    //noinspection unchecked
+    Story.Performer.Default.INSTANCE.perform(story, testObject, sut, Synchronizer.DUMMY, observerFactory.createObserver(fsmName));
+    ////
+    // This path shouldn't be executed because IllegalAccessException is already rethrown
   }
 
   /**
-   * Performs a story object on {@code sut} in an object {@code context} specified
+   * Performs a story object on {@code sut} in an object {@code testObject} specified
    * by {@code fsmName}.
    * <p/>
    * This method looks up a field whose name is {@code fsmName} and will perform
@@ -122,25 +114,25 @@ public class FSMUtils {
    * It is recommended to use this method to invoke a story rather than directly
    * calling {@code Story#perform} method.
    *
-   * @param context A test object which encloses fsm field(s)
-   * @param stories StoryRequest objects each of which holds information
-   *                about which story is performed with what SUT object
-   * @param <T>     A test class's type.
+   * @param testObject A test object which encloses fsm field(s)
+   * @param stories    StoryRequest objects each of which holds information
+   *                   about which story is performed with what SUT object
+   * @param <T>        A test class's type.
    */
-  public static <T> void performStoriesConcurrently(final T context, Story.Request[] stories) {
-    Checks.checktest(context != null, "Context mustn't be null. Simply give your test object.");
+  public static <T> void performStoriesConcurrently(final T testObject, Story.Request[] stories) {
+    Checks.checktest(testObject != null, "testObject mustn't be null. Simply give your test object.");
     Checks.checktest(stories != null, "Stories mustn't be null. Give factor field name whose type is Story<SPEC,SUT> of your test object.");
 
     ////
-    // Validate story fields
+    // Validate story fields in advance
     for (String eachFSMmName : Utils.transform(Arrays.asList(stories), new Utils.Form<Story.Request, String>() {
       @Override
       public String apply(Story.Request in) {
         return in.fsmName;
       }
     })) {
-      Field storyField = lookupStoryField(context, eachFSMmName);
-      Checks.checktest(storyField != null, "The field '%s' was not found or not public in the context '%s'", eachFSMmName, context);
+      Field storyField = lookupStoryField(testObject, eachFSMmName);
+      Checks.checktest(storyField != null, "The field '%s' was not found or not public in the testObject '%s'", eachFSMmName, testObject);
       Utils.validateFactorField((storyField)).check();
     }
 
@@ -150,7 +142,7 @@ public class FSMUtils {
     // In order to guarantee FSM objects' states are always the same at the
     // beginning of each test (method), I'm calling FSMUtils.resetStories
     // method here. (Issue-#14)
-    FSMUtils.resetStories(context);
+    FSMUtils.resetStories(testObject);
 
     ////
     // Perform scenario sequences concurrently.
@@ -164,7 +156,7 @@ public class FSMUtils {
                 @Override
                 public Story apply(Story.Request in) {
                   try {
-                    return (Story) Checks.checknotnull(FSMUtils.lookupStoryField(context, in.fsmName)).get(context);
+                    return (Story) Checks.checknotnull(FSMUtils.lookupStoryField(testObject, in.fsmName)).get(testObject);
                   } catch (IllegalAccessException e) {
                     Checks.rethrow(e);
                   }
@@ -177,7 +169,7 @@ public class FSMUtils {
             @Override
             public Callable apply(Story.Request in) {
               //noinspection unchecked
-              return in.createCallable(Story.Performer.Default.INSTANCE, synchronizer, context);
+              return in.createCallable(Story.Performer.Default.INSTANCE, synchronizer, testObject);
             }
           });
       for (Future<Boolean> f : executorService.invokeAll(callables)) {
@@ -214,9 +206,9 @@ public class FSMUtils {
     return FSMLevelsProvider.class.isAssignableFrom(f.getAnnotation(FactorField.class).levelsProvider());
   }
 
-  private static <T> List<Field> getStoryFields(T context) {
+  private static <T> List<Field> getStoryFields(T testObject) {
     List<Field> ret = new LinkedList<Field>();
-    for (Field each : Utils.getAnnotatedFields(context.getClass(), FactorField.class)) {
+    for (Field each : Utils.getAnnotatedFields(testObject.getClass(), FactorField.class)) {
       if (isStoryField(each)) {
         ret.add(each);
       }
@@ -224,12 +216,30 @@ public class FSMUtils {
     return ret;
   }
 
-  public static <T> Field lookupStoryField(T context, String fsmName) {
+  private static <T> Field lookupStoryField(T testObject, String fsmName) {
     try {
-      return context.getClass().getField(fsmName);
+      return testObject.getClass().getField(fsmName);
     } catch (NoSuchFieldException e) {
       return null;
     }
+  }
+
+  public static <T, SUT> Story<SUT, ? extends FSMSpec<SUT>> lookupStory(T testObject, String name) {
+    Field f = FSMUtils.lookupStoryField(testObject, Checks.checknotnull(name));
+    Checks.checktest(f != null, "The field '%s' was not found or not public in the testObject '%s'", name, testObject);
+    Utils.validateFactorField((f)).check();
+
+    try {
+      //noinspection unchecked
+      return (Story<SUT, FSMSpec<SUT>>) f.get(testObject);
+    } catch (IllegalAccessException e) {
+      ////
+      // This shouldn't happen because storyField is validated in advance.
+      Checks.rethrow(e, "Unexpected exception '%s' in '%s' is not an accessible field.", name, testObject);
+    }
+    ////
+    // This path shouldn't be executed because IllegalAccessException is already rethrown
+    throw new RuntimeException();
   }
 
   public interface Synchronizable {
@@ -237,6 +247,7 @@ public class FSMUtils {
 
   public interface Synchronizer {
     Synchronizer finishAndSynchronize(Synchronizable task);
+
     void unregister(Synchronizable task);
 
     Synchronizer DUMMY = new Synchronizer() {
@@ -289,7 +300,7 @@ public class FSMUtils {
       public synchronized void unregister(Synchronizable task) {
         Synchronizer cur = this;
         while (cur != null) {
-          ((Synchronizer.Base)cur).finish(task);
+          ((Synchronizer.Base) cur).finish(task);
           cur = ((Base) cur).next;
         }
       }

@@ -18,7 +18,9 @@ import java.util.Map;
  */
 public interface State<SUT> extends StateChecker<SUT>, Serializable {
   /**
-   * When an invalid operation is performed, JCUnit
+   * When an invalid operation is performed and a following state is not defined,
+   * JCUnit can move to 'VOID' state, where JCUnit will not attempt the next
+   * action anymore.
    */
   State<?> VOID = new State<Object>() {
     @Override
@@ -35,7 +37,17 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
             "(VOID)",
             Expectation.Type.VALUE_RETURNED,
             this,
-            new Expectation.Checker.MatcherBased(CoreMatchers.anything()));
+            new Expectation.Checker.MatcherBased(CoreMatchers.anything()),
+            new Expectation.InputHistory.Base() {
+              @Override
+              public void add(String name, Object data) {
+                ////
+                // Does nothing. Unless overriding this method with empty body,
+                // we will see memory leak. Remember this 'constant' VOID
+                // can call this method and the overridden method holds 'data'
+                // on memory.
+              }
+            });
       }
       return null;
     }
@@ -67,16 +79,16 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
    * In this case, by making this method return {@code null}, users can exclude test patterns those arguments
    * are set to zero at once.
    * <code>
-   *
-   * @param action An action to be performed.
-   * @param args   Arguments with which {@code action} is performed.
-   * @return An expectation to be performed with SUT.
    * Expectation expectation(Action action, Args args) {
    * ...
    * if (args.values()[0].equals(0) && args.values()[1].equals(0) return null;
    * ...
    * }
    * </code>
+   *
+   * @param action An action to be performed.
+   * @param args   Arguments with which {@code action} is performed.
+   * @return An expectation to be performed with SUT.
    */
   Expectation<SUT> expectation(Action<SUT> action, Args args);
 

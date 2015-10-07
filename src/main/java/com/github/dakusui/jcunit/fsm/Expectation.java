@@ -9,16 +9,142 @@ import org.hamcrest.Matcher;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
- * This class represents how a model of SUT interacts with the actual FSM.
-
+ * This class represents what a model of SUT expects for FSM.
+ *
  * @param <SUT> A type of SUT.
  */
 public class Expectation<SUT> {
+  /**
+   * A name of FSM from which this object is derived.
+   */
+  private final String fsmName;
+
+  /**
+   * Expected state after an action is performed.
+   */
+  public final  State<SUT>   state;
+  /**
+   * Expected type. {@code VALUE_RETURNED} or {@code EXCEPTION_THROWN}.
+   */
+  private final Type         type;
+  /**
+   * A checker which verifies a returned value or a thrown exception.
+   */
+  private final Checker      checker;
+  public final  InputHistory inputHistory;
+
+
+  protected Expectation(
+      String fsmName,
+      Type type,
+      State<SUT> state,
+      Checker checker,
+      InputHistory inputHistory
+  ) {
+    Checks.checknotnull(type);
+    Checks.checknotnull(state);
+    Checks.checknotnull(checker);
+    this.fsmName = fsmName;
+    this.type = type;
+    this.state = state;
+    this.checker = checker;
+    this.inputHistory = inputHistory;
+  }
+
+  public <T> Result checkThrownException(T testObject, SUT sut, Throwable thrownException, ScenarioSequence.Observer observer) {
+    Checks.checknotnull(sut);
+    //noinspection ThrowableResultOfMethodCallIgnored
+    Checks.checknotnull(thrownException);
+    Result.Builder b = new Result.Builder("Expectation was not satisfied");
+    if (this.type == Type.VALUE_RETURNED) {
+      b.addFailedReason(String.format(
+              "Exception was not expected but %s was thrown. ",
+              thrownException.getClass().getSimpleName()),
+          thrownException);
+    }
+    if (!this.checker.check(testObject, thrownException, observer)) {
+      b.addFailedReason(
+          String.format(
+              "Expected %s value/exception: %s but '%s' was thrown. (%s)",
+              this.type,
+              this.checker.format(),
+              thrownException,
+              thrownException.getMessage()),
+          thrownException
+      );
+    }
+    if (!this.state.check(sut)) {
+      b.addFailedReason(
+          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, sut)
+      );
+    }
+    return b.build();
+  }
+
+  public <T> Result checkReturnedValue(T testObject, SUT sut, Object returnedValue, ScenarioSequence.Type type, ScenarioSequence.Observer observer) {
+    Checks.checknotnull(sut);
+    Result.Builder b = new Result.Builder("Expectation was not satisfied");
+    if (this.type == Type.EXCEPTION_THROWN) {
+      b.addFailedReason(Utils.format("Exception was expected to be thrown but it was not. "));
+    }
+    ////
+    // Only when type is 'MAIN', returned FSM value will be checked.
+    if (checker.shouldBeCheckedFor(type)) {
+      if (!this.checker.check(testObject, returnedValue, observer)) {
+        b.addFailedReason(
+            Utils.format(
+                "Expected %s value/exception: %s but '%s' was returned.",
+                this.type,
+                this.checker.format(),
+                returnedValue
+            )
+        );
+      }
+    }
+    if (!this.state.check(sut)) {
+      b.addFailedReason(
+          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, sut)
+      );
+    }
+    return b.build();
+  }
+
+  @Override
+  public String toString() {
+    if (this.type == Type.EXCEPTION_THROWN)
+      return Utils.format("status of '%s' is '%s' and %s is thrown", this.fsmName, this.state, this.checker.format());
+    return Utils.format("status of '%s' is '%s' and %s is returned", this.fsmName, this.state, this.checker.format());
+  }
+
+  /**
+   * Types of an expectation. Each element represents an expectation of its
+   * relevant method.
+   */
+  public enum Type {
+    /**
+     * Expects that an exception is thrown of the method.
+     */
+    EXCEPTION_THROWN {
+      @Override
+      public String toString() {
+        return "thrown";
+      }
+    },
+    /**
+     * Expects that a value is returned of the method.
+     * No exception is thrown, in other words.
+     */
+    VALUE_RETURNED {
+      @Override
+      public String toString() {
+        return "returned";
+      }
+    }
+  }
+
   public static class Builder<SUT> {
     private final FSM<SUT>   fsm;
     private final String     fsmName;
@@ -26,7 +152,10 @@ public class Expectation<SUT> {
     private       Checker    checker;
     private       State<SUT> state;
 
-    Builder(String fsmName, FSM<SUT> fsm) {
+    Builder(
+        String fsmName,
+        FSM<SUT> fsm
+    ) {
       this.fsm = fsm;
       this.fsmName = fsmName;
     }
@@ -87,122 +216,15 @@ public class Expectation<SUT> {
     }
 
     public Expectation<SUT> build() {
-      return new Expectation<SUT>(this.fsmName, this.type, this.state, this.checker);
-    }
-  }
-
-  /**
-   * A name of FSM from which this object is derived.
-   */
-  private final String fsmName;
-
-  /**
-   * Expected state after an action is performed.
-   */
-  public final  State<SUT> state;
-  /**
-   * Expected type. {@code VALUE_RETURNED} or {@code EXCEPTION_THROWN}.
-   */
-  private final Type       type;
-  /**
-   * A checker which verifies a returned value or a thrown exception.
-   */
-  private final Checker    checker;
-
-  protected Expectation(
-      String fsmName,
-      Type type,
-      State<SUT> state,
-      Checker checker) {
-    Checks.checknotnull(type);
-    Checks.checknotnull(state);
-    Checks.checknotnull(checker);
-    this.fsmName = fsmName;
-    this.type = type;
-    this.state = state;
-    this.checker = checker;
-  }
-
-  public <T> Result checkThrownException(T context, SUT sut, Throwable thrownException, ScenarioSequence.Observer observer) {
-    Checks.checknotnull(sut);
-    //noinspection ThrowableResultOfMethodCallIgnored
-    Checks.checknotnull(thrownException);
-    Result.Builder b = new Result.Builder("Expectation was not satisfied");
-    if (this.type == Type.VALUE_RETURNED) {
-      b.addFailedReason(String.format(
-              "Exception was not expected but %s was thrown. ",
-              thrownException.getClass().getSimpleName()),
-          thrownException);
-    }
-    if (!this.checker.check(context, thrownException, observer)) {
-      b.addFailedReason(
-          String.format(
-              "Expected %s value/exception: %s but '%s' was thrown. (%s)",
-              this.type,
-              this.checker.format(),
-              thrownException,
-              thrownException.getMessage()),
-          thrownException
+      return new Expectation<SUT>(
+          this.fsmName,
+          this.type,
+          this.state,
+          this.checker,
+          new InputHistory.Base()
       );
     }
-    if (!this.state.check(sut)) {
-      b.addFailedReason(
-          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, sut)
-      );
-    }
-    return b.build();
   }
-
-  public <T> Result checkReturnedValue(T context, SUT sut, Object returnedValue, ScenarioSequence.Type type, ScenarioSequence.Observer observer) {
-    Checks.checknotnull(sut);
-    Result.Builder b = new Result.Builder("Expectation was not satisfied");
-    if (this.type == Type.EXCEPTION_THROWN) {
-      b.addFailedReason(Utils.format("Exception was expected to be thrown but it was not. "));
-    }
-    ////
-    // Only when type is 'main', returned FSM value will be checked.
-    if (checker.shouldBeCheckedFor(type)) {
-      if (!this.checker.check(context, returnedValue, observer)) {
-        b.addFailedReason(
-            Utils.format(
-                "Expected %s value/exception: %s but '%s' was returned.",
-                this.type,
-                this.checker.format(),
-                returnedValue
-            )
-        );
-      }
-    }
-    if (!this.state.check(sut)) {
-      b.addFailedReason(
-          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, sut)
-      );
-    }
-    return b.build();
-  }
-
-  @Override
-  public String toString() {
-    if (this.type == Type.EXCEPTION_THROWN)
-      return Utils.format("status of '%s' is '%s' and %s is thrown", this.fsmName, this.state, this.checker.format());
-    return Utils.format("status of '%s' is '%s' and %s is returned", this.fsmName, this.state, this.checker.format());
-  }
-
-  public enum Type {
-    EXCEPTION_THROWN {
-      @Override
-      public String toString() {
-        return "thrown";
-      }
-    },
-    VALUE_RETURNED {
-      @Override
-      public String toString() {
-        return "returned";
-      }
-    }
-  }
-
 
   /**
    * A class that represents a result of verification.
@@ -308,11 +330,11 @@ public class Expectation<SUT> {
      * Checks the {@code item} matches the criterion that this object defines.
      * {@code true} will be returned if it does, {@code false} otherwise.
      *
-     * @param context  A context on which this check is performed.
+     * @param testObject  A testObject on which this check is performed.
      * @param value    A value to be checked. (Returned object or thrown exception by a method)
      * @param observer An observer to which the checking result will be reported.
      */
-    <T> boolean check(T context, Object value, ScenarioSequence.Observer observer);
+    <T> boolean check(T testObject, Object value, ScenarioSequence.Observer observer);
 
     /**
      * Formats this object to a human readable string.
@@ -334,7 +356,7 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public <T> boolean check(T context, Object value, ScenarioSequence.Observer observer) {
+      public <T> boolean check(T testObject, Object value, ScenarioSequence.Observer observer) {
         return this.matcher.matches(value);
       }
 
@@ -353,23 +375,23 @@ public class Expectation<SUT> {
       }
 
       @Override
-      public <T> boolean check(T context, Object value, ScenarioSequence.Observer observer) {
-        Checks.checknotnull(context);
-        Story story = lookupStory(context, this.fsmName);
+      public <T> boolean check(T testObject, Object value, ScenarioSequence.Observer observer) {
+        Checks.checknotnull(testObject);
+        Story story = lookupStory(testObject, this.fsmName);
         if (!Checks.checknotnull(story).isPerformed()) {
           //noinspection unchecked
-          Story.Performer.Default.INSTANCE.perform(story, context, value, FSMUtils.Synchronizer.DUMMY, observer.createChild(this.fsmName));
+          Story.Performer.Default.INSTANCE.perform(story, testObject, value, FSMUtils.Synchronizer.DUMMY, observer.createChild(this.fsmName));
         }
         return true;
       }
 
-      private static Story<?, ?> lookupStory(Object context, String fsmName) {
-        Checks.checknotnull(context);
+      private static Story<?, ?> lookupStory(Object testObject, String fsmName) {
+        Checks.checknotnull(testObject);
         Checks.checknotnull(fsmName);
         Field f;
         try {
-          f = context.getClass().getField(fsmName);
-          return (Story<?, ?>) Checks.checknotnull(f).get(context);
+          f = testObject.getClass().getField(fsmName);
+          return (Story<?, ?>) Checks.checknotnull(f).get(testObject);
         } catch (NoSuchFieldException e) {
           Checks.rethrow(e);
         } catch (IllegalAccessException e) {
@@ -382,12 +404,100 @@ public class Expectation<SUT> {
 
       @Override
       public boolean shouldBeCheckedFor(ScenarioSequence.Type type) {
-        return type == ScenarioSequence.Type.main;
+        return type == ScenarioSequence.Type.MAIN;
       }
 
       @Override
       public String format() {
         return String.format("FSM:%s", fsmName);
+      }
+    }
+
+    class Context<SUT, T> {
+      private final T            testObject;
+      public final  InputHistory inputHistory;
+      public final  SUT          sut;
+
+      public Context(T testObject, SUT sut) {
+        this.testObject = Checks.checknotnull(testObject);
+        this.inputHistory = new InputHistory.Base();
+        this.sut = Checks.checknotnull(sut);
+      }
+
+      public Story<SUT, ? extends FSMSpec<SUT>> lookUpFSMStory(String name) {
+        //noinspection unchecked
+        return (Story<SUT, ? extends FSMSpec<SUT>>) Checks.checknotnull(
+            FSMUtils.lookupStory(
+                (T)this.testObject,
+                Checks.checknotnull(name)
+            ),
+            ////
+            // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
+            // should assign an appropriate value to the factor field.
+            "A story field '%s' in '%s' shouldn't be null. This field should be set by JCUnit usually",
+            name,
+            this.testObject
+        );
+      }
+    }
+  }
+
+  /**
+   * Represents a history of inputs to FSM.
+   */
+  public interface InputHistory extends Iterable<String> {
+    <T> void add(String name, T data);
+
+    boolean has(String name);
+
+    <T> Iterator<T> get(String name);
+
+    class Base implements InputHistory {
+      private final Map<String, Record<?>> records = new LinkedHashMap<String, Record<?>>();
+
+      @Override
+      public <T> void add(String name, T data) {
+        if (!this.records.containsKey(Checks.checknotnull(name))) {
+          this.records.put(name, new Record<T>(name));
+        }
+        //noinspection unchecked
+        ((Record<T>) this.records.get(name)).add(data);
+      }
+
+      @Override
+      public boolean has(String name) {
+        return this.records.containsKey(Checks.checknotnull(name));
+      }
+
+      @Override
+      public <T> Iterator<T> get(String name) {
+        Checks.checkcond(this.has(name));
+        //noinspection unchecked
+        return (Iterator<T>) this.records.get(name).iterator();
+      }
+
+      @Override
+      public Iterator<String> iterator() {
+        return records.keySet().iterator();
+      }
+    }
+
+    class Record<T> implements Iterable<T> {
+      public final  String  name;
+      private final List<T> items;
+
+      public Record(String name) {
+        this.name = Checks.checknotnull(name);
+        this.items = new LinkedList<T>();
+      }
+
+      public void add(T item) {
+        this.items.add(item);
+      }
+
+      @Override
+      public Iterator<T> iterator() {
+        return this.items.iterator();
       }
     }
   }
