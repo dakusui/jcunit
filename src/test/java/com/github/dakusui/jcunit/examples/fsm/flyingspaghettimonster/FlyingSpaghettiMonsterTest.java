@@ -11,6 +11,9 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * An example to illustrate how to test a finite state machine in JCUnit.
  */
@@ -37,7 +40,10 @@ public class FlyingSpaghettiMonsterTest {
 
       @Override
       public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
-        return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
+        return b.valid(COOKED, CoreMatchers.startsWith("Cooking"))
+            .resetCollectors()
+            .addCollector(new InputHistory.Collector.Default("cook"))
+            .build();
       }
     },
     @StateSpec/*("must be ready")*/COOKED {
@@ -48,12 +54,23 @@ public class FlyingSpaghettiMonsterTest {
 
       @Override
       public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
-        return b.valid(COOKED, CoreMatchers.containsString("yummy")).build();
+        //return b.valid(COOKED, CoreMatchers.containsString("yummy")).build();
+        return b
+            .valid(COOKED, new Expectation.Checker.Simple() {
+              @Override
+              protected boolean check(InputHistory inputHistory, Object value) {
+                return inputHistory.has("cook@param-0");
+              }
+            })
+            .build();
       }
 
       @Override
       public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
-        return b.valid(COOKED, CoreMatchers.startsWith("Cooking")).build();
+        return b.valid(COOKED, CoreMatchers.startsWith("Cooking"))
+            .resetCollectors()
+            .addCollector(new InputHistory.Collector.Default("cook"))
+            .build();
       }
     },;
 

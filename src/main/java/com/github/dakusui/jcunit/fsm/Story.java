@@ -25,10 +25,10 @@ public class Story<
    * A dummy field to suppress a warning for SPEC.
    */
   @SuppressWarnings({ "unused", "FieldCanBeLocal" })
-  private           Class<SPEC>              klazz;
-  private final     String                   name;
-  transient private boolean                  performed;
-  transient private Expectation.InputHistory inputHistory;
+  private           Class<SPEC>  klazz;
+  private final     String       name;
+  transient private boolean      performed;
+  transient private InputHistory inputHistory;
 
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
@@ -45,14 +45,14 @@ public class Story<
 
   public void reset() {
     this.performed = false;
-    this.inputHistory = new Expectation.InputHistory.Base();
+    this.inputHistory = new InputHistory.Base();
   }
 
   public boolean isPerformed() {
     return this.performed;
   }
 
-  public Expectation.InputHistory inputHitory() {
+  public InputHistory inputHitory() {
     return this.inputHistory;
   }
 
@@ -67,6 +67,26 @@ public class Story<
       return this.name.equals(anotherStory.name) && this.setUp.equals(anotherStory.setUp) && this.main.equals(anotherStory.main);
     }
     return false;
+  }
+
+  /**
+   * A stage in which a story is being executed.
+   */
+  public enum Stage {
+    SET_UP {
+      @Override
+      public Stage next() {
+        return MAIN;
+      }
+    },
+    MAIN {
+      @Override
+      public Stage next() {
+        return null;
+      }
+    },;
+
+    public abstract Stage next();
   }
 
   public static class Request<SUT> {
@@ -129,13 +149,54 @@ public class Story<
       @Override
       public void perform(Story<SUT, ? extends FSMSpec<SUT>> story, T testObject, SUT sut, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer) {
         story.performed = true;
+        Context<SUT, T> context = new Context<SUT, T>(testObject, sut);
         try {
-          story.setUp.perform(testObject, ScenarioSequence.Type.SET_UP, sut, FSMUtils.Synchronizer.DUMMY, story, observer);
+          story.setUp.perform(context, FSMUtils.Synchronizer.DUMMY, story, observer);
+          context.next();
         } finally {
           synchronizer.finishAndSynchronize(story);
         }
-        story.main.perform(testObject, ScenarioSequence.Type.MAIN, sut, synchronizer, story, observer);
+        story.main.perform(context, synchronizer, story, observer);
       }
+    }
+  }
+
+  public static class Context<SUT, T> {
+    public final T            testObject;
+    public final InputHistory inputHistory;
+    public final SUT          sut;
+    public       Stage        stage;
+
+    public Context(T testObject, SUT sut) {
+      this.testObject = Checks.checknotnull(testObject);
+      this.inputHistory = new InputHistory.Base();
+      this.sut = Checks.checknotnull(sut);
+      this.stage = Stage.SET_UP;
+    }
+
+    public Story<SUT, ? extends FSMSpec<SUT>> lookUpFSMStory(String name) {
+      //noinspection unchecked
+      return (Story<SUT, ? extends FSMSpec<SUT>>) Checks.checknotnull(
+          FSMUtils.lookupStory(
+              (T) this.testObject,
+              Checks.checknotnull(name)
+          ),
+          ////
+          // If story is null, it only happens because of JCUnit framework bug since JCUnit/JUnit framework
+          // should assign an appropriate value to the factor field.
+          "A story field '%s' in '%s' shouldn't be null. This field should be set by JCUnit usually",
+          name,
+          this.testObject
+      );
+    }
+
+    public void next() {
+      Checks.checknotnull(this.stage, "This context (%s) has already finished.", this);
+      this.stage = this.stage.next();
+    }
+
+    public Stage currentStage() {
+      return this.stage;
     }
   }
 }

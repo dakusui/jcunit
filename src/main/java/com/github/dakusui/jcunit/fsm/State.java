@@ -10,8 +10,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @param <SUT> A class of software under test.
@@ -33,21 +32,14 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
       // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
       // non-deterministic FSM is not supported by JCUnit yet...
       if (action == Action.VOID && args.size() == 0) {
+        //noinspection unchecked
         return new Expectation<Object>(
             "(VOID)",
             Expectation.Type.VALUE_RETURNED,
             this,
             new Expectation.Checker.MatcherBased(CoreMatchers.anything()),
-            new Expectation.InputHistory.Base() {
-              @Override
-              public void add(String name, Object data) {
-                ////
-                // Does nothing. Unless overriding this method with empty body,
-                // we will see memory leak. Remember this 'constant' VOID
-                // can call this method and the overridden method holds 'data'
-                // on memory.
-              }
-            });
+            (List<InputHistory.Collector>) Collections.unmodifiableList(Collections.EMPTY_LIST)
+        );
       }
       return null;
     }

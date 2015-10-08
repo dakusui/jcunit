@@ -108,7 +108,7 @@ public interface Action<SUT> extends Serializable {
       Checks.checknotnull(o);
       Object ret = null;
       try {
-        Method m = chooseMethod(o.getClass(), name, args.size());
+        Method m = chooseMethod(o.getClass(), name);
         try {
           ret = m.invoke(o, args.values());
         } catch (IllegalArgumentException e) {
@@ -187,7 +187,7 @@ public interface Action<SUT> extends Serializable {
       return this.method.equals(another.method);
     }
 
-    private Method chooseMethod(Class<?> klass, String name, int numArgs) {
+    private Method chooseMethod(Class<?> klass, String name) {
       Method ret = null;
       for (Method each : klass.getMethods()) {
         if (each.getName().equals(name) && equals(this.getParameterTypes(), each.getParameterTypes())) {
@@ -195,7 +195,7 @@ public interface Action<SUT> extends Serializable {
           break;
         }
       }
-      Checks.checktest(ret != null, "No method '%s/%d' is found in '%s'", name, numArgs, klass.getCanonicalName());
+      Checks.checktest(ret != null, "No method '%s' is found in '%s'", name, klass.getCanonicalName());
       return ret;
     }
 
