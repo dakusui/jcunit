@@ -68,17 +68,17 @@ public class FSMUtils {
    *
    * @param testObject      A test object which encloses fsm field(s)
    * @param fsmName         A name of FSM. A field story object is assigned to.
-   * @param sut             A object on which the story specified by {@code fsmName}
+   * @param sutFactory      A factory to create an object on which the story specified by {@code fsmName}
    *                        will be performed
    * @param observerFactory A factory that creates an observer to which activities
    *                        done by JCUnit are reported.
    * @param <T>             A test class's type.
    * @param <SUT>           The type of SUT
    */
-  public static <T, SUT> void performStory(T testObject, String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
+  public static <T, SUT> void performStory(T testObject, String fsmName, SUTFactory<SUT> sutFactory, ScenarioSequence.Observer.Factory observerFactory) {
     Checks.checktest(testObject != null, "testObject mustn't be null. Simply give your test object.");
     Checks.checktest(fsmName != null, "fsmName mustn't be null. Give factor field name whose type is Story<SPEC,SUT> of your test object.");
-    Checks.checktest(sut != null, "SUT mustn't be null. Give your object to be tested.");
+    Checks.checktest(sutFactory != null, "SUT mustn't be null. Give your object to be tested.");
     Checks.checktest(observerFactory != null, "");
 
     ////
@@ -96,9 +96,29 @@ public class FSMUtils {
     // should assign an appropriate value to the factor field.
     Checks.checktest(story != null, "story parameter must not be null.");
     //noinspection unchecked
-    Story.Performer.Default.INSTANCE.perform(story, testObject, sut, Synchronizer.DUMMY, observerFactory.createObserver(fsmName));
+    Story.Performer.Default.INSTANCE.perform(story, testObject, sutFactory, Synchronizer.DUMMY, observerFactory.createObserver(fsmName));
     ////
     // This path shouldn't be executed because IllegalAccessException is already rethrown
+  }
+
+  /**
+   * This method has the same effect as the following line.
+   *
+   * <pre>
+   *   performStory(testObject, fsmName, new SUTFactory.Dummy(sut), observerFactory);
+   * </pre>
+   *
+   * @param testObject      A test object which encloses fsm field(s)
+   * @param fsmName         A name of FSM. A field story object is assigned to.
+   * @param sut             An object on which the story specified by {@code fsmName}
+   *                        will be performed
+   * @param observerFactory A factory that creates an observer to which activities
+   *                        done by JCUnit are reported.
+   * @param <T>             A test class's type.
+   * @param <SUT>           The type of SUT
+   */
+  public static <T, SUT> void performStory(T testObject, String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
+    performStory(testObject, fsmName, new SUTFactory.Dummy<SUT>(sut), observerFactory);
   }
 
   /**

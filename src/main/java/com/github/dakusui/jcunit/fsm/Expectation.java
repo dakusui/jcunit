@@ -38,7 +38,7 @@ public class Expectation<SUT> {
   /**
    * A list of input history collectors.
    */
-  public final List<InputHistory.Collector> collectors;
+  public final  List<InputHistory.Collector> collectors;
 
 
   protected Expectation(
@@ -150,13 +150,12 @@ public class Expectation<SUT> {
     }
   }
 
-  public static class Builder<SUT> {
+  public static class Builder<SUT> extends InputHistory.CollectorHolder<Builder<SUT>> {
     private final FSM<SUT>   fsm;
     private final String     fsmName;
     private       Type       type;
     private       Checker    checker;
     private       State<SUT> state;
-    private final List<InputHistory.Collector> collectors = new LinkedList<InputHistory.Collector>();
 
     Builder(
         String fsmName,
@@ -203,17 +202,6 @@ public class Expectation<SUT> {
       this.type = Type.VALUE_RETURNED;
       this.state = chooseState(state);
       this.checker = checker;
-      return this;
-    }
-
-
-    public Builder resetCollectors() {
-      this.collectors.clear();
-      return this;
-    }
-
-    public Builder addCollector(InputHistory.Collector collector) {
-      this.collectors.add(Checks.checknotnull(collector));
       return this;
     }
 
@@ -415,7 +403,12 @@ public class Expectation<SUT> {
         Story story = context.lookUpFSMStory(this.fsmName);
         if (!Checks.checknotnull(story).isPerformed()) {
           //noinspection unchecked
-          Story.Performer.Default.INSTANCE.perform(story, context.testObject, value, FSMUtils.Synchronizer.DUMMY, observer.createChild(this.fsmName));
+          Story.Performer.Default.INSTANCE.perform(
+              story,
+              context.testObject,
+              new SUTFactory.Dummy(value),
+              FSMUtils.Synchronizer.DUMMY, observer.createChild(this.fsmName)
+          );
         }
         return true;
       }

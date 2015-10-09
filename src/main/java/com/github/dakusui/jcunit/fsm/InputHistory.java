@@ -48,7 +48,7 @@ public interface InputHistory {
     public String toString() {
       StringBuilder b = new StringBuilder(String.format("%s:{", this.getClass().getSimpleName()));
       boolean firstTime = true;
-      for (String each: this.recordNames()) {
+      for (String each : this.recordNames()) {
         if (!firstTime) {
           b.append(",");
         }
@@ -89,7 +89,7 @@ public interface InputHistory {
   }
 
   interface Collector {
-    void apply(InputHistory inputHistory, Args args);
+    void apply(InputHistory inputHistory, Object[] args);
 
     /**
      * A default argument collector. This accumulate each argument value respectively.
@@ -103,9 +103,9 @@ public interface InputHistory {
       }
 
       @Override
-      public void apply(InputHistory inputHistory, Args args) {
+      public void apply(InputHistory inputHistory, Object[] args) {
         int i = 0;
-        for (Object each : args.values()) {
+        for (Object each : args) {
           inputHistory.add(name(i++), each);
         }
       }
@@ -113,6 +113,22 @@ public interface InputHistory {
       private String name(int i) {
         return String.format("%s@param-%d", actionName, i);
       }
+    }
+  }
+
+  class CollectorHolder<T extends CollectorHolder> {
+    protected final List<InputHistory.Collector> collectors = new LinkedList<InputHistory.Collector>();
+
+    public T resetCollectors() {
+      this.collectors.clear();
+      //noinspection unchecked
+      return (T) this;
+    }
+
+    public T addCollector(InputHistory.Collector collector) {
+      this.collectors.add(Checks.checknotnull(collector));
+      //noinspection unchecked
+      return (T) this;
     }
   }
 

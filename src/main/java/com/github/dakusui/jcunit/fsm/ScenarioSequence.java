@@ -130,7 +130,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
               ////
               // - Record input history before invoking the action.
               for (InputHistory.Collector eachCollector : each.then().collectors) {
-                eachCollector.apply(inputHistory, each.with);
+                eachCollector.apply(inputHistory, each.with.values());
               }
             }
           } catch (Expectation.Result r) {

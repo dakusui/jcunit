@@ -28,7 +28,6 @@ public class Story<
   private           Class<SPEC>  klazz;
   private final     String       name;
   transient private boolean      performed;
-  transient private InputHistory inputHistory;
 
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
@@ -45,15 +44,10 @@ public class Story<
 
   public void reset() {
     this.performed = false;
-    this.inputHistory = new InputHistory.Base();
   }
 
   public boolean isPerformed() {
     return this.performed;
-  }
-
-  public InputHistory inputHitory() {
-    return this.inputHistory;
   }
 
   public int hashCode() {
@@ -90,13 +84,13 @@ public class Story<
   }
 
   public static class Request<SUT> {
-    public final String                            fsmName;
-    public final SUT                               sut;
+    public final String          fsmName;
+    public final SUTFactory<SUT> sutFactory;
     public final ScenarioSequence.Observer.Factory observerFactory;
 
-    public Request(String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
+    public Request(String fsmName, SUTFactory<SUT> sutFactory, ScenarioSequence.Observer.Factory observerFactory) {
       this.fsmName = Checks.checknotnull(fsmName);
-      this.sut = Checks.checknotnull(sut);
+      this.sutFactory = Checks.checknotnull(sutFactory);
       this.observerFactory = Checks.checknotnull(observerFactory);
     }
 
@@ -105,7 +99,7 @@ public class Story<
       Story<SUT, ? extends FSMSpec<SUT>> story = FSMUtils.lookupStory(testObject, this.fsmName);
       Checks.checktest(story != null, "story parameter must not be null.");
       //noinspection unchecked
-      performer.perform(story, testObject, sut, synchronizer, observerFactory.createObserver(fsmName));
+      performer.perform(story, testObject, sutFactory, synchronizer, observerFactory.createObserver(fsmName));
     }
 
     public <T> Callable createCallable(final Performer<SUT, T> performer, final FSMUtils.Synchronizer synchronizer, final T testObject) {
@@ -125,12 +119,17 @@ public class Story<
       public ArrayBuilder() {
       }
 
-      public <SUT> ArrayBuilder add(String fsmName, SUT sut) {
-        return add(fsmName, sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
+      public <SUT> ArrayBuilder add(String fsmName, SUTFactory<SUT> sutFactory) {
+        return add(fsmName, sutFactory, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
+      }
+
+      public <SUT> ArrayBuilder add(String fsmName, SUTFactory<SUT> sutFactory, ScenarioSequence.Observer.Factory observerFactory) {
+        requests.add(new Request<SUT>(fsmName, sutFactory, Checks.checknotnull(observerFactory)));
+        return this;
       }
 
       public <SUT> ArrayBuilder add(String fsmName, SUT sut, ScenarioSequence.Observer.Factory observerFactory) {
-        requests.add(new Request<SUT>(fsmName, sut, Checks.checknotnull(observerFactory)));
+        requests.add(new Request<SUT>(fsmName, new SUTFactory.Dummy<SUT>(sut), Checks.checknotnull(observerFactory)));
         return this;
       }
 
@@ -141,15 +140,15 @@ public class Story<
   }
 
   interface Performer<SUT, T> {
-    void perform(Story<SUT, ? extends FSMSpec<SUT>> story, T testObject, SUT sut, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer);
+    void perform(Story<SUT, ? extends FSMSpec<SUT>> story, T testObject, SUTFactory<SUT> sutFactory, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer);
 
     class Default<SUT, T> implements Performer<SUT, T> {
       public static final Performer INSTANCE = new Default();
 
       @Override
-      public void perform(Story<SUT, ? extends FSMSpec<SUT>> story, T testObject, SUT sut, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer) {
+      public void perform(Story<SUT, ? extends FSMSpec<SUT>> story, T testObject, SUTFactory<SUT> sutFactory, FSMUtils.Synchronizer synchronizer, ScenarioSequence.Observer observer) {
         story.performed = true;
-        Context<SUT, T> context = new Context<SUT, T>(testObject, sut);
+        Context<SUT, T> context = new Context<SUT, T>(testObject, sutFactory);
         try {
           story.setUp.perform(context, FSMUtils.Synchronizer.DUMMY, story, observer);
           context.next();
@@ -162,15 +161,15 @@ public class Story<
   }
 
   public static class Context<SUT, T> {
-    public final T            testObject;
-    public final InputHistory inputHistory;
-    public final SUT          sut;
-    public       Stage        stage;
+    public final T               testObject;
+    public final InputHistory    inputHistory;
+    public final SUT sut;
+    public       Stage           stage;
 
-    public Context(T testObject, SUT sut) {
+    public Context(T testObject, SUTFactory<SUT> sutFactory) {
       this.testObject = Checks.checknotnull(testObject);
       this.inputHistory = new InputHistory.Base();
-      this.sut = Checks.checknotnull(sut);
+      this.sut = Checks.checknotnull(sutFactory).create(this.inputHistory);
       this.stage = Stage.SET_UP;
     }
 
