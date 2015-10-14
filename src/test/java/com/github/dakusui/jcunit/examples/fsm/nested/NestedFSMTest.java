@@ -42,7 +42,7 @@ public class NestedFSMTest {
 
       @Override
       public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
-        return b.valid(this, new Expectation.Checker.FSM("nested")).build();
+        return b.valid(this, new OutputChecker.FSM("nested")).build();
       }
     },;
 

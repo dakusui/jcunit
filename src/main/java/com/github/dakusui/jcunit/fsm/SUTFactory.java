@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -51,7 +52,7 @@ public interface SUTFactory<SUT> {
 
     abstract protected SUT createSUT(Object... args);
 
-    static class Arg<T> {
+    public static class Arg<T> {
       public final Class<T> type;
       public final T        arg;
 
@@ -69,6 +70,10 @@ public interface SUTFactory<SUT> {
     public static <T> Arg<T> $(Class<T> type, T arg) {
       return new Arg<T>(Checks.checknotnull(type), arg);
     }
+
+    public static <T> Class<T[]> arr(Class<T> type) {
+      return (Class<T[]>) Array.newInstance(Checks.checknotnull(type), 0).getClass();
+    }
   }
 
   class Simple<SUT> extends Base<Simple, SUT> {
@@ -81,9 +86,9 @@ public interface SUTFactory<SUT> {
     protected SUT createSUT(Object... args) {
       try {
         return chooseConstructor(this.clazz, Utils.transform(this.args,
-            new Utils.Form<Arg, Object>() {
+            new Utils.Form<Arg, Class>() {
               @Override
-              public Object apply(Arg in) {
+              public Class apply(Arg in) {
                 return in.type;
               }
             }

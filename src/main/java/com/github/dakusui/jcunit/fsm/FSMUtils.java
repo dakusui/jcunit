@@ -39,6 +39,7 @@ public class FSMUtils {
         return Checks.checknotnull(null);
       }
     })) {
+      Checks.checknotnull(each, "Probably your test class is not annotated with '@RunWith(JCUnit.class)'.");
       each.reset();
     }
   }
@@ -50,6 +51,16 @@ public class FSMUtils {
    * @see FSMUtils#performStory(Object, String, Object, ScenarioSequence.Observer.Factory)
    */
   public static <T, SUT> void performStory(T testObject, String fsmName, SUT sut) {
+    performStory(testObject, fsmName, sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
+  }
+
+  /**
+   * Invokes {@code FSMUtils#performStory(Object, String, Object, Story.Observer.Factory)}
+   * with a new {@code Story.Observer.Factory.ForSimple} object.
+   *
+   * @see FSMUtils#performStory(Object, String, Object, ScenarioSequence.Observer.Factory)
+   */
+  public static <T, SUT> void performStory(T testObject, String fsmName, SUTFactory<SUT> sut) {
     performStory(testObject, fsmName, sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
   }
 

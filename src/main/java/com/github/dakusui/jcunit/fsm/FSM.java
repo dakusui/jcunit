@@ -61,7 +61,7 @@ public interface FSM<SUT> {
           f = paramsFields.get(paramsFieldName);
           Checks.checktest(
               f != null,
-              "A parameter field '%s' referred to by '%s' is not found in '%s'", paramsFieldName, each.getKey(), specClass.getCanonicalName()
+              "A parameter field '%s' referred to by '%s' is not found in '%s'", paramsFieldName, each.getKey(), specClass
           );
         } else {
           Checks.checktest(

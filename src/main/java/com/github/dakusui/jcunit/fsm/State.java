@@ -35,9 +35,9 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
         //noinspection unchecked
         return new Expectation<Object>(
             "(VOID)",
-            Expectation.Type.VALUE_RETURNED,
+            Output.Type.VALUE_RETURNED,
             this,
-            new Expectation.Checker.MatcherBased(CoreMatchers.anything()),
+            new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, CoreMatchers.anything()),
             (List<InputHistory.Collector>) Collections.unmodifiableList(Collections.EMPTY_LIST)
         );
       }

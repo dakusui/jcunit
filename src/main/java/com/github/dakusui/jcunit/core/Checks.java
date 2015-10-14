@@ -43,7 +43,7 @@ public class Checks {
    * <p/>
    * If {@code msgOrFmt} is non-null value,
    * <pre>
-   *   String.format(msgOrFmt, args)
+   *   String.describeExpectation(msgOrFmt, args)
    * </pre>
    * If {@code msgOrFmt} is {@code null} and {@code args}'s length is greater than 0,
    * the exception message will be created automatically but become
@@ -57,8 +57,8 @@ public class Checks {
    *
    * @param obj      A variable to be checked.
    * @param <T>      The type of {@code obj}
-   * @param msgOrFmt The string used for the first parameter of {@code String.format}.
-   * @param args     The arguments used for the second and the latter parameters of {@code String.format}.
+   * @param msgOrFmt The string used for the first parameter of {@code String.describeExpectation}.
+   * @param args     The arguments used for the second and the latter parameters of {@code String.describeExpectation}.
    * @return {@code obj} itself
    */
   public static <T> T checknotnull(T obj, String msgOrFmt, Object... args) {
@@ -150,7 +150,7 @@ public class Checks {
    * is a runtime exception.
    *
    * @param e        An exception to be re-thrown.
-   * @param msgOrFmt A message or a message format.
+   * @param msgOrFmt A message or a message describeExpectation.
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static void rethrow(Throwable e, String msgOrFmt, Object... args) {

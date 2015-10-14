@@ -167,11 +167,25 @@ public class Story<
     public       Stage           stage;
 
     public Context(T testObject, SUTFactory<SUT> sutFactory) {
-      this.testObject = Checks.checknotnull(testObject);
-      this.inputHistory = new InputHistory.Base();
-      this.sut = Checks.checknotnull(sutFactory).create(this.inputHistory);
-      this.stage = Stage.SET_UP;
+      this(
+          Checks.checknotnull(testObject),
+          new InputHistory.Base(),
+          Checks.checknotnull(sutFactory),
+          Stage.SET_UP
+      );
     }
+
+    private Context(T testObject, InputHistory inputHistory, SUTFactory<SUT> sutFactory, Stage stage) {
+      this(testObject, inputHistory, sutFactory.create(inputHistory), stage);
+    }
+
+    public Context(T testObject, InputHistory inputHistory, SUT sut, Stage stage) {
+      this.testObject = Checks.checknotnull(testObject);
+      this.inputHistory = Checks.checknotnull(inputHistory);
+      this.sut = Checks.checknotnull(sut);
+      this.stage = Checks.checknotnull(stage);
+    }
+
 
     public Story<SUT, ? extends FSMSpec<SUT>> lookUpFSMStory(String name) {
       //noinspection unchecked
@@ -199,4 +213,3 @@ public class Story<
     }
   }
 }
-

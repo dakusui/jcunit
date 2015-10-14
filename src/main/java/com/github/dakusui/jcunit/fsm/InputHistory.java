@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 import java.util.*;
 
@@ -12,9 +13,11 @@ public interface InputHistory {
 
   boolean has(String name);
 
-  <E> Record<E> get(String name);
+  <E> Record<E> get(String name) throws UndefinedSymbol;
 
   Iterable<String> recordNames();
+
+  int size();
 
   class Base implements InputHistory {
     private final Map<String, Record<?>> records = new LinkedHashMap<String, Record<?>>();
@@ -34,8 +37,8 @@ public interface InputHistory {
     }
 
     @Override
-    public <E> Record<E> get(String name) {
-      Checks.checkcond(this.has(name), "Unknown input argument name '%s' is specified.", name);
+    public <E> Record<E> get(String name) throws UndefinedSymbol {
+      if (!this.has(name)) throw new UndefinedSymbol(new String[]{name});
       //noinspection unchecked
       return (Record<E>) this.records.get(name);
     }
@@ -45,18 +48,8 @@ public interface InputHistory {
     }
 
     @Override
-    public String toString() {
-      StringBuilder b = new StringBuilder(String.format("%s:{", this.getClass().getSimpleName()));
-      boolean firstTime = true;
-      for (String each : this.recordNames()) {
-        if (!firstTime) {
-          b.append(",");
-        }
-        firstTime = false;
-        b.append(String.format("%s:%s", each, this.get(each)));
-      }
-      b.append("}");
-      return b.toString();
+    public int size() {
+      return this.records.size();
     }
   }
 
@@ -93,7 +86,13 @@ public interface InputHistory {
 
     /**
      * A default argument collector. This accumulate each argument value respectively.
-     * You can get each parameter's history by
+     * You can get each parameter's history by following code.
+     * <pre>
+     * Record r = inputHistory.get("{actionName}@param-{index}");
+     * </pre>
+     * where actionName is a value passed to the constructor of this class and
+     * index is an index that specifies each element in {@code args}.
+     *
      */
     class Default implements Collector {
       private final String actionName;

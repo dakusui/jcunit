@@ -3,6 +3,9 @@ package com.github.dakusui.jcunit.core;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderFactory;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Description;
+import org.hamcrest.StringDescription;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -34,7 +37,7 @@ public class Utils {
             try {
               Class<? extends Object> toStringDeclaringClass = in.getClass().getMethod("toString").getDeclaringClass();
               if (Object.class.equals(toStringDeclaringClass)) {
-                return in.getClass().getSimpleName() + "@" + System.identityHashCode(in);
+                return getSimpleClassName(in) + "@" + System.identityHashCode(in);
               }
               return in;
             } catch (NoSuchMethodException e) {
@@ -42,6 +45,13 @@ public class Utils {
             }
           }
         }).toArray());
+  }
+
+  private static String getSimpleClassName(Object obj) {
+    String className = "".equals(obj.getClass().getSimpleName())
+        ? "(anonymous)"
+        : obj.getClass().getSimpleName();
+    return className;
   }
 
   public static Field getField(Object obj, String fieldName,
@@ -514,4 +524,13 @@ public class Utils {
       Checks.checktest(this.valid, errMessage);
     }
   }
+
+  public static void main(String... args) {
+    System.out.println(CoreMatchers.is("Hello"));
+    System.out.println(CoreMatchers.endsWith("Hello"));
+    Description d = new StringDescription();
+    CoreMatchers.is("Hello").describeMismatch("HELLO", d);
+    System.out.println(d);
+  }
+
 }
