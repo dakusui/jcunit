@@ -61,11 +61,11 @@ public class FlyingSpaghettiMonsterTest {
 
               @Override
               protected boolean evaluate(Object expectation, Object actual) {
-                return (Boolean)expectation;
+                return (Boolean) expectation;
               }
 
               @Override
-              protected String name() {
+              protected String predicate() {
                 return "cook@param-0 exists";
               }
             })

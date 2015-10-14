@@ -29,18 +29,6 @@ public interface OutputChecker {
    */
   <SUT, T> Result check(Story.Context<SUT, T> context, Output output, ScenarioSequence.Observer observer);
 
-  abstract class Base implements OutputChecker {
-    public final Output.Type type;
-
-    public Base(Output.Type type) {
-      this.type = Checks.checknotnull(type);
-    }
-
-    @Override
-    public boolean shouldBeCheckedFor(Story.Stage stage) {
-      return true;
-    }
-  }
 
   class Result {
     private final String  description;
@@ -59,6 +47,19 @@ public interface OutputChecker {
 
     public String getDescription() {
       return this.description;
+    }
+  }
+
+  abstract class Base implements OutputChecker {
+    public final Output.Type type;
+
+    public Base(Output.Type type) {
+      this.type = Checks.checknotnull(type);
+    }
+
+    @Override
+    public boolean shouldBeCheckedFor(Story.Stage stage) {
+      return true;
     }
   }
 
@@ -82,6 +83,10 @@ public interface OutputChecker {
       );
     }
 
+    @Override
+    public String toString() {
+      return this.matcher.toString();
+    }
   }
 
   class FSM extends Base implements OutputChecker {
@@ -138,15 +143,7 @@ public interface OutputChecker {
       try {
         Object expect = computeExpectation(accessedSymbols);
         passed = this.evaluate(expect, Checks.checknotnull(output).value);
-        expectation = this.type.describeExpectation(
-            Utils.format(
-                "%s %s (%s#computeExpectation(%s))",
-                name(),
-                expect,
-                this,
-                Utils.join(",", accessedSymbols.accessedSymbols.toArray())
-            )
-        );
+        expectation = describeExpectation(accessedSymbols, expect);
       } catch (UndefinedSymbol e) {
         passed = false;
         expectation = Utils.format("failed to compute expectation since following symbols are not found in input history: %s", e.missingSymbols);
@@ -161,15 +158,43 @@ public interface OutputChecker {
       );
     }
 
+
     protected boolean evaluate(Object expectation, Object actual) {
       return Utils.eq(expectation, actual);
     }
 
-    protected String name() {
+    /**
+     * In case you are overriding {@code evaluate} method, you should override
+     * this method, too.
+     */
+    protected String predicate() {
       return "is equal to";
     }
 
     protected abstract Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol;
+
+    public String toString() {
+       return Utils.format(
+           "%s %s#computeExpectation(...)",
+           predicate(),
+           Utils.getSimpleClassName(this)
+           );
+    }
+
+
+    private String describeExpectation(AccessedSymbols accessedSymbols, Object expect) {
+      String expectation;
+      expectation = this.type.describeExpectation(
+          Utils.format(
+              "%s '%s' (%s#computeExpectation(%s))",
+              predicate(),
+              expect,
+              this,
+              Utils.join(",", accessedSymbols.accessedSymbols.toArray())
+          )
+      );
+      return expectation;
+    }
 
     class AccessedSymbols implements InputHistory {
       private final InputHistory base;

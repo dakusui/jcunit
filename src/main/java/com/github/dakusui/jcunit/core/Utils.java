@@ -47,8 +47,8 @@ public class Utils {
         }).toArray());
   }
 
-  private static String getSimpleClassName(Object obj) {
-    String className = "".equals(obj.getClass().getSimpleName())
+  public static String getSimpleClassName(Object obj) {
+    String className = "".equals(Checks.checknotnull(obj).getClass().getSimpleName())
         ? "(anonymous)"
         : obj.getClass().getSimpleName();
     return className;
