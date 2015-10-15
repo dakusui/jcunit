@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 
 import static com.github.dakusui.jcunit.fsm.SUTFactory.Base.$;
 import static com.github.dakusui.jcunit.fsm.SUTFactory.Base.INT_ARRAY_TYPE;
-import static com.github.dakusui.jcunit.fsm.SUTFactory.Base.arr;
 
 @RunWith(JCUnit.class)
 public class FSMParamTest {
@@ -21,7 +20,13 @@ public class FSMParamTest {
     boolean init = false;
     String s;
 
-    public Sut(String s, int i, int[] j) {
+    public Sut(
+        String s,
+        // This parameter is only for illustration of how to call a constructor with parameters
+        @SuppressWarnings("unused")int i,
+        // This parameter is only for illustration of how to call a constructor with parameters
+        @SuppressWarnings("unused")int[] j
+    ) {
       this.s = s + ":";
     }
 

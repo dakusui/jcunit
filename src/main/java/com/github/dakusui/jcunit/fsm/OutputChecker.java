@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
 import java.util.ArrayList;
@@ -18,6 +19,8 @@ public interface OutputChecker {
    * Checks if this object should be performed for a given scenario type.
    */
   boolean shouldBeCheckedFor(Story.Stage stage);
+
+  Output.Type getType();
 
   /**
    * Checks the {@code item} matches the criterion that this object defines.
@@ -61,6 +64,11 @@ public interface OutputChecker {
     public boolean shouldBeCheckedFor(Story.Stage stage) {
       return true;
     }
+
+    @Override
+    public Output.Type getType() {
+      return this.type;
+    }
   }
 
   class MatcherBased extends Base implements OutputChecker {
@@ -78,7 +86,7 @@ public interface OutputChecker {
           Utils.format(
               "Expectation: %s%nActual:%s",
               this.type.describeExpectation(this.matcher),
-              this.type.describeMismatch(output.value, output.type)
+              this.type.describeMismatch(output)
           )
       );
     }
@@ -142,8 +150,9 @@ public interface OutputChecker {
       boolean passed;
       try {
         Object expect = computeExpectation(accessedSymbols);
-        passed = this.evaluate(expect, Checks.checknotnull(output).value);
-        expectation = describeExpectation(accessedSymbols, expect);
+        Matcher matcher = Checks.checknotnull(this.createMatcher(expect));
+        passed = matcher.matches(Checks.checknotnull(output).value);
+        expectation = describeExpectation(accessedSymbols, matcher);
       } catch (UndefinedSymbol e) {
         passed = false;
         expectation = Utils.format("failed to compute expectation since following symbols are not found in input history: %s", e.missingSymbols);
@@ -153,47 +162,36 @@ public interface OutputChecker {
           Utils.format(
               "Expectation: %s%nActual:      %s",
               expectation,
-              this.type.describeMismatch(output.value, output.type)
+              this.type.describeMismatch(output)
           )
       );
     }
 
-
-    protected boolean evaluate(Object expectation, Object actual) {
-      return Utils.eq(expectation, actual);
+    private String describeExpectation(AccessedSymbols accessedSymbols, Matcher matcher) {
+      String expectation;
+      expectation = this.type.describeExpectation(
+          Utils.format(
+              "%s (%s#computeExpectation(%s))",
+              matcher,
+              Utils.getSimpleClassName(this),
+              Utils.join(",", accessedSymbols.accessedSymbols.toArray())
+          )
+      );
+      return expectation;
     }
 
-    /**
-     * In case you are overriding {@code evaluate} method, you should override
-     * this method, too.
-     */
-    protected String predicate() {
-      return "is equal to";
+    protected Matcher createMatcher(Object expectation) {
+      return CoreMatchers.is(expectation);
     }
 
     protected abstract Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol;
 
     public String toString() {
-       return Utils.format(
-           "%s %s#computeExpectation(...)",
-           predicate(),
-           Utils.getSimpleClassName(this)
-           );
-    }
-
-
-    private String describeExpectation(AccessedSymbols accessedSymbols, Object expect) {
-      String expectation;
-      expectation = this.type.describeExpectation(
-          Utils.format(
-              "%s '%s' (%s#computeExpectation(%s))",
-              predicate(),
-              expect,
-              this,
-              Utils.join(",", accessedSymbols.accessedSymbols.toArray())
-          )
+      return Utils.format(
+          "%s %s#computeExpectation(...)",
+          createMatcher("..."),
+          Utils.getSimpleClassName(this)
       );
-      return expectation;
     }
 
     class AccessedSymbols implements InputHistory {

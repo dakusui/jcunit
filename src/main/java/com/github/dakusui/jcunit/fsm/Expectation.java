@@ -26,10 +26,6 @@ public class Expectation<SUT> {
    */
   public final  State<SUT>                   state;
   /**
-   * Expected type. {@code VALUE_RETURNED} or {@code EXCEPTION_THROWN}.
-   */
-  private final Output.Type                  type;
-  /**
    * A checker which verifies a returned value or a thrown exception.
    */
   private final OutputChecker                checker;
@@ -50,7 +46,6 @@ public class Expectation<SUT> {
     Checks.checknotnull(state);
     Checks.checknotnull(checker);
     this.fsmName = fsmName;
-    this.type = type;
     this.state = state;
     this.checker = checker;
     this.collectors = Collections.unmodifiableList(collectors);
@@ -61,18 +56,12 @@ public class Expectation<SUT> {
     //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
-    if (this.type == Output.Type.VALUE_RETURNED) {
-      b.addFailedReason(String.format(
-              "Exception was not expected but %s was thrown. ",
-              thrownException.getClass().getSimpleName()),
-          thrownException);
-    }
     OutputChecker.Result r = this.checker.check(
         context,
         new Output(Output.Type.EXCEPTION_THROWN, thrownException),
         observer);
     if (!r.isSuccessful()) {
-      b.addFailedReason(String.format(r.getDescription()));
+      b.addFailedReason(r.getDescription());
     }
     if (!this.state.check(context.sut)) {
       b.addFailedReason(
@@ -85,9 +74,6 @@ public class Expectation<SUT> {
   public <T> Result checkReturnedValue(Story.Context<SUT, T> context, Object returnedValue, Story.Stage stage, ScenarioSequence.Observer observer) {
     Checks.checknotnull(context);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
-    if (this.type == Output.Type.EXCEPTION_THROWN) {
-      b.addFailedReason(Utils.format("Exception was expected to be thrown but it was not. "));
-    }
     ////
     // Only when type is 'MAIN', returned FSM value will be checked.
     if (checker.shouldBeCheckedFor(stage)) {
@@ -109,9 +95,7 @@ public class Expectation<SUT> {
 
   @Override
   public String toString() {
-    if (this.type == Output.Type.EXCEPTION_THROWN)
-      return Utils.format("status of '%s' is '%s' and %s is thrown", this.fsmName, this.state, this.checker.toString());
-    return Utils.format("status of '%s' is '%s' and %s is returned", this.fsmName, this.state, this.checker.toString());
+    return Utils.format("state of '%s' is '%s' and %s %s %s", this.fsmName, this.state, this.checker.getType().name, this.checker.getType().entityType(), this.checker.toString());
   }
 
   public static class Builder<SUT> extends InputHistory.CollectorHolder<Builder<SUT>> {

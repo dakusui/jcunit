@@ -43,10 +43,10 @@ public class Output {
       }
     };
 
-    private final String name;
+    public final String name;
 
     Type(String name) {
-      this.name = name;
+      this.name = Checks.checknotnull(name);
     }
 
     abstract protected String entityType();
@@ -65,17 +65,17 @@ public class Output {
       );
     }
 
-    public String describeMismatch(Object output, Type outputType) {
+    public String describeMismatch(Output output) {
       return Utils.format(
           ////
           // MISMATCH:
           // "returned" / "thrown"
           // "value"    / "exception"
           // was
-          "%s %s was '%s'",
-          Checks.checknotnull(outputType).name,
-          outputType.entityType(),
-          output
+          "%s %s was \"%s\"",
+          Checks.checknotnull(output).type.name,
+          output.type.entityType(),
+          output.value
       );
     }
   }

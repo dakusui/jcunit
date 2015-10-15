@@ -58,16 +58,6 @@ public class FlyingSpaghettiMonsterTest {
               protected Object computeExpectation(InputHistory inputHistory) {
                 return inputHistory.has("cook@param-0");
               }
-
-              @Override
-              protected boolean evaluate(Object expectation, Object actual) {
-                return (Boolean) expectation;
-              }
-
-              @Override
-              protected String predicate() {
-                return "cook@param-0 exists";
-              }
             })
             .build();
       }
