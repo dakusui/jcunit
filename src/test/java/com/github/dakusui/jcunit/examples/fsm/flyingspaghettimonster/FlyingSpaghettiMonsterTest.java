@@ -53,12 +53,7 @@ public class FlyingSpaghettiMonsterTest {
       public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> b) {
         //return b.valid(COOKED, CoreMatchers.containsString("yummy")).build();
         return b
-            .valid(COOKED, new OutputChecker.ForInputHistory(Output.Type.VALUE_RETURNED) {
-              @Override
-              protected Object computeExpectation(InputHistory inputHistory) {
-                return inputHistory.has("cook@param-0");
-              }
-            })
+            .valid(COOKED, CoreMatchers.endsWith("is yummy!"))
             .build();
       }
 

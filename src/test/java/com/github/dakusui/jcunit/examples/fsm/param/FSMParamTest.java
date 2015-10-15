@@ -114,6 +114,8 @@ public class FSMParamTest {
             $(String.class, "prefix"),
             $(Integer.TYPE, 1),
             $(INT_ARRAY_TYPE, ii)
-        ).addCollector(new InputHistory.Collector.Default("method")));
+        ).addCollector(new InputHistory.Collector.Default("method")),
+        ScenarioSequence.Observer.Factory.ForSilent.INSTANCE
+    );
   }
 }
