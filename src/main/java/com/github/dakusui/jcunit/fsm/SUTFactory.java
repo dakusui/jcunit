@@ -74,6 +74,14 @@ public interface SUTFactory<SUT> {
     public static <T> Class<T[]> arr(Class<T> type) {
       return (Class<T[]>) Array.newInstance(Checks.checknotnull(type), 0).getClass();
     }
+
+    public static final Class<int[]> INT_ARRAY_TYPE = (Class<int[]>) new int[0].getClass();
+    public static final Class<long[]> LONG_ARRAY_TYPE = (Class<long[]>) new long[0].getClass();
+    public static final Class<boolean[]> BOOLEAN_ARRAY_TYPE = (Class<boolean[]>) new boolean[0].getClass();
+    public static final Class<byte[]> BYTE_ARRAY_TYPE = (Class<byte[]>) new byte[0].getClass();
+    public static final Class<char[]> CHAR_ARRAY_TYPE = (Class<char[]>) new char[0].getClass();
+    public static final Class<float[]> FLOAT_ARRAY_TYPE = (Class<float[]>) new float[0].getClass();
+    public static final Class<double[]> DOUBLE_ARRRAY_TYPE = (Class<double[]>) new double[0].getClass();
   }
 
   class Simple<SUT> extends Base<Simple, SUT> {

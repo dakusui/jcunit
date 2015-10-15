@@ -130,7 +130,7 @@ public class Expectation<SUT> {
     }
 
     public Builder<SUT> invalid() {
-      return this.invalid(IllegalArgumentException.class);
+      return this.invalid(IllegalStateException.class);
     }
 
     public Builder<SUT> invalid(Class<? extends Throwable> klass) {

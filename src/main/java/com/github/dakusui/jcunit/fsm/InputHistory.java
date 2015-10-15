@@ -60,7 +60,7 @@ public interface InputHistory {
 
     public Record(String name) {
       this.name = Checks.checknotnull(name);
-      this.items = new LinkedList<T>();
+      this.items = new ArrayList<T>();
     }
 
     public void add(T item) {
@@ -69,6 +69,10 @@ public interface InputHistory {
 
     public int size() {
       return this.items.size();
+    }
+
+    public T get(int i) {
+      return this.items.get(i);
     }
 
     @Override

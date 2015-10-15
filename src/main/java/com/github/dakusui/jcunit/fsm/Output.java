@@ -65,7 +65,7 @@ public class Output {
       );
     }
 
-    public String describeMismatch(Object output, Type actualBehaviour) {
+    public String describeMismatch(Object output, Type outputType) {
       return Utils.format(
           ////
           // MISMATCH:
@@ -73,8 +73,8 @@ public class Output {
           // "value"    / "exception"
           // was
           "%s %s was '%s'",
-          Checks.checknotnull(actualBehaviour).name,
-          actualBehaviour.entityType(),
+          Checks.checknotnull(outputType).name,
+          outputType.entityType(),
           output
       );
     }
