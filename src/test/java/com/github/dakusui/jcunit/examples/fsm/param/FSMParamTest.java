@@ -64,7 +64,7 @@ public class FSMParamTest {
           new OutputChecker.ForInputHistory(Output.Type.VALUE_RETURNED) {
             @Override
             protected Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol {
-              return "prefix:" + inputHistory.get("method@param-0").iterator().next() + ":-";
+              return "prefix:" + inputHistory.get("method@param-0").iterator().next() + ":";
             }
           }
       ).build();
