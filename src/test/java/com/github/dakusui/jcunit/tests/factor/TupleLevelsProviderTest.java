@@ -129,13 +129,8 @@ public class TupleLevelsProviderTest {
   }
 
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Test(expected = InvalidTestException.class)

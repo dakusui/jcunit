@@ -33,12 +33,8 @@ public class ReplayerTest {
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
   }
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @RunWith(JCUnit.class)

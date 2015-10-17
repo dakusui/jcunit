@@ -191,10 +191,6 @@ public class Factors implements Iterable<Factor> {
       return this.add(b.build());
     }
 
-    public List<Factor> getFactors() {
-      return this.factors;
-    }
-
     public Factors build() {
       return new Factors(this.factors);
     }

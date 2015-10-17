@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.misc;
+package com.github.dakusui.jcunit.misc;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;

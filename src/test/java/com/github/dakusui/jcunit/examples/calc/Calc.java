@@ -1,9 +1,10 @@
 package com.github.dakusui.jcunit.examples.calc;
 
 public class Calc {
-  public static enum Op {
-    plus {
-      @Override int calc(int a, int b) {
+  public enum Op {
+    PLUS {
+      @Override
+      int calc(int a, int b) {
         int ret = a + b;
         if (Math.signum(a) == Math.signum(b)
             && Math.signum(ret) != Math.signum(a)) {
@@ -17,8 +18,9 @@ public class Calc {
         return "+";
       }
     },
-    minus {
-      @Override int calc(int a, int b) {
+    MINUS {
+      @Override
+      int calc(int a, int b) {
         return a - b;
       }
 
@@ -27,8 +29,9 @@ public class Calc {
         return "-";
       }
     },
-    multiply {
-      @Override int calc(int a, int b) {
+    MULTIPLY {
+      @Override
+      int calc(int a, int b) {
         return a * b;
       }
 
@@ -37,8 +40,9 @@ public class Calc {
         return "*";
       }
     },
-    divide {
-      @Override int calc(int a, int b) {
+    DIVIDE {
+      @Override
+      int calc(int a, int b) {
         return a / b;
       }
 

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples;
+package com.github.dakusui.jcunit.examples.recorderreplayer;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.Recorder;

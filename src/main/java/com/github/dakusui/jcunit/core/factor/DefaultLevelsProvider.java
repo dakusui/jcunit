@@ -177,25 +177,18 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
             return arr1 == arr2;
         }
         if (!arr1.getClass().isArray()) {
-            return eq(arr1, arr2);
+            return Utils.eq(arr1, arr2);
         }
         if (arr2.getClass().isArray() && Array.getLength(arr1) == Array
                 .getLength(arr2)) {
             int len = Array.getLength(arr1);
             for (int i = 0; i < len; i++) {
-                if (!eq(Array.get(arr1, i), Array.get(arr2, i))) {
+                if (!Utils.eq(Array.get(arr1, i), Array.get(arr2, i))) {
                     return false;
                 }
             }
             return true;
         }
         return false;
-    }
-
-    private static boolean eq(Object a, Object b) {
-        if (a == null) {
-            return b == null;
-        }
-        return a.equals(b);
     }
 }

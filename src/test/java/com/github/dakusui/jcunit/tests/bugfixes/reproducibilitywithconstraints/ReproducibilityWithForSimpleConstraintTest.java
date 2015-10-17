@@ -30,13 +30,8 @@ public class ReproducibilityWithForSimpleConstraintTest {
   }
 
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Rule
@@ -66,7 +61,6 @@ public class ReproducibilityWithForSimpleConstraintTest {
     expectations.put(8, "8;{\"a\":3,\"b\":2,\"c\":3}");
     expectations.put(9, "9;{\"a\":1,\"b\":3,\"c\":3}");
   }
-
 
   @Test
   public void test() {

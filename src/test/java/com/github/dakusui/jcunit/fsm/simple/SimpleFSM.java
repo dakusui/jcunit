@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.fsm.simple;
+package com.github.dakusui.jcunit.fsm.simple;
 
 import java.io.FileNotFoundException;
 

@@ -103,7 +103,7 @@ public class BenchMark extends IPO2Test {
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {
     long before = System.currentTimeMillis();
-    IPO2 ipo2 = generateIPO2(factors, strength, constraintManager, optimizer);
+    IPO2 ipo2 = createIPO2(factors, strength, constraintManager, optimizer);
     long after = System.currentTimeMillis();
     return new TestGenerationResult(ipo2.getResult(), ipo2.getRemainders(),
         after - before);

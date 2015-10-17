@@ -7,10 +7,7 @@ import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpagh
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonsterTest;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.TurnstileTest;
-import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.ScenarioSequence;
-import com.github.dakusui.jcunit.fsm.Story;
+import com.github.dakusui.jcunit.fsm.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -27,8 +24,16 @@ public class ConcurrentTurnstileAndFSM {
     FSMUtils.performStoriesConcurrently(
         this,
         new Story.Request.ArrayBuilder()
+            ////
+            // Simpler way to give SUT to FSM/JCUnit
             .add("turnstile", new Turnstile(), observerFactory)
-            .add("fsm", new FlyingSpaghettiMonster(), observerFactory)
+            ////
+            // More strict way to give SUT to FSM/JCUnit. This style allows you to
+            // collect parameter values given to your SUT during a test.
+            // Refer to FSMParamTest for an example.
+            .add("fsm", new SUTFactory.Simple<FlyingSpaghettiMonster>(
+                FlyingSpaghettiMonster.class
+            ), observerFactory)
             .build()
     );
   }

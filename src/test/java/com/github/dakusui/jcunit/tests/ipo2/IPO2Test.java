@@ -21,13 +21,10 @@ import static org.junit.Assert.assertThat;
 
 public abstract class IPO2Test {
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
-  }
+
   protected static Factor factor(String name, Object... factors) {
     return new Factor(name, Arrays.asList(factors));
   }
@@ -52,7 +49,7 @@ public abstract class IPO2Test {
     return fb.build();
   }
 
-  protected IPO2 generateIPO2(
+  protected IPO2 createIPO2(
       Factors factors, int strength,
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {

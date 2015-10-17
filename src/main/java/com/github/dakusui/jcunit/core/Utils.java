@@ -524,13 +524,4 @@ public class Utils {
       Checks.checktest(this.valid, errMessage);
     }
   }
-
-  public static void main(String... args) {
-    System.out.println(CoreMatchers.is("Hello"));
-    System.out.println(CoreMatchers.endsWith("Hello"));
-    Description d = new StringDescription();
-    CoreMatchers.is("Hello").describeMismatch("HELLO", d);
-    System.out.println(d);
-  }
-
 }

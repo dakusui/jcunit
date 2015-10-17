@@ -11,6 +11,8 @@ import java.lang.reflect.Field;
 /**
  */
 public class TestCaseUtils {
+  private TestCaseUtils() {
+  }
 
   public static AttrValue<String, Object> factor(String name, Object level) {
     return new AttrValue<String, Object>(name, level);

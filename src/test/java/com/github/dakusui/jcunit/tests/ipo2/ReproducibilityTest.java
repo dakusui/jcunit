@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.ipo2.IPO2;
 import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,17 +28,13 @@ public class ReproducibilityTest extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors, 2, constraintManager, optimizer);
+    IPO2 ipo = createIPO2(factors, 2, constraintManager, optimizer);
     return ipo.getResult();
   }
 
   @Before
-  public void before() {
-    UTUtils.setSilent();
-  }
-  @After
-  public void after() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Test

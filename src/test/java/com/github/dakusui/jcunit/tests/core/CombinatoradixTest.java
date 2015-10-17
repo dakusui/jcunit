@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.fsm.param;
+package com.github.dakusui.jcunit.tests.core;
 
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.HomogeniousCombinator;

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.fsm.ut;
+package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.fsm.SUTFactory;
 import org.junit.Test;

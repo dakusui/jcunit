@@ -109,7 +109,7 @@ public class Checks {
    */
   public static void checkplugin(boolean cond, String msg, Object... args) {
     if (!cond) {
-      throw new InvalidPluginException(composeMessage(msg, args), null);
+      throw new InvalidPluginException(composeMessage(msg, args));
     }
   }
 

@@ -31,12 +31,8 @@ public class ForSimpleTupleGeneratorTest {
       }
     }
     @Before
-    public void setSilent() {
-      UTUtils.setSilent();
-    }
-    @After
-    public void setVerbose() {
-      UTUtils.setVerbose();
+    public void configureStdIOs() {
+      UTUtils.configureStdIOs();
     }
 
     @SuppressWarnings("unused")

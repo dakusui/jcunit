@@ -51,7 +51,7 @@ public class QuadraticEquationSolverTest3 {
 
   @Test
   @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
-  public void whenSolveEquation$thenSolved() {
+  public void solveEquation$thenSolved() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

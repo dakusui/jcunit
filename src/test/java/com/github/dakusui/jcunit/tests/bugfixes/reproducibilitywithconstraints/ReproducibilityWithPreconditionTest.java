@@ -18,13 +18,8 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JCUnit.class)
 public class ReproducibilityWithPreconditionTest {
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Rule

@@ -49,7 +49,7 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(),
         ipo.getRemainders());
@@ -69,7 +69,7 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(),
         ipo.getRemainders());

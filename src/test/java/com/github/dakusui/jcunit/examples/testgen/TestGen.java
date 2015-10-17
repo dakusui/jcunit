@@ -26,13 +26,8 @@ public class TestGen {
   public String browser;
 
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Test
