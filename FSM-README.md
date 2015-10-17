@@ -1538,6 +1538,13 @@ Thus, we are able to test possible combinations with a reasonably good coverage 
  Step. 2, ...
  with relatively small number of test cases since you can use pairwise/t-wise technique
  as its test suite generation method. [14]
+* **Handle a history of inputs to FSMs**: When we want to test output of FSM, we 
+ sometimes want to build an expectation from a history of inputs.
+ E.g., Suppose we want to test a StringBuilder, internal state is I only, but the output 
+ of build (toString()) is determined by the inputs by the time the method is called (a history).
+ Right now documentation is not sufficient. ```FSMParamTest.java``` is a usage example
+ of this feature.   
+
 ### Fixed bugs
 * **Story objects are not refreshed**: Due to this issue, nested FSMs might not be 
   tested when there is more than one test method in a test class.[15]
@@ -1580,7 +1587,8 @@ Thus, we are able to test possible combinations with a reasonably good coverage 
 * [13] "Issue-12:(FSM)Support overloading methods with the same number of arguments" (done) 
 * [14] "Issue-13:(FSM)Multi-threading support"
 * [15] "Issue-14:(FSM)Ensure FSMUtils.resetStories is called before each test method is called every time"
-* [16] "(t.b.d.):(FSM)Support AETG tuple generation algorithm"
+* [16] "Issue-17:(FSM)Support AETG tuple generation algorithm"
+* [17] "Issue-18:(FSM)Handle a history of inputs to FSMs" 
 
 [0]: http://en.wikipedia.org/wiki/Model-based_testing
 [1]: http://en.wikipedia.org/wiki/Mealy_machine
@@ -1598,4 +1606,5 @@ Thus, we are able to test possible combinations with a reasonably good coverage 
 [13]: https://github.com/dakusui/jcunit/issues/12
 [14]: https://github.com/dakusui/jcunit/issues/13
 [15]: https://github.com/dakusui/jcunit/issues/14
-[16]: https://github.com/dakusui/jcunit/issues/(t.b.d.)
+[16]: https://github.com/dakusui/jcunit/issues/17
+[17]: https://github.com/dakusui/jcunit/issues/18
