@@ -43,7 +43,7 @@ Please add it to your project's pom.xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.5.2</version>
+      <version>0.5.5</version>
     </dependency>
     
 ```
@@ -499,6 +499,11 @@ For more examples, see
 * [Examples](https://github.com/dakusui/jcunit/tree/develop/src/test/java/com/github/dakusui/jcunit/examples/quadraticequation)
 
 
+# Refefences
+* [1] "Pairwise Testing", A website for pairwise technique
+* [2] "PICT", A most known powerful pairwise tool by microsoft, which is now open source.
+[1] http://www.pairwise.org/
+[2] https://github.com/microsoft/pict
 
 # Copyright and license #
 

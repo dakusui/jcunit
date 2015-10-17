@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.constraint;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
 import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -18,11 +17,12 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
   /**
    * Returns {@code true} if the given tuple doesn't violate any known constraints.
    * In case tuple doesn't have sufficient attribute values to be evaluated,
-   * a {@code SymbolNotFoundException} will be thrown.
-   * Otherwise, {@code false} will be returned.
+   * a {@code SymbolNotFoundException} should be thrown.
+   * Otherwise, {@code false} should be returned.
    *
    * @param tuple A tuple to be evaluated.
-   * @return {@code true} - The tuple doesn't violate constraints / {@code false} - otherwise.
+   * @return {@code true} - The tuple doesn't violate any constraints managed by this object /
+   * {@code false} - The tuple DOES violate a constraint.
    * @throws com.github.dakusui.jcunit.exceptions.UndefinedSymbol Failed to evaluate the tuple for insufficient attribute(s).
    */
   boolean check(Tuple tuple) throws UndefinedSymbol;
@@ -39,7 +39,7 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
 
   List<Tuple> getViolations();
 
-  public static class Builder {
+  class Builder {
     private Class<? extends ConstraintManager> constraintManagerClass;
     private Param[]                            parameters;
     private Factors                            factors;

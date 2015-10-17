@@ -4,9 +4,7 @@ target/
 /.classpath
 /.djunitplugin
 /jcoverage.ser
-/.jcunit
 /.idea
-/jcunit.iml
-/recordedField
+/*.iml
 .DS_Store
 
