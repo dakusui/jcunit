@@ -1,12 +1,16 @@
 package com.github.dakusui.jcunit.tests.core;
 
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.exceptions.SavedObjectBrokenException;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -58,5 +62,29 @@ public class TupleUtilsTest {
     TupleUtils.save(tuple1, baos);
     Tuple tuple2 = TupleUtils.load(new ByteArrayInputStream(baos.toByteArray()));
     assertEquals(tuple1, tuple2);
+  }
+
+
+  @Test(expected = SavedObjectBrokenException.class)
+  public void loadBrokenTupleTest() {
+    TupleUtils.load(new ByteArrayInputStream(new byte[]{}));
+  }
+
+  @Test(expected = SavedObjectBrokenException.class)
+  public void loadInvalieTupleTest() {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    Utils.save("Hello, world", baos);
+    TupleUtils.load(new ByteArrayInputStream(baos.toByteArray()));
+  }
+
+  @Test
+  public void toStringTest() {
+    Tuple tuple1 = new Tuple.Builder().put("Hello1", "World1").build();
+    Tuple tuple2 = new Tuple.Builder().put("Hello2", "World2").build();
+    List<Tuple> tuples = new LinkedList<Tuple>();
+    tuples.add(tuple1);
+    tuples.add(tuple2);
+
+    assertEquals("[{\"Hello1\":\"World1\"},{\"Hello2\":\"World2\"}]", TupleUtils.toString(tuples));
   }
 }
