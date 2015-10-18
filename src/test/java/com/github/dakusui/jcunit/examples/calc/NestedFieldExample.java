@@ -5,12 +5,33 @@ import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
 import com.github.dakusui.jcunit.core.factor.TupleLevelsProvider;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.ututils.Metatest;
+import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
-public class JCUnitExample {
+public class NestedFieldExample extends Metatest {
+  public NestedFieldExample() {
+    super(
+        31, // tests,
+        0,  // failed
+        0   // ignored
+    );
+  }
+
+  public static class Struct {
+    @FactorField(intLevels = { 123, 456 })
+    public int    a;
+    @FactorField(stringLevels = { "A", "B", "C" })
+    public String b;
+
+    public String toString() {
+      return a + ";" + b;
+    }
+  }
+
   @Rule
   public JCUnitDesc testDesc = new JCUnitDesc();
 
@@ -42,24 +63,18 @@ public class JCUnitExample {
   public void test() throws Exception {
     Calc calc = new Calc();
     String result = "(N/A)";
-    Exception e = null;
     try {
       result = Integer.toString(calc.calc(this.op, f1, (int) f2));
-    } catch (Exception ee) {
-      e = ee;
-    }
-    System.out.println(testDesc.getTestName());
-
-    System.out.println(
-        String.format(
-            "f1=%d, op=%s, f2=%d = %s ; struct = (%s)",
-            f1,
-            op,
-            f2,
-            result,
-            struct));
-    if (e != null) {
-      throw e;
+    } finally {
+      UTUtils.stdout().println(
+          Utils.format(
+              "testname=%s: f1=%d, op=%s, f2=%d = %s ; struct = (%s)",
+              this.testDesc.getTestName(),
+              f1,
+              op,
+              f2,
+              result,
+              struct));
     }
   }
 }

@@ -9,6 +9,39 @@ About what combinatorial testings are, articles below are useful as a starting p
 Very roughly to say, it's a technique to generate test cases with good 'coverage' 
 without making the number of test cases explode.
 
+Suppose that we have a software product that can be run on various platforms, under
+various application/web servers, with various DBMSs, etc. Probably, we can describe
+this situation as following.
+
+|Factor            |Levels                                   |
+|:----------------:|:---------------------------------------:|
+|Platform          |Linux, MacOSX, Windows                   |
+|Java              |JavaSE7, JavaSE8, OpenJDK7               |
+|Browser           |Safari, Firefox, Chrome, InternetExplorer|
+|DBMS              |PostgreSQL, MySQL, SQLServer             |
+|Application server|Jetty, Tomcat                            |
+|Web server        |Apache HTTP server, IIS                  |
+
+In total 3 * 3 * 4 * 3 * 2 * 2 = 432 test cases will be necessary to cover all the
+possible patterns.
+In this example, we only have 6 paramters (factors) in this domain, fortunately.
+But in real life, engineers don't get surprised even if there are more than one
+hundred parameters in a system. In other words, the number of all the possible 
+patterns explodes very quickly.
+
+But if we give up to cover all the possible patterns, but try to cover all the possible
+value pairs, things might be a bit different.
+That is, if we ensure to cover "Linux + Jetty", "Jetty + Java SE8", etc (all the value pairs),
+ but we do not try to cover "Linux + Jetty + Java SE8", we can reduce the size of
+ test suite dramatically.
+
+If you run this example,
+
+* [ConfigExample](/src/main/java/com/github/dakusui/jcunit/examples/confg/ConfigExample.java)
+
+you will notice that only 17 test cases can cover all possible value pairs.
+17 vs 432 sounds impressive, isn't it?
+
 # Installation
 ## Maven coordinate
 First of all, you will need to link JCUnit to your project.
@@ -35,7 +68,7 @@ You can build ```combinatoradix``` by getting the source code from github.
     ...
     $ cd combinatoradix
     ...
-    $ mvn package
+    $ mvn install
     ...
     $
 ```
@@ -43,6 +76,18 @@ You can build ```combinatoradix``` by getting the source code from github.
 You will find a compiled jar file ```jcunit-{X.Y.Z}-SNAPSHOT.jar``` under
  ```target/``` directory. Place the file somewhere handy and include it in your classpath.
  
+To use the jar file created by this procedure, include following dependency in your pom.xml
+
+```xml
+
+    <dependency>
+      <groupId>com.github.dakusui</groupId>
+      <artifactId>jcunit</artifactId>
+      <version>0.5.6-SNAPSHOT</version>
+    </dependency>
+    
+```
+
 # First test with JCUnit
 Below is JCUnit's most basic example 'QuadraticEquationSolver.java'.
 Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit will 
@@ -150,6 +195,9 @@ QuadraticEquationSolverTest1 is a test class for QuadraticEquationSolver class.
 If you run this test class, JCUnit generates about fifty test cases and run them.
 By default, it generates the test cases by using 'all-pairs' technique.
 
+# How it works and why you want to use JCUnit
+(t.b.d.)
+
 # Features, tips, and examples
 ## FSM support feature
 FSM support of JCUnit (FSM/JCUnit) is a feature that allows you to model your software as a finite state machine, and JCUnit generates and executes a test suite for it.
@@ -186,6 +234,11 @@ Also how you can customize how test cases should be generated, e.g., how to conf
 * **[session5](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session5/QuadraticEquationSolverTest5.java)**: How to implement a constraint manager (part - 1). 
 * **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: How to implement a constraint manager (part - 2). Defining negative tests.
 
+### Reusing generated test suite
+(t.b.d.)
+
+### Nested factors
+(t.b.d.)
 
 # Refefences
 * [1] "Pairwise Testing", A website for pairwise technique

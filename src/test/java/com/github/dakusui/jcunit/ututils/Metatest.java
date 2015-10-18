@@ -10,7 +10,7 @@ public abstract class Metatest {
   public final int expectedRunCount;
   public final int expectedIgnoreCount;
 
-  protected Metatest(
+  public Metatest(
       int expectedRunCount,
       int expectedFailureCount,
       int expectedIgnoreCount) {
