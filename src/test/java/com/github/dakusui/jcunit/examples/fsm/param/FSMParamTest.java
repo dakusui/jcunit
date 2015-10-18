@@ -8,6 +8,8 @@ import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -101,6 +103,11 @@ public class FSMParamTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Sut, Spec> paramstory;
 
+  @Before
+  public void before() {
+    UTUtils.configureStdIOs();
+  }
+
   @Test
   public void test() {
     int[] ii = new int[0];
@@ -115,7 +122,7 @@ public class FSMParamTest {
             $(Integer.TYPE, 1),
             $(INT_ARRAY_TYPE, ii)
         ).addCollector(new InputHistory.Collector.Default("method")),
-        ScenarioSequence.Observer.Factory.ForSilent.INSTANCE
+        new ScenarioSequence.Observer.Factory.ForSimple(UTUtils.out)
     );
   }
 }
