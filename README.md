@@ -152,8 +152,10 @@ By default, it generates the test cases by using 'all-pairs' technique.
 # Features, tips, and examples
 ## FSM support feature
 * **[FSM support](/src/site/markdown/FSM.md)**: (t.b.d.)
+
 ## Tips
 * **[Tips](/src/site/markdown/TIPS.md)**: (t.b.d.)
+
 ## Examples
 ### Quadratic equation solver
 * **[session1](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session1/QuadraticEquationSolverTest1.java)**:
