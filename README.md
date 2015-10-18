@@ -183,8 +183,8 @@ Also how you can customize how test cases should be generated, e.g., how to conf
   The SUT, ```QuadraticEquationSolver``` is now enhanced to throw ```IllegalArgumentException``` when solutions become imaginary.
   Tests need to be enhanced to handle this new behaviour, too. ```@When``` annotation will be introduced to switch test methods
   to be executed.
-* **[session5](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session5/QuadraticEquationSolverTest5.java)**: 
-* **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: 
+* **[session5](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session5/QuadraticEquationSolverTest5.java)**: How to implement a constraint manager (part - 1). 
+* **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: How to implement a constraint manager (part - 2). Defining negative tests.
 
 
 # Refefences
