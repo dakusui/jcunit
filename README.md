@@ -76,7 +76,8 @@ You can build ```combinatoradix``` by getting the source code from github.
 You will find a compiled jar file ```jcunit-{X.Y.Z}-SNAPSHOT.jar``` under
  ```target/``` directory. Place the file somewhere handy and include it in your classpath.
  
-To use the jar file created by this procedure, include following dependency in your pom.xml
+To use the jar file created by this procedure in a maven based project, include 
+following dependency in your pom.xml
 
 ```xml
 
@@ -94,7 +95,8 @@ Just by running QuadraticEquationSolverTest.java as a usual JUnit test, JCUnit w
 automatically generate test cases based on '@FactorField' annotations.
 
 ## QuadraticEquationSolver program example
-To understand JCUnit's functions, let's test 'QuadraticEquationSolver.java' program, which solves 'quadratic equations' using a formula.
+To understand JCUnit's functions, let's test 'QuadraticEquationSolver.java' program,
+ which solves 'quadratic equations' using a formula.
 The program contains some intentional bugs and unclear specifications (or behaviors).
 The formula it uses is,
 
@@ -114,7 +116,8 @@ where {x1, x2} are the solutions of an equation,
 
 ### QuadraticEquationSolver.java (Main class, SUT)
 'QuadraticEquationSolver' is the SUT (Software under test) in this example.
-The class provides a function to solve a quadratic equation using a quadratic formula and returns the solutions.
+The class provides a function to solve a quadratic equation using a quadratic
+formula and returns the solutions.
 
 ```java
 
@@ -200,22 +203,12 @@ By default, it generates the test cases by using 'all-pairs' technique.
 
 # Features, tips, and examples
 ## FSM support feature
-FSM support of JCUnit (FSM/JCUnit) is a feature that allows you to model your software as a finite state machine, and JCUnit generates and executes a test suite for it.
+FSM support of JCUnit (FSM/JCUnit) is a feature that allows you to model your 
+software as a finite state machine, and JCUnit generates and executes a test suite 
+for it.
 The test suite generation can be done by JCUnit's tuple generators.
 
 This is really fun feature. Please try. Documentation is found [here](/src/site/markdown/FSM.md).
-
-## Tips
-When you learn pairwise technique, probably you get excited that "oh I can balance a size of test cases and coverage by this! Its idea is intuitive and looks straightforward. A test case is essentially attibutes and their values. Nice!"
-But when you start testing your software using the technique, you will almost immediately come across a lot of questions.
-
-* "A test case that uses Internet Explorer on Linux platform doesn't make sense. But this test case contributes to cover Linux platform + Apache, Apache + PostgreSQL, etc, at the same time.
-* "If expectations for test cases can be different depending on a test case's values, how can I define test methods?"
-* etc.
-
-Best practices for those problems might be found [here](/src/site/markdown/TIPS.md).
-
-Also how you can customize how test cases should be generated, e.g., how to configure possible values for a certain parameter, in case you want to use non-primitive values what you can do, etc, can be found.
 
 ## Examples
 ### Quadratic equation solver
@@ -235,10 +228,33 @@ Also how you can customize how test cases should be generated, e.g., how to conf
 * **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: How to implement a constraint manager (part - 2). Defining negative tests.
 
 ### Reusing generated test suite
-(t.b.d.)
+Generally speaking, pairwise test suite generation is a time consuming process.
+Probably a user wants to reuse a generated test suite later.
+ 
+A mechanism JCUnit has for this purpose is ```Recorder``` and ```Replayer```.
+An example for them is found [here](src/test/java/com/github/dakusui/jcunit/examples/recorderreplayer/ReplayerExample.java).
 
-### Nested factors
-(t.b.d.)
+### Nested factors (grouping factors)
+Like PICT[2], JCUnit is able to group factors and treat them as if one factor.
+An example for this feature is found [here](src/test/java/com/github/dakusui/jcunit/examples/calc/NestedFieldExample.java).
+
+## Tips
+When you learn pairwise technique, probably you get excited that "oh I can balance a 
+size of test cases and coverage by this! Nice! Its idea is intuitive and looks 
+straightforward. A test case is essentially attibutes and their values. Nice!"
+But when you start testing your software using the technique, you will come 
+across a lot of questions.
+
+* "A test case that uses Internet Explorer on Linux platform doesn't make sense. But this test case contributes to cover Linux platform + Apache, Apache + PostgreSQL, etc, at the same time.
+* "If expectations for test cases can be different depending on a test case's values, how can I define test methods?"
+* etc.
+
+Best practices for problems you encounter might be found [here](/src/site/markdown/TIPS.md).
+
+Also how you can customize how test cases should be generated, e.g., how to configure 
+possible values for a certain parameter, in case you want to use non-primitive values 
+what you can do, etc, can be found.
+
 
 # Refefences
 * [1] "Pairwise Testing", A website for pairwise technique
