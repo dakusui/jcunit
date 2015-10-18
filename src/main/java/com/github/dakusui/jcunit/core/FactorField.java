@@ -7,6 +7,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.InvocationTargetException;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -50,5 +51,80 @@ public @interface FactorField {
 
   Class<? extends LevelsProvider> levelsProvider() default DefaultLevelsProvider.class;
 
-  Param[] providerParams() default { };
+  Param[] providerParams() default {};
+
+  class DefaultValues {
+    @FactorField
+    private Object defaultValues;
+
+    boolean[] booleanLevels() {
+      return get().booleanLevels();
+    }
+
+    byte[] byteLevels() {
+      return get().byteLevels();
+    }
+
+    char[] charLevels() {
+      return get().charLevels();
+    }
+
+    short[] shortLevels() {
+      return get().shortLevels();
+    }
+
+    int[] intLevels() {
+      return get().intLevels();
+    }
+
+    long[] longLevels() {
+      return get().longLevels();
+    }
+
+    float[] floatLevels() {
+      return get().floatLevels();
+    }
+
+    double[] doubleLevels() {
+      return get().doubleLevels();
+    }
+
+    String[] stringLevels() {
+      return get().stringLevels();
+    }
+
+    <T extends Enum> T[] enumLevels(Class<T> enumClass) {
+      try {
+        return (T[]) Checks.checknotnull(enumClass).getMethod("values").invoke(null);
+      } catch (IllegalAccessException e) {
+        ///
+        // This path will never be executed.
+        Checks.rethrow(e);
+      } catch (InvocationTargetException e) {
+        ///
+        // This path will never be executed.
+        Checks.rethrow(e);
+      } catch (NoSuchMethodException e) {
+        ///
+        // This path will never be executed.
+        Checks.rethrow(e);
+      }
+      ///
+      // This path will never be executed.
+      return null;
+    }
+
+    private static FactorField get() {
+      try {
+        return DefaultValues.class.getField("defaultValues").getAnnotation(FactorField.class);
+      } catch (NoSuchFieldException e) {
+        ///
+        // This path will never be executed.
+        Checks.rethrow(e);
+      }
+      ///
+      // This path will never be executed.
+      return null;
+    }
+  }
 }

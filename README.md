@@ -42,7 +42,13 @@ If you run this example,
 you will notice that only 17 test cases can cover all possible value pairs.
 17 vs 432 sounds impressive, isn't it?
 
+# Changes
+About changes from previous versions, refer to [release notes](RELEASENOTES.md).
+
 # Installation
+JCUnit requires Java SE6 or later. 
+It is tested using ```JUnit``` (4.12) and ```mockito-core``` (1.9.5).
+
 ## Maven coordinate
 First of all, you will need to link JCUnit to your project.
 Below is a pom.xml fragment to describe jcunit's dependency.
@@ -235,7 +241,7 @@ A mechanism JCUnit has for this purpose is ```Recorder``` and ```Replayer```.
 An example for them is found [here](src/test/java/com/github/dakusui/jcunit/examples/recorderreplayer/ReplayerExample.java).
 
 ### Nested factors (grouping factors)
-Like PICT[2], JCUnit is able to group factors and treat them as if one factor.
+Like [PICT][2], JCUnit is able to group factors and treat them as if one factor.
 An example for this feature is found [here](src/test/java/com/github/dakusui/jcunit/examples/calc/NestedFieldExample.java).
 
 ## Tips
