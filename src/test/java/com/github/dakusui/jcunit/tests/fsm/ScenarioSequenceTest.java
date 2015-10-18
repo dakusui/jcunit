@@ -1,6 +1,8 @@
-package com.github.dakusui.jcunit.fsm;
+package com.github.dakusui.jcunit.tests.fsm;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.fsm.ScenarioSequence;
+import com.github.dakusui.jcunit.fsm.Story;
 import org.junit.Ignore;
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.fsm.simple;
+package com.github.dakusui.jcunit.tests.fsm.simple;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
@@ -8,6 +8,8 @@ import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
+import com.github.dakusui.jcunit.tests.fsm.simple.SimpleFSM;
+import com.github.dakusui.jcunit.tests.fsm.simple.SimpleFSMTest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;

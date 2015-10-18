@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.fsm.simple;
+package com.github.dakusui.jcunit.tests.fsm.simple;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;

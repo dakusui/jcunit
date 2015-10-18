@@ -3,9 +3,6 @@ package com.github.dakusui.jcunit.core;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderFactory;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Description;
-import org.hamcrest.StringDescription;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
@@ -26,6 +23,9 @@ import java.util.*;
  * (at least as much as possible, I want to make it so).
  */
 public class Utils {
+  private Utils() {
+  }
+
   public static String format(String format, Object... args) {
     return String.format(
         Checks.checknotnull(format),
@@ -35,7 +35,7 @@ public class Utils {
             if (in == null)
               return null;
             try {
-              Class<? extends Object> toStringDeclaringClass = in.getClass().getMethod("toString").getDeclaringClass();
+              Class<?> toStringDeclaringClass = in.getClass().getMethod("toString").getDeclaringClass();
               if (Object.class.equals(toStringDeclaringClass)) {
                 return getSimpleClassName(in) + "@" + System.identityHashCode(in);
               }
@@ -48,7 +48,8 @@ public class Utils {
   }
 
   public static String getSimpleClassName(Object obj) {
-    String className = "".equals(Checks.checknotnull(obj).getClass().getSimpleName())
+    String className;
+    className = "".equals(Checks.checknotnull(obj).getClass().getSimpleName())
         ? "(anonymous)"
         : obj.getClass().getSimpleName();
     return className;
