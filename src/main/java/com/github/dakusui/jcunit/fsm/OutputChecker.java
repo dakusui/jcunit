@@ -6,10 +6,6 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 /**
  * An interface that models checking process for an output of a method
  * (a returned value/thrown exception).
@@ -145,7 +141,7 @@ public interface OutputChecker {
         final Story.Context<SUT, T> context,
         Output output,
         ScenarioSequence.Observer observer) {
-      AccessedSymbols accessedSymbols = new ForInputHistory.AccessedSymbols(context.inputHistory);
+      InputHistory.Accessed accessedSymbols = new InputHistory.Accessed(context.inputHistory);
       String expectation;
       boolean passed;
       try {
@@ -167,14 +163,14 @@ public interface OutputChecker {
       );
     }
 
-    private String describeExpectation(AccessedSymbols accessedSymbols, Matcher matcher) {
+    private String describeExpectation(InputHistory.Accessed accessed, Matcher matcher) {
       String expectation;
       expectation = this.type.describeExpectation(
           Utils.format(
               "%s (%s#computeExpectation(%s))",
               matcher,
               Utils.getSimpleClassName(this),
-              Utils.join(",", accessedSymbols.accessedSymbols.toArray())
+              Utils.join(",", accessed.symbols.toArray())
           )
       );
       return expectation;
@@ -194,84 +190,5 @@ public interface OutputChecker {
       );
     }
 
-    class AccessedSymbols implements InputHistory {
-      private final InputHistory base;
-      private final List<String> accessedSymbols;
-
-      AccessedSymbols(InputHistory base) {
-        this.base = Checks.checknotnull(base);
-        this.accessedSymbols = new ArrayList<String>(base.size());
-      }
-
-      @Override
-      public <T> void add(String name, T data) {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean has(String name) {
-        accessedSymbols.add(name);
-        return base.has(name);
-      }
-
-      @Override
-      public <E> Record<E> get(String name) throws UndefinedSymbol {
-        accessedSymbols.add(name);
-        return base.get(name);
-      }
-
-      @Override
-      public Iterable<String> recordNames() {
-        final Iterator<String> base = AccessedSymbols.this.base.recordNames().iterator();
-        return new Iterable<String>() {
-          @Override
-          public Iterator<String> iterator() {
-            return new Iterator<String>() {
-              @Override
-              public boolean hasNext() {
-                return base.hasNext();
-              }
-
-              @Override
-              public String next() {
-                String ret = base.next();
-                accessedSymbols.add(ret);
-                return ret;
-              }
-
-              @Override
-              public void remove() {
-                throw new UnsupportedOperationException();
-              }
-            };
-          }
-        };
-      }
-
-      @Override
-      public int size() {
-        return base.size();
-      }
-
-      @Override
-      public String toString() {
-        boolean firstTime = true;
-        StringBuilder b = new StringBuilder("{");
-        for (String each : this.accessedSymbols) {
-          if (!firstTime)
-            b.append(",");
-          firstTime = false;
-          b.append(each);
-          b.append(":");
-          try {
-            b.append(this.base.get(each));
-          } catch (UndefinedSymbol e) {
-            b.append("(unknown)");
-          }
-        }
-        b.append("}");
-        return b.toString();
-      }
-    }
   }
 }

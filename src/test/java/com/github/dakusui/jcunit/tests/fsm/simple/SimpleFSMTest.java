@@ -6,25 +6,28 @@ import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
+import com.github.dakusui.jcunit.ututils.Metatest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertEquals;
-
 public class SimpleFSMTest {
-  public abstract static class Base {
-    public int failureCount = 0;
-    public int runCount     = 0;
-    public int ignoreCount  = 0;
+  @Test
+  public void testValueReturningActionIsPerformedExpectedly() {
+    new ValueReturningActionIsPerformedExpectedly().runTests();
+  }
 
-    public void runTests() {
-      Result result = JUnitCore.runClasses(this.getClass());
-      assertEquals(failureCount, result.getFailureCount());
-      assertEquals(runCount, result.getRunCount());
-      assertEquals(ignoreCount, result.getIgnoreCount());
+  @Test
+  public void testExceptionThrowingActionIsPerformedExpectedly() {
+    new ExceptionThrowingActionIsPerformedExpectedly().runTests();
+  }
+
+  public abstract static class Base extends Metatest {
+    public Base(
+        int expectedRunCount,
+        int expectedFailureCount,
+        int expectedIgnoreCount) {
+      super(expectedRunCount, expectedFailureCount, expectedIgnoreCount);
     }
 
     @Test
@@ -37,6 +40,10 @@ public class SimpleFSMTest {
   public static class ValueReturningActionIsPerformedExpectedly extends Base {
     @FactorField(levelsProvider = FSMLevelsProvider.class)
     public Story<SimpleFSM, Spec> brokenFSM;
+
+    public ValueReturningActionIsPerformedExpectedly() {
+      super(1, 0, 0);
+    }
 
     public enum Spec implements FSMSpec<SimpleFSM> {
       @StateSpec I;
@@ -57,6 +64,10 @@ public class SimpleFSMTest {
   public static class ExceptionThrowingActionIsPerformedExpectedly extends Base {
     @FactorField(levelsProvider = FSMLevelsProvider.class)
     public Story<SimpleFSM, Spec> brokenFSM;
+
+    public ExceptionThrowingActionIsPerformedExpectedly() {
+      super(1, 0, 0);
+    }
 
     public enum Spec implements FSMSpec<SimpleFSM> {
       @StateSpec I;

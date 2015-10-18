@@ -62,26 +62,26 @@ public class ReproducibilityTest extends IPO2Test {
     }
     boolean allPassed = true;
     for (int i = 0; i < n; i++) {
-      UTUtils.out.print(String.format("%4d ", resultsList.get(i).size()));
+      UTUtils.stdout().print(String.format("%4d ", resultsList.get(i).size()));
       for (int j = 0; j < i; j++) {
         if (!resultsList.get(i).equals(resultsList.get(0))) {
-          UTUtils.out.print("NG ");
+          UTUtils.stdout().print("NG ");
           allPassed = false;
         } else {
-          UTUtils.out.print("OK ");
+          UTUtils.stdout().print("OK ");
         }
       }
-      UTUtils.out.println();
+      UTUtils.stdout().println();
     }
     assertTrue(allPassed);
-    UTUtils.out.println(">>" + resultsList.get(0) + "<<");
+    UTUtils.stdout().println(">>" + resultsList.get(0) + "<<");
   }
 
   @Test
   public void makeSureIPO2CreatesSameMatrixOnDifferentMachines() {
     String expected = "[{A=A0, B=B0, C=C3, D=D0, E=E0, F=F1, G=G0, H=H1, I=I2, J=J2}, {A=A0, B=B1, C=C2, D=D1, E=E2, F=F0, G=G1, H=H0, I=I1, J=J1}, {A=A0, B=B2, C=C4, D=D3, E=E1, F=F1, G=G1, H=H0, I=I3, J=J4}, {A=A0, B=B3, C=C0, D=D2, E=E3, F=F0, G=G0, H=H0, I=I0, J=J0}, {A=A0, B=B4, C=C1, D=D1, E=E1, F=F0, G=G0, H=H1, I=I4, J=J3}, {A=A1, B=B0, C=C4, D=D1, E=E3, F=F1, G=G1, H=H1, I=I0, J=J3}, {A=A1, B=B1, C=C0, D=D0, E=E1, F=F1, G=G1, H=H1, I=I1, J=J0}, {A=A1, B=B2, C=C3, D=D2, E=E2, F=F0, G=G0, H=H1, I=I3, J=J1}, {A=A1, B=B3, C=C2, D=D3, E=E0, F=F0, G=G0, H=H1, I=I4, J=J4}, {A=A1, B=B4, C=C2, D=D2, E=E0, F=F1, G=G1, H=H0, I=I2, J=J2}, {A=A1, B=B2, C=C1, D=D0, E=E3, F=F1, G=G1, H=H0, I=I4, J=J1}, {A=A0, B=B0, C=C0, D=D3, E=E2, F=F1, G=G0, H=H0, I=I4, J=J3}, {A=A0, B=B0, C=C1, D=D2, E=E1, F=F0, G=G1, H=H1, I=I2, J=J4}, {A=A1, B=B0, C=C2, D=D0, E=E2, F=F0, G=G0, H=H1, I=I3, J=J0}, {A=A1, B=B1, C=C1, D=D3, E=E0, F=F0, G=G0, H=H0, I=I0, J=J2}, {A=A1, B=B1, C=C3, D=D3, E=E3, F=F1, G=G1, H=H0, I=I1, J=J4}, {A=A1, B=B1, C=C4, D=D2, E=E0, F=F0, G=G0, H=H0, I=I1, J=J3}, {A=A1, B=B2, C=C0, D=D1, E=E0, F=F1, G=G0, H=H1, I=I3, J=J2}, {A=A1, B=B2, C=C1, D=D3, E=E2, F=F1, G=G1, H=H0, I=I2, J=J0}, {A=A1, B=B2, C=C2, D=D2, E=E3, F=F1, G=G0, H=H0, I=I0, J=J3}, {A=A1, B=B3, C=C1, D=D1, E=E2, F=F1, G=G1, H=H0, I=I3, J=J3}, {A=A1, B=B3, C=C3, D=D0, E=E1, F=F1, G=G1, H=H0, I=I0, J=J1}, {A=A0, B=B3, C=C4, D=D0, E=E2, F=F0, G=G1, H=H1, I=I2, J=J2}, {A=A1, B=B4, C=C0, D=D3, E=E2, F=F1, G=G1, H=H1, I=I0, J=J4}, {A=A0, B=B4, C=C3, D=D0, E=E3, F=F1, G=G1, H=H0, I=I3, J=J3}, {A=A1, B=B4, C=C4, D=D1, E=E3, F=F0, G=G1, H=H0, I=I2, J=J0}, {A=A0, B=B4, C=C3, D=D1, E=E0, F=F0, G=G1, H=H0, I=I1, J=J0}, {A=A0, B=B4, C=C2, D=D0, E=E1, F=F1, G=G1, H=H1, I=I2, J=J1}, {A=A0, B=B0, C=C0, D=D2, E=E0, F=F1, G=G0, H=H1, I=I1, J=J1}, {A=A0, B=B1, C=C4, D=D1, E=E1, F=F1, G=G0, H=H1, I=I2, J=J2}, {A=A0, B=B1, C=C1, D=D1, E=E1, F=F0, G=G1, H=H0, I=I3, J=J4}, {A=A1, B=B1, C=C4, D=D3, E=E1, F=F0, G=G1, H=H0, I=I4, J=J1}, {A=A0, B=B2, C=C2, D=D2, E=E2, F=F0, G=G1, H=H1, I=I1, J=J2}, {A=A1, B=B3, C=C2, D=D1, E=E3, F=F1, G=G0, H=H1, I=I1, J=J2}, {A=A0, B=B2, C=C0, D=D2, E=E3, F=F0, G=G0, H=H1, I=I2, J=J3}, {A=A1, B=B0, C=C1, D=D1, E=E0, F=F1, G=G1, H=H0, I=I1, J=J2}, {A=A1, B=B0, C=C3, D=D2, E=E0, F=F0, G=G0, H=H0, I=I4, J=J0}, {A=A1, B=B4, C=C4, D=D1, E=E3, F=F0, G=G1, H=H1, I=I4, J=J2}, {A=A1, B=B4, C=C3, D=D2, E=E1, F=F1, G=G0, H=H1, I=I4, J=J1}, {A=A1, B=B2, C=C1, D=D0, E=E0, F=F0, G=G1, H=H1, I=I2, J=J4}]";
     List<Tuple> testCases = generateTestCases();
-    UTUtils.out.println(testCases.toString());
+    UTUtils.stdout().println(testCases.toString());
     assertEquals(expected, testCases.toString());
   }
 }

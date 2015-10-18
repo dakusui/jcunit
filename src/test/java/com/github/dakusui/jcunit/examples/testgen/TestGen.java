@@ -32,6 +32,6 @@ public class TestGen {
 
   @Test
   public void printTestCase() {
-    UTUtils.out.println(TupleUtils.toString(TestCaseUtils.toTestCase(this)));
+    UTUtils.stdout().println(TupleUtils.toString(TestCaseUtils.toTestCase(this)));
   }
 }

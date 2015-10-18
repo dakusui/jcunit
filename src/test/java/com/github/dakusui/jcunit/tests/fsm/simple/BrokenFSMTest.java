@@ -2,14 +2,12 @@ package com.github.dakusui.jcunit.tests.fsm.simple;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.Expectation;
+import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
-import com.github.dakusui.jcunit.tests.fsm.simple.SimpleFSM;
-import com.github.dakusui.jcunit.tests.fsm.simple.SimpleFSMTest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,9 +52,17 @@ public class BrokenFSMTest {
 
   public static class Base extends SimpleFSMTest.Base {
     public Base() {
-      failureCount = 1;
-      runCount = 1;
-      ignoreCount = 0;
+      this(1, 1, 0);
+      // expectedFailureCount = 1;
+      // expectedRunCount = 1;
+      // expectedIgnoreCount = 0;
+    }
+
+    public Base(
+        int expectedRunCount,
+        int expectedFailureCount,
+        int expectedIgnoreCount) {
+      super(expectedRunCount, expectedFailureCount, expectedIgnoreCount);
     }
   }
 
@@ -168,9 +174,10 @@ public class BrokenFSMTest {
   public static class StateAfterValueReturningActionShouldBeJButNot extends Base {
 
     public StateAfterValueReturningActionShouldBeJButNot() {
-      failureCount = 2;
-      runCount = 2;
-      ignoreCount = 0;
+      // expectedRunCount = 2;
+      // expectedFailureCount = 2;
+      // expectedIgnoreCount = 0;
+      super(2, 2, 0);
     }
 
     @FactorField(levelsProvider = FSMLevelsProvider.class)
@@ -201,9 +208,10 @@ public class BrokenFSMTest {
   public static class StateAfterExceptionThrowingActionShouldBeJButNot extends Base {
 
     public StateAfterExceptionThrowingActionShouldBeJButNot() {
-      failureCount = 2;
-      runCount = 2;
-      ignoreCount = 0;
+      // expectedRunCount = 2;
+      // expectedFailureCount = 2;
+      // expectedIgnoreCount = 0;
+      super(2, 2, 0);
     }
 
     @FactorField(levelsProvider = FSMLevelsProvider.class)

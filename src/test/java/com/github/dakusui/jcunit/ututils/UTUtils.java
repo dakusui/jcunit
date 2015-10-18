@@ -22,7 +22,7 @@ public class UTUtils {
     public void write(int b) throws IOException {
     }
   });
-  public static       PrintStream out               = System.out;
+  private static       PrintStream out               = System.out;
 
   private UTUtils() {
   }
@@ -41,6 +41,10 @@ public class UTUtils {
 
   public synchronized static void setVerbose() {
     out = System.out;
+  }
+
+  public static PrintStream stdout() {
+    return out;
   }
 
   @SuppressWarnings("unused")

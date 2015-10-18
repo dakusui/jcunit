@@ -80,7 +80,7 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
       List<Tuple> result, ConstraintManager constraintManager) {
     // Since in this test class there is no implicit constraint, we
     // can simply verify them.
-    UTUtils.out.println(result);
+    UTUtils.stdout().println(result);
     for (Tuple tuple : remainders) {
       assertThat(String.format("'%s' is contained in result set.", tuple),
           find(tuple, result), is(false));

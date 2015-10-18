@@ -32,7 +32,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      UTUtils.out.println(String.format("(f, f1, f2)=(%d, %d, %d)", f, struct.f1, struct.f2));
+      UTUtils.stdout().println(String.format("(f, f1, f2)=(%d, %d, %d)", f, struct.f1, struct.f2));
     }
   }
 
@@ -50,7 +50,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      UTUtils.out.println(String.format("(f1, f2)=(%d, %d)", struct.f1, struct.f2));
+      UTUtils.stdout().println(String.format("(f1, f2)=(%d, %d)", struct.f1, struct.f2));
     }
   }
 
@@ -99,7 +99,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      UTUtils.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
+      UTUtils.stdout().println(String.format("(f1, f2)=(%d, %d)", f1, f2));
     }
   }
 
@@ -124,7 +124,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      UTUtils.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
+      UTUtils.stdout().println(String.format("(f1, f2)=(%d, %d)", f1, f2));
     }
   }
 

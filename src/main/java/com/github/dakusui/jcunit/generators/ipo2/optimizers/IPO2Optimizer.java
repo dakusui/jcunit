@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuples;
 import java.util.List;
 
 public interface IPO2Optimizer {
-  public Tuple fillInMissingFactors(Tuple tuple,
+  Tuple fillInMissingFactors(Tuple tuple,
       Tuples leftTuples,
       ConstraintManager constraintManager,
       Factors factors);
@@ -20,10 +20,10 @@ public interface IPO2Optimizer {
    *
    * @param found A list of cloned tuples. (candidates)
    */
-  public Tuple chooseBestTuple(
+  Tuple chooseBestTuple(
       List<Tuple> found, Tuples leftTuples,
       String factorName, Object level);
 
-  public Object chooseBestValue(String factorName, Object[] factorLevels,
+  Object chooseBestValue(String factorName, Object[] factorLevels,
       Tuple tuple, Tuples leftTuples);
 }

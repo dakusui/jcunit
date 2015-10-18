@@ -239,6 +239,28 @@ public class Utils {
     return v.equals(o);
   }
 
+  public static boolean deepEq(Object a, Object b) {
+    if (a == null || b == null) {
+      return b == a;
+    }
+    if (!a.getClass().isArray() || !b.getClass().isArray()) {
+      return a.equals(b);
+    }
+
+    int lena = Array.getLength(a);
+    if (lena != Array.getLength(b)) {
+      return false;
+    }
+    if (!a.getClass().equals(b.getClass())) {
+      return false;
+    }
+    for (int i = 0; i < lena; i++) {
+      if (!deepEq(Array.get(a, i), Array.get(b, i)))
+        return false;
+    }
+    return true;
+  }
+
   /**
    * Creates a file using {@code java.io.File#createNewFile()} method.
    *
@@ -456,25 +478,37 @@ public class Utils {
 
   public static ValidationResult validateFactorField(Field f) {
     Checks.checknotnull(f);
-    FactorField ann = f.getAnnotation(FactorField.class);
-    Checks.checknotnull(ann);
     List<String> errors = new LinkedList<String>();
-    LevelsProvider<?> levelsProvider = LevelsProviderFactory.INSTANCE.createLevelsProvider(
-        f,
-        ann,
-        errors
-    );
-    errors.addAll(levelsProvider.getErrorsOnInitialization());
     ValidationResult ret;
-    if (errors.isEmpty()) {
+    FactorField ann = f.getAnnotation(FactorField.class);
+    LevelsProvider<?> levelsProvider = null;
+    if (ann == null) {
+      errors.add(Utils.format(
+          "%s annotation is present at %s#%s",
+          FactorField.class,
+          f.getType(),
+          f.getName()));
+    } else {
+      levelsProvider = LevelsProviderFactory.INSTANCE.createLevelsProvider(
+          f,
+          ann,
+          errors
+      );
+      errors.addAll(levelsProvider.getErrorsOnInitialization());
+    }
+    if (levelsProvider == null) {
+      errors.add("LevelsProvider couldn't be created");
+    } else {
       levelsProvider.setAnnotation(ann);
       levelsProvider.setTargetField(f);
       levelsProvider.init(ann.providerParams());
-      ret = new ValidationResult(true, levelsProvider, null);
-    } else {
-      ret = new ValidationResult(false, null,
-          join("; ", errors.toArray()));
     }
+
+    ret = new ValidationResult(
+        errors.isEmpty(),
+        levelsProvider,
+        join("; ", errors.toArray()
+        ));
     return ret;
   }
 

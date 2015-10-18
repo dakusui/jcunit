@@ -98,14 +98,14 @@ public class NestedFSMTest {
 
   @Test
   public void test1() {
-    ScenarioSequence.Observer.Factory observerFactory =  ScenarioSequence.Observer.Factory.ForSimple.INSTANCE;
+    ScenarioSequence.Observer.Factory observerFactory =  ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
     FSMUtils.performStory(this, "primary", sut, observerFactory);
   }
 
   @Test
   public void test2() {
-    ScenarioSequence.Observer.Factory observerFactory =  new ScenarioSequence.Observer.Factory.ForSimple(UTUtils.out);
+    ScenarioSequence.Observer.Factory observerFactory =  new ScenarioSequence.Observer.Factory.ForSimple(UTUtils.stdout());
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
     FSMUtils.performStory(this, "primary", sut, observerFactory);
     if (!this.nested.isPerformed()) {

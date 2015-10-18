@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.generators;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePluginBase;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -140,7 +141,7 @@ public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
     int ret = levels.indexOf(l);
     if (ret < 0) {
       for (int i = 0; i < levels.size(); i++) {
-        if (arrayEquals(l, levels.get(i))) {
+        if (Utils.deepEq(l, levels.get(i))) {
           ret = i;
           break;
         }
@@ -154,24 +155,6 @@ public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
         levels
     );
     return ret;
-  }
-
-  private boolean arrayEquals(Object a, Object b) {
-    if (a == null || b == null) {
-      return b == a;
-    }
-    if (!a.getClass().isArray() || !b.getClass().isArray()) {
-      return a.equals(b);
-    }
-
-    int lena = Array.getLength(a);
-    if (lena != Array.getLength(b)) {
-      return false;
-    }
-    for (int i = 0; i < lena; i++) {
-      arrayEquals(Array.get(a, i), Array.get(b, i));
-    }
-    return true;
   }
 
   /**

@@ -10,7 +10,6 @@ import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
 import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,9 +21,7 @@ import org.junit.runner.notification.Failure;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ReplayerTest {
   @Before
@@ -32,6 +29,7 @@ public class ReplayerTest {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
   }
+
   @Before
   public void configureStdIOs() {
     UTUtils.configureStdIOs();
@@ -60,10 +58,11 @@ public class ReplayerTest {
 
     @Test
     public void test() {
-      UTUtils.out.println("f1=" + f1 + ", f2=" + f2);
+      UTUtils.stdout().println("f1=" + f1 + ", f2=" + f2);
       assertTrue(f1 > f1Threshold);
     }
   }
+
   @Test
   public void givenRecorderAndReplayerSetFalse$whenRunTests$thenTestsWillBeRunWithFallbackGenerator() {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
@@ -215,16 +214,19 @@ public class ReplayerTest {
       ))
   public static class TestClass2 {
     @Rule
-    public        Recorder recorder    = new Recorder();
+    public Recorder recorder = new Recorder();
     @SuppressWarnings("unused")
     @FactorField(intLevels = { 100, 200 })
     public int f1;
     @SuppressWarnings("unused")
     @FactorField(intLevels = 300)
     public int f2;
+
     @Test
-    public void test() {}
+    public void test() {
+    }
   }
+
   @Test
   public void givenExplicitlyGeneratorClassNameAndStrengthAreSpecified$whenRunTests$thenTestsWillPass() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass2.class);
@@ -239,16 +241,19 @@ public class ReplayerTest {
       ))
   public static class TestClass3 {
     @Rule
-    public        Recorder recorder    = new Recorder();
+    public Recorder recorder = new Recorder();
     @SuppressWarnings("unused")
     @FactorField(intLevels = { 100, 200 })
     public int f1;
     @SuppressWarnings("unused")
     @FactorField(intLevels = 300)
     public int f2;
+
     @Test
-    public void test() {}
+    public void test() {
+    }
   }
+
   @Test(expected = InvalidTestException.class)
   public void givenWrongGeneratorClassNameIsSpecified$whenRunTests$thenTestsWillPass() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass3.class);
@@ -261,13 +266,14 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG")}
+          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG") }
       ))
   public static class TestClass4 {
     public abstract static class TG extends TupleGeneratorBase {
       public TG() throws IOException {
         throw new IOException("hello!!!");
       }
+
       @Override
       public Tuple getTuple(int tupleId) {
         return null;
@@ -283,21 +289,27 @@ public class ReplayerTest {
         return new ParamType[0];
       }
     }
+
     @SuppressWarnings("unused")
     public static class TG2 extends TG {
-      private TG2() throws IOException {}
+      private TG2() throws IOException {
+      }
     }
+
     @Rule
-    public        Recorder recorder    = new Recorder();
+    public Recorder recorder = new Recorder();
     @SuppressWarnings("unused")
     @FactorField(intLevels = { 100, 200 })
     public int f1;
     @SuppressWarnings("unused")
     @FactorField(intLevels = 300)
     public int f2;
+
     @Test
-    public void test() {}
+    public void test() {
+    }
   }
+
   @Test(expected = InvalidPluginException.class)
   public void givenAbstractGeneratorClassIsSpecified$whenRunTests$thenPluginExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass4.class);
@@ -310,14 +322,16 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2")}
+          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2") }
       ))
   public static class TestClass5 extends TestClass4 {
     @SuppressWarnings("unused")
     public static class TG2 extends TG {
-      private TG2() throws IOException {}
+      private TG2() throws IOException {
+      }
     }
   }
+
   @Test(expected = InvalidPluginException.class)
   public void givenGeneratorClassWhoseNoParamConstructorIsPrivateIsSpecified$whenRunTests$thenPluginExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass5.class);
@@ -330,14 +344,16 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3")}
+          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3") }
       ))
   public static class TestClass6 extends TestClass4 {
     @SuppressWarnings("unused")
     public static class TG3 extends TG {
-      public TG3() throws IOException {}
+      public TG3() throws IOException {
+      }
     }
   }
+
   @Test(expected = IOException.class)
   public void givenGeneratorClassWhoseNoParamConstructorFailsIsSpecified$whenRunTests$thenOriginalExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass6.class);

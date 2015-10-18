@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.generators.SimpleTupleGenerator;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -30,21 +29,22 @@ public class ForSimpleTupleGeneratorTest {
         return !"hello".equals(tuple.get("f1"));
       }
     }
+
     @Before
     public void configureStdIOs() {
       UTUtils.configureStdIOs();
     }
 
     @SuppressWarnings("unused")
-    @FactorField(stringLevels = {"Hello", "world", "hello"})
+    @FactorField(stringLevels = { "Hello", "world", "hello" })
     public String f1;
     @SuppressWarnings("unused")
-    @FactorField(stringLevels = {"X", "Y", "Z"})
+    @FactorField(stringLevels = { "X", "Y", "Z" })
     public String f2;
 
     @Test
     public void test() {
-      UTUtils.out.println(this);
+      UTUtils.stdout().println(this);
     }
 
     @Override

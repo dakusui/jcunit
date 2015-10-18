@@ -61,7 +61,7 @@ public abstract class IPO2Test {
 
   protected void verify(int givenStrength, Factors givenFactors, ConstraintManager givenConstraintManager, List<Tuple> actualTestCases,
       List<Tuple> actualRemainders) {
-    UTUtils.out.println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
+    UTUtils.stdout().println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
     verifyAllValidTuplesAreGenerated(actualTestCases, givenStrength, givenFactors,
         givenConstraintManager);
     verifyNoConstraintViolationOccursInResult(actualTestCases, givenConstraintManager);

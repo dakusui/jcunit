@@ -52,7 +52,7 @@ public class ReproducibilityWithPreconditionTest {
   @Test
   public void test() {
     String s = this.desc.getId() + ";" + TupleUtils.toString(this.desc.getTestCase());
-    UTUtils.out.println(s);
+    UTUtils.stdout().println(s);
     assertEquals(expectations.get(this.desc.getId()), s);
     expectations.remove(this.desc.getId());
   }
