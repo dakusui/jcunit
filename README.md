@@ -28,6 +28,7 @@ Please add it to your project's pom.xml
 
 ## Building from source
 You can build ```combinatoradix``` by getting the source code from github.
+
 ```
 
     $ git clone https://github.com/dakusui/jcunit.git
@@ -151,9 +152,23 @@ By default, it generates the test cases by using 'all-pairs' technique.
 
 # Features, tips, and examples
 ## FSM support feature
-* **[FSM support](/src/site/markdown/FSM.md)**: (t.b.d.)
+FSM support of JCUnit (FSM/JCUnit) is a feature that allows you to model your software as a finite state machine, and JCUnit generates and executes a test suite for it.
+The test suite generation can be done by JCUnit's tuple generators.
+
+This is really fun feature. Please try. Documentation is found [here](/src/site/markdown/FSM.md).
+
 ## Tips
-* **[Tips](/src/site/markdown/TIPS.md)**: (t.b.d.)
+When you learn pairwise technique, probably you get excited that "oh I can balance a size of test cases and coverage by this! Its idea is intuitive and looks straightforward. A test case is essentially attibutes and their values. Nice!"
+But when you start testing your software using the technique, you will almost immediately come across a lot of questions.
+
+* "A test case that uses Internet Explorer on Linux platform doesn't make sense. But this test case contributes to cover Linux platform + Apache, Apache + PostgreSQL, etc, at the same time.
+* "If expectations for test cases can be different depending on a test case's values, how can I define test methods?"
+* etc.
+
+Best practices for those problems might be found [here](/src/site/markdown/TIPS.md).
+
+Also how you can customize how test cases should be generated, e.g., how to configure possible values for a certain parameter, in case you want to use non-primitive values what you can do, etc, can be found.
+
 ## Examples
 ### Quadratic equation solver
 * **[session1](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session1/QuadraticEquationSolverTest1.java)**:
@@ -168,8 +183,8 @@ By default, it generates the test cases by using 'all-pairs' technique.
   The SUT, ```QuadraticEquationSolver``` is now enhanced to throw ```IllegalArgumentException``` when solutions become imaginary.
   Tests need to be enhanced to handle this new behaviour, too. ```@When``` annotation will be introduced to switch test methods
   to be executed.
-* **[session5](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session5/QuadraticEquationSolverTest5.java)**: 
-* **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: 
+* **[session5](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session5/QuadraticEquationSolverTest5.java)**: How to implement a constraint manager (part - 1). 
+* **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: How to implement a constraint manager (part - 2). Defining negative tests.
 
 
 # Refefences
