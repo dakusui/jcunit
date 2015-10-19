@@ -1,9 +1,11 @@
 package com.github.dakusui.jcunit.generators;
 
 import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.rules.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -242,12 +244,9 @@ public class Replayer extends TupleGeneratorBase {
         ////
         // Create fallbackGenerator instance.
         try {
-          tupleReplayer.fallbackGenerator = ((Class<? extends TupleGeneratorBase>) params[2])
-              .newInstance();
-        } catch (InstantiationException e) {
-          Checks.rethrowpluginerror(e, "The class '%s' cannot be instantiated.", params[2]);
-        } catch (IllegalAccessException e) {
-          Checks.rethrowpluginerror(e, "A no-parameter constructor of '%s' is too less open. Make it public.", params[2]);
+          tupleReplayer.fallbackGenerator = ReflectionUtils.create((Class<? extends TupleGeneratorBase>) params[2]);
+        } catch (JCUnitException e) {
+          Checks.rethrowpluginerror(e.getCause(), e.getMessage());
         }
         ////
         // Extract parameters to be passed to fallbackGenerator.

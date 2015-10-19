@@ -39,14 +39,7 @@ public class TestCaseUtils {
   public static <T> T toTestObject(Class<T> testClass, Tuple testCase) {
     Checks.checknotnull(testClass);
     Checks.checknotnull(testCase);
-    T ret = null;
-    try {
-      ret = testClass.newInstance();
-    } catch (InstantiationException e) {
-      Checks.rethrow(e, "Failed to instantiate %s", testClass);
-    } catch (IllegalAccessException e) {
-      Checks.rethrow(e, "Failed to instantiate %s", testClass);
-    }
+    T ret = ReflectionUtils.create(testClass);
     initializeObjectWithTuple(ret, testCase);
     return ret;
   }

@@ -172,24 +172,15 @@ public class Recorder extends JCUnitRule {
     T ret = null;
     List<String> fieldsNotFoundInStore = new LinkedList<String>();
     if (SystemProperties.isRecorderEnabled() && this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
-      try {
-        ret = (T) getTestClass().newInstance();
-        for (Field f : Utils
-            .getAnnotatedFields(getTestClass(), Recorder.Record.class)) {
-          File file = new File(testDataDir, f.getName());
-          if (!file.exists()) {
-            fieldsNotFoundInStore.add(f.getName());
-            continue;
-          }
-          ReflectionUtils.setFieldValue(ret, f, Utils.load(file));
+      ret = (T) ReflectionUtils.create(getTestClass());
+      for (Field f : Utils
+          .getAnnotatedFields(getTestClass(), Recorder.Record.class)) {
+        File file = new File(testDataDir, f.getName());
+        if (!file.exists()) {
+          fieldsNotFoundInStore.add(f.getName());
+          continue;
         }
-      } catch (InstantiationException e) {
-        Checks.rethrow(e, "Failed to instantiate test class '%s'",
-            getTestClass().getCanonicalName());
-      } catch (IllegalAccessException e) {
-        Checks.rethrow(e,
-            "Failed to access non-parameter constructor of test class '%s'",
-            getTestClass().getCanonicalName());
+        ReflectionUtils.setFieldValue(ret, f, Utils.load(file));
       }
     }
     Checks.checkcond(fieldsNotFoundInStore.isEmpty(),

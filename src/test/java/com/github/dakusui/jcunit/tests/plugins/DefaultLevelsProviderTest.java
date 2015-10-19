@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.tests.core;
+package com.github.dakusui.jcunit.tests.plugins;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.factor.DefaultLevelsProvider;
