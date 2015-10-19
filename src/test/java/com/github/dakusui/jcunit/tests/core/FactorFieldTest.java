@@ -13,52 +13,52 @@ import static org.junit.Assert.assertTrue;
 public class FactorFieldTest {
   @Test
   public void testBooleanLevels() {
-    assertTrue(FactorField.DefaultValues.booleanLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.booleanLevels().length > 0);
   }
 
   @Test
   public void testByteLevels() {
-    assertTrue(FactorField.DefaultValues.byteLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.byteLevels().length > 0);
   }
 
   @Test
   public void testCharLevels() {
-    assertTrue(FactorField.DefaultValues.charLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.charLevels().length > 0);
   }
 
   @Test
   public void testShortLevels() {
-    assertTrue(FactorField.DefaultValues.shortLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.shortLevels().length > 0);
   }
 
   @Test
   public void testIntLevels() {
-    assertTrue(FactorField.DefaultValues.intLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.intLevels().length > 0);
   }
 
   @Test
   public void testLongLevels() {
-    assertTrue(FactorField.DefaultValues.longLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.longLevels().length > 0);
   }
 
   @Test
   public void testFloatLevels() {
-    assertTrue(FactorField.DefaultValues.floatLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.floatLevels().length > 0);
   }
 
   @Test
   public void testDoubleLevels() {
-    assertTrue(FactorField.DefaultValues.doubleLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.doubleLevels().length > 0);
   }
 
   @Test
   public void testStringLevels() {
-    assertTrue(FactorField.DefaultValues.stringLevels().length > 0);
+    assertTrue(FactorField.DefaultValues.INSTANCE.stringLevels().length > 0);
   }
 
   @Test
   public void testEnumLevels() {
-    assertTrue(Enum.class.equals(FactorField.DefaultValues.enumLevels()));
+    assertTrue(Enum.class.equals(FactorField.DefaultValues.INSTANCE.enumLevels()));
   }
 
 }

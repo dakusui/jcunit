@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class FrameworkMethodUtils {
   /**
-   * Returns a {@code Method} object or {@code null} if the specified method is not found or not loadable.
+   * Returns a {@code Method} object or {@code NotFoundMethod} if the specified method is not found or not loadable.
    */
   private static FrameworkMethod getFrameworkMethodByName(Class<?> testClass, String methodName) {
     Method foundMethod = null;

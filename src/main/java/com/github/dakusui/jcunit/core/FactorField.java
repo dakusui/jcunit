@@ -4,14 +4,15 @@ import com.github.dakusui.jcunit.core.factor.DefaultLevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FactorField {
+
   boolean[] booleanLevels() default { true, false };
 
   byte[] byteLevels() default { (byte) 1, (byte) 0, (byte) -1, (byte) 100,
@@ -38,7 +39,7 @@ public @interface FactorField {
   String[] stringLevels() default {
       "Hello world", "こんにちは世界", "1234567890", "ABCDEFGHIJKLMKNOPQRSTUVWXYZ",
       "abcdefghijklmnopqrstuvwxyz", "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?", " ",
-      ""
+      "",
   };
 
   Class<? extends Enum> enumLevels() default Enum.class;
@@ -53,49 +54,94 @@ public @interface FactorField {
 
   Param[] providerParams() default {};
 
+  class Utils {
+    public static Utils INSTANCE = new Utils();
+    private final Map<Class<?>, Method> methodNameMappings;
+
+    private Utils() {
+      Map<Class<?>, Method> methodNameMappings = new HashMap<Class<?>, Method>();
+
+      methodNameMappings.put(Boolean.TYPE, getLevelsMethod("booleanLevels"));
+      methodNameMappings.put(Boolean.class, getLevelsMethod("booleanLevels"));
+      methodNameMappings.put(Byte.TYPE, getLevelsMethod("byteLevels"));
+      methodNameMappings.put(Byte.class, getLevelsMethod("byteLevels"));
+      methodNameMappings.put(Character.TYPE, getLevelsMethod("charLevels"));
+      methodNameMappings.put(Character.class, getLevelsMethod("charLevels"));
+      methodNameMappings.put(Short.TYPE, getLevelsMethod("shortLevels"));
+      methodNameMappings.put(Short.class, getLevelsMethod("shortLevels"));
+      methodNameMappings.put(Integer.TYPE, getLevelsMethod("intLevels"));
+      methodNameMappings.put(Integer.class, getLevelsMethod("intLevels"));
+      methodNameMappings.put(Long.TYPE, getLevelsMethod("longLevels"));
+      methodNameMappings.put(Long.class, getLevelsMethod("longLevels"));
+      methodNameMappings.put(Float.TYPE, getLevelsMethod("floatLevels"));
+      methodNameMappings.put(Float.class, getLevelsMethod("floatLevels"));
+      methodNameMappings.put(Double.TYPE, getLevelsMethod("doubleLevels"));
+      methodNameMappings.put(Double.class, getLevelsMethod("doubleLevels"));
+      methodNameMappings.put(String.class, getLevelsMethod("stringLevels"));
+      methodNameMappings.put(Enum.class, getLevelsMethod("enumLevels"));
+
+      this.methodNameMappings = methodNameMappings;
+    }
+
+    private Method getLevelsMethod(String methodName) {
+      return ReflectionUtils.getMethod(FactorField.class, methodName);
+    }
+
+    public boolean hasMethodFor(Class<?> type) {
+      return this.methodNameMappings.containsKey(Checks.checknotnull(type));
+    }
+
+    public Method getMethodFor(Class<?> type) {
+      return this.methodNameMappings.get(Checks.checknotnull(type));
+    }
+  }
+
   class DefaultValues {
+    public static final DefaultValues INSTANCE = new DefaultValues();
+
     @FactorField
     public final Object defaultValues = null;
 
-    private DefaultValues() {}
+    private DefaultValues() {
+    }
 
-    public static boolean[] booleanLevels() {
+    public boolean[] booleanLevels() {
       return get().booleanLevels();
     }
 
-    public static byte[] byteLevels() {
+    public byte[] byteLevels() {
       return get().byteLevels();
     }
 
-    public static char[] charLevels() {
+    public char[] charLevels() {
       return get().charLevels();
     }
 
-    public static short[] shortLevels() {
+    public short[] shortLevels() {
       return get().shortLevels();
     }
 
-    public static int[] intLevels() {
+    public int[] intLevels() {
       return get().intLevels();
     }
 
-    public static  long[] longLevels() {
+    public long[] longLevels() {
       return get().longLevels();
     }
 
-    public static float[] floatLevels() {
+    public float[] floatLevels() {
       return get().floatLevels();
     }
 
-    public static double[] doubleLevels() {
+    public double[] doubleLevels() {
       return get().doubleLevels();
     }
 
-    public static String[] stringLevels() {
+    public String[] stringLevels() {
       return get().stringLevels();
     }
 
-    public static Class<? extends Enum> enumLevels() {
+    public Class<? extends Enum> enumLevels() {
       return get().enumLevels();
     }
 
