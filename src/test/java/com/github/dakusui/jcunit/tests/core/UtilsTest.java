@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.tests.core;
 
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import org.junit.Test;
@@ -9,7 +10,6 @@ import org.junit.Test;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
@@ -96,7 +96,7 @@ public class UtilsTest {
   @Test
   public void abnormalTestSetFieldValueToPrivateField() throws NoSuchFieldException {
     Field f = TestClass2.class.getDeclaredField("f");
-    Utils.setFieldValue(new TestClass2(), f, "Helloworld");
+    ReflectionUtils.setFieldValue(new TestClass2(), f, "Helloworld");
   }
 
 
@@ -105,28 +105,6 @@ public class UtilsTest {
   public void defaultFormatterTest() {
     assertEquals(null, Utils.Formatter.INSTANCE.format(null));
     assertEquals("hello", Utils.Formatter.INSTANCE.format("hello"));
-  }
-
-  @SuppressWarnings("unused")
-  private static Object hi() {
-    return "hi";
-  }
-
-  @Test(expected = JCUnitException.class)
-  public void testInvokeMethod1() throws Throwable {
-    Method m = UtilsTest.class.getDeclaredMethod("hi");
-    Utils.invokeMethod(null, m);
-  }
-
-  @SuppressWarnings("unused")
-  public static Object throwException() throws Exception {
-    throw new Exception("Howdy!");
-  }
-
-  @Test(expected = JCUnitException.class)
-  public void testInvokeMethod2() throws Throwable {
-    Method m = UtilsTest.class.getDeclaredMethod("throwException");
-    Utils.invokeMethod(null, m);
   }
 
   @SuppressWarnings("unused")

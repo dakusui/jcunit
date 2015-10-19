@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import org.hamcrest.CoreMatchers;
@@ -31,12 +32,7 @@ public class FSMUtils {
     for (Story each : Utils.transform(FSMUtils.getStoryFields(Checks.checknotnull(testObject)), new Utils.Form<Field, Story>() {
       @Override
       public Story apply(Field in) {
-        try {
-          return (Story) in.get(testObject);
-        } catch (IllegalAccessException e) {
-          Checks.checkcond(false, "This code shouldn't be executed, because the field is already validated.");
-        }
-        return Checks.checknotnull(null);
+        return ReflectionUtils.getFieldValue(testObject, in);
       }
     })) {
       Checks.checknotnull(each, "Probably your test class is not annotated with '@RunWith(JCUnit.class)'.");
@@ -114,7 +110,7 @@ public class FSMUtils {
 
   /**
    * This method has the same effect as the following line.
-   *
+   * <p/>
    * <pre>
    *   performStory(testObject, fsmName, new SUTFactory.Dummy(sut), observerFactory);
    * </pre>
@@ -186,12 +182,7 @@ public class FSMUtils {
               new Utils.Form<Story.Request, Synchronizable>() {
                 @Override
                 public Story apply(Story.Request in) {
-                  try {
-                    return (Story) Checks.checknotnull(FSMUtils.lookupStoryField(testObject, in.fsmName)).get(testObject);
-                  } catch (IllegalAccessException e) {
-                    Checks.rethrow(e);
-                  }
-                  throw new RuntimeException();
+                  return ReflectionUtils.getFieldValue(testObject, Checks.checknotnull(FSMUtils.lookupStoryField(testObject, in.fsmName)));
                 }
               })).build();
       //noinspection unchecked
@@ -248,29 +239,14 @@ public class FSMUtils {
   }
 
   private static <T> Field lookupStoryField(T testObject, String fsmName) {
-    try {
-      return testObject.getClass().getField(fsmName);
-    } catch (NoSuchFieldException e) {
-      return null;
-    }
+    return ReflectionUtils.getField(testObject.getClass(), fsmName);
   }
 
   public static <T, SUT> Story<SUT, ? extends FSMSpec<SUT>> lookupStory(T testObject, String name) {
     Field f = FSMUtils.lookupStoryField(testObject, Checks.checknotnull(name));
     Checks.checktest(f != null, "The field '%s' was not found or not public in the testObject '%s'", name, testObject);
     Utils.validateFactorField((f)).check();
-
-    try {
-      //noinspection unchecked
-      return (Story<SUT, FSMSpec<SUT>>) f.get(testObject);
-    } catch (IllegalAccessException e) {
-      ////
-      // This shouldn't happen because storyField is validated in advance.
-      Checks.rethrow(e, "Unexpected exception '%s' in '%s' is not an accessible field.", name, testObject);
-    }
-    ////
-    // This path shouldn't be executed because IllegalAccessException is already rethrown
-    throw new RuntimeException();
+    return ReflectionUtils.getFieldValue(testObject, f);
   }
 
   public interface Synchronizable {

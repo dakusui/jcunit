@@ -1,11 +1,9 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.enumerator.tuple.AttrValue;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 
 /**
@@ -34,7 +32,7 @@ public class TestCaseUtils {
       //noinspection unchecked
       f = Utils.getField(testObject, fieldName,
           FactorField.class);
-      Utils.setFieldValue(testObject, f, tuple.get(fieldName));
+      ReflectionUtils.setFieldValue(testObject, f, tuple.get(fieldName));
     }
   }
 
@@ -57,11 +55,7 @@ public class TestCaseUtils {
     Checks.checknotnull(testObject);
     Tuple.Builder b = new Tuple.Builder();
     for (Field each : Utils.getAnnotatedFields(testObject.getClass(), FactorField.class)) {
-      try {
-        b.put(each.getName(), each.get(testObject));
-      } catch (IllegalAccessException e) {
-        Checks.rethrow(e);
-      }
+      b.put(each.getName(), ReflectionUtils.getFieldValue(testObject, each));
     }
     return b.build();
   }

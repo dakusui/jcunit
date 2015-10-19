@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderFactory;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.*;
@@ -9,7 +10,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -34,15 +34,11 @@ public class Utils {
           public Object apply(Object in) {
             if (in == null)
               return null;
-            try {
-              Class<?> toStringDeclaringClass = in.getClass().getMethod("toString").getDeclaringClass();
-              if (Object.class.equals(toStringDeclaringClass)) {
-                return getSimpleClassName(in) + "@" + System.identityHashCode(in);
-              }
-              return in;
-            } catch (NoSuchMethodException e) {
-              return "(N/A)";
+            Class<?> toStringDeclaringClass = ReflectionUtils.getMethod(in.getClass(), "toString").getDeclaringClass();
+            if (Object.class.equals(toStringDeclaringClass)) {
+              return getSimpleClassName(in) + "@" + System.identityHashCode(in);
             }
+            return in;
           }
         }).toArray());
   }
@@ -67,15 +63,7 @@ public class Utils {
       Class<? extends Annotation>... expectedAnnotations) {
     Checks.checknotnull(clazz);
     Checks.checknotnull(fieldName);
-    Field ret;
-    try {
-      ret = clazz.getField(fieldName);
-    } catch (NoSuchFieldException e) {
-      String msg = String.format(
-          "Field '%s' isn't defined in class '%s', not public, or not annotated.",
-          fieldName, clazz.getCanonicalName());
-      throw new IllegalArgumentException(msg, e);
-    }
+    Field ret = ReflectionUtils.getField(clazz, fieldName);
     if (expectedAnnotations.length > 0) {
       for (Class<? extends Annotation> expectedAnnotation : expectedAnnotations) {
         Checks.checknotnull(expectedAnnotation);
@@ -99,21 +87,6 @@ public class Utils {
       );
     }
     return ret;
-  }
-
-  public static void setFieldValue(Object obj, Field f, Object value) {
-    Checks.checknotnull(obj);
-    Checks.checknotnull(f);
-    boolean accessible = f.isAccessible();
-    try {
-      f.setAccessible(true);
-      f.set(obj, value);
-    } catch (IllegalAccessException e) {
-      // This path should never be executed since the field is set accessible.
-      Checks.rethrow(e, "Something went wrong.");
-    } finally {
-      f.setAccessible(accessible);
-    }
   }
 
   /**
@@ -171,19 +144,6 @@ public class Utils {
       }
     });
     return ret.toArray(new Field[ret.size()]);
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T> T invokeMethod(Object on, Method m, Object... parameters) {
-    try {
-      return (T) m.invoke(on, parameters);
-    } catch (IllegalAccessException e) {
-      Checks.rethrow(e);
-    } catch (InvocationTargetException e) {
-      Checks.rethrow(e.getTargetException());
-    }
-    Checks.checkcond(false, "Something went wrong.");
-    return null;
   }
 
   public static <T> T createNewInstanceUsingNoParameterConstructor(

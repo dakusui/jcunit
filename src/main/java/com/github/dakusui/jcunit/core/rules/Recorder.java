@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import org.junit.runner.Description;
 
 import java.io.File;
@@ -19,12 +20,12 @@ import java.util.List;
  * A 'recorder' class which stores test execution information in a local file system.
  * The default directory is {@code .jcunit} under the current directory.
  * This class records 'Generated' test cases and 'Custom' and 'Violation' test cases are ignored.
- *
+ * <p/>
  * This rule should be used in a test class annotated with {@literal @}{@code RunWith(JCUnit.class)}.
- *
+ * <p/>
  * An exception thrown while test execution, a test case, field annotated with {@literal @}Record in a test class are
  * saved in the directory structure below.
- *
+ * <p/>
  * <pre>
  *     {basedir}/                          ... baseDir
  *         {FQCN}/                         ... test class dataDir
@@ -35,7 +36,7 @@ import java.util.List;
  *                   exception.ser
  *                   {field name}.ser
  * </pre>
- *
+ * <p/>
  * , where <ul>
  * <li>{basedir} is a base directory of JCUnit, which can be configured by a system property {@code "jcunit.basedir"}.</li>
  * <li>{FQCN} is an FQCN of the test class.</li>
@@ -160,14 +161,7 @@ public class Recorder extends JCUnitRule {
     if (SystemProperties.isRecorderEnabled() && this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
       for (Field f : Utils
           .getAnnotatedFields(obj.getClass(), Recorder.Record.class)) {
-        try {
-          Utils.save(f.get(obj), new File(testDataDir, f.getName()));
-        } catch (IllegalAccessException e) {
-          ////
-          // This code will never be executed because Utils.getAnnotatedFields
-          // should return only accessible fields.
-          Checks.checkcond(false, "Something went wrong.");
-        }
+        Utils.save(ReflectionUtils.getFieldValue(obj, f), new File(testDataDir, f.getName()));
       }
     }
   }
@@ -187,7 +181,7 @@ public class Recorder extends JCUnitRule {
             fieldsNotFoundInStore.add(f.getName());
             continue;
           }
-          Utils.setFieldValue(ret, f, Utils.load(file));
+          ReflectionUtils.setFieldValue(ret, f, Utils.load(file));
         }
       } catch (InstantiationException e) {
         Checks.rethrow(e, "Failed to instantiate test class '%s'",

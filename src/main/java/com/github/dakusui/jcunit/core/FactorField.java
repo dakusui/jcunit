@@ -2,12 +2,12 @@ package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.DefaultLevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -55,76 +55,52 @@ public @interface FactorField {
 
   class DefaultValues {
     @FactorField
-    private Object defaultValues;
+    public final Object defaultValues = null;
 
-    boolean[] booleanLevels() {
+    private DefaultValues() {}
+
+    public static boolean[] booleanLevels() {
       return get().booleanLevels();
     }
 
-    byte[] byteLevels() {
+    public static byte[] byteLevels() {
       return get().byteLevels();
     }
 
-    char[] charLevels() {
+    public static char[] charLevels() {
       return get().charLevels();
     }
 
-    short[] shortLevels() {
+    public static short[] shortLevels() {
       return get().shortLevels();
     }
 
-    int[] intLevels() {
+    public static int[] intLevels() {
       return get().intLevels();
     }
 
-    long[] longLevels() {
+    public static  long[] longLevels() {
       return get().longLevels();
     }
 
-    float[] floatLevels() {
+    public static float[] floatLevels() {
       return get().floatLevels();
     }
 
-    double[] doubleLevels() {
+    public static double[] doubleLevels() {
       return get().doubleLevels();
     }
 
-    String[] stringLevels() {
+    public static String[] stringLevels() {
       return get().stringLevels();
     }
 
-    <T extends Enum> T[] enumLevels(Class<T> enumClass) {
-      try {
-        return (T[]) Checks.checknotnull(enumClass).getMethod("values").invoke(null);
-      } catch (IllegalAccessException e) {
-        ///
-        // This path will never be executed.
-        Checks.rethrow(e);
-      } catch (InvocationTargetException e) {
-        ///
-        // This path will never be executed.
-        Checks.rethrow(e);
-      } catch (NoSuchMethodException e) {
-        ///
-        // This path will never be executed.
-        Checks.rethrow(e);
-      }
-      ///
-      // This path will never be executed.
-      return null;
+    public static Class<? extends Enum> enumLevels() {
+      return get().enumLevels();
     }
 
     private static FactorField get() {
-      try {
-        return DefaultValues.class.getField("defaultValues").getAnnotation(FactorField.class);
-      } catch (NoSuchFieldException e) {
-        ///
-        // This path will never be executed.
-        Checks.rethrow(e);
-      }
-      ///
-      // This path will never be executed.
-      return null;
+      return ReflectionUtils.getField(DefaultValues.class, "defaultValues").getAnnotation(FactorField.class);
     }
   }
 }

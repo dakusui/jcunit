@@ -4,6 +4,8 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -17,19 +19,14 @@ public class MethodLevelsProvider<T> extends LevelsProviderBase<T> {
   static Method getFactorLevelsMethod(Class<?> testClass, Field inField) {
     Method ret = null;
     try {
-      try {
-        ret = testClass.getMethod(inField.getName());
-      } catch (NoSuchMethodException e) {
-        ret = testClass.getDeclaredMethod(inField.getName());
-      }
-    } catch (SecurityException e) {
-      Checks.rethrow(e, "JCUnit cannot be run in this environment. (%s:%s)",
-          e.getClass()
-              .getName(), e.getMessage());
-    } catch (NoSuchMethodException e) {
-      Checks.rethrow(e,
-          "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.",
-          inField, testClass);
+      ret =  ReflectionUtils.getMethod(testClass, inField.getName());
+    } catch (JCUnitException e) {
+      Checks.rethrow(e.getCause(),
+          "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.: canonical name='%s'",
+          inField,
+          testClass.getSimpleName(),
+          testClass.getCanonicalName()
+          );
     }
     if (!validateDomainMethod(inField, ret)) {
       String msg = String.format(
@@ -67,25 +64,29 @@ public class MethodLevelsProvider<T> extends LevelsProviderBase<T> {
     return ret;
   }
 
-  @Override public ParamType[] parameterTypes() {
+  @Override
+  public ParamType[] parameterTypes() {
     return new ParamType[0];
   }
 
-  @Override protected void init(Field targetField,
+  @Override
+  protected void init(Field targetField,
       FactorField annotation, Object[] parameters) {
     Method levelsMethod = getFactorLevelsMethod(targetField.getDeclaringClass(),
         targetField);
     ////
     // It is guaranteed that levelsMethod is static by validation in 'getFactorLevelsMethod'.
-    this.levels = Utils.invokeMethod(null, levelsMethod);
+    this.levels = ReflectionUtils.invokeMethod(null, levelsMethod);
     this.size = Array.getLength(this.levels);
   }
 
-  @Override public int size() {
+  @Override
+  public int size() {
     return this.size;
   }
 
-  @Override public T get(int index) {
+  @Override
+  public T get(int index) {
     //noinspection unchecked
     return (T) Array.get(levels, index);
   }
