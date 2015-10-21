@@ -7,13 +7,13 @@ import java.lang.reflect.Field;
 
 public class FactorLoader {
   private final Factor            factor;
-  private final LevelsProvider<?> levelsProvider;
+  private final LevelsProvider levelsProvider;
 
   public FactorLoader(Field f) {
     Checks.checknotnull(f);
     Utils.ValidationResult validationResult = Utils.validateFactorField(f);
     validationResult.check();
-    LevelsProvider<?> levelsProvider = validationResult.getLevelsProvider();
+    LevelsProvider levelsProvider = validationResult.getLevelsProvider();
 
     Factor.Builder factorBuilder = new Factor.Builder(f.getName());
     int numLevels = levelsProvider.size();
@@ -28,7 +28,7 @@ public class FactorLoader {
     return this.factor;
   }
 
-  public LevelsProvider<?> getLevelsProvider() {
+  public LevelsProvider getLevelsProvider() {
     return this.levelsProvider;
   }
 

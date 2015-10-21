@@ -1,13 +1,16 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.core.factor.DefaultLevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -38,8 +41,7 @@ public @interface FactorField {
 
   String[] stringLevels() default {
       "Hello world", "こんにちは世界", "1234567890", "ABCDEFGHIJKLMKNOPQRSTUVWXYZ",
-      "abcdefghijklmnopqrstuvwxyz", "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?", " ",
-      "",
+      "abcdefghijklmnopqrstuvwxyz", "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?", " "
   };
 
   Class<? extends Enum> enumLevels() default Enum.class;
@@ -50,103 +52,214 @@ public @interface FactorField {
    */
   boolean includeNull() default false;
 
-  Class<? extends LevelsProvider> levelsProvider() default DefaultLevelsProvider.class;
+  Class<? extends LevelsProvider> levelsProvider() default Utils.DummyLevelsProvider.class;
 
   Param[] providerParams() default {};
 
   class Utils {
-    public static Utils INSTANCE = new Utils();
-    private final Map<Class<?>, Method> methodNameMappings;
-
     private Utils() {
-      Map<Class<?>, Method> methodNameMappings = new HashMap<Class<?>, Method>();
-
-      methodNameMappings.put(Boolean.TYPE, getLevelsMethod("booleanLevels"));
-      methodNameMappings.put(Boolean.class, getLevelsMethod("booleanLevels"));
-      methodNameMappings.put(Byte.TYPE, getLevelsMethod("byteLevels"));
-      methodNameMappings.put(Byte.class, getLevelsMethod("byteLevels"));
-      methodNameMappings.put(Character.TYPE, getLevelsMethod("charLevels"));
-      methodNameMappings.put(Character.class, getLevelsMethod("charLevels"));
-      methodNameMappings.put(Short.TYPE, getLevelsMethod("shortLevels"));
-      methodNameMappings.put(Short.class, getLevelsMethod("shortLevels"));
-      methodNameMappings.put(Integer.TYPE, getLevelsMethod("intLevels"));
-      methodNameMappings.put(Integer.class, getLevelsMethod("intLevels"));
-      methodNameMappings.put(Long.TYPE, getLevelsMethod("longLevels"));
-      methodNameMappings.put(Long.class, getLevelsMethod("longLevels"));
-      methodNameMappings.put(Float.TYPE, getLevelsMethod("floatLevels"));
-      methodNameMappings.put(Float.class, getLevelsMethod("floatLevels"));
-      methodNameMappings.put(Double.TYPE, getLevelsMethod("doubleLevels"));
-      methodNameMappings.put(Double.class, getLevelsMethod("doubleLevels"));
-      methodNameMappings.put(String.class, getLevelsMethod("stringLevels"));
-      methodNameMappings.put(Enum.class, getLevelsMethod("enumLevels"));
-
-      this.methodNameMappings = methodNameMappings;
     }
 
-    private Method getLevelsMethod(String methodName) {
-      return ReflectionUtils.getMethod(FactorField.class, methodName);
+    public List<Object> levelsOf(Field f) {
+      Checks.checknotnull(f);
+      FactorField ann = f.getAnnotation(FactorField.class);
+      return levelsOf(f.getName(), f.getType(), ann);
     }
 
-    public boolean hasMethodFor(Class<?> type) {
-      return this.methodNameMappings.containsKey(Checks.checknotnull(type));
+    static List<Object> levelsOf(String fieldName, final Class fieldType, FactorField ann) {
+      Checks.checknotnull(fieldType);
+      Checks.checknotnull(ann);
+      final LevelsProvider provider = levelsProviderOf(fieldName, ann);
+      List<Object> ret;
+      if (provider instanceof DummyLevelsProvider) {
+        ret = levelsProvidedByUserThroughImmediate(ann);
+        if (ret == null) {
+          DefaultLevels.defaultLevelsOf(fieldType);
+        }
+      } else {
+        ret = new AbstractList<Object>() {
+          @Override
+          public int size() {
+            return provider.size();
+          }
+
+          @Override
+          public Object get(int index) {
+            return provider.get(index);
+          }
+        };
+      }
+      List<Object> incompatibles = com.github.dakusui.jcunit.core.Utils.transform(ret, new com.github.dakusui.jcunit.core.Utils.Form<Object, Object>() {
+        @Override
+        public Object apply(Object in) {
+          return !ReflectionUtils.isAssignable(fieldType, in);
+        }
+      });
+      Checks.checktest(
+          incompatibles.isEmpty(),
+          "Incompatible values are given to field '%s': %s", fieldName, incompatibles
+      );
+      return ret;
     }
 
-    public Method getMethodFor(Class<?> type) {
-      return this.methodNameMappings.get(Checks.checknotnull(type));
+    static LevelsProvider levelsProviderOf(String fieldName, FactorField ann) {
+      LevelsProvider ret = ReflectionUtils.create(ann.levelsProvider());
+      ret.init(ann.providerParams());
+      return ret;
+    }
+
+    static List<Object> levelsProvidedByUserThroughImmediate(FactorField ann) {
+      Checks.checknotnull(ann);
+      List<Class> typesProvidedByUser = typesWhoseLevelsAreProvidedBy(ann);
+      Checks.checktest(
+          typesProvidedByUser.size() <= 1,
+          "You can use only one type at once but %d were given. (%s)", typesProvidedByUser);
+      if (typesProvidedByUser.size() == 0) {
+        return null;
+      }
+      return levelsOf(ann, typesProvidedByUser.get(0));
+    }
+
+    private static List<Class> typesWhoseLevelsAreProvidedBy(FactorField ann) {
+      List<Class> typesProvidedByUser = new LinkedList<Class>();
+      for (Class each : ReflectionUtils.primitiveClasses()) {
+        if (!DefaultLevels.defaultLevelsOf(each).equals(levelsOf(ann, each))) {
+          typesProvidedByUser.add(each);
+        }
+      }
+      if (!DefaultLevels.defaultLevelsOf(String.class).equals(levelsOf(ann, String.class))) {
+        typesProvidedByUser.add(String.class);
+      }
+      if (!Enum.class.equals(ann.enumLevels())) {
+        typesProvidedByUser.add(Enum.class);
+      }
+      return typesProvidedByUser;
+    }
+
+    private static List levelsOf(FactorField ann, Class<?> type) {
+      Checks.checknotnull(ann);
+      Checks.checknotnull(type);
+      Checks.checkcond(type.isPrimitive() || String.class.equals(type) || type.isEnum());
+      Object o = ReflectionUtils.invokeMethod(ann, Utils.levelsMethodOf(type));
+      Checks.checknotnull(o);
+      Checks.checkcond(o.getClass().isArray() || o.getClass().isEnum());
+      final Object arr;
+      if (o.getClass().isArray()) {
+        arr = o;
+      } else if (o.getClass().isEnum()) {
+        arr = ReflectionUtils.invokeMethod(o, ReflectionUtils.getMethod(o.getClass(), "values"));
+      } else {
+        arr = null;
+      }
+      Checks.checknotnull(arr);
+      int l = Array.getLength(arr);
+      List ret = new ArrayList(l);
+      for (int i = 0; i < l; i++) {
+        ret.add(Array.get(arr, i));
+      }
+      return ret;
+    }
+
+    private static Method levelsMethodOf(Class primitiveClass) {
+      String lowercaseClassName = primitiveClass.getSimpleName().toLowerCase();
+      return ReflectionUtils.getMethod(DefaultLevels.class, lowercaseClassName + "Levels");
+    }
+
+    final class DummyLevelsProvider implements LevelsProvider {
+      @Override
+      public int size() {
+        return 0;
+      }
+
+      @Override
+      public Object get(int n) {
+        return new IllegalArgumentException();
+      }
+
+      @Override
+      public void setTargetField(Field targetField) {
+      }
+
+      @Override
+      public void setAnnotation(FactorField ann) {
+      }
+
+      @Override
+      public List<String> getErrorsOnInitialization() {
+        return Collections.emptyList();
+      }
+
+      @Override
+      public void init(Param[] params) {
+      }
+
+      @Override
+      public ParamType[] parameterTypes() {
+        return new ParamType[0];
+      }
     }
   }
 
-  class DefaultValues {
-    public static final DefaultValues INSTANCE = new DefaultValues();
-
+  class DefaultLevels {
     @FactorField
     public final Object defaultValues = null;
 
-    private DefaultValues() {
+    private DefaultLevels() {
     }
 
-    public boolean[] booleanLevels() {
+    public static boolean[] booleanLevels() {
       return get().booleanLevels();
     }
 
-    public byte[] byteLevels() {
+    public static byte[] byteLevels() {
       return get().byteLevels();
     }
 
-    public char[] charLevels() {
+    public static char[] charLevels() {
       return get().charLevels();
     }
 
-    public short[] shortLevels() {
+    public static short[] shortLevels() {
       return get().shortLevels();
     }
 
-    public int[] intLevels() {
+    public static int[] intLevels() {
       return get().intLevels();
     }
 
-    public long[] longLevels() {
+    public static long[] longLevels() {
       return get().longLevels();
     }
 
-    public float[] floatLevels() {
+    public static float[] floatLevels() {
       return get().floatLevels();
     }
 
-    public double[] doubleLevels() {
+    public static double[] doubleLevels() {
       return get().doubleLevels();
     }
 
-    public String[] stringLevels() {
+    public static String[] stringLevels() {
       return get().stringLevels();
     }
 
-    public Class<? extends Enum> enumLevels() {
-      return get().enumLevels();
+    public static List defaultLevelsOf(Class c) {
+      Checks.checknotnull(c);
+      final Class primitiveClass;
+      if (c.isPrimitive()) {
+        primitiveClass = c;
+      } else if (ReflectionUtils.isWrapper(c)) {
+        primitiveClass = ReflectionUtils.wrapperToPrimitive(c);
+      } else if (String.class.equals(c)) {
+        primitiveClass = c;
+      } else {
+        throw new IllegalArgumentException(String.format("'%s' doesn't have default levels", c.getSimpleName()));
+      }
+      return Utils.levelsOf(get(), primitiveClass);
     }
 
     private static FactorField get() {
-      return ReflectionUtils.getField(DefaultValues.class, "defaultValues").getAnnotation(FactorField.class);
+      return ReflectionUtils.getField(DefaultLevels.class, "defaultValues").getAnnotation(FactorField.class);
     }
   }
 }

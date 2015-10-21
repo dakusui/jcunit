@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.core.factor;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
@@ -12,21 +11,21 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-public class MethodLevelsProvider<T> extends LevelsProviderBase<T> {
+public class MethodLevelsProvider extends LevelsProviderBase {
   private Object levels;
   private int    size;
 
   static Method getFactorLevelsMethod(Class<?> testClass, Field inField) {
     Method ret = null;
     try {
-      ret =  ReflectionUtils.getMethod(testClass, inField.getName());
+      ret = ReflectionUtils.getMethod(testClass, inField.getName());
     } catch (JCUnitException e) {
       Checks.rethrow(e.getCause(),
           "Method to generate a domain for '%s' isn't defined in class '%s' or not visible.: canonical name='%s'",
           inField,
           testClass.getSimpleName(),
           testClass.getCanonicalName()
-          );
+      );
     }
     if (!validateDomainMethod(inField, ret)) {
       String msg = String.format(
@@ -86,9 +85,9 @@ public class MethodLevelsProvider<T> extends LevelsProviderBase<T> {
   }
 
   @Override
-  public T get(int index) {
+  public Object get(int index) {
     //noinspection unchecked
-    return (T) Array.get(levels, index);
+    return Array.get(levels, index);
   }
 
 }

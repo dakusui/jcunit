@@ -441,7 +441,7 @@ public class Utils {
     List<String> errors = new LinkedList<String>();
     ValidationResult ret;
     FactorField ann = f.getAnnotation(FactorField.class);
-    LevelsProvider<?> levelsProvider = null;
+    LevelsProvider levelsProvider = null;
     if (ann == null) {
       errors.add(Utils.format(
           "%s annotation is present at %s#%s",
@@ -495,12 +495,12 @@ public class Utils {
   }
 
   public static class ValidationResult {
-    private final boolean           valid;
-    private final String            errMessage;
-    private final LevelsProvider<?> levelsProvider;
+    private final boolean        valid;
+    private final String         errMessage;
+    private final LevelsProvider levelsProvider;
 
     public ValidationResult(boolean valid,
-        LevelsProvider<?> levelsProvider, String errorMessage) {
+        LevelsProvider levelsProvider, String errorMessage) {
       if (valid) {
         Checks.checknotnull(levelsProvider);
       } else {
@@ -511,7 +511,7 @@ public class Utils {
       this.errMessage = errorMessage;
     }
 
-    public LevelsProvider<?> getLevelsProvider() {
+    public LevelsProvider getLevelsProvider() {
       return levelsProvider;
     }
 

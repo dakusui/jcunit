@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 /**
  * This class is not yet finished.
  */
-public class CompositeLevelsProvider<T> extends LevelsProviderBase<T> {
+public class CompositeLevelsProvider<T> extends LevelsProviderBase {
 	@Override
 	protected void init(Field targetField, FactorField annotation, Object[] parameters) {
 		Checks.checknotnull(targetField);

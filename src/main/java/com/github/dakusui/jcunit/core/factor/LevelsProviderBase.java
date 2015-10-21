@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * {@inheritDoc}
  */
-public abstract class LevelsProviderBase<T> extends JCUnitConfigurablePluginBase implements LevelsProvider<T> {
+public abstract class LevelsProviderBase extends JCUnitConfigurablePluginBase implements LevelsProvider {
   private         Field              targetField;
   private         FactorField        annotation;
   protected final LinkedList<String> errors;

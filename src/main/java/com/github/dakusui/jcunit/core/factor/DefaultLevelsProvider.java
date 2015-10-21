@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
+public class DefaultLevelsProvider extends LevelsProviderBase {
   private Object values;
   private int    size;
 
@@ -84,7 +84,7 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
       if (Enum.class.isAssignableFrom(fieldType)) {
         fieldType = Enum.class;
       }
-      if (!FactorField.Utils.INSTANCE.hasMethodFor(fieldType)) {
+      if (!PrivateUtils.INSTANCE.hasMethodFor(fieldType)) {
         ////
         // In this case (Non-primitive, non-string typed fields),
         // levelsProvider must be provided, but not found (because no overriding
@@ -93,7 +93,7 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
             "For the field '%s', 'levelsProvider' needs to be provided since there is no pre-defined xyzLevels method for it.",
             targetField));
       }
-      return FactorField.Utils.INSTANCE.getMethodFor(fieldType);
+      return PrivateUtils.INSTANCE.getMethodFor(fieldType);
     } else if (overridingLevelsMethods.length > 1) {
       errors.add(Utils.format(
           "You can give at most one explicit value to FactorField annotation, but %d were given. [%s]",
@@ -127,4 +127,46 @@ public class DefaultLevelsProvider extends LevelsProviderBase<Object> {
     return work.toArray(new Method[work.size()]);
   }
 
+  public static class PrivateUtils {
+    static final PrivateUtils INSTANCE = new PrivateUtils();
+
+    public static Map<Class<?>, Method> methodNameMappings;
+
+    private PrivateUtils() {
+      Map<Class<?>, Method> methodNameMappings = new HashMap<Class<?>, Method>();
+
+      methodNameMappings.put(Boolean.TYPE, getLevelsMethod("booleanLevels"));
+      methodNameMappings.put(Boolean.class, getLevelsMethod("booleanLevels"));
+      methodNameMappings.put(Byte.TYPE, getLevelsMethod("byteLevels"));
+      methodNameMappings.put(Byte.class, getLevelsMethod("byteLevels"));
+      methodNameMappings.put(Character.TYPE, getLevelsMethod("charLevels"));
+      methodNameMappings.put(Character.class, getLevelsMethod("charLevels"));
+      methodNameMappings.put(Short.TYPE, getLevelsMethod("shortLevels"));
+      methodNameMappings.put(Short.class, getLevelsMethod("shortLevels"));
+      methodNameMappings.put(Integer.TYPE, getLevelsMethod("intLevels"));
+      methodNameMappings.put(Integer.class, getLevelsMethod("intLevels"));
+      methodNameMappings.put(Long.TYPE, getLevelsMethod("longLevels"));
+      methodNameMappings.put(Long.class, getLevelsMethod("longLevels"));
+      methodNameMappings.put(Float.TYPE, getLevelsMethod("floatLevels"));
+      methodNameMappings.put(Float.class, getLevelsMethod("floatLevels"));
+      methodNameMappings.put(Double.TYPE, getLevelsMethod("doubleLevels"));
+      methodNameMappings.put(Double.class, getLevelsMethod("doubleLevels"));
+      methodNameMappings.put(String.class, getLevelsMethod("stringLevels"));
+      methodNameMappings.put(Enum.class, getLevelsMethod("enumLevels"));
+
+      this.methodNameMappings = methodNameMappings;
+    }
+
+    private Method getLevelsMethod(String methodName) {
+      return ReflectionUtils.getMethod(FactorField.class, methodName);
+    }
+
+    public boolean hasMethodFor(Class<?> type) {
+      return this.methodNameMappings.containsKey(Checks.checknotnull(type));
+    }
+
+    public Method getMethodFor(Class<?> type) {
+      return this.methodNameMappings.get(Checks.checknotnull(type));
+    }
+  }
 }
