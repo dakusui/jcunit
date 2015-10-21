@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.MappingLevelsProviderBase;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
@@ -9,11 +8,13 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import java.lang.reflect.Field;
 
 public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT, FSMSpec<SUT>>> {
-  private int    switchCoverage;
+  private int switchCoverage;
 
   @Override
-  protected void init(Field targetField, FactorField annotation, Object[] parameters) {
-    this.switchCoverage = ((Integer)parameters[0]);
+  protected void init(
+      Field targetField,
+      Object[] parameters) {
+    this.switchCoverage = ((Integer) parameters[0]);
   }
 
   /**
@@ -28,14 +29,14 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT,
   @Override
   public ParamType[] parameterTypes() {
     return new ParamType[] {
-      new ParamType() {
-        @Override
-        public Object parse(String[] values) {
-          Integer ret = (Integer)ParamType.Int.withDefaultValue(1).parse(values);
-          Checks.checktest(ret >= 0, "switchCoverage must be equal to or greater than 0");
-          return ret;
-        }
-      }.withDefaultValue(1),
+        new ParamType() {
+          @Override
+          public Object parse(String[] values) {
+            Integer ret = (Integer) ParamType.Int.withDefaultValue(1).parse(values);
+            Checks.checktest(ret >= 0, "switchCoverage must be equal to or greater than 0");
+            return ret;
+          }
+        }.withDefaultValue(1),
     };
   }
 

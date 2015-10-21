@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePluginBase;
 import com.github.dakusui.jcunit.core.ParamType;
 
@@ -14,8 +13,6 @@ import java.util.List;
  * {@inheritDoc}
  */
 public abstract class LevelsProviderBase extends JCUnitConfigurablePluginBase implements LevelsProvider {
-  private         Field              targetField;
-  private         FactorField        annotation;
   protected final LinkedList<String> errors;
 
   protected LevelsProviderBase() {
@@ -35,16 +32,15 @@ public abstract class LevelsProviderBase extends JCUnitConfigurablePluginBase im
    */
   @Override
   final public void init(Object[] parameters) {
-    Checks.checknotnull(this.annotation);
-    Checks.checknotnull(this.targetField);
-
+    Field targetField = Checks.checknotnull(Checks.cast(Field.class, parameters[0]));
     this.errors.clear();
-    init(this.targetField, this.annotation, parameters);
+    init(targetField, parameters);
     Checks.checktest(
         this.errors.isEmpty(),
-        "Errors are found in field '%s' of '%s': %s",
-        this.targetField.getName(),
-        this.targetField.getDeclaringClass().getCanonicalName(),
+        "Errors are found in field '%s#%s'(type:%s) of '%s': %s",
+        targetField.getDeclaringClass().getSimpleName(),
+        targetField.getName(),
+        targetField.getType().getSimpleName(),
         this.errors
     );
   }
@@ -52,25 +48,9 @@ public abstract class LevelsProviderBase extends JCUnitConfigurablePluginBase im
   /**
    * This method is called by {@code init(Object[] parameters)} method.
    */
-  protected abstract void init(Field targetField,
-      FactorField annotation, Object[] parameters);
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  final public void setTargetField(Field targetField) {
-    Checks.checknotnull(targetField);
-    this.targetField = targetField;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  final public void setAnnotation(FactorField ann) {
-    this.annotation = ann;
-  }
+  protected abstract void init(
+      Field targetField,
+      Object[] parameters);
 
   final public List<String> getErrorsOnInitialization() {
     return Collections.unmodifiableList(this.errors);

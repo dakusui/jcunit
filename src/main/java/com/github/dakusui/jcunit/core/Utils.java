@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
-import com.github.dakusui.jcunit.core.factor.LevelsProviderFactory;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
@@ -437,11 +436,12 @@ public class Utils {
   }
 
   public static ValidationResult validateFactorField(Field f) {
+    // TODO : Refactor this method thoroughly
     Checks.checknotnull(f);
     List<String> errors = new LinkedList<String>();
     ValidationResult ret;
     FactorField ann = f.getAnnotation(FactorField.class);
-    LevelsProvider levelsProvider = null;
+    LevelsProvider levelsProvider = FactorField.Utils.levelsProviderOf(f.getName(), ann);
     if (ann == null) {
       errors.add(Utils.format(
           "%s annotation is present at %s#%s",
@@ -449,19 +449,16 @@ public class Utils {
           f.getType(),
           f.getName()));
     } else {
-      levelsProvider = LevelsProviderFactory.INSTANCE.createLevelsProvider(
-          f,
-          ann,
-          errors
-      );
       errors.addAll(levelsProvider.getErrorsOnInitialization());
     }
     if (levelsProvider == null) {
       errors.add("LevelsProvider couldn't be created");
     } else {
-      levelsProvider.setAnnotation(ann);
-      levelsProvider.setTargetField(f);
-      levelsProvider.init(ann.providerParams());
+      levelsProvider.init(Utils.concatenate(
+          new Param[] {
+              new Param.Builder().add("FIXME!").build() // TODO
+          },
+          ann.providerParams()));
     }
 
     ret = new ValidationResult(

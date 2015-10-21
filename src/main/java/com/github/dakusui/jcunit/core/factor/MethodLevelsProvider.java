@@ -69,9 +69,11 @@ public class MethodLevelsProvider extends LevelsProviderBase {
   }
 
   @Override
-  protected void init(Field targetField,
-      FactorField annotation, Object[] parameters) {
-    Method levelsMethod = getFactorLevelsMethod(targetField.getDeclaringClass(),
+  protected void init(
+      Field targetField,
+      Object[] parameters) {
+    Method levelsMethod = getFactorLevelsMethod(
+        targetField.getDeclaringClass(),
         targetField);
     ////
     // It is guaranteed that levelsMethod is static by validation in 'getFactorLevelsMethod'.

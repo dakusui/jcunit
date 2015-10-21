@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.*;
 
@@ -135,7 +136,7 @@ public class Checks {
 
   public static void checksymbols(Tuple tuple, String... factorNames) throws UndefinedSymbol {
     List<String> missings = new LinkedList<String>();
-    for (String each: factorNames) {
+    for (String each : factorNames) {
       if (!Checks.checknotnull(tuple).containsKey(each)) {
         missings.add(each);
       }
@@ -184,5 +185,16 @@ public class Checks {
 
   public static void fail() {
     throw new IllegalStateException();
+  }
+
+  public static <T> T cast(Class<T> clazz, Object parameter) {
+    Checks.checkcond(
+        ReflectionUtils.isAssignable(Checks.checknotnull(clazz), parameter),
+        "Type mismatch. Requiret:%s Found:%s",
+        clazz,
+        parameter
+    );
+    //noinspection unchecked
+    return (T) parameter;
   }
 }

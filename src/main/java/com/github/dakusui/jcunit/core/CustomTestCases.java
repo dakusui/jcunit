@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  *
  * This annotation is useful to reproduce bugs which happen under known conditions.
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CustomTestCases {
 }

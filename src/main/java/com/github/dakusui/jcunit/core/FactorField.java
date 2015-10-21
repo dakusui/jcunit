@@ -59,10 +59,10 @@ public @interface FactorField {
   class Utils {
     private Utils() {
     }
-
     public List<Object> levelsOf(Field f) {
       Checks.checknotnull(f);
       FactorField ann = f.getAnnotation(FactorField.class);
+      Package p = null;
       return levelsOf(f.getName(), f.getType(), ann);
     }
 
@@ -174,14 +174,6 @@ public @interface FactorField {
       @Override
       public Object get(int n) {
         return new IllegalArgumentException();
-      }
-
-      @Override
-      public void setTargetField(Field targetField) {
-      }
-
-      @Override
-      public void setAnnotation(FactorField ann) {
       }
 
       @Override

@@ -12,17 +12,14 @@ import java.lang.reflect.Field;
 
 public class TupleLevelsProvider extends LevelsProviderBase {
   TupleGenerator generator = null;
-  private Field targetField;
+  private Class<?> targetType;
 
   @Override
-  protected void init(Field targetField, FactorField annotation,
+  protected void init(
+      Field targetField,
       Object[] parameters) {
-    Checks.checknotnull(targetField);
-    Checks.checknotnull(annotation);
-    Checks.checknotnull(parameters);
     this.generator = TupleGeneratorFactory.INSTANCE
         .createTupleGeneratorForField(targetField);
-    this.targetField = targetField;
   }
 
   @Override
@@ -32,7 +29,7 @@ public class TupleLevelsProvider extends LevelsProviderBase {
 
   @Override
   public Object get(int index) {
-    Object ret = Utils.createNewInstanceUsingNoParameterConstructor(this.targetField.getType());
+    Object ret = Utils.createNewInstanceUsingNoParameterConstructor(targetType);
     TestCaseUtils.initializeObjectWithTuple(ret, this.generator.get(index));
     return ret;
   }

@@ -3,7 +3,9 @@ package com.github.dakusui.jcunit.tests.factor;
 import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.Param;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
+import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -24,14 +26,11 @@ public class MethodLevelsProviderTest {
 
   @Test
   public void test() throws NoSuchFieldException {
-    TargetClass targetObject = new TargetClass();
-    LevelsProvider factory = new MethodLevelsProvider();
-    factory.setTargetField(targetObject.getClass().getField("targetField"));
-    factory.setAnnotation(targetObject.getClass().getField("targetField").getAnnotation(FactorField.class));
-    factory.init(new Param[] {});
-    assertEquals(3, factory.size());
-    assertEquals(1, factory.get(0));
-    assertEquals(10, factory.get(1));
-    assertEquals(256, factory.get(2));
+    LevelsProviderBase provider = new MethodLevelsProvider();
+    provider.init(new Object[]{ ReflectionUtils.getField(TargetClass.class, "targetField")});
+    assertEquals(3, provider.size());
+    assertEquals(1, provider.get(0));
+    assertEquals(10, provider.get(1));
+    assertEquals(256, provider.get(2));
   }
 }

@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit.tests.plugins;
 
 import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.factor.DefaultLevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
+import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.ututils.behaviour.BehaviourTestBase;
 import com.github.dakusui.jcunit.ututils.behaviour.TestScenario;
 import org.junit.runners.Parameterized;
+
+import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,10 +27,10 @@ import static org.junit.Assert.assertEquals;
  *   get(int) : T
  * </pre>
  */
-public class LevelsProviderTestBase extends BehaviourTestBase<DefaultLevelsProvider> {
+public class LevelsProviderTestBase<T extends LevelsProvider> extends BehaviourTestBase<T> {
   public LevelsProviderTestBase(
-      TestScenario.Given<DefaultLevelsProvider> given,
-      TestScenario.When<DefaultLevelsProvider> when,
+      TestScenario.Given<T> given,
+      TestScenario.When<T> when,
       TestScenario.Then then) {
     super(given, when, then);
   }
@@ -40,7 +42,23 @@ public class LevelsProviderTestBase extends BehaviourTestBase<DefaultLevelsProvi
             new TestScenario.Given<LevelsProvider>() {
               @Override
               public LevelsProvider prepare() {
-                DefaultLevelsProvider ret = new DefaultLevelsProvider();
+                // TODO
+                LevelsProvider ret = new LevelsProviderBase() {
+                  @Override
+                  public int size() {
+                    return 0;
+                  }
+
+                  @Override
+                  public Object get(int n) {
+                    return null;
+                  }
+
+                  @Override
+                  protected void init(Field targetField, Object[] parameters) {
+
+                  }
+                };
                 ret.init(new Param.ArrayBuilder().build());
                 return ret;
               }
