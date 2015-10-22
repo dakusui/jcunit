@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.tests.generators;
 
-import com.github.dakusui.jcunit.annotations.*;
-import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.standardrunner.annotations.*;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.generators.RandomTupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.RandomTupleGenerator;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;

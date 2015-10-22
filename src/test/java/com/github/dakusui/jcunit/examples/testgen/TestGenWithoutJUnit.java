@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.examples.testgen;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
 
 import java.io.PrintStream;
 

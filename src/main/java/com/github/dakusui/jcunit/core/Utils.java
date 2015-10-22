@@ -1,12 +1,8 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
-import java.io.*;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -31,6 +27,7 @@ public class Utils {
           public Object apply(Object in) {
             if (in == null)
               return null;
+            //noinspection ConstantConditions (it's already checked)
             Class<?> toStringDeclaringClass = ReflectionUtils.getMethod(in.getClass(), "toString").getDeclaringClass();
             if (Object.class.equals(toStringDeclaringClass)) {
               return getSimpleClassName(in) + "@" + System.identityHashCode(in);
@@ -87,24 +84,6 @@ public class Utils {
   }
 
 
-  public static Field[] getAnnotatedFields(Class<?> clazz,
-      Class<? extends Annotation> annClass) {
-    Field[] fields = clazz.getFields();
-    List<Field> ret = new ArrayList<Field>(fields.length);
-    for (Field f : fields) {
-      if (f.getAnnotation(annClass) != null) {
-        ret.add(f);
-      }
-    }
-    Collections.sort(ret, new Comparator<Field>() {
-      @Override
-      public int compare(Field o1, Field o2) {
-        return o1.getName().compareTo(o2.getName());
-      }
-    });
-    return ret.toArray(new Field[ret.size()]);
-  }
-
   /**
    * Returns {@code true} if {@code v} and {@code} are equal,
    * {@code false} otherwise.
@@ -138,139 +117,6 @@ public class Utils {
     return true;
   }
 
-  /**
-   * Creates a file using {@code java.io.File#createNewFile()} method.
-   *
-   * @param file A file to be created.
-   * @return true - created / false - not created.
-   * @see java.io.File
-   */
-  public static boolean createFile(File file) {
-    Checks.checknotnull(file);
-    try {
-      return file.createNewFile();
-    } catch (IOException e) {
-      Checks.rethrow(e);
-    }
-    return false;
-  }
-
-  public static BufferedOutputStream openForWrite(File f) {
-    BufferedOutputStream ret = null;
-    try {
-      ret = new BufferedOutputStream(new FileOutputStream(f));
-    } catch (FileNotFoundException e) {
-      Checks.rethrow(e);
-    }
-    return ret;
-  }
-
-  public static BufferedInputStream openForRead(File f) {
-    Checks.checknotnull(f);
-    BufferedInputStream ret = null;
-    try {
-      ret = new BufferedInputStream(new FileInputStream(f));
-    } catch (FileNotFoundException e) {
-      Checks.rethrow(e, "File not found: '%s'", f.getAbsolutePath());
-    }
-    return ret;
-  }
-
-  public static void close(Closeable stream) {
-    try {
-      stream.close();
-    } catch (IOException e) {
-      Checks.rethrow(e);
-    }
-  }
-
-  /**
-   * Saves a given object to a file.
-   *
-   * @param obj An object to be saved.
-   * @param to  A file to which {@code obj} is saved.
-   */
-  public static void save(Object obj, File to) {
-    BufferedOutputStream bos;
-    bos = Utils.openForWrite(to);
-    try {
-      save(obj, bos);
-    } finally {
-      Utils.close(bos);
-    }
-  }
-
-  public static void save(Object obj, OutputStream os) {
-    Checks.checknotnull(obj);
-    Checks.checknotnull(os);
-
-    try {
-      ObjectOutputStream oos = new ObjectOutputStream(os);
-      try {
-        oos.writeObject(obj);
-      } finally {
-        oos.close();
-      }
-    } catch (IOException e) {
-      Checks.rethrow(e);
-    }
-  }
-
-  public static Object load(File f) {
-    Checks.checknotnull(f);
-    BufferedInputStream bis;
-    bis = Utils.openForRead(f);
-    try {
-      return load(bis);
-    } finally {
-      Utils.close(bis);
-    }
-  }
-
-  public static Object load(InputStream is) {
-    Checks.checknotnull(is);
-    Object ret = null;
-    try {
-      ObjectInputStream ois = new ObjectInputStream(is);
-      try {
-        ret = ois.readObject();
-      } catch (ClassNotFoundException e) {
-        Checks.rethrow(e);
-      } finally {
-        ois.close();
-      }
-    } catch (IOException e) {
-      Checks.rethrow(e);
-    }
-    return ret;
-  }
-
-
-  /**
-   * By default File#delete fails for non-empty directories, it works like "rm".
-   * We need something a little more brutal - this does the equivalent of "rm -r"
-   * <p/>
-   * This method is cited from the url indicated in the link.
-   *
-   * @param path Root File Path
-   * @return true iff the file and all sub files/directories have been removed
-   * @link "http://stackoverflow.com/questions/779519/delete-files-recursively-in-java"
-   */
-  public static boolean deleteRecursive(File path) {
-    Checks.checknotnull(path);
-    if (!path.exists()) {
-      throw new JCUnitException(
-          String.format("Path '%s' was not found.", path.getAbsolutePath()), null);
-    }
-    boolean ret = true;
-    if (path.isDirectory()) {
-      //noinspection ConstantConditions
-      for (File f : path.listFiles()) {
-        ret = ret && Utils.deleteRecursive(f);
-      }
-    }
-    return ret && path.delete();
-  }
 
   public static <T> List<T> dedup(Iterable<T> in) {
     List<T> ret = new LinkedList<T>();
@@ -330,7 +176,7 @@ public class Utils {
     return ret;
   }
 
-  public static <V> List filter(List<V> unfiltered, Predicate<V> predicate) {
+  public static <V> List<V> filter(List<V> unfiltered, Predicate<V> predicate) {
     Checks.checknotnull(unfiltered);
     Checks.checknotnull(predicate);
     List<V> ret = new LinkedList<V>();

@@ -1,11 +1,12 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.sessionx;
 
-import com.github.dakusui.jcunit.annotations.*;
-import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintManager;
+import com.github.dakusui.jcunit.standardrunner.annotations.*;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
+import com.github.dakusui.jcunit.standardrunner.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;

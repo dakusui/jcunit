@@ -1,13 +1,11 @@
 package com.github.dakusui.jcunit.tests.plugins;
 
-import com.github.dakusui.jcunit.annotations.Param;
-import com.github.dakusui.jcunit.core.factor.LevelsProvider;
-import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
+import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProviderBase;
 import com.github.dakusui.jcunit.ututils.behaviour.BehaviourTestBase;
 import com.github.dakusui.jcunit.ututils.behaviour.TestScenario;
 import org.junit.runners.Parameterized;
-
-import java.lang.reflect.Field;
 
 import static org.junit.Assert.assertEquals;
 

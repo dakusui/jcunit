@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.examples.fsm.doublefsm;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.TurnstileTest;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;

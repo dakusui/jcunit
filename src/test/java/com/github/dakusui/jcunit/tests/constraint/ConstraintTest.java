@@ -1,16 +1,16 @@
 package com.github.dakusui.jcunit.tests.constraint;
 
-import com.github.dakusui.jcunit.annotations.Constraint;
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.constraint.ConstraintObserver;
-import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintManager;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.standardrunner.annotations.Constraint;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 public class ConstraintTest {
   private Factors loadFactorsFromClass(Class<?> testClass) {
     Factors.Builder b = new Factors.Builder();
-    for (Field f : Utils.getAnnotatedFields(testClass, FactorField.class)) {
+    for (Field f : ReflectionUtils.getAnnotatedFields(testClass, FactorField.class)) {
       Factor factor = FactorField.FactorFactory.INSTANCE.createFromField(f);
       b.add(factor);
     }
@@ -58,7 +58,7 @@ public class ConstraintTest {
     assertEquals(1, manager.getFactors().get("f1").levels.size());
     assertEquals(1024, manager.getFactors().get("f1").levels.get(0));
 
-    ConstraintObserver observer = new ConstraintObserver() {
+    ConstraintManager.Observer observer = new ConstraintManager.Observer() {
       @Override public void implicitConstraintFound(Tuple constraint) {
       }
     };

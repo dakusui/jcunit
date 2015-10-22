@@ -1,13 +1,14 @@
 package com.github.dakusui.jcunit.examples.calc;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.annotations.Generator;
-import com.github.dakusui.jcunit.annotations.Param;
-import com.github.dakusui.jcunit.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.factor.SimpleLevelsProvider;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
+import com.github.dakusui.jcunit.standardrunner.JCUnitDesc;
+import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;

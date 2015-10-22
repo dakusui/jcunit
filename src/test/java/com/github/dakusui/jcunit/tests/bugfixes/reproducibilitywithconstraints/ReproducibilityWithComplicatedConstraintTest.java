@@ -1,14 +1,15 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
-import com.github.dakusui.jcunit.annotations.Constraint;
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.standardrunner.annotations.Constraint;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
+import com.github.dakusui.jcunit.standardrunner.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;

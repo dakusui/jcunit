@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.tests.factor;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.annotations.Generator;
-import com.github.dakusui.jcunit.annotations.Param;
-import com.github.dakusui.jcunit.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;

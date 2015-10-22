@@ -1,9 +1,10 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.jcunit.annotations.CustomTestCases;
-import com.github.dakusui.jcunit.annotations.Precondition;
-import com.github.dakusui.jcunit.annotations.When;
+import com.github.dakusui.jcunit.standardrunner.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.standardrunner.annotations.Precondition;
+import com.github.dakusui.jcunit.standardrunner.annotations.When;
 import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.standardrunner.FrameworkMethodUtils;
 import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;
 

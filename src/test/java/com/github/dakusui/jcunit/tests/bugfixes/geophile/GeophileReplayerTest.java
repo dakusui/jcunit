@@ -1,19 +1,19 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
-import com.github.dakusui.jcunit.annotations.CustomTestCases;
-import com.github.dakusui.jcunit.annotations.Generator;
-import com.github.dakusui.jcunit.annotations.Param;
-import com.github.dakusui.jcunit.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.standardrunner.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.Replayer;
+import com.github.dakusui.jcunit.plugins.generators.Replayer;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 
-import static com.github.dakusui.jcunit.core.TestCaseUtils.factor;
-import static com.github.dakusui.jcunit.core.TestCaseUtils.newTestCase;
+import static com.github.dakusui.jcunit.standardrunner.TestCaseUtils.factor;
+import static com.github.dakusui.jcunit.standardrunner.TestCaseUtils.newTestCase;
 
 @RunWith(JCUnit.class)
 @TupleGeneration(

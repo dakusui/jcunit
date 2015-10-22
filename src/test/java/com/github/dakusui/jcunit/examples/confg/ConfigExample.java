@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.examples.confg;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.TestCaseUtils;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.standardrunner.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;

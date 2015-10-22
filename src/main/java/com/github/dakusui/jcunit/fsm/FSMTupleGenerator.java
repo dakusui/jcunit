@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.TupleGenerator;
-import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
+import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
 
 import java.util.*;
 
@@ -172,7 +172,7 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
   }
 
   @Override
-  public ParamType[] parameterTypes() {
-    return new ParamType[] {};
+  public Param.Type[] parameterTypes() {
+    return new Param.Type[] {};
   }
 }

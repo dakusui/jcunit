@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.fsm;
 
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.ParamType;
-import com.github.dakusui.jcunit.core.factor.MappingLevelsProviderBase;
+import com.github.dakusui.jcunit.plugins.levelsproviders.MappingLevelsProviderBase;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
 public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT, FSMSpec<SUT>>> {
@@ -24,12 +24,12 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT,
    * @return definitions of parameters for this TupleGenerator
    */
   @Override
-  public ParamType[] parameterTypes() {
-    return new ParamType[] {
-        new ParamType() {
+  public Param.Type[] parameterTypes() {
+    return new Param.Type[] {
+        new Param.Type() {
           @Override
           public Object parse(String[] values) {
-            Integer ret = (Integer) ParamType.Int.withDefaultValue(1).parse(values);
+            Integer ret = (Integer) Param.Type.Int.withDefaultValue(1).parse(values);
             Checks.checktest(ret >= 0, "switchCoverage must be equal to or greater than 0");
             return ret;
           }

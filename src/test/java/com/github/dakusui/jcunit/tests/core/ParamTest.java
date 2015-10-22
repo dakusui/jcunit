@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.jcunit.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

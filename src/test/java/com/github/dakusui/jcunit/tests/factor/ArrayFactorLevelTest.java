@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.factor;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.factor.SimpleLevelsProvider;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;

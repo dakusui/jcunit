@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.examples.recorderreplayer;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.annotations.Generator;
-import com.github.dakusui.jcunit.annotations.Param;
-import com.github.dakusui.jcunit.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.Recorder;
-import com.github.dakusui.jcunit.generators.Replayer;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.standardrunner.Recorder;
+import com.github.dakusui.jcunit.plugins.generators.Replayer;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;

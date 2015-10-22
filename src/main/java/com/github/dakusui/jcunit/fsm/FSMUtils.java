@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -228,7 +228,7 @@ public class FSMUtils {
 
   private static <T> List<Field> getStoryFields(T testObject) {
     List<Field> ret = new LinkedList<Field>();
-    for (Field each : Utils.getAnnotatedFields(testObject.getClass(), FactorField.class)) {
+    for (Field each : ReflectionUtils.getAnnotatedFields(testObject.getClass(), FactorField.class)) {
       if (isStoryField(each)) {
         ret.add(each);
       }

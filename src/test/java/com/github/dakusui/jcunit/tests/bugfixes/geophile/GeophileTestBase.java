@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 
 public class GeophileTestBase {
   @FactorField(stringLevels = { "INCLUDED", "EXCLUDED" })

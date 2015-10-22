@@ -7,7 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.*;
 
 public class ReflectionUtils {
   private static final Class<?>[][] primitivesAndWrappers = new Class<?>[][] {
@@ -221,5 +221,23 @@ public class ReflectionUtils {
       );
     }
     return ret;
+  }
+
+  public static Field[] getAnnotatedFields(Class<?> clazz,
+      Class<? extends Annotation> annClass) {
+    Field[] fields = clazz.getFields();
+    List<Field> ret = new ArrayList<Field>(fields.length);
+    for (Field f : fields) {
+      if (f.getAnnotation(annClass) != null) {
+        ret.add(f);
+      }
+    }
+    Collections.sort(ret, new Comparator<Field>() {
+      @Override
+      public int compare(Field o1, Field o2) {
+        return o1.getName().compareTo(o2.getName());
+      }
+    });
+    return ret.toArray(new Field[ret.size()]);
   }
 }

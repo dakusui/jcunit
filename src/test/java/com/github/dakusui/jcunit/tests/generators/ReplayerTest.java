@@ -1,19 +1,17 @@
 package com.github.dakusui.jcunit.tests.generators;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.annotations.Generator;
-import com.github.dakusui.jcunit.annotations.Param;
-import com.github.dakusui.jcunit.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.Recorder;
+import com.github.dakusui.jcunit.standardrunner.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.fsm.Expectation;
-import com.github.dakusui.jcunit.generators.Replayer;
-import com.github.dakusui.jcunit.generators.TupleGenerator;
-import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
+import com.github.dakusui.jcunit.plugins.generators.Replayer;
+import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -215,7 +213,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.generators.IPO2TupleGenerator"), @Param("2") }
+          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator"), @Param("2") }
       ))
   public static class TestClass2 {
     @Rule
@@ -290,8 +288,8 @@ public class ReplayerTest {
       }
 
       @Override
-      public ParamType[] parameterTypes() {
-        return new ParamType[0];
+      public Param.Type[] parameterTypes() {
+        return new Param.Type[0];
       }
     }
 

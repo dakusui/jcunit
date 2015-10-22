@@ -1,17 +1,16 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.GreedyIPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 
 import java.util.*;

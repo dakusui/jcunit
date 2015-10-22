@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
-import com.github.dakusui.jcunit.annotations.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.annotations.Precondition;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.standardrunner.annotations.Precondition;
+import com.github.dakusui.jcunit.standardrunner.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.*;

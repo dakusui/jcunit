@@ -1,15 +1,13 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.constraint.ConstraintObserver;
-import com.github.dakusui.jcunit.annotations.Param;
-import com.github.dakusui.jcunit.core.ParamType;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.standardrunner.annotations.Param;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Test;
 
@@ -132,8 +130,8 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     }
 
     @Override
-    public ParamType[] parameterTypes() {
-      return new ParamType[0];
+    public Param.Type[] parameterTypes() {
+      return new Param.Type[0];
     }
 
     @Override
@@ -146,16 +144,16 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     }
 
     @Override
-    public void addObserver(ConstraintObserver observer) {
+    public void addObserver(Observer observer) {
     }
 
     @Override
-    public Set<ConstraintObserver> observers() {
+    public Set<Observer> observers() {
       return null;
     }
 
     @Override
-    public void removeObservers(ConstraintObserver observer) {
+    public void removeObservers(Observer observer) {
 
     }
 
