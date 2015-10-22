@@ -51,11 +51,6 @@ public class LevelsProviderTestBase<T extends LevelsProvider> extends BehaviourT
                   public Object get(int n) {
                     return null;
                   }
-
-                  @Override
-                  protected void init(Object[] parameters) {
-
-                  }
                 };
                 ret.init(new Param.ArrayBuilder().build());
                 return ret;

@@ -39,8 +39,13 @@ public interface JCUnitConfigurablePlugin {
    * is an int, 2.
    *
    * @param params An array of parameter values.
+   *
+   *
+   * (cont...)
+   * The implementations of this method must clarify the expectations for
+   * {@code processedParams}.
    */
-  void init(Param[] params);
+  void init(Object[] params);
 
   /**
    * Returns an array of parameter types that describes expectations a plugin (an implementation

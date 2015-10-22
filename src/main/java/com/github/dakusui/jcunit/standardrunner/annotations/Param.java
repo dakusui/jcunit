@@ -15,8 +15,6 @@ import java.util.List;
 public @interface Param {
   Param[] EMPTY_ARRAY = new ArrayBuilder().build();
 
-  String[] value();
-
   class Builder {
     private String[] values;
 
@@ -58,6 +56,9 @@ public @interface Param {
       return this.params.toArray(new Param[this.params.size()]);
     }
   }
+
+  String[] value();
+
 
   abstract class Type implements Cloneable {
     private static Object NO_DEFAULT_VALUE;
@@ -108,6 +109,135 @@ public @interface Param {
       }
       // This line will never be executed.
       throw new RuntimeException("Something went wrong.");
+    }
+
+    /**
+     * TODO: update this javadoc.
+     * Initializes this object.
+     *
+     * Users of the implementations of this interface must call this method right
+     * after this class is instantiated.
+     * <p/>
+     * Until this method is called, behaviors of any other methods will not be predictable.
+     *
+     * The parameters ({@code processedParameters}) are values that are already
+     * validated and translated into ones the users (and the plug-in) originally intended by
+     * using {@code @Params} annotations.
+     *
+     * That is, if an annotation below is given,
+     *
+     * <pre>
+     *  params = {
+     *      {@literal @}Param("2")
+     *  }),
+     * </pre>
+     *
+     * And the {@code parameterTypes} returns
+     *
+     * <pre>
+     *   new ParamType[]{ ParamType.Int }
+     * </pre>
+     *
+     * then, the user's intention is to pass an int value 2 to this plug in.
+     *
+     * So the {@code processedParameters} will be an array whose first and only element
+     * is an int, 2.
+     *
+     * @param params An array of parameter values.
+     */
+    public static Object[] processParams(Type[] types, Param[] params) {
+      Checks.checknotnull(params);
+      Checks.checknotnull(types);
+      int minLength = types.length;
+      boolean varArgsSpecified = false;
+      if (minLength > 0 && types[minLength - 1].isVarArgs()) {
+        varArgsSpecified = true;
+        minLength--;
+      }
+      while (minLength > 0) {
+        if (types[minLength - 1].hasDefaultValue()) {
+          minLength--;
+        } else {
+          break;
+        }
+      }
+      for (int i = 0; i < minLength; i++) {
+        Checks.checkplugin(!types[i].hasDefaultValue(),
+            "Only the last parameters of a plugin can have default values.: %s",
+            Arrays.toString(types));
+      }
+      if (!varArgsSpecified) {
+        Checks.checktest(minLength <= params.length && params.length <= types.length,
+            "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
+            minLength,
+            types.length,
+            params.length,
+            Arrays.toString(params)
+        );
+      } else {
+        Checks.checktest(minLength <= params.length,
+            "Too little number of parameters (at least %d required, but %d given).: %s",
+            minLength,
+            params.length,
+            Arrays.toString(params)
+        );
+      }
+      Object[] ret = new Object[Math.max(types.length, params.length)];
+      int i = 0;
+      boolean varArgsDefined = false;
+      boolean varArgsParameterPresent = false;
+      for (Type t : types) {
+        if (i >= params.length) {
+          if (t.hasDefaultValue()) {
+            ret[i] = t.defaultValue();
+          } else if (t.isVarArgs()) {
+            Checks.checkplugin(i == types.length - 1,
+                "Var args parameter can only be placed at the last of parameters.");
+            varArgsDefined = true;
+            break;
+          } else {
+            Checks.checkplugin(false, "Failed to parse %s (%s) in %d",
+                Arrays.toString(params), Arrays.toString(types), i);
+          }
+        } else {
+          try {
+            if (!t.isVarArgs()) {
+              ret[i] = t.parse(params[i].value());
+            } else {
+              Checks.checkplugin(i == types.length - 1,
+                  "Var args parameter can only be placed at the last of parameters.");
+              varArgsDefined = true;
+              while (i < params.length) {
+                ret[i] = t.parse(params[i].value());
+                varArgsParameterPresent = true;
+                i++;
+              }
+              break;
+            }
+          } catch (JCUnitException e) {
+            throw e;
+          } catch (RuntimeException e) {
+            throw e;
+          } catch (Exception e) {
+            Checks.rethrow(e,
+                java.lang.String.format(
+                    "The given value '%s' can't be converted to '%s' value.: %dth value in %s",
+                    Arrays.toString(params[i].value()),
+                    types[i],
+                    i,
+                    Arrays.toString(params)
+                ));
+          }
+        }
+        i++;
+      }
+      if (varArgsDefined && !varArgsParameterPresent) {
+        ////
+        // In case the last param is var args and no value is given to
+        // it, nothing should be appended to the returned parameter values.
+        ret = Arrays.copyOfRange(ret, 0, ret.length - 1);
+      }
+      return ret;
     }
 
     public static abstract class NonArrayType extends Type {
@@ -266,101 +396,6 @@ public @interface Param {
     };
 
     private static class DefaultValue {
-    }
-
-    public static Object[] processParams(Type[] types, Param[] params) {
-      Checks.checknotnull(params);
-      Checks.checknotnull(types);
-      int minLength = types.length;
-      boolean varArgsSpecified = false;
-      if (minLength > 0 && types[minLength - 1].isVarArgs()) {
-        varArgsSpecified = true;
-        minLength--;
-      }
-      while (minLength > 0) {
-        if (types[minLength - 1].hasDefaultValue()) {
-          minLength--;
-        } else {
-          break;
-        }
-      }
-      for (int i = 0; i < minLength; i++) {
-        Checks.checkplugin(!types[i].hasDefaultValue(),
-            "Only the last parameters of a plugin can have default values.: %s",
-            Arrays.toString(types));
-      }
-      if (!varArgsSpecified) {
-        Checks.checktest(minLength <= params.length && params.length <= types.length,
-            "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
-            minLength,
-            types.length,
-            params.length,
-            Arrays.toString(params)
-        );
-      } else {
-        Checks.checktest(minLength <= params.length,
-            "Too little number of parameters (at least %d required, but %d given).: %s",
-            minLength,
-            params.length,
-            Arrays.toString(params)
-        );
-      }
-      Object[] ret = new Object[Math.max(types.length, params.length)];
-      int i = 0;
-      boolean varArgsDefined = false;
-      boolean varArgsParameterPresent = false;
-      for (Type t : types) {
-        if (i >= params.length) {
-          if (t.hasDefaultValue()) {
-            ret[i] = t.defaultValue();
-          } else if (t.isVarArgs()) {
-            Checks.checkplugin(i == types.length - 1,
-                "Var args parameter can only be placed at the last of parameters.");
-            varArgsDefined = true;
-            break;
-          } else {
-            Checks.checkplugin(false, "Failed to parse %s (%s) in %d",
-                Arrays.toString(params), Arrays.toString(types), i);
-          }
-        } else {
-          try {
-            if (!t.isVarArgs()) {
-              ret[i] = t.parse(params[i].value());
-            } else {
-              Checks.checkplugin(i == types.length - 1,
-                  "Var args parameter can only be placed at the last of parameters.");
-              varArgsDefined = true;
-              while (i < params.length) {
-                ret[i] = t.parse(params[i].value());
-                varArgsParameterPresent = true;
-                i++;
-              }
-              break;
-            }
-          } catch (JCUnitException e) {
-            throw e;
-          } catch (RuntimeException e) {
-            throw e;
-          } catch (Exception e) {
-            Checks.rethrow(e,
-                java.lang.String.format(
-                    "The given value '%s' can't be converted to '%s' value.: %dth value in %s",
-                    Arrays.toString(params[i].value()),
-                    types[i],
-                    i,
-                    Arrays.toString(params)
-                ));
-          }
-        }
-        i++;
-      }
-      if (varArgsDefined && !varArgsParameterPresent) {
-        ////
-        // In case the last param is var args and no value is given to
-        // it, nothing should be appended to the returned parameter values.
-        ret = Arrays.copyOfRange(ret, 0, ret.length - 1);
-      }
-      return ret;
     }
 
     public static final Type BooleanArray = new ArrayType(Type.Boolean);

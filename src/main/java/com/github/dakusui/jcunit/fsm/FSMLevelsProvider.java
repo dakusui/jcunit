@@ -9,7 +9,7 @@ public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT,
   private int switchCoverage;
 
   @Override
-  protected void init(
+  public void init(
       Object[] parameters) {
     this.switchCoverage = ((Integer) parameters[0]);
   }

@@ -206,7 +206,7 @@ public @interface FactorField {
         }
 
         @Override
-        public void init(Param[] params) {
+        public void init(Object[] params) {
         }
 
         @Override

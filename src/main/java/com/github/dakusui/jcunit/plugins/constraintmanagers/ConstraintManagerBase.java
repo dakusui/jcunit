@@ -15,10 +15,6 @@ public abstract class ConstraintManagerBase extends JCUnitConfigurablePluginBase
   private Factors factors;
 
   @Override
-  protected void init(Object[] params) {
-  }
-
-  @Override
   public void setFactors(Factors factors) {
     this.factors = factors;
   }

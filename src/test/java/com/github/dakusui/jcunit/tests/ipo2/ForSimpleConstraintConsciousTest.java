@@ -126,7 +126,8 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     }
 
     @Override
-    public void init(Param[] params) {
+    public void init(Object[] params) {
+
     }
 
     @Override
