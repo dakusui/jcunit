@@ -63,7 +63,9 @@ public class TupleLevelsProviderTest {
     Result result = JUnitCore.runClasses(TestClass2.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
-    throw result.getFailures().get(0).getException();
+    Throwable t = result.getFailures().get(0).getException();
+    t.fillInStackTrace();
+    throw t;
   }
 
   @RunWith(JCUnit.class)
@@ -87,7 +89,9 @@ public class TupleLevelsProviderTest {
     Result result = JUnitCore.runClasses(TestClass3.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
-    throw result.getFailures().get(0).getException();
+    Throwable t = result.getFailures().get(0).getException();
+    t.fillInStackTrace();
+    throw t;
   }
 
 

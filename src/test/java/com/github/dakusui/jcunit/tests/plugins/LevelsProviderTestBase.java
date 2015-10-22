@@ -55,7 +55,7 @@ public class LevelsProviderTestBase<T extends LevelsProvider> extends BehaviourT
                   }
 
                   @Override
-                  protected void init(Field targetField, Object[] parameters) {
+                  protected void init(Object[] parameters) {
 
                   }
                 };

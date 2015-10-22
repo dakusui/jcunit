@@ -45,19 +45,12 @@ public @interface TupleGeneration {
         return createTupleGenerator(klazz, tupleGenerationAnn);
       }
 
-      public TupleGenerator createFromField(
-          Field field) {
-        Checks.checknotnull(field);
-        TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
-            field);
-        return createTupleGenerator(field.getType(),
-            tupleGenerationAnn);
-      }
-
-      private TupleGenerator createTupleGenerator(Class<?> klazz,
+      public TupleGenerator createTupleGenerator(Class<?> klazz,
           TupleGeneration tupleGenerationAnn) {
-        Map<Field, LevelsProvider> levelsProviders = new LinkedHashMap<Field, LevelsProvider>();
-        Factors factors = loadFactors(klazz, levelsProviders);
+        Checks.checknotnull(klazz);
+        Checks.checknotnull(tupleGenerationAnn);
+        Map<Field, Integer> switchCoverages = new LinkedHashMap<Field, Integer>();
+        Factors factors = loadFactors(klazz, switchCoverages);
         ////
         // Wire and build objects.
         Constraint constraintAnn = tupleGenerationAnn.constraint();
@@ -75,7 +68,7 @@ public @interface TupleGeneration {
             .setFactors(factors);
         TupleGenerator generator;
         List<Field> fsmFields;
-        if (!(fsmFields = extractFSMFactorFields(levelsProviders.keySet())).isEmpty()) {
+        if (!(fsmFields = extractFSMFactorFields(switchCoverages.keySet())).isEmpty()) {
           Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
           List<Parameters.LocalConstraintManager> localCMs = new LinkedList<Parameters.LocalConstraintManager>();
           Errors.Builder bb = new Errors.Builder();
@@ -83,10 +76,10 @@ public @interface TupleGeneration {
             ////
             // It's safe to assume fsmLevelsProvider becomes non-null since we are
             // iterating over fsmFields.
-            FSMLevelsProvider fsmLevelsProvider = (FSMLevelsProvider) levelsProviders.get(each);
+            int fsmSwitchCoverage =  switchCoverages.get(each);
             validateFSMFactorField(bb, each);
             String fsmName = each.getName();
-            FSM fsm = createFSM(each, fsmLevelsProvider.getSwitchCoverage());
+            FSM fsm = createFSM(each, fsmSwitchCoverage);
             fsms.put(fsmName, fsm);
             collectLocalConstraintManagers(localCMs, fsmName, fsm);
           }
@@ -189,7 +182,7 @@ public @interface TupleGeneration {
 
       }
 
-      protected Factors loadFactors(Class<?> klass, Map<Field, LevelsProvider> providers) {
+      protected Factors loadFactors(Class<?> klass, Map<Field, Integer> providers) {
         // //
         // Initialize the factor levels for every '@FactorField' annotated field.
         Field[] fields = Utils.getAnnotatedFields(klass, FactorField.class);
@@ -199,7 +192,8 @@ public @interface TupleGeneration {
           try {
             Factor factor = FactorField.FactorFactory.INSTANCE.createFromField(f);
             factorsBuilder.add(factor);
-            // TODO providers.put(f, (LevelsProvider) factorLoader.getLevelsProvider());
+            // FIXME. switch coverage should be figured out from fsm provider parameters.
+            providers.put(f, 1);
           } catch (InvalidTestException e) {
             invalidTestException.addChild(e);
           }

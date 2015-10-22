@@ -77,7 +77,11 @@ public class RandomTupleGeneratorTest {
   public static class TestClass3 extends TestClass {
   }
 
-  @Test(expected = InvalidTestException.class)
+  /**
+   * Make sure a root exception that prevented test instantiation is thrown and
+   * not wrapped by JCUnitException. In this case NumberFormatException.
+   */
+  @Test(expected = NumberFormatException.class)
   public void test3() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass3.class);
     assertFalse(result.wasSuccessful());

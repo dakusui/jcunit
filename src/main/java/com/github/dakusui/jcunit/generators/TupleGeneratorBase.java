@@ -8,7 +8,6 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
-import java.lang.reflect.Array;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;

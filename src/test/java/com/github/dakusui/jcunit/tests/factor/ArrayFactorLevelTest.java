@@ -2,15 +2,13 @@ package com.github.dakusui.jcunit.tests.factor;
 
 import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
-import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
+import com.github.dakusui.jcunit.core.factor.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 
 public class ArrayFactorLevelTest {
@@ -30,22 +28,21 @@ public class ArrayFactorLevelTest {
     @FactorField(intLevels = { 1 })
     public int test;
 
-    @FactorField(levelsProvider = MethodLevelsProvider.class, providerParams = {})
+    @FactorField(levelsProvider = LevelsProvider$factor1.class, providerParams = {})
     public String[] factor1;
 
     public Normal() {
       super(2, 0, 0);
     }
 
-    /**
-     * This method is used to generate levels for  'factor1'
-     */
-    @SuppressWarnings("unused")
-    public static String[][] factor1() {
-      return new String[][] {
-          new String[] { "Hello", "world" },
-          new String[] { "Howdy" }
-      };
+    public static class LevelsProvider$factor1 extends SimpleLevelsProvider {
+      @Override
+      protected Object[] values() {
+        return new String[][] {
+            new String[] { "Hello", "world" },
+            new String[] { "Howdy" }
+        };
+      }
     }
 
     @Before
@@ -64,40 +61,22 @@ public class ArrayFactorLevelTest {
     @FactorField(intLevels = { 1 })
     public int test;
 
-    @FactorField(levelsProvider = MethodLevelsProvider.class, providerParams = {})
+    @FactorField(levelsProvider = LevelsProvider$factor1.class, providerParams = {})
     public String[] factor1;
 
-    static class P extends LevelsProviderBase {
-
+    public static class LevelsProvider$factor1 extends SimpleLevelsProvider {
       @Override
-      protected void init(Field targetField, Object[] parameters) {
-      }
-
-      @Override
-      public int size() {
-        return 0;
-      }
-
-      @Override
-      public Object get(int n) {
-        return null;
+      protected Object[] values() {
+        return new String[][] {
+            new String[] { "Hello", "world" },
+            new String[] { "Hello", "world" },
+            new String[] { "Howdy" }
+        };
       }
     }
 
     public Duplicated() {
       super(3, 0, 0);
-    }
-
-    /**
-     * This method is used to generate levels for  'factor1'
-     */
-    @SuppressWarnings("unused")
-    public static String[][] factor1() {
-      return new String[][] {
-          new String[] { "Hello", "world" },
-          new String[] { "Hello", "world" },
-          new String[] { "Howdy" }
-      };
     }
 
     @Before

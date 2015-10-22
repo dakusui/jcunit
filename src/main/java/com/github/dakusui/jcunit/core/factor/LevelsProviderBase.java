@@ -27,34 +27,6 @@ public abstract class LevelsProviderBase extends JCUnitConfigurablePluginBase im
     return new ParamType[0];
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  final public void init(Object[] parameters) {
-    Checks.checkcond(parameters.length > 0, "this=", this.getClass().getCanonicalName());
-    Field targetField = null; //Checks.checknotnull(Checks.cast(Field.class, parameters[0]));
-    this.errors.clear();
-    init(targetField, parameters);
-    /*
-    Checks.checktest(
-        this.errors.isEmpty(),
-        "Errors are found in field '%s#%s'(type:%s) of '%s': %s",
-        targetField.getDeclaringClass().getSimpleName(),
-        targetField.getName(),
-        targetField.getType().getSimpleName(),
-        this.errors
-    );
-    */
-  }
-
-  /**
-   * This method is called by {@code init(Object[] parameters)} method.
-   */
-  protected abstract void init(
-      Field targetField,
-      Object[] parameters);
-
   final public List<String> getErrorsOnInitialization() {
     return Collections.unmodifiableList(this.errors);
   }

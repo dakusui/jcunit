@@ -50,13 +50,6 @@ public @interface FactorField {
       "abcdefghijklmnopqrstuvwxyz", "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?", " "
   };
 
-  TupleGeneration compositeLevels() default @TupleGeneration(
-      generator = @Generator(FactorFactory.Default.DummyTupleGenerator.class),
-      constraint = @Constraint(FactorFactory.Default.DummyConstraintManager.class)
-  );
-
-  Class<? extends Enum> enumLevels() default Enum.class;
-
   Class<? extends LevelsProvider> levelsProvider() default FactorFactory.Default.DummyLevelsProvider.class;
 
   /**
@@ -83,19 +76,19 @@ public @interface FactorField {
         return b.build();
       }
 
-      public static List<Object> levelsOf(Field f) {
+      private static List<Object> levelsOf(Field f) {
         Checks.checknotnull(f);
         FactorField ann = f.getAnnotation(FactorField.class);
         return levelsOf(f.getName(), f.getType(), ann);
       }
 
-      static List<Object> levelsOf(String fieldName, final Class fieldType, FactorField ann) {
+      private static List<Object> levelsOf(String fieldName, final Class fieldType, FactorField ann) {
         Checks.checknotnull(fieldType);
         Checks.checknotnull(ann);
         final LevelsProvider provider = levelsProviderOf(ann);
         List<Object> ret;
         if (provider instanceof DummyLevelsProvider) {
-          ret = levelsProvidedByUserThroughImmediate(ann);
+          ret = levelsGivenByUserThroughImmediate(ann);
           if (ret == null) {
             ret = DefaultLevels.defaultLevelsOf(fieldType);
           }
@@ -125,16 +118,17 @@ public @interface FactorField {
             incompatibles.isEmpty(),
             "Incompatible values are given to field '%s': %s", fieldName, incompatibles
         );
+        Checks.checktest(!ret.isEmpty(), "No levels: fieldName=%s fieldType=%s provider=%s", fieldName, fieldType, provider);
         return ret;
       }
 
-      static LevelsProvider levelsProviderOf(FactorField ann) {
+      private static LevelsProvider levelsProviderOf(FactorField ann) {
         LevelsProvider ret = ReflectionUtils.create(ann.levelsProvider());
         ret.init(ann.providerParams());
         return ret;
       }
 
-      static List<Object> levelsProvidedByUserThroughImmediate(FactorField ann) {
+      private static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
         Checks.checknotnull(ann);
         List<Class> typesProvidedByUser = typesWhoseLevelsAreProvidedBy(ann);
         Checks.checktest(
@@ -156,24 +150,22 @@ public @interface FactorField {
         if (!DefaultLevels.defaultLevelsOf(String.class).equals(levelsOf(ann, String.class))) {
           typesProvidedByUser.add(String.class);
         }
-        if (!Enum.class.equals(ann.enumLevels())) {
-          typesProvidedByUser.add(Enum.class);
-        }
         return typesProvidedByUser;
       }
 
       private static List levelsOf(FactorField ann, Class<?> type) {
         Checks.checknotnull(ann);
         Checks.checknotnull(type);
-        Checks.checkcond(type.isPrimitive() || String.class.equals(type) || type.isEnum());
+        Checks.checkcond(type.isPrimitive() || String.class.equals(type) || type.isEnum(), "'%s' does not have default levels.", type);
         Object o = ReflectionUtils.invokeMethod(ann, levelsMethodOf(type));
         Checks.checknotnull(o);
-        Checks.checkcond(o.getClass().isArray() || o.getClass().isEnum());
         final Object arr;
         if (o.getClass().isArray()) {
           arr = o;
-        } else if (o.getClass().isEnum()) {
-          arr = ReflectionUtils.invokeMethod(o, ReflectionUtils.getMethod(o.getClass(), "values"));
+        } else if (o instanceof Class && ((Class)o).isEnum()) {
+          ////
+          // 'values' method of an enum is static.
+          arr = ReflectionUtils.invokeMethod(null, ReflectionUtils.getMethod(((Class)o), "values"));
         } else {
           arr = null;
         }
@@ -186,8 +178,10 @@ public @interface FactorField {
         return ret;
       }
 
-      private static Method levelsMethodOf(Class primitiveClass) {
-        String lowercaseClassName = primitiveClass.getSimpleName().toLowerCase();
+      private static Method levelsMethodOf(Class supportedType) {
+        String lowercaseClassName = supportedType.isEnum()
+            ? "enum"
+            : supportedType.getSimpleName().toLowerCase();
         return ReflectionUtils.getMethod(FactorField.class, lowercaseClassName + "Levels");
       }
 
@@ -220,8 +214,14 @@ public @interface FactorField {
         }
       }
 
-      public interface DummyTupleGenerator extends TupleGenerator {}
-      public interface DummyConstraintManager extends ConstraintManager {}
+      public interface DummyTupleGenerator extends TupleGenerator {
+      }
+
+      public interface DummyConstraintManager extends ConstraintManager {
+      }
+
+      public enum DummyEnum {
+      }
     }
   }
 
@@ -270,13 +270,30 @@ public @interface FactorField {
 
     public static List defaultLevelsOf(final Class c) {
       Checks.checknotnull(c);
-      final Class primitiveClass;
+      final Class supportedType;
       if (c.isPrimitive()) {
-        primitiveClass = c;
+        supportedType = c;
       } else if (ReflectionUtils.isWrapper(c)) {
-        primitiveClass = ReflectionUtils.wrapperToPrimitive(c);
+        supportedType = ReflectionUtils.wrapperToPrimitive(c);
       } else if (String.class.equals(c)) {
-        primitiveClass = c;
+        supportedType = c;
+      } else if (c.isEnum()) {
+        // Note that Enum.class.isEnum should return false;
+        // Note that 'values' method of an enum is static. It returns an array of the enum object.
+        final Object values = ReflectionUtils.invokeMethod(null, ReflectionUtils.getMethod(c, "values"));
+        Checks.checknotnull(values);
+        Checks.checkcond(values.getClass().isArray());
+        return new AbstractList() {
+          @Override
+          public Object get(int index) {
+            return Array.get(values, index);
+          }
+
+          @Override
+          public int size() {
+            return Array.getLength(values);
+          }
+        };
       } else if (c.getAnnotation(TupleGeneration.class) != null) {
         return new AbstractList() {
           TupleGenerator tg = TupleGeneration.TupleGeneratorFactory.INSTANCE.createFromClass(c);
@@ -296,7 +313,7 @@ public @interface FactorField {
       } else {
         throw new IllegalArgumentException(String.format("'%s' doesn't have default levels", c.getSimpleName()));
       }
-      return FactorFactory.Default.levelsOf(get(), primitiveClass);
+      return FactorFactory.Default.levelsOf(get(), supportedType);
     }
 
     private static FactorField get() {

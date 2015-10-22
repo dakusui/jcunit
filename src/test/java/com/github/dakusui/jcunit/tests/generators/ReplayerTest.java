@@ -9,6 +9,8 @@ import com.github.dakusui.jcunit.core.rules.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.fsm.Expectation;
 import com.github.dakusui.jcunit.generators.Replayer;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
@@ -313,8 +315,8 @@ public class ReplayerTest {
     }
   }
 
-  @Test(expected = InvalidPluginException.class)
-  public void givenAbstractGeneratorClassIsSpecified$whenRunTests$thenPluginExceptionWillBeThrown() throws Throwable {
+  @Test(expected = InstantiationException.class)
+  public void givenAbstractGeneratorClassIsSpecified$whenRunTests$thenInstantiationExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass4.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
@@ -335,8 +337,8 @@ public class ReplayerTest {
     }
   }
 
-  @Test(expected = InvalidPluginException.class)
-  public void givenGeneratorClassWhoseNoParamConstructorIsPrivateIsSpecified$whenRunTests$thenPluginExceptionWillBeThrown() throws Throwable {
+  @Test(expected = IllegalAccessException.class)
+  public void givenGeneratorClassWhoseNoParamConstructorIsPrivateIsSpecified$whenRunTests$thenIllegalAccessExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass5.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
@@ -360,8 +362,6 @@ public class ReplayerTest {
   @Test(expected = IOException.class)
   public void givenGeneratorClassWhoseNoParamConstructorFailsIsSpecified$whenRunTests$thenOriginalExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass6.class);
-    assertFalse(result.wasSuccessful());
-    assertEquals(1, result.getFailureCount());
     throw result.getFailures().get(0).getException();
   }
 

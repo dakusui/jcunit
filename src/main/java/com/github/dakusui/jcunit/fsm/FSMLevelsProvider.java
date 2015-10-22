@@ -5,14 +5,11 @@ import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.factor.MappingLevelsProviderBase;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 
-import java.lang.reflect.Field;
-
 public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT, FSMSpec<SUT>>> {
   private int switchCoverage;
 
   @Override
   protected void init(
-      Field targetField,
       Object[] parameters) {
     this.switchCoverage = ((Integer) parameters[0]);
   }

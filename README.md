@@ -14,7 +14,7 @@ various application/web servers, with various DBMSs, etc. Probably, we can descr
 this situation as following.
 
 |Factor            |Levels                                   |
-|:----------------:|:---------------------------------------:|
+|:----------------:|:----------------------------------------|
 |Platform          |Linux, MacOSX, Windows                   |
 |Java              |JavaSE7, JavaSE8, OpenJDK7               |
 |Browser           |Safari, Firefox, Chrome, InternetExplorer|

@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
@@ -25,60 +26,70 @@ public class JCUnit extends Suite {
    */
   public JCUnit(Class<?> klass) throws Throwable {
     super(klass, Collections.<Runner>emptyList());
-    ////
-    // Prepare filter method(s) and custom test case methods.
-    List<String> errors = new LinkedList<String>();
-    List<FrameworkMethod> preconditionMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.PRECONDITION);
-    for (FrameworkMethod each : preconditionMethods) {
-      FrameworkMethodUtils.validateFrameworkMethod(klass, each, FrameworkMethodUtils.FrameworkMethodValidator.PRECONDITIONMETHOD_VALIDATOR, errors);
-    }
-    // Currently only one filter method can be used.
-    // Custom test case methods.
-    List<FrameworkMethod> customTestCaseMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.CUSTOM_TESTCASES);
-    for (FrameworkMethod each : customTestCaseMethods) {
-      FrameworkMethodUtils.validateFrameworkMethod(klass, each, FrameworkMethodUtils.FrameworkMethodValidator.CUSTOMTESTCASEMETHOD_VALIDATOR, errors);
-    }
-    ////
-    // Check if any error was found.
-    Checks.checkenv(errors.isEmpty(),
-        "Errors are found in test class '%s':%s",
-        getTestClass().getJavaClass().getCanonicalName(),
-        errors);
-
-    ////
-    // Generate a list of test cases using a specified tuple generator
-    TupleGenerator tupleGenerator = getTupleGeneratorFactory()
-        .createFromClass(klass);
-    Factors factors = tupleGenerator.getFactors();
-    int id;
-    for (id = (int) tupleGenerator.firstId();
-         id >= 0; id = (int) tupleGenerator.nextId(id)) {
-      Tuple testCase = tupleGenerator.get(id);
-      if (shouldPerform(testCase, preconditionMethods)) {
-        runners.add(createRunner(id, factors, TestCaseType.Generated, testCase));
+    try {
+      ////
+      // Prepare filter method(s) and custom test case methods.
+      List<String> errors = new LinkedList<String>();
+      List<FrameworkMethod> preconditionMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.PRECONDITION);
+      for (FrameworkMethod each : preconditionMethods) {
+        FrameworkMethodUtils.validateFrameworkMethod(klass, each, FrameworkMethodUtils.FrameworkMethodValidator.PRECONDITIONMETHOD_VALIDATOR, errors);
       }
+      // Currently only one filter method can be used.
+      // Custom test case methods.
+      List<FrameworkMethod> customTestCaseMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.CUSTOM_TESTCASES);
+      for (FrameworkMethod each : customTestCaseMethods) {
+        FrameworkMethodUtils.validateFrameworkMethod(klass, each, FrameworkMethodUtils.FrameworkMethodValidator.CUSTOMTESTCASEMETHOD_VALIDATOR, errors);
+      }
+      ////
+      // Check if any error was found.
+      Checks.checkenv(errors.isEmpty(),
+          "Errors are found in test class '%s':%s",
+          getTestClass().getJavaClass().getCanonicalName(),
+          errors);
+
+      ////
+      // Generate a list of test cases using a specified tuple generator
+      TupleGenerator tupleGenerator = getTupleGeneratorFactory()
+          .createFromClass(klass);
+      Factors factors = tupleGenerator.getFactors();
+      int id;
+      for (id = (int) tupleGenerator.firstId();
+           id >= 0; id = (int) tupleGenerator.nextId(id)) {
+        Tuple testCase = tupleGenerator.get(id);
+        if (shouldPerform(testCase, preconditionMethods)) {
+          runners.add(createRunner(id, factors, TestCaseType.Generated, testCase));
+        }
+      }
+      // Skip to number of test cases generated.
+      id = (int) tupleGenerator.size();
+      ////
+      // Compose a list of 'negative test cases' and register them.
+      ConstraintManager cm = tupleGenerator.getConstraintManager();
+      final List<Tuple> violations = cm.getViolations();
+      id = registerTestCases(
+          id,
+          factors,
+          violations,
+          TestCaseType.Violation,
+          preconditionMethods);
+      ////
+      // Compose a list of 'custom test cases' and register them.
+      registerTestCases(
+          id,
+          factors,
+          invokeCustomTestCasesMethod(customTestCaseMethods),
+          TestCaseType.Custom,
+          preconditionMethods);
+      Checks.checkenv(runners.size() > 0, "No test to be run was found.");
+    } catch (JCUnitException e) {
+      throw getRootCauseOf(e);
     }
-    // Skip to number of test cases generated.
-    id = (int) tupleGenerator.size();
-    ////
-    // Compose a list of 'negative test cases' and register them.
-    ConstraintManager cm = tupleGenerator.getConstraintManager();
-    final List<Tuple> violations = cm.getViolations();
-    id = registerTestCases(
-        id,
-        factors,
-        violations,
-        TestCaseType.Violation,
-        preconditionMethods);
-    ////
-    // Compose a list of 'custom test cases' and register them.
-    registerTestCases(
-        id,
-        factors,
-        invokeCustomTestCasesMethod(customTestCaseMethods),
-        TestCaseType.Custom,
-        preconditionMethods);
-    Checks.checkenv(runners.size() > 0, "No test to be run was found.");
+  }
+
+  private static Throwable getRootCauseOf(Throwable t) {
+    return Checks.checknotnull(t).getCause() == null
+        ? t
+        : getRootCauseOf(t.getCause());
   }
 
   protected TupleGeneration.TupleGeneratorFactory getTupleGeneratorFactory() {

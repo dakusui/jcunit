@@ -9,7 +9,7 @@ public abstract class SimpleLevelsProvider extends LevelsProviderBase {
   protected Object[] args;
 
   @Override
-  protected void init(Field targetField, Object[] args) {
+  public void init(Object[] args) {
     this.args = args;
     this.values = Checks.checknotnull(values());
   }

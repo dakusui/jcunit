@@ -45,7 +45,7 @@ annotation for 'QuadraticEquationSolverTest1.java' and set the first parameter, 
 ```java
 
     @RunWith(JCUnit.class)
-    @TestCaseGeneration(
+    @TupleGeneration(
             generator = @Generator(
                     value = IPO2TestCaseGenerator.class,
                     params = { @Param("3") }))
@@ -87,7 +87,7 @@ To use a constraint manager, you can do below
 ```java
 
     @RunWith(JCUnit.class)
-    @TestCaseGeneration(
+    @TupleGeneration(
         constraint = @Constraint(
             value = QuadraticEquationSolverTestX.CM.class ))
     public class QuadraticEquationSolverTestX {
