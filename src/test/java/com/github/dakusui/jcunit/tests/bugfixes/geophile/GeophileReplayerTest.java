@@ -1,5 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
+import com.github.dakusui.jcunit.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.annotations.Generator;
+import com.github.dakusui.jcunit.annotations.Param;
+import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.generators.Replayer;

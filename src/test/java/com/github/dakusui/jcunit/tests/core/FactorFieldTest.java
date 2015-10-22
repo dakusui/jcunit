@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

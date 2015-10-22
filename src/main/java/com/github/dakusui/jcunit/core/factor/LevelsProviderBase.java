@@ -32,9 +32,11 @@ public abstract class LevelsProviderBase extends JCUnitConfigurablePluginBase im
    */
   @Override
   final public void init(Object[] parameters) {
-    Field targetField = Checks.checknotnull(Checks.cast(Field.class, parameters[0]));
+    Checks.checkcond(parameters.length > 0, "this=", this.getClass().getCanonicalName());
+    Field targetField = null; //Checks.checknotnull(Checks.cast(Field.class, parameters[0]));
     this.errors.clear();
     init(targetField, parameters);
+    /*
     Checks.checktest(
         this.errors.isEmpty(),
         "Errors are found in field '%s#%s'(type:%s) of '%s': %s",
@@ -43,6 +45,7 @@ public abstract class LevelsProviderBase extends JCUnitConfigurablePluginBase im
         targetField.getType().getSimpleName(),
         this.errors
     );
+    */
   }
 
   /**

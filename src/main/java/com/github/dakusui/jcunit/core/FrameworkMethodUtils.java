@@ -1,5 +1,8 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.annotations.Precondition;
+import com.github.dakusui.jcunit.annotations.When;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
 import org.junit.runners.model.FrameworkMethod;

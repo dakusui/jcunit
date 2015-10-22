@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -160,7 +160,6 @@ public class FSMUtils {
     })) {
       Field storyField = lookupStoryField(testObject, eachFSMmName);
       Checks.checktest(storyField != null, "The field '%s' was not found or not public in the testObject '%s'", eachFSMmName, testObject);
-      Utils.validateFactorField((storyField)).check();
     }
 
     ////
@@ -224,7 +223,6 @@ public class FSMUtils {
    * @param f A field to be checked.
    */
   public static boolean isStoryField(Field f) {
-    Utils.validateFactorField((Checks.checknotnull(f))).check();
     return FSMLevelsProvider.class.isAssignableFrom(f.getAnnotation(FactorField.class).levelsProvider());
   }
 
@@ -245,7 +243,6 @@ public class FSMUtils {
   public static <T, SUT> Story<SUT, ? extends FSMSpec<SUT>> lookupStory(T testObject, String name) {
     Field f = FSMUtils.lookupStoryField(testObject, Checks.checknotnull(name));
     Checks.checktest(f != null, "The field '%s' was not found or not public in the testObject '%s'", name, testObject);
-    Utils.validateFactorField((f)).check();
     return ReflectionUtils.getFieldValue(testObject, f);
   }
 

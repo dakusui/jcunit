@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.annotations;
 
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;

@@ -1,8 +1,11 @@
 package com.github.dakusui.jcunit.examples.calc;
 
+import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.annotations.Generator;
+import com.github.dakusui.jcunit.annotations.Param;
+import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
-import com.github.dakusui.jcunit.core.factor.TupleLevelsProvider;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.ututils.Metatest;
@@ -21,6 +24,11 @@ public class NestedFieldExample extends Metatest {
     );
   }
 
+  @TupleGeneration(
+      generator = @Generator(
+          value = IPO2TupleGenerator.class,
+          params = @Param("2")
+      ))
   public static class Struct {
     @FactorField(intLevels = { 123, 456 })
     public int    a;
@@ -43,12 +51,7 @@ public class NestedFieldExample extends Metatest {
   public Calc.Op op;
 
   @SuppressWarnings("unused") // This field is used by JCUnit.
-  @FactorField(levelsProvider = TupleLevelsProvider.class)
-  @TupleGeneration(
-      generator = @Generator(
-          value = IPO2TupleGenerator.class,
-          params = @Param("2")
-      ))
+  @FactorField
   public Struct struct;
 
   public static int[] f1() {

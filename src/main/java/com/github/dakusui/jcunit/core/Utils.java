@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.core;
 
-import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
@@ -8,7 +7,6 @@ import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -48,44 +46,6 @@ public class Utils {
         ? "(anonymous)"
         : obj.getClass().getSimpleName();
     return className;
-  }
-
-  public static Field getField(Object obj, String fieldName,
-      Class<? extends Annotation>... expectedAnnotations) {
-    Checks.checknotnull(obj);
-    Checks.checknotnull(fieldName);
-    Class<?> clazz = obj.getClass();
-    return getFieldFromClass(clazz, fieldName, expectedAnnotations);
-  }
-
-  public static Field getFieldFromClass(Class<?> clazz, String fieldName,
-      Class<? extends Annotation>... expectedAnnotations) {
-    Checks.checknotnull(clazz);
-    Checks.checknotnull(fieldName);
-    Field ret = ReflectionUtils.getField(clazz, fieldName);
-    if (expectedAnnotations.length > 0) {
-      for (Class<? extends Annotation> expectedAnnotation : expectedAnnotations) {
-        Checks.checknotnull(expectedAnnotation);
-        if (ret.isAnnotationPresent(expectedAnnotation)) {
-          return ret;
-        }
-      }
-      Checks.checkparam(false,
-          String.format(
-              "Field '%s' is found in '%s, but not annotated with none of [%s]",
-              fieldName,
-              clazz,
-              Utils.join(",", new Formatter<Class<? extends Annotation>>() {
-                    @Override
-                    public String format(Class<? extends Annotation> elem) {
-                      return elem.getSimpleName();
-                    }
-                  },
-                  expectedAnnotations)
-          )
-      );
-    }
-    return ret;
   }
 
   /**
@@ -143,48 +103,6 @@ public class Utils {
       }
     });
     return ret.toArray(new Field[ret.size()]);
-  }
-
-  public static <T> T createNewInstanceUsingNoParameterConstructor(
-      Class<? extends T> klazz) {
-    T ret = null;
-    try {
-      ret = klazz.getDeclaredConstructor().newInstance();
-    } catch (InstantiationException e) {
-      Checks.rethrow(e,
-          "'%s' is a class that cannot be instantiated directly.",
-          klazz.getCanonicalName());
-    } catch (IllegalAccessException e) {
-      Checks.rethrow(e,
-          "Failed to instantiate '%s'. The constructor with no parameter is not open enough.",
-          klazz.getCanonicalName()
-      );
-    } catch (InvocationTargetException e) {
-      Checks.rethrow(e.getTargetException(),
-          "Failed to instantiate '%s'. An exception was thrown during instantiation.",
-          klazz.getCanonicalName());
-    } catch (NoSuchMethodException e) {
-      Checks.rethrow(e,
-          "Failed to instantiate '%s'. A constructor with no parameter is not found.",
-          klazz.getCanonicalName()
-      );
-    }
-    Checks.checknotnull(ret);
-    return ret;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <T> T getDefaultValueOfAnnotation(
-      Class<? extends Annotation> klazz, String method) {
-    Checks.checknotnull(klazz);
-    Checks.checknotnull(method);
-    try {
-      return (T) klazz.getDeclaredMethod(method).getDefaultValue();
-    } catch (NoSuchMethodException e) {
-      Checks.rethrow(e);
-    }
-    Checks.checkcond(false, "Something went wrong. This line shouldn't be executed.");
-    return null;
   }
 
   /**
@@ -435,40 +353,6 @@ public class Utils {
     return c;
   }
 
-  public static ValidationResult validateFactorField(Field f) {
-    // TODO : Refactor this method thoroughly
-    Checks.checknotnull(f);
-    List<String> errors = new LinkedList<String>();
-    ValidationResult ret;
-    FactorField ann = f.getAnnotation(FactorField.class);
-    LevelsProvider levelsProvider = FactorField.Utils.levelsProviderOf(f.getName(), ann);
-    if (ann == null) {
-      errors.add(Utils.format(
-          "%s annotation is present at %s#%s",
-          FactorField.class,
-          f.getType(),
-          f.getName()));
-    } else {
-      errors.addAll(levelsProvider.getErrorsOnInitialization());
-    }
-    if (levelsProvider == null) {
-      errors.add("LevelsProvider couldn't be created");
-    } else {
-      levelsProvider.init(Utils.concatenate(
-          new Param[] {
-              new Param.Builder().add("FIXME!").build() // TODO
-          },
-          ann.providerParams()));
-    }
-
-    ret = new ValidationResult(
-        errors.isEmpty(),
-        levelsProvider,
-        join("; ", errors.toArray()
-        ));
-    return ret;
-  }
-
   public interface Formatter<T> {
     Formatter INSTANCE = new Formatter<Object>() {
       @Override
@@ -489,31 +373,5 @@ public class Utils {
 
   public interface Predicate<I> {
     boolean apply(I in);
-  }
-
-  public static class ValidationResult {
-    private final boolean        valid;
-    private final String         errMessage;
-    private final LevelsProvider levelsProvider;
-
-    public ValidationResult(boolean valid,
-        LevelsProvider levelsProvider, String errorMessage) {
-      if (valid) {
-        Checks.checknotnull(levelsProvider);
-      } else {
-        Checks.checknotnull(errorMessage);
-      }
-      this.valid = valid;
-      this.levelsProvider = levelsProvider;
-      this.errMessage = errorMessage;
-    }
-
-    public LevelsProvider getLevelsProvider() {
-      return levelsProvider;
-    }
-
-    public void check() {
-      Checks.checktest(this.valid, errMessage);
-    }
   }
 }

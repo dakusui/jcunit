@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.examples.fsm.inputhistory;
 
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.ututils.Metatest;

@@ -2,9 +2,10 @@ package com.github.dakusui.jcunit.constraint;
 
 import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
-import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.annotations.Param;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
@@ -44,8 +45,7 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
     private Factors                            factors;
 
     public ConstraintManager build() {
-      ConstraintManager ret = Utils
-          .createNewInstanceUsingNoParameterConstructor(constraintManagerClass);
+      ConstraintManager ret = ReflectionUtils.create(constraintManagerClass);
       ret.init(this.parameters);
       return ret;
     }

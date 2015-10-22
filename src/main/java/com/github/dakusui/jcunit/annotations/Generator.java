@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.annotations;
 
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGenerator;

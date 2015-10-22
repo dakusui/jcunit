@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.examples.testgen;
 
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

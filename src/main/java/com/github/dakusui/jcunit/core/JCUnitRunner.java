@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.annotations.When;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -61,7 +62,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * because {@code {@literal @}BeforeClass} methods and {@code {@literal @}AfterClass}
    * methods are executed for every test case run not before and after all the
    * test cases are executed.
-   * <p/>
+   *
    * {@code BlockJUnit4ClassRunnerWithParameters} does the same.
    *
    * @see org.junit.runners.BlockJUnit4ClassRunner#classBlock(org.junit.runner.notification.RunNotifier)

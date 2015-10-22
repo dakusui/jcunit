@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.tests.generators;
 
+import com.github.dakusui.jcunit.annotations.*;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;

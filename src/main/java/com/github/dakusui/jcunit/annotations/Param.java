@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.annotations;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;

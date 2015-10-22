@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.examples.fsm.nested;
 
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.annotations.Param;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;

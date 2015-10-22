@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.plugins;
 
-import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.annotations.Param;
 import com.github.dakusui.jcunit.core.factor.LevelsProvider;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.ututils.behaviour.BehaviourTestBase;

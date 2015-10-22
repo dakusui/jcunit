@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session2;
 
+import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.annotations.When;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
 import org.junit.Test;

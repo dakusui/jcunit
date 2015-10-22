@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit.tests.constraint;
 
+import com.github.dakusui.jcunit.annotations.Constraint;
+import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.constraint.ConstraintObserver;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.FactorLoader;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -24,7 +26,7 @@ public class ConstraintTest {
   private Factors loadFactorsFromClass(Class<?> testClass) {
     Factors.Builder b = new Factors.Builder();
     for (Field f : Utils.getAnnotatedFields(testClass, FactorField.class)) {
-      Factor factor = new FactorLoader(f).getFactor();
+      Factor factor = FactorField.FactorFactory.INSTANCE.createFromField(f);
       b.add(factor);
     }
     return b.build();

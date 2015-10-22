@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.FactorField;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;

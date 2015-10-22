@@ -6,9 +6,10 @@ package com.github.dakusui.jcunit.generators;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.JCUnitConfigurablePlugin;
-import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.annotations.Param;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 /**
@@ -107,8 +108,7 @@ public interface TupleGenerator extends
       Checks.checknotnull(this.tupleGeneratorClass);
       Checks.checknotnull(this.factors);
       Checks.checknotnull(this.constraintManager);
-      TupleGenerator ret = Utils.createNewInstanceUsingNoParameterConstructor(
-          this.tupleGeneratorClass);
+      TupleGenerator ret = ReflectionUtils.create(this.tupleGeneratorClass);
       ret.setFactors(this.factors);
       ret.setConstraintManager(this.constraintManager);
       ret.setTargetClass(this.targetClass);

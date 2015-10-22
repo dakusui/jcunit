@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.generators;
 
+import com.github.dakusui.jcunit.annotations.Param;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.rules.Recorder;

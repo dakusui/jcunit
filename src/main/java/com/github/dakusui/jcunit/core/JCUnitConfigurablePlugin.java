@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.annotations.Param;
+
 /**
  * A common interface of all plugins of JCUnit that can be configured through
  * '{@literal @}Param' annotations.

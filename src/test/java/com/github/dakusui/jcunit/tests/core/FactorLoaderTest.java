@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.tests.core;
 
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.FactorLoader;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import org.junit.Test;
-
-import java.lang.reflect.Field;
 
 import static org.junit.Assert.*;
 
@@ -15,57 +14,67 @@ public class FactorLoaderTest {
 
   @Test
   public void validIntFieldWithDefaultValues() throws NoSuchFieldException {
-    FactorLoader factorLoader = new FactorLoader(
-        this.testFactors.getClass().getField("validIntFieldWithDefaultValues"));
-    Factor f = factorLoader.getFactor();
+    String fieldName = "validIntFieldWithDefaultValues";
+    Factor f = createFactor(fieldName);
     assertArrayEquals(new Object[] { 1, 0, -1, 100, -100, Integer.MAX_VALUE,
         Integer.MIN_VALUE }, f.levels.toArray());
   }
 
   @Test
   public void validIntFieldWithExplicitValues() throws NoSuchFieldException {
-    FactorLoader factorLoader = new FactorLoader(
-        this.testFactors.getClass().getField("validIntFieldWithExplicitIntValues"));
-    Factor f = factorLoader.getFactor();
+    Factor f = createFactor("validIntFieldWithExplicitIntValues");
     assertArrayEquals(new Object[] { 1, 2, 3 }, f.levels.toArray());
   }
 
   @Test(expected = InvalidTestException.class)
   public void invalidIntFieldWithExplicitLongValues() throws Exception {
-    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
-    // Validation happens inside getFactor.
-    factorLoader.getFactor();
+    // Validation happens inside createFactor.
+    createFactor("invalidIntFieldWithExplicitLongValues");
   }
 
   @Test
   public void validateValidField1() throws Exception {
-    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithDefaultValues"));
-    Factor f = factorLoader.getFactor();
+    Factor f = createFactor("validIntFieldWithDefaultValues");
     assertEquals(1, f.levels.get(0));
     assertEquals(7, f.levels.size());
   }
 
   @Test
   public void validateValidField2() throws Exception {
-    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("validIntFieldWithExplicitIntValues"));
-    // Validation happens inside getFactor.
-    Factor f = factorLoader.getFactor();
+    Factor f = createFactor("validIntFieldWithExplicitIntValues");
     assertEquals(1, f.levels.get(0));
     assertEquals(3, f.levels.size());
   }
 
   @Test(expected = InvalidTestException.class)
   public void validateInvalidField1() throws Exception {
-    Field f = this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues");
-    FactorLoader factorLoader = new FactorLoader(f);
-    // Validation happens inside getFactor.
-    factorLoader.getFactor();
+    // Validation happens inside createFactor.
+    createFactor("invalidIntFieldWithExplicitLongValues");
   }
 
   @Test(expected = InvalidTestException.class)
   public void validateInvalidField2() throws Exception {
-    FactorLoader factorLoader = new FactorLoader(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
-    factorLoader.getFactor();
+    // This must fail because assignment is incompatible.
+    FactorField.FactorFactory.INSTANCE.createFromField(this.testFactors.getClass().getField("invalidIntFieldWithExplicitLongValues"));
     fail();
   }
+
+
+  @Test
+  public void validateValidBooleanFieldIncludingNull()  {
+    Factor f = createFactor("validBooleanFieldIncludingNull");
+    assertEquals(3, f.levels.size());
+    assertEquals(true, f.levels.get(0));
+    assertEquals(false, f.levels.get(1));
+    assertEquals(null, f.levels.get(2));
+  }
+
+  @Test(expected = InvalidTestException.class)
+  public void validateInvalidBooleanFieldIncludingNull()  {
+    createFactor("invalidBooleanFieldIncludingNull");
+  }
+  private Factor createFactor(String fieldName) {
+    return FactorField.FactorFactory.INSTANCE.createFromField(ReflectionUtils.getField(this.testFactors.getClass(), fieldName));
+  }
+
 }

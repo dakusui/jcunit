@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.constraint.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.FSMUtils;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
-import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
@@ -49,7 +48,7 @@ public class JCUnit extends Suite {
     ////
     // Generate a list of test cases using a specified tuple generator
     TupleGenerator tupleGenerator = getTupleGeneratorFactory()
-        .createTupleGeneratorForClass(klass);
+        .createFromClass(klass);
     Factors factors = tupleGenerator.getFactors();
     int id;
     for (id = (int) tupleGenerator.firstId();
@@ -82,8 +81,8 @@ public class JCUnit extends Suite {
     Checks.checkenv(runners.size() > 0, "No test to be run was found.");
   }
 
-  protected TupleGeneratorFactory getTupleGeneratorFactory() {
-    return TupleGeneratorFactory.INSTANCE;
+  protected TupleGeneration.TupleGeneratorFactory getTupleGeneratorFactory() {
+    return TupleGeneration.TupleGeneratorFactory.INSTANCE;
   }
 
   static Object createTestObject(TestClass testClass, Tuple testCase) {
@@ -175,7 +174,7 @@ public class JCUnit extends Suite {
   /**
    * Identifies what kind of category to which a test case belongs.
    */
-  public static enum TestCaseType {
+  public enum TestCaseType {
     /**
      * A custom test case, which is returned by a method annotated with {@literal @}{@code CustomTestCases}.
      */

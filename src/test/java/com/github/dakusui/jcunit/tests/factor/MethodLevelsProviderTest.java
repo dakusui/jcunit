@@ -1,8 +1,6 @@
 package com.github.dakusui.jcunit.tests.factor;
 
-import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.Param;
-import com.github.dakusui.jcunit.core.factor.LevelsProvider;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;

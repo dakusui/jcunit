@@ -1,7 +1,8 @@
 package com.github.dakusui.jcunit.tests.factor;
 
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.factor.LevelsProviderBase;
 import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
@@ -9,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 
 public class ArrayFactorLevelTest {
@@ -64,6 +66,23 @@ public class ArrayFactorLevelTest {
 
     @FactorField(levelsProvider = MethodLevelsProvider.class, providerParams = {})
     public String[] factor1;
+
+    static class P extends LevelsProviderBase {
+
+      @Override
+      protected void init(Field targetField, Object[] parameters) {
+      }
+
+      @Override
+      public int size() {
+        return 0;
+      }
+
+      @Override
+      public Object get(int n) {
+        return null;
+      }
+    }
 
     public Duplicated() {
       super(3, 0, 0);

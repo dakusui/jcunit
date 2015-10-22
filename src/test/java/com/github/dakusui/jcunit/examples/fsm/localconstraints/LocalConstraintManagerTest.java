@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.fsm.localconstraints;
 
 
 import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.JCUnit;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;

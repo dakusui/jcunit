@@ -1,5 +1,9 @@
 package com.github.dakusui.jcunit.examples.recorderreplayer;
 
+import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.annotations.Generator;
+import com.github.dakusui.jcunit.annotations.Param;
+import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.Recorder;
 import com.github.dakusui.jcunit.generators.Replayer;

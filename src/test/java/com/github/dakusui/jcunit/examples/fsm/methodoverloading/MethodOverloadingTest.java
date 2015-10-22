@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.examples.fsm.methodoverloading;
 
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;

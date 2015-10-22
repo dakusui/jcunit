@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core;
 
 import com.github.dakusui.enumerator.tuple.AttrValue;
+import com.github.dakusui.jcunit.annotations.FactorField;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
@@ -30,7 +31,7 @@ public class TestCaseUtils {
       Field f;
 
       //noinspection unchecked
-      f = Utils.getField(testObject, fieldName,
+      f = ReflectionUtils.getField(testObject, fieldName,
           FactorField.class);
       ReflectionUtils.setFieldValue(testObject, f, tuple.get(fieldName));
     }

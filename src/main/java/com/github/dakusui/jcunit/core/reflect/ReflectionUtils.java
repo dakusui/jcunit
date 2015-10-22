@@ -1,7 +1,9 @@
 package com.github.dakusui.jcunit.core.reflect;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -69,6 +71,10 @@ public class ReflectionUtils {
       Checks.rethrow(e, "A no-parameter constructor of '%s' is too less open. Make it public.", clazz);
     } catch (InstantiationException e) {
       Checks.rethrow(e, "The class '%s' couldn't be instantiated.", clazz);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      Checks.rethrow(e, "A checked exception is thrown from '%s' during instantiation.", clazz);
     }
     return null;
   }
@@ -112,7 +118,7 @@ public class ReflectionUtils {
   public static Class<?>[] primitiveClasses() {
     Class<?>[] ret = new Class[primitivesAndWrappers.length];
     for (int i = 0; i < ret.length; i++) {
-      ret[i] = primitivesAndWrappers[i][1];
+      ret[i] = primitivesAndWrappers[i][0];
     }
     return ret;
   }
@@ -121,9 +127,9 @@ public class ReflectionUtils {
     Checks.checknotnull(c);
     Checks.checkcond(isWrapper(c));
     for (Class<?>[] each : primitivesAndWrappers) {
-      if (each[0].equals(c)) return each[1];
+      if (each[1].equals(c)) return each[0];
     }
-    assert false;
+    assert false : "c=" + c;
     throw new RuntimeException();
   }
 
@@ -163,5 +169,57 @@ public class ReflectionUtils {
         return true;
     }
     return false;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> T getDefaultValueOfAnnotation(
+      Class<? extends Annotation> klazz, String method) {
+    Checks.checknotnull(klazz);
+    Checks.checknotnull(method);
+    try {
+      return (T) klazz.getDeclaredMethod(method).getDefaultValue();
+    } catch (NoSuchMethodException e) {
+      Checks.rethrow(e);
+    }
+    Checks.checkcond(false, "Something went wrong. This line shouldn't be executed.");
+    return null;
+  }
+
+  public static Field getField(Object obj, String fieldName,
+      Class<? extends Annotation>... expectedAnnotations) {
+    Checks.checknotnull(obj);
+    Checks.checknotnull(fieldName);
+    Class<?> clazz = obj.getClass();
+    return getFieldFromClass(clazz, fieldName, expectedAnnotations);
+  }
+
+  public static Field getFieldFromClass(Class<?> clazz, String fieldName,
+      Class<? extends Annotation>... expectedAnnotations) {
+    Checks.checknotnull(clazz);
+    Checks.checknotnull(fieldName);
+    Field ret = getField(clazz, fieldName);
+    if (expectedAnnotations.length > 0) {
+      for (Class<? extends Annotation> expectedAnnotation : expectedAnnotations) {
+        Checks.checknotnull(expectedAnnotation);
+        if (ret.isAnnotationPresent(expectedAnnotation)) {
+          return ret;
+        }
+      }
+      Checks.checkparam(false,
+          String.format(
+              "Field '%s' is found in '%s, but not annotated with none of [%s]",
+              fieldName,
+              clazz,
+              Utils.join(",", new Utils.Formatter<Class<? extends Annotation>>() {
+                    @Override
+                    public String format(Class<? extends Annotation> elem) {
+                      return elem.getSimpleName();
+                    }
+                  },
+                  expectedAnnotations)
+          )
+      );
+    }
+    return ret;
   }
 }

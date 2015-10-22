@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.param;
 
-import com.github.dakusui.jcunit.core.Param;
+import com.github.dakusui.jcunit.annotations.Param;
 import com.github.dakusui.jcunit.core.ParamType;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;

@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.sessionx;
 
+import com.github.dakusui.jcunit.annotations.*;
 import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.JCUnitDesc;

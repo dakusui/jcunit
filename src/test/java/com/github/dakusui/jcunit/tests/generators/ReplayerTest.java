@@ -1,5 +1,9 @@
 package com.github.dakusui.jcunit.tests.generators;
 
+import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.annotations.Generator;
+import com.github.dakusui.jcunit.annotations.Param;
+import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.rules.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -8,7 +12,6 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.generators.Replayer;
 import com.github.dakusui.jcunit.generators.TupleGenerator;
 import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
-import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -168,8 +171,8 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    TupleGenerator tupleGenerator = TupleGeneratorFactory.INSTANCE
-        .createTupleGeneratorForClass(TestClass.class);
+    TupleGenerator tupleGenerator = TupleGeneration.TupleGeneratorFactory.INSTANCE
+        .createFromClass(TestClass.class);
     assertEquals(Replayer.class, tupleGenerator.getClass());
 
     Replayer replayer = (Replayer) tupleGenerator;

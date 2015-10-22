@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit.tests.factor;
 
+import com.github.dakusui.jcunit.annotations.FactorField;
+import com.github.dakusui.jcunit.annotations.Generator;
+import com.github.dakusui.jcunit.annotations.Param;
+import com.github.dakusui.jcunit.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.factor.TupleLevelsProvider;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -15,7 +17,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+@TupleGeneration
 public class TupleLevelsProviderTest {
+  @TupleGeneration
   public static class Struct {
     @FactorField(intLevels = { 1, 2 })
     public int f1;
@@ -25,7 +29,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   public static class TestClass {
-    @FactorField(levelsProvider = TupleLevelsProvider.class)
+    @FactorField
     public Struct struct;
     @FactorField(intLevels = { 5, 6 })
     public int    f;
@@ -45,7 +49,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   public static class TestClass2 {
-    @FactorField(levelsProvider = TupleLevelsProvider.class)
+    @FactorField
     public Struct struct;
 
     @Test
