@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.standardrunner.annotations;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
@@ -12,8 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Param {
-  Param[] EMPTY_ARRAY = new ArrayBuilder().build();
+public @interface Arg {
+  Arg[] EMPTY_ARRAY = new ArrayBuilder().build();
 
   class Builder {
     private String[] values;
@@ -26,11 +27,11 @@ public @interface Param {
       return this;
     }
 
-    public Param build() {
-      return new Param() {
+    public Arg build() {
+      return new Arg() {
         @Override
         public Class<? extends Annotation> annotationType() {
-          return Param.class;
+          return Arg.class;
         }
 
         @Override
@@ -42,23 +43,33 @@ public @interface Param {
   }
 
   class ArrayBuilder {
-    private final List<Param> params = new LinkedList<Param>();
+    private final List<Arg> args = new LinkedList<Arg>();
 
     public ArrayBuilder() {
     }
 
     public ArrayBuilder add(String... values) {
-      params.add(new Builder().add(values).build());
+      args.add(new Builder().add(values).build());
       return this;
     }
 
-    public Param[] build() {
-      return this.params.toArray(new Param[this.params.size()]);
+    public Arg[] build() {
+      return this.args.toArray(new Arg[this.args.size()]);
     }
   }
 
   String[] value();
 
+  class Translator extends JCUnitPlugin.Param.Translator<Arg> {
+    protected Translator(List<JCUnitPlugin.Param.Converter<Arg>> converters) {
+      super(converters);
+    }
+
+    @Override
+    protected <T> JCUnitPlugin.Param.Converter<Arg> chooseConverter(Class<T> clazz, List<JCUnitPlugin.Param.Converter<Arg>> from) {
+      return from.get(0);
+    }
+  }
 
   abstract class Type implements Cloneable {
     private static Object NO_DEFAULT_VALUE;
@@ -127,7 +138,7 @@ public @interface Param {
      * That is, if an annotation below is given,
      *
      * <pre>
-     *  params = {
+     *  args = {
      *      {@literal @}Param("2")
      *  }),
      * </pre>
@@ -143,10 +154,10 @@ public @interface Param {
      * So the {@code processedParameters} will be an array whose first and only element
      * is an int, 2.
      *
-     * @param params An array of parameter values.
+     * @param args An array of parameter values.
      */
-    public static Object[] processParams(Type[] types, Param[] params) {
-      Checks.checknotnull(params);
+    public static Object[] processParams(Type[] types, Arg[] args) {
+      Checks.checknotnull(args);
       Checks.checknotnull(types);
       int minLength = types.length;
       boolean varArgsSpecified = false;
@@ -167,27 +178,27 @@ public @interface Param {
             Arrays.toString(types));
       }
       if (!varArgsSpecified) {
-        Checks.checktest(minLength <= params.length && params.length <= types.length,
+        Checks.checktest(minLength <= args.length && args.length <= types.length,
             "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
             minLength,
             types.length,
-            params.length,
-            Arrays.toString(params)
+            args.length,
+            Arrays.toString(args)
         );
       } else {
-        Checks.checktest(minLength <= params.length,
+        Checks.checktest(minLength <= args.length,
             "Too little number of parameters (at least %d required, but %d given).: %s",
             minLength,
-            params.length,
-            Arrays.toString(params)
+            args.length,
+            Arrays.toString(args)
         );
       }
-      Object[] ret = new Object[Math.max(types.length, params.length)];
+      Object[] ret = new Object[Math.max(types.length, args.length)];
       int i = 0;
       boolean varArgsDefined = false;
       boolean varArgsParameterPresent = false;
       for (Type t : types) {
-        if (i >= params.length) {
+        if (i >= args.length) {
           if (t.hasDefaultValue()) {
             ret[i] = t.defaultValue();
           } else if (t.isVarArgs()) {
@@ -197,18 +208,18 @@ public @interface Param {
             break;
           } else {
             Checks.checkplugin(false, "Failed to parse %s (%s) in %d",
-                Arrays.toString(params), Arrays.toString(types), i);
+                Arrays.toString(args), Arrays.toString(types), i);
           }
         } else {
           try {
             if (!t.isVarArgs()) {
-              ret[i] = t.parse(params[i].value());
+              ret[i] = t.parse(args[i].value());
             } else {
               Checks.checkplugin(i == types.length - 1,
                   "Var args parameter can only be placed at the last of parameters.");
               varArgsDefined = true;
-              while (i < params.length) {
-                ret[i] = t.parse(params[i].value());
+              while (i < args.length) {
+                ret[i] = t.parse(args[i].value());
                 varArgsParameterPresent = true;
                 i++;
               }
@@ -222,10 +233,10 @@ public @interface Param {
             Checks.rethrow(e,
                 java.lang.String.format(
                     "The given value '%s' can't be converted to '%s' value.: %dth value in %s",
-                    Arrays.toString(params[i].value()),
+                    Arrays.toString(args[i].value()),
                     types[i],
                     i,
-                    Arrays.toString(params)
+                    Arrays.toString(args)
                 ));
           }
         }

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.plugins;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProviderBase;
 import com.github.dakusui.jcunit.ututils.behaviour.BehaviourTestBase;
@@ -52,7 +52,7 @@ public class LevelsProviderTestBase<T extends LevelsProvider> extends BehaviourT
                     return null;
                   }
                 };
-                ret.init(new Param.ArrayBuilder().build());
+                ret.init(new Arg.ArrayBuilder().build());
                 return ret;
               }
             },

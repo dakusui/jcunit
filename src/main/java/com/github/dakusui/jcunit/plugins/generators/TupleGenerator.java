@@ -5,8 +5,8 @@ package com.github.dakusui.jcunit.plugins.generators;
 
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.plugins.JCUnitConfigurablePlugin;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -16,7 +16,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
  * any parameters exists.
  */
 public interface TupleGenerator extends
-    JCUnitConfigurablePlugin,
+    JCUnitPlugin,
     Iterable<Tuple> {
 
   Factors getFactors();
@@ -56,7 +56,7 @@ public interface TupleGenerator extends
     private Class<? extends TupleGenerator> tupleGeneratorClass;
     private Factors                         factors;
     private ConstraintManager               constraintManager;
-    private Param[]                         parameters;
+    private Arg[]                           parameters;
     private Class<?>                        targetClass;
 
     public Builder() {
@@ -66,7 +66,7 @@ public interface TupleGenerator extends
     public Builder(Class<? extends TupleGenerator> tupleGeneratorClass, ConstraintManager cm) {
       this.tupleGeneratorClass = Checks.checknotnull(tupleGeneratorClass);
       this.constraintManager = Checks.checknotnull(cm);
-      this.parameters = Param.EMPTY_ARRAY;
+      this.parameters = Arg.EMPTY_ARRAY;
     }
 
     public Builder(TupleGenerator.Builder base) {
@@ -92,7 +92,7 @@ public interface TupleGenerator extends
       return this;
     }
 
-    public Builder setParameters(Param[] parameters) {
+    public Builder setParameters(Arg[] parameters) {
       this.parameters = parameters;
       return this;
     }
@@ -111,7 +111,7 @@ public interface TupleGenerator extends
       ret.setFactors(this.factors);
       ret.setConstraintManager(this.constraintManager);
       ret.setTargetClass(this.targetClass);
-      ret.init(Param.Type.processParams(ret.parameterTypes(), this.parameters));
+      ret.init(Arg.Type.processParams(ret.parameterTypes(), this.parameters));
       return ret;
     }
 

@@ -42,7 +42,7 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("100"), @Param("1") }),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Arg("100"), @Arg("1") }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass1 extends TestClass {
   }
@@ -57,7 +57,7 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("-1"), @Param("1") }),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Arg("-1"), @Arg("1") }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass2 extends TestClass {
   }
@@ -72,7 +72,7 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("INVALID"), @Param("1") }),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Arg("INVALID"), @Arg("1") }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass3 extends TestClass {
   }
@@ -91,7 +91,7 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("100"), @Param("XYZ") }),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Arg("100"), @Arg("XYZ") }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass4 extends TestClass {
   }
@@ -106,7 +106,7 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("123"), @Param("SYSTEM_PROPERTY") }),
+      generator = @Generator(value = RandomTupleGenerator.class, params = { @Arg("123"), @Arg("SYSTEM_PROPERTY") }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass5 extends TestClass {
   }

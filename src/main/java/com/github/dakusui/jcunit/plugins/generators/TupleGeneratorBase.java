@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.JCUnitConfigurablePluginBase;
+import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 
 import java.util.Iterator;
@@ -16,10 +16,10 @@ import java.util.NoSuchElementException;
  * An abstract base class that provides a basic implementation of {@code TupleGenerator}.
  * Users can create a new tuple generator by extending this class.
  */
-public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
+public abstract class TupleGeneratorBase extends JCUnitPlugin.Base
     implements TupleGenerator {
   /**
-   * Parameters provided by test writers through {@code params} in '@Generator'.
+   * Parameters provided by test writers through {@code args} in '@Generator'.
    * <p/>
    * <p/>
    * E.g., The values retrieved by processing '{@literal @}Param("FailedOnly"),...}' will be
@@ -28,7 +28,7 @@ public abstract class TupleGeneratorBase extends JCUnitConfigurablePluginBase
    *   {@literal @}TupleGeneration(
    *     generator = {@literal @}Generator(
    *       value = RecordedTuplePlayer.class,
-   *       params = {@literal @}Param("FailedOnly"), ...}
+   *       args = {@literal @}Param("FailedOnly"), ...}
    *   ))
    * </pre>
    */

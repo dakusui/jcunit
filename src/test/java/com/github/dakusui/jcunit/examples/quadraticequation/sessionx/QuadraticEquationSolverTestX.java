@@ -23,7 +23,7 @@ import static org.junit.Assert.assertThat;
 @TupleGeneration(
     constraint = @Constraint(
         value = QuadraticEquationSolverTestX.CM.class,
-        params = { }))
+        args = { }))
 public class QuadraticEquationSolverTestX {
   @Rule
   public TestName   name = new TestName();

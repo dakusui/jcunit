@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.constraintmanagers;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
-import com.github.dakusui.jcunit.plugins.JCUnitConfigurablePluginBase;
+import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ConstraintManagerBase extends JCUnitConfigurablePluginBase implements ConstraintManager {
+public abstract class ConstraintManagerBase extends JCUnitPlugin.Base implements ConstraintManager {
   private final Set<Observer> observers = new LinkedHashSet<Observer>();
   private Factors factors;
 
@@ -44,7 +44,7 @@ public abstract class ConstraintManagerBase extends JCUnitConfigurablePluginBase
   }
 
   @Override
-  public Param.Type[] parameterTypes() {
-    return new Param.Type[0];
+  public Arg.Type[] parameterTypes() {
+    return new Arg.Type[0];
   }
 }

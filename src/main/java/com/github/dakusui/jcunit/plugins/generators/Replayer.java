@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.standardrunner.Recorder;
@@ -114,9 +114,9 @@ public class Replayer extends TupleGeneratorBase {
    * </ul>
    */
   @Override
-  public Param.Type[] parameterTypes() {
-    return new Param.Type[] {
-        new Param.Type.NonArrayType() {
+  public Arg.Type[] parameterTypes() {
+    return new Arg.Type[] {
+        new Arg.Type.NonArrayType() {
           @Override
           protected Object parse(String str) {
             return ReplayMode.valueOf(str);
@@ -128,8 +128,8 @@ public class Replayer extends TupleGeneratorBase {
                 + ".ReplayMode";
           }
         }.withDefaultValue(ReplayMode.All),
-        Param.Type.String.withDefaultValue(null),
-        new Param.Type.NonArrayType() {
+        Arg.Type.String.withDefaultValue(null),
+        new Arg.Type.NonArrayType() {
           @SuppressWarnings("unchecked")
           @Override
           protected Class<? extends TupleGeneratorBase> parse(
@@ -150,10 +150,10 @@ public class Replayer extends TupleGeneratorBase {
             return null;
           }
         }.withDefaultValue(IPO2TupleGenerator.class),
-        new Param.Type() {
+        new Arg.Type() {
           @Override
           public Object parse(final String[] values) {
-            return new Param() {
+            return new Arg() {
               @Override
               public String[] value() {
                 return values;
@@ -161,7 +161,7 @@ public class Replayer extends TupleGeneratorBase {
 
               @Override
               public Class<? extends Annotation> annotationType() {
-                return Param.class;
+                return Arg.class;
               }
             };
           }
@@ -251,12 +251,12 @@ public class Replayer extends TupleGeneratorBase {
         }
         ////
         // Extract parameters to be passed to fallbackGenerator.
-        Param[] paramsToFallbackGenerator;
+        Arg[] paramsToFallbackGenerator;
         if (params.length >= 4) {
           paramsToFallbackGenerator = Arrays
-              .copyOfRange(params, 3, params.length, Param[].class);
+              .copyOfRange(params, 3, params.length, Arg[].class);
         } else {
-          paramsToFallbackGenerator = new Param[0];
+          paramsToFallbackGenerator = new Arg[0];
         }
         ////
         // Wire
@@ -264,7 +264,7 @@ public class Replayer extends TupleGeneratorBase {
         generator.setFactors(tupleReplayer.getFactors());
         generator.setConstraintManager(tupleReplayer.getConstraintManager());
         generator.setTargetClass(tupleReplayer.getTargetClass());
-        generator.init(Param.Type.processParams(
+        generator.init(Arg.Type.processParams(
             generator.parameterTypes(),
             paramsToFallbackGenerator
         ));

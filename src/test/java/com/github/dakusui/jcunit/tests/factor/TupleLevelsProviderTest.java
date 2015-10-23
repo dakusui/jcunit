@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.tests.factor;
 
 import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
@@ -70,7 +70,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = @Param("3"))
+      generator = @Generator(value = IPO2TupleGenerator.class, params = @Arg("3"))
   )
   public static class TestClass3 {
     @FactorField
@@ -97,7 +97,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = @Param("1"))
+      generator = @Generator(value = IPO2TupleGenerator.class, params = @Arg("1"))
   )
   public static class TestClass4 {
     @FactorField
@@ -122,7 +122,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Param("2"), @Param("hello!") })
+      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Arg("2"), @Arg("hello!") })
   )
   public static class TestClass5 {
     @FactorField

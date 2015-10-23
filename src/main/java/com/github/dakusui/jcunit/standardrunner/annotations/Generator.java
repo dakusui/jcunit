@@ -10,5 +10,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Generator {
   Class<? extends TupleGenerator> value() default IPO2TupleGenerator.class;
 
-  Param[] params() default { };
+  Arg[] params() default { };
 }

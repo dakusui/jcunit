@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
@@ -71,7 +71,7 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
   }
 
   @Override
-  public Param.Type[] parameterTypes() {
-    return new Param.Type[]{ Param.Type.Int.withDefaultValue(2)};
+  public Arg.Type[] parameterTypes() {
+    return new Arg.Type[]{ Arg.Type.Int.withDefaultValue(2)};
   }
 }

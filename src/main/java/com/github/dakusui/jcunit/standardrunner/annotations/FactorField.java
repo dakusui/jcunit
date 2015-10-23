@@ -56,7 +56,7 @@ public @interface FactorField {
    */
   boolean includeNull() default false;
 
-  Param[] providerParams() default {};
+  Arg[] providerParams() default {};
 
   interface FactorFactory {
     FactorFactory INSTANCE = new FactorFactory.Default();
@@ -210,8 +210,8 @@ public @interface FactorField {
         }
 
         @Override
-        public Param.Type[] parameterTypes() {
-          return new Param.Type[0];
+        public Arg.Type[] parameterTypes() {
+          return new Arg.Type[0];
         }
       }
     }

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -131,8 +131,8 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     }
 
     @Override
-    public Param.Type[] parameterTypes() {
-      return new Param.Type[0];
+    public Arg.Type[] parameterTypes() {
+      return new Arg.Type[0];
     }
 
     @Override

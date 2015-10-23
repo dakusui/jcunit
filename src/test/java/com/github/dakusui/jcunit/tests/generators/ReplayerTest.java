@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.tests.generators;
 
 import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.standardrunner.Recorder;
@@ -42,7 +42,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All") }
+          params = { @Arg("All") }
       )
   )
   public static class TestClass {
@@ -213,7 +213,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator"), @Param("2") }
+          params = { @Arg("All"), @Arg(".jcunit"), @Arg("com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator"), @Arg("2") }
       ))
   public static class TestClass2 {
     @Rule
@@ -240,7 +240,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("WrongTupleGenerator"), @Param("2") }
+          params = { @Arg("All"), @Arg(".jcunit"), @Arg("WrongTupleGenerator"), @Arg("2") }
       ))
   public static class TestClass3 {
     @Rule
@@ -269,7 +269,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG") }
+          params = { @Arg("All"), @Arg(".jcunit"), @Arg("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG") }
       ))
   public static class TestClass4 {
     public abstract static class TG extends TupleGeneratorBase {
@@ -288,8 +288,8 @@ public class ReplayerTest {
       }
 
       @Override
-      public Param.Type[] parameterTypes() {
-        return new Param.Type[0];
+      public Arg.Type[] parameterTypes() {
+        return new Arg.Type[0];
       }
     }
 
@@ -325,7 +325,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2") }
+          params = { @Arg("All"), @Arg(".jcunit"), @Arg("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2") }
       ))
   public static class TestClass5 extends TestClass4 {
     @SuppressWarnings("unused")
@@ -347,7 +347,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3") }
+          params = { @Arg("All"), @Arg(".jcunit"), @Arg("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3") }
       ))
   public static class TestClass6 extends TestClass4 {
     @SuppressWarnings("unused")

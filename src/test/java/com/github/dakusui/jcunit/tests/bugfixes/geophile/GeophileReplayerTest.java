@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.standardrunner.annotations.CustomTestCases;
 import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.generators.Replayer;
@@ -20,8 +20,8 @@ import static com.github.dakusui.jcunit.standardrunner.TestCaseUtils.newTestCase
     generator = @Generator(
         value = Replayer.class,
         params = {
-            @Param("FailedOnly"),
-            @Param("src/test/resources")
+            @Arg("FailedOnly"),
+            @Arg("src/test/resources")
         }
     )
 )

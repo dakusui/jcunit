@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.fsm.concurrent;
 
 import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 import com.github.dakusui.jcunit.standardrunner.JCUnit;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonsterTest;
 import com.github.dakusui.jcunit.examples.fsm.turnstile.Turnstile;
@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 public class ConcurrentTurnstileAndFSM {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Turnstile, TurnstileTest.Spec>                           turnstile;
-  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Param("2"))
+  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Arg("2"))
   public Story<FlyingSpaghettiMonster, FlyingSpaghettiMonsterTest.Spec> fsm;
 
   @Test(timeout = 1000)
@@ -27,10 +27,10 @@ public class ConcurrentTurnstileAndFSM {
             ////
             // Simpler way to give SUT to FSM/JCUnit
             .add("turnstile", new Turnstile(), observerFactory)
-            ////
-            // More strict way to give SUT to FSM/JCUnit. This style allows you to
-            // collect parameter values given to your SUT during a test.
-            // Refer to FSMParamTest for an example.
+                ////
+                // More strict way to give SUT to FSM/JCUnit. This style allows you to
+                // collect parameter values given to your SUT during a test.
+                // Refer to FSMParamTest for an example.
             .add("fsm", new SUTFactory.Simple<FlyingSpaghettiMonster>(
                 FlyingSpaghettiMonster.class
             ), observerFactory)

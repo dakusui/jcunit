@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.constraintmanagers;
 
-import com.github.dakusui.jcunit.plugins.JCUnitConfigurablePlugin;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import java.util.List;
 import java.util.Set;
 
-public interface ConstraintManager extends JCUnitConfigurablePlugin {
+public interface ConstraintManager extends JCUnitPlugin {
   ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
 
   /**
@@ -39,16 +39,16 @@ public interface ConstraintManager extends JCUnitConfigurablePlugin {
 
   class Builder {
     private Class<? extends ConstraintManager> constraintManagerClass;
-    private Param[]                            parameters;
+    private Arg[]                              parameters;
     private Factors                            factors;
 
     public ConstraintManager build() {
       ConstraintManager ret = ReflectionUtils.create(constraintManagerClass);
-      ret.init(Param.Type.processParams(ret.parameterTypes(), this.parameters));
+      ret.init(Arg.Type.processParams(ret.parameterTypes(), this.parameters));
       return ret;
     }
 
-    public Builder setParameters(Param[] parameters) {
+    public Builder setParameters(Arg[] parameters) {
       this.parameters = parameters;
       return this;
     }

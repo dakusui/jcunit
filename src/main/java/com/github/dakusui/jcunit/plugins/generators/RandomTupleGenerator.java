@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.factor.Factor;
@@ -80,17 +80,17 @@ public class RandomTupleGenerator extends TupleGeneratorBase {
    * @see SystemProperties#randomSeed()
    */
   @Override
-  public Param.Type[] parameterTypes() {
-    return new Param.Type[] {
-        new Param.Type() {
+  public Arg.Type[] parameterTypes() {
+    return new Arg.Type[] {
+        new Arg.Type() {
           @Override
           public Object parse(String[] values) {
-            Integer ret = (Integer) Param.Type.Int.parse(values);
+            Integer ret = (Integer) Arg.Type.Int.parse(values);
             Checks.checktest(ret >= 0, "Must be non-negative, but '%s' was given.", ret);
             return ret;
           }
         },
-        new Param.Type.NonArrayType() {
+        new Arg.Type.NonArrayType() {
           @Override
           protected Object parse(String str) {
             long randomSeed = 0;

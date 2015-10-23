@@ -57,7 +57,7 @@ public @interface TupleGeneration {
         ConstraintManager constraintManager =
             new ConstraintManager.Builder()
                 .setConstraintManagerClass(constraintAnn.value())
-                .setParameters(constraintAnn.params())
+                .setParameters(constraintAnn.args())
                 .setFactors(factors).build();
         Generator generatorAnn = tupleGenerationAnn.generator();
         TupleGenerator.Builder b = new TupleGenerator.Builder()
@@ -91,7 +91,7 @@ public @interface TupleGeneration {
               errors);
           //noinspection unchecked
           generator = new FSMTupleGenerator(b, fsms, localCMs);
-          generator.init(Param.EMPTY_ARRAY);
+          generator.init(Arg.EMPTY_ARRAY);
         } else {
           generator = b.build();
         }

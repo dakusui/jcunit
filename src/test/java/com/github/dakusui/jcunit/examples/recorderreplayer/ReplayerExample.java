@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.recorderreplayer;
 
 import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.standardrunner.Recorder;
 import com.github.dakusui.jcunit.plugins.generators.Replayer;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 @TupleGeneration(
     generator = @Generator(
         value = Replayer.class,
-        params = @Param("All")
+        params = @Arg("All")
     ))
 public class ReplayerExample {
   @Rule

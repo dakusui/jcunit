@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.fsm.nested;
 
 import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 import com.github.dakusui.jcunit.standardrunner.JCUnit;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
@@ -88,7 +88,7 @@ public class NestedFSMTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<FlyingSpaghettiMonster, Spec> primary;
 
-  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Param("2") })
+  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Arg("2") })
   public Story<String, NestedSpec> nested;
 
   @Before
@@ -98,14 +98,14 @@ public class NestedFSMTest {
 
   @Test
   public void test1() {
-    ScenarioSequence.Observer.Factory observerFactory =  ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
+    ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
     FSMUtils.performStory(this, "primary", sut, observerFactory);
   }
 
   @Test
   public void test2() {
-    ScenarioSequence.Observer.Factory observerFactory =  new ScenarioSequence.Observer.Factory.ForSimple(UTUtils.stdout());
+    ScenarioSequence.Observer.Factory observerFactory = new ScenarioSequence.Observer.Factory.ForSimple(UTUtils.stdout());
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
     FSMUtils.performStory(this, "primary", sut, observerFactory);
     if (!this.nested.isPerformed()) {
@@ -118,7 +118,7 @@ public class NestedFSMTest {
 
   @Test
   public void test3() {
-    ScenarioSequence.Observer.Factory observerFactory =  ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
+    ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
     FSMUtils.performStory(this, "primary", sut, observerFactory);
     if (!this.nested.isPerformed()) {

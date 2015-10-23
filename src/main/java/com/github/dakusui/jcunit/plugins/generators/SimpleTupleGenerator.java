@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -63,7 +63,7 @@ public class SimpleTupleGenerator extends TupleGeneratorBase {
    * A user can configure nothing for this tuple generator.
    */
   @Override
-  public Param.Type[] parameterTypes() {
-    return new Param.Type[0];
+  public Arg.Type[] parameterTypes() {
+    return new Arg.Type[0];
   }
 }

@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.calc;
 
 import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
 import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.Param;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
@@ -28,7 +28,7 @@ public class NestedFieldExample extends Metatest {
   @TupleGeneration(
       generator = @Generator(
           value = IPO2TupleGenerator.class,
-          params = @Param("2")
+          params = @Arg("2")
       ))
   public static class Struct {
     @FactorField(intLevels = { 123, 456 })
