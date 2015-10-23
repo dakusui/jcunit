@@ -5,7 +5,7 @@ package com.github.dakusui.jcunit.plugins.generators;
 
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
+import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -16,8 +16,9 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
  * any parameters exists.
  */
 public interface TupleGenerator extends
-    JCUnitPlugin,
+    Plugin,
     Iterable<Tuple> {
+  void init();
 
   Factors getFactors();
 
@@ -111,7 +112,7 @@ public interface TupleGenerator extends
       ret.setFactors(this.factors);
       ret.setConstraintManager(this.constraintManager);
       ret.setTargetClass(this.targetClass);
-      ret.init(Arg.Type.processParams(ret.parameterTypes(), this.parameters));
+      ret.init();
       return ret;
     }
 

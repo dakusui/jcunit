@@ -1,9 +1,6 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session6;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Constraint;
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.standardrunner.annotations.When;
+import com.github.dakusui.jcunit.standardrunner.annotations.*;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;

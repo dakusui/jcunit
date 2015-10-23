@@ -1,36 +1,47 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.IOUtils;
+import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.standardrunner.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.standardrunner.Recorder;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-/**
- * @see Replayer#parameterTypes() for parameters definition.
- */
-public class Replayer extends TupleGeneratorBase {
+public class Replayer<S> extends TupleGeneratorBase<S> {
   private final GenerationMode         generationMode;
+  private final ReplayMode             replayMode;
+  private final TupleGenerator         baseTupleGeneratorClass;
+  private final S[]                    baseTupleGeneratorOptions;
   private       SortedMap<Long, Tuple> tuples;
   private       TupleGeneratorBase     fallbackGenerator;
 
   /**
    * Creates an object of this class.
    */
-  public Replayer() {
-    this.generationMode = SystemProperties.isReplayerEnabled() ?
-        GenerationMode.Replay :
-        GenerationMode.Fallback;
+  public Replayer(
+      @Param(source = Param.Source.RUNNER) Param.Translator<S> translator,
+      @Param(defaultValue = "IPO2TupleGenerator") TupleGenerator tupleGenerator,
+      // TODO: Review and fix
+      @Param(source = Param.Source.SYSTEM_PROPERTY, propertyKey = SystemProperties.KEY.REPLAYER) GenerationMode generationModeMode,
+      // TODO: Review and fix
+      @Param(source = Param.Source.SYSTEM_PROPERTY, propertyKey = SystemProperties.KEY.REPLAYER) ReplayMode replayMode,
+      @Param() S[] tupleGeneratorOptions
+  ) {
+    super(translator);
+    this.generationMode = generationModeMode;
+    this.replayMode = Checks.checknotnull(replayMode);
+    this.baseTupleGeneratorClass = Checks.checknotnull(tupleGenerator);
+    this.baseTupleGeneratorOptions = Checks.checknotnull(tupleGeneratorOptions);
   }
 
   /**
@@ -45,8 +56,8 @@ public class Replayer extends TupleGeneratorBase {
    * {@inheritDoc}
    */
   @Override
-  protected long initializeTuples(Object[] params) {
-    return this.generationMode.initializeTuples(this, params);
+  protected long initializeTuples() {
+    return this.generationMode.initializeTuples(this, new Object[] {} /* IMPLEMENT THIS*/);
   }
 
   private long getIdFromDirName(String dirName) {
@@ -100,84 +111,12 @@ public class Replayer extends TupleGeneratorBase {
     );
   }
 
-  /**
-   * Returns definitions of the parameters for this class.
-   * Below is the list of parameters.
-   * <ul>
-   * <li>0: Replay mode. 'All' or 'FailedOnly'. Note that 'FailedOnly' is only effective for
-   * generated test cases. So, test cases returned by '@CustomTestCase' annotated methods or
-   * {@code ConstraintManager#getViolations} will be executed regardless of this value. Remove
-   * the annotation or make the methods return empty lists to suppress then.</li>
-   * <li>1: Base directory of test data. By default, null (, which then defaults to .jcunit).</li>
-   * <li>2: Class name of a fall back tuple generator. By default IPO2TupleGenerator.</li>
-   * <li>3...: Parameters passed to fallback tuple generator.</li>
-   * </ul>
-   */
-  @Override
-  public Arg.Type[] parameterTypes() {
-    return new Arg.Type[] {
-        new Arg.Type.NonArrayType() {
-          @Override
-          protected Object parse(String str) {
-            return ReplayMode.valueOf(str);
-          }
-
-          @Override
-          public String toString() {
-            return Replayer.class.getCanonicalName()
-                + ".ReplayMode";
-          }
-        }.withDefaultValue(ReplayMode.All),
-        Arg.Type.String.withDefaultValue(null),
-        new Arg.Type.NonArrayType() {
-          @SuppressWarnings("unchecked")
-          @Override
-          protected Class<? extends TupleGeneratorBase> parse(
-              String str) {
-            try {
-              Class<?> ret = java.lang.Class.forName(str);
-              Checks.checktest(
-                  TupleGeneratorBase.class.isAssignableFrom(ret),
-                  "'%s' isn't a sub class of '%s'", ret.getClass(),
-                  TupleGeneratorBase.class
-              );
-              return (Class<? extends TupleGeneratorBase>) ret;
-            } catch (ClassNotFoundException e) {
-              Checks.checktest(false, "The class '%s' you specified as a tuple generator was not found in the class path.", str);
-            }
-            // This line will never be executed.
-            assert false;
-            return null;
-          }
-        }.withDefaultValue(IPO2TupleGenerator.class),
-        new Arg.Type() {
-          @Override
-          public Object parse(final String[] values) {
-            return new Arg() {
-              @Override
-              public String[] value() {
-                return values;
-              }
-
-              @Override
-              public Class<? extends Annotation> annotationType() {
-                return Arg.class;
-              }
-            };
-          }
-
-          @Override
-          public boolean isVarArgs() {
-            return true;
-          }
-        }
-    };
-  }
 
   public enum GenerationMode {
     Replay {
       @Override
-      long initializeTuples(Replayer tupleReplayer,
+      long initializeTuples(
+          Replayer tupleReplayer,
           Object[] params) {
         File baseDir = Recorder
             .testClassDataDirFor((String) params[1],
@@ -212,7 +151,7 @@ public class Replayer extends TupleGeneratorBase {
       @Override
       Tuple getTuple(Replayer tuplePlayer, int tupleId) {
         Checks.checkcond(tuplePlayer.tuples.containsKey((long) tupleId));
-        return tuplePlayer.tuples.get((long) tupleId);
+        return (Tuple) tuplePlayer.tuples.get((long) tupleId);
       }
 
       @Override
@@ -233,15 +172,13 @@ public class Replayer extends TupleGeneratorBase {
         if (tuplePlayer.tuples.size() == 0) {
           return -1;
         }
-        return tuplePlayer.tuples.firstKey();
+        return (Long)tuplePlayer.tuples.firstKey();
       }
     },
     Fallback {
       @SuppressWarnings("unchecked")
       @Override
-      long initializeTuples(
-          Replayer tupleReplayer,
-          Object[] params) {
+      long initializeTuples(Replayer tupleReplayer, Object[] params) {
         ////
         // Create fallbackGenerator instance.
         try {
@@ -264,10 +201,7 @@ public class Replayer extends TupleGeneratorBase {
         generator.setFactors(tupleReplayer.getFactors());
         generator.setConstraintManager(tupleReplayer.getConstraintManager());
         generator.setTargetClass(tupleReplayer.getTargetClass());
-        generator.init(Arg.Type.processParams(
-            generator.parameterTypes(),
-            paramsToFallbackGenerator
-        ));
+        generator.init();
         return generator.size();
       }
 
@@ -287,8 +221,8 @@ public class Replayer extends TupleGeneratorBase {
       }
     };
 
-    abstract long initializeTuples(Replayer tupleReplayer,
-        Object[] params);
+
+    abstract long initializeTuples(Replayer tupleReplayer, Object[] args);
 
     abstract Tuple getTuple(Replayer tuplePlayer, int tupleId);
 
@@ -310,7 +244,7 @@ public class Replayer extends TupleGeneratorBase {
         return new File(testStoreDir, Recorder.FAILED_FILENAME)
             .exists();
       }
-    };
+    },;
 
     public abstract boolean shouldBeReplayed(File testStoreDir);
   }

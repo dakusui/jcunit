@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
+import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 
 import java.util.Iterator;
@@ -16,35 +16,20 @@ import java.util.NoSuchElementException;
  * An abstract base class that provides a basic implementation of {@code TupleGenerator}.
  * Users can create a new tuple generator by extending this class.
  */
-public abstract class TupleGeneratorBase extends JCUnitPlugin.Base
+public abstract class TupleGeneratorBase<S> extends Plugin.Base<S>
     implements TupleGenerator {
-  /**
-   * Parameters provided by test writers through {@code args} in '@Generator'.
-   * <p/>
-   * <p/>
-   * E.g., The values retrieved by processing '{@literal @}Param("FailedOnly"),...}' will be
-   * assigned to this field.
-   * <pre>
-   *   {@literal @}TupleGeneration(
-   *     generator = {@literal @}Generator(
-   *       value = RecordedTuplePlayer.class,
-   *       args = {@literal @}Param("FailedOnly"), ...}
-   *   ))
-   * </pre>
-   */
-  protected Object[] params;
+
   private Factors factors = null;
   private long    size    = -1;
   private ConstraintManager constraintManager;
   private Class<?>          targetClass;
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  final public void init(Object[] processedParameters) {
-    this.params = processedParameters;
-    this.size = initializeTuples(params);
+  public TupleGeneratorBase(Param.Translator translator) {
+    super(translator);
+  }
+
+  final public void init() {
+    this.size = initializeTuples();
   }
 
   /**
@@ -54,7 +39,7 @@ public abstract class TupleGeneratorBase extends JCUnitPlugin.Base
    *
    * @return A number of test cases
    */
-  abstract protected long initializeTuples(Object[] params);
+  abstract protected long initializeTuples();
 
   /**
    * {@inheritDoc}

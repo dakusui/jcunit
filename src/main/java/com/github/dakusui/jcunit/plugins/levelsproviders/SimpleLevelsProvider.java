@@ -6,9 +6,10 @@ public abstract class SimpleLevelsProvider extends LevelsProviderBase {
   private Object[] values;
   protected Object[] args;
 
-  @Override
-  public void init(Object[] args) {
-    this.args = args;
+  public SimpleLevelsProvider() {
+    ////
+    // This provider doesn't take any parameter.
+    super(Param.Translator.NULLTRANSLATOR);
     this.values = Checks.checknotnull(values());
   }
 

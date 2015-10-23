@@ -1,12 +1,11 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
 import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
 
@@ -14,27 +13,30 @@ import java.util.*;
 
 /**
  */
-public class FSMTupleGenerator extends TupleGeneratorBase {
+public class FSMTupleGenerator<S> extends TupleGeneratorBase<S> {
   private final Map<String, FSM>                        fsms;
   private final TupleGenerator.Builder                  baseTupleGeneratorBuilder;
   private final List<Parameters.LocalConstraintManager> localCMs;
   private       List<Tuple>                             tuples;
 
   public FSMTupleGenerator(
+      Param.Translator<S> translator,
       TupleGenerator.Builder baseTG,
       Map<String, FSM> fsms,
       List<Parameters.LocalConstraintManager> localCMs) {
+    super(translator);
     this.fsms = Checks.checknotnull(fsms);
     this.baseTupleGeneratorBuilder = Checks.checknotnull(baseTG);
     this.localCMs = Collections.unmodifiableList(localCMs);
   }
 
   @Override
-  protected long initializeTuples(Object[] params) {
+  protected long initializeTuples() {
     Factors baseFactors = baseTupleGeneratorBuilder.getFactors();
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
     ConstraintManager fsmCM = new FSMConstraintManager(
+        translator,
         this.baseTupleGeneratorBuilder.getConstraintManager(),
         this.localCMs
     );
@@ -169,10 +171,5 @@ public class FSMTupleGenerator extends TupleGeneratorBase {
   @Override
   public Tuple getTuple(int tupleId) {
     return tuples.get(tupleId);
-  }
-
-  @Override
-  public Arg.Type[] parameterTypes() {
-    return new Arg.Type[] {};
   }
 }

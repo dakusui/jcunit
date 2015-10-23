@@ -126,16 +126,6 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
     }
 
     @Override
-    public void init(Object[] params) {
-
-    }
-
-    @Override
-    public Arg.Type[] parameterTypes() {
-      return new Arg.Type[0];
-    }
-
-    @Override
     public Factors getFactors() {
       return null;
     }

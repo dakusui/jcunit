@@ -52,7 +52,6 @@ public class LevelsProviderTestBase<T extends LevelsProvider> extends BehaviourT
                     return null;
                   }
                 };
-                ret.init(new Arg.ArrayBuilder().build());
                 return ret;
               }
             },

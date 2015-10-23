@@ -1,7 +1,11 @@
 package com.github.dakusui.jcunit.plugins.levelsproviders;
 
-public abstract class MappingLevelsProviderBase<T>
+public abstract class MappingLevelsProviderBase<T, S>
     extends LevelsProviderBase {
+  public MappingLevelsProviderBase(Param.Translator<S> translator) {
+    super(translator);
+  }
+
   @Override
   public int size() {
     return 1;

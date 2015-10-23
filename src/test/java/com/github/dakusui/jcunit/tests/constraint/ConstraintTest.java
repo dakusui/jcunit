@@ -1,16 +1,17 @@
 package com.github.dakusui.jcunit.tests.constraint;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Constraint;
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
+import com.github.dakusui.jcunit.standardrunner.annotations.Constraint;
+import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -33,18 +34,21 @@ public class ConstraintTest {
   }
 
   public static class TestClass {
-    @FactorField(intLevels = {1024})
+    @FactorField(intLevels = { 1024 })
     public int f1;
   }
+
   @Test
   public void testConstraintManager() throws UndefinedSymbol {
     ConstraintManager manager = new TypedConstraintManager<TestClass>() {
-      @Override protected boolean check(TestClass o, Tuple tuple)
+      @Override
+      protected boolean check(TestClass o, Tuple tuple)
           throws UndefinedSymbol {
         return true;
       }
 
-      @Override protected List<TestClass> getViolationTestObjects() {
+      @Override
+      protected List<TestClass> getViolationTestObjects() {
         List<TestClass> ret = new LinkedList<TestClass>();
         TestClass t = new TestClass();
         t.f1 = 128;
@@ -59,7 +63,8 @@ public class ConstraintTest {
     assertEquals(1024, manager.getFactors().get("f1").levels.get(0));
 
     ConstraintManager.Observer observer = new ConstraintManager.Observer() {
-      @Override public void implicitConstraintFound(Tuple constraint) {
+      @Override
+      public void implicitConstraintFound(Tuple constraint) {
       }
     };
     manager.addObserver(observer);
@@ -71,7 +76,6 @@ public class ConstraintTest {
     assertEquals(true,
         manager.check(new Tuple.Builder().put("f1", 100).build()));
 
-
     assertEquals(128, manager.getViolations().get(0).get("f1"));
   }
 
@@ -81,14 +85,20 @@ public class ConstraintTest {
       return false;
     }
   }
+
   @RunWith(JCUnit.class)
-  @TupleGeneration( constraint = @Constraint(CM.class) )
+  @TupleGeneration(constraint = @Constraint(CM.class))
   public static class TestClass2 {
-    @FactorField(intLevels = {1, 2, 3})
+    @FactorField(intLevels = { 1, 2, 3 })
     public int f;
-    @FactorField(intLevels = {1, 2, 3})
+    /**
+     * This field is used in tests reflectively.
+     */
+    @SuppressWarnings("unused")
+    @FactorField(intLevels = { 1, 2, 3 })
     public int g;
   }
+
   @Test
   public void givenCMthatRejectsAnyTestCase$whenJCUnitGeneratesTestCase$thenWhatHappens() {
     Result result = JUnitCore.runClasses(TestClass2.class);

@@ -24,7 +24,8 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
    *
    * @param baseCM A constraint manager which validates 'non-FSM' attributes.
    */
-  FSMConstraintManager(ConstraintManager baseCM, List<Parameters.LocalConstraintManager> localCMS) {
+  FSMConstraintManager(Param.Translator translator, ConstraintManager baseCM, List<Parameters.LocalConstraintManager> localCMS) {
+    super(translator);
     Checks.checknotnull(baseCM);
     this.baseConstraintManager = baseCM;
     this.localCMs = Collections.unmodifiableList(Checks.checknotnull(localCMS));

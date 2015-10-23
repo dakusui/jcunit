@@ -1,17 +1,18 @@
 package com.github.dakusui.jcunit.standardrunner.annotations;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.Errors;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 
 import java.lang.annotation.*;
 import java.lang.reflect.AnnotatedElement;
@@ -20,7 +21,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
-@Target({ ElementType.TYPE, ElementType.FIELD})
+@Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TupleGeneration {
   Generator generator() default @Generator();
@@ -30,9 +31,16 @@ public @interface TupleGeneration {
   interface TupleGeneratorFactory {
     TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory.Default();
 
+
     TupleGenerator createFromClass(Class<?> clazz);
 
-    class Default implements TupleGeneratorFactory {
+    class Default<S> implements TupleGeneratorFactory {
+      final Plugin.Param.Translator<S> translator;
+
+      public Default() {
+        this.translator = createTranslator();
+      }
+
       /**
        * Creates a {@code TupleGenerator} using annotations attached to the class
        * for which the returned generator is created.
@@ -42,10 +50,18 @@ public @interface TupleGeneration {
         Checks.checknotnull(klazz);
         TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
             klazz);
-        return createTupleGenerator(klazz, tupleGenerationAnn);
+        return createTupleGenerator(translator, klazz, tupleGenerationAnn);
       }
 
-      public TupleGenerator createTupleGenerator(Class<?> klazz,
+      private Plugin.Param.Translator<S> createTranslator() {
+        ////
+        // TODO: Implement this.
+        return null;
+      }
+
+      public TupleGenerator createTupleGenerator(
+          Plugin.Param.Translator<S> translator,
+          Class<?> klazz,
           TupleGeneration tupleGenerationAnn) {
         Checks.checknotnull(klazz);
         Checks.checknotnull(tupleGenerationAnn);
@@ -76,7 +92,7 @@ public @interface TupleGeneration {
             ////
             // It's safe to assume fsmLevelsProvider becomes non-null since we are
             // iterating over fsmFields.
-            int fsmSwitchCoverage =  switchCoverages.get(each);
+            int fsmSwitchCoverage = switchCoverages.get(each);
             validateFSMFactorField(bb, each);
             String fsmName = each.getName();
             FSM fsm = createFSM(each, fsmSwitchCoverage);
@@ -90,15 +106,15 @@ public @interface TupleGeneration {
               klazz.getCanonicalName(),
               errors);
           //noinspection unchecked
-          generator = new FSMTupleGenerator(b, fsms, localCMs);
-          generator.init(Arg.EMPTY_ARRAY);
+          generator = new FSMTupleGenerator(translator, b, fsms, localCMs);
+          generator.init();
         } else {
           generator = b.build();
         }
         return generator;
       }
 
-      private static void collectLocalConstraintManagers(List<Parameters.LocalConstraintManager> localCMs, String fsmName, FSM fsm) {
+      private void collectLocalConstraintManagers(List<Parameters.LocalConstraintManager> localCMs, String fsmName, FSM fsm) {
         for (int i = 0; i < fsm.historyLength(); i++) {
           for (Action eachAction : (List<Action>) fsm.actions()) {
             Parameters parameters = eachAction.parameters();
@@ -111,7 +127,13 @@ public @interface TupleGeneration {
                 return Checks.checknotnull(in).name;
               }
             });
-            Parameters.LocalConstraintManager localCM = new Parameters.LocalConstraintManager(baseLocalCM, localPlainParameterNames, fsmName, i);
+            Parameters.LocalConstraintManager localCM = new Parameters.LocalConstraintManager(
+                this.translator,
+                baseLocalCM,
+                localPlainParameterNames,
+                fsmName,
+                i
+            );
             localCMs.add(localCM);
           }
         }

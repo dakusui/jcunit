@@ -11,6 +11,11 @@ import java.util.List;
 
 public abstract class TypedConstraintManager<T>
     extends ConstraintManagerBase {
+  public TypedConstraintManager() {
+    //noinspection unchecked
+    super(Param.Translator.NULLTRANSLATOR);
+  }
+
   @Override public final boolean check(Tuple tuple)
       throws UndefinedSymbol {
     return check(toTestObject(tuple), tuple);
@@ -27,7 +32,7 @@ public abstract class TypedConstraintManager<T>
    * certain field's value is assigned by JCUnit or just a default value.
    *
    * If {@code false} is returned, a tuple generator may give up
-   * covering pairs contained in {@tuple}. The pair coverage will potentially be
+   * covering pairs contained in {@code tuple}. The pair coverage will potentially be
    * damaged in case {@code false} is returned incorrectly.
    *
    * It is strongly recommended to check if factors involved in the constraints are

@@ -124,7 +124,6 @@ public @interface FactorField {
         assert ann != null;
         LevelsProvider ret = ReflectionUtils.create(ann.levelsProvider());
         //noinspection ConstantConditions
-        ret.init(Checks.checknotnull(ann.providerParams()));
         return ret;
       }
 
@@ -203,15 +202,6 @@ public @interface FactorField {
         @Override
         public List<String> getErrorsOnInitialization() {
           return Collections.emptyList();
-        }
-
-        @Override
-        public void init(Object[] params) {
-        }
-
-        @Override
-        public Arg.Type[] parameterTypes() {
-          return new Arg.Type[0];
         }
       }
     }

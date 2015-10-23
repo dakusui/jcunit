@@ -274,6 +274,7 @@ public class ReplayerTest {
   public static class TestClass4 {
     public abstract static class TG extends TupleGeneratorBase {
       public TG() throws IOException {
+        super(Param.Translator.NULLTRANSLATOR);
         throw new IOException("hello!!!");
       }
 
@@ -283,13 +284,8 @@ public class ReplayerTest {
       }
 
       @Override
-      protected long initializeTuples(Object[] params) {
+      protected long initializeTuples() {
         return 0;
-      }
-
-      @Override
-      public Arg.Type[] parameterTypes() {
-        return new Arg.Type[0];
       }
     }
 

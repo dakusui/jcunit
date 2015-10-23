@@ -73,7 +73,7 @@ public class Parameters extends Factors {
     }
   }
 
-  public static class LocalConstraintManager extends ConstraintManagerBase {
+  public static class LocalConstraintManager<S> extends ConstraintManagerBase<S> {
     protected final ConstraintManager   target;
     private final   List<String>        plainParameterNames;
     /**
@@ -82,7 +82,8 @@ public class Parameters extends Factors {
      */
     private final   Map<String, String> plainToFlattenFSM;
 
-    public LocalConstraintManager(ConstraintManager target, List<String> plainParameterNames, String fsmName, int historyIndex) {
+    public LocalConstraintManager(Param.Translator<S> translator, ConstraintManager target, List<String> plainParameterNames, String fsmName, int historyIndex) {
+      super(translator);
       this.target = Checks.checknotnull(target);
       this.plainParameterNames = Collections.unmodifiableList(Checks.checknotnull(plainParameterNames));
       this.plainToFlattenFSM = new HashMap<String, String>();

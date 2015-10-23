@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
+import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.Utils;
@@ -182,7 +183,7 @@ public abstract class IPO2Test {
   }
 
   protected ConstraintManager createConstraintManager() {
-    return new NullConstraintManager();
+    return new NullConstraintManager(Plugin.Param.Translator.NULLTRANSLATOR);
   }
 
   protected GreedyIPO2Optimizer createOptimizer() {

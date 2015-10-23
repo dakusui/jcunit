@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.constraintmanagers;
 
-import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
+import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -10,8 +10,8 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import java.util.List;
 import java.util.Set;
 
-public interface ConstraintManager extends JCUnitPlugin {
-  ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
+public interface ConstraintManager extends Plugin {
+  ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager(Param.Translator.NULLTRANSLATOR);
 
   /**
    * Returns {@code true} if the given tuple doesn't violate any known constraints.
@@ -44,7 +44,6 @@ public interface ConstraintManager extends JCUnitPlugin {
 
     public ConstraintManager build() {
       ConstraintManager ret = ReflectionUtils.create(constraintManagerClass);
-      ret.init(Arg.Type.processParams(ret.parameterTypes(), this.parameters));
       return ret;
     }
 

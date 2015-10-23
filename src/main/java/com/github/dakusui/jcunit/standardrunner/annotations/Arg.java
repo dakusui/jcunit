@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.standardrunner.annotations;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
+import com.github.dakusui.jcunit.plugins.Plugin;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
@@ -60,13 +60,13 @@ public @interface Arg {
 
   String[] value();
 
-  class Translator extends JCUnitPlugin.Param.Translator<Arg> {
-    protected Translator(List<JCUnitPlugin.Param.Converter<Arg>> converters) {
+  class Translator extends Plugin.Param.Translator<Arg> {
+    protected Translator(List<Plugin.Param.Converter<Arg>> converters) {
       super(converters);
     }
 
     @Override
-    protected <T> JCUnitPlugin.Param.Converter<Arg> chooseConverter(Class<T> clazz, List<JCUnitPlugin.Param.Converter<Arg>> from) {
+    protected <T> Plugin.Param.Converter<Arg> chooseConverter(Class<T> clazz, List<Plugin.Param.Converter<Arg>> from) {
       return from.get(0);
     }
   }

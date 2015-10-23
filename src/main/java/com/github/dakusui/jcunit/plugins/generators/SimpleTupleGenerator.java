@@ -17,6 +17,10 @@ import java.util.List;
 public class SimpleTupleGenerator extends TupleGeneratorBase {
   private List<Tuple> tests;
 
+  public SimpleTupleGenerator(Param.Translator translator) {
+    super(translator);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -26,7 +30,7 @@ public class SimpleTupleGenerator extends TupleGeneratorBase {
   }
 
   @Override
-  protected long initializeTuples(Object[] params) {
+  protected long initializeTuples() {
     this.tests = new LinkedList<Tuple>();
     Factors factors = this.getFactors();
     for (String eachFactorName : factors.getFactorNames()) {
@@ -57,13 +61,5 @@ public class SimpleTupleGenerator extends TupleGeneratorBase {
       b.put(eachFactorName, factors.get(eachFactorName).levels.get(0));
     }
     return b.build();
-  }
-
-  /**
-   * A user can configure nothing for this tuple generator.
-   */
-  @Override
-  public Arg.Type[] parameterTypes() {
-    return new Arg.Type[0];
   }
 }

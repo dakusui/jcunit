@@ -29,6 +29,10 @@ public class ForSimpleTupleGeneratorTest {
   )
   public static class TestClass1 {
     public static class CM extends ConstraintManagerBase {
+      public CM(Param.Translator translator) {
+        super(translator);
+      }
+
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
         Checks.checksymbols(tuple, "f1");

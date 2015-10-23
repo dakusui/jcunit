@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.plugins.levelsproviders;
 
-import com.github.dakusui.jcunit.plugins.JCUnitPlugin;
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
+import com.github.dakusui.jcunit.plugins.Plugin;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -10,19 +9,16 @@ import java.util.List;
 /**
  * {@inheritDoc}
  */
-public abstract class LevelsProviderBase extends JCUnitPlugin.Base implements LevelsProvider {
+public abstract class LevelsProviderBase<S> extends Plugin.Base implements LevelsProvider {
   protected final LinkedList<String> errors;
 
-  protected LevelsProviderBase() {
+  public LevelsProviderBase(Param.Translator translator) {
+    super(translator);
     this.errors = new LinkedList<String>();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Arg.Type[] parameterTypes() {
-    return new Arg.Type[0];
+  public LevelsProviderBase() {
+    this(Param.Translator.NULLTRANSLATOR);
   }
 
   final public List<String> getErrorsOnInitialization() {
