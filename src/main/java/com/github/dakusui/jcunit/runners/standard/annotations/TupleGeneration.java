@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.standardrunner.annotations;
+package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
@@ -9,8 +9,8 @@ import com.github.dakusui.jcunit.exceptions.Errors;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
-import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.generators.ToplevelTupleGenerator;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 
@@ -34,11 +34,11 @@ public @interface TupleGeneration {
 
     TupleGenerator createFromClass(Class<?> clazz);
 
-    class Default<S> implements TupleGeneratorFactory {
-      final Plugin.Param.Translator<S> translator;
+    class Default implements TupleGeneratorFactory {
+      final Value.Resolver resolver;
 
       public Default() {
-        this.translator = createTranslator();
+        this.resolver = createResolver();
       }
 
       /**
@@ -50,17 +50,15 @@ public @interface TupleGeneration {
         Checks.checknotnull(klazz);
         TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
             klazz);
-        return createTupleGenerator(translator, klazz, tupleGenerationAnn);
+        return createTupleGenerator(resolver, klazz, tupleGenerationAnn);
       }
 
-      private Plugin.Param.Translator<S> createTranslator() {
-        ////
-        // TODO: Implement this.
-        return null;
+      private Value.Resolver createResolver() {
+        return new Value.Resolver();
       }
 
       public TupleGenerator createTupleGenerator(
-          Plugin.Param.Translator<S> translator,
+          Value.Resolver resolver,
           Class<?> klazz,
           TupleGeneration tupleGenerationAnn) {
         Checks.checknotnull(klazz);
@@ -76,7 +74,7 @@ public @interface TupleGeneration {
                 .setParameters(constraintAnn.args())
                 .setFactors(factors).build();
         Generator generatorAnn = tupleGenerationAnn.generator();
-        TupleGenerator.Builder b = new TupleGenerator.Builder()
+        TupleGenerator.Builder b = new TupleGenerator.Builder(this.resolver)
             .setTupleGeneratorClass(generatorAnn.value())
             .setConstraintManager(constraintManager)
             .setParameters(generatorAnn.params())
@@ -105,8 +103,7 @@ public @interface TupleGeneration {
               "Error(s) are found in test class.'%s' : %s",
               klazz.getCanonicalName(),
               errors);
-          //noinspection unchecked
-          generator = new FSMTupleGenerator(translator, b, fsms, localCMs);
+          generator = new ToplevelTupleGenerator(b, fsms, localCMs);
           generator.init();
         } else {
           generator = b.build();
@@ -128,7 +125,6 @@ public @interface TupleGeneration {
               }
             });
             Parameters.LocalConstraintManager localCM = new Parameters.LocalConstraintManager(
-                this.translator,
                 baseLocalCM,
                 localPlainParameterNames,
                 fsmName,

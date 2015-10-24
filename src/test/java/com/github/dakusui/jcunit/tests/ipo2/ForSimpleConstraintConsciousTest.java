@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;

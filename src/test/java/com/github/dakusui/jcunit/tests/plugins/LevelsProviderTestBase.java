@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.tests.plugins;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProviderBase;
 import com.github.dakusui.jcunit.ututils.behaviour.BehaviourTestBase;

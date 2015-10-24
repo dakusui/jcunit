@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session3;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
-import com.github.dakusui.jcunit.standardrunner.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
 import org.junit.Test;
 import org.junit.runner.RunWith;

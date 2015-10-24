@@ -15,9 +15,7 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
   List<Tuple> tests;
 
   public IPO2TupleGenerator(
-      Param.Translator translator,
-      @Param() int strength) {
-    super(translator);
+      @Param(source = Param.Source.INSTANCE, defaultValue = "2") int strength) {
     this.strength = strength;
   }
 
@@ -40,7 +38,7 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
   protected long initializeTuples() {
     Factors factors = this.getFactors();
     Checks.checktest(factors.size() >= 2,
-        "There must be 2 or more factors, but only %d (%s) given.",
+        "There must be 2 or more factors, but only %s (%s) given.",
         factors.size(),
         Utils.join(",", new Utils.Formatter<Factor>() {
               @Override
@@ -51,11 +49,11 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
             factors.asFactorList().toArray(new Factor[factors.size()])
         ));
     Checks.checktest(factors.size() >= strength,
-        "The strength must be greater than 1 and less than %d, but %d was given.",
+        "The strength must be greater than 1 and less than %s, but %s was given.",
         factors.size(),
         strength);
     Checks.checktest(strength >= 2,
-        "The strength must be greater than 1 and less than %d, but %d was given.",
+        "The strength must be greater than 1 and less than %s, but %s was given.",
         factors.size(),
         strength);
     IPO2 ipo2 = new IPO2(

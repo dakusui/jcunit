@@ -20,29 +20,43 @@ public class Utils {
   }
 
   public static String format(String format, Object... args) {
+    Form<Object, String> formatter = new Utils.Form<Object, String>() {
+      @Override
+      public String apply(Object in) {
+        if (in == null)
+          return null;
+        //noinspection ConstantConditions (it's already checked)
+        Class<?> toStringDeclaringClass = ReflectionUtils.getMethod(in.getClass(), "toString").getDeclaringClass();
+        if (Object.class.equals(toStringDeclaringClass)) {
+          return Utils.toString(in);
+        } else if (in instanceof Class) {
+          return getSimpleName((Class) in);
+        }
+        return in.toString();
+      }
+
+    };
     return String.format(
         Checks.checknotnull(format),
-        Utils.transform(args, new Utils.Form<Object, Object>() {
-          @Override
-          public Object apply(Object in) {
-            if (in == null)
-              return null;
-            //noinspection ConstantConditions (it's already checked)
-            Class<?> toStringDeclaringClass = ReflectionUtils.getMethod(in.getClass(), "toString").getDeclaringClass();
-            if (Object.class.equals(toStringDeclaringClass)) {
-              return getSimpleClassName(in) + "@" + System.identityHashCode(in);
-            }
-            return in;
-          }
-        }).toArray());
+        Utils.transform(args, formatter).toArray());
   }
 
-  public static String getSimpleClassName(Object obj) {
-    String className;
-    className = "".equals(Checks.checknotnull(obj).getClass().getSimpleName())
-        ? "(anonymous)"
-        : obj.getClass().getSimpleName();
-    return className;
+  public static String toString(Object o) {
+    if (o == null) return null;
+    if (o instanceof Class) {
+      return getSimpleName((Class)o);
+    }
+    return getSimpleName(o.getClass()) + "@" + System.identityHashCode(o);
+  }
+
+  public static String getSimpleName(Class c) {
+    return Utils.join("$", composeSimpleName(new LinkedList<String>(), Checks.checknotnull(c)).toArray());
+  }
+
+  private static List<String> composeSimpleName(List<String> classNest, Class c) {
+    if (c == null) return classNest;
+    classNest.add(0, c.getSimpleName());
+    return composeSimpleName(classNest, c.getEnclosingClass());
   }
 
   /**

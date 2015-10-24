@@ -1,6 +1,7 @@
-package com.github.dakusui.jcunit.standardrunner;
+package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -83,14 +84,26 @@ public class JCUnit extends Suite {
           preconditionMethods);
       Checks.checkenv(runners.size() > 0, "No test to be run was found.");
     } catch (JCUnitException e) {
-      throw getRootCauseOf(e);
+      throw tryToRecreateRootCauseException(Checks.getRootCauseOf(e), e.getMessage());
     }
   }
 
-  private static Throwable getRootCauseOf(Throwable t) {
-    return Checks.checknotnull(t).getCause() == null
-        ? t
-        : getRootCauseOf(t.getCause());
+  private static Throwable tryToRecreateRootCauseException(Throwable rootCause, String message) {
+    rootCause = Checks.checknotnull(rootCause);
+    if (message == null) return rootCause;
+    Throwable ret = null;
+    try {
+      ret = ReflectionUtils.create(rootCause.getClass(), new ReflectionUtils.TypedArg(String.class, message));
+      ret.setStackTrace(rootCause.getStackTrace());
+    } finally {
+      ////
+      // Exception thrown during re-instantiate originally thrown one should
+      // be ignored. Intentionally masked.
+      if (ret != null) //noinspection ReturnInsideFinallyBlock
+        return ret;
+      else //noinspection ReturnInsideFinallyBlock
+        return rootCause;
+    }
   }
 
   protected TupleGeneration.TupleGeneratorFactory getTupleGeneratorFactory() {

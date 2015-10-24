@@ -1,15 +1,15 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session5;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Constraint;
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.standardrunner.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;

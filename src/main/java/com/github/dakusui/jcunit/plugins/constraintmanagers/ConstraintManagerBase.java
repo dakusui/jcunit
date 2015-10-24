@@ -9,17 +9,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ConstraintManagerBase<S> extends Plugin.Base<S> implements ConstraintManager {
+public abstract class ConstraintManagerBase<S> extends Plugin.Base implements ConstraintManager {
   private final Set<Observer> observers = new LinkedHashSet<Observer>();
   private Factors factors;
 
-  public ConstraintManagerBase(Param.Translator<S> translator) {
-    super(translator);
-  }
-
   public ConstraintManagerBase() {
-    //noinspection unchecked
-    this((Param.Translator<S>) Param.Translator.NULLTRANSLATOR);
   }
 
   @Override

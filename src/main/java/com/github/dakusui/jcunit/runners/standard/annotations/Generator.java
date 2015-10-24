@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.standardrunner.annotations;
+package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
@@ -10,5 +10,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Generator {
   Class<? extends TupleGenerator> value() default IPO2TupleGenerator.class;
 
-  Arg[] params() default { };
+  Value[] params() default { };
 }

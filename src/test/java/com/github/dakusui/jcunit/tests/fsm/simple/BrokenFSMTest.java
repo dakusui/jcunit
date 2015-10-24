@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.tests.fsm.simple;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.fsm.Expectation;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.Story;

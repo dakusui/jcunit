@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.examples.fsm.nested;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.examples.fsm.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
@@ -88,7 +88,7 @@ public class NestedFSMTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<FlyingSpaghettiMonster, Spec> primary;
 
-  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Arg("2") })
+  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Value("2") })
   public Story<String, NestedSpec> nested;
 
   @Before

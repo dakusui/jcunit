@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -17,8 +16,7 @@ import java.util.List;
 public class SimpleTupleGenerator extends TupleGeneratorBase {
   private List<Tuple> tests;
 
-  public SimpleTupleGenerator(Param.Translator translator) {
-    super(translator);
+  public SimpleTupleGenerator() {
   }
 
   /**

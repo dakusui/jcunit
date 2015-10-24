@@ -1,30 +1,27 @@
-package com.github.dakusui.jcunit.fsm;
+package com.github.dakusui.jcunit.plugins.generators;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
-import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
 
 import java.util.*;
 
 /**
  */
-public class FSMTupleGenerator<S> extends TupleGeneratorBase<S> {
+public class ToplevelTupleGenerator extends TupleGeneratorBase {
   private final Map<String, FSM>                        fsms;
   private final TupleGenerator.Builder                  baseTupleGeneratorBuilder;
   private final List<Parameters.LocalConstraintManager> localCMs;
   private       List<Tuple>                             tuples;
 
-  public FSMTupleGenerator(
-      Param.Translator<S> translator,
+  public ToplevelTupleGenerator(
       TupleGenerator.Builder baseTG,
       Map<String, FSM> fsms,
       List<Parameters.LocalConstraintManager> localCMs) {
-    super(translator);
     this.fsms = Checks.checknotnull(fsms);
     this.baseTupleGeneratorBuilder = Checks.checknotnull(baseTG);
     this.localCMs = Collections.unmodifiableList(localCMs);
@@ -36,7 +33,6 @@ public class FSMTupleGenerator<S> extends TupleGeneratorBase<S> {
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
     ConstraintManager fsmCM = new FSMConstraintManager(
-        translator,
         this.baseTupleGeneratorBuilder.getConstraintManager(),
         this.localCMs
     );
@@ -120,7 +116,7 @@ public class FSMTupleGenerator<S> extends TupleGeneratorBase<S> {
       //noinspection unchecked
       StateRouter cur = new StateRouter(
           fsms.get(fsmName),
-          new StateRouter.EdgeLister(each.getValue())
+          new EdgeLister(each.getValue())
       );
       stateRouters.put(fsmName, cur);
     }

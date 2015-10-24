@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.factor.Factor;
@@ -16,9 +15,8 @@ import java.util.Random;
  * A tuple generator which generates a test suite using random.
  * A user can specify a random seed to be used in the generation.
  *
- * @see RandomTupleGenerator#parameterTypes()
  */
-public class RandomTupleGenerator<S> extends TupleGeneratorBase<S> {
+public class RandomTupleGenerator extends TupleGeneratorBase {
   private final long        seed;
   private final int         size;
   private       List<Tuple> tests;
@@ -37,17 +35,18 @@ public class RandomTupleGenerator<S> extends TupleGeneratorBase<S> {
    * JCUnit uses a number based on current time as its seed. This parameter is
    * mandatory.
    *
-   * @return definitions of parameters for this TupleGenerator
    * @see com.github.dakusui.jcunit.core.SystemProperties.KEY#RANDOMSEED
    * @see SystemProperties#randomSeed()
    */
   public RandomTupleGenerator(
-      Param.Translator<S> translator,
-      @Param() int size,
-      @Param(defaultValue = "SystemProperties.randomSeed") long seed
+      @Param(source = Param.Source.INSTANCE) int size,
+      @Param(
+          source = Param.Source.SYSTEM_PROPERTY,
+          propertyKey = SystemProperties.KEY.RANDOMSEED,
+          defaultValue = "1"
+      ) long seed
   ) {
-    super(translator);
-    Checks.checkcond(size >= 0, "Must be non-negative, but '%s' was given.");
+    Checks.checktest(size >= 0, "Must be non-negative, but '%s' was given.", size);
     this.size = size;
     this.seed = seed;
   }

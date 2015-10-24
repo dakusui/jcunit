@@ -1,7 +1,8 @@
-package com.github.dakusui.jcunit.standardrunner.annotations;
+package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.standardrunner.TestCaseUtils;
+import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
@@ -56,7 +57,7 @@ public @interface FactorField {
    */
   boolean includeNull() default false;
 
-  Arg[] providerParams() default {};
+  Value[] providerParams() default {};
 
   interface FactorFactory {
     FactorFactory INSTANCE = new FactorFactory.Default();
@@ -122,7 +123,11 @@ public @interface FactorField {
 
       private static LevelsProvider levelsProviderOf(FactorField ann) {
         assert ann != null;
-        LevelsProvider ret = ReflectionUtils.create(ann.levelsProvider());
+        Plugin.Factory<? extends LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
+            (Class<LevelsProvider>) ann.levelsProvider(),
+            new Value.Resolver()
+        );
+        LevelsProvider ret = factory.create(ann.providerParams());
         //noinspection ConstantConditions
         return ret;
       }

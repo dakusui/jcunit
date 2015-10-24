@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.core;
 import java.io.File;
 
 import static java.lang.System.currentTimeMillis;
+import static java.lang.System.getProperties;
 import static java.lang.System.getProperty;
 
 /**
@@ -58,6 +59,15 @@ public class SystemProperties {
 
   private SystemProperties() {
   }
+
+  public static String get(KEY propertyKey) {
+    return get(propertyKey, null);
+  }
+
+  public static String get(KEY key, String s) {
+    return getProperty(Checks.checknotnull(key).key(), s);
+  }
+
 
   public static File jcunitBaseDir() {
     File ret;

@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.rules;
 
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.standardrunner.JCUnitRule;
+import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitRule;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import org.junit.Before;
 import org.junit.Test;

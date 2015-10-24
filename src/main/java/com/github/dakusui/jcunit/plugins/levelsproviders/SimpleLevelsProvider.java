@@ -9,7 +9,6 @@ public abstract class SimpleLevelsProvider extends LevelsProviderBase {
   public SimpleLevelsProvider() {
     ////
     // This provider doesn't take any parameter.
-    super(Param.Translator.NULLTRANSLATOR);
     this.values = Checks.checknotnull(values());
   }
 

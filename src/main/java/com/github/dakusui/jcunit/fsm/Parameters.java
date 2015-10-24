@@ -82,8 +82,7 @@ public class Parameters extends Factors {
      */
     private final   Map<String, String> plainToFlattenFSM;
 
-    public LocalConstraintManager(Param.Translator<S> translator, ConstraintManager target, List<String> plainParameterNames, String fsmName, int historyIndex) {
-      super(translator);
+    public LocalConstraintManager(ConstraintManager target, List<String> plainParameterNames, String fsmName, int historyIndex) {
       this.target = Checks.checknotnull(target);
       this.plainParameterNames = Collections.unmodifiableList(Checks.checknotnull(plainParameterNames));
       this.plainToFlattenFSM = new HashMap<String, String>();

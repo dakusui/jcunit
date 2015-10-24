@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.tests.factor;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
-import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = @Arg("3"))
+      generator = @Generator(value = IPO2TupleGenerator.class, params = @Value("3"))
   )
   public static class TestClass3 {
     @FactorField
@@ -80,7 +80,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      System.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
+      System.out.println(String.format("(f1, f2)=(%s, %s)", f1, f2));
     }
   }
 
@@ -97,7 +97,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = @Arg("1"))
+      generator = @Generator(value = IPO2TupleGenerator.class, params = @Value("1"))
   )
   public static class TestClass4 {
     @FactorField
@@ -122,7 +122,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Arg("2"), @Arg("hello!") })
+      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Value("2"), @Value("hello!") })
   )
   public static class TestClass5 {
     @FactorField

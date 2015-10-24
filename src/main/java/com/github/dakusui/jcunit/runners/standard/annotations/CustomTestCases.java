@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.standardrunner.annotations;
+package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

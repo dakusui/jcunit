@@ -2,8 +2,16 @@ package com.github.dakusui.jcunit.plugins;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.SystemProperties;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -14,12 +22,10 @@ import java.util.List;
  * '{@literal @}Param' annotations.
  */
 public interface Plugin {
-  /**
-   * Default value is a randomly generated hash. This means you are not able to
-   * use this string as a "normal" value of this attribute. (Limitation)
-   */
-  String DUMMY_STRING_FOR_DEFAULT_VALUE = "ff6e8be2297b53e749c990e3d6bdc9bf";
+  abstract class Base implements Plugin {
+  }
 
+  @Retention(RetentionPolicy.RUNTIME)
   @interface Param {
     enum Source {
       RUNNER,
@@ -29,28 +35,44 @@ public interface Plugin {
 
     SystemProperties.KEY propertyKey() default SystemProperties.KEY.DUMMY;
 
+    RunnerContext.KEY contextKey() default RunnerContext.KEY.DUMMY;
+
     Source source() default Source.INSTANCE;
 
-    String defaultValue() default DUMMY_STRING_FOR_DEFAULT_VALUE;
+    String[] defaultValue() default {};
 
 
-    abstract class Translator<S> implements Cloneable {
-      public static final Translator NULLTRANSLATOR = new Translator(Collections.EMPTY_LIST) {
-        @Override
-        protected Converter chooseConverter(Class clazz, List from) {
-          return Converter.NULLCONVERTER;
-        }
-      };
+    class Desc<R> {
+      public final Param    parameterRequirement;
+      public final Class<R> parameterType;
+
+      public Desc(Param parameterRequirement, Class<R> parameterType) {
+        this.parameterRequirement = parameterRequirement;
+        this.parameterType = parameterType;
+      }
+    }
+
+    abstract class Resolver<S> implements Cloneable {
+      /**
+       * This resolver always pass through incoming value to target constructor.
+       */
+      public static final Resolver<Object> NULL = new PluginUtils.PassThroughResolver();
+
       private List<Converter<S>> converters;
 
-      protected Translator(List<Converter<S>> converters) {
+      protected Resolver(List<Converter<S>> converters) {
         this.converters = new LinkedList<Converter<S>>();
         this.converters.addAll(converters);
       }
 
-      <T> T translate(Class<T> requested, S value) {
-        Checks.checknotnull(requested);
-        return Checks.cast(requested, chooseConverter(requested, findCompatibleConverters(requested)).convert(requested, value));
+      public <T> T resolve(Desc<T> desc, S value) {
+        Checks.checknotnull(desc);
+        return Checks.cast(
+            desc.parameterType,
+            chooseConverter(
+                desc.parameterType,
+                findCompatibleConverters(desc.parameterType)
+            ).convert(desc.parameterType, value));
       }
 
       protected <T> List<Converter<S>> findCompatibleConverters(Class<T> targetType) {
@@ -58,33 +80,28 @@ public interface Plugin {
         List<Converter<S>> ret = new ArrayList<Converter<S>>(this.allConverters().size());
 
         for (Converter<S> each : this.allConverters()) {
-          if (ReflectionUtils.isAssignable(targetType, each.outputType())) {
+          if (each.supports(targetType)) {
             ret.add(each);
           }
         }
-        Checks.checkcond(ret.size() > 0);
+        Checks.checkcond(
+            ret.size() > 0,
+            "No compatible converter is found for target type '%s' in %s (all known converters:%s;%s)",
+            targetType,
+            this,
+            Utils.transform(this.allConverters(), new Utils.Form<Converter<S>, String>() {
+              @Override
+              public String apply(Converter<S> in) {
+                return Utils.toString(in);
+              }
+            }), this.allConverters().size());
         return ret;
       }
 
       abstract protected <T> Converter<S> chooseConverter(Class<T> clazz, List<Converter<S>> from);
 
-      public Translator<S> cloneTranslator() {
-        try {
-          Checks.cast(this.getClass(), this.clone());
-        } catch (CloneNotSupportedException e) {
-          Checks.rethrow(e);
-        }
-        ////
-        // This path should never be executed.
-        throw new RuntimeException();
-      };
-
-      private List<Converter<S>> allConverters() {
-        return this.converters;
-      }
-
-      public void addConverter(Converter<S> converter) {
-        this.converters.add(Checks.checknotnull(converter));
+      public List<Converter<S>> allConverters() {
+        return Collections.unmodifiableList(this.converters);
       }
     }
 
@@ -92,29 +109,173 @@ public interface Plugin {
      * @param <I> Input type. E.g., {@literal @}{@code Param}.
      */
     interface Converter<I> {
-      Converter<Object> NULLCONVERTER = new Converter<Object>() {
+      Converter<Object> NULL = new Converter<Object>() {
         @Override
-        public <R> R convert(Class<R> requested, Object in) {
-          return null;
+        public Object convert(Class requested, Object in) {
+          return Checks.cast(requested, in);
         }
 
         @Override
-        public Class<?> outputType() {
-          return Object.class;
+        public boolean supports(Class<?> target) {
+          return true;
         }
       };
 
-      <R> R convert(Class<R> requested, I in);
+      Object convert(Class requested, I in);
 
-      Class<?> outputType();
+      boolean supports(Class<?> target);
+
+      abstract class Simple<I> implements Converter<I> {
+        private final Class requestedType;
+
+        public Simple(Class requestedType) {
+          this.requestedType = Checks.checknotnull(requestedType);
+        }
+
+        @Override
+        public Object convert(Class requested, I in) {
+          //noinspection unchecked
+          return Checks.cast(this.requestedType, convert(in));
+        }
+
+        @Override
+        public boolean supports(Class<?> target) {
+          return ReflectionUtils.isAssignable(target, this.outputType());
+        }
+
+        protected abstract Object convert(I in);
+
+        protected Class<?> outputType() {
+          return this.requestedType;
+        }
+      }
     }
   }
 
-  abstract class Base<S> implements Plugin {
-    protected final Param.Translator<S> translator;
+  class Factory<P extends Plugin, S> {
+    private final Class<P>          pluginClass;
+    private final Param.Resolver<S> resolver;
+    private final RunnerContext     runnerContext;
 
-    public Base(Param.Translator<S> translator) {
-      this.translator = Checks.checknotnull(translator);
+    public Factory(Class<P> pluginClass, Param.Resolver<S> resolver) {
+      this.pluginClass = Checks.checknotnull(pluginClass);
+      this.resolver = Checks.checknotnull(resolver);
+      this.runnerContext = RunnerContext.NULL;
+    }
+
+    public P create(S... args) {
+      List<Object> resolvedArgs = new LinkedList<Object>();
+      try {
+        int i = 0;
+        try {
+          Constructor<P> constructor = getConstructor();
+          for (Param.Desc each : getParameterDescs(getConstructor())) {
+            Param.Source source = each.parameterRequirement.source();
+            if (source == Param.Source.INSTANCE) {
+              if (i < args.length) {
+                resolvedArgs.add(resolver.resolve(each, args[i]));
+              } else {
+                resolvedArgs.add(PluginUtils.StringArrayResolver.INSTANCE.resolve(each, each.parameterRequirement.defaultValue()));
+              }
+            } else if (source == Param.Source.RUNNER) {
+              Object value = this.runnerContext.get(each.parameterRequirement.contextKey());
+              resolvedArgs.add(PluginUtils.StringResolver.INSTANCE.resolve(
+                  each,
+                  value == null
+                      ? null
+                      : value.toString()
+              ));
+            } else if (source == Param.Source.SYSTEM_PROPERTY) {
+              String defaultValue = null;
+              if (each.parameterRequirement.defaultValue().length > 0) {
+                defaultValue = each.parameterRequirement.defaultValue()[0];
+              }
+              String value = SystemProperties.get(
+                  each.parameterRequirement.propertyKey(),
+                  defaultValue
+              );
+              resolvedArgs.add(PluginUtils.StringResolver.INSTANCE.resolve(each, value));
+            } else {
+              Checks.checkcond(false,
+                  "Unknown source: '%s' is given.",
+                  source
+              );
+            }
+
+            if (each.parameterRequirement.source() == Param.Source.INSTANCE) {
+              i++;
+            }
+          }
+          Checks.checktest(resolvedArgs.size() == constructor.getParameterTypes().length,
+              "%s: Too few or to many arguments: required=%s, given=%s",
+              constructor.getDeclaringClass(),
+              constructor.getParameterTypes().length,
+              args.length,
+              i
+          );
+          return constructor.newInstance(resolvedArgs.toArray());
+        } catch (JCUnitException e) {
+          Checks.rethrow(Checks.getRootCauseOf(e), "Failed to resolve args[%s] during instantiation of plugin '%s'", i, this.pluginClass);
+        }
+      } catch (InstantiationException e) {
+        Checks.rethrow(
+            e,
+            "Failed to instantiate a plugin '%s'",
+            this.pluginClass
+        );
+      } catch (IllegalAccessException e) {
+        Checks.rethrow(
+            e,
+            "Failed to instantiate a plugin '%s' due to an illegal access",
+            this.pluginClass
+        );
+      } catch (InvocationTargetException e) {
+        Checks.rethrow(
+            e.getTargetException(),
+            "Failed to instantiate a plugin '%s' due to an illegal access",
+            this.pluginClass
+        );
+      }
+      throw new RuntimeException("This path shouldn't be executed. Something went wrong.");
+    }
+
+    private Constructor<P> getConstructor() {
+      Constructor[] constructors = Checks.cast(Constructor[].class, this.pluginClass.getConstructors());
+      Checks.checkplugin(
+          constructors.length == 1,
+          "There must be 1 and only 1 constructor in order to use '%s' as a JCUnit plug-in. (%s found)",
+          this.pluginClass,
+          constructors.length);
+      //noinspection unchecked
+      return (Constructor<P>) constructors[0];
+    }
+
+    private static <P> List<Param.Desc> getParameterDescs(Constructor<P> constructor) {
+      List<Param.Desc> ret = new LinkedList<Param.Desc>();
+      Class<?>[] parameterTypes = constructor.getParameterTypes();
+      int i = 0;
+      for (Annotation[] each : constructor.getParameterAnnotations()) {
+        ret.add(createDesc(parameterTypes[i], each));
+        i++;
+      }
+      return ret;
+    }
+
+    private static <T> Param.Desc createDesc(Class<T> parameterType, Annotation[] annotationsToParameter) {
+      Param paramAnn = null;
+      for (Annotation each : annotationsToParameter) {
+        if (each instanceof Param) {
+          paramAnn = Checks.cast(Param.class, each);
+          break;
+        }
+      }
+      Checks.checknotnull(
+          paramAnn,
+          "@%s annotation is missing for a parameter whose type is %s",
+          Param.class,
+          parameterType
+      );
+      return new Param.Desc<T>(paramAnn, parameterType);
     }
   }
 }

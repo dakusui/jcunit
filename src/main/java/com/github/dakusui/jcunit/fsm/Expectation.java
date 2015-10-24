@@ -82,7 +82,7 @@ public class Expectation<SUT> {
           new Output(Output.Type.VALUE_RETURNED, returnedValue),
           observer);
       if (!r.isSuccessful()) {
-        b.addFailedReason(Utils.format(r.getDescription()));
+        b.addFailedReason(r.getDescription());
       }
     }
     if (!this.state.check(context.sut)) {

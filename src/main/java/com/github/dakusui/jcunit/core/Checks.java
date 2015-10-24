@@ -155,7 +155,7 @@ public class Checks {
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static void rethrow(Throwable e, String msgOrFmt, Object... args) {
-    throw new JCUnitException(composeMessage(msgOrFmt, args), e);
+    throw new JCUnitException(composeMessage(msgOrFmt, args) + ":["  +e.getMessage() + "]", e);
   }
 
   /**
@@ -196,5 +196,11 @@ public class Checks {
     );
     //noinspection unchecked
     return (T) parameter;
+  }
+
+  public static Throwable getRootCauseOf(Throwable t) {
+    return checknotnull(t).getCause() == null
+        ? t
+        : getRootCauseOf(t.getCause());
   }
 }

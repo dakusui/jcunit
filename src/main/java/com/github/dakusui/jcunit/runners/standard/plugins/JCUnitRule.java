@@ -1,9 +1,10 @@
-package com.github.dakusui.jcunit.standardrunner;
+package com.github.dakusui.jcunit.runners.standard.plugins;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 

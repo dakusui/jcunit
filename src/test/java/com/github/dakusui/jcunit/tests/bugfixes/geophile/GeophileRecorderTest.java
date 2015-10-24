@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.core.IOUtils;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;
-import com.github.dakusui.jcunit.standardrunner.Recorder;
+import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;

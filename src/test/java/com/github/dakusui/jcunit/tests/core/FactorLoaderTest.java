@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;

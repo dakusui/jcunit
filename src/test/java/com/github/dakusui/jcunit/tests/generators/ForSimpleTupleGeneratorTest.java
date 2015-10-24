@@ -1,17 +1,17 @@
 package com.github.dakusui.jcunit.tests.generators;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.Constraint;
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.generators.SimpleTupleGenerator;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
-import com.github.dakusui.jcunit.standardrunner.TestCaseUtils;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,10 +29,6 @@ public class ForSimpleTupleGeneratorTest {
   )
   public static class TestClass1 {
     public static class CM extends ConstraintManagerBase {
-      public CM(Param.Translator translator) {
-        super(translator);
-      }
-
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
         Checks.checksymbols(tuple, "f1");

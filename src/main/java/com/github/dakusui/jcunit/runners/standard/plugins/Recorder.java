@@ -1,7 +1,8 @@
-package com.github.dakusui.jcunit.standardrunner;
+package com.github.dakusui.jcunit.runners.standard.plugins;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.runner.Description;
 
 import java.io.File;

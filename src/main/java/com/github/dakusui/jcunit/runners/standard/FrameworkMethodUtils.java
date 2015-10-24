@@ -1,8 +1,8 @@
-package com.github.dakusui.jcunit.standardrunner;
+package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.CustomTestCases;
-import com.github.dakusui.jcunit.standardrunner.annotations.Precondition;
-import com.github.dakusui.jcunit.standardrunner.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.FSMUtils;

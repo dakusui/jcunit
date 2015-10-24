@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit.examples.calc;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.FactorField;
-import com.github.dakusui.jcunit.standardrunner.annotations.Generator;
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
-import com.github.dakusui.jcunit.standardrunner.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
-import com.github.dakusui.jcunit.standardrunner.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
 import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
-import com.github.dakusui.jcunit.standardrunner.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;
@@ -28,7 +28,7 @@ public class NestedFieldExample extends Metatest {
   @TupleGeneration(
       generator = @Generator(
           value = IPO2TupleGenerator.class,
-          params = @Arg("2")
+          params = @Value("2")
       ))
   public static class Struct {
     @FactorField(intLevels = { 123, 456 })
@@ -76,7 +76,7 @@ public class NestedFieldExample extends Metatest {
     } finally {
       UTUtils.stdout().println(
           Utils.format(
-              "testname=%s: f1=%d, op=%s, f2=%d = %s ; struct = (%s)",
+              "testname=%s: f1=%s, op=%s, f2=%s = %s ; struct = (%s)",
               this.testDesc.getTestName(),
               f1,
               op,

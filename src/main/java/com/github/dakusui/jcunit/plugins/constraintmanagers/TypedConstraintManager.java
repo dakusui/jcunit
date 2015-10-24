@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.constraintmanagers;
 
-import com.github.dakusui.jcunit.standardrunner.TestCaseUtils;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
@@ -12,8 +12,6 @@ import java.util.List;
 public abstract class TypedConstraintManager<T>
     extends ConstraintManagerBase {
   public TypedConstraintManager() {
-    //noinspection unchecked
-    super(Param.Translator.NULLTRANSLATOR);
   }
 
   @Override public final boolean check(Tuple tuple)

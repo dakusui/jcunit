@@ -183,7 +183,7 @@ public abstract class IPO2Test {
   }
 
   protected ConstraintManager createConstraintManager() {
-    return new NullConstraintManager(Plugin.Param.Translator.NULLTRANSLATOR);
+    return new NullConstraintManager();
   }
 
   protected GreedyIPO2Optimizer createOptimizer() {

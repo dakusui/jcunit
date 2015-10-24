@@ -142,29 +142,4 @@ public class StateRouter<SUT> {
     }
   }
 
-  static class EdgeLister {
-    private final List<ScenarioSequence> mainScenarioSequences;
-
-    EdgeLister(List<ScenarioSequence> scenarioSequences) {
-      this.mainScenarioSequences = Checks.checknotnull(scenarioSequences);
-    }
-
-    protected List<Edge> possibleEdgesFrom(State state) {
-      List<Edge> ret = new LinkedList<Edge>();
-      for (ScenarioSequence<?> eachScenario : this.mainScenarioSequences) {
-        for (int i = 0; i < eachScenario.size(); i++) {
-          Scenario each = eachScenario.get(i);
-          if (each.given.equals(state) && !each.then().state
-              .equals(State.VOID)) {
-            //noinspection unchecked
-            Edge<?> t = new Edge(eachScenario.action(i),
-                eachScenario.args(i));
-            if (!ret.contains(t))
-              ret.add(t);
-          }
-        }
-      }
-      return ret;
-    }
-  }
 }

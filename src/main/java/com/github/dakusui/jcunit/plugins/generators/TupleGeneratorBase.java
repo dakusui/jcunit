@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
  * An abstract base class that provides a basic implementation of {@code TupleGenerator}.
  * Users can create a new tuple generator by extending this class.
  */
-public abstract class TupleGeneratorBase<S> extends Plugin.Base<S>
+public abstract class TupleGeneratorBase extends Plugin.Base
     implements TupleGenerator {
 
   private Factors factors = null;
@@ -24,8 +24,7 @@ public abstract class TupleGeneratorBase<S> extends Plugin.Base<S>
   private ConstraintManager constraintManager;
   private Class<?>          targetClass;
 
-  public TupleGeneratorBase(Param.Translator translator) {
-    super(translator);
+  public TupleGeneratorBase() {
   }
 
   final public void init() {
@@ -191,7 +190,7 @@ public abstract class TupleGeneratorBase<S> extends Plugin.Base<S>
   /**
    * Returns a {@code Tuple} object corresponds to the given {@code tupleId}.
    */
-  public abstract Tuple getTuple(int tupleId);
+  protected abstract Tuple getTuple(int tupleId);
 }
 
 

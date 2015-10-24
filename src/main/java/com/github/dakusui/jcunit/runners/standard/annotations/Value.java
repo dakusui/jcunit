@@ -1,9 +1,10 @@
-package com.github.dakusui.jcunit.standardrunner.annotations;
+package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.plugins.PluginUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
@@ -13,8 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Arg {
-  Arg[] EMPTY_ARRAY = new ArrayBuilder().build();
+public @interface Value {
+  String[] value();
 
   class Builder {
     private String[] values;
@@ -27,11 +28,11 @@ public @interface Arg {
       return this;
     }
 
-    public Arg build() {
-      return new Arg() {
+    public Value build() {
+      return new Value() {
         @Override
         public Class<? extends Annotation> annotationType() {
-          return Arg.class;
+          return Value.class;
         }
 
         @Override
@@ -43,30 +44,50 @@ public @interface Arg {
   }
 
   class ArrayBuilder {
-    private final List<Arg> args = new LinkedList<Arg>();
+    private final List<Value> values = new LinkedList<Value>();
 
     public ArrayBuilder() {
     }
 
     public ArrayBuilder add(String... values) {
-      args.add(new Builder().add(values).build());
+      this.values.add(new Builder().add(values).build());
       return this;
     }
 
-    public Arg[] build() {
-      return this.args.toArray(new Arg[this.args.size()]);
+    public Value[] build() {
+      return this.values.toArray(new Value[this.values.size()]);
     }
   }
 
-  String[] value();
+  class Resolver extends Plugin.Param.Resolver<Value> {
+    public Resolver() {
+      super(createConverters(PluginUtils.StringArrayResolver.INSTANCE.allConverters()));
+    }
 
-  class Translator extends Plugin.Param.Translator<Arg> {
-    protected Translator(List<Plugin.Param.Converter<Arg>> converters) {
-      super(converters);
+    private static List<Plugin.Param.Converter<Value>> createConverters(List<Plugin.Param.Converter<String[]>> converters) {
+      return Utils.transform(
+          Checks.checknotnull(converters),
+          new Utils.Form<Plugin.Param.Converter<String[]>, Plugin.Param.Converter<Value>>() {
+            @Override
+            public Plugin.Param.Converter<Value> apply(final Plugin.Param.Converter<String[]> inConverter) {
+              return new Plugin.Param.Converter<Value>() {
+                @Override
+                public Object convert(Class requested, Value inValue) {
+                  return inConverter.convert(requested, inValue.value());
+                }
+
+                @Override
+                public boolean supports(Class<?> target) {
+                  return inConverter.supports(target);
+                }
+              };
+            }
+          }
+      );
     }
 
     @Override
-    protected <T> Plugin.Param.Converter<Arg> chooseConverter(Class<T> clazz, List<Plugin.Param.Converter<Arg>> from) {
+    protected <T> Plugin.Param.Converter<Value> chooseConverter(Class<T> clazz, List<Plugin.Param.Converter<Value>> from) {
       return from.get(0);
     }
   }
@@ -125,39 +146,39 @@ public @interface Arg {
     /**
      * TODO: update this javadoc.
      * Initializes this object.
-     *
+     * <p/>
      * Users of the implementations of this interface must call this method right
      * after this class is instantiated.
      * <p/>
      * Until this method is called, behaviors of any other methods will not be predictable.
-     *
+     * <p/>
      * The parameters ({@code processedParameters}) are values that are already
      * validated and translated into ones the users (and the plug-in) originally intended by
      * using {@code @Params} annotations.
-     *
+     * <p/>
      * That is, if an annotation below is given,
-     *
+     * <p/>
      * <pre>
      *  args = {
      *      {@literal @}Param("2")
      *  }),
      * </pre>
-     *
+     * <p/>
      * And the {@code parameterTypes} returns
-     *
+     * <p/>
      * <pre>
      *   new ParamType[]{ ParamType.Int }
      * </pre>
-     *
+     * <p/>
      * then, the user's intention is to pass an int value 2 to this plug in.
-     *
+     * <p/>
      * So the {@code processedParameters} will be an array whose first and only element
      * is an int, 2.
      *
-     * @param args An array of parameter values.
+     * @param values An array of parameter values.
      */
-    public static Object[] processParams(Type[] types, Arg[] args) {
-      Checks.checknotnull(args);
+    public static Object[] processParams(Type[] types, Value[] values) {
+      Checks.checknotnull(values);
       Checks.checknotnull(types);
       int minLength = types.length;
       boolean varArgsSpecified = false;
@@ -178,27 +199,27 @@ public @interface Arg {
             Arrays.toString(types));
       }
       if (!varArgsSpecified) {
-        Checks.checktest(minLength <= args.length && args.length <= types.length,
-            "Too little or too many number of parameters (at least %d and %d at maximum required, but %d given).: %s",
+        Checks.checktest(minLength <= values.length && values.length <= types.length,
+            "Too little or too many number of parameters (at least %s and %s at maximum required, but %s given).: %s",
             minLength,
             types.length,
-            args.length,
-            Arrays.toString(args)
+            values.length,
+            Arrays.toString(values)
         );
       } else {
-        Checks.checktest(minLength <= args.length,
-            "Too little number of parameters (at least %d required, but %d given).: %s",
+        Checks.checktest(minLength <= values.length,
+            "Too little number of parameters (at least %s required, but %s given).: %s",
             minLength,
-            args.length,
-            Arrays.toString(args)
+            values.length,
+            Arrays.toString(values)
         );
       }
-      Object[] ret = new Object[Math.max(types.length, args.length)];
+      Object[] ret = new Object[Math.max(types.length, values.length)];
       int i = 0;
       boolean varArgsDefined = false;
       boolean varArgsParameterPresent = false;
       for (Type t : types) {
-        if (i >= args.length) {
+        if (i >= values.length) {
           if (t.hasDefaultValue()) {
             ret[i] = t.defaultValue();
           } else if (t.isVarArgs()) {
@@ -208,18 +229,18 @@ public @interface Arg {
             break;
           } else {
             Checks.checkplugin(false, "Failed to parse %s (%s) in %d",
-                Arrays.toString(args), Arrays.toString(types), i);
+                Arrays.toString(values), Arrays.toString(types), i);
           }
         } else {
           try {
             if (!t.isVarArgs()) {
-              ret[i] = t.parse(args[i].value());
+              ret[i] = t.parse(values[i].value());
             } else {
               Checks.checkplugin(i == types.length - 1,
                   "Var args parameter can only be placed at the last of parameters.");
               varArgsDefined = true;
-              while (i < args.length) {
-                ret[i] = t.parse(args[i].value());
+              while (i < values.length) {
+                ret[i] = t.parse(values[i].value());
                 varArgsParameterPresent = true;
                 i++;
               }
@@ -233,10 +254,10 @@ public @interface Arg {
             Checks.rethrow(e,
                 java.lang.String.format(
                     "The given value '%s' can't be converted to '%s' value.: %dth value in %s",
-                    Arrays.toString(args[i].value()),
+                    Arrays.toString(values[i].value()),
                     types[i],
                     i,
-                    Arrays.toString(args)
+                    Arrays.toString(values)
                 ));
           }
         }

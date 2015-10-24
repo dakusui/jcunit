@@ -1,11 +1,11 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,8 +24,8 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
    *
    * @param baseCM A constraint manager which validates 'non-FSM' attributes.
    */
-  FSMConstraintManager(Param.Translator translator, ConstraintManager baseCM, List<Parameters.LocalConstraintManager> localCMS) {
-    super(translator);
+  public FSMConstraintManager(ConstraintManager baseCM, List<Parameters.LocalConstraintManager> localCMS) {
+    super();
     Checks.checknotnull(baseCM);
     this.baseConstraintManager = baseCM;
     this.localCMs = Collections.unmodifiableList(Checks.checknotnull(localCMS));

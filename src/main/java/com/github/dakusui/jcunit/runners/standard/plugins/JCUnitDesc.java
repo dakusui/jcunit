@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.standardrunner;
+package com.github.dakusui.jcunit.runners.standard.plugins;
 
 import java.io.Serializable;
 

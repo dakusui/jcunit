@@ -3,13 +3,11 @@ package com.github.dakusui.jcunit.plugins.generators;
 /**
  */
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 
 /**
  * Implementations of this interface must guarantee that a public constructor without
@@ -52,29 +50,55 @@ public interface TupleGenerator extends
    */
   long size();
 
-  class Builder {
+  /**
+   * A class to build a tuple generator.
+   *
+   * @param <S> data source type. Can be {@literal @}Param, {@code String}, etc.
+   */
+  class Builder<S> {
 
-    private Class<? extends TupleGenerator> tupleGeneratorClass;
-    private Factors                         factors;
-    private ConstraintManager               constraintManager;
-    private Arg[]                           parameters;
-    private Class<?>                        targetClass;
+    private final Param.Resolver<S>               resolver;
+    private       Class<? extends TupleGenerator> tupleGeneratorClass;
+    private       Factors                         factors;
+    private       ConstraintManager               constraintManager;
+    private       S[]                             parameters;
+    private       Class<?>                        targetClass;
 
-    public Builder() {
-      this(IPO2TupleGenerator.class, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER);
+    public static Builder<Object> createSimpleBuilder(Object... arguments) {
+      return createSimpleBuilder(IPO2TupleGenerator.class, arguments);
     }
 
-    public Builder(Class<? extends TupleGenerator> tupleGeneratorClass, ConstraintManager cm) {
+    public static Builder<Object> createSimpleBuilder(Class<? extends TupleGenerator> tupleGeneratorClass, Object... arguments) {
+      return new Builder<Object>(
+          Param.Resolver.NULL,
+          tupleGeneratorClass,
+          arguments,
+          ConstraintManager.DEFAULT_CONSTRAINT_MANAGER
+      );
+    }
+
+    public Builder(Param.Resolver<S> resolver, S... arguments) {
+      this(resolver, IPO2TupleGenerator.class, arguments, ConstraintManager.DEFAULT_CONSTRAINT_MANAGER);
+    }
+
+    public Builder(
+        Param.Resolver<S> resolver,
+        Class<? extends TupleGenerator> tupleGeneratorClass,
+        S[] argumentsForTupleGenerator,
+        ConstraintManager cm
+    ) {
+      this.resolver = Checks.checknotnull(resolver);
       this.tupleGeneratorClass = Checks.checknotnull(tupleGeneratorClass);
       this.constraintManager = Checks.checknotnull(cm);
-      this.parameters = Arg.EMPTY_ARRAY;
+      this.parameters = argumentsForTupleGenerator;
     }
 
-    public Builder(TupleGenerator.Builder base) {
-      this.tupleGeneratorClass = base.tupleGeneratorClass;
-      this.factors = base.factors;
-      this.constraintManager = base.getConstraintManager();
-      this.parameters = base.parameters;
+    public Builder(TupleGenerator.Builder<S> base) {
+      this.resolver = Checks.checknotnull(base.resolver);
+      this.tupleGeneratorClass = Checks.checknotnull(base.tupleGeneratorClass);
+      this.factors = Checks.checknotnull(base.factors);
+      this.constraintManager = Checks.checknotnull(base.getConstraintManager());
+      this.parameters = Checks.checknotnull(base.parameters);
     }
 
     public Builder setTupleGeneratorClass(
@@ -93,7 +117,7 @@ public interface TupleGenerator extends
       return this;
     }
 
-    public Builder setParameters(Arg[] parameters) {
+    public Builder setParameters(S[] parameters) {
       this.parameters = parameters;
       return this;
     }
@@ -108,7 +132,11 @@ public interface TupleGenerator extends
       Checks.checknotnull(this.tupleGeneratorClass);
       Checks.checknotnull(this.factors);
       Checks.checknotnull(this.constraintManager);
-      TupleGenerator ret = ReflectionUtils.create(this.tupleGeneratorClass);
+      Plugin.Factory<TupleGenerator, S> factory = new Factory<TupleGenerator, S>(
+          (Class<TupleGenerator>) this.tupleGeneratorClass,
+          this.resolver
+      );
+      TupleGenerator ret = factory.create(this.parameters);
       ret.setFactors(this.factors);
       ret.setConstraintManager(this.constraintManager);
       ret.setTargetClass(this.targetClass);

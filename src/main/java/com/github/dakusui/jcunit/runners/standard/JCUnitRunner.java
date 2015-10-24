@@ -1,6 +1,6 @@
-package com.github.dakusui.jcunit.standardrunner;
+package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.standardrunner.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -183,4 +183,5 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   @SuppressWarnings("unused")
   public static void noMatchingTestMethodIsFoundForThisTestCase() {
   }
+
 }

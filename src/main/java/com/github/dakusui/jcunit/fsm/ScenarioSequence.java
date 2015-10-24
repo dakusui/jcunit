@@ -437,7 +437,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       for (int i = 0; i < scenarios.length; i++) {
         scenarios[i] = scenarioSequence.get(i);
       }
-      return Utils.format("[%d]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
+      return Utils.format("[%s]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
     }
 
     static Observer createSimpleObserver(String fsmName, final PrintStream ps) {
@@ -459,27 +459,27 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
         @Override
         public void startSequence(Story.Stage stage, ScenarioSequence scenarioSequence) {
-          ps.println(Utils.format("%s[%d]Starting(%s#%s):%s", indent(generation), Thread.currentThread().getId(), fsmName, stage, scenarioSequence));
+          ps.println(Utils.format("%s[%s]Starting(%s#%s):%s", indent(generation), Thread.currentThread().getId(), fsmName, stage, scenarioSequence));
         }
 
         @Override
         public void run(Story.Stage stage, Scenario scenario, Object o) {
-          ps.println(Utils.format("%s[%d]Running(%s#%s):%s expecting %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, scenario, scenario.then()));
+          ps.println(Utils.format("%s[%s]Running(%s#%s):%s expecting %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, scenario, scenario.then()));
         }
 
         @Override
         public void passed(Story.Stage stage, Scenario scenario, Object o) {
-          ps.println(Utils.format("%s[%d]Passed(%s#%s)", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage));
+          ps.println(Utils.format("%s[%s]Passed(%s#%s)", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage));
         }
 
         @Override
         public void failed(Story.Stage stage, Scenario scenario, Object o, Expectation.Result result) {
-          ps.println(Utils.format("%s[%d]Failed(%s#%s): %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, result.getMessage()));
+          ps.println(Utils.format("%s[%s]Failed(%s#%s): %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, result.getMessage()));
         }
 
         @Override
         public void endSequence(Story.Stage stage, ScenarioSequence seq) {
-          ps.println(Utils.format("%s[%d]End(%s#%s)", indent(generation), Thread.currentThread().getId(), fsmName, stage));
+          ps.println(Utils.format("%s[%s]End(%s#%s)", indent(generation), Thread.currentThread().getId(), fsmName, stage));
         }
       };
     }

@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.examples.testgen;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
 
 import java.io.PrintStream;
@@ -36,7 +37,7 @@ public class TestGenWithoutJUnit {
         .addLevel("64")
         .build();
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
-    TupleGenerator tg = new TupleGenerator.Builder()
+    TupleGenerator tg = TupleGenerator.Builder.createSimpleBuilder()
         .setFactors(factors)
     /* -- To set custom parameter(s) for the tuple generator, you can do below.
         .setParameters(new Param.ArrayBuilder()
@@ -53,7 +54,7 @@ public class TestGenWithoutJUnit {
   }
 
   public void moreFluentStyleRun(PrintStream ps) {
-    TupleGenerator tg = new TupleGenerator.Builder().setFactors(
+    TupleGenerator tg = TupleGenerator.Builder.createSimpleBuilder(IPO2TupleGenerator.class, 2).setFactors(
         new Factors.Builder()
             .add("OS", "Windows", "Linux")
             .add("Browser", "Chrome", "Firefox")

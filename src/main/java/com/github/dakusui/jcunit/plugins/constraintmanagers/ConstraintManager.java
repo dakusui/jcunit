@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.constraintmanagers;
 
 import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.standardrunner.annotations.Arg;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface ConstraintManager extends Plugin {
-  ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager(Param.Translator.NULLTRANSLATOR);
+  ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
 
   /**
    * Returns {@code true} if the given tuple doesn't violate any known constraints.
@@ -39,7 +39,7 @@ public interface ConstraintManager extends Plugin {
 
   class Builder {
     private Class<? extends ConstraintManager> constraintManagerClass;
-    private Arg[]                              parameters;
+    private Value[]                            parameters;
     private Factors                            factors;
 
     public ConstraintManager build() {
@@ -47,7 +47,7 @@ public interface ConstraintManager extends Plugin {
       return ret;
     }
 
-    public Builder setParameters(Arg[] parameters) {
+    public Builder setParameters(Value[] parameters) {
       this.parameters = parameters;
       return this;
     }

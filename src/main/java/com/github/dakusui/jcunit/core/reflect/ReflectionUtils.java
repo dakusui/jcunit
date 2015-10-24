@@ -42,7 +42,7 @@ public class ReflectionUtils {
    * Caller must be responsible for returned value's type.
    *
    * @param obj An object from which {@code f}'s value is retrieved.
-   * @param f A field of which value is retrieved.
+   * @param f   A field of which value is retrieved.
    * @param <T> Type of the returned value.
    */
   public static <T> T getFieldValue(Object obj, Field f) {
@@ -64,6 +64,42 @@ public class ReflectionUtils {
     return null;
   }
 
+
+  public static <T> T create(Class<T> clazz, TypedArg... typedArgs) {
+    Checks.checknotnull(clazz);
+    Class[] types = Utils.transform(typedArgs, new Utils.Form<TypedArg, Class>() {
+      @Override
+      public Class apply(TypedArg in) {
+        return in.type;
+      }
+    }).toArray(new Class[typedArgs.length]);
+    try {
+      return clazz.getConstructor(types).newInstance(
+          Utils.transform(typedArgs, new Utils.Form<TypedArg, Object>() {
+            @Override
+            public Object apply(TypedArg in) {
+              return in.value;
+            }
+          }).toArray()
+      );
+    } catch (NoSuchMethodException e) {
+      Checks.rethrow(e,
+          "Failed to find a constructor in '%s' which matches %s",
+          Arrays.toString(types)
+      );
+    } catch (InvocationTargetException e) {
+      Checks.rethrow(e.getTargetException(),
+          "An exception thrown during instantiation of '%s'", clazz);
+    } catch (InstantiationException e) {
+      Checks.rethrow(e,
+          "Instantiation of '%s' is failed.", clazz);
+    } catch (IllegalAccessException e) {
+      Checks.rethrow(e,
+          "An exception thrown during instantiation of '%s'", clazz);
+    }
+    throw new RuntimeException("This path shouldn't be executed. Something went wrong");
+  }
+
   public static <T> T create(Class<T> clazz) {
     try {
       return Checks.checknotnull(clazz).newInstance();
@@ -76,17 +112,17 @@ public class ReflectionUtils {
     } catch (Exception e) {
       Checks.rethrow(e, "A checked exception is thrown from '%s' during instantiation.", clazz);
     }
-    return null;
+    throw new RuntimeException("This path shouldn't be executed. Something went wrong");
   }
 
   /**
    * Invokes a {@code method } on {@code obj} with {@code args}.
    * Caller must be responsible for checking the returned value's type.
    *
-   * @param obj An object on which {@code method} is invoked.
+   * @param obj    An object on which {@code method} is invoked.
    * @param method A {@code method} to be invoked.
-   * @param args Arguments given to {@code method}.
-   * @param <T> Type of returned value from {@code method}.
+   * @param args   Arguments given to {@code method}.
+   * @param <T>    Type of returned value from {@code method}.
    */
   public static <T> T invokeMethod(Object obj, Method method, Object... args) {
     try {
@@ -127,7 +163,8 @@ public class ReflectionUtils {
     Checks.checknotnull(c);
     Checks.checkcond(isWrapper(c));
     for (Class<?>[] each : primitivesAndWrappers) {
-      if (each[1].equals(c)) return each[0];
+      if (each[1].equals(c))
+        return each[0];
     }
     assert false : "c=" + c;
     throw new RuntimeException();
@@ -136,7 +173,8 @@ public class ReflectionUtils {
   public static boolean isWrapper(Class<?> c) {
     Checks.checknotnull(c);
     for (Class<?>[] each : primitivesAndWrappers) {
-      if (each[1].equals(c)) return true;
+      if (each[1].equals(c))
+        return true;
     }
     return false;
   }
@@ -239,5 +277,15 @@ public class ReflectionUtils {
       }
     });
     return ret.toArray(new Field[ret.size()]);
+  }
+
+  public static class TypedArg {
+    public final Class  type;
+    public final Object value;
+
+    public TypedArg(Class type, Object value) {
+      this.type = Checks.checknotnull(type);
+      this.value = value;
+    }
   }
 }
