@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -11,8 +11,8 @@ import com.github.dakusui.jcunit.ututils.tuples.NoConstraintViolationExpectation
 import com.github.dakusui.jcunit.ututils.tuples.SanityExpectation;
 import com.github.dakusui.jcunit.ututils.tuples.ValidTuplesCoveredExpectation;
 import com.github.dakusui.jcunit.ututils.tuples.VerificationResult;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -103,7 +103,7 @@ public class BenchMark extends IPO2Test {
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {
     long before = System.currentTimeMillis();
-    IPO2 ipo2 = generateIPO2(factors, strength, constraintManager, optimizer);
+    IPO2 ipo2 = createIPO2(factors, strength, constraintManager, optimizer);
     long after = System.currentTimeMillis();
     return new TestGenerationResult(ipo2.getResult(), ipo2.getRemainders(),
         after - before);

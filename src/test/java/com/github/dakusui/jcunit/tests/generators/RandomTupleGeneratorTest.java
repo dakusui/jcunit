@@ -1,11 +1,12 @@
 package com.github.dakusui.jcunit.tests.generators;
 
-import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.generators.RandomTupleGenerator;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.plugins.generators.RandomTupleGenerator;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -41,13 +42,17 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("100"), @Param("1") }),
+      generator = @Generator(
+          value = RandomTupleGenerator.class,
+          params = {
+              @Value("100")
+          }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass1 extends TestClass {
   }
 
   @Test
-  public void test1() {
+  public void normally100TestCasesShouldBeGeneratee() {
     Result result = JUnitCore.runClasses(TestClass1.class);
     assertTrue(result.wasSuccessful());
     assertEquals(100, result.getRunCount());
@@ -56,13 +61,18 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("-1"), @Param("1") }),
+      generator = @Generator(
+          value = RandomTupleGenerator.class,
+          params = {
+              // Only non-negative value is accepted
+              @Value("-1")
+          }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass2 extends TestClass {
   }
 
   @Test(expected = InvalidTestException.class)
-  public void test2() throws Throwable {
+  public void negativeNumberShouldBeRejectedAsTestSuiteSize() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass2.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
@@ -71,13 +81,21 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("INVALID"), @Param("1") }),
+      generator = @Generator(
+          value = RandomTupleGenerator.class,
+          params = {
+              @Value("INVALID") // Intentionally broken argument.
+          }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass3 extends TestClass {
   }
 
-  @Test(expected = InvalidTestException.class)
-  public void test3() throws Throwable {
+  /**
+   * Make sure a root exception that prevented test instantiation is thrown and
+   * not wrapped by JCUnitException. In this case NumberFormatException.
+   */
+  @Test(expected = NumberFormatException.class)
+  public void invalidTestSuiteSizeShouldBeRejected() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass3.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
@@ -86,30 +104,21 @@ public class RandomTupleGeneratorTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("100"), @Param("XYZ") }),
+      generator = @Generator(
+          value = RandomTupleGenerator.class,
+          params = {
+              @Value("100"),
+              @Value("999") // This parameter is unnecessary and should be rejected.
+          }),
       constraint = @Constraint(TestClass.CM.class))
   public static class TestClass4 extends TestClass {
   }
 
   @Test(expected = InvalidTestException.class)
-  public void test4() throws Throwable {
+  public void extraParameterShouldBeRejected() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass4.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
     throw result.getFailures().get(0).getException();
-  }
-
-  @RunWith(JCUnit.class)
-  @TupleGeneration(
-      generator = @Generator(value = RandomTupleGenerator.class, params = { @Param("123"), @Param("SYSTEM_PROPERTY") }),
-      constraint = @Constraint(TestClass.CM.class))
-  public static class TestClass5 extends TestClass {
-  }
-
-  @Test
-  public void test5() throws Throwable {
-    Result result = JUnitCore.runClasses(TestClass5.class);
-    assertTrue(result.wasSuccessful());
-    assertEquals(123, result.getRunCount());
   }
 }

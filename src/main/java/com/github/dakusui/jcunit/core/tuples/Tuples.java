@@ -8,29 +8,25 @@ import java.util.*;
 
 public class Tuples {
   private final Set<Tuple> tuples;
-  private final String     factorName;
   private final int        strength;
 
-  public Tuples(Factors factors, Factor factorName,
+  public Tuples(Factors factors, Factor factor,
       int strength) {
     Checks.checknotnull(factors);
-    Checks.checknotnull(factorName);
-    Checks.checkcond(!factors.contains(factorName),
+    Checks.checknotnull(factor);
+    Checks.checkcond(!factors.contains(factor),
         "factors(%s) mustn't contain '%s'", factors.getFactorNames(),
-        factorName.name);
-    this.factorName = factorName.name;
+        factor.name);
     this.strength = strength;
-    this.tuples = init(factors, factorName);
+    this.tuples = init(factors, factor);
   }
 
   private Tuples(Tuples tuples) {
     this.tuples = Collections.unmodifiableSet(tuples.tuples);
-    this.factorName = tuples.factorName;
     this.strength = tuples.strength;
   }
 
-  protected Set<Tuple> init(
-      Factors factors, Factor factor) {
+  protected Set<Tuple> init(Factors factors, Factor factor) {
     Set<Tuple> ret = new LinkedHashSet<Tuple>();
     for (Tuple t : factors.generateAllPossibleTuples(this.strength - 1)) {
       for (Object l : factor) {
@@ -69,21 +65,6 @@ public class Tuples {
       }
     }
     return ret;
-  }
-
-  @Override
-  public int hashCode() {
-    return this.factorName.hashCode();
-  }
-
-  @Override
-  public boolean equals(Object anotherObject) {
-    if (!(anotherObject instanceof Tuples)) {
-      return false;
-    }
-    Tuples another = (Tuples) anotherObject;
-    return this.factorName.equals(((Tuples) anotherObject).factorName)
-        && this.tuples.equals(another.tuples);
   }
 
   public void addAll(Set<Tuple> leftOver) {

@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
-import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.Precondition;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
+import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.*;
@@ -18,13 +18,8 @@ import static org.junit.Assert.assertTrue;
 @RunWith(JCUnit.class)
 public class ReproducibilityWithPreconditionTest {
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Rule
@@ -57,7 +52,7 @@ public class ReproducibilityWithPreconditionTest {
   @Test
   public void test() {
     String s = this.desc.getId() + ";" + TupleUtils.toString(this.desc.getTestCase());
-    UTUtils.out.println(s);
+    UTUtils.stdout().println(s);
     assertEquals(expectations.get(this.desc.getId()), s);
     expectations.remove(this.desc.getId());
   }

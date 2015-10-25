@@ -1,16 +1,21 @@
 package com.github.dakusui.jcunit.tests.generators;
 
-import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.Recorder;
+import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.IOUtils;
+import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
-import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.generators.Replayer;
-import com.github.dakusui.jcunit.generators.TupleGenerator;
-import com.github.dakusui.jcunit.generators.TupleGeneratorBase;
-import com.github.dakusui.jcunit.generators.TupleGeneratorFactory;
+import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
+import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
+import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -22,9 +27,7 @@ import org.junit.runner.notification.Failure;
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ReplayerTest {
   @Before
@@ -32,22 +35,56 @@ public class ReplayerTest {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
   }
+
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All") }
+          params = {
+              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value("Fallback")
+          }
       )
   )
+  public static class ReplayerOnly extends Metatest {
+    public static int f1Threshold = 0;
+
+    @FactorField(intLevels = { 100, 200 })
+    public int f1;
+    @FactorField(intLevels = 300)
+    public int f2;
+
+    public ReplayerOnly() {
+      super(2, 0, 0);
+    }
+
+    public static Result run() {
+      return JUnitCore.runClasses(TestClass.class);
+    }
+
+    @Test
+    public void test() {
+      UTUtils.stdout().println("f1=" + f1 + ", f2=" + f2);
+      assertTrue(f1 > f1Threshold);
+    }
+  }
+
+  @Test
+  public void runReplayerOnlyTest() {
+    new ReplayerOnly().runTests();
+  }
+
+  @RunWith(JCUnit.class)
+  @TupleGeneration(
+      generator = @Generator(
+          value = Replayer.class,
+          params = {
+              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }) }))
   public static class TestClass {
     public static int      f1Threshold = 0;
     @Rule
@@ -64,10 +101,11 @@ public class ReplayerTest {
 
     @Test
     public void test() {
-      UTUtils.out.println("f1=" + f1 + ", f2=" + f2);
+      UTUtils.stdout().println("f1=" + f1 + ", f2=" + f2);
       assertTrue(f1 > f1Threshold);
     }
   }
+
   @Test
   public void givenRecorderAndReplayerSetFalse$whenRunTests$thenTestsWillBeRunWithFallbackGenerator() {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
@@ -91,10 +129,8 @@ public class ReplayerTest {
 
     Result testResult = runTests();
 
-    assertEquals(1, testResult.getRunCount());
-    assertEquals(false, testResult.wasSuccessful());
-
-    validateFailureForMissingPreviousRunRecord(testResult);
+    assertEquals(2, testResult.getRunCount());
+    assertEquals(true, testResult.wasSuccessful());
   }
 
   @Test
@@ -104,12 +140,8 @@ public class ReplayerTest {
 
     Result testResult = runTests();
 
-    ////
-    // The test should fail since no recorded tests will be found.
-    assertEquals(1, testResult.getRunCount());
-    assertEquals(false, testResult.wasSuccessful());
-
-    validateFailureForMissingPreviousRunRecord(testResult);
+    assertEquals(2, testResult.getRunCount());
+    assertEquals(true, testResult.wasSuccessful());
   }
 
   @Test
@@ -142,10 +174,10 @@ public class ReplayerTest {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
 
+    File testClassDataDir = ensureTestDataDirectoryForClassDoesntExist(TestClass.class);
+
     Result testResult1 = runTests();
 
-    File testClassDataDir = new File(
-        String.format(".jcunit/%s", TestClass.class.getCanonicalName()));
     assertTrue(testClassDataDir.exists());
 
     assertEquals(2, testResult1.getRunCount());
@@ -167,14 +199,14 @@ public class ReplayerTest {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
 
+    File testClassDataDir = ensureTestDataDirectoryForClassDoesntExist(TestClass.class);
     Result testResult = runTests();
-    File testClassDataDir = new File(
-        String.format(".jcunit/%s", TestClass.class.getCanonicalName()));
+
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    TupleGenerator tupleGenerator = TupleGeneratorFactory.INSTANCE
-        .createTupleGeneratorForClass(TestClass.class);
+    TupleGenerator tupleGenerator = TupleGeneration.TupleGeneratorFactory.INSTANCE
+        .createFromClass(TestClass.class);
     assertEquals(Replayer.class, tupleGenerator.getClass());
 
     Replayer replayer = (Replayer) tupleGenerator;
@@ -184,6 +216,21 @@ public class ReplayerTest {
     assertEquals(200, replayer.getTuple(1).get("f1"));
     assertEquals(300, replayer.getTuple(1).get("f2"));
 
+  }
+
+  private File ensureTestDataDirectoryForClassDoesntExist(Class testClass) {
+    File testClassDataDir = new File(
+        String.format(
+            "%s/%s",
+            SystemProperties.get(SystemProperties.KEY.BASEDIR, ".jcunit"),
+            TestClass.class.getCanonicalName()));
+    UTUtils.stdout().println(testClassDataDir);
+    Checks.checkcond(testClassDataDir.getAbsolutePath().contains(testClass.getCanonicalName()));
+    if (testClassDataDir.exists()) {
+      IOUtils.deleteRecursive(testClassDataDir);
+    }
+    assertTrue(!testClassDataDir.exists());
+    return testClassDataDir;
   }
 
 
@@ -196,13 +243,84 @@ public class ReplayerTest {
     return TestClass.run();
   }
 
+  @RunWith(JCUnit.class)
+  @TupleGeneration(
+      generator = @Generator(
+          value = Replayer.class,
+          params = {
+              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value("Fallback"),
+              @Value("All")
+          }
+      ))
+  public static class TestClass2 {
+    @Rule
+    public Recorder recorder = new Recorder();
+    @SuppressWarnings("unused")
+    @FactorField(intLevels = { 100, 200 })
+    public int f1;
+    @SuppressWarnings("unused")
+    @FactorField(intLevels = 300)
+    public int f2;
+
+    @Test
+    public void test() {
+    }
+  }
+
+  @RunWith(JCUnit.class)
+  @TupleGeneration(
+      generator = @Generator(
+          value = Replayer.class,
+          params = {
+              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value("Replay"),
+              @Value("All")
+          }
+      ))
+  public static class TestClassNoFallBack extends Metatest {
+    @Rule
+    public Recorder recorder = new Recorder();
+    @SuppressWarnings("unused")
+    @FactorField(intLevels = { 100, 200 })
+    public int f1;
+    @SuppressWarnings("unused")
+    @FactorField(intLevels = 300)
+    public int f2;
+
+    public TestClassNoFallBack() {
+      super(1, 1, 0);
+    }
+
+    @Test
+    public void test() {
+    }
+  }
+
+
+  @Test
+  public void givenRecorderIsFalseAndReplayerIsTrueButFallbackIsDisabled$whenRunTests$thenTestsWillBeRunWithFallbackGenerator() {
+    ////
+    // Make sure the directory is empty.
+    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
+    Recorder.initializeTestClassDataDir(TestClass.class);
+
+    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+
+    Result testResult = new TestClassNoFallBack().runTests();
+
+    validateFailureForMissingPreviousRunRecord(testResult);
+  }
+
   private void validateFailureForMissingPreviousRunRecord(Result testResult) {
     boolean validated = false;
     for (Failure failure : testResult.getFailures()) {
       assertEquals(
           String.format(
-              "Test hasn't been run with 'JCUnitRecorder' rule yet. No tuple containing directory under '.jcunit/%s' was found.",
-              TestClass.class.getCanonicalName()
+              "Test hasn't been run with 'JCUnitRecorder' rule yet. No tuple containing directory under '%s/%s' was found.",
+              SystemProperties.get(SystemProperties.KEY.BASEDIR, ".jcunit"),
+              TestClassNoFallBack.class.getCanonicalName()
           ),
           failure.getMessage()
       );
@@ -211,24 +329,7 @@ public class ReplayerTest {
     assertTrue(validated);
   }
 
-  @RunWith(JCUnit.class)
-  @TupleGeneration(
-      generator = @Generator(
-          value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.generators.IPO2TupleGenerator"), @Param("2") }
-      ))
-  public static class TestClass2 {
-    @Rule
-    public        Recorder recorder    = new Recorder();
-    @SuppressWarnings("unused")
-    @FactorField(intLevels = { 100, 200 })
-    public int f1;
-    @SuppressWarnings("unused")
-    @FactorField(intLevels = 300)
-    public int f2;
-    @Test
-    public void test() {}
-  }
+
   @Test
   public void givenExplicitlyGeneratorClassNameAndStrengthAreSpecified$whenRunTests$thenTestsWillPass() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass2.class);
@@ -239,22 +340,29 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("WrongTupleGenerator"), @Param("2") }
+          params = {
+              @Value({ "WrongTupleGenerator", "2" }),
+              @Value("Fallback"),
+              @Value("All")
+          }
       ))
   public static class TestClass3 {
     @Rule
-    public        Recorder recorder    = new Recorder();
+    public Recorder recorder = new Recorder();
     @SuppressWarnings("unused")
     @FactorField(intLevels = { 100, 200 })
     public int f1;
     @SuppressWarnings("unused")
     @FactorField(intLevels = 300)
     public int f2;
+
     @Test
-    public void test() {}
+    public void test() {
+    }
   }
-  @Test(expected = InvalidTestException.class)
-  public void givenWrongGeneratorClassNameIsSpecified$whenRunTests$thenTestsWillPass() throws Throwable {
+
+  @Test(expected = ClassNotFoundException.class)
+  public void givenWrongGeneratorClassNameIsSpecified$whenRunTests$thenClassNotFoundException() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass3.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
@@ -265,45 +373,47 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG")}
+          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG"), @Value("All") }
       ))
   public static class TestClass4 {
     public abstract static class TG extends TupleGeneratorBase {
       public TG() throws IOException {
         throw new IOException("hello!!!");
       }
+
       @Override
       public Tuple getTuple(int tupleId) {
         return null;
       }
 
       @Override
-      protected long initializeTuples(Object[] params) {
+      protected long initializeTuples() {
         return 0;
       }
-
-      @Override
-      public ParamType[] parameterTypes() {
-        return new ParamType[0];
-      }
     }
+
     @SuppressWarnings("unused")
     public static class TG2 extends TG {
-      private TG2() throws IOException {}
+      private TG2() throws IOException {
+      }
     }
+
     @Rule
-    public        Recorder recorder    = new Recorder();
+    public Recorder recorder = new Recorder();
     @SuppressWarnings("unused")
     @FactorField(intLevels = { 100, 200 })
     public int f1;
     @SuppressWarnings("unused")
     @FactorField(intLevels = 300)
     public int f2;
+
     @Test
-    public void test() {}
+    public void test() {
+    }
   }
-  @Test(expected = InvalidPluginException.class)
-  public void givenAbstractGeneratorClassIsSpecified$whenRunTests$thenPluginExceptionWillBeThrown() throws Throwable {
+
+  @Test(expected = InstantiationException.class)
+  public void givenAbstractGeneratorClassIsSpecified$whenRunTests$thenInstantiationExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass4.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
@@ -314,16 +424,18 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2")}
+          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2"), @Value("All") }
       ))
   public static class TestClass5 extends TestClass4 {
     @SuppressWarnings("unused")
     public static class TG2 extends TG {
-      private TG2() throws IOException {}
+      private TG2() throws IOException {
+      }
     }
   }
+
   @Test(expected = InvalidPluginException.class)
-  public void givenGeneratorClassWhoseNoParamConstructorIsPrivateIsSpecified$whenRunTests$thenPluginExceptionWillBeThrown() throws Throwable {
+  public void givenGeneratorClassWhoseNoParamConstructorIsPrivateIsSpecified$whenRunTests$thenInvalidPluginExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass5.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
@@ -334,19 +446,19 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Param("All"), @Param(".jcunit"), @Param("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3")}
+          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3"), @Value("All") }
       ))
   public static class TestClass6 extends TestClass4 {
     @SuppressWarnings("unused")
     public static class TG3 extends TG {
-      public TG3() throws IOException {}
+      public TG3() throws IOException {
+      }
     }
   }
+
   @Test(expected = IOException.class)
   public void givenGeneratorClassWhoseNoParamConstructorFailsIsSpecified$whenRunTests$thenOriginalExceptionWillBeThrown() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass6.class);
-    assertFalse(result.wasSuccessful());
-    assertEquals(1, result.getFailureCount());
     throw result.getFailures().get(0).getException();
   }
 

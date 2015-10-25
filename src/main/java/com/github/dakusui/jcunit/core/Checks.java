@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.*;
 
@@ -109,7 +110,7 @@ public class Checks {
    */
   public static void checkplugin(boolean cond, String msg, Object... args) {
     if (!cond) {
-      throw new InvalidPluginException(composeMessage(msg, args), null);
+      throw new InvalidPluginException(composeMessage(msg, args));
     }
   }
 
@@ -135,7 +136,7 @@ public class Checks {
 
   public static void checksymbols(Tuple tuple, String... factorNames) throws UndefinedSymbol {
     List<String> missings = new LinkedList<String>();
-    for (String each: factorNames) {
+    for (String each : factorNames) {
       if (!Checks.checknotnull(tuple).containsKey(each)) {
         missings.add(each);
       }
@@ -154,7 +155,7 @@ public class Checks {
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static void rethrow(Throwable e, String msgOrFmt, Object... args) {
-    throw new JCUnitException(composeMessage(msgOrFmt, args), e);
+    throw new JCUnitException(composeMessage(msgOrFmt, args) + ":["  +e.getMessage() + "]", e);
   }
 
   /**
@@ -184,5 +185,22 @@ public class Checks {
 
   public static void fail() {
     throw new IllegalStateException();
+  }
+
+  public static <T> T cast(Class<T> clazz, Object parameter) {
+    Checks.checkcond(
+        ReflectionUtils.isAssignable(Checks.checknotnull(clazz), parameter),
+        "Type mismatch. Requiret:%s Found:%s",
+        clazz,
+        parameter
+    );
+    //noinspection unchecked
+    return (T) parameter;
+  }
+
+  public static Throwable getRootCauseOf(Throwable t) {
+    return checknotnull(t).getCause() == null
+        ? t
+        : getRootCauseOf(t.getCause());
   }
 }

@@ -45,6 +45,6 @@ public abstract class PredicateExpectation implements Expectation {
   }
 
   public interface Predicate {
-    public boolean evaluate(Tuple tuple);
+    boolean evaluate(Tuple tuple);
   }
 }

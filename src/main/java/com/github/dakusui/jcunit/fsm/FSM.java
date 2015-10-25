@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
@@ -175,20 +176,16 @@ public interface FSM<SUT> {
      * @param field A field from which {@code params} values should be retrieved.
      */
     private Parameters getParamsFactors(Field field) {
-      try {
-        Object ret = Checks.checknotnull(field).get(null);
-        Checks.checktest(ret instanceof Parameters, "The field '%s' in %s must be typed %s", field.getName(), field.getDeclaringClass().getCanonicalName(), Parameters.class.getSimpleName());
-        Checks.checktest((((Parameters) ret).values()).length > 0,
-            "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
-            field.getName(), field.getType().getCanonicalName());
-        ////
-        // Casting to Object[][] is safe because validateParamsField checks it.
-        return ((Parameters) ret);
-      } catch (IllegalAccessException e) {
-        ////
-        // This will never happen because filed should be validated in advance.
-        throw new RuntimeException();
-      }
+      ////
+      // The field should be static.
+      Object ret = ReflectionUtils.getFieldValue(null, Checks.checknotnull(field));
+      Checks.checktest(ret instanceof Parameters, "The field '%s' in %s must be typed %s", field.getName(), field.getDeclaringClass().getCanonicalName(), Parameters.class.getSimpleName());
+      Checks.checktest((((Parameters) ret).values()).length > 0,
+          "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
+          field.getName(), field.getType().getCanonicalName());
+      ////
+      // Casting to Object[][] is safe because validateParamsField checks it.
+      return ((Parameters) ret);
     }
 
     private Field validateParamsField(Field fsmField) {
@@ -208,19 +205,12 @@ public interface FSM<SUT> {
     }
 
     private FSMSpec<SUT> getStateSpecValue(Field field) {
-      try {
-        Object ret = field.get(null);
-        Checks.checktest(ret != null, "The field '%s' of '%s' must be assigned a non-null value.", field.getName(), field.getType().getCanonicalName());
-        ////
-        // Casting to Object[][] is safe because validateParamsField checks it.
-        //noinspection unchecked
-        return (FSMSpec<SUT>) ret;
-      } catch (IllegalAccessException e) {
-        ////
-        // This will never happen because filed should be validated in advance.
-        // * Bug: when spec isn't marked public, this can happen.
-        throw new RuntimeException();
-      }
+      Object ret = ReflectionUtils.getFieldValue(null, field);
+      Checks.checktest(ret != null, "The field '%s' of '%s' must be assigned a non-null value.", field.getName(), field.getType().getCanonicalName());
+      ////
+      // Casting to (FSMSpec<SUT>) is safe because validateParamsField checks it already.
+      //noinspection unchecked
+      return (FSMSpec<SUT>) ret;
     }
 
     private Field validateStateSpecField(Field fsmField) {

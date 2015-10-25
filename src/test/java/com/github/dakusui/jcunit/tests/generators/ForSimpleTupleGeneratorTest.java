@@ -1,13 +1,18 @@
 package com.github.dakusui.jcunit.tests.generators;
 
-import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.generators.SimpleTupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.SimpleTupleGenerator;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -30,25 +35,22 @@ public class ForSimpleTupleGeneratorTest {
         return !"hello".equals(tuple.get("f1"));
       }
     }
+
     @Before
-    public void setSilent() {
-      UTUtils.setSilent();
-    }
-    @After
-    public void setVerbose() {
-      UTUtils.setVerbose();
+    public void configureStdIOs() {
+      UTUtils.configureStdIOs();
     }
 
     @SuppressWarnings("unused")
-    @FactorField(stringLevels = {"Hello", "world", "hello"})
+    @FactorField(stringLevels = { "Hello", "world", "hello" })
     public String f1;
     @SuppressWarnings("unused")
-    @FactorField(stringLevels = {"X", "Y", "Z"})
+    @FactorField(stringLevels = { "X", "Y", "Z" })
     public String f2;
 
     @Test
     public void test() {
-      UTUtils.out.println(this);
+      UTUtils.stdout().println(this);
     }
 
     @Override

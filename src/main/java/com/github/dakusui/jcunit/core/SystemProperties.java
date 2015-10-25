@@ -2,7 +2,9 @@ package com.github.dakusui.jcunit.core;
 
 import java.io.File;
 
-import static java.lang.System.*;
+import static java.lang.System.currentTimeMillis;
+import static java.lang.System.getProperties;
+import static java.lang.System.getProperty;
 
 /**
  * A singleton class to access system properties from inside JCUnit. JCUnit code
@@ -11,7 +13,7 @@ import static java.lang.System.*;
  * @author hiroshi
  */
 public class SystemProperties {
-  public static enum KEY {
+  public enum KEY {
     DEBUG {
       @Override
       public String key() {
@@ -25,25 +27,47 @@ public class SystemProperties {
       }
     },
     RECORDER {
-      @Override public String key() {
+      @Override
+      public String key() {
         return "jcunit.recorder";
       }
     },
     REPLAYER {
-      @Override public String key() {
+      @Override
+      public String key() {
         return "jcunit.replayer";
       }
     },
     RANDOMSEED {
-      @Override public String key() { return "jcunit.generator.randomseed"; }
-    }
-    ;
+      @Override
+      public String key() {
+        return "jcunit.generator.randomseed";
+      }
+    },
+    /**
+     * Should be used only by {@code PlugIn.Param}.
+     */
+    DUMMY {
+      @Override
+      public String key() {
+        return null;
+      }
+    };
 
     public abstract String key();
-    }
+  }
 
   private SystemProperties() {
   }
+
+  public static String get(KEY propertyKey) {
+    return get(propertyKey, null);
+  }
+
+  public static String get(KEY key, String s) {
+    return getProperty(Checks.checknotnull(key).key(), s);
+  }
+
 
   public static File jcunitBaseDir() {
     File ret;
@@ -91,6 +115,4 @@ public class SystemProperties {
     // This path will not be executed.
     throw new RuntimeException();
   }
-
-
 }

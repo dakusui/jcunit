@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.When;
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;

@@ -14,7 +14,7 @@ import java.io.Serializable;
  * @param <SUT> A software (class) under test.
  */
 public interface ScenarioSequence<SUT> extends Serializable {
-  ScenarioSequence<?> EMPTY = new EmptyScenarioSequence();
+  ScenarioSequence<?> EMPTY = new EmptyScenarioSequence<Object>();
 
   /**
    * Performs this scenario with given {@code sut} object.
@@ -92,79 +92,84 @@ public interface ScenarioSequence<SUT> extends Serializable {
       try {
         for (int i = 0; i < this.size(); i++) {
           Scenario<SUT> each = this.get(i);
-          Expectation.Result result = null;
-          observer.run(stage, each, sut);
-          boolean passed = false;
-          try {
-            ////
-            // Only for the first scenario, make sure SUT is in the 'given' state.
-            // We'll see broken test results later on in case it doesn't meet the
-            // precondition described as the state, otherwise.
-            if (i == 0) {
-              if (!each.given.check(sut)) {
-                throw new Expectation.Result.Builder("Precondition was not satisfied.")
-                    .addFailedReason(Utils.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
-              }
-            }
-            ////
-            // Invoke a method in SUT through action corresponding to it.
-            // - Invoke the method action in SUT.
-            Object r = each.perform(sut);
-            // 'passed' only means the method in SUT finished without any exceptions.
-            // The returned value will be validated by 'checkReturnedValue'. (if
-            // an exception is thrown, the thrown exception will be validated by
-            // 'checkThrownException'. And if the thrown exception is an expected
-            // one, it conforms the spec.)
-            passed = true;
-            // Author considers that normally applications inputs that result
-            // in failure should not affect internal state of software module.
-            // Therefore this try caluse should not include the statement above,
-            // "each.perform(sut)" because if we do so, the input to the method
-            // held by 'each' will be recorded in inputHistory.
-            try {
-              ////
-              // each.perform(sut) didn't throw an exception
-              //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-              result = each.then().checkReturnedValue(context, r, stage, observer);
-            } finally {
-              ////
-              // - Record input history before invoking the action.
-              for (InputHistory.Collector eachCollector : each.then().collectors) {
-                eachCollector.apply(inputHistory, each.with.values());
-              }
-            }
-          } catch (Expectation.Result r) {
-            result = r;
-          } catch (JCUnitException e) {
-            throw e;
-          } catch (Throwable t) {
-            if (!passed) {
-              //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-              result = each.then().checkThrownException(context, t, observer);
-            } else {
-              if (t instanceof JCUnitException) {
-                throw (JCUnitException)t;
-              }
-              Checks.rethrow(t);
-            }
-          } finally {
-            try {
-              if (result != null) {
-                if (result.isSuccessful())
-                  observer.passed(stage, each, sut);
-                else
-                  observer.failed(stage, each, sut, result);
-                result.throwIfFailed();
-              }
-            } finally {
-              synchronizer = synchronizer.finishAndSynchronize(token);
+          ////
+          // Only for the first scenario, make sure SUT is in the 'given' state.
+          // We'll see broken test results later on in case it doesn't meet the
+          // precondition described as the state, otherwise.
+          if (i == 0) {
+            if (!each.given.check(sut)) {
+              throw new Expectation.Result.Builder("Precondition was not satisfied.")
+                  .addFailedReason(Utils.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
             }
           }
+          synchronizer = performEachScenario(context, synchronizer, token, observer, stage, sut, inputHistory, each);
         }
       } finally {
         synchronizer.unregister(token);
         observer.endSequence(stage, this);
       }
+    }
+
+    private <T> FSMUtils.Synchronizer performEachScenario(Story.Context<SUT, T> context, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer, Story.Stage stage, SUT sut, InputHistory inputHistory, Scenario<SUT> each) {
+      Expectation.Result result = null;
+      observer.run(stage, each, sut);
+      boolean passed = false;
+      try {
+        ////
+        // Invoke a method in SUT through action corresponding to it.
+        // - Invoke the method action in SUT.
+        Object r = each.perform(sut);
+        // 'passed' only means the method in SUT finished without any exceptions.
+        // The returned value will be validated by 'checkReturnedValue'. (if
+        // an exception is thrown, the thrown exception will be validated by
+        // 'checkThrownException'. And if the thrown exception is an expected
+        // one, it conforms the spec.)
+        passed = true;
+        // Author considers that normally applications inputs that result
+        // in failure should not affect internal state of software module.
+        // Therefore this try caluse should not include the statement above,
+        // "each.perform(sut)" because if we do so, the input to the method
+        // held by 'each' will be recorded in inputHistory.
+        try {
+          ////
+          // each.perform(sut) didn't throw an exception
+          //noinspection unchecked,ThrowableResultOfMethodCallIgnored
+          result = each.then().checkReturnedValue(context, r, stage, observer);
+        } finally {
+          ////
+          // - Record input history before invoking the action.
+          for (InputHistory.Collector eachCollector : each.then().collectors) {
+            eachCollector.apply(inputHistory, each.with.values());
+          }
+        }
+      } catch (Expectation.Result r) {
+        result = r;
+      } catch (JCUnitException e) {
+        throw e;
+      } catch (Throwable t) {
+        if (!passed) {
+          //noinspection unchecked,ThrowableResultOfMethodCallIgnored
+          result = each.then().checkThrownException(context, t, observer);
+        } else {
+          ////
+          // Since the previous catch clause ensures the thrown exception is not
+          // a JCUnitException, rethrow it without checking.
+          Checks.rethrow(t);
+        }
+      } finally {
+        try {
+          if (result != null) {
+            if (result.isSuccessful())
+              observer.passed(stage, each, sut);
+            else
+              observer.failed(stage, each, sut, result);
+            result.throwIfFailed();
+          }
+        } finally {
+          synchronizer = synchronizer.finishAndSynchronize(token);
+        }
+      }
+      return synchronizer;
     }
 
     @Override
@@ -197,7 +202,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
     }
   }
 
-  class EmptyScenarioSequence implements ScenarioSequence {
+  class EmptyScenarioSequence<SUT> implements ScenarioSequence<SUT> {
     @Override
     public void perform(Story.Context context, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer) {
     }
@@ -208,17 +213,17 @@ public interface ScenarioSequence<SUT> extends Serializable {
     }
 
     @Override
-    public Scenario<?> get(int i) {
+    public Scenario<SUT> get(int i) {
       throw new IllegalStateException();
     }
 
     @Override
-    public State<?> state(int i) {
+    public State<SUT> state(int i) {
       throw new IllegalStateException();
     }
 
     @Override
-    public Action<?> action(int i) {
+    public Action<SUT> action(int i) {
       throw new IllegalStateException();
     }
 
@@ -407,28 +412,32 @@ public interface ScenarioSequence<SUT> extends Serializable {
       }
 
       class ForSimple implements Factory {
-        public static final Factory INSTANCE = new ForSimple();
+        public static final Factory INSTANCE = new ForSimple(System.out);
+        private final PrintStream out;
+
+        public ForSimple(PrintStream out) {
+          this.out = Checks.checknotnull(out);
+        }
 
         @Override
         public Observer createObserver(String fsmName) {
-          return PrivateUtils.createSimpleObserver(fsmName);
+          return PrivateUtils.createSimpleObserver(fsmName, this.out);
         }
       }
     }
   }
 
   class PrivateUtils {
+    private PrivateUtils() {
+    }
+
     public static <SUT> String toString(ScenarioSequence<SUT> scenarioSequence) {
       Checks.checknotnull(scenarioSequence);
       Object[] scenarios = new Object[scenarioSequence.size()];
       for (int i = 0; i < scenarios.length; i++) {
         scenarios[i] = scenarioSequence.get(i);
       }
-      return Utils.format("[%d]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
-    }
-
-    static Observer createSimpleObserver(String fsmName) {
-      return createSimpleObserver(fsmName, System.out);
+      return Utils.format("[%s]ScenarioSequence:[%s]", Thread.currentThread().getId(), com.github.dakusui.jcunit.core.Utils.join(",", scenarios));
     }
 
     static Observer createSimpleObserver(String fsmName, final PrintStream ps) {
@@ -450,27 +459,27 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
         @Override
         public void startSequence(Story.Stage stage, ScenarioSequence scenarioSequence) {
-          ps.println(Utils.format("%s[%d]Starting(%s#%s):%s", indent(generation), Thread.currentThread().getId(), fsmName, stage, scenarioSequence));
+          ps.println(Utils.format("%s[%s]Starting(%s#%s):%s", indent(generation), Thread.currentThread().getId(), fsmName, stage, scenarioSequence));
         }
 
         @Override
         public void run(Story.Stage stage, Scenario scenario, Object o) {
-          ps.println(Utils.format("%s[%d]Running(%s#%s):%s expecting %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, scenario, scenario.then()));
+          ps.println(Utils.format("%s[%s]Running(%s#%s):%s expecting %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, scenario, scenario.then()));
         }
 
         @Override
         public void passed(Story.Stage stage, Scenario scenario, Object o) {
-          ps.println(Utils.format("%s[%d]Passed(%s#%s)", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage));
+          ps.println(Utils.format("%s[%s]Passed(%s#%s)", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage));
         }
 
         @Override
         public void failed(Story.Stage stage, Scenario scenario, Object o, Expectation.Result result) {
-          ps.println(Utils.format("%s[%d]Failed(%s#%s): %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, result.getMessage()));
+          ps.println(Utils.format("%s[%s]Failed(%s#%s): %s", indent(generation + 1), Thread.currentThread().getId(), fsmName, stage, result.getMessage()));
         }
 
         @Override
         public void endSequence(Story.Stage stage, ScenarioSequence seq) {
-          ps.println(Utils.format("%s[%d]End(%s#%s)", indent(generation), Thread.currentThread().getId(), fsmName, stage));
+          ps.println(Utils.format("%s[%s]End(%s#%s)", indent(generation), Thread.currentThread().getId(), fsmName, stage));
         }
       };
     }

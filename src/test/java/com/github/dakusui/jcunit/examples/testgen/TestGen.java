@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.examples.testgen;
 
-import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
-import com.github.dakusui.jcunit.core.TestCaseUtils;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,17 +25,12 @@ public class TestGen {
   public String browser;
 
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Test
   public void printTestCase() {
-    UTUtils.out.println(TupleUtils.toString(TestCaseUtils.toTestCase(this)));
+    UTUtils.stdout().println(TupleUtils.toString(TestCaseUtils.toTestCase(this)));
   }
 }

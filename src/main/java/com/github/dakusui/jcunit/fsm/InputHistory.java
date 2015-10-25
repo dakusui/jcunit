@@ -38,7 +38,8 @@ public interface InputHistory {
 
     @Override
     public <E> Record<E> get(String name) throws UndefinedSymbol {
-      if (!this.has(name)) throw new UndefinedSymbol(new String[]{name});
+      if (!this.has(name))
+        throw new UndefinedSymbol(new String[] { name });
       //noinspection unchecked
       return (Record<E>) this.records.get(name);
     }
@@ -50,6 +51,45 @@ public interface InputHistory {
     @Override
     public int size() {
       return this.records.size();
+    }
+  }
+
+  class Accessed implements InputHistory {
+    private final InputHistory base;
+    final         List<String> symbols;
+
+    Accessed(InputHistory base) {
+      this.base = Checks.checknotnull(base);
+      this.symbols = new ArrayList<String>(base.size());
+    }
+
+    @Override
+    public <T> void add(String name, T data) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean has(String name) {
+      if (!symbols.contains(name))
+        symbols.add(name);
+      return base.has(name);
+    }
+
+    @Override
+    public <E> Record<E> get(String name) throws UndefinedSymbol {
+      if (!symbols.contains(name))
+        symbols.add(name);
+      return base.get(name);
+    }
+
+    @Override
+    public Iterable<String> recordNames() {
+      return this.symbols;
+    }
+
+    @Override
+    public int size() {
+      return base.size();
     }
   }
 
@@ -96,7 +136,6 @@ public interface InputHistory {
      * </pre>
      * where actionName is a value passed to the constructor of this class and
      * index is an index that specifies each element in {@code args}.
-     *
      */
     class Default implements Collector {
       private final String actionName;
@@ -134,5 +173,4 @@ public interface InputHistory {
       return (T) this;
     }
   }
-
 }

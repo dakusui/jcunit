@@ -25,9 +25,9 @@ public class Story<
    * A dummy field to suppress a warning for SPEC.
    */
   @SuppressWarnings({ "unused", "FieldCanBeLocal" })
-  private           Class<SPEC>  klazz;
-  private final     String       name;
-  transient private boolean      performed;
+  private           Class<SPEC> klazz;
+  private final     String      name;
+  transient private boolean     performed;
 
   private final ScenarioSequence<SUT> setUp;
   private final ScenarioSequence<SUT> main;
@@ -56,11 +56,11 @@ public class Story<
 
   @Override
   public boolean equals(Object another) {
-    if (another instanceof Story) {
-      Story anotherStory = ((Story) another);
-      return this.name.equals(anotherStory.name) && this.setUp.equals(anotherStory.setUp) && this.main.equals(anotherStory.main);
+    if (!(another instanceof Story)) {
+      return false;
     }
-    return false;
+    Story anotherStory = ((Story) another);
+    return this.name.equals(anotherStory.name) && this.setUp.equals(anotherStory.setUp) && this.main.equals(anotherStory.main);
   }
 
   /**
@@ -84,8 +84,8 @@ public class Story<
   }
 
   public static class Request<SUT> {
-    public final String          fsmName;
-    public final SUTFactory<SUT> sutFactory;
+    public final String                            fsmName;
+    public final SUTFactory<SUT>                   sutFactory;
     public final ScenarioSequence.Observer.Factory observerFactory;
 
     public Request(String fsmName, SUTFactory<SUT> sutFactory, ScenarioSequence.Observer.Factory observerFactory) {
@@ -117,10 +117,6 @@ public class Story<
       private final List<Request<?>> requests = new LinkedList<Request<?>>();
 
       public ArrayBuilder() {
-      }
-
-      public <SUT> ArrayBuilder add(String fsmName, SUTFactory<SUT> sutFactory) {
-        return add(fsmName, sutFactory, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
       }
 
       public <SUT> ArrayBuilder add(String fsmName, SUTFactory<SUT> sutFactory, ScenarioSequence.Observer.Factory observerFactory) {
@@ -161,10 +157,10 @@ public class Story<
   }
 
   public static class Context<SUT, T> {
-    public final T               testObject;
-    public final InputHistory    inputHistory;
-    public final SUT sut;
-    public       Stage           stage;
+    public final T            testObject;
+    public final InputHistory inputHistory;
+    public final SUT          sut;
+    public       Stage        stage;
 
     public Context(T testObject, SUTFactory<SUT> sutFactory) {
       this(

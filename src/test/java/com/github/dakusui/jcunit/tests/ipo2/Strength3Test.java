@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
 import org.junit.Test;
 
 public class Strength3Test extends IPO2Test {
@@ -19,7 +19,7 @@ public class Strength3Test extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -34,7 +34,7 @@ public class Strength3Test extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -49,7 +49,7 @@ public class Strength3Test extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -64,7 +64,7 @@ public class Strength3Test extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -79,7 +79,7 @@ public class Strength3Test extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }
@@ -94,7 +94,7 @@ public class Strength3Test extends IPO2Test {
     ConstraintManager constraintManager = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = generateIPO2(factors,
+    IPO2 ipo = createIPO2(factors,
         strength, constraintManager, optimizer);
     verify(strength, factors, constraintManager, ipo.getResult(), ipo.getRemainders());
   }

@@ -1,17 +1,17 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
-import com.github.dakusui.jcunit.constraint.constraintmanagers.NullConstraintManager;
+import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.GreedyIPO2Optimizer;
-import com.github.dakusui.jcunit.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.GreedyIPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 
 import java.util.*;
@@ -21,13 +21,10 @@ import static org.junit.Assert.assertThat;
 
 public abstract class IPO2Test {
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
-  }
+
   protected static Factor factor(String name, Object... factors) {
     return new Factor(name, Arrays.asList(factors));
   }
@@ -52,7 +49,7 @@ public abstract class IPO2Test {
     return fb.build();
   }
 
-  protected IPO2 generateIPO2(
+  protected IPO2 createIPO2(
       Factors factors, int strength,
       ConstraintManager constraintManager,
       IPO2Optimizer optimizer) {
@@ -64,7 +61,7 @@ public abstract class IPO2Test {
 
   protected void verify(int givenStrength, Factors givenFactors, ConstraintManager givenConstraintManager, List<Tuple> actualTestCases,
       List<Tuple> actualRemainders) {
-    UTUtils.out.println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
+    UTUtils.stdout().println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
     verifyAllValidTuplesAreGenerated(actualTestCases, givenStrength, givenFactors,
         givenConstraintManager);
     verifyNoConstraintViolationOccursInResult(actualTestCases, givenConstraintManager);

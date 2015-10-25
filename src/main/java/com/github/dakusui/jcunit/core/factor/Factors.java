@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.enumerator.Combinator;
+import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -189,10 +189,6 @@ public class Factors implements Iterable<Factor> {
         b.addLevel(each);
       }
       return this.add(b.build());
-    }
-
-    public List<Factor> getFactors() {
-      return this.factors;
     }
 
     public Factors build() {

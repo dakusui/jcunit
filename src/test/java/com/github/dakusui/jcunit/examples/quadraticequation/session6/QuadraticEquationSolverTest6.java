@@ -1,10 +1,12 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session6;
 
-import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintManager;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
@@ -30,7 +32,7 @@ import static org.junit.Assert.assertThat;
 @TupleGeneration(
     constraint = @Constraint(
         value = QuadraticEquationSolverTest6.CM.class,
-        params = { }))
+        args = { }))
 public class QuadraticEquationSolverTest6 {
   public static PrintStream ps = System.out;
 
@@ -104,7 +106,7 @@ public class QuadraticEquationSolverTest6 {
    */
   @Test(expected = IllegalArgumentException.class)
   @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
-  public void whenSolveEquation$thenIllegalArgumentExceptionWillBeThrown() {
+  public void solveEquation$thenIllegalArgumentExceptionWillBeThrown() {
     new QuadraticEquationSolver(
         a,
         b,
@@ -113,7 +115,7 @@ public class QuadraticEquationSolverTest6 {
 
   @Test
   @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
-  public void whenSolveEquation$thenSolved() {
+  public void solveEquation$thenSolved() {
     ps.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b * b, -4 * c * a, b * b - 4 * c * a));
     ps.println(this.coefficientsAreValid());
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,

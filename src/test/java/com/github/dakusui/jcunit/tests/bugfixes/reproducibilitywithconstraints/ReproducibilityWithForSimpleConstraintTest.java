@@ -1,11 +1,15 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
-import com.github.dakusui.jcunit.constraint.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -30,13 +34,8 @@ public class ReproducibilityWithForSimpleConstraintTest {
   }
 
   @Before
-  public void setSilent() {
-    UTUtils.setSilent();
-  }
-
-  @After
-  public void setVerbose() {
-    UTUtils.setVerbose();
+  public void configureStdIOs() {
+    UTUtils.configureStdIOs();
   }
 
   @Rule
@@ -67,11 +66,10 @@ public class ReproducibilityWithForSimpleConstraintTest {
     expectations.put(9, "9;{\"a\":1,\"b\":3,\"c\":3}");
   }
 
-
   @Test
   public void test() {
     String s = this.desc.getId() + ";" + TupleUtils.toString(this.desc.getTestCase());
-    UTUtils.out.println(s);
+    UTUtils.stdout().println(s);
     assertEquals(expectations.get(this.desc.getId()), s);
     expectations.remove(this.desc.getId());
   }
