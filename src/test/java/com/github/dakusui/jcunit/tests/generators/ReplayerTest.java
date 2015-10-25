@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.tests.generators;
 
+import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
@@ -82,10 +84,7 @@ public class ReplayerTest {
       generator = @Generator(
           value = Replayer.class,
           params = {
-              @Value({"com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2"})
-          }
-      )
-  )
+              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }) }))
   public static class TestClass {
     public static int      f1Threshold = 0;
     @Rule
@@ -175,10 +174,10 @@ public class ReplayerTest {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
 
+    File testClassDataDir = ensureTestDataDirectoryForClassDoesntExist(TestClass.class);
+
     Result testResult1 = runTests();
 
-    File testClassDataDir = new File(
-        String.format(".jcunit/%s", TestClass.class.getCanonicalName()));
     assertTrue(testClassDataDir.exists());
 
     assertEquals(2, testResult1.getRunCount());
@@ -200,9 +199,9 @@ public class ReplayerTest {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
 
+    File testClassDataDir = ensureTestDataDirectoryForClassDoesntExist(TestClass.class);
     Result testResult = runTests();
-    File testClassDataDir = new File(
-        String.format(".jcunit/%s", TestClass.class.getCanonicalName()));
+
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
@@ -217,6 +216,21 @@ public class ReplayerTest {
     assertEquals(200, replayer.getTuple(1).get("f1"));
     assertEquals(300, replayer.getTuple(1).get("f2"));
 
+  }
+
+  private File ensureTestDataDirectoryForClassDoesntExist(Class testClass) {
+    File testClassDataDir = new File(
+        String.format(
+            "%s/%s",
+            SystemProperties.get(SystemProperties.KEY.BASEDIR, ".jcunit"),
+            TestClass.class.getCanonicalName()));
+    UTUtils.stdout().println(testClassDataDir);
+    Checks.checkcond(testClassDataDir.getAbsolutePath().contains(testClass.getCanonicalName()));
+    if (testClassDataDir.exists()) {
+      IOUtils.deleteRecursive(testClassDataDir);
+    }
+    assertTrue(!testClassDataDir.exists());
+    return testClassDataDir;
   }
 
 
@@ -327,7 +341,7 @@ public class ReplayerTest {
       generator = @Generator(
           value = Replayer.class,
           params = {
-              @Value({"WrongTupleGenerator", "2"}),
+              @Value({ "WrongTupleGenerator", "2" }),
               @Value("Fallback"),
               @Value("All")
           }
@@ -359,7 +373,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG"), @Value("All"), @Value(".jcunit") }
+          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG"), @Value("All") }
       ))
   public static class TestClass4 {
     public abstract static class TG extends TupleGeneratorBase {
@@ -410,7 +424,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2"), @Value("All"), @Value(".jcunit") }
+          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2"), @Value("All") }
       ))
   public static class TestClass5 extends TestClass4 {
     @SuppressWarnings("unused")
@@ -432,7 +446,7 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3"), @Value("All"), @Value(".jcunit") }
+          params = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3"), @Value("All") }
       ))
   public static class TestClass6 extends TestClass4 {
     @SuppressWarnings("unused")
