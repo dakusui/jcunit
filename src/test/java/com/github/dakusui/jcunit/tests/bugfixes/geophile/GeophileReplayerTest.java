@@ -1,23 +1,27 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.generators.Replayer;
+import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 
-import static com.github.dakusui.jcunit.core.TestCaseUtils.factor;
-import static com.github.dakusui.jcunit.core.TestCaseUtils.newTestCase;
+import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.factor;
+import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.newTestCase;
 
 @RunWith(JCUnit.class)
 @TupleGeneration(
     generator = @Generator(
         value = Replayer.class,
         params = {
-            @Param("FailedOnly"),
-            @Param("src/test/resources")
+            @Value("FailedOnly"),
+            @Value("src/test/resources")
         }
     )
 )

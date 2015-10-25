@@ -169,7 +169,7 @@ public interface OutputChecker {
           Utils.format(
               "%s (%s#computeExpectation(%s))",
               matcher,
-              Utils.getSimpleClassName(this),
+              this,
               Utils.join(",", accessed.symbols.toArray())
           )
       );
@@ -183,12 +183,11 @@ public interface OutputChecker {
     protected abstract Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol;
 
     public String toString() {
-      return Utils.format(
+      return String.format(
           "%s %s#computeExpectation(...)",
-          createMatcher("..."),
-          Utils.getSimpleClassName(this)
+          createMatcher("...").toString(),
+          Utils.toString(this)
       );
     }
-
   }
 }

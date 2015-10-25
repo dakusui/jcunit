@@ -1,11 +1,12 @@
 package com.github.dakusui.jcunit.tests.fsm.simple;
 
-import com.github.dakusui.jcunit.core.FactorField;
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class SimpleFSMTest {
 
   @RunWith(JCUnit.class)
   public static class ExceptionThrowingActionIsPerformedExpectedly extends Base {
-    @FactorField(levelsProvider = FSMLevelsProvider.class)
+    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Value({"1"}))
     public Story<SimpleFSM, Spec> brokenFSM;
 
     public ExceptionThrowingActionIsPerformedExpectedly() {

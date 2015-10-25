@@ -1,10 +1,12 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.sessionx;
 
-import com.github.dakusui.jcunit.constraint.constraintmanagers.TypedConstraintManager;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -21,7 +23,7 @@ import static org.junit.Assert.assertThat;
 @TupleGeneration(
     constraint = @Constraint(
         value = QuadraticEquationSolverTestX.CM.class,
-        params = { }))
+        args = { }))
 public class QuadraticEquationSolverTestX {
   @Rule
   public TestName   name = new TestName();

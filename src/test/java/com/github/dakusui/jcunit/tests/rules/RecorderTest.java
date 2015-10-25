@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.tests.rules;
 
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.core.rules.Recorder;
+import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import org.junit.Test;
 import org.junit.runner.Description;

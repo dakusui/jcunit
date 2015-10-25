@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.SavedObjectBrokenException;
@@ -73,7 +73,7 @@ public class TupleUtilsTest {
   @Test(expected = SavedObjectBrokenException.class)
   public void loadInvalieTupleTest() {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    Utils.save("Hello, world", baos);
+    IOUtils.save("Hello, world", baos);
     TupleUtils.load(new ByteArrayInputStream(baos.toByteArray()));
   }
 

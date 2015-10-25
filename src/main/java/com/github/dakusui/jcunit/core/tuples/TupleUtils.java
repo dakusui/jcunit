@@ -4,7 +4,7 @@ import com.github.dakusui.enumerator.CartesianEnumeratorAdaptor;
 import com.github.dakusui.enumerator.Combinator;
 import com.github.dakusui.enumerator.Domains;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.SavedObjectBrokenException;
@@ -132,13 +132,13 @@ public class TupleUtils {
   }
 
   public static void save(Tuple tuple, OutputStream os) {
-    Utils.save(tuple, os);
+    IOUtils.save(tuple, os);
   }
 
   public static Tuple load(InputStream is) {
     Object obj;
     try {
-      obj = Utils.load(is);
+      obj = IOUtils.load(is);
     } catch (JCUnitException e) {
       throw new SavedObjectBrokenException("Saved object was broken.", e);
     }

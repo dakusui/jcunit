@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
-import com.github.dakusui.jcunit.core.JCUnit;
+import com.github.dakusui.jcunit.core.IOUtils;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.rules.Recorder;
+import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class GeophileRecorderTest extends GeophileTestBase {
     File baseDir = Recorder
         .testClassDataDirFor(RECORDER_BASE, GeophileRecorderTest.class);
     if (baseDir.exists()) {
-      Utils.deleteRecursive(baseDir);
+      IOUtils.deleteRecursive(baseDir);
     }
     assertTrue(!baseDir.exists());
   }

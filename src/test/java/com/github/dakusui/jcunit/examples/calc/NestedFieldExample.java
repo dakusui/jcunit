@@ -1,10 +1,14 @@
 package com.github.dakusui.jcunit.examples.calc;
 
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.factor.MethodLevelsProvider;
-import com.github.dakusui.jcunit.core.factor.TupleLevelsProvider;
-import com.github.dakusui.jcunit.core.rules.JCUnitDesc;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
+import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
+import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;
@@ -21,6 +25,11 @@ public class NestedFieldExample extends Metatest {
     );
   }
 
+  @TupleGeneration(
+      generator = @Generator(
+          value = IPO2TupleGenerator.class,
+          params = @Value("2")
+      ))
   public static class Struct {
     @FactorField(intLevels = { 123, 456 })
     public int    a;
@@ -35,29 +44,28 @@ public class NestedFieldExample extends Metatest {
   @Rule
   public JCUnitDesc testDesc = new JCUnitDesc();
 
-  @FactorField(levelsProvider = MethodLevelsProvider.class)
+  @FactorField(levelsProvider = LevelsProvider$f1.class)
   public int     f1;
-  @FactorField(levelsProvider = MethodLevelsProvider.class)
+  public static class LevelsProvider$f1 extends SimpleLevelsProvider {
+    @Override
+    protected Object[] values() {
+      return new Object[] { 1, 2, 3 };
+    }
+  }
+  @FactorField(levelsProvider = LevelsProvider$f2.class)
   public long    f2;
+  public static class LevelsProvider$f2 extends SimpleLevelsProvider {
+    @Override
+    protected Object[] values() {
+      return new Object[] { 1L, 2L, 3L };
+    }
+  }
   @FactorField
   public Calc.Op op;
 
   @SuppressWarnings("unused") // This field is used by JCUnit.
-  @FactorField(levelsProvider = TupleLevelsProvider.class)
-  @TupleGeneration(
-      generator = @Generator(
-          value = IPO2TupleGenerator.class,
-          params = @Param("2")
-      ))
+  @FactorField
   public Struct struct;
-
-  public static int[] f1() {
-    return new int[] { 1, 2, 3 };
-  }
-
-  public static long[] f2() {
-    return new long[] { 1, 2, 3 };
-  }
 
   @Test
   public void test() throws Exception {
@@ -68,7 +76,7 @@ public class NestedFieldExample extends Metatest {
     } finally {
       UTUtils.stdout().println(
           Utils.format(
-              "testname=%s: f1=%d, op=%s, f2=%d = %s ; struct = (%s)",
+              "testname=%s: f1=%s, op=%s, f2=%s = %s ; struct = (%s)",
               this.testDesc.getTestName(),
               f1,
               op,

@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.jcunit.core.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
@@ -48,43 +48,43 @@ public class UtilsTest {
   @SuppressWarnings("unchecked")
   public void normalTestValidField1() {
     TestClass testObj = new TestClass();
-    assertEquals("f", Utils.getField(testObj, "f", Ann1.class).getName());
-    assertEquals("h", Utils.getField(testObj, "h", Ann1.class).getName());
+    assertEquals("f", ReflectionUtils.getField(testObj, "f", Ann1.class).getName());
+    assertEquals("h", ReflectionUtils.getField(testObj, "h", Ann1.class).getName());
   }
 
   @Test
   public void normalTestValidField2() {
     TestClass testObj = new TestClass();
     //noinspection unchecked
-    assertEquals("h", Utils.getField(testObj, "h", Ann1.class, Ann2.class).getName());
+    assertEquals("h", ReflectionUtils.getField(testObj, "h", Ann1.class, Ann2.class).getName());
   }
 
   @Test
   public void normalTestValidField3() {
     TestClass testObj = new TestClass();
     //noinspection unchecked
-    assertEquals("i", Utils.getField(testObj, "i").getName());
+    assertEquals("i", ReflectionUtils.getField(testObj, "i").getName());
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void abnormalTestUndefinedField() {
     TestClass testObj = new TestClass();
     //noinspection unchecked
-    Utils.getField(testObj, "e", Ann1.class).getName();
+    ReflectionUtils.getField(testObj, "e", Ann1.class).getName();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void abnormalTestFieldNotAnnotated() {
     TestClass testObj = new TestClass();
     //noinspection unchecked
-    Utils.getField(testObj, "i", Ann1.class).getName();
+    ReflectionUtils.getField(testObj, "i", Ann1.class).getName();
   }
 
   @Test
   public void abnormalTestFieldInsufficientAnnotations() {
     TestClass testObj = new TestClass();
     //noinspection unchecked
-    Utils.getField(testObj, "f", Ann1.class, Ann2.class).getName();
+    ReflectionUtils.getField(testObj, "f", Ann1.class, Ann2.class).getName();
   }
 
   public static class TestClass2 {
@@ -113,7 +113,7 @@ public class UtilsTest {
 
   @Test(expected = JCUnitException.class)
   public void givenAbstractClass$whenPerformCreateNewInstanceUsingNoParamConstructor$thenJCUnitExceptionWillBeThrown() {
-    Utils.createNewInstanceUsingNoParameterConstructor(C.class);
+    ReflectionUtils.create(C.class);
   }
 
   @SuppressWarnings("unused")
@@ -124,7 +124,7 @@ public class UtilsTest {
 
   @Test(expected = JCUnitException.class)
   public void givenClassWhoseNonParamConstructorIsPrivate$whenPerformCreateNewInstanceUsingNoParamConstructor$thenJCUnitExceptionWillBeThrown() {
-    Utils.createNewInstanceUsingNoParameterConstructor(C2.class);
+    ReflectionUtils.create(C2.class);
   }
 
   @SuppressWarnings("unused")
@@ -135,7 +135,7 @@ public class UtilsTest {
 
   @Test(expected = JCUnitException.class)
   public void givenClassWhichDoesntHaveNonParamConstructor$whenPerformCreateNewInstanceUsingNoParamConstructor$thenJCUnitExceptionWillBeThrown() {
-    Utils.createNewInstanceUsingNoParameterConstructor(C3.class);
+    ReflectionUtils.create(C3.class);
   }
 
   @SuppressWarnings("unused")
@@ -145,14 +145,26 @@ public class UtilsTest {
     }
   }
 
+  @Test(expected = RuntimeException.class)
+  public void givenClassThrowsRuntimeException$whenPerformCreateNewInstanceUsingNoParamConstructor$thenJCUnitExceptionWillBeThrown() {
+    ReflectionUtils.create(C4.class);
+  }
+
+  @SuppressWarnings("unused")
+  public static class C5 extends C {
+    public C5() throws Throwable {
+      throw new IOException();
+    }
+  }
+
   @Test(expected = JCUnitException.class)
-  public void givenClassThrowsException$whenPerformCreateNewInstanceUsingNoParamConstructor$thenJCUnitExceptionWillBeThrown() {
-    Utils.createNewInstanceUsingNoParameterConstructor(C4.class);
+  public void givenClassThrowsCheckedException$whenPerformCreateNewInstanceUsingNoParamConstructor$thenJCUnitExceptionWillBeThrown() {
+    ReflectionUtils.create(C5.class);
   }
 
   @Test(expected = JCUnitException.class)
   public void testGetDefaultValueOfAnnotation() {
-    Utils.getDefaultValueOfAnnotation(FactorField.class, "xyz");
+    ReflectionUtils.getDefaultValueOfAnnotation(FactorField.class, "xyz");
   }
 
   @Test
@@ -287,12 +299,4 @@ public class UtilsTest {
         Utils.singleton(Arrays.asList("A", "A", "B")
         ));
   }
-
-  @Test(expected = InvalidTestException.class)
-  public void testValidateFactorField() throws NoSuchFieldException {
-    Field f = this.getClass().getField("invalidScopeFactorField");
-    Utils.ValidationResult r = Utils.validateFactorField(f);
-    r.check();
-  }
-
 }

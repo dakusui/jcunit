@@ -1,7 +1,9 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session2;
 
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;

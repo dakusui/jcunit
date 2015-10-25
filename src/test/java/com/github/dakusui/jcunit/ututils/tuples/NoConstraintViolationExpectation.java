@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.ututils.tuples;
 
-import com.github.dakusui.jcunit.constraint.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;

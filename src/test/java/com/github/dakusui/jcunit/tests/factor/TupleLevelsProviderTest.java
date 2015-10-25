@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit.tests.factor;
 
-import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.core.factor.TupleLevelsProvider;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -15,7 +17,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+@TupleGeneration
 public class TupleLevelsProviderTest {
+  @TupleGeneration
   public static class Struct {
     @FactorField(intLevels = { 1, 2 })
     public int f1;
@@ -25,7 +29,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   public static class TestClass {
-    @FactorField(levelsProvider = TupleLevelsProvider.class)
+    @FactorField
     public Struct struct;
     @FactorField(intLevels = { 5, 6 })
     public int    f;
@@ -45,7 +49,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   public static class TestClass2 {
-    @FactorField(levelsProvider = TupleLevelsProvider.class)
+    @FactorField
     public Struct struct;
 
     @Test
@@ -59,12 +63,14 @@ public class TupleLevelsProviderTest {
     Result result = JUnitCore.runClasses(TestClass2.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
-    throw result.getFailures().get(0).getException();
+    Throwable t = result.getFailures().get(0).getException();
+    t.fillInStackTrace();
+    throw t;
   }
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = @Param("3"))
+      generator = @Generator(value = IPO2TupleGenerator.class, params = @Value("3"))
   )
   public static class TestClass3 {
     @FactorField
@@ -74,7 +80,7 @@ public class TupleLevelsProviderTest {
 
     @Test
     public void test() {
-      System.out.println(String.format("(f1, f2)=(%d, %d)", f1, f2));
+      System.out.println(String.format("(f1, f2)=(%s, %s)", f1, f2));
     }
   }
 
@@ -83,13 +89,15 @@ public class TupleLevelsProviderTest {
     Result result = JUnitCore.runClasses(TestClass3.class);
     assertFalse(result.wasSuccessful());
     assertEquals(1, result.getFailureCount());
-    throw result.getFailures().get(0).getException();
+    Throwable t = result.getFailures().get(0).getException();
+    t.fillInStackTrace();
+    throw t;
   }
 
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = @Param("1"))
+      generator = @Generator(value = IPO2TupleGenerator.class, params = @Value("1"))
   )
   public static class TestClass4 {
     @FactorField
@@ -114,7 +122,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Param("2"), @Param("hello!") })
+      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Value("2"), @Value("hello!") })
   )
   public static class TestClass5 {
     @FactorField
