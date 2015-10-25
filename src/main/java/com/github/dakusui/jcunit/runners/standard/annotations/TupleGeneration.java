@@ -80,6 +80,7 @@ public @interface TupleGeneration {
             .setParameters(generatorAnn.params())
             .setTargetClass(klazz)
             .setFactors(factors);
+        Checks.checkcond(factors.size() > 0, "No factors are found. Check if your factor fields are public.");
         TupleGenerator generator;
         List<Field> fsmFields;
         if (!(fsmFields = extractFSMFactorFields(switchCoverages.keySet())).isEmpty()) {
@@ -207,18 +208,10 @@ public @interface TupleGeneration {
         Factors.Builder factorsBuilder = new Factors.Builder();
         InvalidTestException invalidTestException = new InvalidTestException("One or more factors failed to be initialized.");
         for (Field f : fields) {
-          try {
-            Factor factor = FactorField.FactorFactory.INSTANCE.createFromField(f);
-            factorsBuilder.add(factor);
-            // FIXME. switch coverage should be figured out from fsm provider parameters.
-            providers.put(f, 1);
-          } catch (InvalidTestException e) {
-            invalidTestException.addChild(e);
-          }
-        }
-        if (invalidTestException.hasChildren()) {
-          invalidTestException.fillInStackTrace();
-          throw invalidTestException;
+          Factor factor = FactorField.FactorFactory.INSTANCE.createFromField(f);
+          factorsBuilder.add(factor);
+          // FIXME. switch coverage should be figured out from fsm provider parameters.
+          providers.put(f, 1);
         }
         // //
         // Instantiates the test array generator.

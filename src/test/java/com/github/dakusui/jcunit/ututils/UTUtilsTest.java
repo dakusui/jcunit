@@ -33,7 +33,7 @@ public class UTUtilsTest {
 
   /**
    * A test to know system properties.
-   * Remove '@Ignore` annotation temporarily when this method becomes necessary.
+   * Remove '@Ignore` annotations temporarily when this method becomes necessary.
    */
   @Test
   @Ignore
@@ -53,7 +53,7 @@ public class UTUtilsTest {
 
   /**
    * A test to know environment variables.
-   * Remove '@Ignore` annotation temporarily when this method becomes necessary.
+   * Remove '@Ignore` annotations temporarily when this method becomes necessary.
    */
   @Test
   @Ignore

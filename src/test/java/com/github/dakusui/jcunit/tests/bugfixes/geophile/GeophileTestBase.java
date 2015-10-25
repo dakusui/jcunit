@@ -1,8 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.ututils.Metatest;
 
-public class GeophileTestBase {
+public class GeophileTestBase extends Metatest {
   @FactorField(stringLevels = { "INCLUDED", "EXCLUDED" })
   public String  duplicates;
   @FactorField(doubleLevels = { 1, 64, 1024, 1000000 })
@@ -23,4 +24,8 @@ public class GeophileTestBase {
   public double  boxWidth;
   @FactorField(doubleLevels = { 0, 0.1, 1, 2, 21 })
   public double  boxHeight;
+
+  public GeophileTestBase(int expectedRunCount, int expectedFailureCount, int expectedIgnoreCount) {
+    super(expectedRunCount, expectedFailureCount, expectedIgnoreCount);
+  }
 }

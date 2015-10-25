@@ -81,7 +81,9 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = {}
+          params = {
+              @Value({"com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2"})
+          }
       )
   )
   public static class TestClass {
@@ -128,10 +130,8 @@ public class ReplayerTest {
 
     Result testResult = runTests();
 
-    assertEquals(1, testResult.getRunCount());
-    assertEquals(false, testResult.wasSuccessful());
-
-    validateFailureForMissingPreviousRunRecord(testResult);
+    assertEquals(2, testResult.getRunCount());
+    assertEquals(true, testResult.wasSuccessful());
   }
 
   @Test
@@ -141,12 +141,8 @@ public class ReplayerTest {
 
     Result testResult = runTests();
 
-    ////
-    // The test should fail since no recorded tests will be found.
-    assertEquals(1, testResult.getRunCount());
-    assertEquals(false, testResult.wasSuccessful());
-
-    validateFailureForMissingPreviousRunRecord(testResult);
+    assertEquals(2, testResult.getRunCount());
+    assertEquals(true, testResult.wasSuccessful());
   }
 
   @Test
@@ -233,27 +229,15 @@ public class ReplayerTest {
     return TestClass.run();
   }
 
-  private void validateFailureForMissingPreviousRunRecord(Result testResult) {
-    boolean validated = false;
-    for (Failure failure : testResult.getFailures()) {
-      assertEquals(
-          String.format(
-              "Test hasn't been run with 'JCUnitRecorder' rule yet. No tuple containing directory under '.jcunit/%s' was found.",
-              TestClass.class.getCanonicalName()
-          ),
-          failure.getMessage()
-      );
-      validated = true;
-    }
-    assertTrue(validated);
-  }
-
   @RunWith(JCUnit.class)
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          //          params = { @Value({"com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2"}), @Value("Replay"), @Value("All"), @Value(".jcunit"),  }
-          params = { @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }), @Value("Fallback"), @Value("All"), @Value(".jcunit") }
+          params = {
+              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value("Fallback"),
+              @Value("All")
+          }
       ))
   public static class TestClass2 {
     @Rule
@@ -270,6 +254,68 @@ public class ReplayerTest {
     }
   }
 
+  @RunWith(JCUnit.class)
+  @TupleGeneration(
+      generator = @Generator(
+          value = Replayer.class,
+          params = {
+              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value("Replay"),
+              @Value("All")
+          }
+      ))
+  public static class TestClassNoFallBack extends Metatest {
+    @Rule
+    public Recorder recorder = new Recorder();
+    @SuppressWarnings("unused")
+    @FactorField(intLevels = { 100, 200 })
+    public int f1;
+    @SuppressWarnings("unused")
+    @FactorField(intLevels = 300)
+    public int f2;
+
+    public TestClassNoFallBack() {
+      super(1, 1, 0);
+    }
+
+    @Test
+    public void test() {
+    }
+  }
+
+
+  @Test
+  public void givenRecorderIsFalseAndReplayerIsTrueButFallbackIsDisabled$whenRunTests$thenTestsWillBeRunWithFallbackGenerator() {
+    ////
+    // Make sure the directory is empty.
+    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
+    Recorder.initializeTestClassDataDir(TestClass.class);
+
+    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+
+    Result testResult = new TestClassNoFallBack().runTests();
+
+    validateFailureForMissingPreviousRunRecord(testResult);
+  }
+
+  private void validateFailureForMissingPreviousRunRecord(Result testResult) {
+    boolean validated = false;
+    for (Failure failure : testResult.getFailures()) {
+      assertEquals(
+          String.format(
+              "Test hasn't been run with 'JCUnitRecorder' rule yet. No tuple containing directory under '%s/%s' was found.",
+              SystemProperties.get(SystemProperties.KEY.BASEDIR, ".jcunit"),
+              TestClassNoFallBack.class.getCanonicalName()
+          ),
+          failure.getMessage()
+      );
+      validated = true;
+    }
+    assertTrue(validated);
+  }
+
+
   @Test
   public void givenExplicitlyGeneratorClassNameAndStrengthAreSpecified$whenRunTests$thenTestsWillPass() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass2.class);
@@ -280,7 +326,11 @@ public class ReplayerTest {
   @TupleGeneration(
       generator = @Generator(
           value = Replayer.class,
-          params = { @Value("All"), @Value(".jcunit"), @Value("WrongTupleGenerator"), @Value("2") }
+          params = {
+              @Value({"WrongTupleGenerator", "2"}),
+              @Value("Fallback"),
+              @Value("All")
+          }
       ))
   public static class TestClass3 {
     @Rule

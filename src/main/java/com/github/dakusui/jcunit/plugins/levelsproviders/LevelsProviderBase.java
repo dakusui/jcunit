@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * {@inheritDoc}
  */
-public abstract class LevelsProviderBase extends Plugin.Base implements LevelsProvider {
+public abstract class LevelsProviderBase implements LevelsProvider, Plugin {
   protected final LinkedList<String> errors;
 
   public LevelsProviderBase() {

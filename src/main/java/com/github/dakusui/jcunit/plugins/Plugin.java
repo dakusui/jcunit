@@ -12,19 +12,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * A common interface of all plugins of JCUnit that can be configured through
  * '{@literal @}Param' annotations.
  */
 public interface Plugin {
-  abstract class Base implements Plugin {
-  }
-
   @Retention(RetentionPolicy.RUNTIME)
   @interface Param {
     enum Source {
@@ -206,6 +200,12 @@ public interface Plugin {
               i++;
             }
           }
+          Checks.checktest(
+              i >= args.length,
+              "Too many arguments are given. %s are extra.",
+              i < args.length
+                  ? Arrays.toString(Arrays.copyOfRange(args, i, args.length, Object[].class))
+                  : null);
           Checks.checktest(resolvedArgs.size() == constructor.getParameterTypes().length,
               "%s: Too few or to many arguments: required=%s, given=%s",
               constructor.getDeclaringClass(),

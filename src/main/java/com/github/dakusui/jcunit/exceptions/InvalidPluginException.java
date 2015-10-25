@@ -5,7 +5,7 @@ package com.github.dakusui.jcunit.exceptions;
  * (TupleGenerator, ConstraintManager, or LevelsProvider)
  * writer is detected.
  */
-public class InvalidPluginException extends NestableException {
+public class InvalidPluginException extends JCUnitException {
   /**
    * Creates an object of this class.
    *

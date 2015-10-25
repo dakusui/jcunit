@@ -8,7 +8,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class ValueResolverTest {
-  public static class TestPlugin extends Plugin.Base {
+  public static class TestPlugin implements Plugin {
     public enum TestEnum {
       WORLD
     }
