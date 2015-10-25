@@ -1,13 +1,13 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -107,7 +107,7 @@ public @interface FactorField {
         if (!ret.contains(null) && ann.includeNull()) {
           ret.add(null);
         }
-        List<Object> incompatibles = Utils.<Object>filter(ret, new Utils.Predicate() {
+        List<Object> incompatibles = Utils.filter(ret, new Utils.Predicate<Object>() {
           @Override
           public boolean apply(Object in) {
             return !ReflectionUtils.isAssignable(fieldType, in);
@@ -123,13 +123,13 @@ public @interface FactorField {
 
       private static LevelsProvider levelsProviderOf(FactorField ann) {
         assert ann != null;
-        Plugin.Factory<? extends LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
+        //noinspection unchecked
+        Plugin.Factory<LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
             (Class<LevelsProvider>) ann.levelsProvider(),
             new Value.Resolver()
         );
-        LevelsProvider ret = factory.create(ann.providerParams());
         //noinspection ConstantConditions
-        return ret;
+        return factory.create(ann.providerParams());
       }
 
       private static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {

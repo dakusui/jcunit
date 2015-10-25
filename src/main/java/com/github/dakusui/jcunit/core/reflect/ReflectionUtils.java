@@ -263,7 +263,7 @@ public class ReflectionUtils {
 
   public static Field[] getAnnotatedFields(Class<?> clazz,
       Class<? extends Annotation> annClass) {
-    Field[] fields = clazz.getFields();
+    Field[] fields = getFields(clazz);
     List<Field> ret = new ArrayList<Field>(fields.length);
     for (Field f : fields) {
       if (f.getAnnotation(annClass) != null) {
@@ -277,6 +277,10 @@ public class ReflectionUtils {
       }
     });
     return ret.toArray(new Field[ret.size()]);
+  }
+
+  public static Field[] getFields(Class<?> clazz) {
+    return Checks.checknotnull(clazz).getFields();
   }
 
   public static class TypedArg {

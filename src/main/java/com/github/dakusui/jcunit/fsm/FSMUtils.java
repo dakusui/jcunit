@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -223,12 +222,12 @@ public class FSMUtils {
    * @param f A field to be checked.
    */
   public static boolean isStoryField(Field f) {
-    return FSMLevelsProvider.class.isAssignableFrom(f.getAnnotation(FactorField.class).levelsProvider());
+    return Story.class.isAssignableFrom(f.getType());
   }
 
   private static <T> List<Field> getStoryFields(T testObject) {
     List<Field> ret = new LinkedList<Field>();
-    for (Field each : ReflectionUtils.getAnnotatedFields(testObject.getClass(), FactorField.class)) {
+    for (Field each : ReflectionUtils.getFields(testObject.getClass())) {
       if (isStoryField(each)) {
         ret.add(each);
       }

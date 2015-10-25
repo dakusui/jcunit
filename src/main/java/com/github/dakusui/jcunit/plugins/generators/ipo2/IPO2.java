@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.plugins.generators.ipo2;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
@@ -11,6 +10,7 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
 
 import java.util.*;
@@ -391,23 +391,6 @@ public class IPO2 implements ConstraintManager.Observer {
       }
     }
     return tuple;
-  }
-
-  @Override
-  public void implicitConstraintFound(Tuple constraint) {
-    this.registerImplicitConstraintToLearnedConstraintSet(constraint);
-  }
-
-  private void registerImplicitConstraintToLearnedConstraintSet(
-      Tuple implicitConstraint) {
-    Set<Tuple> removal = new LinkedHashSet<Tuple>();
-    for (Tuple t : this.learnedConstraint) {
-      if (implicitConstraint.isSubtupleOf(t)) {
-        removal.add(t);
-      }
-    }
-    this.learnedConstraint.removeAll(removal);
-    this.learnedConstraint.add(implicitConstraint);
   }
 
   private boolean checkTupleWithLearnedConstraints(Tuple tuple) {

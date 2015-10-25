@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit.plugins.constraintmanagers;
 
-import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.Plugin;
 
 import java.util.List;
 import java.util.Set;
@@ -39,17 +38,10 @@ public interface ConstraintManager extends Plugin {
 
   class Builder {
     private Class<? extends ConstraintManager> constraintManagerClass;
-    private Value[]                            parameters;
     private Factors                            factors;
 
     public ConstraintManager build() {
-      ConstraintManager ret = ReflectionUtils.create(constraintManagerClass);
-      return ret;
-    }
-
-    public Builder setParameters(Value[] parameters) {
-      this.parameters = parameters;
-      return this;
+      return ReflectionUtils.create(constraintManagerClass);
     }
 
     public Builder setConstraintManagerClass(
@@ -69,6 +61,5 @@ public interface ConstraintManager extends Plugin {
   }
 
   interface Observer {
-    void implicitConstraintFound(Tuple constraint);
   }
 }

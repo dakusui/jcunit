@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.Errors;
-import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
@@ -50,7 +49,7 @@ public @interface TupleGeneration {
         Checks.checknotnull(klazz);
         TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
             klazz);
-        return createTupleGenerator(resolver, klazz, tupleGenerationAnn);
+        return createTupleGenerator(klazz, tupleGenerationAnn);
       }
 
       private Value.Resolver createResolver() {
@@ -58,7 +57,6 @@ public @interface TupleGeneration {
       }
 
       public TupleGenerator createTupleGenerator(
-          Value.Resolver resolver,
           Class<?> klazz,
           TupleGeneration tupleGenerationAnn) {
         Checks.checknotnull(klazz);
@@ -71,7 +69,6 @@ public @interface TupleGeneration {
         ConstraintManager constraintManager =
             new ConstraintManager.Builder()
                 .setConstraintManagerClass(constraintAnn.value())
-                .setParameters(constraintAnn.args())
                 .setFactors(factors).build();
         Generator generatorAnn = tupleGenerationAnn.generator();
         TupleGenerator.Builder b = new TupleGenerator.Builder(this.resolver)
@@ -206,7 +203,6 @@ public @interface TupleGeneration {
         // Initialize the factor levels for every '@FactorField' annotated field.
         Field[] fields = ReflectionUtils.getAnnotatedFields(klass, FactorField.class);
         Factors.Builder factorsBuilder = new Factors.Builder();
-        InvalidTestException invalidTestException = new InvalidTestException("One or more factors failed to be initialized.");
         for (Field f : fields) {
           Factor factor = FactorField.FactorFactory.INSTANCE.createFromField(f);
           factorsBuilder.add(factor);

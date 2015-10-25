@@ -62,9 +62,6 @@ public class ConstraintTest {
     assertEquals(1024, manager.getFactors().get("f1").levels.get(0));
 
     ConstraintManager.Observer observer = new ConstraintManager.Observer() {
-      @Override
-      public void implicitConstraintFound(Tuple constraint) {
-      }
     };
     manager.addObserver(observer);
     assertEquals(1, manager.observers().size());

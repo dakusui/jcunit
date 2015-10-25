@@ -204,9 +204,6 @@ QuadraticEquationSolverTest1 is a test class for QuadraticEquationSolver class.
 If you run this test class, JCUnit generates about fifty test cases and run them.
 By default, it generates the test cases by using 'all-pairs' technique.
 
-# How it works and why you want to use JCUnit
-(t.b.d.)
-
 # Features, tips, and examples
 ## FSM support feature
 FSM support of JCUnit (FSM/JCUnit) is a feature that allows you to model your 
