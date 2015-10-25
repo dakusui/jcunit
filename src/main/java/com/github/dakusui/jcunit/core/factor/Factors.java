@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.enumerator.Combinator;
+import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;

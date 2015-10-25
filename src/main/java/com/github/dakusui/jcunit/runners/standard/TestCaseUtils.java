@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.enumerator.tuple.AttrValue;
+import com.github.dakusui.combinatoradix.tuple.AttrValue;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;

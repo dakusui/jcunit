@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.enumerator.CartesianEnumeratorAdaptor;
-import com.github.dakusui.enumerator.Combinator;
-import com.github.dakusui.enumerator.Domains;
+import com.github.dakusui.combinatoradix.CartesianEnumeratorAdaptor;
+import com.github.dakusui.combinatoradix.Combinator;
+import com.github.dakusui.combinatoradix.Domains;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.factor.Factor;

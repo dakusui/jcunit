@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.core;
 
-import com.github.dakusui.enumerator.Combinator;
-import com.github.dakusui.enumerator.HomogeniousCombinator;
-import com.github.dakusui.enumerator.Permutator;
+import com.github.dakusui.combinatoradix.Combinator;
+import com.github.dakusui.combinatoradix.HomogeniousCombinator;
+import com.github.dakusui.combinatoradix.Permutator;
 import org.junit.Test;
 
 import java.util.Arrays;
