@@ -19,10 +19,11 @@ public abstract class Metatest {
     this.expectedIgnoreCount = expectedIgnoreCount;
   }
 
-  public void runTests() {
+  public Result runTests() {
     Result result = JUnitCore.runClasses(this.getClass());
-    assertEquals(expectedFailureCount, result.getFailureCount());
     assertEquals(expectedRunCount, result.getRunCount());
+    assertEquals(expectedFailureCount, result.getFailureCount());
     assertEquals(expectedIgnoreCount, result.getIgnoreCount());
+    return result;
   }
 }

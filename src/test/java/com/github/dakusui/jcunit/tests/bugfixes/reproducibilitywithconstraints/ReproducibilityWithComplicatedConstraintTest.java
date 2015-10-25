@@ -34,6 +34,7 @@ public class ReproducibilityWithComplicatedConstraintTest {
         return false;
       if (!checkLeftIndexIsSane(tuple))
         return false;
+      //noinspection RedundantIfStatement
       if (!checkRightIndexIsSane(tuple))
         return false;
       return true;
@@ -57,7 +58,8 @@ public class ReproducibilityWithComplicatedConstraintTest {
       if (useSharedIndexForRight && !useSharedSerializerForRight)
         return false;
       // noinspection
-      if (!useSharedIndexForRight && !(!rightIndexType.equals("INVALID"))) {
+      //noinspection RedundantIfStatement
+      if (!useSharedIndexForRight && rightIndexType.equals("INVALID")) {
         return false;
       }
       return true;

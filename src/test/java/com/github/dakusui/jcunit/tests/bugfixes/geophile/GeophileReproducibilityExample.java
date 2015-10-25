@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(JCUnit.class)
 //@JCUnit.Execute(include = {0, 3, 7, 10, 11, 20, 25, 29, 32, 35, 36})
-public class GeophileReproducibilityTest extends GeophileTestBase {
+public class GeophileReproducibilityExample extends GeophileTestBase {
   @Rule
   public JCUnitDesc desc = new JCUnitDesc();
 
@@ -25,6 +25,10 @@ public class GeophileReproducibilityTest extends GeophileTestBase {
    */
   static         SortedMap<String, String> result = new TreeMap<String, String>();
   private static int                       num    = 0;
+
+  public GeophileReproducibilityExample() {
+    super(0, 0, 0);
+  }
 
   @Before
   public void before() {

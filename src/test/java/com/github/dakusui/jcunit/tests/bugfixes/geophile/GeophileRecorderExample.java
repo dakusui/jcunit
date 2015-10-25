@@ -17,10 +17,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
-public class GeophileRecorderTest extends GeophileTestBase {
+public class GeophileRecorderExample extends GeophileTestBase {
   private static final String   RECORDER_BASE = null;
   @Rule
   public               Recorder recorder      = new Recorder();
+
+  public GeophileRecorderExample() {
+    super(0, 0, 0);
+  }
 
   @BeforeClass
   public static void beforeClass() {
@@ -29,7 +33,7 @@ public class GeophileRecorderTest extends GeophileTestBase {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
 
     File baseDir = Recorder
-        .testClassDataDirFor(RECORDER_BASE, GeophileRecorderTest.class);
+        .testClassDataDirFor(RECORDER_BASE, GeophileRecorderExample.class);
     if (baseDir.exists()) {
       IOUtils.deleteRecursive(baseDir);
     }
@@ -39,7 +43,7 @@ public class GeophileRecorderTest extends GeophileTestBase {
   @Test
   public void test() {
     File baseDir = Recorder
-        .testClassDataDirFor(RECORDER_BASE, GeophileRecorderTest.class);
+        .testClassDataDirFor(RECORDER_BASE, GeophileRecorderExample.class);
     assertNotNull(baseDir.list());
     assertThat(baseDir.list().length, is(this.recorder.getId() + 1));
   }

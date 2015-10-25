@@ -1,13 +1,13 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
@@ -90,7 +90,8 @@ public class JCUnit extends Suite {
 
   private static Throwable tryToRecreateRootCauseException(Throwable rootCause, String message) {
     rootCause = Checks.checknotnull(rootCause);
-    if (message == null) return rootCause;
+    if (message == null)
+      return rootCause;
     Throwable ret = null;
     try {
       ret = ReflectionUtils.create(rootCause.getClass(), new ReflectionUtils.TypedArg(String.class, message));
@@ -163,32 +164,52 @@ public class JCUnit extends Suite {
 
   private List<Tuple> invokeCustomTestCasesMethod(List<FrameworkMethod> customTestCasesMethods) {
     List<Tuple> ret = new LinkedList<Tuple>();
-    try {
-      for (FrameworkMethod each : customTestCasesMethods) {
+    for (FrameworkMethod each : customTestCasesMethods) {
+      try {
         Object r = each.invokeExplosively(null);
-        if (r instanceof Tuple) {
-          ret.add((Tuple) r);
-        } else if (r instanceof Iterable) {
+        if (r instanceof Iterable) {
           for (Object o : (Iterable) r) {
-            if (o == null) {
-              Checks.checkenv(false, "Returned value of '%s' must not contain null.", each.getName());
-            }
-            if (o instanceof Tuple) {
-              ret.add((Tuple) o);
-            } else if (getTestClass().getJavaClass().isAssignableFrom(o.getClass())) {
-              ret.add(TestCaseUtils.toTestCase(o));
-            } else {
-              Checks.checkenv(false, "Returned value of '%s' must contain only Tuple or test objects.", each.getName());
-            }
+            addTestCase(o, ret, each);
           }
         } else {
-          Checks.checkcond(false);
+          addTestCase(r, ret, each);
         }
+      } catch (Throwable throwable) {
+        Checks.rethrow(throwable, "Failed to execute '%s'.", each.getName());
       }
-    } catch (Throwable throwable) {
-      Checks.rethrow(throwable, "Failed to execute '%s'.: (%s)", throwable.getMessage());
     }
     return ret;
+  }
+
+  /**
+   * Add test case to {@code tupleList}.
+   * It will be converted to a tuple, if necessary.
+   *
+   * @param testCase        A test case object. Type is unknown.
+   * @param tupleList       A list to test case tuple to add to.
+   * @param frameworkMethod A framework method from which {@code testCase} is returned.
+   */
+  private void addTestCase(Object testCase, List<Tuple> tupleList, FrameworkMethod frameworkMethod) {
+    Checks.checknotnull(
+        testCase,
+        "null is returned (or contained in a collection returned) by '%s.%s' (in %s)",
+        frameworkMethod.getDeclaringClass(),
+        frameworkMethod.getName()
+    );
+
+    if (testCase instanceof Tuple) {
+      tupleList.add((Tuple) testCase);
+    } else if (getTestClass().getJavaClass().isAssignableFrom(testCase.getClass())) {
+      tupleList.add(TestCaseUtils.toTestCase(testCase));
+    } else {
+      Checks.checkcond(
+          false,
+          "Unknown type object (%s) is returned by '%s' (in %s)",
+          testCase,
+          frameworkMethod.getName(),
+          frameworkMethod.getDeclaringClass()
+      );
+    }
   }
 
   private List<FrameworkMethod> getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever retriever) {

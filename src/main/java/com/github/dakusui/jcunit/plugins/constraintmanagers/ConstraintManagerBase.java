@@ -9,7 +9,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ConstraintManagerBase<S> extends Plugin.Base implements ConstraintManager {
+public abstract class ConstraintManagerBase<S> implements ConstraintManager, Plugin {
   private final Set<Observer> observers = new LinkedHashSet<Observer>();
   private Factors factors;
 
