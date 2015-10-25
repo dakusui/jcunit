@@ -72,16 +72,18 @@ public interface SUTFactory<SUT> {
     }
 
     public static <T> Class<T[]> arr(Class<T> type) {
+      //noinspection unchecked
       return (Class<T[]>) Array.newInstance(Checks.checknotnull(type), 0).getClass();
     }
 
-    public static final Class<int[]> INT_ARRAY_TYPE = (Class<int[]>) new int[0].getClass();
-    public static final Class<long[]> LONG_ARRAY_TYPE = (Class<long[]>) new long[0].getClass();
-    public static final Class<boolean[]> BOOLEAN_ARRAY_TYPE = (Class<boolean[]>) new boolean[0].getClass();
-    public static final Class<byte[]> BYTE_ARRAY_TYPE = (Class<byte[]>) new byte[0].getClass();
-    public static final Class<char[]> CHAR_ARRAY_TYPE = (Class<char[]>) new char[0].getClass();
-    public static final Class<float[]> FLOAT_ARRAY_TYPE = (Class<float[]>) new float[0].getClass();
-    public static final Class<double[]> DOUBLE_ARRRAY_TYPE = (Class<double[]>) new double[0].getClass();
+    public static final Class<boolean[]> BOOLEAN_ARRAY_TYPE = boolean[].class;
+    public static final Class<byte[]> BYTE_ARRAY_TYPE = byte[].class;
+    public static final Class<char[]> CHAR_ARRAY_TYPE = char[].class;
+    public static final Class<short[]> SHORT_ARRAY_TYPE = short[].class;
+    public static final Class<int[]> INT_ARRAY_TYPE = int[].class;
+    public static final Class<long[]> LONG_ARRAY_TYPE = long[].class;
+    public static final Class<float[]> FLOAT_ARRAY_TYPE = float[].class;
+    public static final Class<double[]> DOUBLE_ARRRAY_TYPE = double[].class;
   }
 
   class Simple<SUT> extends Base<Simple, SUT> {

@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.examples.fsm.inputhistory;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.github.dakusui.jcunit.fsm.SUTFactory.Base.$;
-import static com.github.dakusui.jcunit.fsm.SUTFactory.Base.INT_ARRAY_TYPE;
 
 public class DefaultInputHistoryTest {
   @Test
@@ -49,7 +48,7 @@ public class DefaultInputHistoryTest {
               ExampleM4.Sut.class,
               $(String.class, "prefix"),
               $(Integer.TYPE, 1),
-              $(INT_ARRAY_TYPE, ii)
+              $(int[].class, ii)
           ).addCollector(new InputHistory.Collector.Default("method")),
           new ScenarioSequence.Observer.Factory.ForSimple(UTUtils.stdout())
       );
@@ -81,8 +80,8 @@ public class DefaultInputHistoryTest {
           new SUTFactory.Simple<ExampleM4.Sut>(
               ExampleM4.Sut.class,
               $(String.class, "prefix"),
-              $(Integer.TYPE, 1),
-              $(INT_ARRAY_TYPE, ii)
+              $(int.class, 1),
+              $(int[].class, ii)
           ).addCollector(new InputHistory.Collector.Default("method")),
           new ScenarioSequence.Observer.Factory.ForSimple(UTUtils.stdout())
       );
