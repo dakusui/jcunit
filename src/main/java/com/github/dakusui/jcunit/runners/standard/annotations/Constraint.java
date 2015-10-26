@@ -10,5 +10,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface Constraint {
   Class<? extends ConstraintManager> value() default NullConstraintManager.class;
 
-  Value[] args() default { };
+  Value[] params() default { };
 }
