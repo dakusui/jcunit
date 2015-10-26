@@ -17,7 +17,7 @@ import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;
 
 @RunWith(TheoriesWithJCUnit.class)
-public class TheoriesExample {
+public class TheoriesExample2 {
   @DataPoints("posInt")
   public static int[] positiveIntegers() {
     return new int[] {

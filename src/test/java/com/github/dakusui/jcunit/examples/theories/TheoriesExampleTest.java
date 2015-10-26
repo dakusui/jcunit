@@ -11,6 +11,6 @@ public class TheoriesExampleTest {
   }
   @Test
   public void runTheoriesExample() {
-    UTUtils.runTests(TheoriesExample.class, 2, 0, 0);
+    UTUtils.runTests(TheoriesExample2.class, 2, 0, 0);
   }
 }
