@@ -29,7 +29,6 @@ public class IPO2 implements ConstraintManager.Observer {
   private final IPO2Optimizer     optimizer;
   private       List<Tuple>       result;
   private       List<Tuple>       remainders;
-  private Set<Tuple> learnedConstraint = new LinkedHashSet<Tuple>();
 
   public IPO2(Factors factors, int strength,
       ConstraintManager constraintManager,
@@ -107,8 +106,6 @@ public class IPO2 implements ConstraintManager.Observer {
           factors.get(factorName),
           this.strength);
       leftTuples.addAll(leftOver);
-      leftTuples.removeAll(
-          findTuplesViolatingLearnedConstraints(leftTuples.leftTuples()));
 
       ////
       // Expand test case set horizontally and get the list of test cases
@@ -392,26 +389,4 @@ public class IPO2 implements ConstraintManager.Observer {
     }
     return tuple;
   }
-
-  private boolean checkTupleWithLearnedConstraints(Tuple tuple) {
-    for (Tuple t : TupleUtils.subtuplesOf(tuple)) {
-      if (this.learnedConstraint.contains(t)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public Set<Tuple> findTuplesViolatingLearnedConstraints(
-      Collection<Tuple> tuples) {
-    Checks.checknotnull(tuples);
-    Set<Tuple> ret = new LinkedHashSet<Tuple>();
-    for (Tuple t : tuples) {
-      if (!checkTupleWithLearnedConstraints(t)) {
-        ret.add(t);
-      }
-    }
-    return ret;
-  }
-
 }

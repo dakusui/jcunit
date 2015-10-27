@@ -42,9 +42,10 @@ public class Utils {
   }
 
   public static String toString(Object o) {
-    if (o == null) return null;
+    if (o == null)
+      return null;
     if (o instanceof Class) {
-      return getSimpleName((Class)o);
+      return getSimpleName((Class) o);
     }
     return getSimpleName(o.getClass()) + "@" + System.identityHashCode(o);
   }
@@ -54,7 +55,8 @@ public class Utils {
   }
 
   private static List<String> composeSimpleName(List<String> classNest, Class c) {
-    if (c == null) return classNest;
+    if (c == null)
+      return classNest;
     classNest.add(0, c.getSimpleName());
     return composeSimpleName(classNest, c.getEnclosingClass());
   }
@@ -190,7 +192,7 @@ public class Utils {
     return ret;
   }
 
-  public static <V> List<V> filter(List<V> unfiltered, Predicate<V> predicate) {
+  public static <V> List<V> filter(Iterable<V> unfiltered, Predicate<V> predicate) {
     Checks.checknotnull(unfiltered);
     Checks.checknotnull(predicate);
     List<V> ret = new LinkedList<V>();

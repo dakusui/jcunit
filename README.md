@@ -40,10 +40,10 @@ If you run this example,
 * [ConfigExample](/src/main/java/com/github/dakusui/jcunit/examples/confg/ConfigExample.java)
 
 you will notice that only 17 test cases can cover all possible value pairs.
-17 vs 432 sounds impressive, isn't it?
+17 vs 432 sounds impressive, doesn't it?
 
 # Changes
-About changes from previous versions, refer to [release notes](RELEASENOTES.md).
+About changes from previous versions, refer to [release notes](https://github.com/dakusui/jcunit/wiki#release-history).
 
 # Installation
 JCUnit requires Java SE6 or later. 

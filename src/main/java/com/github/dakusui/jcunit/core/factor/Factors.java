@@ -110,8 +110,17 @@ public class Factors implements Iterable<Factor> {
     return new Factors(factors);
   }
 
+  public List<Tuple> generateAllPossibleTuples(int strength) {
+    return generateAllPossibleTuples(strength, new Utils.Predicate<Tuple>() {
+      @Override
+      public boolean apply(Tuple in) {
+        return true;
+      }
+    });
+  }
+
   public List<Tuple> generateAllPossibleTuples(
-      int strength) {
+      int strength, Utils.Predicate<Tuple> predicate) {
     List<Tuple> ret = new LinkedList<Tuple>();
     Combinator<String> c = new Combinator<String>(this.getFactorNames(),
         strength);
@@ -123,9 +132,7 @@ public class Factors implements Iterable<Factor> {
       }
       TupleUtils.CartesianTuples tuples = TupleUtils
           .enumerateCartesianProduct(new TupleImpl(), chosenFactors);
-      for (Tuple t : tuples) {
-        ret.add(t);
-      }
+      ret.addAll(Utils.filter(tuples, predicate));
     }
     return ret;
   }
