@@ -13,12 +13,18 @@ import java.util.List;
 import java.util.Set;
 
 public class Coverage {
+  enum State {
+    NOT_PROCESSED,
+    PROCESSED
+  }
+
   final   int        strength;
   final   int        initialSize;
   final   Factors    factorSpace;
   final   Set<Tuple> uncovered;
   final   Set<Tuple> prohibited;
   private int        covered;
+  protected State state = State.NOT_PROCESSED;
 
   /**
    * Creates an object of this class.
@@ -33,7 +39,7 @@ public class Coverage {
     this.factorSpace = Checks.checknotnull(factors);
     this.strength = strength;
     this.prohibited = new LinkedHashSet<Tuple>();
-    this.covered =0;
+    this.covered = 0;
     if (this.strength == 1) {
       this.uncovered = new LinkedHashSet<Tuple>(factors.generateAllPossibleTuples(1));
       int c = 0;
@@ -71,6 +77,7 @@ public class Coverage {
         break;
       this.processTestCase(eachTestCase);
     }
+    this.state = State.PROCESSED;
     return createNext();
   }
 
@@ -108,6 +115,7 @@ public class Coverage {
   }
 
   public void printReport(PrintStream stdout) {
+    Checks.checkcond(this.state == State.PROCESSED, "try processTestSuite method first");
     Checks.checknotnull(stdout);
     stdout.printf("================================================================================%n");
     stdout.printf("RESULT: %3s/%3s/%3s/%3s (covered/not covered/prohibited/total) strength=%s%n",
