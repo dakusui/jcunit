@@ -11,7 +11,8 @@ public class InvalidPluginException extends JCUnitException {
    *
    * @param message An error message for this object.
    * @param t       A nested <code>throwable</code> object.
-   */  public InvalidPluginException(String message, Throwable t) {
+   */
+  public InvalidPluginException(String message, Throwable t) {
     super(message, t);
   }
 
@@ -19,7 +20,8 @@ public class InvalidPluginException extends JCUnitException {
    * Creates an object of this class.
    *
    * @param message An error message for this object.
-   */  public InvalidPluginException(String message) {
+   */
+  public InvalidPluginException(String message) {
     super(message, null);
   }
 }
