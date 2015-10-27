@@ -125,7 +125,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
         //noinspection unchecked
         ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
       } catch (IllegalArgumentException e) {
-        Checks.rethrowtesterror(
+        throw Checks.wraptesterror(
             e,
             "Wrong types: '%s/%s' of '%s' can't be executed with %s",
             m.getName(),
@@ -137,7 +137,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
         // Since the method is validated in advance, this path should never be executed.
         Checks.fail();
       } catch (InvocationTargetException e) {
-        Checks.rethrowtesterror(
+        throw Checks.wraptesterror(
             e,
             "Method '%s/%s' of '%s' must always succeed and return an object of '%s'.",
             m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()

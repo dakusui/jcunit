@@ -62,7 +62,7 @@ public class TheoriesWithJCUnit extends Theories {
         assignments = assignments.assignNext(null);
       }
     } catch (Throwable throwable) {
-      Checks.rethrow(throwable);
+      throw Checks.wrap(throwable);
     }
     return ret;
   }
@@ -90,7 +90,7 @@ public class TheoriesWithJCUnit extends Theories {
         i++;
       }
     } catch (Throwable throwable) {
-      Checks.rethrow(throwable);
+      throw Checks.wrap(throwable);
     }
     final TupleGenerator tg = createTupleGenerator(method.getMethod());
     tg.setFactors(factorsBuilder.build());
@@ -150,7 +150,7 @@ public class TheoriesWithJCUnit extends Theories {
           try {
             b.put(each.substring(each.indexOf(':') + 1), ((PotentialAssignment) tuple.get(each)).getValue());
           } catch (PotentialAssignment.CouldNotGenerateValueException e) {
-            Checks.rethrow(e);
+            throw Checks.wrap(e);
           }
         }
         return b.build();

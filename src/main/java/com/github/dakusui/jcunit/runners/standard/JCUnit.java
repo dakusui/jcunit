@@ -127,7 +127,7 @@ public class JCUnit extends Suite {
           return true;
         }
       } catch (Throwable throwable) {
-        Checks.rethrow(throwable, "Failed to execute ");
+        throw Checks.wrap(throwable, "Failed to execute ");
       }
     }
     return false;
@@ -175,7 +175,7 @@ public class JCUnit extends Suite {
           addTestCase(r, ret, each);
         }
       } catch (Throwable throwable) {
-        Checks.rethrow(throwable, "Failed to execute '%s'.", each.getName());
+        throw Checks.wrap(throwable, "Failed to execute '%s'.", each.getName());
       }
     }
     return ret;

@@ -65,6 +65,6 @@ public class ChecksTest {
 
   @Test(expected = JCUnitException.class)
   public void testRethrow() {
-    Checks.rethrow(new IOException());
+    throw Checks.wrap(new IOException());
   }
 }

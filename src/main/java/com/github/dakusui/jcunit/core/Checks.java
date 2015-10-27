@@ -147,32 +147,32 @@ public class Checks {
   }
 
   /**
-   * Rethrows a given exception wrapping by a {@code JCUnitException}, which
+   * Wraps a given exception wrapping by a {@code JCUnitException}, which
    * is a runtime exception.
    *
    * @param e        An exception to be re-thrown.
    * @param msgOrFmt A message or a message describeExpectation.
    * @param args     Arguments to be embedded in {@code msg}.
    */
-  public static void rethrow(Throwable e, String msgOrFmt, Object... args) {
+  public static RuntimeException wrap(Throwable e, String msgOrFmt, Object... args) {
     throw new JCUnitException(composeMessage(msgOrFmt, args) + ":["  +e.getMessage() + "]", e);
   }
 
   /**
-   * Rethrows a given exception wrapping by a {@code JCUnitException}, which
+   * Wraps a given exception wrapping by a {@code JCUnitException}, which
    * is a runtime exception.
    *
    * @param e An exception to be re-thrown.
    */
-  public static void rethrow(Throwable e) {
-    rethrow(e, e.getMessage());
+  public static RuntimeException wrap(Throwable e) {
+    return wrap(e, e.getMessage());
   }
 
-  public static void rethrowpluginerror(Throwable throwable, String msgOrFmt, Object... args) {
+  public static RuntimeException wrappluginerror(Throwable throwable, String msgOrFmt, Object... args) {
     throw new InvalidPluginException(composeMessage(msgOrFmt, args), throwable);
   }
 
-  public static void rethrowtesterror(Throwable throwable, String msgOrFmt, Object... args) {
+  public static RuntimeException wraptesterror(Throwable throwable, String msgOrFmt, Object... args) {
     throw new InvalidTestException(composeMessage(msgOrFmt, args), throwable);
   }
 
@@ -199,6 +199,7 @@ public class Checks {
   }
 
   public static Throwable getRootCauseOf(Throwable t) {
+    //noinspection ThrowableResultOfMethodCallIgnored
     return checknotnull(t).getCause() == null
         ? t
         : getRootCauseOf(t.getCause());

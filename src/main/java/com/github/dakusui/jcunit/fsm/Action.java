@@ -125,7 +125,7 @@ public interface Action<SUT> extends Serializable {
         // security manager and it's easy. But I can't be sure it's useful
         // yet and a careless introduction of a new feature can create a
         // compatibility conflicts in future, so I'm not supporting it for now.
-        Checks.rethrowtesterror(
+        throw Checks.wraptesterror(
             e,
             "Non-public method testing isn't supported (%s#%s/%d isn't public)",
             o.getClass().getCanonicalName(),

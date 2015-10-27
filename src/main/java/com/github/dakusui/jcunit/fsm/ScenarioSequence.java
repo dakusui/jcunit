@@ -154,7 +154,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           ////
           // Since the previous catch clause ensures the thrown exception is not
           // a JCUnitException, rethrow it without checking.
-          Checks.rethrow(t);
+          throw Checks.wrap(t);
         }
       } finally {
         try {

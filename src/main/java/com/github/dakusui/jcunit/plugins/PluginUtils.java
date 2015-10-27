@@ -112,9 +112,8 @@ public class PluginUtils {
             Plugin.Factory<Plugin, String> factory = new Plugin.Factory<Plugin, String>(tupleGeneratorClass, StringResolver.INSTANCE);
             return factory.create(Arrays.asList(in).subList(1, in.length).toArray(new String[in.length - 1]));
           } catch (ClassNotFoundException e) {
-            Checks.rethrow(e, "class '%s' is not found on the classpath.", className);
+            throw Checks.wrap(e, "class '%s' is not found on the classpath.", className);
           }
-          throw new RuntimeException("This path shouldn't be executed. Something went wrong.");
         }
 
         @Override
