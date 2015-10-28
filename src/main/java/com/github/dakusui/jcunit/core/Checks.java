@@ -165,7 +165,7 @@ public class Checks {
    * @param e An exception to be re-thrown.
    */
   public static RuntimeException wrap(Throwable e) {
-    return wrap(e, e.getMessage());
+    throw wrap(e, e.getMessage());
   }
 
   public static RuntimeException wrappluginerror(Throwable throwable, String msgOrFmt, Object... args) {
