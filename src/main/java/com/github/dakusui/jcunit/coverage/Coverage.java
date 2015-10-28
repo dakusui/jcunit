@@ -17,15 +17,15 @@ import java.util.Set;
  * A class to measure t-way coverage.
  */
 public class Coverage {
-  public final   int               degree;
-  public final   int               initialSize;
-  public final   Factors           factorSpace;
-  private final   Set<Tuple>        yetToBeCovered;
-  private final   Set<Tuple>        uncoveredInWeakerDegree;
-  private final   Set<Tuple>        violations;
-  public final   ConstraintManager cm;
-  public final   Report            report;
-  private int               covered;
+  public final  int               degree;
+  public final  int               initialSize;
+  public final  Factors           factorSpace;
+  private final Set<Tuple>        yetToBeCovered;
+  private final Set<Tuple>        uncoveredInWeakerDegree;
+  private final Set<Tuple>        violations;
+  public final  ConstraintManager cm;
+  public final  Report            report;
+  private       int               covered;
   protected State state = State.NOT_PROCESSED;
 
   /**
@@ -134,24 +134,10 @@ public class Coverage {
     return new Coverage(factorSpace, degree + 1, this.cm, p, this.report);
   }
 
-  public static Coverage[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, Report report) {
-    Checks.checkcond(testSpace.getStrength() > 0);
-    Coverage[] ret = new Coverage[testSpace.getStrength()];
-
-    for (Coverage cur = new Coverage(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
-         cur != null && cur.degree <= testSpace.getStrength();
-         cur = cur.createNext()) {
-      cur.processTestSuite(testSuite);
-      ret[cur.degree - 1] = cur;
-    }
-
-    return ret;
-  }
-
   public static void examime(List<Tuple> testSuite, TestSpace testSpace, Report report) {
     Coverage[] coverages = examineTestSuite(testSuite, testSpace, report);
     for (Coverage each : coverages) {
-      each.submit();
+      each.report.submit(each);
     }
   }
 
@@ -171,6 +157,20 @@ public class Coverage {
     return yetToBeCovered;
   }
 
+  private static Coverage[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, Report report) {
+    Checks.checkcond(testSpace.getStrength() > 0);
+    Coverage[] ret = new Coverage[testSpace.getStrength()];
+
+    for (Coverage cur = new Coverage(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
+         cur != null && cur.degree <= testSpace.getStrength();
+         cur = cur.createNext()) {
+      cur.processTestSuite(testSuite);
+      ret[cur.degree - 1] = cur;
+    }
+
+    return ret;
+  }
+
   private enum State {
     NOT_PROCESSED,
     PROCESSED
@@ -178,10 +178,6 @@ public class Coverage {
 
   public interface Report {
     void submit(Coverage coverage);
-  }
-
-  public void submit() {
-    this.report.submit(this);
   }
 
   public static class TestSpace {
