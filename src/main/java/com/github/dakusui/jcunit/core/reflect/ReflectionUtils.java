@@ -83,6 +83,7 @@ public class ReflectionUtils {
     } catch (NoSuchMethodException e) {
       throw Checks.wrap(e,
           "Failed to find a constructor in '%s' which matches %s",
+          Utils.toString(clazz),
           Arrays.toString(types)
       );
     } catch (InvocationTargetException e) {

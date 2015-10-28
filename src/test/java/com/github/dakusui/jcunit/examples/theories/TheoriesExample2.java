@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.examples.theories;
 
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
@@ -49,10 +50,7 @@ public class TheoriesExample2 {
   public static class CM extends ConstraintManagerBase {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
-      if (!tuple.containsKey("a"))
-        throw new UndefinedSymbol("a");
-      if (!tuple.containsKey("b"))
-        throw new UndefinedSymbol("b");
+      Checks.checksymbols(tuple, "a", "b");
       return (Integer) tuple.get("a") + (Integer) tuple.get("b") == 0;
     }
   }
