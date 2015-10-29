@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.runners.theories.annotations;
+package com.github.dakusui.jcunit.runners.experimentals.theories.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

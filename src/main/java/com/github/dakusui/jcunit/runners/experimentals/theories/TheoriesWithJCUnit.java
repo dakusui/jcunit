@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.runners.theories;
+package com.github.dakusui.jcunit.runners.experimentals.theories;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
@@ -13,8 +13,8 @@ import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.theories.annotations.Name;
-import com.github.dakusui.jcunit.runners.theories.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.TupleGeneration;
 import org.junit.Assert;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.junit.experimental.theories.Theories;

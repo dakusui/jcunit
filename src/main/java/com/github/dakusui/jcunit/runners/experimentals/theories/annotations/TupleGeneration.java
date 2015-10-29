@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.runners.theories.annotations;
+package com.github.dakusui.jcunit.runners.experimentals.theories.annotations;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
