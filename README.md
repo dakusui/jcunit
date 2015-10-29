@@ -1,5 +1,4 @@
-# JCUnit
-JCUnit is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') 
+![JCUnit](https://github.com/dakusui/jcunit/blob/0.5.x/src/main/resources/JCunit-logo.png) is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') 
 technique.
 About what combinatorial testings are, articles below are useful as a starting point.
 
