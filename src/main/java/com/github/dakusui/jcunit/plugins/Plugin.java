@@ -215,28 +215,27 @@ public interface Plugin {
           );
           return constructor.newInstance(resolvedArgs.toArray());
         } catch (JCUnitException e) {
-          Checks.rethrow(Checks.getRootCauseOf(e), "Failed to resolve args[%s] during instantiation of plugin '%s'", i, this.pluginClass);
+          throw Checks.wrap(Checks.getRootCauseOf(e), "Failed to resolve args[%s] during instantiation of plugin '%s'", i, this.pluginClass);
         }
       } catch (InstantiationException e) {
-        Checks.rethrow(
+        throw Checks.wrap(
             e,
             "Failed to instantiate a plugin '%s'",
             this.pluginClass
         );
       } catch (IllegalAccessException e) {
-        Checks.rethrow(
+        throw Checks.wrap(
             e,
             "Failed to instantiate a plugin '%s' due to an illegal access",
             this.pluginClass
         );
       } catch (InvocationTargetException e) {
-        Checks.rethrow(
+        throw Checks.wrap(
             e.getTargetException(),
             "Failed to instantiate a plugin '%s' due to an illegal access",
             this.pluginClass
         );
       }
-      throw new RuntimeException("This path shouldn't be executed. Something went wrong.");
     }
 
     private Constructor<P> getConstructor() {

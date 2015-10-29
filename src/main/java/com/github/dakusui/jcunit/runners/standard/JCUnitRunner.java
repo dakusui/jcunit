@@ -153,7 +153,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     } catch (Error e) {
       throw e;
     } catch (Throwable throwable) {
-      Checks.rethrow(throwable);
+      throw Checks.wrap(throwable);
     }
     return ret;
   }

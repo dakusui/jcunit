@@ -58,7 +58,9 @@ public class Expectation<SUT> {
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
     OutputChecker.Result r = this.checker.check(
         context,
-        new Output(Output.Type.EXCEPTION_THROWN, thrownException),
+        new Output(
+            Output.Type.EXCEPTION_THROWN,
+            thrownException),
         observer);
     if (!r.isSuccessful()) {
       b.addFailedReason(r.getDescription());
@@ -79,7 +81,9 @@ public class Expectation<SUT> {
     if (checker.shouldBeCheckedFor(stage)) {
       OutputChecker.Result r = this.checker.check(
           context,
-          new Output(Output.Type.VALUE_RETURNED, returnedValue),
+          new Output(
+              Output.Type.VALUE_RETURNED,
+              returnedValue),
           observer);
       if (!r.isSuccessful()) {
         b.addFailedReason(r.getDescription());

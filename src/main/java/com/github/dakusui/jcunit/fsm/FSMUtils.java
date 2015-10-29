@@ -196,7 +196,7 @@ public class FSMUtils {
         assertThat(f.get(), CoreMatchers.is(true));
       }
     } catch (InterruptedException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     } catch (ExecutionException e) {
       Throwable t = e.getCause();
       try {
@@ -208,7 +208,7 @@ public class FSMUtils {
       } catch (Error ee) {
         throw ee;
       } catch (Throwable ee) {
-        Checks.rethrow(ee);
+        throw Checks.wrap(ee);
       }
     } finally {
       executorService.shutdown();

@@ -1,5 +1,4 @@
-# JCUnit
-JCUnit is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') 
+![JCUnit](https://github.com/dakusui/jcunit/blob/0.5.x/src/main/resources/JCunit-logo.png) is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') 
 technique.
 About what combinatorial testings are, articles below are useful as a starting point.
 
@@ -40,10 +39,10 @@ If you run this example,
 * [ConfigExample](/src/main/java/com/github/dakusui/jcunit/examples/confg/ConfigExample.java)
 
 you will notice that only 17 test cases can cover all possible value pairs.
-17 vs 432 sounds impressive, isn't it?
+17 vs 432 sounds impressive, doesn't it?
 
 # Changes
-About changes from previous versions, refer to [release notes](RELEASENOTES.md).
+About changes from previous versions, refer to [release notes](https://github.com/dakusui/jcunit/wiki#release-history).
 
 # Installation
 JCUnit requires Java SE6 or later. 
@@ -59,7 +58,7 @@ Please add it to your project's pom.xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.5.5</version>
+      <version>0.5.6</version>
     </dependency>
     
 ```
@@ -90,7 +89,7 @@ following dependency in your pom.xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.5.6-SNAPSHOT</version>
+      <version>0.5.7-SNAPSHOT</version>
     </dependency>
     
 ```

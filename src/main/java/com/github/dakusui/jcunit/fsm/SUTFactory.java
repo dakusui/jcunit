@@ -104,24 +104,22 @@ public interface SUTFactory<SUT> {
             }
         ).toArray(new Class[this.args.size()])).newInstance(args);
       } catch (InstantiationException e) {
-        Checks.rethrowpluginerror(e, "Failed to instantiate %s", this.clazz);
+        throw Checks.wrappluginerror(e, "Failed to instantiate %s", this.clazz);
       } catch (IllegalAccessException e) {
-        Checks.rethrowpluginerror(e, "Illegal access. Constructor of %s is not public enough", this.clazz);
+        throw Checks.wrappluginerror(e, "Illegal access. Constructor of %s is not public enough", this.clazz);
       } catch (InvocationTargetException e) {
-        Checks.rethrowpluginerror(
+        throw Checks.wrappluginerror(
             e.getTargetException(),
             "Exception thrown during instantiation. (%s)", e.getTargetException().getMessage());
       }
-      throw new RuntimeException("Illegal path is executed");
     }
 
     private Constructor<SUT> chooseConstructor(Class<SUT> clazz, Class<?>[] parameterTypes) {
       try {
         return clazz.getConstructor(parameterTypes);
       } catch (NoSuchMethodException e) {
-        Checks.rethrowpluginerror(e, "No mathing constructor found %s(%s)", clazz, parameterTypes);
+        throw Checks.wrappluginerror(e, "No mathing constructor found %s(%s)", clazz, parameterTypes);
       }
-      throw new RuntimeException("Illegal path is executed");
     }
   }
 }

@@ -24,7 +24,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/jcunit.git
         </developerConnection>
         <url>http://dakusui.github.io/jcunit</url>
-        <tag>jcunit-0.5.5</tag>
+        <tag>jcunit-0.5.6</tag>
     </scm>
 
     <developers>
@@ -84,7 +84,7 @@
                 <!-- Run with mvn org.pitest:pitest-maven:mutationCoverage -->
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-maven</artifactId>
-                <version>1.0.0</version>
+                <version>1.1.7</version>
                 <configuration>
                     <targetClasses>
                         <param>com.github.dakusui.jcunit.*</param>

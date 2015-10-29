@@ -30,7 +30,6 @@ public @interface TupleGeneration {
   interface TupleGeneratorFactory {
     TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory.Default();
 
-
     TupleGenerator createFromClass(Class<?> clazz);
 
     class Default implements TupleGeneratorFactory {
@@ -114,8 +113,9 @@ public @interface TupleGeneration {
           for (Action eachAction : (List<Action>) fsm.actions()) {
             Parameters parameters = eachAction.parameters();
             ConstraintManager baseLocalCM = parameters.getConstraintManager();
-            if (ConstraintManager.DEFAULT_CONSTRAINT_MANAGER.equals(baseLocalCM))
+            if (ConstraintManager.DEFAULT_CONSTRAINT_MANAGER.equals(baseLocalCM)) {
               continue;
+            }
             List<String> localPlainParameterNames = Utils.transform(parameters, new Utils.Form<Factor, String>() {
               @Override
               public String apply(Factor in) {

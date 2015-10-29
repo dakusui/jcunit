@@ -70,13 +70,46 @@ public interface OutputChecker {
   class MatcherBased extends Base implements OutputChecker {
     private final Matcher matcher;
 
+    /**
+     * Creates an object of this class.
+     *
+     * @param type expected output type.
+     * @param matcher expectation for output.
+     */
     public MatcherBased(Output.Type type, Matcher matcher) {
       super(type);
       this.matcher = Checks.checknotnull(matcher);
     }
 
     @Override
-    public <SUT, T> Result check(Story.Context<SUT, T> context, Output output, ScenarioSequence.Observer observer) {
+    public <SUT, T> Result check(
+        Story.Context<SUT, T> context,
+        Output output,
+        ScenarioSequence.Observer observer) {
+      if (this.type != output.type) {
+        if (output.type == Output.Type.EXCEPTION_THROWN) {
+          Checks.checkcond(output.value instanceof Throwable);
+          return new Result(
+              false,
+              Utils.format(
+                  "An exception (%s:[%s]) was thrown unexpectedly.",
+                  output.value,
+                  ((Throwable) output.value).getMessage()
+              )
+          );
+        } else if (output.type == Output.Type.VALUE_RETURNED) {
+          return new Result(
+              false,
+              Utils.format(
+                  "A value (%s) was returned unexpectedly. (The method should have failed with %s)",
+                  output.value,
+                  matcher
+              )
+          );
+        } else {
+          Checks.checkcond(false, "Unknown type '%s' was given.", output.type);
+        }
+      }
       return new Result(
           this.matcher.matches(Checks.checknotnull(output).value),
           Utils.format(

@@ -14,6 +14,12 @@ public class JCUnitException extends RuntimeException {
    * @param t       A nested <code>throwable</code> object.
    */
   public JCUnitException(String message, Throwable t) {
-    super(message, t);
+    super(formatMessage(message, t), t);
+  }
+
+  private static String formatMessage(String message, Throwable t) {
+    if (t == null) return message;
+    if (message == null) return t.getMessage();
+    return message + ":[" + t.getMessage() + "]";
   }
 }

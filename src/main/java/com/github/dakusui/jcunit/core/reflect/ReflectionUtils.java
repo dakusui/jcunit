@@ -50,18 +50,16 @@ public class ReflectionUtils {
       //noinspection unchecked
       return (T) Checks.checknotnull(f).get(obj);
     } catch (IllegalAccessException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
-    return null;
   }
 
   public static Method getMethod(Class<?> clazz, String methodName, Class<?>... params) {
     try {
       return Checks.checknotnull(clazz).getMethod(Checks.checknotnull(methodName), params);
     } catch (NoSuchMethodException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
-    return null;
   }
 
 
@@ -83,36 +81,35 @@ public class ReflectionUtils {
           }).toArray()
       );
     } catch (NoSuchMethodException e) {
-      Checks.rethrow(e,
+      throw Checks.wrap(e,
           "Failed to find a constructor in '%s' which matches %s",
+          Utils.toString(clazz),
           Arrays.toString(types)
       );
     } catch (InvocationTargetException e) {
-      Checks.rethrow(e.getTargetException(),
+      throw Checks.wrap(e.getTargetException(),
           "An exception thrown during instantiation of '%s'", clazz);
     } catch (InstantiationException e) {
-      Checks.rethrow(e,
+      throw Checks.wrap(e,
           "Instantiation of '%s' is failed.", clazz);
     } catch (IllegalAccessException e) {
-      Checks.rethrow(e,
+      throw Checks.wrap(e,
           "An exception thrown during instantiation of '%s'", clazz);
     }
-    throw new RuntimeException("This path shouldn't be executed. Something went wrong");
   }
 
   public static <T> T create(Class<T> clazz) {
     try {
       return Checks.checknotnull(clazz).newInstance();
     } catch (IllegalAccessException e) {
-      Checks.rethrow(e, "A no-parameter constructor of '%s' is too less open. Make it public.", clazz);
+      throw Checks.wrap(e, "A no-parameter constructor of '%s' is too less open. Make it public.", clazz);
     } catch (InstantiationException e) {
-      Checks.rethrow(e, "The class '%s' couldn't be instantiated.", clazz);
+      throw Checks.wrap(e, "The class '%s' couldn't be instantiated.", clazz);
     } catch (RuntimeException e) {
       throw e;
     } catch (Exception e) {
-      Checks.rethrow(e, "A checked exception is thrown from '%s' during instantiation.", clazz);
+      throw Checks.wrap(e, "A checked exception is thrown from '%s' during instantiation.", clazz);
     }
-    throw new RuntimeException("This path shouldn't be executed. Something went wrong");
   }
 
   /**
@@ -129,11 +126,10 @@ public class ReflectionUtils {
       //noinspection unchecked
       return (T) Checks.checknotnull(method).invoke(obj, args);
     } catch (InvocationTargetException e) {
-      Checks.rethrow(e.getTargetException(), "Failed to execute method '%s' with ", method, args);
+      throw Checks.wrap(e.getTargetException(), "Failed to execute method '%s' with ", method, args);
     } catch (IllegalAccessException e) {
-      Checks.rethrow(e, "A method '%s' is too less open. Make it public.", method);
+      throw Checks.wrap(e, "A method '%s' is too less open. Make it public.", method);
     }
-    return null;
   }
 
   public static void setFieldValue(Object obj, Field f, Object value) {
@@ -145,7 +141,7 @@ public class ReflectionUtils {
       f.set(obj, value);
     } catch (IllegalAccessException e) {
       // This path should never be executed since the field is set accessible.
-      Checks.rethrow(e, "Something went wrong.");
+      throw Checks.wrap(e, "Something went wrong.");
     } finally {
       f.setAccessible(accessible);
     }
@@ -217,10 +213,8 @@ public class ReflectionUtils {
     try {
       return (T) klazz.getDeclaredMethod(method).getDefaultValue();
     } catch (NoSuchMethodException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
-    Checks.checkcond(false, "Something went wrong. This line shouldn't be executed.");
-    return null;
   }
 
   public static Field getField(Object obj, String fieldName,

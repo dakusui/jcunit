@@ -20,28 +20,27 @@ public class IOUtils {
     try {
       return file.createNewFile();
     } catch (IOException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
-    return false;
   }
 
   public static BufferedOutputStream openForWrite(File f) {
-    BufferedOutputStream ret = null;
+    BufferedOutputStream ret;
     try {
       ret = new BufferedOutputStream(new FileOutputStream(f));
     } catch (FileNotFoundException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
     return ret;
   }
 
   public static BufferedInputStream openForRead(File f) {
     Checks.checknotnull(f);
-    BufferedInputStream ret = null;
+    BufferedInputStream ret;
     try {
       ret = new BufferedInputStream(new FileInputStream(f));
     } catch (FileNotFoundException e) {
-      Checks.rethrow(e, "File not found: '%s'", f.getAbsolutePath());
+      throw Checks.wrap(e, "File not found: '%s'", f.getAbsolutePath());
     }
     return ret;
   }
@@ -50,7 +49,7 @@ public class IOUtils {
     try {
       stream.close();
     } catch (IOException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
   }
 
@@ -82,7 +81,7 @@ public class IOUtils {
         oos.close();
       }
     } catch (IOException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
   }
 
@@ -105,12 +104,12 @@ public class IOUtils {
       try {
         ret = ois.readObject();
       } catch (ClassNotFoundException e) {
-        Checks.rethrow(e);
+        throw Checks.wrap(e);
       } finally {
         ois.close();
       }
     } catch (IOException e) {
-      Checks.rethrow(e);
+      throw Checks.wrap(e);
     }
     return ret;
   }

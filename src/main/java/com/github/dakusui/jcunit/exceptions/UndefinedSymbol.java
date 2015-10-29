@@ -15,6 +15,10 @@ public class UndefinedSymbol extends JCUnitCheckedException {
     this.missingSymbols = Collections.unmodifiableList(Arrays.asList(missingSymbols));
   }
 
+  public UndefinedSymbol(String missingSymbol) {
+    this(new String[]{missingSymbol});
+  }
+
   private static String composeMessage(String... missingSymbols) {
     Checks.checknotnull(missingSymbols);
     Checks.checkcond(missingSymbols.length > 0, "There must be at least one missing symbol.");

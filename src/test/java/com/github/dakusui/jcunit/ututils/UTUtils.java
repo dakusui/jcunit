@@ -4,11 +4,15 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+
+import static org.junit.Assert.assertEquals;
 
 public class UTUtils {
   public static final Factors defaultFactors = new Factors.Builder().add(
@@ -22,7 +26,7 @@ public class UTUtils {
     public void write(int b) throws IOException {
     }
   });
-  private static       PrintStream out               = System.out;
+  private static      PrintStream out               = System.out;
 
   private UTUtils() {
   }
@@ -75,5 +79,17 @@ public class UTUtils {
     if (s == null)
       return false;
     return s.contains("surefire");
+  }
+
+  public static Result runTests(
+      Class<?> testClass,
+      int expectedRunCount,
+      int expectedFailureCount,
+      int expectedIgnoreCount) {
+    Result result = JUnitCore.runClasses(Checks.checknotnull(testClass));
+    assertEquals(expectedRunCount, result.getRunCount());
+    assertEquals(expectedFailureCount, result.getFailureCount());
+    assertEquals(expectedIgnoreCount, result.getIgnoreCount());
+    return result;
   }
 }
