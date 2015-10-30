@@ -18,7 +18,7 @@ public class EdgeLister {
       for (int i = 0; i < eachScenario.size(); i++) {
         Scenario each = eachScenario.get(i);
         if (each.given.equals(state) && !each.then().state
-            .equals(State.VOID)) {
+            .equals(State.Void.getInstance())) {
           //noinspection unchecked
           StateRouter.Edge<?> t = new StateRouter.Edge(eachScenario.action(i),
               eachScenario.args(i));

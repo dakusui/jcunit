@@ -54,7 +54,7 @@ public class StateRouter<SUT> {
   private void traverse(State<SUT> state, List<Edge<SUT>> path, Set<State<SUT>> visited) {
     for (Edge<SUT> each : lister.possibleEdgesFrom(state)) {
       State<SUT> next = next(state, each);
-      if (next == State.VOID)
+      if (next == State.Void.getInstance())
         return;
       if (visited.contains(next))
         continue;

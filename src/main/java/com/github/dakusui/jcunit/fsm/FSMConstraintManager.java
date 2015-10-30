@@ -55,8 +55,8 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
         Action<SUT> action = seq.action(i);
         if (action == null)
           throw new UndefinedSymbol(new String[] { fsmFactors.actionFactorName(each, i) });
-        if (state == State.VOID) {
-          if (action != Action.VOID)
+        if (state == State.Void.getInstance()) {
+          if (action != Action.Void.getInstance())
             return false;
         }
         int numParams = action.numParameterFactors();

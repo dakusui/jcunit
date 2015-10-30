@@ -68,7 +68,7 @@ public class PluginUtils {
           @Override
           public Object convert(Class requested, String[] in) {
             Checks.checktest(in.length > 0, "Missing value");
-            Checks.checktest(in.length == 1, "Too many values: %s", in);
+            Checks.checktest(in.length == 1, "Too many values: %s", Arrays.toString(in));
             return each.convert(requested, in[0]);
           }
 

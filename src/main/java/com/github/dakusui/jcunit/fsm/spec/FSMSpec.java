@@ -11,10 +11,21 @@ import com.github.dakusui.jcunit.fsm.StateChecker;
  * @param <SUT> Software under test.
  */
 public interface FSMSpec<SUT> extends StateChecker<SUT> {
-  FSMSpec<Object> VOID = new FSMSpec<Object>() {
+  class Void<SUT> implements FSMSpec<SUT> {
+    public static <SUT> FSMSpec<SUT> getInstance() {
+      //noinspection unchecked
+      return (FSMSpec<SUT>) INSTANCE;
+    }
+    public static final FSMSpec<Object> INSTANCE = new FSMSpec<Object>() {
+      @Override
+      public boolean check(Object objet) {
+        return false;
+      }
+    };
+
     @Override
-    public boolean check(Object objet) {
+    public boolean check(Object o) {
       return false;
     }
-  };
+  }
 }

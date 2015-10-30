@@ -54,37 +54,44 @@ public interface Action<SUT> extends Serializable {
    */
   Class<?>[] parameterTypes();
 
-  Action<?> VOID = new Action() {
-    @Override
-    public Object perform(Object o, Args args) throws Throwable {
-      return FSMFactors.VOID;
+  abstract class Void<SUT> implements Action<SUT> {
+    public static <SUT> Action<SUT> getInstance() {
+      return (Action<SUT>) INSTANCE;
     }
 
-    @Override
-    public Parameters parameters() {
-      return Parameters.EMPTY;
-    }
+    private static Void INSTANCE = new Void() {
+      @Override
+      public Object perform(Object o, Args args) throws Throwable {
+        return FSMFactors.VOID;
 
-    @Override
-    public Object[] parameterFactorLevels(int i) {
-      return new Object[0];
-    }
+      }
 
-    @Override
-    public int numParameterFactors() {
-      return 0;
-    }
+      @Override
+      public Parameters parameters() {
+        return Parameters.EMPTY;
+      }
 
-    @Override
-    public String id() {
-      return "(VOID)";
-    }
+      @Override
+      public Object[] parameterFactorLevels(int i) {
+        return new Object[0];
+      }
 
-    @Override
-    public Class<?>[] parameterTypes() {
-      return new Class<?>[0];
-    }
-  };
+      @Override
+      public int numParameterFactors() {
+        return 0;
+      }
+
+      @Override
+      public String id() {
+        return "(VOID)";
+      }
+
+      @Override
+      public Class<?>[] parameterTypes() {
+        return new Class<?>[0];
+      }
+    };
+  }
 
   class Base<SUT> implements Action<SUT> {
     final         Method     method;
@@ -106,7 +113,7 @@ public interface Action<SUT> extends Serializable {
     @Override
     public Object perform(SUT o, Args args) throws Throwable {
       Checks.checknotnull(o);
-      Object ret = null;
+      Object ret;
       try {
         Method m = chooseMethod(o.getClass(), name);
         try {

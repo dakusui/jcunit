@@ -123,8 +123,7 @@ public class Expectation<SUT> {
 
     public Builder<SUT> invalid(Class<? extends Throwable> klass) {
       Checks.checknotnull(klass);
-      //noinspection unchecked
-      return this.invalid((FSMSpec<SUT>) FSMSpec.VOID, klass);
+      return this.invalid(FSMSpec.Void.<SUT>getInstance(), klass);
     }
 
     public Builder<SUT> invalid(FSMSpec<SUT> state, Class<? extends Throwable> klass) {
@@ -160,9 +159,8 @@ public class Expectation<SUT> {
     private State<SUT> chooseState(StateChecker<SUT> stateChecker) {
       Checks.checknotnull(fsm);
       Checks.checknotnull(stateChecker);
-      if (stateChecker == FSMSpec.VOID) {
-        //noinspection unchecked
-        return (State<SUT>) State.VOID;
+      if (stateChecker == FSMSpec.Void.getInstance()) {
+        return State.Void.getInstance();
       }
       for (State<SUT> each : fsm.states()) {
         if (((State.Base) each).stateSpec == stateChecker)

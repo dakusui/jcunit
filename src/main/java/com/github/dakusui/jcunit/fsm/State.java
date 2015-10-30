@@ -10,55 +10,58 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @param <SUT> A class of software under test.
  */
 public interface State<SUT> extends StateChecker<SUT>, Serializable {
-  /**
-   * When an invalid operation is performed and a following state is not defined,
-   * JCUnit can move to 'VOID' state, where JCUnit will not attempt the next
-   * action anymore.
-   */
-  State<?> VOID = new State<Object>() {
-    @Override
-    public Expectation<Object> expectation(Action<Object> action, Args args) {
-      /////
-      // Since no action should be performed on VOID state, which represents  a state after
-      // invalid operation is performed, only VOID action, which represents 'no action',
-      // is only possible action.
-      //
-      // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
-      // non-deterministic FSM is not supported by JCUnit yet...
-      if (action == Action.VOID && args.size() == 0) {
-        //noinspection unchecked
-        return new Expectation<Object>(
-            "(VOID)",
-            Output.Type.VALUE_RETURNED,
-            this,
-            new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, CoreMatchers.anything()),
-            (List<InputHistory.Collector>) Collections.unmodifiableList(Collections.EMPTY_LIST)
-        );
+  abstract class Void<SUT> implements State<SUT> {
+    public static <SUT> State<SUT> getInstance() {
+      return (State<SUT>) INSTANCE;
+    }
+
+    private static Void INSTANCE = new Void() {
+      public Expectation expectation(Action action, Args args) {
+        /////
+        // Since no action should be performed on VOID state, which represents  a state after
+        // invalid operation is performed, only VOID action, which represents 'no action',
+        // is only possible action.
+        //
+        // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
+        // non-deterministic FSM is not supported by JCUnit yet...
+        if (action == Action.Void.getInstance() && args.size() == 0) {
+          //noinspection unchecked
+          return new Expectation(
+              "(VOID)",
+              Output.Type.VALUE_RETURNED,
+              this,
+              new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, CoreMatchers.anything()),
+              (List<InputHistory.Collector>) Collections.unmodifiableList(Collections.EMPTY_LIST)
+          );
+        }
+        return null;
       }
-      return null;
-    }
 
-    @Override
-    public boolean check(Object o) {
-      ////
-      // Once the FSM is given an invalid input (action and args), nothing
-      // can be guaranteed.
-      // Whatever happens on SUT, it's possible in terms of software specification and
-      // since anything is possible, this method always return true regardless of SUT state.
-      return true;
-    }
+      @Override
+      public boolean check(Object o) {
+        ////
+        // Once the FSM is given an invalid input (action and args), nothing
+        // can be guaranteed.
+        // Whatever happens on SUT, it's possible in terms of software specification and
+        // since anything is possible, this method always return true regardless of SUT state.
+        return true;
+      }
 
-    @Override
-    public String toString() {
-      return "(VOID)";
-    }
-  };
+      @Override
+      public String toString() {
+        return "(VOID)";
+      }
+    };
+  }
 
   /**
    * Returns an {@code Expectation} when an {@code action} is performed with specified {@code args}
