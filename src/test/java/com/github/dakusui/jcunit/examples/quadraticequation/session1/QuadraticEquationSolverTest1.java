@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -27,6 +28,11 @@ public class QuadraticEquationSolverTest1 {
   public int b;
   @FactorField
   public int c;
+
+//  @Parameterized.Parameters
+  public static Object[][] p() {
+    return new Object[][] {};
+  }
 
   @Test
   public void solveEquation() {

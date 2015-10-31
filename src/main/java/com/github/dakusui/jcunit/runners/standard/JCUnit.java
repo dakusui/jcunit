@@ -11,25 +11,22 @@ import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
 import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
 import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import org.junit.runner.Runner;
-import org.junit.runners.Suite;
+import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-public class JCUnit extends Suite {
+public class JCUnit extends Parameterized {
   private final ArrayList<Runner> runners = new ArrayList<Runner>();
 
   /**
    * Only called reflectively by JUnit. Do not use programmatically.
    */
   public JCUnit(Class<?> klass) throws Throwable {
-    super(klass, Collections.<Runner>emptyList());
+    super(klass);
     List<FrameworkMethod> preconditionMethods = getTestClass().getAnnotatedMethods(Precondition.class);
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
     try {
@@ -249,5 +246,34 @@ public class JCUnit extends Suite {
     public Factors getFactors() {
       return factors;
     }
+  }
+
+  /**
+   * A class referenced by createTestClass method.
+   * This is only used to mock JUnit's Parameterized runner.
+   */
+  public static class DummyMethodHolderForParameterizedRunner {
+    @SuppressWarnings("unused") // This method is referenced reflectively.
+    @Parameters
+    public static Object[][] dummy() {
+      return new Object[][] { { 1, 2, 3 } };
+    }
+  }
+
+  /**
+   * Mock {@code Parameterized} runner of JUnit 4.12.
+   */
+  @Override
+  protected TestClass createTestClass(Class<?> clazz) {
+    return new TestClass(clazz) {
+      public List<FrameworkMethod> getAnnotatedMethods(
+          Class<? extends Annotation> annotationClass) {
+        if (Parameterized.Parameters.class.equals(annotationClass)) {
+          return Collections.singletonList(new FrameworkMethod(ReflectionUtils.getMethod(DummyMethodHolderForParameterizedRunner.class, "dummy")));
+
+        }
+        return super.getAnnotatedMethods(annotationClass);
+      }
+    };
   }
 }
