@@ -263,7 +263,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
   }
 
   /**
-   * Builds a {@code Story} object from a {@code Tuple} using  a given {@code FSMFactorbs}.
+   * Builds a {@code Story} object from a {@code Tuple} using  a given {@code FSMFactors}.
    *
    * @param <SUT> A class of software under test.
    */

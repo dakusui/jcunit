@@ -7,6 +7,8 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
 import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import org.junit.runner.Runner;
 import org.junit.runners.Suite;
@@ -28,27 +30,9 @@ public class JCUnit extends Suite {
    */
   public JCUnit(Class<?> klass) throws Throwable {
     super(klass, Collections.<Runner>emptyList());
+    List<FrameworkMethod> preconditionMethods = getTestClass().getAnnotatedMethods(Precondition.class);
+    List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
     try {
-      ////
-      // Prepare filter method(s) and custom test case methods.
-      List<String> errors = new LinkedList<String>();
-      List<FrameworkMethod> preconditionMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.PRECONDITION);
-      for (FrameworkMethod each : preconditionMethods) {
-        FrameworkMethodUtils.validateFrameworkMethod(klass, each, FrameworkMethodUtils.FrameworkMethodValidator.PRECONDITIONMETHOD_VALIDATOR, errors);
-      }
-      // Currently only one filter method can be used.
-      // Custom test case methods.
-      List<FrameworkMethod> customTestCaseMethods = getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever.CUSTOM_TESTCASES);
-      for (FrameworkMethod each : customTestCaseMethods) {
-        FrameworkMethodUtils.validateFrameworkMethod(klass, each, FrameworkMethodUtils.FrameworkMethodValidator.CUSTOMTESTCASEMETHOD_VALIDATOR, errors);
-      }
-      ////
-      // Check if any error was found.
-      Checks.checkenv(errors.isEmpty(),
-          "Errors are found in test class '%s':%s",
-          getTestClass().getJavaClass().getCanonicalName(),
-          errors);
-
       ////
       // Generate a list of test cases using a specified tuple generator
       TupleGenerator tupleGenerator = getTupleGeneratorFactory()
@@ -97,14 +81,10 @@ public class JCUnit extends Suite {
       ret = ReflectionUtils.create(rootCause.getClass(), new ReflectionUtils.TypedArg(String.class, message));
       ret.setStackTrace(rootCause.getStackTrace());
     } finally {
-      ////
-      // Exception thrown during re-instantiate originally thrown one should
-      // be ignored. Intentionally masked.
-      if (ret != null) //noinspection ReturnInsideFinallyBlock
-        return ret;
-      else //noinspection ReturnInsideFinallyBlock
-        return rootCause;
+      if (ret == null)
+        ret = rootCause;
     }
+    return ret;
   }
 
   protected TupleGeneration.TupleGeneratorFactory getTupleGeneratorFactory() {
@@ -210,10 +190,6 @@ public class JCUnit extends Suite {
           frameworkMethod.getDeclaringClass()
       );
     }
-  }
-
-  private List<FrameworkMethod> getFrameworkMethods(FrameworkMethodUtils.FrameworkMethodRetriever retriever) {
-    return retriever.getMethods(getTestClass().getJavaClass());
   }
 
 

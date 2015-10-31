@@ -1,9 +1,6 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session5;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -60,10 +57,12 @@ public class QuadraticEquationSolverTest5 {
   @FactorField
   public int c;
 
+  @Condition
   public boolean aIsNonZero() {
     return this.a != 0;
   }
 
+  @Condition
   public boolean discriminantIsNonNegative() {
     int a = this.a;
     int b = this.b;
@@ -71,6 +70,7 @@ public class QuadraticEquationSolverTest5 {
     return b * b - 4 * c * a >= 0;
   }
 
+  @Condition
   public boolean coefficientsAreValid() {
     return
         -100 <= a && a <= 100 &&

@@ -8,6 +8,9 @@ import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
+import org.junit.runners.model.FrameworkField;
+import org.junit.validator.AnnotationValidator;
+import org.junit.validator.ValidateWith;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -20,7 +23,16 @@ import java.util.*;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
+@ValidateWith(FactorField.Validator.class)
 public @interface FactorField {
+  class Validator extends AnnotationValidator {
+    @Override
+    public List<Exception> validateAnnotatedField(FrameworkField field) {
+      // TODO
+      return super.validateAnnotatedField(field);
+    }
+  }
+
   boolean[] booleanLevels() default { true, false };
 
   byte[] byteLevels() default { (byte) 1, (byte) 0, (byte) -1, (byte) 100,

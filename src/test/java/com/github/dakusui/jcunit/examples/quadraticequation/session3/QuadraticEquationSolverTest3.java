@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session3;
 
+import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
@@ -31,10 +32,12 @@ public class QuadraticEquationSolverTest3 {
   @FactorField
   public int c;
 
+  @Condition
   public boolean aIsNonZero() {
     return this.a != 0;
   }
 
+  @Condition
   public boolean discriminantIsNonNegative() {
     int a = this.a;
     int b = this.b;
@@ -42,6 +45,7 @@ public class QuadraticEquationSolverTest3 {
     return b * b - 4 * c * a >= 0;
   }
 
+  @Condition
   public boolean coefficientsAreValid() {
     return
         -100 <= a && a <= 100 &&

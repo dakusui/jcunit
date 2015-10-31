@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+
 public class ReflectionUtils {
   private static final Class<?>[][] primitivesAndWrappers = new Class<?>[][] {
       new Class[] { boolean.class, Boolean.class },
@@ -58,6 +59,19 @@ public class ReflectionUtils {
     try {
       return Checks.checknotnull(clazz).getMethod(Checks.checknotnull(methodName), params);
     } catch (NoSuchMethodException e) {
+      throw Checks.wrap(e);
+    }
+  }
+
+  public static <T> T invoke(Object object, Method method, Object... args) {
+    try {
+      //noinspection unchecked
+      return (T) method.invoke(object, args);
+    } catch (RuntimeException e) {
+      throw Checks.wrap(e);
+    } catch (IllegalAccessException e) {
+      throw Checks.wrap(e);
+    } catch (InvocationTargetException e) {
       throw Checks.wrap(e);
     }
   }

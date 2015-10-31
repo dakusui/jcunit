@@ -12,6 +12,9 @@ import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.generators.ToplevelTupleGenerator;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
+import org.junit.runners.model.FrameworkField;
+import org.junit.runners.model.TestClass;
+import org.junit.validator.AnnotationValidator;
 
 import java.lang.annotation.*;
 import java.lang.reflect.AnnotatedElement;
@@ -23,6 +26,59 @@ import java.util.*;
 @Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TupleGeneration {
+  class Validator extends AnnotationValidator {
+    @Override
+    public List<Exception> validateAnnotatedClass(TestClass testClass) {
+      // TODO
+      return super.validateAnnotatedClass(testClass);
+    }
+
+    @Override
+    public List<Exception> validateAnnotatedField(FrameworkField f) {
+      List<Exception> errors = new LinkedList<Exception>();
+      ////
+      // The following logic is for validating so called 'FSMfactor fields' , whose
+      // type is Story<FSMSpec<SUT>, SUT>.
+      Checks.checknotnull(f);
+      FactorField ann = f.getAnnotation(FactorField.class);
+      Checks.checknotnull(ann);
+      Checks.checkcond(ann.levelsProvider() != null);
+      Class<? extends LevelsProvider> levelsProvider = ann.levelsProvider();
+      Checks.checknotnull(levelsProvider);
+      Checks.checkcond(
+          FSMLevelsProvider.class.isAssignableFrom(levelsProvider),
+          "'%s' must be a sub-class of '%s', but isn't",
+          levelsProvider.getCanonicalName(),
+          FSMLevelsProvider.class.getCanonicalName()
+      );
+      ////
+      // Another design choice is to allow sub types of Story for FSM factor fields.
+      // But author considered it hurts readability of tests and thus allowed
+      // to use Story<FSMSpec<SUT>, SUT> directly.
+      if (!(Story.class.equals(f.getType()))) {
+        errors.add(new Exception(String.format(
+            "For FSM factor field (field annotated with '%s' whose levelsProvider is '%s') must be exactly '%s', but was '%s'",
+            FactorField.class.getSimpleName(),
+            FSMLevelsProvider.class.getSimpleName(),
+            Story.class.getCanonicalName(),
+            f.getType()
+        )));
+      }
+      Type genericType = f.getField().getGenericType();
+      if (!(genericType instanceof ParameterizedType)) {
+        errors.add(new Exception(String.format(
+            "FSM factor field must have a parameterized type as its generic type. But '%s'(%s)'s generic type was '%s'",
+            f.getName(),
+            f.getDeclaringClass().getCanonicalName(),
+            genericType != null
+                ? genericType.getClass().getCanonicalName()
+                : null
+        )));
+      }
+      return errors;
+    }
+  };
+
   Generator generator() default @Generator();
 
   Constraint constraint() default @Constraint();
@@ -88,7 +144,6 @@ public @interface TupleGeneration {
             // It's safe to assume fsmLevelsProvider becomes non-null since we are
             // iterating over fsmFields.
             int fsmSwitchCoverage = switchCoverages.get(each);
-            validateFSMFactorField(bb, each);
             String fsmName = each.getName();
             FSM fsm = createFSM(each, fsmSwitchCoverage);
             fsms.put(fsmName, fsm);
@@ -156,46 +211,6 @@ public @interface TupleGeneration {
         Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
         //noinspection unchecked
         return createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz, switchCoverage + 1);
-      }
-
-      private static void validateFSMFactorField(Errors.Builder errors, Field f) {
-        Checks.checknotnull(f);
-        FactorField ann = f.getAnnotation(FactorField.class);
-        Checks.checknotnull(ann);
-        Checks.checkcond(ann.levelsProvider() != null);
-        Class<? extends LevelsProvider> levelsProvider = ann.levelsProvider();
-        Checks.checknotnull(levelsProvider);
-        Checks.checkcond(
-            FSMLevelsProvider.class.isAssignableFrom(levelsProvider),
-            "'%s' must be a sub-class of '%s', but isn't",
-            levelsProvider.getCanonicalName(),
-            FSMLevelsProvider.class.getCanonicalName()
-        );
-        ////
-        // Another design choice is to allow sub types of Story for FSM factor fields.
-        // But Dakusui considered it hurts readability of tests and thus allowed
-        // to use Story<FSMSpec<SUT>, SUT> directly.
-        if (!(Story.class.equals(f.getType()))) {
-          errors.add(
-              "For FSM factor field (field annotated with '%s' whose levelsProvider is '%s') must be exactly '%s', but was '%s'",
-              FactorField.class.getSimpleName(),
-              FSMLevelsProvider.class.getSimpleName(),
-              Story.class.getCanonicalName(),
-              f.getType()
-          );
-        }
-        Type genericType = f.getGenericType();
-        if (!(genericType instanceof ParameterizedType)) {
-          errors.add(
-              "FSM factor field must have a parameterized type as its generic type. But '%s'(%s)'s generic type was '%s'",
-              f.getName(),
-              f.getDeclaringClass().getCanonicalName(),
-              genericType != null
-                  ? genericType.getClass().getCanonicalName()
-                  : null
-          );
-        }
-
       }
 
       protected Factors loadFactors(Class<?> klass, Map<Field, Integer> providers) {

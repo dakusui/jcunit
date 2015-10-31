@@ -1,21 +1,23 @@
 package com.github.dakusui.jcunit.examples.calc;
 
+import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
-import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
-import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.validator.ValidateWith;
 
 @RunWith(JCUnit.class)
+@ValidateWith(TupleGeneration.Validator.class)
 public class NestedFieldExample extends Metatest {
   public NestedFieldExample() {
     super(
@@ -45,21 +47,25 @@ public class NestedFieldExample extends Metatest {
   public JCUnitDesc testDesc = new JCUnitDesc();
 
   @FactorField(levelsProvider = LevelsProvider$f1.class)
-  public int     f1;
+  public int f1;
+
   public static class LevelsProvider$f1 extends SimpleLevelsProvider {
     @Override
     protected Object[] values() {
       return new Object[] { 1, 2, 3 };
     }
   }
+
   @FactorField(levelsProvider = LevelsProvider$f2.class)
-  public long    f2;
+  public long f2;
+
   public static class LevelsProvider$f2 extends SimpleLevelsProvider {
     @Override
     protected Object[] values() {
       return new Object[] { 1L, 2L, 3L };
     }
   }
+
   @FactorField
   public Calc.Op op;
 

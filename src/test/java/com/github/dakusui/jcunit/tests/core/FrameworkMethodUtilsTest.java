@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.tests.core;
 
+import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
 import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
@@ -7,7 +8,10 @@ import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
+import org.junit.validator.AnnotationValidator;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,46 +22,55 @@ import static org.junit.Assert.assertEquals;
 public class FrameworkMethodUtilsTest {
   public static class RetrieverTestClass {
     @SuppressWarnings("unused")
+    @Condition
     public boolean precondition1() {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     public boolean precondition2() {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     public boolean precondition3() {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     boolean invalidPrecondition1() {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     public Boolean invalidPrecondition2() {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     public static boolean invalidPrecondition3() {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     public boolean invalidPrecondition4(String invalidParam) {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     public boolean invalidPrecondition5() {
       return true;
     }
 
     @SuppressWarnings("unused")
+    @Condition
     public boolean invalidPrecondition5(String testClass) {
       return true;
     }
@@ -135,11 +148,22 @@ public class FrameworkMethodUtilsTest {
   }
 
   @Test
-  public void testMethodsReferredToByGivenAnnotation() throws Throwable {
-    List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.REFERENCED_BY_WHEN.getMethods(RetrieverTestClass.class);
+  public void testMethodsReferredToByWhenAnnotation() throws Throwable {
+    List<FrameworkMethod> methodList = FrameworkMethodUtils.findReferencedFrameworkMethods(new TestClass(RetrieverTestClass.class), new When() {
+
+      @Override
+      public Class<? extends Annotation> annotationType() {
+        return When.class;
+      }
+
+      @Override
+      public String[] value() {
+        return new String[]{"precondition1"};
+      }
+    });
     assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "precondition1"));
     List<String> emptyList = Collections.emptyList();
-    FrameworkMethodUtils.FrameworkMethodValidator validator = FrameworkMethodUtils.FrameworkMethodValidator.VALIDATOR_FOR_METHOD_REFERENCEDBY_WHEN;
+    AnnotationValidator validator = new When.Validator();
     Class<?> testClass = RetrieverTestClass.class;
     assertEquals(emptyList, validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "precondition1")));
     assertEquals(emptyList, validateMethod(validator, testClass, getFrameworkMethodByNameFromList(methodList, "(precondition2&&precondition3)")));
@@ -177,7 +201,7 @@ public class FrameworkMethodUtilsTest {
     assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "precondition1"));
     TestClass2 testObj = new TestClass2();
     assertEquals(true, getFrameworkMethodByNameFromList(methodList, "precondition1").invokeExplosively(testObj));
-    assertEquals(0, validateMethod(FrameworkMethodUtils.FrameworkMethodValidator.PRECONDITIONMETHOD_VALIDATOR, TestClass2.class, getFrameworkMethodByNameFromList(methodList, "precondition1")).size());
+    assertEquals(0, validateMethod(new Precondition.Validator(), TestClass2.class, getFrameworkMethodByNameFromList(methodList, "precondition1")).size());
   }
 
   @Test
@@ -185,17 +209,17 @@ public class FrameworkMethodUtilsTest {
     List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.CUSTOM_TESTCASES.getMethods(TestClass3.class);
     assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "customTestCases"));
     assertEquals(new LinkedList<TestClass3>(), getFrameworkMethodByNameFromList(methodList, "customTestCases").invokeExplosively(null));
-    assertEquals(0, validateMethod(FrameworkMethodUtils.FrameworkMethodValidator.CUSTOMTESTCASEMETHOD_VALIDATOR, TestClass3.class, getFrameworkMethodByNameFromList(methodList, "customTestCases")).size());
+    assertEquals(0, validateMethod(new CustomTestCases.Validator(), TestClass3.class, getFrameworkMethodByNameFromList(methodList, "customTestCases")).size());
   }
 
-  private List<String> validateMethod(FrameworkMethodUtils.FrameworkMethodValidator validator, Class<?> testClass, FrameworkMethod method) {
+  private List<Throwable> validateMethod(AnnotationValidator validator, Class<?> testClass, FrameworkMethod method) {
     Checks.checknotnull(method);
-    List<String> errors = new LinkedList<String>();
+    List<Throwable> errors = new LinkedList<Throwable>();
     FrameworkMethodUtils.validateFrameworkMethod(testClass, method, validator, errors);
     return errors;
   }
 
-  private List<String> assertErrorSizeIsOne(List<String> errors) {
+  private List<Throwable> assertErrorSizeIsOne(List<Throwable> errors) {
     assertEquals(String.format("Unexpected number of errors are found:%s", errors), 1, errors.size());
     return errors;
   }

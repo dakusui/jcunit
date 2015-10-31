@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.tests.core;
 
+import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -20,7 +21,7 @@ public class PreconditionTest {
     @FactorField
     public boolean f2;
 
-    @SuppressWarnings("unused")
+    @Condition
     public boolean precondition() {
       return f1;
     }

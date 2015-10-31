@@ -79,10 +79,12 @@ public class QuadraticEquationSolverTest6 {
   @FactorField
   public int c;
 
+  @Condition
   public boolean aIsNonZero() {
     return this.a != 0;
   }
 
+  @Condition
   public boolean discriminantIsNonNegative() {
     int a = this.a;
     int b = this.b;
@@ -90,6 +92,7 @@ public class QuadraticEquationSolverTest6 {
     return b * b - 4 * c * a >= 0;
   }
 
+  @Condition
   public boolean coefficientsAreValid() {
     return
         -100 <= a && a <= 100 &&

@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
@@ -17,12 +17,15 @@ import org.junit.runners.model.TestClass;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+/**
+ * Runs each test case.
+ */
 public class JCUnitRunner extends BlockJUnit4ClassRunner {
-  private final Tuple               testCase;
-  private final int                 id;
-  private final JCUnit.TestCaseType type;
-  private final Factors             factors;
-  private final Map<String, FrameworkMethod> methods = new HashMap<String, FrameworkMethod>();
+  private final Tuple                        testCase;
+  private final int                          id;
+  private final JCUnit.TestCaseType          type;
+  private final Factors                      factors;
+  private final Map<String, FrameworkMethod> methods;
 
   /**
    * Creates an object of this class.
@@ -43,19 +46,15 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     this.testCase = testCase;
     this.id = id;
     this.type = testType;
-    List<String> errors = new LinkedList<String>();
-    for (FrameworkMethod each : FrameworkMethodUtils.FrameworkMethodRetriever.REFERENCED_BY_WHEN.getMethods(clazz)) {
-      FrameworkMethodUtils.validateFrameworkMethod(
-          clazz,
-          each,
-          FrameworkMethodUtils.FrameworkMethodValidator.VALIDATOR_FOR_METHOD_REFERENCEDBY_WHEN,
-          errors
-      );
-      this.methods.put(each.getName(), each);
+    TestClass testClass = getTestClass();
+    Map<String, FrameworkMethod> methods = new LinkedHashMap<String, FrameworkMethod>();
+    for (FrameworkMethod each : testClass.getAnnotatedMethods(When.class)) {
+      When when = each.getAnnotation(When.class);
+
+      CompositeFrameworkMethod compositeFrameworkMethod = FrameworkMethodUtils.buildCompositeFrameworkMethod(testClass, when);
+      methods.put(compositeFrameworkMethod.getName(), compositeFrameworkMethod);
     }
-    if (!errors.isEmpty()) {
-      throw new InitializationError(String.format("Errors are found in '%s'.: %s", clazz.getCanonicalName(), errors));
-    }
+    this.methods = Collections.unmodifiableMap(methods);
   }
 
   /**
@@ -63,7 +62,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * because {@code {@literal @}BeforeClass} methods and {@code {@literal @}AfterClass}
    * methods are executed for every test case run not before and after all the
    * test cases are executed.
-   *
+   * <p/>
    * {@code BlockJUnit4ClassRunnerWithParameters} does the same.
    *
    * @see org.junit.runners.BlockJUnit4ClassRunner#classBlock(org.junit.runner.notification.RunNotifier)
@@ -143,7 +142,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     String preconditionMethodName = FrameworkMethodUtils.getPreconditionMethodNameFor(when);
     FrameworkMethod preconditionMethod = this.methods.get(preconditionMethodName);
     Checks.checkcond(preconditionMethod != null, "Something went wrong: name=%s, methdos=%s", preconditionMethodName, this.methods);
-    boolean ret = false;
+    boolean ret;
     try {
       ////
       // It's guaranteed that preconditionMethod returns a boolean by validation process.
