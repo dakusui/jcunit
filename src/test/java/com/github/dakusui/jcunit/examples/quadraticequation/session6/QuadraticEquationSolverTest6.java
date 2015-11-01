@@ -7,8 +7,13 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.ututils.UTUtils;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
 import org.mockito.internal.matchers.LessThan;
 
 import java.io.PrintStream;
@@ -34,7 +39,21 @@ import static org.junit.Assert.assertThat;
         value = QuadraticEquationSolverTest6.CM.class,
         args = { }))
 public class QuadraticEquationSolverTest6 {
-  public static PrintStream ps = System.out;
+  @ClassRule
+  public static TestRule testRule = new TestRule() {
+    @Override
+    public Statement apply(final Statement base, final Description description) {
+      return new Statement() {
+        @Override
+        public void evaluate() throws Throwable {
+          System.err.println(System.currentTimeMillis() + "*** Class rule is applied: " + base + ": " + description.toString() + " ***");
+          base.evaluate();
+        }
+      };
+    }
+  };
+
+  public static PrintStream ps = UTUtils.DUMMY_PRINTSTREAM;
 
   /**
    * Constraint manager.

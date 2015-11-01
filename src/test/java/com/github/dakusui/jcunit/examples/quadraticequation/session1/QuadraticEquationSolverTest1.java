@@ -1,10 +1,9 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session1;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -13,7 +12,7 @@ import static org.junit.Assert.assertThat;
 /**
  * An example that tests QuadraticEquationSolver.
  * <ul>
- *   <li>session 1: Initial version of QuadraticEquationSolverTest.</li>
+ * <li>session 1: Initial version of QuadraticEquationSolverTest.</li>
  * </ul>
  */
 @RunWith(JCUnit.class)

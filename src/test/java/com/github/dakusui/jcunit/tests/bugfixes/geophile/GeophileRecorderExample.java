@@ -45,6 +45,6 @@ public class GeophileRecorderExample extends GeophileTestBase {
     File baseDir = Recorder
         .testClassDataDirFor(RECORDER_BASE, GeophileRecorderExample.class);
     assertNotNull(baseDir.list());
-    assertThat(baseDir.list().length, is(this.recorder.getId() + 1));
+    assertThat(baseDir.list().length, is(this.recorder.getTestCase().getId() + 1));
   }
 }

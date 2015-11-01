@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.runners.standard.plugins;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.core.TestCase;
 import org.junit.runner.Description;
 
 import java.io.File;
@@ -124,8 +124,8 @@ public class Recorder extends JCUnitRule {
   @Override
   protected void starting(Description d) {
     super.starting(d);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
-      this.setTestDataDir(testDataDirFor(this.baseDir, this.getId(), d));
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
+      this.setTestDataDir(testDataDirFor(this.baseDir, this.getTestCase().getId(), d));
 
       synchronized (Recorder.class) {
         if (this.testDataDir.exists()) {
@@ -133,7 +133,7 @@ public class Recorder extends JCUnitRule {
         }
         boolean dirCreated = this.testDataDir.mkdirs();
         Checks.checkcond(dirCreated);
-        IOUtils.save(this.getTestCase(),
+        IOUtils.save(this.getTestCase().getTuple(),
             new File(testDataDir.getParentFile(), TESTCASE_FILENAME));
       }
     }
@@ -143,7 +143,7 @@ public class Recorder extends JCUnitRule {
   @Override
   protected void failed(Throwable t, Description d) {
     Checks.checkcond(this.initialized);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
       Checks.checkcond(this.testDataDir != null);
       IOUtils.save(t, new File(testDataDir, EXCEPTION_FILENAME));
       ////
@@ -156,7 +156,7 @@ public class Recorder extends JCUnitRule {
 
   public <T> void save(T obj) {
     Checks.checkcond(this.initialized);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
       for (Field f : ReflectionUtils
           .getAnnotatedFields(obj.getClass(), Recorder.Record.class)) {
         IOUtils.save(ReflectionUtils.getFieldValue(obj, f), new File(testDataDir, f.getName()));
@@ -169,7 +169,7 @@ public class Recorder extends JCUnitRule {
     Checks.checkcond(this.initialized);
     T ret = null;
     List<String> fieldsNotFoundInStore = new LinkedList<String>();
-    if (SystemProperties.isRecorderEnabled() && this.getTestCaseType() == JCUnit.TestCaseType.Generated) {
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
       ret = (T) ReflectionUtils.create(getTestClass());
       for (Field f : ReflectionUtils
           .getAnnotatedFields(getTestClass(), Recorder.Record.class)) {

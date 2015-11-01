@@ -1,8 +1,9 @@
 package com.github.dakusui.jcunit.tests.rules;
 
-import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.runners.standard.JCUnitRunner;
 import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitRule;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import org.junit.Before;
@@ -17,38 +18,37 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JCUnitRuleTest extends JCUnitRule {
-    @Mock
-    public Description description;
-    @Mock
-    public JCUnit.InternalAnnotation ann;
+  @Mock
+  public Description                     description;
+  @Mock
+  public JCUnitRunner.InternalAnnotation ann;
 
-    Class<?> testClass = JCUnitRuleTest.class;
-    Factors factors = new Factors.Builder().add(new Factor.Builder("f1").addLevel(1).build()).build();
-    Tuple tuple = new Tuple.Builder().build();
-    JCUnit.TestCaseType type = JCUnit.TestCaseType.Custom;
+  Class<?>      testClass = JCUnitRuleTest.class;
+  Factors       factors   = new Factors.Builder().add(new Factor.Builder("f1").addLevel(1).build()).build();
+  Tuple         tuple     = new Tuple.Builder().build();
+  TestCase.Type type      = TestCase.Type.Custom;
+  TestCase      testCase  = new TestCase(123, this.type, this.tuple);
 
 
-    @SuppressWarnings("unchecked")
-    @Before
-    public void before() {
-        when(description.getTestClass()).thenReturn((Class) testClass);
-        when(description.getAnnotation(JCUnit.InternalAnnotation.class)).thenReturn(ann);
-        when(description.getMethodName()).thenReturn("methodName");
-        when(ann.getTestCase()).thenReturn(tuple);
-        when(ann.getTestCaseType()).thenReturn(type);
-        when(ann.getId()).thenReturn(123);
-        when(ann.getFactors()).thenReturn(factors);
-    }
+  @SuppressWarnings("unchecked")
+  @Before
+  public void before() {
+    when(description.getTestClass()).thenReturn((Class) testClass);
+    when(description.getAnnotation(JCUnitRunner.InternalAnnotation.class)).thenReturn(ann);
+    when(description.getMethodName()).thenReturn("methodName");
+    when(ann.getTestCase()).thenReturn(testCase);
+    when(ann.getFactors()).thenReturn(factors);
+  }
 
-    @Test
-    public void testJCUnitRule() {
-        starting(description);
-        assertEquals(type, this.getTestCaseType());
-        assertEquals(testClass, this.getTestClass());
-        assertEquals("methodName", this.getTestName());
-        assertEquals(tuple, this.getTestCase());
-        assertEquals(123, this.getId());
-        assertEquals(factors, this.getFactors());
+  @Test
+  public void testJCUnitRule() {
+    starting(description);
+    assertEquals(type, this.getTestCase().getType());
+    assertEquals(testClass, this.getTestClass());
+    assertEquals("methodName", this.getTestName());
+    assertEquals(tuple, this.getTestCase().getTuple());
+    assertEquals(123, this.getTestCase().getId());
+    assertEquals(factors, this.getFactors());
     }
 
 }

@@ -68,10 +68,10 @@ public class ReproducibilityWithForSimpleConstraintTest {
 
   @Test
   public void test() {
-    String s = this.desc.getId() + ";" + TupleUtils.toString(this.desc.getTestCase());
+    String s = this.desc.getTestCase().getId() + ";" + TupleUtils.toString(this.desc.getTestCase().getTuple());
     UTUtils.stdout().println(s);
-    assertEquals(expectations.get(this.desc.getId()), s);
-    expectations.remove(this.desc.getId());
+    assertEquals(expectations.get(this.desc.getTestCase().getId()), s);
+    expectations.remove(this.desc.getTestCase().getId());
   }
 
   @AfterClass

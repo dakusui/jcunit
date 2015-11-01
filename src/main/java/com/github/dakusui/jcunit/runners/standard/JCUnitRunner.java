@@ -2,8 +2,9 @@ package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import org.junit.Ignore;
 import org.junit.runner.Description;
@@ -21,31 +22,23 @@ import java.util.*;
  * Runs each test case.
  */
 public class JCUnitRunner extends BlockJUnit4ClassRunner {
-  private final Tuple                        testCase;
-  private final int                          id;
-  private final JCUnit.TestCaseType          type;
   private final Factors                      factors;
+  private final TestSuite                    testSuite;
+  private final TestCase                     testCase;
   private final Map<String, FrameworkMethod> methods;
 
   /**
    * Creates an object of this class.
    *
    * @param clazz    A test class.
-   * @param id       An id of the test case to be run.
-   * @param testType Test case type.
-   * @param factors  A factors object which defines the domain of the test cases.
-   * @param testCase A test case itself.
+   * @param testCase A test case object.
    * @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
-  public JCUnitRunner(Class<?> clazz, int id, JCUnit.TestCaseType testType,
-      Factors factors, Tuple testCase)
-      throws InitializationError {
+  public JCUnitRunner(Class<?> clazz, Factors factors, TestSuite testSuite, TestCase testCase) throws InitializationError {
     super(clazz);
-    Checks.checknotnull(testCase);
-    this.factors = factors;
-    this.testCase = testCase;
-    this.id = id;
-    this.type = testType;
+    this.factors = Checks.checknotnull(factors);
+    this.testSuite = Checks.checknotnull(testSuite);
+    this.testCase = Checks.checknotnull(testCase);
     TestClass testClass = getTestClass();
     Map<String, FrameworkMethod> methods = new LinkedHashMap<String, FrameworkMethod>();
     for (FrameworkMethod each : testClass.getAnnotatedMethods(When.class)) {
@@ -79,17 +72,17 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   @Override
   public Object createTest() {
     TestClass klazz = getTestClass();
-    return JCUnit.createTestObject(klazz, testCase);
+    return JCUnit.createTestObject(klazz, testCase.getTuple());
   }
 
   @Override
   protected String getName() {
-    return String.format("[%d]", this.id);
+    return String.format("[%d]", this.testCase.getId());
   }
 
   @Override
   protected String testName(final FrameworkMethod method) {
-    return String.format("%s[%d]", method.getName(), this.id);
+    return String.format("%s[%d]", method.getName(), this.testCase.getId());
   }
 
   @Override
@@ -105,8 +98,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     ArrayList<Annotation> annotations = new ArrayList<Annotation>(
         work.length + 1);
     annotations.add(
-        new JCUnit.InternalAnnotation(this.type, this.id, this.factors,
-            this.testCase));
+        new InternalAnnotation(this.factors, this.testSuite, this.testCase));
     Collections.addAll(annotations, work);
     return Description.createTestDescription(getTestClass().getJavaClass(),
         testName(method),
@@ -162,7 +154,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
       return new FrameworkMethod(JCUnitRunner.class.getMethod("noMatchingTestMethodIsFoundForThisTestCase")) {
         @Override
         public String getName() {
-          return String.format("%s:%s", super.getName(), TupleUtils.toString(JCUnitRunner.this.testCase));
+          return String.format("%s:%s", super.getName(), TupleUtils.toString(JCUnitRunner.this.testCase.getTuple()));
         }
       };
     } catch (NoSuchMethodException e) {
@@ -183,4 +175,34 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   public static void noMatchingTestMethodIsFoundForThisTestCase() {
   }
 
+  public static class InternalAnnotation implements Annotation {
+
+    private final TestSuite testSuite;
+    private final TestCase  testCase;
+    private final Factors   factors;
+
+    public InternalAnnotation(Factors factors, TestSuite suite, TestCase testCase) {
+      this.factors = Checks.checknotnull(factors);
+      this.testSuite = Checks.checknotnull(suite);
+      this.testCase = Checks.checknotnull(testCase);
+    }
+
+    @Override
+    public Class<? extends Annotation> annotationType() {
+      return this.getClass();
+    }
+
+    public Factors getFactors() {
+      return this.factors;
+    }
+
+    public TestSuite getTestSuite() {
+      return this.testSuite;
+    }
+
+    public TestCase getTestCase() {
+      return this.testCase;
+    }
+
+  }
 }

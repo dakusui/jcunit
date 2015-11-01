@@ -1,12 +1,15 @@
 package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
 import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
 import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
@@ -17,10 +20,15 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class JCUnit extends Parameterized {
-  private final ArrayList<Runner> runners = new ArrayList<Runner>();
+  private final List<Runner> runners;
+
+  private final TestSuite testSuite;
+  private final Factors   factors;
 
   /**
    * Only called reflectively by JUnit. Do not use programmatically.
@@ -36,13 +44,15 @@ public class JCUnit extends Parameterized {
       // Generate a list of test cases using a specified tuple generator
       TupleGenerator tupleGenerator = getTupleGeneratorFactory()
           .createFromClass(klass);
-      Factors factors = tupleGenerator.getFactors();
+      List<TestCase> testCases = Utils.newList();
       int id;
       for (id = (int) tupleGenerator.firstId();
            id >= 0; id = (int) tupleGenerator.nextId(id)) {
         Tuple testCase = tupleGenerator.get(id);
         if (shouldPerform(testCase, preconditionMethods)) {
-          runners.add(createRunner(id, factors, TestCaseType.Generated, testCase));
+          testCases.add(
+              new TestCase(id, TestCase.Type.Generated, testCase
+              ));
         }
       }
       // Skip to number of test cases generated.
@@ -52,32 +62,46 @@ public class JCUnit extends Parameterized {
       ConstraintManager cm = tupleGenerator.getConstraintManager();
       final List<Tuple> violations = cm.getViolations();
       id = registerTestCases(
+          testCases,
           id,
-          factors,
           violations,
-          TestCaseType.Violation,
+          TestCase.Type.Violation,
           preconditionMethods);
       ////
       // Compose a list of 'custom test cases' and register them.
       registerTestCases(
+          testCases,
           id,
-          factors,
           invokeCustomTestCasesMethod(customTestCaseMethods),
-          TestCaseType.Custom,
+          TestCase.Type.Custom,
           preconditionMethods);
-      Checks.checkenv(runners.size() > 0, "No test to be run was found.");
+      Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
+      ////
+      // Create and host a test suite object to use it in rules.
+      this.factors = tupleGenerator.getFactors();
+      this.testSuite = new TestSuite(testCases);
+      this.runners = Utils.transform(
+          this.testSuite,
+          new Utils.Form<TestCase, Runner>() {
+
+            @Override
+            public Runner apply(TestCase in) {
+              try {
+                return new JCUnitRunner(
+                    getTestClass().getJavaClass(),
+                    factors,
+                    testSuite,
+                    in
+                    );
+              } catch (InitializationError initializationError) {
+                throw Checks.wrap(initializationError);
+              }
+            }
+          });
+
     } catch (JCUnitException e) {
       throw tryToRecreateRootCauseException(Checks.getRootCauseOf(e), e.getMessage());
     }
-  }
-
-  protected JCUnitRunner createRunner(int id, Factors factors, TestCaseType testCaseType, Tuple testCase) throws InitializationError {
-    return new JCUnitRunner(
-        getTestClass().getJavaClass(),
-        id,
-        testCaseType,
-        factors,
-        testCase);
   }
 
   private static Throwable tryToRecreateRootCauseException(Throwable rootCause, String message) {
@@ -121,15 +145,16 @@ public class JCUnit extends Parameterized {
     return false;
   }
 
-  private int registerTestCases(int id,
-      Factors factors,
-      Iterable<Tuple> testCases,
-      TestCaseType testCaseType,
+  private int registerTestCases(
+      List<TestCase> testCases,
+      int id,
+      Iterable<Tuple> testCaseTuplesToBeAdded,
+      TestCase.Type type,
       List<FrameworkMethod> preconditionMethods)
       throws Throwable {
-    for (Tuple testCase : testCases) {
+    for (Tuple testCase : testCaseTuplesToBeAdded) {
       if (shouldPerform(testCase, preconditionMethods)) {
-        runners.add(createRunner(id, factors, testCaseType, testCase));
+        testCases.add(new TestCase(id, type, testCase));
       }
       id++;
     }
@@ -138,7 +163,7 @@ public class JCUnit extends Parameterized {
 
   @Override
   protected List<Runner> getChildren() {
-    return runners;
+    return this.runners;
   }
 
   private List<Tuple> invokeCustomTestCasesMethod(List<FrameworkMethod> customTestCasesMethods) {
@@ -193,64 +218,6 @@ public class JCUnit extends Parameterized {
 
 
   /**
-   * Identifies what kind of category to which a test case belongs.
-   */
-  public enum TestCaseType {
-    /**
-     * A custom test case, which is returned by a method annotated with {@literal @}{@code CustomTestCases}.
-     */
-    Custom,
-    /**
-     * A generated test case. A test case generated by JCUnit framework through an implementation of {@code TupleGenerator}
-     * belongs to this category.
-     */
-    Generated,
-    /**
-     * A test case which violates some defined constraint belongs to this category.
-     * Test cases returned by {@code ConstraintManager#getViolations} belongs to this.
-     */
-    Violation
-  }
-
-  public static class InternalAnnotation implements Annotation {
-
-    private final TestCaseType type;
-    private final int          id;
-    private       Factors      factors;
-    private       Tuple        testCase;
-
-    public InternalAnnotation(TestCaseType type, int id, Factors factors,
-        Tuple testCase) {
-      Checks.checknotnull(type);
-      this.id = id;
-      this.type = type;
-      this.factors = factors;
-      this.testCase = testCase;
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-      return this.getClass();
-    }
-
-    public int getId() {
-      return this.id;
-    }
-
-    public TestCaseType getTestCaseType() {
-      return this.type;
-    }
-
-    public Tuple getTestCase() {
-      return testCase;
-    }
-
-    public Factors getFactors() {
-      return factors;
-    }
-  }
-
-  /**
    * A class referenced by createTestClass method.
    * This is only used to mock JUnit's Parameterized runner.
    */
@@ -258,7 +225,7 @@ public class JCUnit extends Parameterized {
     @SuppressWarnings("unused") // This method is referenced reflectively.
     @Parameters
     public static Object[][] dummy() {
-      return new Object[][] { {  } };
+      return new Object[][] { {} };
     }
   }
 

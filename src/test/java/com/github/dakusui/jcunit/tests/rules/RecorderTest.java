@@ -1,11 +1,12 @@
 package com.github.dakusui.jcunit.tests.rules;
 
-import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.runners.standard.JCUnitRunner;
+import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -26,15 +27,16 @@ public class RecorderTest extends Recorder implements Serializable {
   public int recordedField = -1024;
 
   @Mock
-  public Description               description;
+  public Description                     description;
   @Mock
-  public JCUnit.InternalAnnotation ann;
+  public JCUnitRunner.InternalAnnotation ann;
 
-  Class<?>            testClass = RecorderTest.class;
-  Factors             factors   = new Factors.Builder()
+  Class<?>      testClass = RecorderTest.class;
+  Factors       factors   = new Factors.Builder()
       .add(new Factor.Builder("f1").addLevel(1).build()).build();
-  Tuple               tuple     = new Tuple.Builder().build();
-  JCUnit.TestCaseType type      = JCUnit.TestCaseType.Generated;
+  Tuple         tuple     = new Tuple.Builder().build();
+  TestCase.Type type      = TestCase.Type.Generated;
+  TestCase      testCase  = new TestCase(123, this.type, this.tuple);
 
   public RecorderTest() {
     super(baseDir().getAbsolutePath());
@@ -53,7 +55,7 @@ public class RecorderTest extends Recorder implements Serializable {
     wireMocks();
 
     File baseDir = new File(this.getBaseDir());
-    baseDir.mkdir();
+    assertTrue(baseDir.mkdir() || baseDir.exists());
     baseDir.deleteOnExit();
     assertTrue(baseDir.exists());
     assertTrue(baseDir.isDirectory());
@@ -77,7 +79,7 @@ public class RecorderTest extends Recorder implements Serializable {
     ////
     // Perform 'starting' method.
     this.starting(this.description);
-    File testDataDir = testDataDirFor(baseDir.getAbsolutePath(), this.getId(),
+    File testDataDir = testDataDirFor(baseDir.getAbsolutePath(), this.getTestCase().getId(),
         this.description);
 
     /////////////////////////////////////
@@ -132,7 +134,8 @@ public class RecorderTest extends Recorder implements Serializable {
       throws IOException {
     System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
     System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
-    this.type = JCUnit.TestCaseType.Custom;
+    this.type = TestCase.Type.Custom;
+    this.testCase  = new TestCase(123, this.type, this.tuple);
     wireMocks();
     whenInitializeDirSaveAndLoad$thenDoNotWriteAnything(false);
   }
@@ -158,13 +161,12 @@ public class RecorderTest extends Recorder implements Serializable {
   }
 
   private void wireMocks() {
+    //noinspection unchecked
     when(description.getTestClass()).thenReturn((Class) testClass);
-    when(description.getAnnotation(JCUnit.InternalAnnotation.class))
+    when(description.getAnnotation(JCUnitRunner.InternalAnnotation.class))
         .thenReturn(ann);
     when(description.getMethodName()).thenReturn("methodName");
-    when(ann.getTestCase()).thenReturn(tuple);
-    when(ann.getTestCaseType()).thenReturn(type);
-    when(ann.getId()).thenReturn(123);
+    when(ann.getTestCase()).thenReturn(this.testCase);
     when(ann.getFactors()).thenReturn(factors);
   }
 
@@ -175,22 +177,28 @@ public class RecorderTest extends Recorder implements Serializable {
 
     ////
     // Create a garbage file.
-    File testDataDir = testDataDirFor(baseDir.getAbsolutePath(), this.getId(),
+    File testDataDir = testDataDirFor(baseDir.getAbsolutePath(), this.getTestCase().getId(),
         this.description);
-    testDataDir.mkdirs();
+    assertTrue(testDataDir.mkdirs() || testDataDir.exists());
     File garbage = new File(testDataDir, "garbage");
-    garbage.createNewFile();
+    assertTrue(garbage.createNewFile());
 
     /////////////////////////////////////
     // Perform initialization (1st time)
     Recorder.initializeTestClassDataDir(baseDir.getAbsolutePath(),
         this.getClass());
-    ////
-    // Make sure garbage isn't removed.
     if (checkGarbage) {
+      // Make sure garbage isn't removed if it is specified so.
+      // Initialization should be skipped.
       assertTrue(garbage.exists());
+    } else {
+      // Make sure if garbage exists  initialization removes
+      // the directory.
+      assertFalse(garbage.exists());
     }
-
+    ////
+    // The expectation is NOT to write anything. Therefore even if the directory
+    // doesn't exist, this line should succeed.
     this.save(this);
     ////
     // Make sure file is NOT created.

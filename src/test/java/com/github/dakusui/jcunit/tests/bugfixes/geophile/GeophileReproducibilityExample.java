@@ -61,7 +61,7 @@ public class GeophileReproducibilityExample extends GeophileTestBase {
   }
 
   private String createKey() {
-    return String.format("%d(%s)", this.desc.getId(),
+    return String.format("%d(%s)", this.desc.getTestCase().getId(),
         this.desc.getTestName());
   }
 

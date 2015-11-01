@@ -30,7 +30,6 @@ public class Utils {
    *
    * @param format A format string.
    * @param args Arguments referenced by the format specifier in the format string.
-   * @return
    */
   public static String format(String format, Object... args) {
     Form<Object, String> formatter = new Utils.Form<Object, String>() {
@@ -122,6 +121,22 @@ public class Utils {
       return o == null;
     }
     return v.equals(o);
+  }
+
+  public static <T> List<T> toList(T... elements) {
+    return Arrays.asList(elements);
+  }
+
+  public static <T> List<T> newUnmodifiableList(List<T> elements) {
+    return Collections.unmodifiableList(newList(elements));
+  }
+
+  public static <T> List<T> newList(List<T> elements) {
+    return new ArrayList<T>(elements);
+  }
+
+  public static <T> List<T> newList() {
+    return newList(Collections.<T>emptyList());
   }
 
   public static boolean deepEq(Object a, Object b) {
