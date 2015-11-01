@@ -7,8 +7,6 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.runners.standard.CompositeFrameworkMethod;
 import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
-import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
-import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;
@@ -19,7 +17,6 @@ import org.junit.runners.model.TestClass;
 import org.junit.validator.AnnotationValidator;
 
 import java.lang.annotation.Annotation;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -140,39 +137,6 @@ public class FrameworkMethodUtilsTest {
 
   @Rule
   public ExpectedException expectedEx = ExpectedException.none();
-
-  public static class TestClass2 {
-    @SuppressWarnings("unused")
-    @Precondition
-    public boolean precondition1() {
-      return true;
-    }
-  }
-
-  public static class TestClass3 {
-    @SuppressWarnings("unused")
-    @CustomTestCases
-    public static List<TestClass3> customTestCases() {
-      return new LinkedList<TestClass3>();
-    }
-  }
-
-  CompositeFrameworkMethod findMethodReferencedByWhenAnnotation(
-      Class<?> testClass,
-      final List<String> annotaionValues) {
-    return FrameworkMethodUtils.buildCompositeFrameworkMethod(new TestClass(testClass), new When() {
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
-        return When.class;
-      }
-
-      @Override
-      public String[] value() {
-        return annotaionValues.toArray(new String[annotaionValues.size()]);
-      }
-    });
-  }
 
   @Test
   public void testSimpleMethodReference() {
@@ -344,21 +308,21 @@ public class FrameworkMethodUtilsTest {
         expect.isEmpty());
   }
 
-  @Test
-  public void testMethodsAnnotatedWithPrecondition() throws Throwable {
-    List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.PRECONDITION.getMethods(TestClass2.class);
-    assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "precondition1"));
-    TestClass2 testObj = new TestClass2();
-    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "precondition1").invokeExplosively(testObj));
-    assertEquals(0, validateMethod(new Condition.Validator(), getFrameworkMethodByNameFromList(methodList, "precondition1")).size());
-  }
+  private CompositeFrameworkMethod findMethodReferencedByWhenAnnotation(
+      Class<?> testClass,
+      final List<String> annotaionValues) {
+    return FrameworkMethodUtils.buildCompositeFrameworkMethod(new TestClass(testClass), new When() {
 
-  @Test
-  public void testMethodsAnnotatedWithCustomTestCases() throws Throwable {
-    List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.CUSTOM_TESTCASES.getMethods(TestClass3.class);
-    assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "customTestCases"));
-    assertEquals(new LinkedList<TestClass3>(), getFrameworkMethodByNameFromList(methodList, "customTestCases").invokeExplosively(null));
-    assertEquals(0, validateMethod(new CustomTestCases.Validator(), getFrameworkMethodByNameFromList(methodList, "customTestCases")).size());
+      @Override
+      public Class<? extends Annotation> annotationType() {
+        return When.class;
+      }
+
+      @Override
+      public String[] value() {
+        return annotaionValues.toArray(new String[annotaionValues.size()]);
+      }
+    });
   }
 
 
@@ -372,23 +336,5 @@ public class FrameworkMethodUtilsTest {
           }
         }
     );
-  }
-
-  private boolean methodListContainsItemWhoseNameIsSpecified(List<FrameworkMethod> methodList, String methodName) {
-    for (FrameworkMethod each : methodList) {
-      if (each.getName().equals(methodName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private FrameworkMethod getFrameworkMethodByNameFromList(List<FrameworkMethod> methodList, String methodName) {
-    for (FrameworkMethod each : methodList) {
-      if (each.getName().equals(methodName)) {
-        return each;
-      }
-    }
-    throw new AssertionError("Not found:" + methodName);
   }
 }

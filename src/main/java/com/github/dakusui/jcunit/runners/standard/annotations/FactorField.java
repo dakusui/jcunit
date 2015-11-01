@@ -173,7 +173,7 @@ public @interface FactorField {
         Checks.checknotnull(ann);
         Checks.checknotnull(type);
         Checks.checkcond(type.isPrimitive() || String.class.equals(type) || type.isEnum(), "'%s' does not have default levels.", type);
-        Object o = ReflectionUtils.invokeMethod(ann, levelsMethodOf(type));
+        Object o = ReflectionUtils.invoke(ann, levelsMethodOf(type));
         Checks.checknotnull(o);
         final Object arr;
         //noinspection ConstantConditions (already checked)
@@ -182,7 +182,7 @@ public @interface FactorField {
         } else if (o instanceof Class && ((Class) o).isEnum()) {
           ////
           // 'values' method of an enum is static.
-          arr = ReflectionUtils.invokeMethod(null, ReflectionUtils.getMethod(((Class) o), "values"));
+          arr = ReflectionUtils.invoke(null, ReflectionUtils.getMethod(((Class) o), "values"));
         } else {
           arr = null;
         }
@@ -285,7 +285,7 @@ public @interface FactorField {
       } else if (c.isEnum()) {
         // Note that Enum.class.isEnum should return false;
         // Note that 'values' method of an enum is static. It returns an array of the enum object.
-        final Object values = ReflectionUtils.invokeMethod(null, ReflectionUtils.getMethod(c, "values"));
+        final Object values = ReflectionUtils.invoke(null, ReflectionUtils.getMethod(c, "values"));
         Checks.checknotnull(values);
         //noinspection ConstantConditions
         Checks.checkcond(values.getClass().isArray());

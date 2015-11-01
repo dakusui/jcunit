@@ -15,7 +15,7 @@ public class ReflectionUtilsTest {
   @Test(expected = JCUnitException.class)
   public void testInvokeMethod1() throws Throwable {
     Method m = ReflectionUtilsTest.class.getDeclaredMethod("hi");
-    ReflectionUtils.invokeMethod(null, m);
+    ReflectionUtils.invoke(null, m);
   }
 
   @SuppressWarnings("unused")
@@ -26,6 +26,6 @@ public class ReflectionUtilsTest {
   @Test(expected = JCUnitException.class)
   public void testInvokeMethod2() throws Throwable {
     Method m = ReflectionUtilsTest.class.getDeclaredMethod("throwException");
-    ReflectionUtils.invokeMethod(null, m);
+    ReflectionUtils.invoke(null, m);
   }
 }

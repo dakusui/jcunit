@@ -64,20 +64,6 @@ public class ReflectionUtils {
     }
   }
 
-  public static <T> T invoke(Object object, Method method, Object... args) {
-    try {
-      //noinspection unchecked
-      return (T) method.invoke(object, args);
-    } catch (RuntimeException e) {
-      throw Checks.wrap(e);
-    } catch (IllegalAccessException e) {
-      throw Checks.wrap(e);
-    } catch (InvocationTargetException e) {
-      throw Checks.wrap(e);
-    }
-  }
-
-
   public static <T> T create(Class<T> clazz, TypedArg... typedArgs) {
     Checks.checknotnull(clazz);
     Class[] types = Utils.transform(typedArgs, new Utils.Form<TypedArg, Class>() {
@@ -136,7 +122,7 @@ public class ReflectionUtils {
    * @param args   Arguments given to {@code method}.
    * @param <T>    Type of returned value from {@code method}.
    */
-  public static <T> T invokeMethod(Object obj, Method method, Object... args) {
+  public static <T> T invoke(Object obj, Method method, Object... args) {
     try {
       //noinspection unchecked
       return (T) Checks.checknotnull(method).invoke(obj, args);
@@ -144,6 +130,15 @@ public class ReflectionUtils {
       throw Checks.wrap(e.getTargetException(), "Failed to execute method '%s' with ", method, args);
     } catch (IllegalAccessException e) {
       throw Checks.wrap(e, "A method '%s' is too less open. Make it public.", method);
+    }
+  }
+
+  public static <T> T invokeForcibly(Object obj, Method method, Object... args) {
+    method.setAccessible(true);
+    try {
+      return invoke(obj, method, args);
+    } finally {
+      method.setAccessible(false);
     }
   }
 
