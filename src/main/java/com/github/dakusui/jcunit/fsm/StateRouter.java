@@ -19,7 +19,7 @@ public class StateRouter<SUT> {
   public StateRouter(FSM<SUT> fsm, EdgeLister lister) {
     Checks.checknotnull(fsm);
     Checks.checknotnull(lister);
-    this.destinations = Collections.unmodifiableList(Utils.singleton(fsm.states()));
+    this.destinations = Collections.unmodifiableList(Utils.dedup(fsm.states()));
     this.routes = new LinkedHashMap<State<SUT>, ScenarioSequence<SUT>>();
     this.lister = lister;
     for (State<SUT> each : destinations) {

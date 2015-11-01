@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.NullConstraintManager;
 import com.github.dakusui.jcunit.core.Utils;

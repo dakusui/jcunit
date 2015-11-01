@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.plugins;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -86,7 +87,7 @@ public interface Plugin {
             Utils.transform(this.allConverters(), new Utils.Form<Converter<S>, String>() {
               @Override
               public String apply(Converter<S> in) {
-                return Utils.toString(in);
+                return StringUtils.toString(in);
               }
             }), this.allConverters().size());
         return ret;

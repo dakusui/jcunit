@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
@@ -67,7 +67,7 @@ public class Expectation<SUT> {
     }
     if (!this.state.check(context.sut)) {
       b.addFailedReason(
-          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, context.sut)
+          StringUtils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, context.sut)
       );
     }
     return b.build();
@@ -91,7 +91,7 @@ public class Expectation<SUT> {
     }
     if (!this.state.check(context.sut)) {
       b.addFailedReason(
-          Utils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, context.sut)
+          StringUtils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, context.sut)
       );
     }
     return b.build();
@@ -99,7 +99,7 @@ public class Expectation<SUT> {
 
   @Override
   public String toString() {
-    return Utils.format("state of '%s' is '%s' and %s %s %s", this.fsmName, this.state, this.checker.getType().name, this.checker.getType().entityType(), this.checker.toString());
+    return StringUtils.format("state of '%s' is '%s' and %s %s %s", this.fsmName, this.state, this.checker.getType().name, this.checker.getType().entityType(), this.checker.toString());
   }
 
   public static class Builder<SUT> extends InputHistory.CollectorHolder<Builder<SUT>> {
@@ -207,7 +207,7 @@ public class Expectation<SUT> {
     public String getMessage() {
       String ret = super.getMessage();
       if (!failedFailedReasons.isEmpty()) {
-        ret += String.format(": [%s]", Utils.join(",", this.failedFailedReasons.toArray()));
+        ret += String.format(": [%s]", StringUtils.join(",", this.failedFailedReasons.toArray()));
       }
       return ret;
     }

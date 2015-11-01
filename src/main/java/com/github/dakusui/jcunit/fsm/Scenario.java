@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 
 import java.io.Serializable;
 
@@ -26,6 +26,6 @@ public class Scenario<SUT> implements Serializable {
 
   @Override
   public String toString() {
-    return String.format("%s#%s(%s)", this.given, this.when, Utils.join(",", this.with.values()));
+    return String.format("%s#%s(%s)", this.given, this.when, StringUtils.join(",", this.with.values()));
   }
 }

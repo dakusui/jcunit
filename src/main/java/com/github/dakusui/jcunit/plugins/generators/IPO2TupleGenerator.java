@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.generators;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -40,7 +40,7 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
     Checks.checktest(factors.size() >= 2,
         "There must be 2 or more factors, but only %s (%s) given.",
         factors.size(),
-        Utils.join(",", new Utils.Formatter<Factor>() {
+        StringUtils.join(",", new StringUtils.Formatter<Factor>() {
               @Override
               public String format(Factor elem) {
                 return elem.name;

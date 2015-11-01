@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 
 public class Output {
   public final Object value;
@@ -52,7 +52,7 @@ public class Output {
     abstract protected String entityType();
 
     public String describeExpectation(Object matcher) {
-      return Utils.format(
+      return StringUtils.format(
           ////
           // EXPECTATION:
           // "returned" / "thrown"
@@ -66,7 +66,7 @@ public class Output {
     }
 
     public String describeMismatch(Output output) {
-      return Utils.format(
+      return StringUtils.format(
           ////
           // MISMATCH:
           // "returned" / "thrown"

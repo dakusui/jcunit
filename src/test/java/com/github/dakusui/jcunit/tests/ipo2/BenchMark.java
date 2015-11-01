@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -33,12 +33,12 @@ public class BenchMark extends IPO2Test {
 
   protected void verify(Factors factors, int strength, ConstraintManager cm,
       TestGenerationResult actual) {
-    System.out.println(Utils.format(
+    System.out.println(StringUtils.format(
         "%-40s:(testcases, remainders, time(sec))=(%4s, %4s, %s)",
         name.getMethodName(),
         actual.testCases.size(),
         actual.remainders.size(),
-        ((double)actual.timeSpent) / 1000
+        ((double) actual.timeSpent) / 1000
     ));
     List<VerificationResult> verificationResults = new LinkedList<VerificationResult>();
     verificationResults.add(verifyTuplesSanity(factors, actual));
@@ -53,7 +53,7 @@ public class BenchMark extends IPO2Test {
       }
     }
     if (!messages.isEmpty()) {
-      throw new AssertionError(Utils.join("\n", messages));
+      throw new AssertionError(StringUtils.join("\n", messages));
     }
   }
 

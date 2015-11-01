@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
@@ -91,7 +91,7 @@ public interface OutputChecker {
           Checks.checkcond(output.value instanceof Throwable);
           return new Result(
               false,
-              Utils.format(
+              StringUtils.format(
                   "An exception (%s:[%s]) was thrown unexpectedly.",
                   output.value,
                   ((Throwable) output.value).getMessage()
@@ -100,7 +100,7 @@ public interface OutputChecker {
         } else if (output.type == Output.Type.VALUE_RETURNED) {
           return new Result(
               false,
-              Utils.format(
+              StringUtils.format(
                   "A value (%s) was returned unexpectedly. (The method should have failed with %s)",
                   output.value,
                   matcher
@@ -112,7 +112,7 @@ public interface OutputChecker {
       }
       return new Result(
           this.matcher.matches(Checks.checknotnull(output).value),
-          Utils.format(
+          StringUtils.format(
               "Expectation: %s%nActual:%s",
               this.type.describeExpectation(this.matcher),
               this.type.describeMismatch(output)
@@ -184,11 +184,11 @@ public interface OutputChecker {
         expectation = describeExpectation(accessedSymbols, matcher);
       } catch (UndefinedSymbol e) {
         passed = false;
-        expectation = Utils.format("failed to compute expectation since following symbols are not found in input history: %s", e.missingSymbols);
+        expectation = StringUtils.format("failed to compute expectation since following symbols are not found in input history: %s", e.missingSymbols);
       }
       return new Result(
           passed,
-          Utils.format(
+          StringUtils.format(
               "Expectation: %s%nActual:      %s",
               expectation,
               this.type.describeMismatch(output)
@@ -199,11 +199,11 @@ public interface OutputChecker {
     private String describeExpectation(InputHistory.Accessed accessed, Matcher matcher) {
       String expectation;
       expectation = this.type.describeExpectation(
-          Utils.format(
+          StringUtils.format(
               "%s (%s#computeExpectation(%s))",
               matcher,
               this,
-              Utils.join(",", accessed.symbols.toArray())
+              StringUtils.join(",", accessed.symbols.toArray())
           )
       );
       return expectation;
@@ -219,7 +219,7 @@ public interface OutputChecker {
       return String.format(
           "%s %s#computeExpectation(...)",
           createMatcher("...").toString(),
-          Utils.toString(this)
+          StringUtils.toString(this)
       );
     }
   }

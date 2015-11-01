@@ -2,11 +2,14 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An interface that represents an action that can be performed on {@code SUT}.
@@ -52,11 +55,12 @@ public interface Action<SUT> extends Serializable {
   /**
    * Return types of the parameters.
    */
-  Class<?>[] parameterTypes();
+  List<Class<?>> parameterTypes();
 
-  abstract class Void<SUT> implements Action<SUT> {
+  abstract class Void implements Action {
     public static <SUT> Action<SUT> getInstance() {
-      return (Action<SUT>) INSTANCE;
+      //noinspection unchecked
+      return (Action<SUT>)INSTANCE;
     }
 
     private static Void INSTANCE = new Void() {
@@ -87,8 +91,8 @@ public interface Action<SUT> extends Serializable {
       }
 
       @Override
-      public Class<?>[] parameterTypes() {
-        return new Class<?>[0];
+      public List<Class<?>> parameterTypes() {
+        return Collections.emptyList();
       }
     };
   }
@@ -119,7 +123,7 @@ public interface Action<SUT> extends Serializable {
         try {
           ret = m.invoke(o, args.values());
         } catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException(Utils.format("Method '%s/%d' in '%s' expects %s, but %s are given.",
+          throw new IllegalArgumentException(StringUtils.format("Method '%s/%d' in '%s' expects %s, but %s are given.",
               name, args.size(),
               o.getClass().getCanonicalName(),
               Arrays.toString(m.getParameterTypes()),
@@ -170,7 +174,7 @@ public interface Action<SUT> extends Serializable {
     }
 
     @Override
-    public Class<?>[] parameterTypes() {
+    public List<Class<?>> parameterTypes() {
       return this.getParameterTypes();
     }
 
@@ -197,7 +201,7 @@ public interface Action<SUT> extends Serializable {
     private Method chooseMethod(Class<?> klass, String name) {
       Method ret = null;
       for (Method each : klass.getMethods()) {
-        if (each.getName().equals(name) && equals(this.getParameterTypes(), each.getParameterTypes())) {
+        if (each.getName().equals(name) && this.getParameterTypes().equals(Utils.toList(each.getParameterTypes()))) {
           ret = each;
           break;
         }
@@ -209,14 +213,9 @@ public interface Action<SUT> extends Serializable {
     /**
      * Returns parameter types of a method that this action represents in SUT (not in Spec).
      */
-    private Class<?>[] getParameterTypes() {
-      Class<?>[] ret = this.method.getParameterTypes();
-      ret = Arrays.asList(this.method.getParameterTypes()).subList(1, ret.length).toArray(new Class<?>[ret.length - 1]);
-      return ret;
-    }
-
-    private static boolean equals(Class<?>[] parameterTypesA, Class<?>[] parameterTypesB) {
-      return Arrays.equals(parameterTypesA, parameterTypesB);
+    private List<Class<?>> getParameterTypes() {
+      Class<?>[] parameterTypes = this.method.getParameterTypes();
+      return Utils.toList(parameterTypes).subList(1, parameterTypes.length);
     }
   }
 }

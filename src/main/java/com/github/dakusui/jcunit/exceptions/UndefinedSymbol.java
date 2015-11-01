@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.exceptions;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public class UndefinedSymbol extends JCUnitCheckedException {
     String last = missingSymbols[missingSymbols.length - 1];
     return String.format(
         "%s, and %s are missing",
-        Utils.join(", ", (Object[])missings.subList(0, missingSymbols.length - 1).toArray(new String[missingSymbols.length - 1])),
+        StringUtils.join(", ", (Object[]) missings.subList(0, missingSymbols.length - 1).toArray(new String[missingSymbols.length - 1])),
         last
     );
   }

@@ -179,8 +179,8 @@ public class Checks {
 
   private static String composeMessage(String msgOrFmt, Object... args) {
     if (msgOrFmt != null)
-      return Utils.format(msgOrFmt, args);
-    return Utils.format("Message:'%s'", Utils.join(",", args));
+      return StringUtils.format(msgOrFmt, args);
+    return StringUtils.format("Message:'%s'", StringUtils.join(",", args));
   }
 
   public static void fail() {
@@ -190,7 +190,7 @@ public class Checks {
   public static <T> T cast(Class<T> clazz, Object parameter) {
     Checks.checkcond(
         ReflectionUtils.isAssignable(Checks.checknotnull(clazz), parameter),
-        "Type mismatch. Requiret:%s Found:%s",
+        "Type mismatch. Required:%s Found:%s",
         clazz,
         parameter
     );

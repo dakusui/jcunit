@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.core.reflect;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -97,7 +98,7 @@ public class ReflectionUtils {
     } catch (NoSuchMethodException e) {
       throw Checks.wrap(e,
           "Failed to find a constructor in '%s' which matches %s",
-          Utils.toString(clazz),
+          StringUtils.toString(clazz),
           Arrays.toString(types)
       );
     } catch (InvocationTargetException e) {
@@ -256,7 +257,7 @@ public class ReflectionUtils {
               "Field '%s' is found in '%s, but not annotated with none of [%s]",
               fieldName,
               clazz,
-              Utils.join(",", new Utils.Formatter<Class<? extends Annotation>>() {
+              StringUtils.join(",", new StringUtils.Formatter<Class<? extends Annotation>>() {
                     @Override
                     public String format(Class<? extends Annotation> elem) {
                       return elem.getSimpleName();

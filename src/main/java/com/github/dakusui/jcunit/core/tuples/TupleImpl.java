@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.core.tuples;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 
-import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 // TODO: Comparison between LinkedHashMap and TreeMap

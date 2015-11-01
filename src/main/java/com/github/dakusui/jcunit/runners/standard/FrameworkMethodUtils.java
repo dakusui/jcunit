@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
-import org.junit.validator.AnnotationValidator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -14,52 +13,9 @@ import java.util.List;
  * A class that holds utility methods to retrieve and validate framework methods.
  */
 public class FrameworkMethodUtils {
-  /**
-   * Returns a {@code Method} object or {@code NotFoundMethod} if the specified method is not found or not loadable.
-   */
-  public static FrameworkMethod getFrameworkMethodByName(TestClass testClass, String methodName) {
-    FrameworkMethod foundMethod = null;
-    for (FrameworkMethod each : testClass.getAnnotatedMethods(Condition.class)) {
-      if (methodName.equals(each.getName())) {
-        if (foundMethod != null) {
-          return new NotFoundMethod(methodName);
-        }
-        foundMethod = each;
-      }
-    }
-    if (foundMethod == null) {
-      return new NotFoundMethod(methodName);
-    }
-    return foundMethod;
-  }
-
-  public static void validateFrameworkMethod(Class<?> testClass, FrameworkMethod method, AnnotationValidator validator, List<Throwable> errors) {
-    Checks.checknotnull(testClass);
-    Checks.checknotnull(method);
-    Checks.checknotnull(validator);
-    Checks.checknotnull(errors);
-    if (method instanceof CompositeFrameworkMethod) {
-      for (FrameworkMethod each : ((CompositeFrameworkMethod) method).getChildren()) {
-        validateFrameworkMethod(testClass, each, validator, errors);
-      }
-    } else if (method instanceof NotFoundMethod) {
-      errors.add(new Exception(String.format("The method '%s' is not found or not unique in a class '%s'", method.getName(), testClass.getCanonicalName())));
-    } else {
-      errors.addAll(validator.validateAnnotatedMethod(method));
-    }
-  }
-
   public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, When from) {
     return new ReferenceHandler.ForBuildingCompositeFrameworkMethod()
         .handleTermArray(new ReferenceWalker<CompositeFrameworkMethod>(testClass, When.class.getAnnotation(ReferrerAttribute.class).value()), from.value());
-  }
-
-  public static List<FrameworkMethod> findReferencedFrameworkMethods(TestClass testClass, When by) {
-    return new ReferenceHandler.ForCollectingReferencedMethods()
-        .handleTermArray(new ReferenceWalker<List<FrameworkMethod>>(
-                testClass,
-                When.class.getAnnotation(ReferrerAttribute.class).value()),
-            by.value());
   }
 
   public interface FrameworkMethodRetriever {
@@ -150,30 +106,7 @@ public class FrameworkMethodUtils {
     }
   }
 
-  // TODO: Abolish this class
-  public static class NotFoundMethod extends JCUnitFrameworkMethod {
-    private final String methodName;
-
-    /**
-     * Returns a new {@code FrameworkMethod} for {@code method}
-     */
-    public NotFoundMethod(String methodName) {
-      super(DUMMY_METHOD);
-      this.methodName = methodName;
-    }
-
-    @Override
-    public Object invokeExplosively(Object target, Object... params) throws Throwable {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getName() {
-      return this.methodName;
-    }
-  }
-
-  public static String getPreconditionMethodNameFor(When ann) {
+  public static String composePreconditionCompositeFrameworkMethodName(When ann) {
     Checks.checknotnull(ann);
     StringBuilder b = new StringBuilder();
     String[] values = ann.value();

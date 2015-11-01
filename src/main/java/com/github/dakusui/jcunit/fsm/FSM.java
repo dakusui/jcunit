@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
@@ -226,7 +227,7 @@ public interface FSM<SUT> {
 
     static String generateMethodId(Method m) {
       return Checks.checknotnull(m).getName() + "/" +
-          Utils.join(
+          StringUtils.join(
               ",",
               Utils.transform(Arrays.asList(m.getParameterTypes()).subList(1, m.getParameterTypes().length),
                   new Utils.Form<Class<?>, String>() {

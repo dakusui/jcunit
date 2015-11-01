@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.tests.core;
 
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -103,8 +104,8 @@ public class UtilsTest {
   @SuppressWarnings("unchecked")
   @Test
   public void defaultFormatterTest() {
-    assertEquals(null, Utils.Formatter.INSTANCE.format(null));
-    assertEquals("hello", Utils.Formatter.INSTANCE.format("hello"));
+    assertEquals(null, StringUtils.Formatter.INSTANCE.format(null));
+    assertEquals("hello", StringUtils.Formatter.INSTANCE.format("hello"));
   }
 
   @SuppressWarnings("unused")
@@ -296,7 +297,7 @@ public class UtilsTest {
   public void testSingleton() {
     assertEquals(
         Arrays.asList("A", "B"),
-        Utils.singleton(Arrays.asList("A", "A", "B")
+        Utils.dedup(Arrays.asList("A", "A", "B")
         ));
   }
 }

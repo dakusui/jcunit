@@ -92,7 +92,7 @@ public class JCUnit extends Parameterized {
                     factors,
                     testSuite,
                     in
-                    );
+                );
               } catch (InitializationError initializationError) {
                 throw Checks.wrap(initializationError);
               }

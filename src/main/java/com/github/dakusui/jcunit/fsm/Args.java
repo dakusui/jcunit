@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
@@ -34,6 +34,6 @@ public class Args implements Serializable {
 
   @Override
   public String toString() {
-    return Utils.format("[%s]", Utils.join(",", values));
+    return StringUtils.format("[%s]", StringUtils.join(",", values));
   }
 }

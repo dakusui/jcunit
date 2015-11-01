@@ -1,9 +1,8 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -39,7 +38,7 @@ public @interface When {
     public List<Exception> validateAnnotatedMethod(FrameworkMethod method) {
       List<Exception> errors = new LinkedList<Exception>();
       if (method.getAnnotation(Test.class) == null) {
-        errors.add(new Exception(Utils.format(
+        errors.add(new Exception(StringUtils.format(
             "This annotation should be used with @%s annotation.", Test.class
         )));
       }
@@ -67,7 +66,7 @@ public @interface When {
     }
 
     public static List<Exception> validateReferencedMethods(TestClass in, String referrerAttribute, String[] terms) {
-      return new FrameworkMethodValidationHandler(
+      return new ReferenceHandler.FrameworkMethodValidationHandler(
           in,
           referrerAttribute,
           new LinkedList<Exception>()
@@ -75,55 +74,6 @@ public @interface When {
           new ReferenceWalker<List<Exception>>(in, referrerAttribute),
           terms
       );
-    }
-
-    static class FrameworkMethodValidationHandler extends ReferenceHandler<List<Exception>> {
-      private final List<Exception> errors;
-      private final String          referrerName;
-      private final TestClass       testClass;
-
-      FrameworkMethodValidationHandler(TestClass testClass, String referrerName, List<Exception> errors) {
-        this.testClass = testClass;
-        this.referrerName = referrerName;
-        this.errors = errors;
-      }
-
-      @Override
-      public void handleMethod(ReferenceWalker<List<Exception>> walker, boolean negateOperator, FrameworkMethod method) {
-        ////
-        // Validation specific logic follows
-        if (method instanceof FrameworkMethodUtils.NotFoundMethod) {
-          errors.add(new Exception(
-              Utils.format(
-                  "Method '%s' referenced by '%s#%s' in '%s' was not found in the class. Check if the method is annotated with @%s.",
-                  method.getName(),
-                  When.class,
-                  referrerName,
-                  testClass.getJavaClass(),
-                  Condition.class
-              )));
-        } else if (method.getAnnotation(Condition.class) == null) {
-          errors.add(new Exception(
-              Utils.format(
-                  "Method '%s' referenced by '%s' in '%s' was found in the class but not annotated with @%s",
-                  method.getName(),
-                  referrerName,
-                  testClass.getName(),
-                  Condition.class
-              )));
-        }
-      }
-
-      @Override
-      public void handleTerm(ReferenceWalker<List<Exception>> walker, String term) {
-        walker.walk(this, term);
-      }
-
-      @Override
-      public List<Exception> handleTermArray(ReferenceWalker<List<Exception>> walker, String[] terms) {
-        walker.walk(this, terms);
-        return this.errors;
-      }
     }
 
   }

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.examples.calc;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -81,7 +81,7 @@ public class NestedFieldExample extends Metatest {
       result = Integer.toString(calc.calc(this.op, f1, (int) f2));
     } finally {
       UTUtils.stdout().println(
-          Utils.format(
+          StringUtils.format(
               "testname=%s: f1=%s, op=%s, f2=%s = %s ; struct = (%s)",
               this.testDesc.getTestName(),
               f1,

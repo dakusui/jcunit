@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.exceptions;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.StringUtils;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,7 +17,7 @@ public class Errors extends LinkedList<String> implements List<String> {
 
     public Builder add(String fmt, Object... args) {
       Checks.checknotnull(fmt);
-      this.messages.add(Utils.format(fmt, args));
+      this.messages.add(StringUtils.format(fmt, args));
       return this;
     }
 

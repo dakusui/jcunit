@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.ututils;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -11,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -91,5 +94,52 @@ public class UTUtils {
     assertEquals(expectedFailureCount, result.getFailureCount());
     assertEquals(expectedIgnoreCount, result.getIgnoreCount());
     return result;
+  }
+
+  /**
+   * Returns a new map created from {@code entries}.
+   * This method should only be used only when you now the types of objects
+   * given through elements.
+   *
+   * Each element of the argument
+   * <ol>
+   * <li>must have 2 and only 2 elements.</li>
+   * <li>The first element must be an instance of {@code K}.</li>
+   * <li>The second element must be an instance of {@code V}.</li>
+   * </ol>
+   * If {@code K} is {@code String} and {@code V} is {@code Integer}, following
+   * object is valid for this method for {@code entries}.
+   * <p/>
+   * <pre>
+   * Object[] entries = new Object[]{"Hello", 256, "World", 1};
+   *
+   * </pre>
+   *
+   * If there are more than one entry whose first element is {@code equals} each other,
+   * The last one wins.
+   * If no entry is given, this method returns a new map of the specified key-value types.
+   *
+   * @param <K> A key type of returned map.
+   * @param <V> A value type of returned map.
+   * @see UTUtils#entry(Object, Object)
+   */
+  public static <K, V> Map<K, V> toMap(Object[]... entries) {
+    Map<K, V> ret = new LinkedHashMap<K,V>();
+    for (Object[] eachEntry : entries) {
+      Checks.checknotnull(eachEntry);
+      Checks.checkcond(eachEntry.length == 2, "Invalid entry is found. '%s'", eachEntry);
+      ret.put((K)eachEntry[0], (V)eachEntry[1]);
+    }
+    return ret;
+  }
+
+  /**
+   * A helper method for {@code toMap}.
+   * <pre>
+   *   Map<String, Integer> map = toMap(entry("Hello", 1), entry("World"));
+   * </pre>
+   */
+  public static <K, V> Object[] entry(K key, V value) {
+    return new Object[] { key, value };
   }
 }
