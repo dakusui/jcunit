@@ -167,7 +167,7 @@ public class TheoriesWithJCUnit extends Theories {
         new Plugin.Factory<ConstraintManager, Value>(
             (Class<ConstraintManager>) constraintAnnotation.value(),
             resolver)
-            .create(constraintAnnotation.params()));
+            .create(constraintAnnotation.args()));
   }
 
   private TupleGenerator createTupleGenerator(final Generator generatorAnnotation) {
@@ -178,7 +178,7 @@ public class TheoriesWithJCUnit extends Theories {
         new Plugin.Factory<TupleGenerator, Value>(
             (Class<TupleGenerator>) generatorAnnotation.value(),
             resolver)
-            .create(generatorAnnotation.params()
+            .create(generatorAnnotation.args()
             ));
   }
 

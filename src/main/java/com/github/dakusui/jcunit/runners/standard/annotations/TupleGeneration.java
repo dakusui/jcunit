@@ -26,6 +26,11 @@ import java.util.*;
 @Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface TupleGeneration {
+
+  Generator generator() default @Generator();
+
+  Constraint constraint() default @Constraint();
+
   class Validator extends AnnotationValidator {
     @Override
     public List<Exception> validateAnnotatedClass(TestClass testClass) {
@@ -77,11 +82,7 @@ public @interface TupleGeneration {
       }
       return errors;
     }
-  };
-
-  Generator generator() default @Generator();
-
-  Constraint constraint() default @Constraint();
+  }
 
   interface TupleGeneratorFactory {
     TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory.Default();
@@ -129,7 +130,7 @@ public @interface TupleGeneration {
         TupleGenerator.Builder b = new TupleGenerator.Builder(this.resolver)
             .setTupleGeneratorClass(generatorAnn.value())
             .setConstraintManager(constraintManager)
-            .setParameters(generatorAnn.params())
+            .setParameters(generatorAnn.args())
             .setTargetClass(klazz)
             .setFactors(factors);
         Checks.checkcond(factors.size() > 0, "No factors are found. Check if your factor fields are public.");

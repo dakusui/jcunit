@@ -22,7 +22,7 @@ import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.newTestCa
 @TupleGeneration(
     generator = @Generator(
         value = Replayer.class,
-        params = {
+        args = {
             @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullTupleGenerator" }),
             @Value("Replay"),
             @Value("All")

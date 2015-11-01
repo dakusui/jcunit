@@ -32,7 +32,7 @@ import static org.junit.Assert.assertThat;
 @TupleGeneration(
     constraint = @Constraint(
         value = QuadraticEquationSolverTest6.CM.class,
-        params = { }))
+        args = { }))
 public class QuadraticEquationSolverTest6 {
   public static PrintStream ps = System.out;
 

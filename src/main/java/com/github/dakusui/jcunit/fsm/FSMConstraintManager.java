@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A constraint manager which validates tuples which describes an FSM scenario.
+ * A constraint manager which validates tuples for FSM scenarios.
  * <p/>
  * An instance of this object is created only by {@code FSMTupleGenerator}.
  */

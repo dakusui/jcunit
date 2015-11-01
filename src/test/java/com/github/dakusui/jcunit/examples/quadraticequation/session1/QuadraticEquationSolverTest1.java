@@ -29,11 +29,6 @@ public class QuadraticEquationSolverTest1 {
   @FactorField
   public int c;
 
-//  @Parameterized.Parameters
-  public static Object[][] p() {
-    return new Object[][] {};
-  }
-
   @Test
   public void solveEquation() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,

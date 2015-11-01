@@ -44,7 +44,7 @@ public class RandomTupleGeneratorTest {
   @TupleGeneration(
       generator = @Generator(
           value = RandomTupleGenerator.class,
-          params = {
+          args = {
               @Value("100")
           }),
       constraint = @Constraint(TestClass.CM.class))
@@ -63,7 +63,7 @@ public class RandomTupleGeneratorTest {
   @TupleGeneration(
       generator = @Generator(
           value = RandomTupleGenerator.class,
-          params = {
+          args = {
               // Only non-negative value is accepted
               @Value("-1")
           }),
@@ -83,7 +83,7 @@ public class RandomTupleGeneratorTest {
   @TupleGeneration(
       generator = @Generator(
           value = RandomTupleGenerator.class,
-          params = {
+          args = {
               @Value("INVALID") // Intentionally broken argument.
           }),
       constraint = @Constraint(TestClass.CM.class))
@@ -106,7 +106,7 @@ public class RandomTupleGeneratorTest {
   @TupleGeneration(
       generator = @Generator(
           value = RandomTupleGenerator.class,
-          params = {
+          args = {
               @Value("100"),
               @Value("999") // This parameter is unnecessary and should be rejected.
           }),

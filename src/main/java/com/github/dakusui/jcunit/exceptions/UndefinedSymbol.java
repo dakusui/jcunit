@@ -2,11 +2,24 @@ package com.github.dakusui.jcunit.exceptions;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * An exception to tell JCUnit that a set of symbols are no set in a tuple
+ * to be checked if it satisfies constraints user defined.
+ *
+ * Right now (0.5.6), The only tuple generator that needs to capture {@code UndefinedSymbol}
+ * is {@code IPO2TupleGenerator}. Refer to the class for more details.
+ *
+ * To build an object of this class, there is a utility method {@code Checks.checksymbols(...)}
+ *
+ * @see com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator
+ * @see Checks#checksymbols(Tuple, String...)
+ */
 public class UndefinedSymbol extends JCUnitCheckedException {
   public final List<String> missingSymbols;
 

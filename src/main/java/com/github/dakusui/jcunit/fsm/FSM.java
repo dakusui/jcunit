@@ -173,7 +173,7 @@ public interface FSM<SUT> {
     /**
      * {@code field} must be validated by {@code validateParamsField} in advance.
      *
-     * @param field A field from which {@code params} values should be retrieved.
+     * @param field A field from which {@code args} values should be retrieved.
      */
     private Parameters getParamsFactors(Field field) {
       ////

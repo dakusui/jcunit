@@ -30,7 +30,7 @@ public class NestedFieldExample extends Metatest {
   @TupleGeneration(
       generator = @Generator(
           value = IPO2TupleGenerator.class,
-          params = @Value("2")
+          args = @Value("2")
       ))
   public static class Struct {
     @FactorField(intLevels = { 123, 456 })

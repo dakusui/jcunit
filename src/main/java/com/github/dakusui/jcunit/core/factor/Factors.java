@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.combinatoradix.Combinator;
+import com.github.dakusui.jcunit.core.CoreBuilder;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -171,7 +172,7 @@ public class Factors implements Iterable<Factor> {
     return this.factors; // It's unmodifiable already in the constructor.
   }
 
-  public static class Builder {
+  public static class Builder implements CoreBuilder<Factors> {
     protected final List<Factor> factors;
 
     public Builder() {

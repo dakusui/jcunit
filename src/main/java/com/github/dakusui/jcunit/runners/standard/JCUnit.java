@@ -26,6 +26,8 @@ public class JCUnit extends Parameterized {
    * Only called reflectively by JUnit. Do not use programmatically.
    */
   public JCUnit(Class<?> klass) throws Throwable {
+    // To suppress unnecessary validation on @Parameters annotated methods,
+    // We have overridden createTestClass method. For detail refer to the method.
     super(klass);
     List<FrameworkMethod> preconditionMethods = getTestClass().getAnnotatedMethods(Precondition.class);
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
@@ -67,6 +69,15 @@ public class JCUnit extends Parameterized {
     } catch (JCUnitException e) {
       throw tryToRecreateRootCauseException(Checks.getRootCauseOf(e), e.getMessage());
     }
+  }
+
+  protected JCUnitRunner createRunner(int id, Factors factors, TestCaseType testCaseType, Tuple testCase) throws InitializationError {
+    return new JCUnitRunner(
+        getTestClass().getJavaClass(),
+        id,
+        testCaseType,
+        factors,
+        testCase);
   }
 
   private static Throwable tryToRecreateRootCauseException(Throwable rootCause, String message) {
@@ -123,15 +134,6 @@ public class JCUnit extends Parameterized {
       id++;
     }
     return id;
-  }
-
-  protected JCUnitRunner createRunner(int id, Factors factors, TestCaseType testCaseType, Tuple testCase) throws InitializationError {
-    return new JCUnitRunner(
-        getTestClass().getJavaClass(),
-        id,
-        testCaseType,
-        factors,
-        testCase);
   }
 
   @Override
@@ -256,7 +258,7 @@ public class JCUnit extends Parameterized {
     @SuppressWarnings("unused") // This method is referenced reflectively.
     @Parameters
     public static Object[][] dummy() {
-      return new Object[][] { { 1, 2, 3 } };
+      return new Object[][] { {  } };
     }
   }
 

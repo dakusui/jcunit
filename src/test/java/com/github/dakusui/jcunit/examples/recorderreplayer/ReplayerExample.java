@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 @TupleGeneration(
     generator = @Generator(
         value = Replayer.class,
-        params = @Value("All")
+        args = @Value("All")
     ))
 public class ReplayerExample {
   @Rule

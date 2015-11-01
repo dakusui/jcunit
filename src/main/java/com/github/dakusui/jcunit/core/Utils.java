@@ -20,6 +20,18 @@ public class Utils {
   private Utils() {
   }
 
+  /**
+   * Returns a user friendly string using given format and arguments.
+   *
+   * Should only be used for messages directly shown to users because this method
+   * does relatively heavy conversions to keep the returned string concise and
+   * informative.
+   * Also note that unlike {@code String#format}, only '%s' specifier is supported.
+   *
+   * @param format A format string.
+   * @param args Arguments referenced by the format specifier in the format string.
+   * @return
+   */
   public static String format(String format, Object... args) {
     Form<Object, String> formatter = new Utils.Form<Object, String>() {
       @Override

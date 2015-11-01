@@ -71,16 +71,6 @@ public class FSMFactors extends Factors {
     return this.fsmMap.get(fsmName).historyLength();
   }
 
-  public static boolean isFSMFactorName(String factorName) {
-    return Checks.checknotnull(factorName).startsWith("FSM:");
-  }
-
-  public static int paramIndex(String fsmName) {
-    String[] w = Checks.checknotnull(fsmName).split(":");
-    int ret = Integer.parseInt(w[4]);
-    return ret;
-  }
-
   public static String stateName(String fsmName, int i) {
     return String.format("FSM:%s:state:%d", fsmName, i);
   }
@@ -108,6 +98,7 @@ public class FSMFactors extends Factors {
       return this;
     }
 
+    @Override
     public FSMFactors build() {
       Set<String> processedFSMfactors = new HashSet<String>();
       for (Map.Entry<String, FSM<?>> entry : fsms.entrySet()) {

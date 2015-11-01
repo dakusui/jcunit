@@ -19,7 +19,7 @@ public interface Action<SUT> extends Serializable {
    * An implementation of this method should usually represent and execute a method of
    * {@code sut} and return the value the method returns.
    * <p/>
-   * {@code args} is composed from the returned value of {@code params} method.
+   * {@code args} is composed from the returned value of {@code args} method.
    * The framework will pick up a value from a factor's levels returned by the method
    * one by one and creates an array of objects.
    * <p/>

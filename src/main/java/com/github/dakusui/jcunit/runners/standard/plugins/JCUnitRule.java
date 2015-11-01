@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
+import org.junit.runner.RunWith;
 
 public abstract class JCUnitRule extends TestWatcher {
   private Class<?>            testClass;
@@ -21,8 +22,8 @@ public abstract class JCUnitRule extends TestWatcher {
     JCUnit.InternalAnnotation ann = d
         .getAnnotation(JCUnit.InternalAnnotation.class);
     Checks.checknotnull(ann,
-        "This class(%s) should be used with classes annotated @RunWith(%s.class)",
-        this.getClass(), JCUnit.class.getClass().getSimpleName());
+        "This class(%s) should be used with classes annotated @%s(%s.class)",
+        this.getClass(), RunWith.class, JCUnit.class);
     this.testClass = d.getTestClass();
     this.testName = d.getMethodName();
     this.factors = ann.getFactors();

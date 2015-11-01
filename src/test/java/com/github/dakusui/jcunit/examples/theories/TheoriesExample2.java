@@ -57,7 +57,7 @@ public class TheoriesExample2 {
 
   @Theory
   @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, params = { @Value("3") }),
+      generator = @Generator(value = IPO2TupleGenerator.class, args = { @Value("3") }),
       constraint = @Constraint(CM.class)
   )
   public void test1(
@@ -70,7 +70,7 @@ public class TheoriesExample2 {
   }
 
   @Theory
-  @TupleGeneration(generator = @Generator(value = IPO2TupleGenerator.class, params = { @Value("2") }))
+  @TupleGeneration(generator = @Generator(value = IPO2TupleGenerator.class, args = { @Value("2") }))
   public void test2(
       @FromDataPoints("posInt") int a,
       @FromDataPoints("negInt") int b

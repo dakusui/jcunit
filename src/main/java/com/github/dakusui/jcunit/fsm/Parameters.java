@@ -82,6 +82,13 @@ public class Parameters extends Factors {
      */
     private final   Map<String, String> plainToFlattenFSM;
 
+    /**
+     *
+     * @param target User defined constraint manager for parameters.
+     * @param plainParameterNames User friendly parameter name.
+     * @param fsmName A name of a FSM. {@code Story} field name in standard JCUnit runner.
+     * @param historyIndex The current history index.
+     */
     public LocalConstraintManager(ConstraintManager target, List<String> plainParameterNames, String fsmName, int historyIndex) {
       this.target = Checks.checknotnull(target);
       this.plainParameterNames = Collections.unmodifiableList(Checks.checknotnull(plainParameterNames));
