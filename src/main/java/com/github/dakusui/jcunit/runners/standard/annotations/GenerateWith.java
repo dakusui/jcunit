@@ -9,8 +9,8 @@ import com.github.dakusui.jcunit.exceptions.Errors;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.caengines.ToplevelCAEngine;
-import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.ToplevelCoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.TestClass;
@@ -90,7 +90,7 @@ public @interface GenerateWith {
   interface CAEngineFactory {
     CAEngineFactory INSTANCE = new CAEngineFactory.Default();
 
-    CAEngine createFromClass(Class<?> clazz);
+    CoveringArrayEngine createFromClass(Class<?> clazz);
 
     class Default implements CAEngineFactory {
       final Value.Resolver resolver;
@@ -103,7 +103,7 @@ public @interface GenerateWith {
        * Creates a {@code CAEngine} using annotations attached to the class
        * for which the returned generator is created.
        */
-      public CAEngine createFromClass(
+      public CoveringArrayEngine createFromClass(
           Class<?> klazz) {
         Checks.checknotnull(klazz);
         GenerateWith generateWithAnn = getAnnotation(
@@ -115,7 +115,7 @@ public @interface GenerateWith {
         return new Value.Resolver();
       }
 
-      public CAEngine createCAEngine(
+      public CoveringArrayEngine createCAEngine(
           Class<?> klazz,
           GenerateWith generateWithAnn) {
         Checks.checknotnull(klazz);
@@ -130,14 +130,14 @@ public @interface GenerateWith {
                 .setConstraintManagerClass(checkerAnn.value())
                 .setFactors(factors).build();
         Generator generatorAnn = generateWithAnn.generator();
-        Class<? extends CAEngine> tupleGeneratorClass = generatorAnn.value();
-        CAEngine.Builder b = new CAEngine.Builder(this.resolver)
+        Class<? extends CoveringArrayEngine> tupleGeneratorClass = generatorAnn.value();
+        CoveringArrayEngine.Builder b = new CoveringArrayEngine.Builder(this.resolver)
             .setCAEngineClass(tupleGeneratorClass)
             .setParameters(generatorAnn.args())
             .setTargetClass(klazz)
             .setFactors(factors);
         Checks.checkcond(factors.size() > 0, "No factors are found. Check if your factor fields are public.");
-        CAEngine generator;
+        CoveringArrayEngine generator;
         List<Field> fsmFields;
         if (!(fsmFields = extractFSMFactorFields(switchCoverages.keySet())).isEmpty()) {
           Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
@@ -153,13 +153,7 @@ public @interface GenerateWith {
             fsms.put(fsmName, fsm);
             collectLocalConstraintManagers(localCMs, fsmName, fsm);
           }
-          Errors errors = bb.build();
-          Checks.checktest(
-              errors.size() == 0,
-              "Error(s) are found in test class.'%s' : %s",
-              klazz.getCanonicalName(),
-              errors);
-          generator = new ToplevelCAEngine(b, fsms, localCMs);
+          generator = new ToplevelCoveringArrayEngine(b, fsms, localCMs);
           generator.init();
         } else {
           generator = b.build();

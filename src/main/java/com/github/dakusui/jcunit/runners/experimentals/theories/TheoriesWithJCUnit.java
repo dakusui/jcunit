@@ -8,8 +8,8 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
-import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
@@ -92,7 +92,7 @@ public class TheoriesWithJCUnit extends Theories {
     } catch (Throwable throwable) {
       throw Checks.wrap(throwable);
     }
-    final CAEngine tg = createCAEngine(method.getMethod());
+    final CoveringArrayEngine tg = createCAEngine(method.getMethod());
     tg.setFactors(factorsBuilder.build());
     tg.init();
     return new TheoryAnchor(method, testClass) {
@@ -125,15 +125,15 @@ public class TheoriesWithJCUnit extends Theories {
   }
 
 
-  protected CAEngine createCAEngine(final Method method) {
+  protected CoveringArrayEngine createCAEngine(final Method method) {
     GenerateWith tgAnn = method.getAnnotation(GenerateWith.class);
-    CAEngine tg;
+    CoveringArrayEngine tg;
     final Constraint cm;
     if (tgAnn != null) {
       tg = createCAEngine(tgAnn.generator());
       cm = createConstraintManager(tgAnn.checker());
     } else {
-      tg = new IPO2CAEngine(2);
+      tg = new IPO2CoveringArrayEngine(2);
       cm = Constraint.DEFAULT_CONSTRAINT_MANAGER;
     }
     tg.setConstraint(new ConstraintBase() {
@@ -170,13 +170,13 @@ public class TheoriesWithJCUnit extends Theories {
             .create(checkerAnnotation.args()));
   }
 
-  private CAEngine createCAEngine(final Generator generatorAnnotation) {
+  private CoveringArrayEngine createCAEngine(final Generator generatorAnnotation) {
     Value.Resolver resolver = new Value.Resolver();
     //noinspection unchecked
     return Checks.cast(
-        CAEngine.class,
-        new Plugin.Factory<CAEngine, Value>(
-            (Class<CAEngine>) generatorAnnotation.value(),
+        CoveringArrayEngine.class,
+        new Plugin.Factory<CoveringArrayEngine, Value>(
+            (Class<CoveringArrayEngine>) generatorAnnotation.value(),
             resolver)
             .create(generatorAnnotation.args()
             ));

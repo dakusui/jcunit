@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
@@ -57,7 +57,7 @@ public class TheoriesExample2 {
 
   @Theory
   @GenerateWith(
-      generator = @Generator(value = IPO2CAEngine.class, args = { @Value("3") }),
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("3") }),
       checker = @Checker(CM.class)
   )
   public void test1(
@@ -70,7 +70,7 @@ public class TheoriesExample2 {
   }
 
   @Theory
-  @GenerateWith(generator = @Generator(value = IPO2CAEngine.class, args = { @Value("2") }))
+  @GenerateWith(generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("2") }))
   public void test2(
       @FromDataPoints("posInt") int a,
       @FromDataPoints("negInt") int b

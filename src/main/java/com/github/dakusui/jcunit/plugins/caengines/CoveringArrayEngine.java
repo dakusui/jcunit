@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit.plugins.constraints.Constraint;
  * Implementations of this interface must guarantee that a public constructor without
  * any parameters exists.
  */
-public interface CAEngine extends
+public interface CoveringArrayEngine extends
     Plugin,
     Iterable<Tuple> {
   void init();
@@ -57,18 +57,18 @@ public interface CAEngine extends
    */
   class Builder<S> {
 
-    private final Param.Resolver<S>         resolver;
-    private       Class<? extends CAEngine> tupleGeneratorClass;
-    private       Factors                   factors;
-    private       Constraint                constraint;
-    private       S[]                       parameters;
-    private       Class<?>                  targetClass;
+    private final Param.Resolver<S>                    resolver;
+    private       Class<? extends CoveringArrayEngine> tupleGeneratorClass;
+    private       Factors                              factors;
+    private       Constraint                           constraint;
+    private       S[]                                  parameters;
+    private       Class<?>                             targetClass;
 
     public static Builder<Object> createSimpleBuilder(Object... arguments) {
-      return createSimpleBuilder(IPO2CAEngine.class, arguments);
+      return createSimpleBuilder(IPO2CoveringArrayEngine.class, arguments);
     }
 
-    public static Builder<Object> createSimpleBuilder(Class<? extends CAEngine> tupleGeneratorClass, Object... arguments) {
+    public static Builder<Object> createSimpleBuilder(Class<? extends CoveringArrayEngine> tupleGeneratorClass, Object... arguments) {
       return new Builder<Object>(
           Param.Resolver.NULL,
           tupleGeneratorClass,
@@ -78,12 +78,12 @@ public interface CAEngine extends
     }
 
     public Builder(Param.Resolver<S> resolver, S... arguments) {
-      this(resolver, IPO2CAEngine.class, arguments, Constraint.DEFAULT_CONSTRAINT_MANAGER);
+      this(resolver, IPO2CoveringArrayEngine.class, arguments, Constraint.DEFAULT_CONSTRAINT_MANAGER);
     }
 
     public Builder(
         Param.Resolver<S> resolver,
-        Class<? extends CAEngine> caEngineClass,
+        Class<? extends CoveringArrayEngine> caEngineClass,
         S[] argumentsForCAEngine,
         Constraint cm
     ) {
@@ -93,7 +93,7 @@ public interface CAEngine extends
       this.parameters = argumentsForCAEngine;
     }
 
-    public Builder(CAEngine.Builder<S> base) {
+    public Builder(CoveringArrayEngine.Builder<S> base) {
       this.resolver = Checks.checknotnull(base.resolver);
       this.tupleGeneratorClass = Checks.checknotnull(base.tupleGeneratorClass);
       this.factors = Checks.checknotnull(base.factors);
@@ -102,7 +102,7 @@ public interface CAEngine extends
     }
 
     public Builder setCAEngineClass(
-        Class<? extends CAEngine> caEngineClass) {
+        Class<? extends CoveringArrayEngine> caEngineClass) {
       this.tupleGeneratorClass = caEngineClass;
       return this;
     }
@@ -127,16 +127,16 @@ public interface CAEngine extends
       return this;
     }
 
-    public CAEngine build() {
+    public CoveringArrayEngine build() {
       Checks.checknotnull(this.constraint);
       Checks.checknotnull(this.tupleGeneratorClass);
       Checks.checknotnull(this.factors);
       Checks.checknotnull(this.constraint);
-      Plugin.Factory<CAEngine, S> factory = new Factory<CAEngine, S>(
-          (Class<CAEngine>) this.tupleGeneratorClass,
+      Plugin.Factory<CoveringArrayEngine, S> factory = new Factory<CoveringArrayEngine, S>(
+          (Class<CoveringArrayEngine>) this.tupleGeneratorClass,
           this.resolver
       );
-      CAEngine ret = factory.create(this.parameters);
+      CoveringArrayEngine ret = factory.create(this.parameters);
       ret.setFactors(this.factors);
       ret.setConstraint(this.constraint);
       ret.setTargetClass(this.targetClass);

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.examples.calc;
 
 import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
@@ -29,7 +29,7 @@ public class NestedFieldExample extends Metatest {
 
   @GenerateWith(
       generator = @Generator(
-          value = IPO2CAEngine.class,
+          value = IPO2CoveringArrayEngine.class,
           args = @Value("2")
       ))
   public static class Struct {

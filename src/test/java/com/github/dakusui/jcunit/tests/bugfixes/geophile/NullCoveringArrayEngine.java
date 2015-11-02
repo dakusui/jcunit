@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.caengines.CAEngineBase;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngineBase;
 
-public class NullCAEngine extends CAEngineBase {
+public class NullCoveringArrayEngine extends CoveringArrayEngineBase {
   @Override
   protected long initializeTuples() {
     return 0;

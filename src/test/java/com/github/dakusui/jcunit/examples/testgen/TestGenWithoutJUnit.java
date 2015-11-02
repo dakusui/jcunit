@@ -3,8 +3,8 @@ package com.github.dakusui.jcunit.examples.testgen;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
-import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 
 import java.io.PrintStream;
 
@@ -37,7 +37,7 @@ public class TestGenWithoutJUnit {
         .addLevel("64")
         .build();
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
-    CAEngine tg = CAEngine.Builder.createSimpleBuilder()
+    CoveringArrayEngine tg = CoveringArrayEngine.Builder.createSimpleBuilder()
         .setFactors(factors)
     /* -- To set custom parameter(s) for the tuple generator, you can do below.
         .setParameters(new Param.ArrayBuilder()
@@ -54,7 +54,7 @@ public class TestGenWithoutJUnit {
   }
 
   public void moreFluentStyleRun(PrintStream ps) {
-    CAEngine tg = CAEngine.Builder.createSimpleBuilder(IPO2CAEngine.class, 2).setFactors(
+    CoveringArrayEngine tg = CoveringArrayEngine.Builder.createSimpleBuilder(IPO2CoveringArrayEngine.class, 2).setFactors(
         new Factors.Builder()
             .add("OS", "Windows", "Linux")
             .add("Browser", "Chrome", "Firefox")

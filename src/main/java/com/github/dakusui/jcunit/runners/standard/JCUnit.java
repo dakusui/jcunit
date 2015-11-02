@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
@@ -42,12 +42,12 @@ public class JCUnit extends Parameterized {
     try {
       ////
       // Generate a list of test cases using a specified tuple generator
-      CAEngine caEngine = getCAEngineFactory().createFromClass(klass);
+      CoveringArrayEngine coveringArrayEngine = getCAEngineFactory().createFromClass(klass);
       List<TestCase> testCases = Utils.newList();
       int id;
-      for (id = (int) caEngine.firstId();
-           id >= 0; id = (int) caEngine.nextId(id)) {
-        Tuple testCase = caEngine.get(id);
+      for (id = (int) coveringArrayEngine.firstId();
+           id >= 0; id = (int) coveringArrayEngine.nextId(id)) {
+        Tuple testCase = coveringArrayEngine.get(id);
         if (shouldPerform(testCase, preconditionMethods)) {
           testCases.add(
               new TestCase(id, TestCase.Type.Generated, testCase
@@ -55,10 +55,10 @@ public class JCUnit extends Parameterized {
         }
       }
       // Skip to number of test cases generated.
-      id = (int) caEngine.size();
+      id = (int) coveringArrayEngine.size();
       ////
       // Compose a list of 'negative test cases' and register them.
-      final Constraint cm = caEngine.getConstraint();
+      final Constraint cm = coveringArrayEngine.getConstraint();
       final List<Tuple> violations = cm.getViolations();
       id = registerTestCases(
           testCases,
@@ -77,7 +77,7 @@ public class JCUnit extends Parameterized {
       Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
       ////
       // Create and host a test suite object to use it in rules.
-      this.factors = caEngine.getFactors();
+      this.factors = coveringArrayEngine.getFactors();
       this.testSuite = new TestSuite(testCases);
       this.runners = Utils.transform(
           this.testSuite,

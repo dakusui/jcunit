@@ -10,11 +10,11 @@ import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIPO2Opt
 
 import java.util.List;
 
-public class IPO2CAEngine extends CAEngineBase {
+public class IPO2CoveringArrayEngine extends CoveringArrayEngineBase {
   private final int strength;
   List<Tuple> tests;
 
-  public IPO2CAEngine(
+  public IPO2CoveringArrayEngine(
       @Param(source = Param.Source.INSTANCE, defaultValue = "2") int strength) {
     this.strength = strength;
   }

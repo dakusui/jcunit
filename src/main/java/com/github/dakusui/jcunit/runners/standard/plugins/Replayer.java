@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
-import com.github.dakusui.jcunit.plugins.caengines.CAEngineBase;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngineBase;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 
 import java.io.File;
@@ -15,12 +15,12 @@ import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class Replayer extends CAEngineBase {
+public class Replayer extends CoveringArrayEngineBase {
   private final GenerationMode         generationMode;
   private final String                 dataDir;
   private final ReplayMode             replayMode;
   private       SortedMap<Long, Tuple> tuples;
-  private       CAEngine               fallbackGenerator;
+  private       CoveringArrayEngine    fallbackGenerator;
 
   /**
    * Creates an object of this class.
@@ -37,7 +37,7 @@ public class Replayer extends CAEngineBase {
    * <li>3...: Parameters passed to fallback tuple generator.</li>
    * </ul>
    *
-   * @param caEngine A tuple generator.
+   * @param coveringArrayEngine A tuple generator.
    * @param generationMode Generation mode. Determines whether let the tuple generator generate a
    *                       new test suite or load it from file system. ("Fallback", "Replay")
    * @param replayMode     Determines if all the test cases or only failed ones in the last run.
@@ -47,7 +47,7 @@ public class Replayer extends CAEngineBase {
   public Replayer(
       @Param(source = Param.Source.INSTANCE,
           defaultValue = { "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" })
-      CAEngine caEngine,
+      CoveringArrayEngine coveringArrayEngine,
       @Param(source = Param.Source.INSTANCE,
           defaultValue = { "Fallback" })
       GenerationMode generationMode,
@@ -61,7 +61,7 @@ public class Replayer extends CAEngineBase {
   ) {
     this.generationMode = Checks.checknotnull(generationMode);
     this.replayMode = Checks.checknotnull(replayMode);
-    this.fallbackGenerator = Checks.checknotnull(caEngine);
+    this.fallbackGenerator = Checks.checknotnull(coveringArrayEngine);
     this.dataDir = Checks.checknotnull(dataDirName);
   }
 
@@ -201,7 +201,7 @@ public class Replayer extends CAEngineBase {
       long initializeTuples(Replayer tupleReplayer) {
         ////
         // Wire
-        CAEngine generator = tupleReplayer.fallbackGenerator;
+        CoveringArrayEngine generator = tupleReplayer.fallbackGenerator;
         generator.setFactors(tupleReplayer.getFactors());
         generator.setConstraint(tupleReplayer.getConstraint());
         generator.setTargetClass(tupleReplayer.getTargetClass());

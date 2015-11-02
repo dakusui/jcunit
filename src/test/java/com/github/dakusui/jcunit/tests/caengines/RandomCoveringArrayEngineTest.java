@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
-import com.github.dakusui.jcunit.plugins.caengines.RandomCAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.RandomCoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.Test;
@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
-public class RandomCAEngineTest {
+public class RandomCoveringArrayEngineTest {
   public static abstract class TestClass {
     public static class CM extends ConstraintBase {
       @Override
@@ -43,7 +43,7 @@ public class RandomCAEngineTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomCAEngine.class,
+          value = RandomCoveringArrayEngine.class,
           args = {
               @Value("100")
           }),
@@ -62,7 +62,7 @@ public class RandomCAEngineTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomCAEngine.class,
+          value = RandomCoveringArrayEngine.class,
           args = {
               // Only non-negative value is accepted
               @Value("-1")
@@ -82,7 +82,7 @@ public class RandomCAEngineTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomCAEngine.class,
+          value = RandomCoveringArrayEngine.class,
           args = {
               @Value("INVALID") // Intentionally broken argument.
           }),
@@ -105,7 +105,7 @@ public class RandomCAEngineTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomCAEngine.class,
+          value = RandomCoveringArrayEngine.class,
           args = {
               @Value("100"),
               @Value("999") // This parameter is unnecessary and should be rejected.

@@ -16,15 +16,15 @@ import java.util.NoSuchElementException;
  * An abstract base class that provides a basic implementation of {@code CAEngine}.
  * Users can create a new tuple generator by extending this class.
  */
-public abstract class CAEngineBase
-    implements CAEngine, Plugin {
+public abstract class CoveringArrayEngineBase
+    implements CoveringArrayEngine, Plugin {
 
   private Factors factors = null;
   private long    size    = -1;
   private Constraint constraint;
   private Class<?>   targetClass;
 
-  public CAEngineBase() {
+  public CoveringArrayEngineBase() {
   }
 
   final public void init() {

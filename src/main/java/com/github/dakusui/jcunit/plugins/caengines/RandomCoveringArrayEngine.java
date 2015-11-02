@@ -16,7 +16,7 @@ import java.util.Random;
  * A user can specify a random seed to be used in the generation.
  *
  */
-public class RandomCAEngine extends CAEngineBase {
+public class RandomCoveringArrayEngine extends CoveringArrayEngineBase {
   private final long        seed;
   private final int         size;
   private       List<Tuple> tests;
@@ -38,7 +38,7 @@ public class RandomCAEngine extends CAEngineBase {
    * @see com.github.dakusui.jcunit.core.SystemProperties.KEY#RANDOMSEED
    * @see SystemProperties#randomSeed()
    */
-  public RandomCAEngine(
+  public RandomCoveringArrayEngine(
       @Param(source = Param.Source.INSTANCE) int size,
       @Param(
           source = Param.Source.SYSTEM_PROPERTY,

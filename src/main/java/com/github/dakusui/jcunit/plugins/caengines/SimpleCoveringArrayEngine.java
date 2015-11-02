@@ -13,10 +13,10 @@ import java.util.List;
  *
  * The default value is the first level of each factor.
  */
-public class SimpleCAEngine extends CAEngineBase {
+public class SimpleCoveringArrayEngine extends CoveringArrayEngineBase {
   private List<Tuple> tests;
 
-  public SimpleCAEngine() {
+  public SimpleCoveringArrayEngine() {
   }
 
   /**

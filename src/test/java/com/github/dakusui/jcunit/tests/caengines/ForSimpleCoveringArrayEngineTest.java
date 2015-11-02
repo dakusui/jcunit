@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.caengines.SimpleCAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.SimpleCoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
@@ -21,10 +21,10 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
-public class ForSimpleCAEngineTest {
+public class ForSimpleCoveringArrayEngineTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
-      generator = @Generator(SimpleCAEngine.class),
+      generator = @Generator(SimpleCoveringArrayEngine.class),
       checker = @Checker(TestClass1.CM.class)
   )
   public static class TestClass1 {

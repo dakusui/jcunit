@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.exceptions;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import java.util.List;
  *
  * To build an object of this class, there is a utility method {@code Checks.checksymbols(...)}
  *
- * @see IPO2CAEngine
+ * @see IPO2CoveringArrayEngine
  * @see Checks#checksymbols(Tuple, String...)
  */
 public class UndefinedSymbol extends JCUnitCheckedException {

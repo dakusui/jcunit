@@ -12,14 +12,14 @@ import java.util.*;
 
 /**
  */
-public class ToplevelCAEngine extends CAEngineBase {
+public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
   private final Map<String, FSM>                 fsms;
-  private final CAEngine.Builder                 baseCAEngineBuilder;
+  private final CoveringArrayEngine.Builder      baseCAEngineBuilder;
   private final List<Parameters.LocalConstraint> localCMs;
   private       List<Tuple>                      tuples;
 
-  public ToplevelCAEngine(
-      CAEngine.Builder baseTG,
+  public ToplevelCoveringArrayEngine(
+      CoveringArrayEngine.Builder baseTG,
       Map<String, FSM> fsms,
       List<Parameters.LocalConstraint> localCMs) {
     this.fsms = Checks.checknotnull(fsms);
@@ -160,7 +160,7 @@ public class ToplevelCAEngine extends CAEngineBase {
     return Checks.checknotnull(eachFactorName.contains(":"));
   }
 
-  private CAEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM) {
+  private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM) {
     return new Builder(this.baseCAEngineBuilder).setConstraint(fsmCM).setFactors(fsmFactors).build();
   }
 
