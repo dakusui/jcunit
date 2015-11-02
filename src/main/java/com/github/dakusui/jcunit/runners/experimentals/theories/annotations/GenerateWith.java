@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.runners.experimentals.theories.annotations;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 
 import java.lang.annotation.ElementType;
@@ -14,8 +14,8 @@ import java.lang.annotation.Target;
  */
 @Target({ ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TupleGeneration {
+public @interface GenerateWith {
   Generator generator() default @Generator();
 
-  Constraint constraint() default @Constraint();
+  Checker checker() default @Checker();
 }

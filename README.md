@@ -226,8 +226,8 @@ This is really fun feature. Please try. Documentation is found [here](/src/site/
   The SUT, ```QuadraticEquationSolver``` is now enhanced to throw ```IllegalArgumentException``` when solutions become imaginary.
   Tests need to be enhanced to handle this new behaviour, too. ```@When``` annotation will be introduced to switch test methods
   to be executed.
-* **[session5](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session5/QuadraticEquationSolverTest5.java)**: How to implement a constraint manager (part - 1). 
-* **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: How to implement a constraint manager (part - 2). Defining negative tests.
+* **[session5](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session5/QuadraticEquationSolverTest5.java)**: How to implement a constraint (part - 1). 
+* **[session6](src/test/java/com/github/dakusui/jcunit/examples/quadraticequation/session6/QuadraticEquationSolverTest6.java)**: How to implement a constraint (part - 2). Defining negative tests.
 
 ### Reusing generated test suite
 Generally speaking, pairwise test suite generation is a time consuming process.

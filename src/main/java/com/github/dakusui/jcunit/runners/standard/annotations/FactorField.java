@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import org.junit.runners.model.FrameworkField;
@@ -305,7 +305,7 @@ public @interface FactorField {
         };
       } else if (c.getAnnotation(GenerateWith.class) != null) {
         return new AbstractList<Object>() {
-          TupleGenerator tg = GenerateWith.TupleGeneratorFactory.INSTANCE.createFromClass(c);
+          CAEngine tg = GenerateWith.CAEngineFactory.INSTANCE.createFromClass(c);
 
           @Override
           public Object get(int index) {

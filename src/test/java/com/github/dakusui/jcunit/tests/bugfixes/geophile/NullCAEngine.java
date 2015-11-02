@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngineBase;
 
-public class NullTupleGenerator extends TupleGeneratorBase {
+public class NullCAEngine extends CAEngineBase {
   @Override
   protected long initializeTuples() {
     return 0;

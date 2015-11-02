@@ -23,7 +23,7 @@ import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.newTestCa
     generator = @Generator(
         value = Replayer.class,
         args = {
-            @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullTupleGenerator" }),
+            @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullCAEngine" }),
             @Value("Replay"),
             @Value("All")
         }

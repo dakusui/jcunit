@@ -1,12 +1,12 @@
-package com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers;
+package com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
   public Tuple fillInMissingFactors(
       Tuple tuple,
       Tuples leftTuples,
-      ConstraintManager constraintManager,
+      Constraint constraint,
       Factors factors) {
     Factors.Builder missingFactorsBuilder = new Factors.Builder();
     int numMissingFactors = 0;
@@ -40,7 +40,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
     for (int i = 0; i < maxTries; i++) {
       Tuple t = creteRandomTuple(missingFactors, tuple);
       try {
-        if (!constraintManager.check(t)) {
+        if (!constraint.check(t)) {
           continue;
         }
       } catch (UndefinedSymbol e) {

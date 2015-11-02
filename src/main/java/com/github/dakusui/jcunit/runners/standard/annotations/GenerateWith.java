@@ -8,9 +8,9 @@ import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.Errors;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.generators.ToplevelTupleGenerator;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.caengines.ToplevelCAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.TestClass;
@@ -29,7 +29,7 @@ public @interface GenerateWith {
 
   Generator generator() default @Generator();
 
-  Constraint constraint() default @Constraint();
+  Checker checker() default @Checker();
 
   Reporter reporter() default @Reporter();
 
@@ -87,12 +87,12 @@ public @interface GenerateWith {
     }
   }
 
-  interface TupleGeneratorFactory {
-    TupleGeneratorFactory INSTANCE = new TupleGeneratorFactory.Default();
+  interface CAEngineFactory {
+    CAEngineFactory INSTANCE = new CAEngineFactory.Default();
 
-    TupleGenerator createFromClass(Class<?> clazz);
+    CAEngine createFromClass(Class<?> clazz);
 
-    class Default implements TupleGeneratorFactory {
+    class Default implements CAEngineFactory {
       final Value.Resolver resolver;
 
       public Default() {
@@ -100,22 +100,22 @@ public @interface GenerateWith {
       }
 
       /**
-       * Creates a {@code TupleGenerator} using annotations attached to the class
+       * Creates a {@code CAEngine} using annotations attached to the class
        * for which the returned generator is created.
        */
-      public TupleGenerator createFromClass(
+      public CAEngine createFromClass(
           Class<?> klazz) {
         Checks.checknotnull(klazz);
         GenerateWith generateWithAnn = getAnnotation(
             klazz);
-        return createTupleGenerator(klazz, generateWithAnn);
+        return createCAEngine(klazz, generateWithAnn);
       }
 
       private Value.Resolver createResolver() {
         return new Value.Resolver();
       }
 
-      public TupleGenerator createTupleGenerator(
+      public CAEngine createCAEngine(
           Class<?> klazz,
           GenerateWith generateWithAnn) {
         Checks.checknotnull(klazz);
@@ -124,24 +124,24 @@ public @interface GenerateWith {
         Factors factors = loadFactors(klazz, switchCoverages);
         ////
         // Wire and build objects.
-        Constraint constraintAnn = generateWithAnn.constraint();
-        ConstraintManager constraintManager =
-            new ConstraintManager.Builder()
-                .setConstraintManagerClass(constraintAnn.value())
+        Checker checkerAnn = generateWithAnn.checker();
+        Constraint constraint =
+            new Constraint.Builder()
+                .setConstraintManagerClass(checkerAnn.value())
                 .setFactors(factors).build();
         Generator generatorAnn = generateWithAnn.generator();
-        Class<? extends TupleGenerator> tupleGeneratorClass = generatorAnn.value();
-        TupleGenerator.Builder b = new TupleGenerator.Builder(this.resolver)
-            .setTupleGeneratorClass(tupleGeneratorClass)
+        Class<? extends CAEngine> tupleGeneratorClass = generatorAnn.value();
+        CAEngine.Builder b = new CAEngine.Builder(this.resolver)
+            .setCAEngineClass(tupleGeneratorClass)
             .setParameters(generatorAnn.args())
             .setTargetClass(klazz)
             .setFactors(factors);
         Checks.checkcond(factors.size() > 0, "No factors are found. Check if your factor fields are public.");
-        TupleGenerator generator;
+        CAEngine generator;
         List<Field> fsmFields;
         if (!(fsmFields = extractFSMFactorFields(switchCoverages.keySet())).isEmpty()) {
           Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
-          List<Parameters.LocalConstraintManager> localCMs = new LinkedList<Parameters.LocalConstraintManager>();
+          List<Parameters.LocalConstraint> localCMs = new LinkedList<Parameters.LocalConstraint>();
           Errors.Builder bb = new Errors.Builder();
           for (Field each : fsmFields) {
             ////
@@ -159,22 +159,22 @@ public @interface GenerateWith {
               "Error(s) are found in test class.'%s' : %s",
               klazz.getCanonicalName(),
               errors);
-          generator = new ToplevelTupleGenerator(b, fsms, localCMs);
+          generator = new ToplevelCAEngine(b, fsms, localCMs);
           generator.init();
         } else {
           generator = b.build();
-          generator.setConstraintManager(constraintManager);
+          generator.setConstraint(constraint);
           generator.init();
         }
         return generator;
       }
 
-      private void collectLocalConstraintManagers(List<Parameters.LocalConstraintManager> localCMs, String fsmName, FSM<Object> fsm) {
+      private void collectLocalConstraintManagers(List<Parameters.LocalConstraint> localCMs, String fsmName, FSM<Object> fsm) {
         for (int i = 0; i < fsm.historyLength(); i++)
           for (Action<Object> eachAction : fsm.actions()) {
             Parameters parameters = eachAction.parameters();
-            ConstraintManager baseLocalCM = parameters.getConstraintManager();
-            if (ConstraintManager.DEFAULT_CONSTRAINT_MANAGER.equals(baseLocalCM)) {
+            Constraint baseLocalCM = parameters.getConstraintManager();
+            if (Constraint.DEFAULT_CONSTRAINT_MANAGER.equals(baseLocalCM)) {
               continue;
             }
             List<String> localPlainParameterNames = Utils.transform(parameters, new Utils.Form<Factor, String>() {
@@ -183,7 +183,7 @@ public @interface GenerateWith {
                 return Checks.checknotnull(in).name;
               }
             });
-            Parameters.LocalConstraintManager localCM = new Parameters.LocalConstraintManager(
+            Parameters.LocalConstraint localCM = new Parameters.LocalConstraint(
                 baseLocalCM,
                 localPlainParameterNames,
                 fsmName,
@@ -252,10 +252,10 @@ public @interface GenerateWith {
             }
 
             @Override
-            public Constraint constraint() {
+            public Checker checker() {
               return ReflectionUtils
                   .getDefaultValueOfAnnotation(GenerateWith.class,
-                      "constraint");
+                      "checker");
             }
 
             @Override

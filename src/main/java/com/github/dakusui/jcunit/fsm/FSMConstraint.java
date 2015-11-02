@@ -4,36 +4,36 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
- * A constraint manager which validates tuples for FSM scenarios.
+ * A constraint which validates tuples for FSM scenarios.
  * <p/>
- * An instance of this object is created only by {@code FSMTupleGenerator}.
+ * An instance of this object is created only by {@see ToplevelCAEngine}.
  */
-public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
-  private final ConstraintManager                       baseConstraintManager;
-  private final List<Parameters.LocalConstraintManager> localCMs;
+public class FSMConstraint<SUT> extends ConstraintBase {
+  private final Constraint                       baseConstraint;
+  private final List<Parameters.LocalConstraint> localCMs;
 
   /**
    * Creates an object of this class.
    *
    * @param baseCM A constraint manager which validates 'non-FSM' attributes.
    */
-  public FSMConstraintManager(ConstraintManager baseCM, List<Parameters.LocalConstraintManager> localCMS) {
+  public FSMConstraint(Constraint baseCM, List<Parameters.LocalConstraint> localCMS) {
     super();
     Checks.checknotnull(baseCM);
-    this.baseConstraintManager = baseCM;
+    this.baseConstraint = baseCM;
     this.localCMs = Collections.unmodifiableList(Checks.checknotnull(localCMS));
   }
 
   @Override
   public boolean check(Tuple tuple) throws UndefinedSymbol {
-    if (!this.baseConstraintManager.check(tuple))
+    if (!this.baseConstraint.check(tuple))
       return false;
     FSMFactors fsmFactors = (FSMFactors) this.getFactors();
     for (String each : fsmFactors.getFSMNames()) {
@@ -79,7 +79,7 @@ public class FSMConstraintManager<SUT> extends ConstraintManagerBase {
         expectedState = expectation.state;
       }
     }
-    for (Parameters.LocalConstraintManager each : this.localCMs) {
+    for (Parameters.LocalConstraint each : this.localCMs) {
       if (!each.check(tuple)) {
         return false;
       }

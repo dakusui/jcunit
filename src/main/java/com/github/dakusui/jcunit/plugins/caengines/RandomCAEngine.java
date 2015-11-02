@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.generators;
+package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.SystemProperties;
@@ -16,7 +16,7 @@ import java.util.Random;
  * A user can specify a random seed to be used in the generation.
  *
  */
-public class RandomTupleGenerator extends TupleGeneratorBase {
+public class RandomCAEngine extends CAEngineBase {
   private final long        seed;
   private final int         size;
   private       List<Tuple> tests;
@@ -38,7 +38,7 @@ public class RandomTupleGenerator extends TupleGeneratorBase {
    * @see com.github.dakusui.jcunit.core.SystemProperties.KEY#RANDOMSEED
    * @see SystemProperties#randomSeed()
    */
-  public RandomTupleGenerator(
+  public RandomCAEngine(
       @Param(source = Param.Source.INSTANCE) int size,
       @Param(
           source = Param.Source.SYSTEM_PROPERTY,
@@ -69,7 +69,7 @@ public class RandomTupleGenerator extends TupleGeneratorBase {
       for (int j = 0; j < retries; j++) {
         Tuple tuple = newTuple(factors, random);
         try {
-          if (this.getConstraintManager().check(tuple)) {
+          if (this.getConstraint().check(tuple)) {
             this.tests.add(tuple);
             break;
           }

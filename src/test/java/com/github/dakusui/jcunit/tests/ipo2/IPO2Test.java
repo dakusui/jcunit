@@ -1,15 +1,15 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.NullConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.NullConstraint;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.GreedyIPO2Optimizer;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 
@@ -50,27 +50,27 @@ public abstract class IPO2Test {
 
   protected IPO2 createIPO2(
       Factors factors, int strength,
-      ConstraintManager constraintManager,
+      Constraint constraint,
       IPO2Optimizer optimizer) {
-    IPO2 ipo = new IPO2(factors, strength, constraintManager,
+    IPO2 ipo = new IPO2(factors, strength, constraint,
         optimizer);
     ipo.ipo();
     return ipo;
   }
 
-  protected void verify(int givenStrength, Factors givenFactors, ConstraintManager givenConstraintManager, List<Tuple> actualTestCases,
+  protected void verify(int givenStrength, Factors givenFactors, Constraint givenConstraint, List<Tuple> actualTestCases,
       List<Tuple> actualRemainders) {
     UTUtils.stdout().println(String.format("%3d:%s", actualTestCases.size(), actualTestCases));
     verifyAllValidTuplesAreGenerated(actualTestCases, givenStrength, givenFactors,
-        givenConstraintManager);
-    verifyNoConstraintViolationOccursInResult(actualTestCases, givenConstraintManager);
+        givenConstraint);
+    verifyNoConstraintViolationOccursInResult(actualTestCases, givenConstraint);
     verifyNoDuplicationOccursInResult(actualTestCases);
     verifyAllTestCasesHaveCorrectNumberOfAttributes(actualTestCases, givenFactors);
-    verifyRemaindersViolateConstraints(actualRemainders, actualTestCases, givenConstraintManager);
+    verifyRemaindersViolateConstraints(actualRemainders, actualTestCases, givenConstraint);
   }
 
   protected void verifyRemaindersViolateConstraints(List<Tuple> remainders,
-      List<Tuple> result, ConstraintManager constraintManager) {
+      List<Tuple> result, Constraint constraint) {
     ////
     // No entry in remainder is expected in default implementation.
     assertThat(String.format("Some remainder(s) are found.: %s", remainders), remainders.size(), is(0));
@@ -112,12 +112,12 @@ public abstract class IPO2Test {
   }
 
   protected void verifyNoConstraintViolationOccursInResult(List<Tuple> testcases,
-      ConstraintManager constraintManager) {
+      Constraint constraint) {
     ///
     // No violation.
     List<Tuple> violations = new LinkedList<Tuple>();
     for (Tuple t : testcases) {
-      if (!checkConstraints(constraintManager, t)) {
+      if (!checkConstraints(constraint, t)) {
         violations.add(t);
       }
     }
@@ -127,9 +127,9 @@ public abstract class IPO2Test {
         ), violations.size(), is(0));
   }
 
-  public boolean checkConstraints(ConstraintManager constraintManager, Tuple t) {
+  public boolean checkConstraints(Constraint constraint, Tuple t) {
     try {
-      return constraintManager.check(t);
+      return constraint.check(t);
     } catch (UndefinedSymbol e) {
       ////
       // Consider failure from insufficient attributes is kind of success.
@@ -138,14 +138,14 @@ public abstract class IPO2Test {
   }
 
   protected void verifyAllValidTuplesAreGenerated(List<Tuple> testcases,
-      int strength, Factors factors, ConstraintManager constraintManager) {
+      int strength, Factors factors, Constraint constraint) {
     ////
     // All tuples (excepting prohibited ones) are covered.
     List<Tuple> tuplesToBeGenerated = factors
         .generateAllPossibleTuples(strength);
     List<Tuple> notFound = new LinkedList<Tuple>();
     for (Tuple t : tuplesToBeGenerated) {
-      if (!checkConstraints(constraintManager, t)) {
+      if (!checkConstraints(constraint, t)) {
         continue;
       }
       if (!find(t, testcases)) {
@@ -181,8 +181,8 @@ public abstract class IPO2Test {
     return true;
   }
 
-  protected ConstraintManager createConstraintManager() {
-    return new NullConstraintManager();
+  protected Constraint createConstraintManager() {
+    return new NullConstraint();
   }
 
   protected GreedyIPO2Optimizer createOptimizer() {

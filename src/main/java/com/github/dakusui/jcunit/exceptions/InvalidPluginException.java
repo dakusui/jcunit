@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.exceptions;
 
 /**
  * An exception thrown when an error made by a plugin
- * (TupleGenerator, ConstraintManager, or LevelsProvider)
+ * (CAEngine, ConstraintManager, or LevelsProvider)
  * writer is detected.
  */
 public class InvalidPluginException extends JCUnitException {

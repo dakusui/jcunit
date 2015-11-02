@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
-import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngineBase;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 
 import java.io.File;
@@ -15,12 +15,12 @@ import java.util.Iterator;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class Replayer extends TupleGeneratorBase {
+public class Replayer extends CAEngineBase {
   private final GenerationMode         generationMode;
   private final String                 dataDir;
   private final ReplayMode             replayMode;
   private       SortedMap<Long, Tuple> tuples;
-  private       TupleGenerator         fallbackGenerator;
+  private       CAEngine               fallbackGenerator;
 
   /**
    * Creates an object of this class.
@@ -33,11 +33,11 @@ public class Replayer extends TupleGeneratorBase {
    * {@code ConstraintManager#getViolations} will be executed regardless of this value. Remove
    * the annotation or make the methods return empty lists to suppress them.</li>
    * <li>1: Base directory of test data. By default, null (, which then defaults to .jcunit).</li>
-   * <li>2: Class name of a fall back tuple generator. By default IPO2TupleGenerator.</li>
+   * <li>2: Class name of a fall back tuple generator. By default IPO2CAEngine.</li>
    * <li>3...: Parameters passed to fallback tuple generator.</li>
    * </ul>
    *
-   * @param tupleGenerator A tuple generator.
+   * @param caEngine A tuple generator.
    * @param generationMode Generation mode. Determines whether let the tuple generator generate a
    *                       new test suite or load it from file system. ("Fallback", "Replay")
    * @param replayMode     Determines if all the test cases or only failed ones in the last run.
@@ -46,8 +46,8 @@ public class Replayer extends TupleGeneratorBase {
    */
   public Replayer(
       @Param(source = Param.Source.INSTANCE,
-          defaultValue = { "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" })
-      TupleGenerator tupleGenerator,
+          defaultValue = { "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" })
+      CAEngine caEngine,
       @Param(source = Param.Source.INSTANCE,
           defaultValue = { "Fallback" })
       GenerationMode generationMode,
@@ -61,7 +61,7 @@ public class Replayer extends TupleGeneratorBase {
   ) {
     this.generationMode = Checks.checknotnull(generationMode);
     this.replayMode = Checks.checknotnull(replayMode);
-    this.fallbackGenerator = Checks.checknotnull(tupleGenerator);
+    this.fallbackGenerator = Checks.checknotnull(caEngine);
     this.dataDir = Checks.checknotnull(dataDirName);
   }
 
@@ -201,9 +201,9 @@ public class Replayer extends TupleGeneratorBase {
       long initializeTuples(Replayer tupleReplayer) {
         ////
         // Wire
-        TupleGenerator generator = tupleReplayer.fallbackGenerator;
+        CAEngine generator = tupleReplayer.fallbackGenerator;
         generator.setFactors(tupleReplayer.getFactors());
-        generator.setConstraintManager(tupleReplayer.getConstraintManager());
+        generator.setConstraint(tupleReplayer.getConstraint());
         generator.setTargetClass(tupleReplayer.getTargetClass());
         generator.init();
         return generator.size();

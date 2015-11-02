@@ -3,14 +3,14 @@ package com.github.dakusui.jcunit.examples.theories;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
-import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
+import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.runners.experimentals.theories.TheoriesWithJCUnit;
 import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
-import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.FromDataPoints;
@@ -47,7 +47,7 @@ public class TheoriesExample2 {
     };
   }
 
-  public static class CM extends ConstraintManagerBase {
+  public static class CM extends ConstraintBase {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
       Checks.checksymbols(tuple, "a", "b");
@@ -56,9 +56,9 @@ public class TheoriesExample2 {
   }
 
   @Theory
-  @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, args = { @Value("3") }),
-      constraint = @Constraint(CM.class)
+  @GenerateWith(
+      generator = @Generator(value = IPO2CAEngine.class, args = { @Value("3") }),
+      checker = @Checker(CM.class)
   )
   public void test1(
       @FromDataPoints("posInt") @Name("a") int a,
@@ -70,7 +70,7 @@ public class TheoriesExample2 {
   }
 
   @Theory
-  @TupleGeneration(generator = @Generator(value = IPO2TupleGenerator.class, args = { @Value("2") }))
+  @GenerateWith(generator = @Generator(value = IPO2CAEngine.class, args = { @Value("2") }))
   public void test2(
       @FromDataPoints("posInt") int a,
       @FromDataPoints("negInt") int b

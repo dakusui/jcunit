@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.sessionx;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.TypedConstraint;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
 @GenerateWith(
-    constraint = @Constraint(
+    checker = @Checker(
         value = QuadraticEquationSolverTestX.CM.class,
         args = { }))
 public class QuadraticEquationSolverTestX {
@@ -95,7 +95,7 @@ public class QuadraticEquationSolverTestX {
   }
 
   public static class CM extends
-      TypedConstraintManager<QuadraticEquationSolverTestX> {
+      TypedConstraint<QuadraticEquationSolverTestX> {
     @Override
     public boolean check(QuadraticEquationSolverTestX o, Tuple testCase)
         throws UndefinedSymbol {

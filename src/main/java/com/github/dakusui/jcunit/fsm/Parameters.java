@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
@@ -13,14 +13,14 @@ import java.util.*;
 
 public class Parameters extends Factors {
   public static final Parameters EMPTY = new Builder().build();
-  private final ConstraintManager cm;
+  private final Constraint cm;
 
-  public Parameters(ConstraintManager cm, List<Factor> factors) {
+  public Parameters(Constraint cm, List<Factor> factors) {
     super(factors);
     this.cm = cm;
   }
 
-  public ConstraintManager getConstraintManager() {
+  public Constraint getConstraintManager() {
     return this.cm;
   }
 
@@ -34,7 +34,7 @@ public class Parameters extends Factors {
   }
 
   public static class Builder extends Factors.Builder {
-    private ConstraintManager cm = ConstraintManager.DEFAULT_CONSTRAINT_MANAGER;
+    private Constraint cm = Constraint.DEFAULT_CONSTRAINT_MANAGER;
 
     public Builder() {
       super();
@@ -63,7 +63,7 @@ public class Parameters extends Factors {
       return this;
     }
 
-    public Builder setConstraintManager(ConstraintManager cm) {
+    public Builder setConstraintManager(Constraint cm) {
       this.cm = cm;
       return this;
     }
@@ -73,12 +73,12 @@ public class Parameters extends Factors {
     }
   }
 
-  public static class LocalConstraintManager<S> extends ConstraintManagerBase<S> {
-    protected final ConstraintManager   target;
+  public static class LocalConstraint<S> extends ConstraintBase<S> {
+    protected final Constraint          target;
     private final   List<String>        plainParameterNames;
     /**
      * A map from plain factor names used to declare parameters in Parameters.Builder
-     * and inside constraint manager to flatten FSM tuple representation.
+     * and inside constraint checker to flatten FSM tuple representation.
      */
     private final   Map<String, String> plainToFlattenFSM;
 
@@ -89,7 +89,7 @@ public class Parameters extends Factors {
      * @param fsmName A name of a FSM. {@code Story} field name in standard JCUnit runner.
      * @param historyIndex The current history index.
      */
-    public LocalConstraintManager(ConstraintManager target, List<String> plainParameterNames, String fsmName, int historyIndex) {
+    public LocalConstraint(Constraint target, List<String> plainParameterNames, String fsmName, int historyIndex) {
       this.target = Checks.checknotnull(target);
       this.plainParameterNames = Collections.unmodifiableList(Checks.checknotnull(plainParameterNames));
       this.plainToFlattenFSM = new HashMap<String, String>();
@@ -111,12 +111,12 @@ public class Parameters extends Factors {
         throw new UndefinedSymbol(Utils.transform(e.missingSymbols, new Utils.Form<String, String>() {
               @Override
               public String apply(String in) {
-                if (LocalConstraintManager.this.plainToFlattenFSM.containsKey(in)) {
-                  return LocalConstraintManager.this.plainToFlattenFSM.get(in);
+                if (LocalConstraint.this.plainToFlattenFSM.containsKey(in)) {
+                  return LocalConstraint.this.plainToFlattenFSM.get(in);
                 } else {
                   ////
                   // In case unknown symbol is reported, probably underlying constraint
-                  // manager is complaining of its internal factor. Include it
+                  // checker is complaining of its internal factor. Include it
                   // without translating it.
                   return in;
                 }

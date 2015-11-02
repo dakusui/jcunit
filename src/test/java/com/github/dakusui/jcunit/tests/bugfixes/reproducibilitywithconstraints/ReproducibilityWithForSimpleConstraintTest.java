@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -22,10 +22,10 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
 @GenerateWith(
-    constraint = @Constraint(ReproducibilityWithForSimpleConstraintTest.CM.class)
+    checker = @Checker(ReproducibilityWithForSimpleConstraintTest.CM.class)
 )
 public class ReproducibilityWithForSimpleConstraintTest {
-  public static class CM extends ConstraintManagerBase {
+  public static class CM extends ConstraintBase {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
       Checks.checksymbols(tuple, "a", "b");

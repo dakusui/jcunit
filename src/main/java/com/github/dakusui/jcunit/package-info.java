@@ -12,7 +12,7 @@
  *     |                             |             |                  |                  |
  *     |                             |             |                  |                  |
  *     | +------+ 1 * +------------+ |    +-----------------+ +--------------+ +--------------------+
- *     | |JCUnit|<>-->|JCUnitRunner| |    |ConstraintManager| |TupleGenerator| |FactorLevelsProvider|
+ *     | |JCUnit|<>-->|JCUnitRunner| |    |ConstraintManager| |CAEngine      | |FactorLevelsProvider|
  *     | +------+     +------------+ |    +-----------------+ +--------------+ +--------------------+
  *     |                             |             A                  A                  A
  *     |     JCUnit framework                      |                  |                  |

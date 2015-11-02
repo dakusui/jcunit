@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.generators;
+package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
@@ -6,34 +6,34 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 
 import java.util.*;
 
 /**
  */
-public class ToplevelTupleGenerator extends TupleGeneratorBase {
-  private final Map<String, FSM>                        fsms;
-  private final TupleGenerator.Builder                  baseTupleGeneratorBuilder;
-  private final List<Parameters.LocalConstraintManager> localCMs;
-  private       List<Tuple>                             tuples;
+public class ToplevelCAEngine extends CAEngineBase {
+  private final Map<String, FSM>                 fsms;
+  private final CAEngine.Builder                 baseCAEngineBuilder;
+  private final List<Parameters.LocalConstraint> localCMs;
+  private       List<Tuple>                      tuples;
 
-  public ToplevelTupleGenerator(
-      TupleGenerator.Builder baseTG,
+  public ToplevelCAEngine(
+      CAEngine.Builder baseTG,
       Map<String, FSM> fsms,
-      List<Parameters.LocalConstraintManager> localCMs) {
+      List<Parameters.LocalConstraint> localCMs) {
     this.fsms = Checks.checknotnull(fsms);
-    this.baseTupleGeneratorBuilder = Checks.checknotnull(baseTG);
+    this.baseCAEngineBuilder = Checks.checknotnull(baseTG);
     this.localCMs = Collections.unmodifiableList(localCMs);
   }
 
   @Override
   protected long initializeTuples() {
-    Factors baseFactors = baseTupleGeneratorBuilder.getFactors();
+    Factors baseFactors = baseCAEngineBuilder.getFactors();
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
-    ConstraintManager fsmCM = new FSMConstraintManager(
-        this.baseTupleGeneratorBuilder.getConstraintManager(),
+    Constraint fsmCM = new FSMConstraint(
+        this.baseCAEngineBuilder.getConstraint(),
         this.localCMs
     );
     fsmCM.setFactors(fsmFactors);
@@ -67,7 +67,7 @@ public class ToplevelTupleGenerator extends TupleGeneratorBase {
     ////
     // Constraint manager is used for negative tests generation, which is not supported yet.
     // This time I'm setting DEFAULT_CONSTRAINT_MANAGER.
-    super.setConstraintManager(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER);
+    super.setConstraint(Constraint.DEFAULT_CONSTRAINT_MANAGER);
     return this.tuples.size();
   }
 
@@ -83,7 +83,7 @@ public class ToplevelTupleGenerator extends TupleGeneratorBase {
    * Generate test case tuples.
    * Returned tuples already have Story attributes.
    */
-  private List<Tuple> generateTestCaseTuples(Map<String, FSM> fsms, FSMFactors fsmFactors, ConstraintManager fsmCM) {
+  private List<Tuple> generateTestCaseTuples(Map<String, FSM> fsms, FSMFactors fsmFactors, Constraint fsmCM) {
     ////
     // Build test cases. At this point, test cases are generated as flatten FSM
     // tuples.
@@ -160,8 +160,8 @@ public class ToplevelTupleGenerator extends TupleGeneratorBase {
     return Checks.checknotnull(eachFactorName.contains(":"));
   }
 
-  private TupleGenerator generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, ConstraintManager fsmCM) {
-    return new Builder(this.baseTupleGeneratorBuilder).setConstraintManager(fsmCM).setFactors(fsmFactors).build();
+  private CAEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM) {
+    return new Builder(this.baseCAEngineBuilder).setConstraint(fsmCM).setFactors(fsmFactors).build();
   }
 
   @Override

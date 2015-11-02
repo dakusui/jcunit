@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.TypedConstraint;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.ututils.UTUtils;
@@ -25,13 +25,13 @@ import static org.junit.Assert.assertThat;
  * <li>session 2: Exclude 'invalid' test cases.</li>
  * <li>session 3: Exclude 'too big' coefficients.</li>
  * <li>session 4: Implement parameter validation in SUT and test it.</li>
- * <li>session 5: Use constraint manager #1: First step.</li>
- * <li>session 6: Use constraint manager #2: Negative tests.</li>
+ * <li>session 5: Use constraint checker #1: First step.</li>
+ * <li>session 6: Use constraint checker #2: Negative tests.</li>
  * </ul>
  */
 @RunWith(JCUnit.class)
 @GenerateWith(
-    constraint = @Constraint(
+    checker = @Checker(
         value = QuadraticEquationSolverTest6.CM.class,
         args = {}))
 public class QuadraticEquationSolverTest6 {
@@ -41,7 +41,7 @@ public class QuadraticEquationSolverTest6 {
    * Constraint manager.
    */
   public static class CM extends
-      TypedConstraintManager<QuadraticEquationSolverTest6> {
+      TypedConstraint<QuadraticEquationSolverTest6> {
     @Override
     public boolean check(QuadraticEquationSolverTest6 obj, Tuple testCase)
         throws UndefinedSymbol {

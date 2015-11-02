@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,10 +25,10 @@ public class ReproducibilityTest extends IPO2Test {
         factorsDef(2, 2),
         factorsDef(2, 1),
         factorsDef(5, 2));
-    ConstraintManager constraintManager = createConstraintManager();
+    Constraint constraint = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = createIPO2(factors, 2, constraintManager, optimizer);
+    IPO2 ipo = createIPO2(factors, 2, constraint, optimizer);
     return ipo.getResult();
   }
 

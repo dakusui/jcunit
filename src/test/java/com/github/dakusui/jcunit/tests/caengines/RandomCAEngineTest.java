@@ -1,10 +1,10 @@
-package com.github.dakusui.jcunit.tests.generators;
+package com.github.dakusui.jcunit.tests.caengines;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.plugins.generators.RandomTupleGenerator;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.caengines.RandomCAEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.Test;
@@ -15,9 +15,9 @@ import org.junit.runner.RunWith;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.*;
 
-public class RandomTupleGeneratorTest {
+public class RandomCAEngineTest {
   public static abstract class TestClass {
-    public static class CM extends ConstraintManagerBase {
+    public static class CM extends ConstraintBase {
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
         return !tuple.get("f").equals(tuple.get("g"));
@@ -43,11 +43,11 @@ public class RandomTupleGeneratorTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomTupleGenerator.class,
+          value = RandomCAEngine.class,
           args = {
               @Value("100")
           }),
-      constraint = @Constraint(TestClass.CM.class))
+      checker = @Checker(TestClass.CM.class))
   public static class TestClass1 extends TestClass {
   }
 
@@ -62,12 +62,12 @@ public class RandomTupleGeneratorTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomTupleGenerator.class,
+          value = RandomCAEngine.class,
           args = {
               // Only non-negative value is accepted
               @Value("-1")
           }),
-      constraint = @Constraint(TestClass.CM.class))
+      checker = @Checker(TestClass.CM.class))
   public static class TestClass2 extends TestClass {
   }
 
@@ -82,11 +82,11 @@ public class RandomTupleGeneratorTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomTupleGenerator.class,
+          value = RandomCAEngine.class,
           args = {
               @Value("INVALID") // Intentionally broken argument.
           }),
-      constraint = @Constraint(TestClass.CM.class))
+      checker = @Checker(TestClass.CM.class))
   public static class TestClass3 extends TestClass {
   }
 
@@ -105,12 +105,12 @@ public class RandomTupleGeneratorTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
-          value = RandomTupleGenerator.class,
+          value = RandomCAEngine.class,
           args = {
               @Value("100"),
               @Value("999") // This parameter is unnecessary and should be rejected.
           }),
-      constraint = @Constraint(TestClass.CM.class))
+      checker = @Checker(TestClass.CM.class))
   public static class TestClass4 extends TestClass {
   }
 

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.constraintmanagers;
+package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -9,11 +9,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public abstract class ConstraintManagerBase<S> implements ConstraintManager, Plugin {
+public abstract class ConstraintBase<S> implements Constraint, Plugin {
   private final Set<Observer> observers = new LinkedHashSet<Observer>();
   private Factors factors;
 
-  public ConstraintManagerBase() {
+  public ConstraintBase() {
   }
 
   @Override

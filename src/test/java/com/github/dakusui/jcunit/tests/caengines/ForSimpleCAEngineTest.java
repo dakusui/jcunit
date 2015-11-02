@@ -1,15 +1,15 @@
-package com.github.dakusui.jcunit.tests.generators;
+package com.github.dakusui.jcunit.tests.caengines;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.generators.SimpleTupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.SimpleCAEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
@@ -21,14 +21,14 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 
-public class ForSimpleTupleGeneratorTest {
+public class ForSimpleCAEngineTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
-      generator = @Generator(SimpleTupleGenerator.class),
-      constraint = @Constraint(TestClass1.CM.class)
+      generator = @Generator(SimpleCAEngine.class),
+      checker = @Checker(TestClass1.CM.class)
   )
   public static class TestClass1 {
-    public static class CM extends ConstraintManagerBase {
+    public static class CM extends ConstraintBase {
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
         Checks.checksymbols(tuple, "f1");

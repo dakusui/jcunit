@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.constraintmanagers;
+package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -9,8 +9,8 @@ import com.github.dakusui.jcunit.plugins.Plugin;
 import java.util.List;
 import java.util.Set;
 
-public interface ConstraintManager extends Plugin {
-  ConstraintManager DEFAULT_CONSTRAINT_MANAGER = new NullConstraintManager();
+public interface Constraint extends Plugin {
+  Constraint DEFAULT_CONSTRAINT_MANAGER = new NullConstraint();
 
   /**
    * Returns {@code true} if the given tuple doesn't violate any known constraints.
@@ -37,15 +37,15 @@ public interface ConstraintManager extends Plugin {
   List<Tuple> getViolations();
 
   class Builder {
-    private Class<? extends ConstraintManager> constraintManagerClass;
-    private Factors                            factors;
+    private Class<? extends Constraint> constraintManagerClass;
+    private Factors                     factors;
 
-    public ConstraintManager build() {
+    public Constraint build() {
       return ReflectionUtils.create(constraintManagerClass);
     }
 
     public Builder setConstraintManagerClass(
-        Class<? extends ConstraintManager> constraintManagerClass) {
+        Class<? extends Constraint> constraintManagerClass) {
       this.constraintManagerClass = constraintManagerClass;
       return this;
     }

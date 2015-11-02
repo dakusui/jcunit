@@ -3,13 +3,13 @@ package com.github.dakusui.jcunit.examples.testgen;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
 
 import java.io.PrintStream;
 
 /**
- * An example to let TupleGenerator generate a test suite as Tuple objects.
+ * An example to let CAEngine generate a test suite as Tuple objects.
  * Based on a work by "ether" ( http://rainyday.blog.so-net.ne.jp/ )
  * <p/>
  * This relies on JCUnit's internal classes, which can be changed by JCUnit's
@@ -37,14 +37,14 @@ public class TestGenWithoutJUnit {
         .addLevel("64")
         .build();
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
-    TupleGenerator tg = TupleGenerator.Builder.createSimpleBuilder()
+    CAEngine tg = CAEngine.Builder.createSimpleBuilder()
         .setFactors(factors)
     /* -- To set custom parameter(s) for the tuple generator, you can do below.
         .setParameters(new Param.ArrayBuilder()
           .add("2")
         .build())
      */
-    /* -- You can set custom constraint manager by using setConstraintManager method.
+    /* -- You can set custom checker manager by using setConstraintManager method.
         .setConstraintManager(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER)
      */
         .build();
@@ -54,7 +54,7 @@ public class TestGenWithoutJUnit {
   }
 
   public void moreFluentStyleRun(PrintStream ps) {
-    TupleGenerator tg = TupleGenerator.Builder.createSimpleBuilder(IPO2TupleGenerator.class, 2).setFactors(
+    CAEngine tg = CAEngine.Builder.createSimpleBuilder(IPO2CAEngine.class, 2).setFactors(
         new Factors.Builder()
             .add("OS", "Windows", "Linux")
             .add("Browser", "Chrome", "Firefox")

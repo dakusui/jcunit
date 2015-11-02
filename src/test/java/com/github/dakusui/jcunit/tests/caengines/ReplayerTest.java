@@ -1,12 +1,12 @@
-package com.github.dakusui.jcunit.tests.generators;
+package com.github.dakusui.jcunit.tests.caengines;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
-import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngineBase;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
@@ -46,7 +46,7 @@ public class ReplayerTest {
       generator = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" }),
               @Value("Fallback")
           }
       )
@@ -84,7 +84,7 @@ public class ReplayerTest {
       generator = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }) }))
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" }) }))
   public static class TestClass {
     public static int      f1Threshold = 0;
     @Rule
@@ -205,11 +205,11 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    TupleGenerator tupleGenerator = GenerateWith.TupleGeneratorFactory.INSTANCE
+    CAEngine caEngine = GenerateWith.CAEngineFactory.INSTANCE
         .createFromClass(TestClass.class);
-    assertEquals(Replayer.class, tupleGenerator.getClass());
+    assertEquals(Replayer.class, caEngine.getClass());
 
-    Replayer replayer = (Replayer) tupleGenerator;
+    Replayer replayer = (Replayer) caEngine;
     assertEquals(2, replayer.size());
     assertEquals(100, replayer.getTuple(0).get("f1"));
     assertEquals(300, replayer.getTuple(0).get("f2"));
@@ -248,7 +248,7 @@ public class ReplayerTest {
       generator = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" }),
               @Value("Fallback"),
               @Value("All")
           }
@@ -273,7 +273,7 @@ public class ReplayerTest {
       generator = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator", "2" }),
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" }),
               @Value("Replay"),
               @Value("All")
           }
@@ -341,7 +341,7 @@ public class ReplayerTest {
       generator = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "WrongTupleGenerator", "2" }),
+              @Value({ "WrongCAEngine", "2" }),
               @Value("Fallback"),
               @Value("All")
           }
@@ -373,10 +373,10 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG"), @Value("All") }
+          args = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass4$TG"), @Value("All") }
       ))
   public static class TestClass4 {
-    public abstract static class TG extends TupleGeneratorBase {
+    public abstract static class TG extends CAEngineBase {
       public TG() throws IOException {
         throw new IOException("hello!!!");
       }
@@ -424,7 +424,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2"), @Value("All") }
+          args = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass5$TG2"), @Value("All") }
       ))
   public static class TestClass5 extends TestClass4 {
     @SuppressWarnings("unused")
@@ -446,7 +446,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3"), @Value("All") }
+          args = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass6$TG3"), @Value("All") }
       ))
   public static class TestClass6 extends TestClass4 {
     @SuppressWarnings("unused")

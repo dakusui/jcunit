@@ -6,15 +6,15 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
-import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
-import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CAEngine;
+import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
-import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
 import org.junit.Assert;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.junit.experimental.theories.Theories;
@@ -92,7 +92,7 @@ public class TheoriesWithJCUnit extends Theories {
     } catch (Throwable throwable) {
       throw Checks.wrap(throwable);
     }
-    final TupleGenerator tg = createTupleGenerator(method.getMethod());
+    final CAEngine tg = createCAEngine(method.getMethod());
     tg.setFactors(factorsBuilder.build());
     tg.init();
     return new TheoryAnchor(method, testClass) {
@@ -125,19 +125,19 @@ public class TheoriesWithJCUnit extends Theories {
   }
 
 
-  protected TupleGenerator createTupleGenerator(final Method method) {
-    TupleGeneration tgAnn = method.getAnnotation(TupleGeneration.class);
-    TupleGenerator tg;
-    final ConstraintManager cm;
+  protected CAEngine createCAEngine(final Method method) {
+    GenerateWith tgAnn = method.getAnnotation(GenerateWith.class);
+    CAEngine tg;
+    final Constraint cm;
     if (tgAnn != null) {
-      tg = createTupleGenerator(tgAnn.generator());
-      cm = createConstraintManager(tgAnn.constraint());
+      tg = createCAEngine(tgAnn.generator());
+      cm = createConstraintManager(tgAnn.checker());
     } else {
-      tg = new IPO2TupleGenerator(2);
-      cm = ConstraintManager.DEFAULT_CONSTRAINT_MANAGER;
+      tg = new IPO2CAEngine(2);
+      cm = Constraint.DEFAULT_CONSTRAINT_MANAGER;
     }
-    tg.setConstraintManager(new ConstraintManagerBase() {
-      ConstraintManager baseCM = cm;
+    tg.setConstraint(new ConstraintBase() {
+      Constraint baseCM = cm;
 
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
@@ -159,24 +159,24 @@ public class TheoriesWithJCUnit extends Theories {
     return tg;
   }
 
-  protected ConstraintManager createConstraintManager(Constraint constraintAnnotation) {
+  protected Constraint createConstraintManager(Checker checkerAnnotation) {
     Value.Resolver resolver = new Value.Resolver();
     //noinspection unchecked
     return Checks.cast(
-        ConstraintManager.class,
-        new Plugin.Factory<ConstraintManager, Value>(
-            (Class<ConstraintManager>) constraintAnnotation.value(),
+        Constraint.class,
+        new Plugin.Factory<Constraint, Value>(
+            (Class<Constraint>) checkerAnnotation.value(),
             resolver)
-            .create(constraintAnnotation.args()));
+            .create(checkerAnnotation.args()));
   }
 
-  private TupleGenerator createTupleGenerator(final Generator generatorAnnotation) {
+  private CAEngine createCAEngine(final Generator generatorAnnotation) {
     Value.Resolver resolver = new Value.Resolver();
     //noinspection unchecked
     return Checks.cast(
-        TupleGenerator.class,
-        new Plugin.Factory<TupleGenerator, Value>(
-            (Class<TupleGenerator>) generatorAnnotation.value(),
+        CAEngine.class,
+        new Plugin.Factory<CAEngine, Value>(
+            (Class<CAEngine>) generatorAnnotation.value(),
             resolver)
             .create(generatorAnnotation.args()
             ));

@@ -5,10 +5,10 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.TypedConstraint;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
+import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class ConstraintTest {
 
   @Test
   public void testConstraintManager() throws UndefinedSymbol {
-    ConstraintManager manager = new TypedConstraintManager<TestClass>() {
+    Constraint manager = new TypedConstraint<TestClass>() {
       @Override
       protected boolean check(TestClass o, Tuple tuple)
           throws UndefinedSymbol {
@@ -61,7 +61,7 @@ public class ConstraintTest {
     assertEquals(1, manager.getFactors().get("f1").levels.size());
     assertEquals(1024, manager.getFactors().get("f1").levels.get(0));
 
-    ConstraintManager.Observer observer = new ConstraintManager.Observer() {
+    Constraint.Observer observer = new Constraint.Observer() {
     };
     manager.addObserver(observer);
     assertEquals(1, manager.observers().size());
@@ -75,7 +75,7 @@ public class ConstraintTest {
     assertEquals(128, manager.getViolations().get(0).get("f1"));
   }
 
-  public static class CM extends TypedConstraintManager<TestClass2> {
+  public static class CM extends TypedConstraint<TestClass2> {
     @Override
     protected boolean check(TestClass2 o, Tuple tuple) throws UndefinedSymbol {
       return false;
@@ -83,7 +83,7 @@ public class ConstraintTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(constraint = @Constraint(CM.class))
+  @GenerateWith(checker = @Checker(CM.class))
   public static class TestClass2 {
     @FactorField(intLevels = { 1, 2, 3 })
     public int f;

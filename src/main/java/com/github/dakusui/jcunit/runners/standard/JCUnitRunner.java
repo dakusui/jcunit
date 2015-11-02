@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
@@ -28,7 +28,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final TestSuite                    testSuite;
   private final TestCase                     testCase;
   private final Map<String, FrameworkMethod> methods;
-  private final ConstraintManager            constraintManager;
+  private final Constraint                   constraint;
 
   /**
    * Creates an object of this class.
@@ -37,10 +37,10 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * @param testCase A test case object.
    * @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
-  public JCUnitRunner(Class<?> clazz, Factors factors, ConstraintManager constraintManager, TestSuite testSuite, TestCase testCase) throws InitializationError {
+  public JCUnitRunner(Class<?> clazz, Factors factors, Constraint constraint, TestSuite testSuite, TestCase testCase) throws InitializationError {
     super(clazz);
     this.factors = Checks.checknotnull(factors);
-    this.constraintManager = Checks.checknotnull(constraintManager);
+    this.constraint = Checks.checknotnull(constraint);
     this.testSuite = Checks.checknotnull(testSuite);
     this.testCase = Checks.checknotnull(testCase);
     TestClass testClass = getTestClass();
@@ -98,7 +98,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     Checks.checknotnull(method);
 
     String name = testName(method);
-    List<? super Annotation> annotations = Utils.<Annotation>newList(new InternalAnnotation(this.factors, this.constraintManager, this.testSuite, this.testCase));
+    List<? super Annotation> annotations = Utils.<Annotation>newList(new InternalAnnotation(this.factors, this.constraint, this.testSuite, this.testCase));
     annotations.addAll(Utils.asList(method.getAnnotations()));
     ////
     // Elements in the list are all annotations.

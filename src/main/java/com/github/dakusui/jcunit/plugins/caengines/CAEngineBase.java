@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.generators;
+package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
@@ -6,25 +6,25 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * An abstract base class that provides a basic implementation of {@code TupleGenerator}.
+ * An abstract base class that provides a basic implementation of {@code CAEngine}.
  * Users can create a new tuple generator by extending this class.
  */
-public abstract class TupleGeneratorBase
-    implements TupleGenerator, Plugin {
+public abstract class CAEngineBase
+    implements CAEngine, Plugin {
 
   private Factors factors = null;
   private long    size    = -1;
-  private ConstraintManager constraintManager;
-  private Class<?>          targetClass;
+  private Constraint constraint;
+  private Class<?>   targetClass;
 
-  public TupleGeneratorBase() {
+  public CAEngineBase() {
   }
 
   final public void init() {
@@ -93,16 +93,16 @@ public abstract class TupleGeneratorBase
    * {@inheritDoc}
    */
   @Override
-  final public void setConstraintManager(ConstraintManager constraintManager) {
-    this.constraintManager = constraintManager;
+  final public void setConstraint(Constraint constraint) {
+    this.constraint = constraint;
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  final public ConstraintManager getConstraintManager() {
-    return this.constraintManager;
+  final public Constraint getConstraint() {
+    return this.constraint;
   }
 
   /**

@@ -1,20 +1,20 @@
-package com.github.dakusui.jcunit.plugins.generators;
+package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.GreedyIPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIPO2Optimizer;
 
 import java.util.List;
 
-public class IPO2TupleGenerator extends TupleGeneratorBase {
+public class IPO2CAEngine extends CAEngineBase {
   private final int strength;
   List<Tuple> tests;
 
-  public IPO2TupleGenerator(
+  public IPO2CAEngine(
       @Param(source = Param.Source.INSTANCE, defaultValue = "2") int strength) {
     this.strength = strength;
   }
@@ -59,11 +59,11 @@ public class IPO2TupleGenerator extends TupleGeneratorBase {
     IPO2 ipo2 = new IPO2(
         this.getFactors(),
         strength,
-        this.getConstraintManager(),
+        this.getConstraint(),
         new GreedyIPO2Optimizer());
     ////
-    // Wire constraint manager.
-    this.getConstraintManager().addObserver(ipo2);
+    // Wire constraint checker.
+    this.getConstraint().addObserver(ipo2);
     ////
     // Perform IPO algorithm.
     ipo2.ipo();

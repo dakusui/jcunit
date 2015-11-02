@@ -1,6 +1,6 @@
-package com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers;
+package com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
@@ -10,7 +10,7 @@ import java.util.List;
 public interface IPO2Optimizer {
   Tuple fillInMissingFactors(Tuple tuple,
       Tuples leftTuples,
-      ConstraintManager constraintManager,
+      Constraint constraint,
       Factors factors);
 
   /**

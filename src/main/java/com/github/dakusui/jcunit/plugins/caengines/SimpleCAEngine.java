@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.generators;
+package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -13,10 +13,10 @@ import java.util.List;
  *
  * The default value is the first level of each factor.
  */
-public class SimpleTupleGenerator extends TupleGeneratorBase {
+public class SimpleCAEngine extends CAEngineBase {
   private List<Tuple> tests;
 
-  public SimpleTupleGenerator() {
+  public SimpleCAEngine() {
   }
 
   /**
@@ -36,7 +36,7 @@ public class SimpleTupleGenerator extends TupleGeneratorBase {
         Tuple tuple = newTuple(factors);
         tuple.put(eachFactorName, eachLevel);
         try {
-          if (this.getConstraintManager().check(tuple)) {
+          if (this.getConstraint().check(tuple)) {
             this.tests.add(tuple);
           }
         } catch (UndefinedSymbol undefinedSymbol) {

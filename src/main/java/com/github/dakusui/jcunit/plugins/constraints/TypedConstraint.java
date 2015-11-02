@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.constraintmanagers;
+package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class TypedConstraintManager<T>
-    extends ConstraintManagerBase {
-  public TypedConstraintManager() {
+public abstract class TypedConstraint<T>
+    extends ConstraintBase {
+  public TypedConstraint() {
   }
 
   @Override public final boolean check(Tuple tuple)
