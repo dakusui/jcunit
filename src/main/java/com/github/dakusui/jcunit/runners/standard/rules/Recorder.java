@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.runners.standard.plugins;
+package com.github.dakusui.jcunit.runners.standard.rules;
 
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -47,7 +47,7 @@ import java.util.List;
  * This class doesn't do anything in case a system property {@code jcunit.recorder} isn't
  * set {@code true}.
  */
-public class Recorder extends JCUnitRule {
+public class Recorder extends BaseRule {
   public static final String TESTCASE_FILENAME  = "testcase.ser";
   public static final String EXCEPTION_FILENAME = "exception.ser";
   public static final String FAILED_FILENAME    = "failed";
@@ -72,6 +72,39 @@ public class Recorder extends JCUnitRule {
    */
   public Recorder(String baseDir) {
     this.baseDir = baseDir;
+  }
+
+  @Override
+  protected void starting(Description d) {
+    super.starting(d);
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
+      this.setTestDataDir(testDataDirFor(this.baseDir, this.getTestCase().getId(), d));
+
+      synchronized (Recorder.class) {
+        if (this.testDataDir.exists()) {
+          IOUtils.deleteRecursive(this.testDataDir);
+        }
+        boolean dirCreated = this.testDataDir.mkdirs();
+        Checks.checkcond(dirCreated);
+        IOUtils.save(this.getTestCase().getTuple(),
+            new File(testDataDir.getParentFile(), TESTCASE_FILENAME));
+      }
+    }
+    this.initialized = true;
+  }
+
+  @Override
+  protected void failed(Throwable t, Description d) {
+    Checks.checkcond(this.initialized);
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
+      Checks.checkcond(this.testDataDir != null);
+      IOUtils.save(t, new File(testDataDir, EXCEPTION_FILENAME));
+      ////
+      // Create a file 'failed', which tells framework that this test case contains
+      // at least one failed test.
+      IOUtils.createFile(new File(testDataDir.getParentFile(), FAILED_FILENAME));
+    }
+    super.failed(t, d);
   }
 
   protected static File testDataDirFor(String baseDir, int id, Description d) {
@@ -119,39 +152,6 @@ public class Recorder extends JCUnitRule {
         IOUtils.deleteRecursive(testClassBaseDir);
       }
     }
-  }
-
-  @Override
-  protected void starting(Description d) {
-    super.starting(d);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
-      this.setTestDataDir(testDataDirFor(this.baseDir, this.getTestCase().getId(), d));
-
-      synchronized (Recorder.class) {
-        if (this.testDataDir.exists()) {
-          IOUtils.deleteRecursive(this.testDataDir);
-        }
-        boolean dirCreated = this.testDataDir.mkdirs();
-        Checks.checkcond(dirCreated);
-        IOUtils.save(this.getTestCase().getTuple(),
-            new File(testDataDir.getParentFile(), TESTCASE_FILENAME));
-      }
-    }
-    this.initialized = true;
-  }
-
-  @Override
-  protected void failed(Throwable t, Description d) {
-    Checks.checkcond(this.initialized);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
-      Checks.checkcond(this.testDataDir != null);
-      IOUtils.save(t, new File(testDataDir, EXCEPTION_FILENAME));
-      ////
-      // Create a file 'failed', which tells framework that this test case contains
-      // at least one failed test.
-      IOUtils.createFile(new File(testDataDir.getParentFile(), FAILED_FILENAME));
-    }
-    super.failed(t, d);
   }
 
   public <T> void save(T obj) {

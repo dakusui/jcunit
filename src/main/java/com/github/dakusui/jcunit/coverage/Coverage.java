@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
 
+import java.io.PrintStream;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -178,6 +179,36 @@ public class Coverage {
 
   public interface Report {
     void submit(Coverage coverage);
+
+    class Printer implements Report {
+      private final PrintStream out;
+
+      public Printer(PrintStream out) {
+        this.out = Checks.checknotnull(out);
+      }
+
+      @Override
+      public void submit(Coverage coverage) {
+        out.printf("STRENGTH=%2s: %3s/%3s/%3s/%3s/%3s (uncovered in weaker degree/violations/covered/yet to be covered/total)%n",
+            coverage.degree,
+            coverage.getUncoveredInWeakerDegree().size(),
+            coverage.getViolations().size(),
+            coverage.getCovered(),
+            coverage.getYetToBeCovered().size(),
+            coverage.initialSize
+        );
+        for (Tuple each : coverage.getYetToBeCovered()) {
+          out.printf(
+              "%1s:%1s:%s%n",
+              coverage.getViolations().contains(each)
+                  ? "V" : " ",
+              coverage.getUncoveredInWeakerDegree().contains(each)
+                  ? "W" : " ",
+              each);
+        }
+        out.println();
+      }
+    }
   }
 
   public static class TestSpace {

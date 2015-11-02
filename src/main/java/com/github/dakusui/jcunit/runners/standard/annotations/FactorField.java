@@ -19,7 +19,9 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.LinkedList;
+import java.util.List;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -117,6 +119,7 @@ public @interface FactorField {
           };
         }
         if (!ret.contains(null) && ann.includeNull()) {
+          ret = Utils.newList(ret);
           ret.add(null);
         }
         List<Object> incompatibles = Utils.filter(ret, new Utils.Predicate<Object>() {
@@ -181,18 +184,23 @@ public @interface FactorField {
           arr = o;
         } else if (o instanceof Class && ((Class) o).isEnum()) {
           ////
-          // 'values' method of an enum is static.
+          // 'values' method of an enum is static and returned value is guaranteed to be an array.
           arr = ReflectionUtils.invoke(null, ReflectionUtils.getMethod(((Class) o), "values"));
         } else {
           arr = null;
         }
-        Checks.checknotnull(arr);
-        int l = Array.getLength(arr);
-        List<Object> ret = new ArrayList<Object>(l);
-        for (int i = 0; i < l; i++) {
-          ret.add(Array.get(arr, i));
-        }
-        return ret;
+        Checks.checknotnull(arr).getClass();
+        return new AbstractList<Object>() {
+          @Override
+          public Object get(int index) {
+            return Array.get(arr, index);
+          }
+
+          @Override
+          public int size() {
+            return Array.getLength(arr);
+          }
+        };
       }
 
       private static Method levelsMethodOf(Class supportedType) {
@@ -214,11 +222,6 @@ public @interface FactorField {
         @Override
         public Object get(int n) {
           return new IllegalArgumentException();
-        }
-
-        @Override
-        public List<String> getErrorsOnInitialization() {
-          return Collections.emptyList();
         }
       }
     }
@@ -300,9 +303,9 @@ public @interface FactorField {
             return Array.getLength(values);
           }
         };
-      } else if (c.getAnnotation(TupleGeneration.class) != null) {
+      } else if (c.getAnnotation(GenerateWith.class) != null) {
         return new AbstractList<Object>() {
-          TupleGenerator tg = TupleGeneration.TupleGeneratorFactory.INSTANCE.createFromClass(c);
+          TupleGenerator tg = GenerateWith.TupleGeneratorFactory.INSTANCE.createFromClass(c);
 
           @Override
           public Object get(int index) {

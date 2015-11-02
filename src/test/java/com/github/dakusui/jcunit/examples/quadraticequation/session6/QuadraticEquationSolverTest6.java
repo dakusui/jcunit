@@ -1,19 +1,15 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session6;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.*;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
-import com.github.dakusui.jcunit.core.*;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.ututils.UTUtils;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.model.Statement;
 import org.mockito.internal.matchers.LessThan;
 
 import java.io.PrintStream;
@@ -34,24 +30,11 @@ import static org.junit.Assert.assertThat;
  * </ul>
  */
 @RunWith(JCUnit.class)
-@TupleGeneration(
+@GenerateWith(
     constraint = @Constraint(
         value = QuadraticEquationSolverTest6.CM.class,
-        args = { }))
+        args = {}))
 public class QuadraticEquationSolverTest6 {
-  @ClassRule
-  public static TestRule testRule = new TestRule() {
-    @Override
-    public Statement apply(final Statement base, final Description description) {
-      return new Statement() {
-        @Override
-        public void evaluate() throws Throwable {
-          base.evaluate();
-        }
-      };
-    }
-  };
-
   public static PrintStream ps = UTUtils.DUMMY_PRINTSTREAM;
 
   /**

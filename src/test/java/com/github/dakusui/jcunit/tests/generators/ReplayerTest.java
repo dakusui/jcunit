@@ -10,9 +10,9 @@ import com.github.dakusui.jcunit.plugins.generators.TupleGeneratorBase;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
+import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
@@ -42,7 +42,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = {
@@ -80,7 +80,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = {
@@ -205,7 +205,7 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    TupleGenerator tupleGenerator = TupleGeneration.TupleGeneratorFactory.INSTANCE
+    TupleGenerator tupleGenerator = GenerateWith.TupleGeneratorFactory.INSTANCE
         .createFromClass(TestClass.class);
     assertEquals(Replayer.class, tupleGenerator.getClass());
 
@@ -244,7 +244,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = {
@@ -269,7 +269,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = {
@@ -337,7 +337,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = {
@@ -370,7 +370,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass4$TG"), @Value("All") }
@@ -421,7 +421,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass5$TG2"), @Value("All") }
@@ -443,7 +443,7 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
           args = { @Value("com.github.dakusui.jcunit.tests.generators.ReplayerTest$TestClass6$TG3"), @Value("All") }

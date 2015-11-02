@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Rule;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 //@JCUnit.Execute(include = {0, 3, 7, 10, 11, 20, 25, 29, 32, 35, 36})
 public class GeophileReproducibilityExample extends GeophileTestBase {
   @Rule
-  public JCUnitDesc desc = new JCUnitDesc();
+  public TestDescription desc = new TestDescription();
 
   /**
    * A map that holds test ids and corresponding expectations.

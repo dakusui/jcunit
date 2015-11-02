@@ -201,7 +201,7 @@ public interface Action<SUT> extends Serializable {
     private Method chooseMethod(Class<?> klass, String name) {
       Method ret = null;
       for (Method each : klass.getMethods()) {
-        if (each.getName().equals(name) && this.getParameterTypes().equals(Utils.toList(each.getParameterTypes()))) {
+        if (each.getName().equals(name) && this.getParameterTypes().equals(Utils.asList(each.getParameterTypes()))) {
           ret = each;
           break;
         }
@@ -215,7 +215,7 @@ public interface Action<SUT> extends Serializable {
      */
     private List<Class<?>> getParameterTypes() {
       Class<?>[] parameterTypes = this.method.getParameterTypes();
-      return Utils.toList(parameterTypes).subList(1, parameterTypes.length);
+      return Utils.asList(parameterTypes).subList(1, parameterTypes.length);
     }
   }
 }

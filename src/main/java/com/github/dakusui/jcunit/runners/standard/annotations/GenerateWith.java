@@ -25,11 +25,14 @@ import java.util.*;
 
 @Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TupleGeneration {
+public @interface GenerateWith {
 
   Generator generator() default @Generator();
 
   Constraint constraint() default @Constraint();
+
+  Reporter reporter() default @Reporter();
+
 
   class Validator extends AnnotationValidator {
     @Override
@@ -103,9 +106,9 @@ public @interface TupleGeneration {
       public TupleGenerator createFromClass(
           Class<?> klazz) {
         Checks.checknotnull(klazz);
-        TupleGeneration tupleGenerationAnn = getTupleGenerationAnnotation(
+        GenerateWith generateWithAnn = getAnnotation(
             klazz);
-        return createTupleGenerator(klazz, tupleGenerationAnn);
+        return createTupleGenerator(klazz, generateWithAnn);
       }
 
       private Value.Resolver createResolver() {
@@ -114,22 +117,22 @@ public @interface TupleGeneration {
 
       public TupleGenerator createTupleGenerator(
           Class<?> klazz,
-          TupleGeneration tupleGenerationAnn) {
+          GenerateWith generateWithAnn) {
         Checks.checknotnull(klazz);
-        Checks.checknotnull(tupleGenerationAnn);
+        Checks.checknotnull(generateWithAnn);
         Map<Field, Integer> switchCoverages = new LinkedHashMap<Field, Integer>();
         Factors factors = loadFactors(klazz, switchCoverages);
         ////
         // Wire and build objects.
-        Constraint constraintAnn = tupleGenerationAnn.constraint();
+        Constraint constraintAnn = generateWithAnn.constraint();
         ConstraintManager constraintManager =
             new ConstraintManager.Builder()
                 .setConstraintManagerClass(constraintAnn.value())
                 .setFactors(factors).build();
-        Generator generatorAnn = tupleGenerationAnn.generator();
+        Generator generatorAnn = generateWithAnn.generator();
+        Class<? extends TupleGenerator> tupleGeneratorClass = generatorAnn.value();
         TupleGenerator.Builder b = new TupleGenerator.Builder(this.resolver)
-            .setTupleGeneratorClass(generatorAnn.value())
-            .setConstraintManager(constraintManager)
+            .setTupleGeneratorClass(tupleGeneratorClass)
             .setParameters(generatorAnn.args())
             .setTargetClass(klazz)
             .setFactors(factors);
@@ -146,7 +149,7 @@ public @interface TupleGeneration {
             // iterating over fsmFields.
             int fsmSwitchCoverage = switchCoverages.get(each);
             String fsmName = each.getName();
-            FSM fsm = createFSM(each, fsmSwitchCoverage);
+            FSM<Object> fsm = createFSM(each, fsmSwitchCoverage);
             fsms.put(fsmName, fsm);
             collectLocalConstraintManagers(localCMs, fsmName, fsm);
           }
@@ -160,13 +163,15 @@ public @interface TupleGeneration {
           generator.init();
         } else {
           generator = b.build();
+          generator.setConstraintManager(constraintManager);
+          generator.init();
         }
         return generator;
       }
 
-      private void collectLocalConstraintManagers(List<Parameters.LocalConstraintManager> localCMs, String fsmName, FSM fsm) {
-        for (int i = 0; i < fsm.historyLength(); i++) {
-          for (Action eachAction : (List<Action>) fsm.actions()) {
+      private void collectLocalConstraintManagers(List<Parameters.LocalConstraintManager> localCMs, String fsmName, FSM<Object> fsm) {
+        for (int i = 0; i < fsm.historyLength(); i++)
+          for (Action<Object> eachAction : fsm.actions()) {
             Parameters parameters = eachAction.parameters();
             ConstraintManager baseLocalCM = parameters.getConstraintManager();
             if (ConstraintManager.DEFAULT_CONSTRAINT_MANAGER.equals(baseLocalCM)) {
@@ -186,7 +191,6 @@ public @interface TupleGeneration {
             );
             localCMs.add(localCM);
           }
-        }
       }
 
       private static List<Field> extractFSMFactorFields(Set<Field> factorFields) {
@@ -207,7 +211,7 @@ public @interface TupleGeneration {
        * @param switchCoverage A switch coverage number, which is equal to number of scenarios in a main sequence -1.
        * @return Created FSM object
        */
-      private static FSM<?> createFSM(Field f, int switchCoverage) {
+      private static FSM<Object> createFSM(Field f, int switchCoverage) {
         Checks.checknotnull(f);
         Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
         //noinspection unchecked
@@ -232,30 +236,38 @@ public @interface TupleGeneration {
         return factors;
       }
 
-      TupleGeneration getTupleGenerationAnnotation(
+      GenerateWith getAnnotation(
           AnnotatedElement annotatedElement) {
-        TupleGeneration ret;
-        if (annotatedElement.isAnnotationPresent(TupleGeneration.class)) {
-          ret = annotatedElement.getAnnotation(TupleGeneration.class);
+        GenerateWith ret;
+        if (annotatedElement.isAnnotationPresent(GenerateWith.class)) {
+          ret = annotatedElement.getAnnotation(GenerateWith.class);
         } else {
-          ret = new TupleGeneration() {
+          // Fall back to default in case annotation isn't given at all.
+          ret = new GenerateWith() {
             @Override
             public Generator generator() {
               return ReflectionUtils
-                  .getDefaultValueOfAnnotation(TupleGeneration.class,
+                  .getDefaultValueOfAnnotation(GenerateWith.class,
                       "generator");
             }
 
             @Override
             public Constraint constraint() {
               return ReflectionUtils
-                  .getDefaultValueOfAnnotation(TupleGeneration.class,
+                  .getDefaultValueOfAnnotation(GenerateWith.class,
                       "constraint");
             }
 
             @Override
+            public Reporter reporter() {
+              return ReflectionUtils
+                  .getDefaultValueOfAnnotation(GenerateWith.class,
+                      "reporter");
+            }
+
+            @Override
             public Class<? extends Annotation> annotationType() {
-              return TupleGeneration.class;
+              return GenerateWith.class;
             }
           };
         }

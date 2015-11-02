@@ -45,7 +45,7 @@ public class FrameworkMethodUtils {
       try {
         DUMMY_METHOD = CompositeFrameworkMethod.class.getMethod("dummyMethod");
       } catch (NoSuchMethodException e) {
-        throw new RuntimeException(e);
+        throw Checks.wrap(e);
       }
     }
 

@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManag
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -83,7 +83,7 @@ public class ConstraintTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(constraint = @Constraint(CM.class))
+  @GenerateWith(constraint = @Constraint(CM.class))
   public static class TestClass2 {
     @FactorField(intLevels = { 1, 2, 3 })
     public int f;

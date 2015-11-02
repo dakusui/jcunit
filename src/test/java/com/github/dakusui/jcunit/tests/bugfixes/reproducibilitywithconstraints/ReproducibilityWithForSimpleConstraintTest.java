@@ -2,10 +2,10 @@ package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.Constraint;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManagerBase;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
-@TupleGeneration(
+@GenerateWith(
     constraint = @Constraint(ReproducibilityWithForSimpleConstraintTest.CM.class)
 )
 public class ReproducibilityWithForSimpleConstraintTest {
@@ -39,7 +39,7 @@ public class ReproducibilityWithForSimpleConstraintTest {
   }
 
   @Rule
-  public JCUnitDesc desc = new JCUnitDesc();
+  public TestDescription desc = new TestDescription();
 
   @FactorField(intLevels = { 1, 2, 3 })
   public int a;

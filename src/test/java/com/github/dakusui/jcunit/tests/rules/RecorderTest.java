@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.runners.standard.JCUnitRunner;
-import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
+import com.github.dakusui.jcunit.runners.standard.InternalAnnotation;
+import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -27,9 +27,9 @@ public class RecorderTest extends Recorder implements Serializable {
   public int recordedField = -1024;
 
   @Mock
-  public Description                     description;
+  public Description        description;
   @Mock
-  public JCUnitRunner.InternalAnnotation ann;
+  public InternalAnnotation ann;
 
   Class<?>      testClass = RecorderTest.class;
   Factors       factors   = new Factors.Builder()
@@ -163,7 +163,7 @@ public class RecorderTest extends Recorder implements Serializable {
   private void wireMocks() {
     //noinspection unchecked
     when(description.getTestClass()).thenReturn((Class) testClass);
-    when(description.getAnnotation(JCUnitRunner.InternalAnnotation.class))
+    when(description.getAnnotation(InternalAnnotation.class))
         .thenReturn(ann);
     when(description.getMethodName()).thenReturn("methodName");
     when(ann.getTestCase()).thenReturn(this.testCase);

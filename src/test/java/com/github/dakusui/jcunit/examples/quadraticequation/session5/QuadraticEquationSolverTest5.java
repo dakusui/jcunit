@@ -26,7 +26,7 @@ import static org.junit.Assert.assertThat;
  * </ul>
  */
 @RunWith(JCUnit.class)
-@TupleGeneration(
+@GenerateWith(
     constraint = @Constraint(
         value = QuadraticEquationSolverTest5.CM.class,
         args = { }))

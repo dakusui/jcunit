@@ -41,7 +41,7 @@ public class RandomTupleGeneratorTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = RandomTupleGenerator.class,
           args = {
@@ -60,7 +60,7 @@ public class RandomTupleGeneratorTest {
 
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = RandomTupleGenerator.class,
           args = {
@@ -80,7 +80,7 @@ public class RandomTupleGeneratorTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = RandomTupleGenerator.class,
           args = {
@@ -103,7 +103,7 @@ public class RandomTupleGeneratorTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
           value = RandomTupleGenerator.class,
           args = {

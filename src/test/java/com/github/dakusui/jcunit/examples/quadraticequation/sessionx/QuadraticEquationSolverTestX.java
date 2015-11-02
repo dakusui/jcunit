@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.sessionx;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
 import com.github.dakusui.jcunit.core.*;
-import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -20,15 +20,15 @@ import java.util.List;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
-@TupleGeneration(
+@GenerateWith(
     constraint = @Constraint(
         value = QuadraticEquationSolverTestX.CM.class,
         args = { }))
 public class QuadraticEquationSolverTestX {
   @Rule
-  public TestName   name = new TestName();
+  public TestName        name = new TestName();
   @Rule
-  public JCUnitDesc desc = new JCUnitDesc();
+  public TestDescription desc = new TestDescription();
   @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101 })
   public int a;
   @FactorField(intLevels = { 0, 1, -2, 100, -100, 101, -101 })

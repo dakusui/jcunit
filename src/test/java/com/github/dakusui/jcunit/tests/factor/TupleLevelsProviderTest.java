@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.tests.factor;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -17,9 +17,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-@TupleGeneration
+@GenerateWith
 public class TupleLevelsProviderTest {
-  @TupleGeneration
+  @GenerateWith
   public static class Struct {
     @FactorField(intLevels = { 1, 2 })
     public int f1;
@@ -69,7 +69,7 @@ public class TupleLevelsProviderTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(value = IPO2TupleGenerator.class, args = @Value("3"))
   )
   public static class TestClass3 {
@@ -96,7 +96,7 @@ public class TupleLevelsProviderTest {
 
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(value = IPO2TupleGenerator.class, args = @Value("1"))
   )
   public static class TestClass4 {
@@ -121,7 +121,7 @@ public class TupleLevelsProviderTest {
 
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(value = IPO2TupleGenerator.class, args = { @Value("2"), @Value("hello!") })
   )
   public static class TestClass5 {

@@ -141,29 +141,29 @@ public class FrameworkMethodUtilsTest {
   @Test
   public void testSimpleMethodReference() {
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList("precondition1"),
+        Utils.asList("precondition1"),
         UTUtils.<String, List<String>>toMap(
-            UTUtils.entry("precondition1", Utils.toList())
+            UTUtils.entry("precondition1", Utils.asList())
         ));
   }
 
   @Test
   public void testSingleTermMethodReference() {
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList("precondition2&&precondition3"),
+        Utils.asList("precondition2&&precondition3"),
         UTUtils.<String, List<String>>toMap(
-            UTUtils.entry("precondition2", Utils.toList()),
-            UTUtils.entry("precondition3", Utils.toList()
+            UTUtils.entry("precondition2", Utils.asList()),
+            UTUtils.entry("precondition3", Utils.asList()
             )));
   }
 
   @Test
   public void testSingleTermWithNegateMethodReference() {
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList("!precondition2&&precondition3"),
+        Utils.asList("!precondition2&&precondition3"),
         UTUtils.<String, List<String>>toMap(
-            UTUtils.entry("precondition2", Utils.toList()),
-            UTUtils.entry("precondition3", Utils.toList()
+            UTUtils.entry("precondition2", Utils.asList()),
+            UTUtils.entry("precondition3", Utils.asList()
             )));
   }
 
@@ -171,11 +171,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_nonPublic() {
     String methodName = "invalidPrecondition1";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList("The method 'invalidPrecondition1' must be public. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)")
+                Utils.asList("The method 'invalidPrecondition1' must be public. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)")
             )));
   }
 
@@ -183,11 +183,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_typeMismatch() {
     String methodName = "invalidPrecondition2";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "The method 'invalidPrecondition2' must return a boolean value, but 'java.lang.Boolean' is returned. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)"
                 ))));
   }
@@ -196,11 +196,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_nonStatic() {
     String methodName = "invalidPrecondition3";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "The method 'invalidPrecondition3' must not be static. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)"
                 ))));
   }
@@ -209,11 +209,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_nonParameterless() {
     String methodName = "invalidPrecondition4";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "The method 'invalidPrecondition4' must not have any parameter. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)"
                 ))));
   }
@@ -226,11 +226,11 @@ public class FrameworkMethodUtilsTest {
     );
     String methodName = "invalidPrecondition5";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "<<SHOULD_NOT_BE_EVALUATED>>"
                 ))));
   }
@@ -244,11 +244,11 @@ public class FrameworkMethodUtilsTest {
     );
     String methodName = "undefinedPrecondition";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "<<SHOULD_NOT_BE_EVALUATED>>"
                 ))));
   }
