@@ -6,8 +6,9 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
@@ -27,8 +28,8 @@ import java.util.List;
 public class JCUnit extends Parameterized {
   private final List<Runner> runners;
 
-  private final TestSuite         testSuite;
-  private final Factors           factors;
+  private final TestSuite testSuite;
+  private final Factors   factors;
 
   /**
    * Only called reflectively by JUnit. Do not use programmatically.
@@ -44,10 +45,11 @@ public class JCUnit extends Parameterized {
       // Generate a list of test cases using a specified tuple generator
       CoveringArrayEngine coveringArrayEngine = getCAEngineFactory().createFromClass(klass);
       List<TestCase> testCases = Utils.newList();
+      CoveringArray ca = coveringArrayEngine.getCoveringArray();
       int id;
-      for (id = (int) coveringArrayEngine.firstId();
-           id >= 0; id = (int) coveringArrayEngine.nextId(id)) {
-        Tuple testCase = coveringArrayEngine.get(id);
+      for (id = ca.firstId();
+           id >= 0; id = ca.nextId(id)) {
+        Tuple testCase = ca.get(id);
         if (shouldPerform(testCase, preconditionMethods)) {
           testCases.add(
               new TestCase(id, TestCase.Type.Generated, testCase
@@ -55,7 +57,7 @@ public class JCUnit extends Parameterized {
         }
       }
       // Skip to number of test cases generated.
-      id = (int) coveringArrayEngine.size();
+      id = ca.size();
       ////
       // Compose a list of 'negative test cases' and register them.
       final Constraint cm = coveringArrayEngine.getConstraint();

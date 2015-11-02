@@ -5,8 +5,9 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.validator.AnnotationValidator;
@@ -141,7 +142,8 @@ public @interface FactorField {
         //noinspection unchecked
         Plugin.Factory<LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
             (Class<LevelsProvider>) ann.levelsProvider(),
-            new Value.Resolver()
+            new Value.Resolver(),
+            new RunnerContext.Dummy()
         );
         //noinspection ConstantConditions
         return factory.create(ann.providerParams());
@@ -305,18 +307,18 @@ public @interface FactorField {
         };
       } else if (c.getAnnotation(GenerateWith.class) != null) {
         return new AbstractList<Object>() {
-          CoveringArrayEngine tg = GenerateWith.CAEngineFactory.INSTANCE.createFromClass(c);
+          CoveringArray ca = GenerateWith.CAEngineFactory.INSTANCE.createFromClass(c).getCoveringArray();
 
           @Override
           public Object get(int index) {
             Object ret = ReflectionUtils.create(c);
-            TestCaseUtils.initializeObjectWithTuple(ret, tg.get(index));
+            TestCaseUtils.initializeObjectWithTuple(ret, ca.get(index));
             return ret;
           }
 
           @Override
           public int size() {
-            return (int) tg.size();
+            return (int) ca.size();
           }
         };
       } else {

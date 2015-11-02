@@ -20,9 +20,7 @@ public interface CoverageReporter extends Plugin {
 
   class Default extends Base {
     public Default(
-        @Param(source = Param.Source.INSTANCE) int source
     ) {
-
     }
 
   }

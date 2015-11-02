@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngineBase;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -26,14 +27,16 @@ import org.junit.runner.notification.Failure;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class ReplayerTest {
   @Before
   public void before() {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
   }
 
   @Before
@@ -108,8 +111,8 @@ public class ReplayerTest {
 
   @Test
   public void givenRecorderAndReplayerSetFalse$whenRunTests$thenTestsWillBeRunWithFallbackGenerator() {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
 
     Result testResult = runTests();
 
@@ -121,11 +124,11 @@ public class ReplayerTest {
   public void givenRecorderIsFalseAndReplayerIsTrue$whenRunTests$thenTestsWillBeRunWithFallbackGenerator() {
     ////
     // Make sure the directory is empty.
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
     Recorder.initializeTestClassDataDir(TestClass.class);
 
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
 
     Result testResult = runTests();
 
@@ -135,8 +138,8 @@ public class ReplayerTest {
 
   @Test
   public void givenRecorderAndReplayerSetTrue$whenRunTests$thenRecordedTuplesWillBeReplayed() {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
 
     Result testResult = runTests();
 
@@ -149,8 +152,8 @@ public class ReplayerTest {
     ////
     // Given:
     {
-      System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-      System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+      System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+      System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
       Recorder.initializeTestClassDataDir(TestClass.class);
       Result testResult = runTests();
       assertEquals(2, testResult.getRunCount());
@@ -159,8 +162,8 @@ public class ReplayerTest {
     ////
     // When:
     {
-      System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
-      System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+      System.setProperty(SystemProperties.Key.RECORDER.key(), "false");
+      System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
       Result testResult = runTestsWithoutCleanUp();
       ////
       // Then:
@@ -171,8 +174,8 @@ public class ReplayerTest {
 
   @Test
   public void givenRecorderIsSetTrueAndReplayerFalse$whenRunTests$thenTestsWillBeRecorded() {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
 
     File testClassDataDir = ensureTestDataDirectoryForClassDoesntExist(TestClass.class);
 
@@ -185,8 +188,8 @@ public class ReplayerTest {
 
     ////
     // Run recorded tests
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
 
     Result testResult2 = JUnitCore.runClasses(TestClass.class);
 
@@ -196,8 +199,8 @@ public class ReplayerTest {
 
   @Test
   public void testReplayer() {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
 
     File testClassDataDir = ensureTestDataDirectoryForClassDoesntExist(TestClass.class);
     Result testResult = runTests();
@@ -210,11 +213,12 @@ public class ReplayerTest {
     assertEquals(Replayer.class, coveringArrayEngine.getClass());
 
     Replayer replayer = (Replayer) coveringArrayEngine;
-    assertEquals(2, replayer.size());
-    assertEquals(100, replayer.getTuple(0).get("f1"));
-    assertEquals(300, replayer.getTuple(0).get("f2"));
-    assertEquals(200, replayer.getTuple(1).get("f1"));
-    assertEquals(300, replayer.getTuple(1).get("f2"));
+    CoveringArray coveringArray = replayer.getCoveringArray();
+    assertEquals(2, coveringArray.size());
+    assertEquals(100, coveringArray.get(0).get("f1"));
+    assertEquals(300, coveringArray.get(0).get("f2"));
+    assertEquals(200, coveringArray.get(1).get("f1"));
+    assertEquals(300, coveringArray.get(1).get("f2"));
 
   }
 
@@ -222,7 +226,7 @@ public class ReplayerTest {
     File testClassDataDir = new File(
         String.format(
             "%s/%s",
-            SystemProperties.get(SystemProperties.KEY.BASEDIR, ".jcunit"),
+            SystemProperties.get(SystemProperties.Key.BASEDIR, ".jcunit"),
             TestClass.class.getCanonicalName()));
     UTUtils.stdout().println(testClassDataDir);
     Checks.checkcond(testClassDataDir.getAbsolutePath().contains(testClass.getCanonicalName()));
@@ -302,11 +306,11 @@ public class ReplayerTest {
   public void givenRecorderIsFalseAndReplayerIsTrueButFallbackIsDisabled$whenRunTests$thenTestsWillBeRunWithFallbackGenerator() {
     ////
     // Make sure the directory is empty.
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
     Recorder.initializeTestClassDataDir(TestClass.class);
 
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
 
     Result testResult = new TestClassNoFallBack().runTests();
 
@@ -319,7 +323,7 @@ public class ReplayerTest {
       assertEquals(
           String.format(
               "Test hasn't been run with 'JCUnitRecorder' rule yet. No tuple containing directory under '%s/%s' was found.",
-              SystemProperties.get(SystemProperties.KEY.BASEDIR, ".jcunit"),
+              SystemProperties.get(SystemProperties.Key.BASEDIR, ".jcunit"),
               TestClassNoFallBack.class.getCanonicalName()
           ),
           failure.getMessage()
@@ -382,13 +386,8 @@ public class ReplayerTest {
       }
 
       @Override
-      public Tuple getTuple(int tupleId) {
-        return null;
-      }
-
-      @Override
-      protected long initializeTuples() {
-        return 0;
+      protected List<Tuple> generate() {
+        return Collections.emptyList();
       }
     }
 

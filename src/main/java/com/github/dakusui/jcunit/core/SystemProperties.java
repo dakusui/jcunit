@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.core;
 import java.io.File;
 
 import static java.lang.System.currentTimeMillis;
-import static java.lang.System.getProperties;
 import static java.lang.System.getProperty;
 
 /**
@@ -13,7 +12,7 @@ import static java.lang.System.getProperty;
  * @author hiroshi
  */
 public class SystemProperties {
-  public enum KEY {
+  public enum Key {
     DEBUG {
       @Override
       public String key() {
@@ -60,18 +59,18 @@ public class SystemProperties {
   private SystemProperties() {
   }
 
-  public static String get(KEY propertyKey) {
+  public static String get(Key propertyKey) {
     return get(propertyKey, null);
   }
 
-  public static String get(KEY key, String s) {
+  public static String get(Key key, String s) {
     return getProperty(Checks.checknotnull(key).key(), s);
   }
 
 
   public static File jcunitBaseDir() {
     File ret;
-    String rec = getProperty(KEY.BASEDIR.key());
+    String rec = getProperty(Key.BASEDIR.key());
     if (rec != null) {
       ret = new File(rec);
     } else {
@@ -81,19 +80,19 @@ public class SystemProperties {
   }
 
   public static boolean isDebugEnabled() {
-    return Boolean.parseBoolean(getProperty(KEY.DEBUG.key(), "false"));
+    return Boolean.parseBoolean(getProperty(Key.DEBUG.key(), "false"));
   }
 
   public static boolean isRecorderEnabled() {
-    return Boolean.parseBoolean(getProperty(KEY.RECORDER.key(), "false"));
+    return Boolean.parseBoolean(getProperty(Key.RECORDER.key(), "false"));
   }
 
   public static boolean isReplayerEnabled() {
-    return Boolean.parseBoolean(getProperty(KEY.REPLAYER.key(), "false"));
+    return Boolean.parseBoolean(getProperty(Key.REPLAYER.key(), "false"));
   }
 
   public static long randomSeed() {
-    String randomSeedKey = KEY.RANDOMSEED.key();
+    String randomSeedKey = Key.RANDOMSEED.key();
     synchronized (SystemProperties.class) {
       try {
         if (getProperty(randomSeedKey) == null) {

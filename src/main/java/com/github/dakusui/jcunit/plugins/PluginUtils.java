@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.plugins;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.plugins.Plugin.Param.Converter;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -109,7 +110,11 @@ public class PluginUtils {
           try {
             //noinspection unchecked
             Class<Plugin> tupleGeneratorClass = (Class<Plugin>) Class.forName(className);
-            Plugin.Factory<Plugin, String> factory = new Plugin.Factory<Plugin, String>(tupleGeneratorClass, StringResolver.INSTANCE);
+            Plugin.Factory<Plugin, String> factory = new Plugin.Factory<Plugin, String>(
+                tupleGeneratorClass,
+                StringResolver.INSTANCE,
+                new RunnerContext.Dummy()
+                );
             return factory.create(Arrays.asList(in).subList(1, in.length).toArray(new String[in.length - 1]));
           } catch (ClassNotFoundException e) {
             throw Checks.wrap(e, "class '%s' is not found on the classpath.", className);

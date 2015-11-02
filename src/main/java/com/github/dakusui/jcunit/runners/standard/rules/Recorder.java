@@ -184,7 +184,7 @@ public class Recorder extends BaseRule {
     Checks.checkcond(fieldsNotFoundInStore.isEmpty(),
         "%s: These field(s) are not stored. Maybe you should set system property '%s' true and re-run this test.",
         fieldsNotFoundInStore,
-        SystemProperties.KEY.RECORDER.key()
+        SystemProperties.Key.RECORDER.key()
     );
     return ret;
   }

@@ -6,7 +6,7 @@ import org.junit.Test;
 public class GeophileTest {
   @Test
   public void geophileReplayerTest() {
-    System.setProperty(SystemProperties.KEY.BASEDIR.key(), "src/test/resources");
+    System.setProperty(SystemProperties.Key.BASEDIR.key(), "src/test/resources");
     new GeophileReplayerExample().runTests();
   }
 }

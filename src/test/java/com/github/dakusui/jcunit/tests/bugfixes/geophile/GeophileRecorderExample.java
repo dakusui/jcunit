@@ -30,7 +30,7 @@ public class GeophileRecorderExample extends GeophileTestBase {
   public static void beforeClass() {
     ////
     // Set the system property to 'true' for the sake of the test.
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
 
     File baseDir = Recorder
         .testClassDataDirFor(RECORDER_BASE, GeophileRecorderExample.class);

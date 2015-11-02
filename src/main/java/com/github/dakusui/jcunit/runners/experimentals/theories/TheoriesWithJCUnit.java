@@ -6,15 +6,17 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
-import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
 import org.junit.Assert;
 import org.junit.experimental.theories.PotentialAssignment;
 import org.junit.experimental.theories.Theories;
@@ -42,7 +44,7 @@ public class TheoriesWithJCUnit extends Theories {
     for (FrameworkMethod method : computeTestMethods()) {
       Collection<String> names = new ArrayList<String>();
       for (Name each : getNameAnnotationsFromMethod(method, this.getTestClass())) {
-        if (names.contains(each.value()))  {
+        if (names.contains(each.value())) {
           errors.add(new Error("Parameter name '" + each.value() + "' is used more than once in " + method.getName()));
         }
         names.add(each.value());
@@ -92,7 +94,7 @@ public class TheoriesWithJCUnit extends Theories {
     } catch (Throwable throwable) {
       throw Checks.wrap(throwable);
     }
-    final CoveringArrayEngine tg = createCAEngine(method.getMethod());
+    final CoveringArrayEngine tg = createCoveringArrayEngine(method.getMethod());
     tg.setFactors(factorsBuilder.build());
     tg.init();
     return new TheoryAnchor(method, testClass) {
@@ -101,8 +103,9 @@ public class TheoriesWithJCUnit extends Theories {
 
       @Override
       public void evaluate() throws Throwable {
-        for (int i = 0; i < tg.size(); i++) {
-          runWithCompleteAssignment(tuple2assignments(method.getMethod(), testClass, tg.get(i)));
+        CoveringArray ca = tg.getCoveringArray();
+        for (Tuple each : ca) {
+          runWithCompleteAssignment(tuple2assignments(method.getMethod(), testClass, each));
         }
         //if this test method is not annotated with Theory, then no successes is a valid case
         boolean hasTheoryAnnotation = method.getAnnotation(Theory.class) != null;
@@ -125,13 +128,14 @@ public class TheoriesWithJCUnit extends Theories {
   }
 
 
-  protected CoveringArrayEngine createCAEngine(final Method method) {
+  protected CoveringArrayEngine createCoveringArrayEngine(final Method method) {
     GenerateWith tgAnn = method.getAnnotation(GenerateWith.class);
     CoveringArrayEngine tg;
     final Constraint cm;
+    RunnerContext runnerContext = createRunnerContext();
     if (tgAnn != null) {
-      tg = createCAEngine(tgAnn.generator());
-      cm = createConstraintManager(tgAnn.checker());
+      tg = createCoveringArrayEngine(tgAnn.generator(), runnerContext);
+      cm = createConstraintManager(tgAnn.checker(), runnerContext);
     } else {
       tg = new IPO2CoveringArrayEngine(2);
       cm = Constraint.DEFAULT_CONSTRAINT_MANAGER;
@@ -159,27 +163,31 @@ public class TheoriesWithJCUnit extends Theories {
     return tg;
   }
 
-  protected Constraint createConstraintManager(Checker checkerAnnotation) {
+  private RunnerContext createRunnerContext() {
+    return new RunnerContext.Base(this.getTestClass().getJavaClass());
+  }
+
+  protected Constraint createConstraintManager(Checker checkerAnnotation, RunnerContext runnerContext) {
     Value.Resolver resolver = new Value.Resolver();
     //noinspection unchecked
     return Checks.cast(
         Constraint.class,
         new Plugin.Factory<Constraint, Value>(
             (Class<Constraint>) checkerAnnotation.value(),
-            resolver)
+            resolver,
+            runnerContext
+        )
             .create(checkerAnnotation.args()));
   }
 
-  private CoveringArrayEngine createCAEngine(final Generator generatorAnnotation) {
+  private static CoveringArrayEngine createCoveringArrayEngine(final Generator generatorAnnotation, RunnerContext runnerContext) {
     Value.Resolver resolver = new Value.Resolver();
     //noinspection unchecked
     return Checks.cast(
         CoveringArrayEngine.class,
-        new Plugin.Factory<CoveringArrayEngine, Value>(
-            (Class<CoveringArrayEngine>) generatorAnnotation.value(),
-            resolver)
-            .create(generatorAnnotation.args()
-            ));
+        new Plugin.Factory<CoveringArrayEngine, Value>((Class<CoveringArrayEngine>) generatorAnnotation.value(),
+            resolver,
+            runnerContext).create(generatorAnnotation.args()));
   }
 
   private static Assignments tuple2assignments(Method method, TestClass testClass, Tuple t) {

@@ -14,19 +14,17 @@ import java.util.Random;
 /**
  * A tuple generator which generates a test suite using random.
  * A user can specify a random seed to be used in the generation.
- *
  */
 public class RandomCoveringArrayEngine extends CoveringArrayEngineBase {
   private final long        seed;
   private final int         size;
-  private       List<Tuple> tests;
 
   /**
    * TODO: update accordingly.
-   *
+   * <p/>
    * The first parameter specifies the number of test cases. This must be
    * non-negative integer. This parameter is mandatory.
-   *
+   * <p/>
    * The second one specifies a seed for random number generation. By specifying
    * the seed, you can get the same test suite always.
    * Long value or a fixed string "SYSTEM_PROPERTY" can be given. If the string
@@ -35,14 +33,14 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngineBase {
    * JCUnit uses a number based on current time as its seed. This parameter is
    * mandatory.
    *
-   * @see com.github.dakusui.jcunit.core.SystemProperties.KEY#RANDOMSEED
+   * @see SystemProperties.Key#RANDOMSEED
    * @see SystemProperties#randomSeed()
    */
   public RandomCoveringArrayEngine(
-      @Param(source = Param.Source.INSTANCE) int size,
+      @Param(source = Param.Source.CONFIG) int size,
       @Param(
           source = Param.Source.SYSTEM_PROPERTY,
-          propertyKey = SystemProperties.KEY.RANDOMSEED,
+          propertyKey = SystemProperties.Key.RANDOMSEED,
           defaultValue = "1"
       ) long seed
   ) {
@@ -51,17 +49,9 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngineBase {
     this.seed = seed;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public Tuple getTuple(int tupleId) {
-    return tests.get(tupleId);
-  }
-
-  @Override
-  protected long initializeTuples() {
-    this.tests = new ArrayList<Tuple>(size);
+  protected List<Tuple> generate() {
+    List<Tuple> ret = new ArrayList<Tuple>(size);
     Random random = new Random(this.seed);
     Factors factors = this.getFactors();
     int retries = 50;
@@ -70,7 +60,7 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngineBase {
         Tuple tuple = newTuple(factors, random);
         try {
           if (this.getConstraint().check(tuple)) {
-            this.tests.add(tuple);
+            ret.add(tuple);
             break;
           }
         } catch (UndefinedSymbol undefinedSymbol) {
@@ -80,7 +70,7 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngineBase {
         }
       }
     }
-    return tests.size();
+    return ret;
   }
 
   private Tuple newTuple(Factors factors, Random random) {

@@ -50,8 +50,8 @@ public class RecorderTest extends Recorder implements Serializable {
   @Test
   public void givenRecorderAndReplayerAreSetTrue$whenInitializeDirSaveAndLoad$thenDirectoryIsInitializedObjectsAreSavedAndLoaded()
       throws IOException {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
     wireMocks();
 
     File baseDir = new File(this.getBaseDir());
@@ -123,8 +123,8 @@ public class RecorderTest extends Recorder implements Serializable {
   @Test
   public void givenRecorderAndReplayerAreSetFalse$whenInitializeDirSaveAndLoad$thenDoNotWriteAnything()
       throws IOException {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
     wireMocks();
     whenInitializeDirSaveAndLoad$thenDoNotWriteAnything(true);
   }
@@ -132,8 +132,8 @@ public class RecorderTest extends Recorder implements Serializable {
   @Test
   public void givenTestCaseTypeIsNotGenerated$whenInitializeDirSaveAndLoad$thenDoNotWriteAnything()
       throws IOException {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
     this.type = TestCase.Type.Custom;
     this.testCase  = new TestCase(123, this.type, this.tuple);
     wireMocks();

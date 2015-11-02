@@ -12,19 +12,10 @@ import java.util.List;
 
 public class IPO2CoveringArrayEngine extends CoveringArrayEngineBase {
   private final int strength;
-  List<Tuple> tests;
 
   public IPO2CoveringArrayEngine(
-      @Param(source = Param.Source.INSTANCE, defaultValue = "2") int strength) {
+      @Param(source = Param.Source.CONFIG, defaultValue = "2") int strength) {
     this.strength = strength;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Tuple getTuple(int tupleId) {
-    return this.tests.get(tupleId);
   }
 
   /**
@@ -35,7 +26,7 @@ public class IPO2CoveringArrayEngine extends CoveringArrayEngineBase {
    * If more than 1 parameter is given, this method will throw an {@code IllegalArgumentException}.
    */
   @Override
-  protected long initializeTuples() {
+  protected List<Tuple> generate() {
     Factors factors = this.getFactors();
     Checks.checktest(factors.size() >= 2,
         "There must be 2 or more factors, but only %s (%s) given.",
@@ -67,7 +58,6 @@ public class IPO2CoveringArrayEngine extends CoveringArrayEngineBase {
     ////
     // Perform IPO algorithm.
     ipo2.ipo();
-    this.tests = ipo2.getResult();
-    return this.tests.size();
+    return ipo2.getResult();
   }
 }

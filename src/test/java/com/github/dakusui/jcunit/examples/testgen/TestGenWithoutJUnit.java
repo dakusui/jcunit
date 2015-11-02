@@ -37,7 +37,7 @@ public class TestGenWithoutJUnit {
         .addLevel("64")
         .build();
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
-    CoveringArrayEngine tg = CoveringArrayEngine.Builder.createSimpleBuilder()
+    CoveringArrayEngine engine = CoveringArrayEngine.Builder.createSimpleBuilder()
         .setFactors(factors)
     /* -- To set custom parameter(s) for the tuple generator, you can do below.
         .setParameters(new Param.ArrayBuilder()
@@ -48,19 +48,19 @@ public class TestGenWithoutJUnit {
         .setConstraintManager(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER)
      */
         .build();
-    for (Tuple each : tg) {
+    for (Tuple each : engine.getCoveringArray()) {
       ps.println(each);
     }
   }
 
   public void moreFluentStyleRun(PrintStream ps) {
-    CoveringArrayEngine tg = CoveringArrayEngine.Builder.createSimpleBuilder(IPO2CoveringArrayEngine.class, 2).setFactors(
+    CoveringArrayEngine engine = CoveringArrayEngine.Builder.createSimpleBuilder(IPO2CoveringArrayEngine.class, 2).setFactors(
         new Factors.Builder()
             .add("OS", "Windows", "Linux")
             .add("Browser", "Chrome", "Firefox")
             .add("Bits", "32", "64").build()
     ).build();
-    for (Tuple each : tg) {
+    for (Tuple each : engine.getCoveringArray()) {
       ps.println(each);
     }
   }

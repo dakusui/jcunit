@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 public class SystemPropertiesTest {
   @Test
   public void testRandomSeed() throws InterruptedException {
-    System.clearProperty(SystemProperties.KEY.RANDOMSEED.key());
+    System.clearProperty(SystemProperties.Key.RANDOMSEED.key());
     long before = System.currentTimeMillis();
     long seed1 = SystemProperties.randomSeed();
     long after = System.currentTimeMillis();

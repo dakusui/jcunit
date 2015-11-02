@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.tests.plugins;
 
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.PluginUtils;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import org.junit.Test;
 
@@ -54,7 +55,8 @@ public class ValueResolverTest {
   public void testArgResolver$normal() {
     Plugin.Factory<TestPlugin, Value> factory = new Plugin.Factory<TestPlugin, Value>(
         TestPlugin.class,
-        new Value.Resolver()
+        new Value.Resolver(),
+        new RunnerContext.Dummy()
     );
     TestPlugin testPlugin = factory.create(
         new Value.ArrayBuilder()
@@ -86,7 +88,8 @@ public class ValueResolverTest {
   public void testStringResolver$normal() {
     Plugin.Factory<TestPlugin, String> factory = new Plugin.Factory<TestPlugin, String>(
         TestPlugin.class,
-        PluginUtils.StringResolver.INSTANCE
+        PluginUtils.StringResolver.INSTANCE,
+        new RunnerContext.Dummy()
     );
     TestPlugin testPlugin = factory.create(
         "123", //x

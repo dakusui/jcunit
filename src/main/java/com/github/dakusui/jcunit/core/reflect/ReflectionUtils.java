@@ -40,6 +40,22 @@ public class ReflectionUtils {
   }
 
   /**
+   * Internally does {@code Class#getDeclaredField}. To be used with {@code getFieldValueForcibly}.
+   */
+  public static Field getFieldDeclaredIn(Class<?> clazz, String name) {
+    try {
+      return Checks.checknotnull(clazz).getDeclaredField(Checks.checknotnull(name));
+    } catch (NoSuchFieldException e) {
+      String msg = String.format(
+          "Field '%s' isn't defined in class '%s' or not public: canonical name='%s'",
+          name,
+          clazz.getSimpleName(),
+          clazz.getCanonicalName());
+      throw new IllegalArgumentException(msg, e);
+    }
+  }
+
+  /**
    * Returns a value of a field {@code f} from an object {@code obj}.
    * Caller must be responsible for returned value's type.
    *
@@ -53,6 +69,15 @@ public class ReflectionUtils {
       return (T) Checks.checknotnull(f).get(obj);
     } catch (IllegalAccessException e) {
       throw Checks.wrap(e);
+    }
+  }
+
+  public static <T> T getFieldValueForcibly(Object obj, Field f) {
+    Checks.checknotnull(f).setAccessible(true);
+    try {
+      return getFieldValue(obj, f);
+    } finally {
+      f.setAccessible(false);
     }
   }
 

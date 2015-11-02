@@ -1,14 +1,16 @@
 package com.github.dakusui.jcunit.plugins.caengines;
 
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.util.*;
+
+import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 /**
  */
@@ -16,19 +18,21 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
   private final Map<String, FSM>                 fsms;
   private final CoveringArrayEngine.Builder      baseCAEngineBuilder;
   private final List<Parameters.LocalConstraint> localCMs;
-  private       List<Tuple>                      tuples;
+  private final RunnerContext                    runnerContext;
 
   public ToplevelCoveringArrayEngine(
+      RunnerContext runnerContext,
       CoveringArrayEngine.Builder baseTG,
       Map<String, FSM> fsms,
       List<Parameters.LocalConstraint> localCMs) {
-    this.fsms = Checks.checknotnull(fsms);
-    this.baseCAEngineBuilder = Checks.checknotnull(baseTG);
+    this.runnerContext = checknotnull(runnerContext);
+    this.fsms = checknotnull(fsms);
+    this.baseCAEngineBuilder = checknotnull(baseTG);
     this.localCMs = Collections.unmodifiableList(localCMs);
   }
 
   @Override
-  protected long initializeTuples() {
+  protected List<Tuple> generate() {
     Factors baseFactors = baseCAEngineBuilder.getFactors();
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
@@ -38,7 +42,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
     );
     fsmCM.setFactors(fsmFactors);
 
-    this.tuples = Utils.dedup(generateTestCaseTuples(this.fsms, fsmFactors, fsmCM));
+    List<Tuple> tuples = Utils.dedup(generateTestCaseTuples(this.fsms, fsmFactors, fsmCM, this.runnerContext));
     ////
     // Rebuild factors from tuples.
     // Rebuilt factor should only contain
@@ -47,7 +51,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
     Factors.Builder factorsRebuilder = new Factors.Builder();
     for (String eachFSMName : fsms.keySet()) {
       Factor.Builder b = new Factor.Builder(eachFSMName);
-      for (Tuple eachTuple : this.tuples) {
+      for (Tuple eachTuple : tuples) {
         Story story = (Story) eachTuple.get(eachFSMName);
         if (!b.hasLevel(story)) {
           b.addLevel(story);
@@ -68,7 +72,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
     // Constraint manager is used for negative tests generation, which is not supported yet.
     // This time I'm setting DEFAULT_CONSTRAINT_MANAGER.
     super.setConstraint(Constraint.DEFAULT_CONSTRAINT_MANAGER);
-    return this.tuples.size();
+    return tuples;
   }
 
   private static FSMFactors buildFSMFactors(Factors baseFactors, Map<String, FSM> fsms) {
@@ -83,11 +87,11 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
    * Generate test case tuples.
    * Returned tuples already have Story attributes.
    */
-  private List<Tuple> generateTestCaseTuples(Map<String, FSM> fsms, FSMFactors fsmFactors, Constraint fsmCM) {
+  private List<Tuple> generateTestCaseTuples(Map<String, FSM> fsms, FSMFactors fsmFactors, Constraint fsmCM, RunnerContext runnerContext) {
     ////
     // Build test cases. At this point, test cases are generated as flatten FSM
     // tuples.
-    Iterable<Tuple> flattenFSMTuples = generateFlattenFSMTestCaseTuples(fsmFactors, fsmCM);
+    Iterable<Tuple> flattenFSMTuples = generateFlattenFSMTestCaseTuples(fsmFactors, fsmCM, runnerContext).getCoveringArray();
     ////
     // First iteration: Build all main scenario sequences to list up
     //                  all edges. And prepare state routers.
@@ -157,15 +161,10 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
   }
 
   private boolean isFSMFactorName(String eachFactorName) {
-    return Checks.checknotnull(eachFactorName.contains(":"));
+    return checknotnull(eachFactorName.contains(":"));
   }
 
-  private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM) {
-    return new Builder(this.baseCAEngineBuilder).setConstraint(fsmCM).setFactors(fsmFactors).build();
-  }
-
-  @Override
-  public Tuple getTuple(int tupleId) {
-    return tuples.get(tupleId);
+  private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM, RunnerContext runnerContext) {
+    return new Builder(this.baseCAEngineBuilder).setConstraint(fsmCM).setFactors(fsmFactors).setRunnerContext(runnerContext).build();
   }
 }

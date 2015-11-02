@@ -24,15 +24,15 @@ public interface Plugin {
   @interface Param {
     enum Source {
       RUNNER,
-      INSTANCE,
+      CONFIG,
       SYSTEM_PROPERTY
     }
 
-    SystemProperties.KEY propertyKey() default SystemProperties.KEY.DUMMY;
+    SystemProperties.Key propertyKey() default SystemProperties.Key.DUMMY;
 
-    RunnerContext.KEY contextKey() default RunnerContext.KEY.DUMMY;
+    RunnerContext.Key contextKey() default RunnerContext.Key.DUMMY;
 
-    Source source() default Source.INSTANCE;
+    Source source() default Source.CONFIG;
 
     String[] defaultValue() default {};
 
@@ -62,12 +62,10 @@ public interface Plugin {
 
       public <T> T resolve(Desc<T> desc, S value) {
         Checks.checknotnull(desc);
-        return Checks.cast(
+        return Checks.cast(desc.parameterType, chooseConverter(
             desc.parameterType,
-            chooseConverter(
-                desc.parameterType,
-                findCompatibleConverters(desc.parameterType)
-            ).convert(desc.parameterType, value));
+            findCompatibleConverters(desc.parameterType)
+        ).convert(desc.parameterType, value));
       }
 
       protected <T> List<Converter<S>> findCompatibleConverters(Class<T> targetType) {
@@ -152,10 +150,10 @@ public interface Plugin {
     private final Param.Resolver<S> resolver;
     private final RunnerContext     runnerContext;
 
-    public Factory(Class<P> pluginClass, Param.Resolver<S> resolver) {
+    public Factory(Class<P> pluginClass, Param.Resolver<S> resolver, RunnerContext runnerContext) {
       this.pluginClass = Checks.checknotnull(pluginClass);
       this.resolver = Checks.checknotnull(resolver);
-      this.runnerContext = RunnerContext.NULL;
+      this.runnerContext = Checks.checknotnull(runnerContext);
     }
 
     public P create(S... args) {
@@ -166,7 +164,7 @@ public interface Plugin {
           Constructor<P> constructor = getConstructor();
           for (Param.Desc each : getParameterDescs(getConstructor())) {
             Param.Source source = each.parameterRequirement.source();
-            if (source == Param.Source.INSTANCE) {
+            if (source == Param.Source.CONFIG) {
               if (i < args.length) {
                 resolvedArgs.add(resolver.resolve(each, args[i]));
               } else {
@@ -174,12 +172,7 @@ public interface Plugin {
               }
             } else if (source == Param.Source.RUNNER) {
               Object value = this.runnerContext.get(each.parameterRequirement.contextKey());
-              resolvedArgs.add(PluginUtils.StringResolver.INSTANCE.resolve(
-                  each,
-                  value == null
-                      ? null
-                      : value.toString()
-              ));
+              resolvedArgs.add(Checks.cast(each.parameterType, value));
             } else if (source == Param.Source.SYSTEM_PROPERTY) {
               String defaultValue = null;
               if (each.parameterRequirement.defaultValue().length > 0) {
@@ -197,7 +190,7 @@ public interface Plugin {
               );
             }
 
-            if (each.parameterRequirement.source() == Param.Source.INSTANCE) {
+            if (each.parameterRequirement.source() == Param.Source.CONFIG) {
               i++;
             }
           }

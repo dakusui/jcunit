@@ -3,24 +3,29 @@ package com.github.dakusui.jcunit.runners.standard.plugins;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngineBase;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class Replayer extends CoveringArrayEngineBase {
-  private final GenerationMode         generationMode;
-  private final String                 dataDir;
-  private final ReplayMode             replayMode;
-  private       SortedMap<Long, Tuple> tuples;
-  private       CoveringArrayEngine    fallbackGenerator;
+  private final GenerationMode            generationMode;
+  private final String                    dataDir;
+  private final ReplayMode                replayMode;
+  private final Class<?>                  testClass;
+  private       SortedMap<Integer, Tuple> tuples;
+  private       CoveringArrayEngine       fallbackGenerator;
 
   /**
    * Creates an object of this class.
@@ -38,27 +43,29 @@ public class Replayer extends CoveringArrayEngineBase {
    * </ul>
    *
    * @param coveringArrayEngine A tuple generator.
-   * @param generationMode Generation mode. Determines whether let the tuple generator generate a
-   *                       new test suite or load it from file system. ("Fallback", "Replay")
-   * @param replayMode     Determines if all the test cases or only failed ones in the last run.
-   *                       You need to use this is "recorder" rule with this class. ("All", "FailedOnly")
-   * @param dataDirName    A directory to store execution data of this class.
+   * @param generationMode      Generation mode. Determines whether let the tuple generator generate a
+   *                            new test suite or load it from file system. ("Fallback", "Replay")
+   * @param replayMode          Determines if all the test cases or only failed ones in the last run.
+   *                            You need to use this is "recorder" rule with this class. ("All", "FailedOnly")
+   * @param dataDirName         A directory to store execution data of this class.
    */
   public Replayer(
-      @Param(source = Param.Source.INSTANCE,
+      @Param(contextKey = RunnerContext.Key.TEST_CLASS, source = Param.Source.RUNNER) Class<?> testClass,
+      @Param(source = Param.Source.CONFIG,
           defaultValue = { "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" })
       CoveringArrayEngine coveringArrayEngine,
-      @Param(source = Param.Source.INSTANCE,
+      @Param(source = Param.Source.CONFIG,
           defaultValue = { "Fallback" })
       GenerationMode generationMode,
-      @Param(source = Param.Source.INSTANCE,
+      @Param(source = Param.Source.CONFIG,
           defaultValue = { "All" })
       ReplayMode replayMode,
       @Param(source = Param.Source.SYSTEM_PROPERTY,
-          propertyKey = SystemProperties.KEY.BASEDIR,
+          propertyKey = SystemProperties.Key.BASEDIR,
           defaultValue = { ".jcunit" })
       String dataDirName
   ) {
+    this.testClass = Checks.checknotnull(testClass);
     this.generationMode = Checks.checknotnull(generationMode);
     this.replayMode = Checks.checknotnull(replayMode);
     this.fallbackGenerator = Checks.checknotnull(coveringArrayEngine);
@@ -69,37 +76,44 @@ public class Replayer extends CoveringArrayEngineBase {
    * {@inheritDoc}
    */
   @Override
-  public Tuple getTuple(int tupleId) {
-    return this.generationMode.getTuple(this, tupleId);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected long initializeTuples() {
+  protected List<Tuple> generate() {
     return this.generationMode.initializeTuples(this);
   }
 
-  private long getIdFromDirName(String dirName) {
-    return Long.parseLong(dirName.substring(dirName.lastIndexOf('-') + 1));
+  @Override
+  protected CoveringArray createCoveringArray(List<Tuple> testCases) {
+    return new CoveringArray.Base(testCases) {
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public Tuple get(int tupleId) {
+        return Replayer.this.generationMode.getTuple(Replayer.this, tupleId);
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public int firstId() {
+        return Replayer.this.generationMode.firstId(Replayer.this);
+      }
+
+      /**
+       * {@inheritDoc}
+       */
+      @Override
+      public int nextId(int tupleId) {
+        return Replayer.this.generationMode.nextId(Replayer.this, tupleId);
+      }
+    };
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public long nextId(long tupleId) {
-    return this.generationMode.nextId(this, tupleId);
+
+  private int getIdFromDirName(String dirName) {
+    return Integer.parseInt(dirName.substring(dirName.lastIndexOf('-') + 1));
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public long firstId() {
-    return this.generationMode.firstId(this);
-  }
 
   private File[] getRecordedTupleDirectories(final ReplayMode mode,
       File baseDir,
@@ -136,48 +150,41 @@ public class Replayer extends CoveringArrayEngineBase {
   public enum GenerationMode {
     Replay {
       @Override
-      long initializeTuples(
+      List<Tuple> initializeTuples(
           Replayer tupleReplayer) {
-        File baseDir = Recorder
-            .testClassDataDirFor(tupleReplayer.dataDir,
-                tupleReplayer.getTargetClass());
-        final int[] work = new int[] { 0 };
-        File[] tupleDirs = tupleReplayer
-            .getRecordedTupleDirectories(tupleReplayer.replayMode,
-                baseDir, new FoundTupleObserver() {
-                  @Override
-                  public void found(File f) {
-                    work[0]++;
-                  }
-                });
-        int numFoundTuples = work[0];
+        File baseDir = Recorder.testClassDataDirFor(tupleReplayer.dataDir, tupleReplayer.testClass);
+        File[] tupleDirs = tupleReplayer.getRecordedTupleDirectories(tupleReplayer.replayMode,
+            baseDir, new FoundTupleObserver() {
+              @Override
+              public void found(File f) {
+              }
+            });
         Checks.checktest(tupleDirs != null,
             "Test hasn't been run with 'JCUnitRecorder' rule yet. No tuple containing directory under '%s' was found.",
             baseDir
         );
-        tupleReplayer.tuples = new TreeMap<Long, Tuple>();
+        List<Tuple> ret = Utils.newList();
+        tupleReplayer.tuples = new TreeMap<Integer, Tuple>();
         for (File dir : tupleDirs) {
           Tuple tuple = TupleUtils.load(
-              IOUtils.openForRead(
-                  new File(dir, Recorder.TESTCASE_FILENAME)));
+              IOUtils.openForRead(new File(dir, Recorder.TESTCASE_FILENAME)));
+          ret.add(tuple);
           tupleReplayer.tuples
               .put(tupleReplayer.getIdFromDirName(dir.getName()), tuple);
         }
-        ////
-        // Returning number of total recorded test cases.
-        return numFoundTuples;
+        return ret;
       }
 
       @Override
       Tuple getTuple(Replayer tuplePlayer, int tupleId) {
-        Checks.checkcond(tuplePlayer.tuples.containsKey((long) tupleId));
-        return tuplePlayer.tuples.get((long) tupleId);
+        Checks.checkcond(tuplePlayer.tuples.containsKey(tupleId));
+        return tuplePlayer.tuples.get(tupleId);
       }
 
       @Override
-      long nextId(Replayer tuplePlayer, long tupleId) {
+      int nextId(Replayer tuplePlayer, int tupleId) {
         Checks.checkcond(tuplePlayer.tuples.containsKey(tupleId));
-        Iterator<Long> tail = tuplePlayer.tuples.tailMap(tupleId).keySet()
+        Iterator<Integer> tail = tuplePlayer.tuples.tailMap(tupleId).keySet()
             .iterator();
         Checks.checkcond(tail.hasNext());
         tail.next();
@@ -188,7 +195,7 @@ public class Replayer extends CoveringArrayEngineBase {
       }
 
       @Override
-      long firstId(Replayer tuplePlayer) {
+      int firstId(Replayer tuplePlayer) {
         if (tuplePlayer.tuples.size() == 0) {
           return -1;
         }
@@ -198,41 +205,40 @@ public class Replayer extends CoveringArrayEngineBase {
     Fallback {
       @SuppressWarnings("unchecked")
       @Override
-      long initializeTuples(Replayer tupleReplayer) {
+      List<Tuple> initializeTuples(Replayer tupleReplayer) {
         ////
         // Wire
         CoveringArrayEngine generator = tupleReplayer.fallbackGenerator;
         generator.setFactors(tupleReplayer.getFactors());
         generator.setConstraint(tupleReplayer.getConstraint());
-        generator.setTargetClass(tupleReplayer.getTargetClass());
         generator.init();
-        return generator.size();
+        return generator.getCoveringArray();
       }
 
       @Override
       Tuple getTuple(Replayer tuplePlayer, int tupleId) {
-        return tuplePlayer.fallbackGenerator.get(tupleId);
+        return tuplePlayer.fallbackGenerator.getCoveringArray().get(tupleId);
       }
 
       @Override
-      long nextId(Replayer tuplePlayer, long tupleId) {
-        return tuplePlayer.fallbackGenerator.nextId(tupleId);
+      int nextId(Replayer tuplePlayer, int tupleId) {
+        return tuplePlayer.fallbackGenerator.getCoveringArray().nextId(tupleId);
       }
 
       @Override
-      long firstId(Replayer tuplePlayer) {
-        return tuplePlayer.fallbackGenerator.firstId();
+      int firstId(Replayer tuplePlayer) {
+        return tuplePlayer.fallbackGenerator.getCoveringArray().firstId();
       }
     };
 
 
-    abstract long initializeTuples(Replayer tupleReplayer);
+    abstract List<Tuple> initializeTuples(Replayer tupleReplayer);
 
     abstract Tuple getTuple(Replayer tuplePlayer, int tupleId);
 
-    abstract long nextId(Replayer tuplePlayer, long tupleId);
+    abstract int nextId(Replayer tuplePlayer, int tupleId);
 
-    abstract long firstId(Replayer tuplePlayer);
+    abstract int firstId(Replayer tuplePlayer);
   }
 
   public enum ReplayMode {

@@ -18,7 +18,7 @@ public class TestGenWithoutJUnitTest {
 
   @Test
   public void testNormally() throws UnsupportedEncodingException {
-    String actual = runCAEngineNormally();
+    String actual = runCoveringArrayEngineNormally();
     assertEquals(EXPECTATION, actual);
   }
 
@@ -28,15 +28,15 @@ public class TestGenWithoutJUnitTest {
     assertEquals(EXPECTATION, actual);
   }
 
-  private String runCAEngineNormally() throws UnsupportedEncodingException {
-    return this.runCAEngine(Run.Normally);
+  private String runCoveringArrayEngineNormally() throws UnsupportedEncodingException {
+    return this.runCoveringArrayEngine(Run.Normally);
   }
 
   private String runCAEngineFluently() throws UnsupportedEncodingException {
-    return this.runCAEngine(Run.Fluently);
+    return this.runCoveringArrayEngine(Run.Fluently);
   }
 
-  private String runCAEngine(Run run) throws UnsupportedEncodingException {
+  private String runCoveringArrayEngine(Run run) throws UnsupportedEncodingException {
     ByteArrayOutputStream baos;
     PrintStream ps = new PrintStream(baos = new ByteArrayOutputStream());
     try {
