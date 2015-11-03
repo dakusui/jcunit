@@ -87,12 +87,12 @@ public @interface GenerateWith {
     }
   }
 
-  interface CAEngineFactory {
-    CAEngineFactory INSTANCE = new CAEngineFactory.Default();
+  interface CoveringArrayEngineFactory {
+    CoveringArrayEngineFactory INSTANCE = new CoveringArrayEngineFactory.Default();
 
     CoveringArrayEngine createFromClass(Class<?> clazz);
 
-    class Default implements CAEngineFactory {
+    class Default implements CoveringArrayEngineFactory {
       final Value.Resolver resolver;
 
       public Default() {
@@ -141,29 +141,23 @@ public @interface GenerateWith {
             .setConfigArgsForEngine(Arrays.asList(generatorAnn.args()));
         Checks.checkcond(factors.size() > 0, "No factors are found. Check if your factor fields are public.");
         CoveringArrayEngine generator;
-        List<Field> fsmFields;
-        if (!(fsmFields = extractFSMFactorFields(switchCoverages.keySet())).isEmpty()) {
-          Map<String, FSM> fsms = new LinkedHashMap<String, FSM>();
-          List<Parameters.LocalConstraint> localCMs = new LinkedList<Parameters.LocalConstraint>();
-          for (Field each : fsmFields) {
-            ////
-            // It's safe to assume fsmLevelsProvider becomes non-null since we are
-            // iterating over fsmFields.
-            int fsmSwitchCoverage = switchCoverages.get(each);
-            String fsmName = each.getName();
-            FSM<Object> fsm = createFSM(each, fsmSwitchCoverage);
-            fsms.put(fsmName, fsm);
-            collectLocalConstraintManagers(localCMs, fsmName, fsm);
-          }
-          generator = new ToplevelCoveringArrayEngine(runnerContext, b, fsms, localCMs);
-          generator.setFactors(factors);
-          generator.setConstraint(constraint);
-          generator.init();
-        } else {
-          generator = b.build();
-          generator.setConstraint(constraint);
-          generator.init();
+        List<Field> fsmFields = extractFSMFactorFields(switchCoverages.keySet());
+        Map<String, FSM> fsms = Utils.newMap();
+        List<Parameters.LocalConstraint> localCMs = Utils.newList();
+        for (Field each : fsmFields) {
+          ////
+          // It's safe to assume fsmLevelsProvider becomes non-null since we are
+          // iterating over fsmFields.
+          int fsmSwitchCoverage = switchCoverages.get(each);
+          String fsmName = each.getName();
+          FSM<Object> fsm = createFSM(each, fsmSwitchCoverage);
+          fsms.put(fsmName, fsm);
+          collectLocalConstraintManagers(localCMs, fsmName, fsm);
         }
+        generator = new ToplevelCoveringArrayEngine(runnerContext, b, fsms, localCMs);
+        generator.setFactors(factors);
+        generator.setConstraint(constraint);
+        generator.init();
         return generator;
       }
 
@@ -171,7 +165,7 @@ public @interface GenerateWith {
         for (int i = 0; i < fsm.historyLength(); i++)
           for (Action<Object> eachAction : fsm.actions()) {
             Parameters parameters = eachAction.parameters();
-            Constraint baseLocalCM = parameters.getConstraintManager();
+            Constraint baseLocalCM = parameters.getConstraint();
             if (Constraint.DEFAULT_CONSTRAINT.equals(baseLocalCM)) {
               continue;
             }

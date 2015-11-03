@@ -14,7 +14,7 @@ import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 /**
  */
-public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
+public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
   private final Map<String, FSM>                 fsms;
   private final CoveringArrayEngine.Builder      baseCAEngineBuilder;
   private final List<Parameters.LocalConstraint> localCMs;

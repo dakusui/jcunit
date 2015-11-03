@@ -1,9 +1,6 @@
 package com.github.dakusui.jcunit.examples.fsm.localconstraints;
 
 
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.*;
@@ -11,6 +8,9 @@ import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class LocalConstraintTest {
     @ParametersSpec
     public static final Parameters equals = new Parameters.Builder()
         .add("another", null, new Object(), "HELLO")
-        .setConstraintManager(new ConstraintBase() {
+        .setConstraint(new ConstraintBase() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
             return tuple.get("another") != null;
@@ -34,7 +34,7 @@ public class LocalConstraintTest {
         .build();
 
     @ActionSpec
-    public Expectation equals(Expectation.Builder b, Object o) {
+    public Expectation<Object> equals(Expectation.Builder<Object> b, Object o) {
       return b.valid(I, CoreMatchers.is(false)).build();
     }
 

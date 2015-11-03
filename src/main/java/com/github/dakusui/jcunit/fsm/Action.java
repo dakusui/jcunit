@@ -1,14 +1,13 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.Utils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,15 +51,10 @@ public interface Action<SUT> extends Serializable {
    */
   String id();
 
-  /**
-   * Return types of the parameters.
-   */
-  List<Class<?>> parameterTypes();
-
   abstract class Void implements Action {
     public static <SUT> Action<SUT> getInstance() {
       //noinspection unchecked
-      return (Action<SUT>)INSTANCE;
+      return (Action<SUT>) INSTANCE;
     }
 
     private static Void INSTANCE = new Void() {
@@ -90,10 +84,6 @@ public interface Action<SUT> extends Serializable {
         return "(VOID)";
       }
 
-      @Override
-      public List<Class<?>> parameterTypes() {
-        return Collections.emptyList();
-      }
     };
   }
 
@@ -171,11 +161,6 @@ public interface Action<SUT> extends Serializable {
     @Override
     public String id() {
       return FSM.Base.generateMethodId(this.method);
-    }
-
-    @Override
-    public List<Class<?>> parameterTypes() {
-      return this.getParameterTypes();
     }
 
     @Override

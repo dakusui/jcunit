@@ -308,7 +308,7 @@ public @interface FactorField {
         };
       } else if (c.getAnnotation(GenerateWith.class) != null) {
         return new AbstractList<Object>() {
-          CoveringArray ca = GenerateWith.CAEngineFactory.INSTANCE.createFromClass(c).getCoveringArray();
+          CoveringArray ca = GenerateWith.CoveringArrayEngineFactory.INSTANCE.createFromClass(c).getCoveringArray();
 
           @Override
           public Object get(int index) {

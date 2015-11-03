@@ -128,8 +128,8 @@ public class JCUnit extends Parameterized {
     };
   }
 
-  protected GenerateWith.CAEngineFactory getCAEngineFactory() {
-    return GenerateWith.CAEngineFactory.INSTANCE;
+  protected GenerateWith.CoveringArrayEngineFactory getCAEngineFactory() {
+    return GenerateWith.CoveringArrayEngineFactory.INSTANCE;
   }
 
   private boolean shouldPerform(Tuple testCase, List<FrameworkMethod> preconditionMethods) {

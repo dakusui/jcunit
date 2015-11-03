@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIPO2Opt
 
 import java.util.List;
 
-public class IPO2CoveringArrayEngine extends CoveringArrayEngineBase {
+public class IPO2CoveringArrayEngine extends CoveringArrayEngine.Base {
   private final int strength;
 
   public IPO2CoveringArrayEngine(

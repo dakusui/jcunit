@@ -15,7 +15,7 @@ import java.util.Random;
  * A tuple generator which generates a test suite using random.
  * A user can specify a random seed to be used in the generation.
  */
-public class RandomCoveringArrayEngine extends CoveringArrayEngineBase {
+public class RandomCoveringArrayEngine extends CoveringArrayEngine.Base {
   private final long        seed;
   private final int         size;
 

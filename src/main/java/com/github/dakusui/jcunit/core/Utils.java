@@ -170,6 +170,10 @@ public class Utils {
     return ret;
   }
 
+  public static <K, V> Map<K, V> newMap() {
+    return newMap(Collections.<K, V>emptyMap());
+  }
+
   public static <K, V> Map<K, V> newMap(Map<K, V> from) {
     return new LinkedHashMap<K, V>(from);
   }

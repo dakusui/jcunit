@@ -13,7 +13,7 @@ import java.util.List;
  *
  * The default value is the first level of each factor.
  */
-public class SimpleCoveringArrayEngine extends CoveringArrayEngineBase {
+public class SimpleCoveringArrayEngine extends CoveringArrayEngine.Base {
   public SimpleCoveringArrayEngine() {
   }
 

@@ -8,7 +8,6 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngineBase;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-public class Replayer extends CoveringArrayEngineBase {
+public class Replayer extends CoveringArrayEngine.Base {
   private final GenerationMode            generationMode;
   private final String                    dataDir;
   private final ReplayMode                replayMode;

@@ -1,27 +1,27 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 
 import java.util.*;
 
 public class Parameters extends Factors {
   public static final Parameters EMPTY = new Builder().build();
-  private final Constraint cm;
+  private final Constraint constraint;
 
-  public Parameters(Constraint cm, List<Factor> factors) {
+  public Parameters(Constraint constraint, List<Factor> factors) {
     super(factors);
-    this.cm = cm;
+    this.constraint = constraint;
   }
 
-  public Constraint getConstraintManager() {
-    return this.cm;
+  public Constraint getConstraint() {
+    return this.constraint;
   }
 
   public Object[][] values() {
@@ -34,7 +34,7 @@ public class Parameters extends Factors {
   }
 
   public static class Builder extends Factors.Builder {
-    private Constraint cm = Constraint.DEFAULT_CONSTRAINT;
+    private Constraint constraint = Constraint.DEFAULT_CONSTRAINT;
 
     public Builder() {
       super();
@@ -63,18 +63,18 @@ public class Parameters extends Factors {
       return this;
     }
 
-    public Builder setConstraintManager(Constraint cm) {
-      this.cm = cm;
+    public Builder setConstraint(Constraint constraint) {
+      this.constraint = constraint;
       return this;
     }
 
     public Parameters build() {
-      return new Parameters(this.cm, this.factors);
+      return new Parameters(this.constraint, this.factors);
     }
   }
 
   public static class LocalConstraint<S> extends ConstraintBase<S> {
-    protected final Constraint target;
+    protected final Constraint          target;
     private final   List<String>        plainParameterNames;
     /**
      * A map from plain factor names used to declare parameters in Parameters.Builder
@@ -83,11 +83,10 @@ public class Parameters extends Factors {
     private final   Map<String, String> plainToFlattenFSM;
 
     /**
-     *
-     * @param target User defined constraint manager for parameters.
+     * @param target              User defined constraint manager for parameters.
      * @param plainParameterNames User friendly parameter name.
-     * @param fsmName A name of a FSM. {@code Story} field name in standard JCUnit runner.
-     * @param historyIndex The current history index.
+     * @param fsmName             A name of a FSM. {@code Story} field name in standard JCUnit runner.
+     * @param historyIndex        The current history index.
      */
     public LocalConstraint(Constraint target, List<String> plainParameterNames, String fsmName, int historyIndex) {
       this.target = Checks.checknotnull(target);

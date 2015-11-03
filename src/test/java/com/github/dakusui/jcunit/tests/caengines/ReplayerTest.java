@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngineBase;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
@@ -208,7 +207,7 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    CoveringArrayEngine coveringArrayEngine = GenerateWith.CAEngineFactory.INSTANCE
+    CoveringArrayEngine coveringArrayEngine = GenerateWith.CoveringArrayEngineFactory.INSTANCE
         .createFromClass(TestClass.class);
     assertEquals(Replayer.class, coveringArrayEngine.getClass());
 
@@ -380,7 +379,7 @@ public class ReplayerTest {
           args = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass4$TG"), @Value("All") }
       ))
   public static class TestClass4 {
-    public abstract static class TG extends CoveringArrayEngineBase {
+    public abstract static class TG extends CoveringArrayEngine.Base {
       public TG() throws IOException {
         throw new IOException("hello!!!");
       }
