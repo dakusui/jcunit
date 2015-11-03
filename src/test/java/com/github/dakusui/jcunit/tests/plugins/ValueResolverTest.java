@@ -6,6 +6,8 @@ import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 public class ValueResolverTest {
@@ -58,7 +60,7 @@ public class ValueResolverTest {
         new Value.Resolver(),
         new RunnerContext.Dummy()
     );
-    TestPlugin testPlugin = factory.create(
+    TestPlugin testPlugin = factory.create(Arrays.asList(
         new Value.ArrayBuilder()
             .add("123") //x
             .add("456")  //y
@@ -71,7 +73,7 @@ public class ValueResolverTest {
             .add("Hello") //s
             .add("WORLD") //t
         .build()
-    );
+    ));
     assertEquals(123, testPlugin.x);
     assertEquals(456, testPlugin.y);
     assertEquals(789L, testPlugin.z);
@@ -91,7 +93,7 @@ public class ValueResolverTest {
         PluginUtils.StringResolver.INSTANCE,
         new RunnerContext.Dummy()
     );
-    TestPlugin testPlugin = factory.create(
+    TestPlugin testPlugin = factory.create(Arrays.asList(
         "123", //x
         "456",  //y
         "789",  //z
@@ -102,7 +104,7 @@ public class ValueResolverTest {
         "R", //r
         "Hello", //s,
         "WORLD" //t
-    );
+    ));
     assertEquals(123, testPlugin.x);
     assertEquals(456, testPlugin.y);
     assertEquals(789L, testPlugin.z);

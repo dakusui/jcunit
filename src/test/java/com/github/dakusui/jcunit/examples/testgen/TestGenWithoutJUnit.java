@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.utils.CoveringArrayEngines;
 
 import java.io.PrintStream;
 
@@ -20,7 +21,7 @@ import java.io.PrintStream;
 public class TestGenWithoutJUnit {
   public static void main(String... args) {
     new TestGenWithoutJUnit().run(System.out);
-    new TestGenWithoutJUnit().moreFluentStyleRun(System.out);
+    new TestGenWithoutJUnit().runMoreFluently(System.out);
   }
 
   public void run(PrintStream ps) {
@@ -37,28 +38,20 @@ public class TestGenWithoutJUnit {
         .addLevel("64")
         .build();
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
-    CoveringArrayEngine engine = CoveringArrayEngine.Builder.createSimpleBuilder()
-        .setFactors(factors)
-    /* -- To set custom parameter(s) for the tuple generator, you can do below.
-        .setParameters(new Param.ArrayBuilder()
-          .add("2")
-        .build())
-     */
-    /* -- You can set custom checker manager by using setConstraintManager method.
-        .setConstraintManager(ConstraintManager.DEFAULT_CONSTRAINT_MANAGER)
-     */
+    CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(factors)
         .build();
     for (Tuple each : engine.getCoveringArray()) {
       ps.println(each);
     }
   }
 
-  public void moreFluentStyleRun(PrintStream ps) {
-    CoveringArrayEngine engine = CoveringArrayEngine.Builder.createSimpleBuilder(IPO2CoveringArrayEngine.class, 2).setFactors(
+  public void runMoreFluently(PrintStream ps) {
+    CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(
         new Factors.Builder()
             .add("OS", "Windows", "Linux")
             .add("Browser", "Chrome", "Firefox")
-            .add("Bits", "32", "64").build()
+            .add("Bits", "32", "64").build(),
+        IPO2CoveringArrayEngine.class, new String[][]{{"2"}}
     ).build();
     for (Tuple each : engine.getCoveringArray()) {
       ps.println(each);

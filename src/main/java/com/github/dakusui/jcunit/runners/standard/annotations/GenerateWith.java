@@ -132,11 +132,13 @@ public @interface GenerateWith {
                 .setFactors(factors).build();
         Generator generatorAnn = generateWithAnn.generator();
         Class<? extends CoveringArrayEngine> tupleGeneratorClass = generatorAnn.value();
-        CoveringArrayEngine.Builder b = new CoveringArrayEngine.Builder(this.resolver)
-            .setCAEngineClass(tupleGeneratorClass)
-            .setParameters(generatorAnn.args())
-            .setRunnerContext(runnerContext)
-            .setFactors(factors);
+        CoveringArrayEngine.Builder b = new CoveringArrayEngine.Builder(
+            runnerContext,
+            factors,
+            constraint,
+            tupleGeneratorClass)
+            .setResolver(resolver)
+            .setConfigArgsForEngine(Arrays.asList(generatorAnn.args()));
         Checks.checkcond(factors.size() > 0, "No factors are found. Check if your factor fields are public.");
         CoveringArrayEngine generator;
         List<Field> fsmFields;
@@ -170,7 +172,7 @@ public @interface GenerateWith {
           for (Action<Object> eachAction : fsm.actions()) {
             Parameters parameters = eachAction.parameters();
             Constraint baseLocalCM = parameters.getConstraintManager();
-            if (Constraint.DEFAULT_CONSTRAINT_MANAGER.equals(baseLocalCM)) {
+            if (Constraint.DEFAULT_CONSTRAINT.equals(baseLocalCM)) {
               continue;
             }
             List<String> localPlainParameterNames = Utils.transform(parameters, new Utils.Form<Factor, String>() {

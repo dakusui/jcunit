@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface Constraint extends Plugin {
-  Constraint DEFAULT_CONSTRAINT_MANAGER = new NullConstraint();
+  Constraint DEFAULT_CONSTRAINT = new NullConstraint();
 
   /**
    * Returns {@code true} if the given tuple doesn't violate any known constraints.

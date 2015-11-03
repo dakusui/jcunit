@@ -107,7 +107,7 @@ public class ExpectationTest {
   @Test
   public void validTuplesCovered01() throws Exception {
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT_MANAGER),
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
@@ -124,7 +124,7 @@ public class ExpectationTest {
     ////
     // Even if there is extra tuple, it should be acceptable.
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT_MANAGER),
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
@@ -142,7 +142,7 @@ public class ExpectationTest {
     ////
     // If there is a missing tuple, it will be complained.
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT_MANAGER),
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
@@ -206,7 +206,7 @@ public class ExpectationTest {
   @Test
   public void constraintViolationN01() throws Exception {
     VerificationResult result = verify(
-        new NoConstraintViolationExpectation(Constraint.DEFAULT_CONSTRAINT_MANAGER),
+        new NoConstraintViolationExpectation(Constraint.DEFAULT_CONSTRAINT),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         )

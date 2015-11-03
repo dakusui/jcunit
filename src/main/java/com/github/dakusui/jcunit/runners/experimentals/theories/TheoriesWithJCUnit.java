@@ -30,6 +30,7 @@ import org.junit.runners.model.TestClass;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -138,7 +139,7 @@ public class TheoriesWithJCUnit extends Theories {
       cm = createConstraintManager(tgAnn.checker(), runnerContext);
     } else {
       tg = new IPO2CoveringArrayEngine(2);
-      cm = Constraint.DEFAULT_CONSTRAINT_MANAGER;
+      cm = Constraint.DEFAULT_CONSTRAINT;
     }
     tg.setConstraint(new ConstraintBase() {
       Constraint baseCM = cm;
@@ -177,7 +178,7 @@ public class TheoriesWithJCUnit extends Theories {
             resolver,
             runnerContext
         )
-            .create(checkerAnnotation.args()));
+            .create(Arrays.asList(checkerAnnotation.args())));
   }
 
   private static CoveringArrayEngine createCoveringArrayEngine(final Generator generatorAnnotation, RunnerContext runnerContext) {
@@ -187,7 +188,7 @@ public class TheoriesWithJCUnit extends Theories {
         CoveringArrayEngine.class,
         new Plugin.Factory<CoveringArrayEngine, Value>((Class<CoveringArrayEngine>) generatorAnnotation.value(),
             resolver,
-            runnerContext).create(generatorAnnotation.args()));
+            runnerContext).create(Arrays.asList(generatorAnnotation.args())));
   }
 
   private static Assignments tuple2assignments(Method method, TestClass testClass, Tuple t) {

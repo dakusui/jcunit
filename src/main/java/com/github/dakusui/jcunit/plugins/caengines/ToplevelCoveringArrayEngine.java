@@ -70,8 +70,8 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
     super.setFactors(factorsRebuilder.build());
     ////
     // Constraint manager is used for negative tests generation, which is not supported yet.
-    // This time I'm setting DEFAULT_CONSTRAINT_MANAGER.
-    super.setConstraint(Constraint.DEFAULT_CONSTRAINT_MANAGER);
+    // This time I'm setting DEFAULT_CONSTRAINT.
+    super.setConstraint(Constraint.DEFAULT_CONSTRAINT);
     return tuples;
   }
 
@@ -165,6 +165,11 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngineBase {
   }
 
   private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM, RunnerContext runnerContext) {
-    return new Builder(this.baseCAEngineBuilder).setConstraint(fsmCM).setFactors(fsmFactors).setRunnerContext(runnerContext).build();
+    return new Builder(
+        runnerContext,
+        fsmFactors,
+        fsmCM,
+        this.baseCAEngineBuilder.getEngineClass()
+    ).build();
   }
 }

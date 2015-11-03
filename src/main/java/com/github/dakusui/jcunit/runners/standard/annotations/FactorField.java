@@ -21,6 +21,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -146,7 +147,7 @@ public @interface FactorField {
             new RunnerContext.Dummy()
         );
         //noinspection ConstantConditions
-        return factory.create(ann.providerParams());
+        return factory.create(Arrays.asList(ann.providerParams()));
       }
 
       private static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
@@ -318,7 +319,7 @@ public @interface FactorField {
 
           @Override
           public int size() {
-            return (int) ca.size();
+            return ca.size();
           }
         };
       } else {

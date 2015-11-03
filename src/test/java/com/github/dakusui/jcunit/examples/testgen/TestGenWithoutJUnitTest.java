@@ -57,7 +57,7 @@ public class TestGenWithoutJUnitTest {
     Fluently {
       @Override
       public void run(TestGenWithoutJUnit gen, PrintStream ps) {
-        gen.moreFluentStyleRun(ps);
+        gen.runMoreFluently(ps);
       }
     };
 

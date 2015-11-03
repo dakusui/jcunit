@@ -34,7 +34,7 @@ public class Parameters extends Factors {
   }
 
   public static class Builder extends Factors.Builder {
-    private Constraint cm = Constraint.DEFAULT_CONSTRAINT_MANAGER;
+    private Constraint cm = Constraint.DEFAULT_CONSTRAINT;
 
     public Builder() {
       super();
@@ -74,7 +74,7 @@ public class Parameters extends Factors {
   }
 
   public static class LocalConstraint<S> extends ConstraintBase<S> {
-    protected final Constraint          target;
+    protected final Constraint target;
     private final   List<String>        plainParameterNames;
     /**
      * A map from plain factor names used to declare parameters in Parameters.Builder

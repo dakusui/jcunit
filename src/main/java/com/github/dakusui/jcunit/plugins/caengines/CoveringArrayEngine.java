@@ -3,17 +3,17 @@ package com.github.dakusui.jcunit.plugins.caengines;
 /**
  */
 
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.reporters.CoverageReporter;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
-/**
- * Implementations of this interface must guarantee that a public constructor without
- * any parameters exists.
- */
+import java.util.Collections;
+import java.util.List;
+
+import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+
 public interface CoveringArrayEngine extends Plugin {
   void init();
 
@@ -39,100 +39,79 @@ public interface CoveringArrayEngine extends Plugin {
    */
   class Builder<S> {
 
-    private final Param.Resolver<S>                    resolver;
-    private       Class<? extends CoveringArrayEngine> tupleGeneratorClass;
-    private       Factors                              factors;
-    private       Constraint                           constraint;
-    private       S[]                                  parameters;
-    private       RunnerContext                        runnerContext;
-
-    public static Builder<Object> createSimpleBuilder(Object... arguments) {
-      return createSimpleBuilder(IPO2CoveringArrayEngine.class, arguments);
-    }
-
-    public static Builder<Object> createSimpleBuilder(Class<? extends CoveringArrayEngine> tupleGeneratorClass, Object... arguments) {
-      return new Builder<Object>(
-          Param.Resolver.NULL,
-          tupleGeneratorClass,
-          arguments,
-          Constraint.DEFAULT_CONSTRAINT_MANAGER
-      ).setRunnerContext(new RunnerContext.Dummy());
-    }
-
-    public Builder(Param.Resolver<S> resolver, S... arguments) {
-      this(resolver, IPO2CoveringArrayEngine.class, arguments, Constraint.DEFAULT_CONSTRAINT_MANAGER);
-    }
+    private RunnerContext                        runnerContext;
+    private Factors                              factors;
+    private Constraint                           constraint;
+    private Param.Resolver<S>                    resolver;
+    private List<S>                              configArgsForEngine;
+    private Class<? extends CoveringArrayEngine> engineClass;
 
     public Builder(
-        Param.Resolver<S> resolver,
-        Class<? extends CoveringArrayEngine> caEngineClass,
-        S[] argumentsForCAEngine,
-        Constraint cm
+        RunnerContext runnerContext,
+        Factors factors, Constraint cm, Class<? extends CoveringArrayEngine> engineClass
     ) {
-      this.resolver = Checks.checknotnull(resolver);
-      this.tupleGeneratorClass = Checks.checknotnull(caEngineClass);
-      this.constraint = Checks.checknotnull(cm);
-      this.parameters = argumentsForCAEngine;
-    }
-
-    public Builder(CoveringArrayEngine.Builder<S> base) {
-      this.resolver = Checks.checknotnull(base.resolver);
-      this.tupleGeneratorClass = Checks.checknotnull(base.tupleGeneratorClass);
-      this.factors = Checks.checknotnull(base.factors);
-      this.constraint = Checks.checknotnull(base.getConstraint());
-      this.parameters = Checks.checknotnull(base.parameters);
-    }
-
-    public Builder setCAEngineClass(
-        Class<? extends CoveringArrayEngine> caEngineClass) {
-      this.tupleGeneratorClass = caEngineClass;
-      return this;
-    }
-
-    public Builder setFactors(Factors factors) {
+      this.runnerContext = checknotnull(runnerContext);
       this.factors = factors;
+      this.engineClass = checknotnull(engineClass);
+      this.constraint = checknotnull(cm);
+    }
+
+    public Builder setConfigArgsForEngine(List<S> parameters) {
+      this.configArgsForEngine = parameters;
       return this;
     }
 
-    public Builder setConstraint(Constraint constraint) {
-      this.constraint = constraint;
+    public Builder setResolver(Param.Resolver<S> resolver) {
+      this.resolver = resolver;
       return this;
     }
 
-    public Builder setParameters(S[] parameters) {
-      this.parameters = parameters;
-      return this;
-    }
 
-    public Builder setRunnerContext(RunnerContext runnerContext) {
-      this.runnerContext = runnerContext;
-      return this;
+    public Factors getFactors() {
+      return factors;
     }
 
     public Constraint getConstraint() {
       return constraint;
     }
 
-    public Factors getFactors() {
-      return factors;
-    }
-
     public CoveringArrayEngine build() {
-      Checks.checknotnull(this.constraint);
-      Checks.checknotnull(this.tupleGeneratorClass);
-      Checks.checknotnull(this.factors);
-      Checks.checknotnull(this.constraint);
-      Checks.checknotnull(this.runnerContext);
-      Plugin.Factory<CoveringArrayEngine, S> factory = new Factory<CoveringArrayEngine, S>(
-          (Class<CoveringArrayEngine>) this.tupleGeneratorClass,
-          this.resolver,
-          runnerContext
-      );
-      CoveringArrayEngine ret = factory.create(this.parameters);
+      checknotnull(this.constraint);
+      checknotnull(this.engineClass);
+      checknotnull(this.factors);
+      checknotnull(this.constraint);
+      checknotnull(this.runnerContext);
+      CoveringArrayEngine ret;
+      Plugin.Factory<CoveringArrayEngine, S> factory;
+      List<S> configArgsForEngine;
+      if (this.resolver != null) {
+        // PECS cast: Factory uses a class object as a consumer.
+        //noinspection unchecked
+        factory = new Factory<CoveringArrayEngine, S>(
+            (Class<? super CoveringArrayEngine>) this.engineClass,
+            this.resolver,
+            runnerContext
+        );
+        configArgsForEngine = this.configArgsForEngine;
+      } else {
+        // PassThroughResolver is always safe.
+        //noinspection unchecked
+        factory = new Factory<CoveringArrayEngine, S>(
+            (Class<? super CoveringArrayEngine>) this.engineClass,
+            (Param.Resolver<S>) Param.Resolver.passThroughResolver(),
+            runnerContext
+        );
+        configArgsForEngine = Collections.emptyList();
+      }
+      ret = factory.create(configArgsForEngine);
       ret.setFactors(this.factors);
       ret.setConstraint(this.constraint);
       ret.init();
       return ret;
+    }
+
+    public Class<? extends CoveringArrayEngine> getEngineClass() {
+      return engineClass;
     }
   }
 }

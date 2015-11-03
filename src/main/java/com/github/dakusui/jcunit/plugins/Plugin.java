@@ -48,10 +48,11 @@ public interface Plugin {
     }
 
     abstract class Resolver<S> implements Cloneable {
-      /**
-       * This resolver always pass through incoming value to target constructor.
-       */
-      public static final Resolver<Object> NULL = new PluginUtils.PassThroughResolver();
+      public static <S> Resolver<S> passThroughResolver() {
+        // safe cast for null object pattern.
+        //noinspection unchecked
+        return (Resolver<S>) PassThroughResolver.INSTANCE;
+      }
 
       private List<Converter<S>> converters;
 
@@ -95,6 +96,28 @@ public interface Plugin {
 
       public List<Converter<S>> allConverters() {
         return Collections.unmodifiableList(this.converters);
+      }
+
+      public static class PassThroughResolver extends Plugin.Param.Resolver<Object> {
+        /**
+         * This resolver always pass through incoming value to target constructor.
+         */
+        private static final PassThroughResolver INSTANCE = new PassThroughResolver();
+
+        protected PassThroughResolver() {
+          super(createConverters());
+        }
+
+        private static List<Converter<Object>> createConverters() {
+          List<Converter<Object>> converters = new ArrayList<Converter<Object>>(1);
+          converters.add(Converter.NULL);
+          return Collections.unmodifiableList(converters);
+        }
+
+        @Override
+        protected <T> Converter<Object> chooseConverter(Class<T> clazz, List<Converter<Object>> from) {
+          return from.get(0);
+        }
       }
     }
 
@@ -146,17 +169,17 @@ public interface Plugin {
   }
 
   class Factory<P extends Plugin, S> {
-    private final Class<P>          pluginClass;
+    private final Class<? super P>  pluginClass;
     private final Param.Resolver<S> resolver;
     private final RunnerContext     runnerContext;
 
-    public Factory(Class<P> pluginClass, Param.Resolver<S> resolver, RunnerContext runnerContext) {
+    public Factory(Class<? super P> pluginClass, Param.Resolver<S> resolver, RunnerContext runnerContext) {
       this.pluginClass = Checks.checknotnull(pluginClass);
       this.resolver = Checks.checknotnull(resolver);
       this.runnerContext = Checks.checknotnull(runnerContext);
     }
 
-    public P create(S... args) {
+    public P create(List<S> args) {
       List<Object> resolvedArgs = new LinkedList<Object>();
       try {
         int i = 0;
@@ -165,8 +188,8 @@ public interface Plugin {
           for (Param.Desc each : getParameterDescs(getConstructor())) {
             Param.Source source = each.parameterRequirement.source();
             if (source == Param.Source.CONFIG) {
-              if (i < args.length) {
-                resolvedArgs.add(resolver.resolve(each, args[i]));
+              if (i < args.size()) {
+                resolvedArgs.add(resolver.resolve(each, args.get(i)));
               } else {
                 resolvedArgs.add(PluginUtils.StringArrayResolver.INSTANCE.resolve(each, each.parameterRequirement.defaultValue()));
               }
@@ -195,16 +218,16 @@ public interface Plugin {
             }
           }
           Checks.checktest(
-              i >= args.length,
+              i >= args.size(),
               "Too many arguments are given. %s are extra.",
-              i < args.length
-                  ? Arrays.toString(Arrays.copyOfRange(args, i, args.length, Object[].class))
+              i < args.size()
+                  ? args.subList(i, args.size())
                   : null);
           Checks.checktest(resolvedArgs.size() == constructor.getParameterTypes().length,
               "%s: Too few or to many arguments: required=%s, given=%s",
               constructor.getDeclaringClass(),
               constructor.getParameterTypes().length,
-              args.length,
+              args.size(),
               i
           );
           return constructor.newInstance(resolvedArgs.toArray());
