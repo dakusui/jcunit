@@ -22,12 +22,12 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
 
   public ToplevelCoveringArrayEngine(
       RunnerContext runnerContext,
-      CoveringArrayEngine.Builder baseTG,
+      CoveringArrayEngine.Builder baseTGbuilder,
       Map<String, FSM> fsms,
       List<Parameters.LocalConstraint> localCMs) {
     this.runnerContext = checknotnull(runnerContext);
     this.fsms = checknotnull(fsms);
-    this.baseCAEngineBuilder = checknotnull(baseTG);
+    this.baseCAEngineBuilder = checknotnull(baseTGbuilder);
     this.localCMs = Collections.unmodifiableList(localCMs);
   }
 
@@ -68,10 +68,6 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
     // In order to make behaviour of this object compatible with super class's,
     // set factors.
     super.setFactors(factorsRebuilder.build());
-    ////
-    // Constraint manager is used for negative tests generation, which is not supported yet.
-    // This time I'm setting DEFAULT_CONSTRAINT.
-    super.setConstraint(Constraint.DEFAULT_CONSTRAINT);
     return tuples;
   }
 
@@ -165,11 +161,14 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM, RunnerContext runnerContext) {
+//    return this.baseCAEngineBuilder.build();
     return new Builder(
         runnerContext,
         fsmFactors,
         fsmCM,
-        this.baseCAEngineBuilder.getEngineClass()
-    ).build();
+        this.baseCAEngineBuilder.getEngineClass())
+        .setConfigArgsForEngine(this.baseCAEngineBuilder.getConfigArgsForEngine())
+        .setResolver(this.baseCAEngineBuilder.getResolver())
+        .build();
   }
 }

@@ -43,12 +43,34 @@ public class RandomCoveringArrayEngineTest {
   @RunWith(JCUnit.class)
   @GenerateWith(
       generator = @Generator(
+          /**
+           * Statistically, it is possible that random covering engine generates less than 100
+           * test cases because JCUnit deduplicate identical ones after suite generation.
+          */
           value = RandomCoveringArrayEngine.class,
           args = {
               @Value("100")
           }),
       checker = @Checker(TestClass.CM.class))
   public static class TestClass1 extends TestClass {
+    @SuppressWarnings("unused")
+    @FactorField
+    public int i;
+    @SuppressWarnings("unused")
+    @FactorField
+    public int j;
+    @SuppressWarnings("unused")
+    @FactorField
+    public int k;
+    @SuppressWarnings("unused")
+    @FactorField
+    public int l;
+    @SuppressWarnings("unused")
+    @FactorField
+    public int m;
+    @SuppressWarnings("unused")
+    @FactorField
+    public int n;
   }
 
   @Test

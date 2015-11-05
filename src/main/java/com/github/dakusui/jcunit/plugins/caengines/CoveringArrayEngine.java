@@ -116,6 +116,14 @@ public interface CoveringArrayEngine extends Plugin {
     public Class<? extends CoveringArrayEngine> getEngineClass() {
       return engineClass;
     }
+
+    public List<S> getConfigArgsForEngine() {
+      return configArgsForEngine;
+    }
+
+    public Param.Resolver<S> getResolver() {
+      return resolver;
+    }
   }
 
   /**

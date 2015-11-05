@@ -43,7 +43,7 @@ public class JCUnit extends Parameterized {
     try {
       ////
       // Generate a list of test cases using a specified tuple generator
-      CoveringArrayEngine coveringArrayEngine = getCAEngineFactory().createFromClass(klass);
+      CoveringArrayEngine coveringArrayEngine = getCoveringArrayEngineFactory().createFromClass(klass);
       List<TestCase> testCases = Utils.newList();
       CoveringArray ca = coveringArrayEngine.getCoveringArray();
       int id;
@@ -128,7 +128,7 @@ public class JCUnit extends Parameterized {
     };
   }
 
-  protected GenerateWith.CoveringArrayEngineFactory getCAEngineFactory() {
+  protected GenerateWith.CoveringArrayEngineFactory getCoveringArrayEngineFactory() {
     return GenerateWith.CoveringArrayEngineFactory.INSTANCE;
   }
 

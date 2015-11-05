@@ -5,7 +5,9 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.TypedConstraint;
+import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Test;
@@ -115,6 +117,7 @@ public class QuadraticEquationSolverTest6 {
         a,
         b,
         c).solve();
+    throw new Error();
   }
 
   @Test

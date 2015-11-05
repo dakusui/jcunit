@@ -63,6 +63,6 @@ public class ForSimpleCoveringArrayEngineTest {
   public void test() {
     Result result = JUnitCore.runClasses(TestClass1.class);
     assertEquals(true, result.wasSuccessful());
-    assertEquals(5, result.getRunCount());
+    assertEquals(4, result.getRunCount());
   }
 }

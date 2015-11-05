@@ -209,10 +209,8 @@ public class ReplayerTest {
 
     CoveringArrayEngine coveringArrayEngine = GenerateWith.CoveringArrayEngineFactory.INSTANCE
         .createFromClass(TestClass.class);
-    assertEquals(Replayer.class, coveringArrayEngine.getClass());
 
-    Replayer replayer = (Replayer) coveringArrayEngine;
-    CoveringArray coveringArray = replayer.getCoveringArray();
+    CoveringArray coveringArray = coveringArrayEngine.getCoveringArray();
     assertEquals(2, coveringArray.size());
     assertEquals(100, coveringArray.get(0).get("f1"));
     assertEquals(300, coveringArray.get(0).get("f2"));

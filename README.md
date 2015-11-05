@@ -58,7 +58,7 @@ Please add it to your project's pom.xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.5.6</version>
+      <version>0.5.7</version>
     </dependency>
     
 ```
@@ -89,7 +89,7 @@ following dependency in your pom.xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>0.5.7-SNAPSHOT</version>
+      <version>0.5.8-SNAPSHOT</version>
     </dependency>
     
 ```

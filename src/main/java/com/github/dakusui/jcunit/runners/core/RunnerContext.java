@@ -11,7 +11,7 @@ public interface RunnerContext {
     DUMMY("") {
     },
     TEST_CLASS("testClass") {
-    };
+    }, RESOLVER("resolver");
 
     private final String name;
 
