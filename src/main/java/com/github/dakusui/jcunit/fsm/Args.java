@@ -11,7 +11,7 @@ import java.util.List;
 public class Args implements Serializable {
   private final Object[] values;
 
-  Args(Object[] values) {
+  public Args(Object[] values) {
     Checks.checknotnull(values);
     this.values = values;
   }
