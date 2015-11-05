@@ -114,9 +114,8 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
     for (Map.Entry<String, List<ScenarioSequence>> each : sequences.entrySet()) {
       String fsmName = each.getKey();
       //noinspection unchecked
-      StateRouter cur = new StateRouter(
-          fsms.get(fsmName),
-          new EdgeLister.Base(each.getValue())
+      StateRouter cur = new StateRouter.Base(
+          fsms.get(fsmName)
       );
       stateRouters.put(fsmName, cur);
     }

@@ -42,6 +42,6 @@ public class TurnstileTest {
   @Test
   public void test() throws Throwable {
     Turnstile sut = new Turnstile();
-    FSMUtils.performStory(this, "main", sut, ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
+    FSMUtils.performStory(this, "main", sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
   }
 }

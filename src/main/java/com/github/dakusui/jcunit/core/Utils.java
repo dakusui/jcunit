@@ -1,6 +1,8 @@
 package com.github.dakusui.jcunit.core;
 
 
+import com.github.dakusui.jcunit.fsm.State;
+
 import java.lang.reflect.Array;
 import java.util.*;
 
