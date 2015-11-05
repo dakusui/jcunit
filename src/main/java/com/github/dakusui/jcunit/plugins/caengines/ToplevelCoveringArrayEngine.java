@@ -116,7 +116,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
       //noinspection unchecked
       StateRouter cur = new StateRouter(
           fsms.get(fsmName),
-          new EdgeLister(each.getValue())
+          new EdgeLister.Base(each.getValue())
       );
       stateRouters.put(fsmName, cur);
     }

@@ -90,6 +90,6 @@ public class FlyingSpaghettiMonsterTest {
   @Test
   public void test1() throws Throwable {
     FlyingSpaghettiMonster sut = new FlyingSpaghettiMonster();
-    FSMUtils.performStory(this, "primary", sut, ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
+    FSMUtils.performStory(this, "primary", sut, ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
   }
 }

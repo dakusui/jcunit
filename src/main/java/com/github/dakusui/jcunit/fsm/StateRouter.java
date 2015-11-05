@@ -14,7 +14,7 @@ public class StateRouter<SUT> {
   private final FSM<SUT>                               fsm;
   private final List<State<SUT>>                       destinations;
   private final Map<State<SUT>, ScenarioSequence<SUT>> routes;
-  private final EdgeLister                             lister;
+  private final EdgeLister<SUT>                        lister;
 
   public StateRouter(FSM<SUT> fsm, EdgeLister lister) {
     Checks.checknotnull(fsm);
@@ -63,13 +63,13 @@ public class StateRouter<SUT> {
       pathToNext.add(each);
 
       if (this.destinations.contains(next)) {
-        this.routes.put(next, buildStoryFromTransitions(pathToNext));
+        this.routes.put(next, buildScenarioSequenceFromTransitions(pathToNext));
       }
       traverse(next, pathToNext, visited);
     }
   }
 
-  private ScenarioSequence<SUT> buildStoryFromTransitions(final List<Edge<SUT>> pathToNext) {
+  private ScenarioSequence<SUT> buildScenarioSequenceFromTransitions(final List<Edge<SUT>> pathToNext) {
     return new ScenarioSequence.Base<SUT>() {
       @Override
       public int size() {
@@ -81,7 +81,7 @@ public class StateRouter<SUT> {
         Checks.checkcond(i >= 0 && i < size());
         State<SUT> ret = StateRouter.this.fsm.initialState();
         for (int c = 0; c < i; c++) {
-          next(ret, new Edge<SUT>(action(i), args(i)));
+           ret = next(ret, new Edge<SUT>(action(i), args(i)));
         }
         return ret;
       }
