@@ -14,8 +14,6 @@ import java.io.Serializable;
  * @param <SUT> A software (class) under test.
  */
 public interface ScenarioSequence<SUT> extends Serializable {
-  ScenarioSequence<?> EMPTY = new EmptyScenarioSequence<Object>();
-
   /**
    * Performs this scenario with given {@code sut} object.
    * @param token An object to synchronize scenario sequence execution.
@@ -202,7 +200,14 @@ public interface ScenarioSequence<SUT> extends Serializable {
     }
   }
 
-  class EmptyScenarioSequence<SUT> implements ScenarioSequence<SUT> {
+  class Empty<SUT> implements ScenarioSequence<SUT> {
+    public static <SUT> Empty<SUT> getInstance() {
+      return (Empty<SUT>) INSTANCE;
+    }
+
+    private Empty() {
+    }
+
     @Override
     public void perform(Story.Context context, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer) {
     }
@@ -260,6 +265,8 @@ public interface ScenarioSequence<SUT> extends Serializable {
       }
       return false;
     }
+
+    private static Empty<?> INSTANCE = new Empty<Object>();
   }
 
   /**

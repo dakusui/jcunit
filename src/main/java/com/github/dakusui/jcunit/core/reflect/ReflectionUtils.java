@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.core.StringUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -22,8 +23,22 @@ public class ReflectionUtils {
       new Class[] { float.class, Float.class },
       new Class[] { double.class, Double.class },
   };
+  private static final Comparator<? super Member> BY_NAME = new Comparator<Member>() {
+    @Override
+    public int compare(Member o1, Member o2) {
+      return o1.getName().compareTo(o2.getName());
+    }
+  };
 
   private ReflectionUtils() {
+  }
+
+  public static List<Method> getMethods(Class<?> clazz) {
+    return Utils.sort(Utils.asList(clazz.getMethods()), BY_NAME);
+  }
+
+  public static List<Field> getFields(Class<?> clazz) {
+    return Utils.sort(Utils.asList(clazz.getFields()), BY_NAME);
   }
 
   public static Field getField(Class<?> clazz, String name) {
@@ -292,8 +307,8 @@ public class ReflectionUtils {
 
   public static Field[] getAnnotatedFields(Class<?> clazz,
       Class<? extends Annotation> annClass) {
-    Field[] fields = getFields(clazz);
-    List<Field> ret = new ArrayList<Field>(fields.length);
+    List<Field> fields = getFields(clazz);
+    List<Field> ret = new ArrayList<Field>(fields.size());
     for (Field f : fields) {
       if (f.getAnnotation(annClass) != null) {
         ret.add(f);
@@ -306,10 +321,6 @@ public class ReflectionUtils {
       }
     });
     return ret.toArray(new Field[ret.size()]);
-  }
-
-  public static Field[] getFields(Class<?> clazz) {
-    return Checks.checknotnull(clazz).getFields();
   }
 
   public static class TypedArg {

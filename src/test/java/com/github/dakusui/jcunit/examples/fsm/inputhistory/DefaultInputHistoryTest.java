@@ -25,7 +25,7 @@ public class DefaultInputHistoryTest {
   @RunWith(JCUnit.class)
   public static class AllPassing extends Metatest {
     public AllPassing() {
-      super(14, 0, 0);
+      super(10, 0, 0);
     }
 
     @FactorField(levelsProvider = FSMLevelsProvider.class)
@@ -58,7 +58,7 @@ public class DefaultInputHistoryTest {
   @RunWith(JCUnit.class)
   public static class Failing extends Metatest {
     public Failing() {
-      super(14, 8, 0);
+      super(10, 6, 0);
     }
 
     @FactorField(levelsProvider = FSMLevelsProvider.class)

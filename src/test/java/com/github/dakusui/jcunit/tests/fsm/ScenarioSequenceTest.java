@@ -12,14 +12,14 @@ public class ScenarioSequenceTest {
   public void testEquals() {
     Story storyA = new Story(
         "story",
-        ScenarioSequence.EMPTY,
-        ScenarioSequence.EMPTY
+        ScenarioSequence.Empty.getInstance(),
+        ScenarioSequence.Empty.getInstance()
     );
 
     Story storyB = new Story(
         "story",
-        ScenarioSequence.EMPTY,
-        ScenarioSequence.EMPTY
+        ScenarioSequence.Empty.getInstance(),
+        ScenarioSequence.Empty.getInstance()
     );
     assertEquals(storyA, storyB);
     assertEquals(storyB, storyA);
@@ -29,14 +29,14 @@ public class ScenarioSequenceTest {
   public void testNotEquals() {
     Story storyA = new Story(
         "story",
-        ScenarioSequence.EMPTY,
-        ScenarioSequence.EMPTY
+        ScenarioSequence.Empty.getInstance(),
+        ScenarioSequence.Empty.getInstance()
     );
 
     Story storyB = new Story(
         "STORY",
-        ScenarioSequence.EMPTY,
-        ScenarioSequence.EMPTY
+        ScenarioSequence.Empty.getInstance(),
+        ScenarioSequence.Empty.getInstance()
     );
     assertNotEquals(storyA, storyB);
     assertNotEquals(storyB, storyA);

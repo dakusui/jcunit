@@ -140,7 +140,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
           story = new Story(fsmName, router.routeTo(main.state(0)), main);
         } else {
           //noinspection unchecked
-          story = new Story(fsmName, ScenarioSequence.EMPTY, main);
+          story = new Story(fsmName, ScenarioSequence.Empty.getInstance(), main);
         }
         cur.put(fsmName, story);
       }

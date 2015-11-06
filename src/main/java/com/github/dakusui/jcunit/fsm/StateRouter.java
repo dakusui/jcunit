@@ -54,9 +54,10 @@ public interface StateRouter<SUT> {
 
     @Override
     public ScenarioSequence<SUT> routeTo(State<SUT> state) {
+      if (this.initialState.equals(state)) return ScenarioSequence.Empty.getInstance();
       List<Edge<SUT>> route = Utils.newList();
       checktest(
-          route(this.initialState, state, route),
+          route(this.initialState, state, route, Utils.<State<SUT>>newSet()),
           "The state '%s' can't be reached from the initial state of the given FSM.",
           state,
           this.initialState
@@ -110,15 +111,16 @@ public interface StateRouter<SUT> {
       };
     }
 
-    boolean route(State<SUT> cur, State<SUT> to, List<Edge<SUT>> route) {
+    boolean route(State<SUT> cur, State<SUT> to, List<Edge<SUT>> route, Set<State<SUT>> visited) {
       if (!this.adjacents.containsKey(cur)) return false;
       for (State<SUT> each : checknotnull(this.adjacents.get(cur))) {
         route.add(this.links.get(new StatePair<SUT>(cur, each)));
-        if (each == to) {
+        if (each.equals(to)) {
           return true;
         } else {
-          if (!route.contains(each)) {
-            if (route(each, to, route)) {
+          if (!visited.contains(each)) {
+            visited.add(each);
+            if (route(each, to, route, visited)) {
               return true;
             }
           }
@@ -139,15 +141,19 @@ public interface StateRouter<SUT> {
             State<SUT> eachToState = eachFromState.expectation(eachAction, eachArgs).state;
             if (State.Void.getInstance().equals(eachToState))
               continue;
-            if (!ret.containsKey(eachFromState))
-              ret.put(eachFromState, Utils.<State<SUT>>newList());
-            List<State<SUT>> toStates = ret.get(eachFromState);
-            if (!toStates.contains(eachFromState))
+            List<State<SUT>> toStates = getToStates(ret, eachFromState);
+            if (!toStates.contains(eachToState))
               toStates.add(eachToState);
           }
         }
       }
       return ret;
+    }
+
+    private List<State<SUT>> getToStates(Map<State<SUT>, List<State<SUT>>> ret, State<SUT> eachFromState) {
+      if (!ret.containsKey(eachFromState))
+        ret.put(eachFromState, Utils.<State<SUT>>newList());
+      return ret.get(eachFromState);
     }
 
     Map<StatePair<SUT>, Edge<SUT>> buildLinks(FSM<SUT> fsm) {
@@ -161,7 +167,7 @@ public interface StateRouter<SUT> {
             StatePair<SUT> link = new StatePair<SUT>(fromState, toState);
             if (edges.containsKey(link))
               continue;
-            edges.put(link, new StateRouterBase.Edge<SUT>(eachAction, eachArgs));
+            edges.put(link, new StateRouter.Edge<SUT>(eachAction, eachArgs));
           }
         }
       }
@@ -171,7 +177,9 @@ public interface StateRouter<SUT> {
 
     List<Args> possibleArgsList(final Action<SUT> action) {
       // TODO:  make it cleaner a bit
-      if (action.parameters().size() == 0) return Collections.emptyList();
+      if (action.parameters().size() == 0) {
+        return Collections.singletonList(new Args(new Object[0]));
+      }
       final CoveringArrayEngine tg;
       if (action.parameters().size() == 1) {
         tg = new SimpleCoveringArrayEngine();
@@ -205,7 +213,7 @@ public interface StateRouter<SUT> {
       };
     }
 
-    class StatePair<SUT> {
+    static class StatePair<SUT> {
       State<SUT> from;
       State<SUT> to;
 

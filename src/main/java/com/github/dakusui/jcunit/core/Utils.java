@@ -1,8 +1,6 @@
 package com.github.dakusui.jcunit.core;
 
 
-import com.github.dakusui.jcunit.fsm.State;
-
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -178,6 +176,15 @@ public class Utils {
 
   public static <K, V> Map<K, V> newMap(Map<K, V> from) {
     return new LinkedHashMap<K, V>(from);
+  }
+
+  public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
+    Collections.sort(list, by);
+    return list;
+  }
+
+  public static <E> Set<E> newSet() {
+    return new LinkedHashSet<E>();
   }
 
   public interface Form<I, O> {
