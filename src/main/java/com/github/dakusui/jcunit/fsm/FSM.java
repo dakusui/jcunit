@@ -121,7 +121,7 @@ public interface FSM<SUT> {
 
     private List<Field> getStateFields(Class<? extends FSMSpec<SUT>> specClass) {
       List<Field> ret = new LinkedList<Field>();
-      for (Field each : specClass.getFields()) {
+      for (Field each : ReflectionUtils.getFields(specClass)) {
         if (each.isAnnotationPresent(StateSpec.class) && !isAlreadyAddedIn(each, ret)) {
           ret.add(each);
         }
@@ -131,7 +131,7 @@ public interface FSM<SUT> {
 
     private List<Field> getParamsFields(Class<? extends FSMSpec<SUT>> specClass) {
       List<Field> ret = new LinkedList<Field>();
-      for (final Field each : specClass.getFields()) {
+      for (final Field each : ReflectionUtils.getFields(specClass)) {
         if (each.isAnnotationPresent(ParametersSpec.class) && !isAlreadyAddedIn(each, ret))
           ret.add(each);
       }
@@ -149,7 +149,7 @@ public interface FSM<SUT> {
 
     private List<Method> getActionMethods(Class<? extends FSMSpec<SUT>> specClass) {
       List<Method> ret = new LinkedList<Method>();
-      for (Method each : specClass.getMethods()) {
+      for (Method each : ReflectionUtils.getMethods(specClass)) {
         if (each.isAnnotationPresent(ActionSpec.class)) {
           ret.add(each);
         }

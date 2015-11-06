@@ -3,8 +3,8 @@ package com.github.dakusui.jcunit.examples.recorderreplayer;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
-import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
+import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.BeforeClass;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
-@TupleGeneration(
+@GenerateWith(
     generator = @Generator(
         value = Replayer.class,
         args = @Value("All")

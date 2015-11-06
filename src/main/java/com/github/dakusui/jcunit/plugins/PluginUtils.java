@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.plugins;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.plugins.Plugin.Param.Converter;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -109,8 +110,12 @@ public class PluginUtils {
           try {
             //noinspection unchecked
             Class<Plugin> tupleGeneratorClass = (Class<Plugin>) Class.forName(className);
-            Plugin.Factory<Plugin, String> factory = new Plugin.Factory<Plugin, String>(tupleGeneratorClass, StringResolver.INSTANCE);
-            return factory.create(Arrays.asList(in).subList(1, in.length).toArray(new String[in.length - 1]));
+            Plugin.Factory<Plugin, String> factory = new Plugin.Factory<Plugin, String>(
+                tupleGeneratorClass,
+                StringResolver.INSTANCE,
+                new RunnerContext.Dummy()
+                );
+            return factory.create(Arrays.asList(in).subList(1, in.length));
           } catch (ClassNotFoundException e) {
             throw Checks.wrap(e, "class '%s' is not found on the classpath.", className);
           }
@@ -292,23 +297,6 @@ public class PluginUtils {
 
     @Override
     protected <T> Converter<String> chooseConverter(Class<T> clazz, List<Converter<String>> from) {
-      return from.get(0);
-    }
-  }
-
-  public static class PassThroughResolver extends Plugin.Param.Resolver<Object> {
-    protected PassThroughResolver() {
-      super(createConverters());
-    }
-
-    private static List<Converter<Object>> createConverters() {
-      List<Converter<Object>> converters = new ArrayList<Converter<Object>>(1);
-      converters.add(Converter.NULL);
-      return Collections.unmodifiableList(converters);
-    }
-
-    @Override
-    protected <T> Converter<Object> chooseConverter(Class<T> clazz, List<Converter<Object>> from) {
       return from.get(0);
     }
   }

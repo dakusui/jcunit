@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.runners.standard.JCUnitRunner;
-import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
+import com.github.dakusui.jcunit.runners.standard.InternalAnnotation;
+import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -27,9 +27,9 @@ public class RecorderTest extends Recorder implements Serializable {
   public int recordedField = -1024;
 
   @Mock
-  public Description                     description;
+  public Description        description;
   @Mock
-  public JCUnitRunner.InternalAnnotation ann;
+  public InternalAnnotation ann;
 
   Class<?>      testClass = RecorderTest.class;
   Factors       factors   = new Factors.Builder()
@@ -50,8 +50,8 @@ public class RecorderTest extends Recorder implements Serializable {
   @Test
   public void givenRecorderAndReplayerAreSetTrue$whenInitializeDirSaveAndLoad$thenDirectoryIsInitializedObjectsAreSavedAndLoaded()
       throws IOException {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
     wireMocks();
 
     File baseDir = new File(this.getBaseDir());
@@ -123,8 +123,8 @@ public class RecorderTest extends Recorder implements Serializable {
   @Test
   public void givenRecorderAndReplayerAreSetFalse$whenInitializeDirSaveAndLoad$thenDoNotWriteAnything()
       throws IOException {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "false");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "false");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "false");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "false");
     wireMocks();
     whenInitializeDirSaveAndLoad$thenDoNotWriteAnything(true);
   }
@@ -132,8 +132,8 @@ public class RecorderTest extends Recorder implements Serializable {
   @Test
   public void givenTestCaseTypeIsNotGenerated$whenInitializeDirSaveAndLoad$thenDoNotWriteAnything()
       throws IOException {
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
-    System.setProperty(SystemProperties.KEY.REPLAYER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
     this.type = TestCase.Type.Custom;
     this.testCase  = new TestCase(123, this.type, this.tuple);
     wireMocks();
@@ -163,7 +163,7 @@ public class RecorderTest extends Recorder implements Serializable {
   private void wireMocks() {
     //noinspection unchecked
     when(description.getTestClass()).thenReturn((Class) testClass);
-    when(description.getAnnotation(JCUnitRunner.InternalAnnotation.class))
+    when(description.getAnnotation(InternalAnnotation.class))
         .thenReturn(ann);
     when(description.getMethodName()).thenReturn("methodName");
     when(ann.getTestCase()).thenReturn(this.testCase);

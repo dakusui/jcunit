@@ -1,8 +1,10 @@
 package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
@@ -26,6 +28,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final TestSuite                    testSuite;
   private final TestCase                     testCase;
   private final Map<String, FrameworkMethod> methods;
+  private final Constraint                   constraint;
 
   /**
    * Creates an object of this class.
@@ -34,9 +37,10 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * @param testCase A test case object.
    * @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
-  public JCUnitRunner(Class<?> clazz, Factors factors, TestSuite testSuite, TestCase testCase) throws InitializationError {
+  public JCUnitRunner(Class<?> clazz, Factors factors, Constraint constraint, TestSuite testSuite, TestCase testCase) throws InitializationError {
     super(clazz);
     this.factors = Checks.checknotnull(factors);
+    this.constraint = Checks.checknotnull(constraint);
     this.testSuite = Checks.checknotnull(testSuite);
     this.testCase = Checks.checknotnull(testCase);
     TestClass testClass = getTestClass();
@@ -71,8 +75,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    */
   @Override
   public Object createTest() {
-    TestClass klazz = getTestClass();
-    return JCUnit.createTestObject(klazz, testCase.getTuple());
+    return TestCaseUtils.toTestObject(getTestClass().getJavaClass(), testCase.getTuple());
   }
 
   @Override
@@ -94,14 +97,15 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   protected Description describeChild(FrameworkMethod method) {
     Checks.checknotnull(method);
 
-    Annotation[] work = method.getAnnotations();
-    ArrayList<Annotation> annotations = new ArrayList<Annotation>(
-        work.length + 1);
-    annotations.add(
-        new InternalAnnotation(this.factors, this.testSuite, this.testCase));
-    Collections.addAll(annotations, work);
-    return Description.createTestDescription(getTestClass().getJavaClass(),
-        testName(method),
+    String name = testName(method);
+    List<? super Annotation> annotations = Utils.<Annotation>newList(new InternalAnnotation(this.factors, this.constraint, this.testSuite, this.testCase));
+    annotations.addAll(Utils.asList(method.getAnnotations()));
+    ////
+    // Elements in the list are all annotations.
+    //noinspection SuspiciousToArrayCall
+    return Description.createTestDescription(
+        getTestClass().getJavaClass(),
+        name,
         annotations.toArray(new Annotation[annotations.size()]));
   }
 
@@ -158,10 +162,8 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
         }
       };
     } catch (NoSuchMethodException e) {
-      assert false;
+      throw Checks.wrap(e);
     }
-    Checks.checkcond(false);
-    return null;
   }
 
   /**
@@ -173,36 +175,5 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   @Ignore
   @SuppressWarnings("unused")
   public static void noMatchingTestMethodIsFoundForThisTestCase() {
-  }
-
-  public static class InternalAnnotation implements Annotation {
-
-    private final TestSuite testSuite;
-    private final TestCase  testCase;
-    private final Factors   factors;
-
-    public InternalAnnotation(Factors factors, TestSuite suite, TestCase testCase) {
-      this.factors = Checks.checknotnull(factors);
-      this.testSuite = Checks.checknotnull(suite);
-      this.testCase = Checks.checknotnull(testCase);
-    }
-
-    @Override
-    public Class<? extends Annotation> annotationType() {
-      return this.getClass();
-    }
-
-    public Factors getFactors() {
-      return this.factors;
-    }
-
-    public TestSuite getTestSuite() {
-      return this.testSuite;
-    }
-
-    public TestCase getTestCase() {
-      return this.testCase;
-    }
-
   }
 }

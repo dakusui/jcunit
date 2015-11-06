@@ -6,13 +6,14 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
 import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
@@ -42,13 +43,13 @@ public class JCUnit extends Parameterized {
     try {
       ////
       // Generate a list of test cases using a specified tuple generator
-      TupleGenerator tupleGenerator = getTupleGeneratorFactory()
-          .createFromClass(klass);
+      CoveringArrayEngine coveringArrayEngine = getCoveringArrayEngineFactory().createFromClass(klass);
       List<TestCase> testCases = Utils.newList();
+      CoveringArray ca = coveringArrayEngine.getCoveringArray();
       int id;
-      for (id = (int) tupleGenerator.firstId();
-           id >= 0; id = (int) tupleGenerator.nextId(id)) {
-        Tuple testCase = tupleGenerator.get(id);
+      for (id = ca.firstId();
+           id >= 0; id = ca.nextId(id)) {
+        Tuple testCase = ca.get(id);
         if (shouldPerform(testCase, preconditionMethods)) {
           testCases.add(
               new TestCase(id, TestCase.Type.Generated, testCase
@@ -56,10 +57,10 @@ public class JCUnit extends Parameterized {
         }
       }
       // Skip to number of test cases generated.
-      id = (int) tupleGenerator.size();
+      id = ca.size();
       ////
       // Compose a list of 'negative test cases' and register them.
-      ConstraintManager cm = tupleGenerator.getConstraintManager();
+      final Constraint cm = coveringArrayEngine.getConstraint();
       final List<Tuple> violations = cm.getViolations();
       id = registerTestCases(
           testCases,
@@ -78,7 +79,7 @@ public class JCUnit extends Parameterized {
       Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
       ////
       // Create and host a test suite object to use it in rules.
-      this.factors = tupleGenerator.getFactors();
+      this.factors = coveringArrayEngine.getFactors();
       this.testSuite = new TestSuite(testCases);
       this.runners = Utils.transform(
           this.testSuite,
@@ -90,6 +91,7 @@ public class JCUnit extends Parameterized {
                 return new JCUnitRunner(
                     getTestClass().getJavaClass(),
                     factors,
+                    cm,
                     testSuite,
                     in
                 );
@@ -104,27 +106,30 @@ public class JCUnit extends Parameterized {
     }
   }
 
-  private static Throwable tryToRecreateRootCauseException(Throwable rootCause, String message) {
-    rootCause = Checks.checknotnull(rootCause);
-    if (message == null)
-      return rootCause;
-    Throwable ret = null;
-    try {
-      ret = ReflectionUtils.create(rootCause.getClass(), new ReflectionUtils.TypedArg(String.class, message));
-      ret.setStackTrace(rootCause.getStackTrace());
-    } finally {
-      if (ret == null)
-        ret = rootCause;
-    }
-    return ret;
+  @Override
+  protected List<Runner> getChildren() {
+    return this.runners;
   }
 
-  protected TupleGeneration.TupleGeneratorFactory getTupleGeneratorFactory() {
-    return TupleGeneration.TupleGeneratorFactory.INSTANCE;
+  /**
+   * Mock {@code Parameterized} runner of JUnit 4.12.
+   */
+  @Override
+  protected TestClass createTestClass(Class<?> clazz) {
+    return new TestClass(clazz) {
+      public List<FrameworkMethod> getAnnotatedMethods(
+          Class<? extends Annotation> annotationClass) {
+        if (Parameterized.Parameters.class.equals(annotationClass)) {
+          return Collections.singletonList(new FrameworkMethod(ReflectionUtils.getMethod(DummyMethodHolderForParameterizedRunner.class, "dummy")));
+
+        }
+        return super.getAnnotatedMethods(annotationClass);
+      }
+    };
   }
 
-  static Object createTestObject(TestClass testClass, Tuple testCase) {
-    return TestCaseUtils.toTestObject(testClass.getJavaClass(), testCase);
+  protected GenerateWith.CoveringArrayEngineFactory getCoveringArrayEngineFactory() {
+    return GenerateWith.CoveringArrayEngineFactory.INSTANCE;
   }
 
   private boolean shouldPerform(Tuple testCase, List<FrameworkMethod> preconditionMethods) {
@@ -133,7 +138,8 @@ public class JCUnit extends Parameterized {
     }
     for (FrameworkMethod m : preconditionMethods) {
       try {
-        Object testObject = createTestObject(this.getTestClass(),
+        Object testObject = TestCaseUtils.toTestObject(
+            this.getTestClass().getJavaClass(),
             testCase);
         if ((Boolean) m.invokeExplosively(testObject)) {
           return true;
@@ -159,11 +165,6 @@ public class JCUnit extends Parameterized {
       id++;
     }
     return id;
-  }
-
-  @Override
-  protected List<Runner> getChildren() {
-    return this.runners;
   }
 
   private List<Tuple> invokeCustomTestCasesMethod(List<FrameworkMethod> customTestCasesMethods) {
@@ -229,20 +230,18 @@ public class JCUnit extends Parameterized {
     }
   }
 
-  /**
-   * Mock {@code Parameterized} runner of JUnit 4.12.
-   */
-  @Override
-  protected TestClass createTestClass(Class<?> clazz) {
-    return new TestClass(clazz) {
-      public List<FrameworkMethod> getAnnotatedMethods(
-          Class<? extends Annotation> annotationClass) {
-        if (Parameterized.Parameters.class.equals(annotationClass)) {
-          return Collections.singletonList(new FrameworkMethod(ReflectionUtils.getMethod(DummyMethodHolderForParameterizedRunner.class, "dummy")));
-
-        }
-        return super.getAnnotatedMethods(annotationClass);
-      }
-    };
+  private static Throwable tryToRecreateRootCauseException(Throwable rootCause, String message) {
+    rootCause = Checks.checknotnull(rootCause);
+    if (message == null)
+      return rootCause;
+    Throwable ret = null;
+    try {
+      ret = ReflectionUtils.create(rootCause.getClass(), new ReflectionUtils.TypedArg(String.class, message));
+      ret.setStackTrace(rootCause.getStackTrace());
+    } finally {
+      if (ret == null)
+        ret = rootCause;
+    }
+    return ret;
   }
 }

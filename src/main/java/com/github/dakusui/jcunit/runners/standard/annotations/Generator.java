@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
-import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Generator {
-  Class<? extends TupleGenerator> value() default IPO2TupleGenerator.class;
+  Class<? extends CoveringArrayEngine> value() default IPO2CoveringArrayEngine.class;
 
   Value[] args() default { };
 }

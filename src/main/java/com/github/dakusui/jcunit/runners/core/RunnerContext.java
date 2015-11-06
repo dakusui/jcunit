@@ -1,16 +1,57 @@
 package com.github.dakusui.jcunit.runners.core;
 
-public interface RunnerContext {
-  RunnerContext NULL = new RunnerContext() {
-    @Override
-    public Object get(KEY key) {
-      return null;
-    }
-  };
+import com.github.dakusui.jcunit.core.Checks;
 
-  enum KEY {
-    DUMMY, TEST_OBJECT
+import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getFieldDeclaredIn;
+import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getFieldValueForcibly;
+
+public interface RunnerContext {
+  enum Key {
+    DUMMY("") {
+    },
+    TEST_CLASS("testClass") {
+    }, RESOLVER("resolver");
+
+    private final String name;
+
+    Key(String name) {
+      this.name = name;
+    }
+
+    public String getFieldName() {
+      return this.name;
+    }
   }
 
-  Object get(KEY key);
+  Object get(Key key);
+
+  class Dummy implements RunnerContext {
+
+    @Override
+    public Object get(Key key) {
+      throw new Error("TODO: FIXME: Use Base Instead");
+    }
+  }
+
+  /**
+   * Fields whose name is equal to one of returned values of {@code getFieldName()} of {@code Key}s
+   * are reflectively referenced through {@code get} method.
+   */
+  class Base implements RunnerContext {
+
+    // See class level Javadoc.
+    @SuppressWarnings("unused")
+    private final Object testClass;
+
+    public Base(Class<?> testClass) {
+      this.testClass = Checks.checknotnull(testClass);
+
+    }
+
+    @Override
+    public Object get(Key key) {
+      return getFieldValueForcibly(this, getFieldDeclaredIn(this.getClass(), checknotnull(key).getFieldName()));
+    }
+  }
 }

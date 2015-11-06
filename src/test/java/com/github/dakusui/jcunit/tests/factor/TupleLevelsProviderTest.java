@@ -3,9 +3,9 @@ package com.github.dakusui.jcunit.tests.factor;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
@@ -17,9 +17,9 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-@TupleGeneration
+@GenerateWith
 public class TupleLevelsProviderTest {
-  @TupleGeneration
+  @GenerateWith
   public static class Struct {
     @FactorField(intLevels = { 1, 2 })
     public int f1;
@@ -69,8 +69,8 @@ public class TupleLevelsProviderTest {
   }
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, args = @Value("3"))
+  @GenerateWith(
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = @Value("3"))
   )
   public static class TestClass3 {
     @FactorField
@@ -96,8 +96,8 @@ public class TupleLevelsProviderTest {
 
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, args = @Value("1"))
+  @GenerateWith(
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = @Value("1"))
   )
   public static class TestClass4 {
     @FactorField
@@ -121,8 +121,8 @@ public class TupleLevelsProviderTest {
 
 
   @RunWith(JCUnit.class)
-  @TupleGeneration(
-      generator = @Generator(value = IPO2TupleGenerator.class, args = { @Value("2"), @Value("hello!") })
+  @GenerateWith(
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("2"), @Value("hello!") })
   )
   public static class TestClass5 {
     @FactorField

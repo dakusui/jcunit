@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.core.StringUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -22,13 +23,43 @@ public class ReflectionUtils {
       new Class[] { float.class, Float.class },
       new Class[] { double.class, Double.class },
   };
+  private static final Comparator<? super Member> BY_NAME = new Comparator<Member>() {
+    @Override
+    public int compare(Member o1, Member o2) {
+      return o1.getName().compareTo(o2.getName());
+    }
+  };
 
   private ReflectionUtils() {
+  }
+
+  public static List<Method> getMethods(Class<?> clazz) {
+    return Utils.sort(Utils.asList(clazz.getMethods()), BY_NAME);
+  }
+
+  public static List<Field> getFields(Class<?> clazz) {
+    return Utils.sort(Utils.asList(clazz.getFields()), BY_NAME);
   }
 
   public static Field getField(Class<?> clazz, String name) {
     try {
       return Checks.checknotnull(clazz).getField(Checks.checknotnull(name));
+    } catch (NoSuchFieldException e) {
+      String msg = String.format(
+          "Field '%s' isn't defined in class '%s' or not public: canonical name='%s'",
+          name,
+          clazz.getSimpleName(),
+          clazz.getCanonicalName());
+      throw new IllegalArgumentException(msg, e);
+    }
+  }
+
+  /**
+   * Internally does {@code Class#getDeclaredField}. To be used with {@code getFieldValueForcibly}.
+   */
+  public static Field getFieldDeclaredIn(Class<?> clazz, String name) {
+    try {
+      return Checks.checknotnull(clazz).getDeclaredField(Checks.checknotnull(name));
     } catch (NoSuchFieldException e) {
       String msg = String.format(
           "Field '%s' isn't defined in class '%s' or not public: canonical name='%s'",
@@ -56,6 +87,15 @@ public class ReflectionUtils {
     }
   }
 
+  public static <T> T getFieldValueForcibly(Object obj, Field f) {
+    Checks.checknotnull(f).setAccessible(true);
+    try {
+      return getFieldValue(obj, f);
+    } finally {
+      f.setAccessible(false);
+    }
+  }
+
   public static Method getMethod(Class<?> clazz, String methodName, Class<?>... params) {
     try {
       return Checks.checknotnull(clazz).getMethod(Checks.checknotnull(methodName), params);
@@ -63,20 +103,6 @@ public class ReflectionUtils {
       throw Checks.wrap(e);
     }
   }
-
-  public static <T> T invoke(Object object, Method method, Object... args) {
-    try {
-      //noinspection unchecked
-      return (T) method.invoke(object, args);
-    } catch (RuntimeException e) {
-      throw Checks.wrap(e);
-    } catch (IllegalAccessException e) {
-      throw Checks.wrap(e);
-    } catch (InvocationTargetException e) {
-      throw Checks.wrap(e);
-    }
-  }
-
 
   public static <T> T create(Class<T> clazz, TypedArg... typedArgs) {
     Checks.checknotnull(clazz);
@@ -136,7 +162,7 @@ public class ReflectionUtils {
    * @param args   Arguments given to {@code method}.
    * @param <T>    Type of returned value from {@code method}.
    */
-  public static <T> T invokeMethod(Object obj, Method method, Object... args) {
+  public static <T> T invoke(Object obj, Method method, Object... args) {
     try {
       //noinspection unchecked
       return (T) Checks.checknotnull(method).invoke(obj, args);
@@ -144,6 +170,15 @@ public class ReflectionUtils {
       throw Checks.wrap(e.getTargetException(), "Failed to execute method '%s' with ", method, args);
     } catch (IllegalAccessException e) {
       throw Checks.wrap(e, "A method '%s' is too less open. Make it public.", method);
+    }
+  }
+
+  public static <T> T invokeForcibly(Object obj, Method method, Object... args) {
+    method.setAccessible(true);
+    try {
+      return invoke(obj, method, args);
+    } finally {
+      method.setAccessible(false);
     }
   }
 
@@ -272,8 +307,8 @@ public class ReflectionUtils {
 
   public static Field[] getAnnotatedFields(Class<?> clazz,
       Class<? extends Annotation> annClass) {
-    Field[] fields = getFields(clazz);
-    List<Field> ret = new ArrayList<Field>(fields.length);
+    List<Field> fields = getFields(clazz);
+    List<Field> ret = new ArrayList<Field>(fields.size());
     for (Field f : fields) {
       if (f.getAnnotation(annClass) != null) {
         ret.add(f);
@@ -286,10 +321,6 @@ public class ReflectionUtils {
       }
     });
     return ret.toArray(new Field[ret.size()]);
-  }
-
-  public static Field[] getFields(Class<?> clazz) {
-    return Checks.checknotnull(clazz).getFields();
   }
 
   public static class TypedArg {

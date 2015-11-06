@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.levelsproviders;
 
 public abstract class MappingLevelsProviderBase<T, S>
-    extends LevelsProviderBase {
+    extends LevelsProvider.Base {
   public MappingLevelsProviderBase() {
   }
 

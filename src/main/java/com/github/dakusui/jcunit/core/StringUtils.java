@@ -88,7 +88,7 @@ public class StringUtils {
   }
 
   /**
-   * Joins given string objects with {@code sep} using {@code Formatter.INSTANCE}.
+   * Joins given string objects with {@code sep} using {@code Formatter.CONFIG}.
    * <p/>
    * This method is implemented in order to reduce dependencies on external libraries.
    *

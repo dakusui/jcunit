@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session5;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.TypedConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.TypedConstraint;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
@@ -22,12 +22,12 @@ import static org.junit.Assert.assertThat;
  * <li>session 2: Exclude 'invalid' test cases.</li>
  * <li>session 3: Exclude 'too big' coefficients.</li>
  * <li>session 4: Implement parameter validation in SUT and test it.</li>
- * <li>session 5: Use constraint manager #1: First step.</li>
+ * <li>session 5: Use constraint checker #1: First step.</li>
  * </ul>
  */
 @RunWith(JCUnit.class)
-@TupleGeneration(
-    constraint = @Constraint(
+@GenerateWith(
+    checker = @Checker(
         value = QuadraticEquationSolverTest5.CM.class,
         args = { }))
 public class QuadraticEquationSolverTest5 {
@@ -37,7 +37,7 @@ public class QuadraticEquationSolverTest5 {
    * Constraint manager.
    */
   public static class CM extends
-      TypedConstraintManager<QuadraticEquationSolverTest5> {
+      TypedConstraint<QuadraticEquationSolverTest5> {
     @Override
     public boolean check(QuadraticEquationSolverTest5 obj, Tuple testCase)
         throws UndefinedSymbol {
@@ -79,7 +79,7 @@ public class QuadraticEquationSolverTest5 {
   }
 
   /**
-   * Since a constraint manager CM is present, invalid test cases will not be
+   * Since a constraint CM is present, invalid test cases will not be
    * generated anymore.
    *
    * See, there is a statement {@code throw new Error();}, but no error is reported.

@@ -18,25 +18,25 @@ public class TestGenWithoutJUnitTest {
 
   @Test
   public void testNormally() throws UnsupportedEncodingException {
-    String actual = runTupleGeneratorNormally();
+    String actual = runCoveringArrayEngineNormally();
     assertEquals(EXPECTATION, actual);
   }
 
   @Test
   public void testFluently() throws UnsupportedEncodingException {
-    String actual = runTupleGeneratorFluently();
+    String actual = runCAEngineFluently();
     assertEquals(EXPECTATION, actual);
   }
 
-  private String runTupleGeneratorNormally() throws UnsupportedEncodingException {
-    return this.runTupleGenerator(Run.Normally);
+  private String runCoveringArrayEngineNormally() throws UnsupportedEncodingException {
+    return this.runCoveringArrayEngine(Run.Normally);
   }
 
-  private String runTupleGeneratorFluently() throws UnsupportedEncodingException {
-    return this.runTupleGenerator(Run.Fluently);
+  private String runCAEngineFluently() throws UnsupportedEncodingException {
+    return this.runCoveringArrayEngine(Run.Fluently);
   }
 
-  private String runTupleGenerator(Run run) throws UnsupportedEncodingException {
+  private String runCoveringArrayEngine(Run run) throws UnsupportedEncodingException {
     ByteArrayOutputStream baos;
     PrintStream ps = new PrintStream(baos = new ByteArrayOutputStream());
     try {
@@ -57,7 +57,7 @@ public class TestGenWithoutJUnitTest {
     Fluently {
       @Override
       public void run(TestGenWithoutJUnit gen, PrintStream ps) {
-        gen.moreFluentStyleRun(ps);
+        gen.runMoreFluently(ps);
       }
     };
 

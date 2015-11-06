@@ -30,12 +30,18 @@ public class Utils {
     return v.equals(o);
   }
 
-  public static <T> List<T> toList(T... elements) {
+  public static <T> List<T> asList(T... elements) {
     return Arrays.asList(elements);
   }
 
   public static <T> List<T> newUnmodifiableList(List<T> elements) {
     return Collections.unmodifiableList(newList(elements));
+  }
+
+  public static <T> List<T> newList(T... elements) {
+    List<T> ret = new ArrayList<T>(elements.length);
+    ret.addAll(asList(elements));
+    return ret;
   }
 
   public static <T> List<T> newList(List<T> elements) {
@@ -86,6 +92,30 @@ public class Utils {
       ret.add(each);
     }
     return ret;
+  }
+
+  /**
+   * If a list {@code in} is immutable and efficient at index access, such as
+   * {@code ArrayList}, which is recommended to use in JCUnit, consider using
+   * this method.
+   *
+   * @param in   input list.
+   * @param form A form to translate input to output
+   * @param <I>  Input type
+   * @param <O>  Output type
+   */
+  public static <I, O> List<O> transformLazily(final List<I> in, final Form<I, O> form) {
+    return new AbstractList<O>() {
+      @Override
+      public O get(int index) {
+        return form.apply(in.get(index));
+      }
+
+      @Override
+      public int size() {
+        return in.size();
+      }
+    };
   }
 
   public static <I, O> List<O> transform(Iterable<I> in, Form<I, O> form) {
@@ -141,11 +171,20 @@ public class Utils {
   }
 
   public static <K, V> Map<K, V> newMap() {
-    return new LinkedHashMap<K, V>();
+    return newMap(Collections.<K, V>emptyMap());
   }
 
   public static <K, V> Map<K, V> newMap(Map<K, V> from) {
     return new LinkedHashMap<K, V>(from);
+  }
+
+  public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
+    Collections.sort(list, by);
+    return list;
+  }
+
+  public static <E> Set<E> newSet() {
+    return new LinkedHashSet<E>();
   }
 
   public interface Form<I, O> {

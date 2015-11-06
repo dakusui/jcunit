@@ -479,8 +479,8 @@ The detail will be discussed as a part of explanation for how you can describe
 
 ### Testing a method with parameters and their constraints
 
-Probably you want to define a constraint manager for the parameters you give to an action.
-Defining a constraint manager for parameters can be done by doing below. 
+Probably you want to define a constraint for the parameters you give to an action.
+It can be done by doing below. 
 
 ```java
 

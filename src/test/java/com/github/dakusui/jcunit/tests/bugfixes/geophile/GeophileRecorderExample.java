@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.core.SystemProperties;
-import com.github.dakusui.jcunit.runners.standard.plugins.Recorder;
+import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class GeophileRecorderExample extends GeophileTestBase {
   public static void beforeClass() {
     ////
     // Set the system property to 'true' for the sake of the test.
-    System.setProperty(SystemProperties.KEY.RECORDER.key(), "true");
+    System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
 
     File baseDir = Recorder
         .testClassDataDirFor(RECORDER_BASE, GeophileRecorderExample.class);

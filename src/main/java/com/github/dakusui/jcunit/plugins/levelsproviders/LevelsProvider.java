@@ -1,8 +1,7 @@
 package com.github.dakusui.jcunit.plugins.levelsproviders;
 
+import com.github.dakusui.jcunit.core.CoreBuilder;
 import com.github.dakusui.jcunit.plugins.Plugin;
-
-import java.util.List;
 
 /**
  * Implementations of this class must have a public constructor without any parameters.
@@ -19,8 +18,18 @@ public interface LevelsProvider extends Plugin {
   Object get(int n);
 
 
+  class Builder implements CoreBuilder<LevelsProvider> {
+
+    @Override
+    public LevelsProvider build() {
+      return null;
+    }
+  }
   /**
-   * Returns a list of error messages detected during initialization.
+   * {@inheritDoc}
    */
-  List<String> getErrorsOnInitialization();
+  abstract class Base implements LevelsProvider {
+    public Base() {
+    }
+  }
 }

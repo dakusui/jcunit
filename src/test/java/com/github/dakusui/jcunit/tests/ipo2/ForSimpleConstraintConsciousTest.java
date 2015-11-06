@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.generators.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Test;
 
@@ -28,8 +28,8 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
   }
 
   @Override
-  public ConstraintManager createConstraintManager() {
-    return new TestConstraintManager(getProhibitedTuples());
+  public Constraint createConstraintManager() {
+    return new TestConstraint(getProhibitedTuples());
   }
 
   @Test
@@ -43,12 +43,12 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
         .add(factor("F2", "L21", "L2x"))
         .add(factor("F3", "L31"))
         .add(factor("F4", "L41", "L42")).build();
-    ConstraintManager constraintManager = createConstraintManager();
+    Constraint constraint = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraintManager, optimizer);
-    verify(strength, factors, constraintManager, ipo.getResult(),
+        strength, constraint, optimizer);
+    verify(strength, factors, constraint, ipo.getResult(),
         ipo.getRemainders());
   }
 
@@ -63,18 +63,18 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
         .add(factor("F2", "L21", "L2x"))
         .add(factor("F3", "L31"))
         .add(factor("F4", "L41", "L42")).build();
-    ConstraintManager constraintManager = createConstraintManager();
+    Constraint constraint = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraintManager, optimizer);
-    verify(strength, factors, constraintManager, ipo.getResult(),
+        strength, constraint, optimizer);
+    verify(strength, factors, constraint, ipo.getResult(),
         ipo.getRemainders());
   }
 
   @Override
   protected void verifyRemaindersViolateConstraints(List<Tuple> remainders,
-      List<Tuple> result, ConstraintManager constraintManager) {
+      List<Tuple> result, Constraint constraint) {
     // Since in this test class there is no implicit constraint, we
     // can simply verify them.
     UTUtils.stdout().println(result);
@@ -83,15 +83,15 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
           find(tuple, result), is(false));
       assertThat(String.format("'%s' doesn't violate any constraints.", tuple),
           checkConstraints(
-              constraintManager,
+              constraint,
               tuple), is(false));
     }
   }
 
-  public static class TestConstraintManager implements ConstraintManager {
+  public static class TestConstraint implements Constraint {
     private final Set<Tuple> constraints;
 
-    TestConstraintManager(List<Tuple> constraints) {
+    TestConstraint(List<Tuple> constraints) {
       this.constraints = new HashSet<Tuple>();
       this.constraints.addAll(constraints);
     }

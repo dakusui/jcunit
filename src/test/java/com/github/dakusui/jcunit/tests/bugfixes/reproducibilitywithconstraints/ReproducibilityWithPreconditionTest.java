@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
-import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.*;
@@ -23,7 +23,7 @@ public class ReproducibilityWithPreconditionTest {
   }
 
   @Rule
-  public JCUnitDesc desc = new JCUnitDesc();
+  public TestDescription desc = new TestDescription();
 
   @FactorField(intLevels = { 1, 2, 3 })
   public int a;

@@ -7,8 +7,9 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraintmanagers.ConstraintManager;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 
+import java.io.PrintStream;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,15 +18,15 @@ import java.util.Set;
  * A class to measure t-way coverage.
  */
 public class Coverage {
-  public final  int               degree;
-  public final  int               initialSize;
-  public final  Factors           factorSpace;
-  private final Set<Tuple>        yetToBeCovered;
-  private final Set<Tuple>        uncoveredInWeakerDegree;
-  private final Set<Tuple>        violations;
-  public final  ConstraintManager cm;
-  public final  Report            report;
-  private       int               covered;
+  public final  int        degree;
+  public final  int        initialSize;
+  public final  Factors    factorSpace;
+  private final Set<Tuple> yetToBeCovered;
+  private final Set<Tuple> uncoveredInWeakerDegree;
+  private final Set<Tuple> violations;
+  public final  Constraint cm;
+  public final  Report     report;
+  private       int        covered;
   protected State state = State.NOT_PROCESSED;
 
   /**
@@ -38,7 +39,7 @@ public class Coverage {
   public Coverage(
       Factors factors,
       final int degree,
-      ConstraintManager cm,
+      Constraint cm,
       final Set<Tuple> uncoveredInWeakerDegree,
       Report report) {
     Checks.checkcond(degree > 0);
@@ -178,14 +179,44 @@ public class Coverage {
 
   public interface Report {
     void submit(Coverage coverage);
+
+    class Printer implements Report {
+      private final PrintStream out;
+
+      public Printer(PrintStream out) {
+        this.out = Checks.checknotnull(out);
+      }
+
+      @Override
+      public void submit(Coverage coverage) {
+        out.printf("STRENGTH=%2s: %3s/%3s/%3s/%3s/%3s (uncovered in weaker degree/violations/covered/yet to be covered/total)%n",
+            coverage.degree,
+            coverage.getUncoveredInWeakerDegree().size(),
+            coverage.getViolations().size(),
+            coverage.getCovered(),
+            coverage.getYetToBeCovered().size(),
+            coverage.initialSize
+        );
+        for (Tuple each : coverage.getYetToBeCovered()) {
+          out.printf(
+              "%1s:%1s:%s%n",
+              coverage.getViolations().contains(each)
+                  ? "V" : " ",
+              coverage.getUncoveredInWeakerDegree().contains(each)
+                  ? "W" : " ",
+              each);
+        }
+        out.println();
+      }
+    }
   }
 
   public static class TestSpace {
-    private final Factors           factorSpace;
-    private final int               strength;
-    private final ConstraintManager cm;
+    private final Factors    factorSpace;
+    private final int        strength;
+    private final Constraint cm;
 
-    public TestSpace(Factors factorSpace, int strength, ConstraintManager cm) {
+    public TestSpace(Factors factorSpace, int strength, Constraint cm) {
       this.factorSpace = factorSpace;
       this.strength = strength;
       this.cm = cm;
@@ -199,7 +230,7 @@ public class Coverage {
       return strength;
     }
 
-    public ConstraintManager getCm() {
+    public Constraint getCm() {
       return cm;
     }
   }

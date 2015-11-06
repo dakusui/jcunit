@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.tests.plugins;
 
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
-import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProviderBase;
 import com.github.dakusui.jcunit.ututils.behaviour.BehaviourTestBase;
 import com.github.dakusui.jcunit.ututils.behaviour.TestScenario;
 import org.junit.runners.Parameterized;
@@ -40,7 +39,7 @@ public class LevelsProviderTestBase<T extends LevelsProvider> extends BehaviourT
               @Override
               public LevelsProvider prepare() {
                 // TODO
-                LevelsProvider ret = new LevelsProviderBase() {
+                LevelsProvider ret = new LevelsProvider.Base() {
                   @Override
                   public int size() {
                     return 0;

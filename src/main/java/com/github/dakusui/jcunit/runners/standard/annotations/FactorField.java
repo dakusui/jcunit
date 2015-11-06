@@ -5,8 +5,9 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.plugins.generators.TupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.validator.AnnotationValidator;
@@ -19,7 +20,10 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.AbstractList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -117,6 +121,7 @@ public @interface FactorField {
           };
         }
         if (!ret.contains(null) && ann.includeNull()) {
+          ret = Utils.newList(ret);
           ret.add(null);
         }
         List<Object> incompatibles = Utils.filter(ret, new Utils.Predicate<Object>() {
@@ -138,10 +143,11 @@ public @interface FactorField {
         //noinspection unchecked
         Plugin.Factory<LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
             (Class<LevelsProvider>) ann.levelsProvider(),
-            new Value.Resolver()
+            new Value.Resolver(),
+            new RunnerContext.Dummy()
         );
         //noinspection ConstantConditions
-        return factory.create(ann.providerParams());
+        return factory.create(Arrays.asList(ann.providerParams()));
       }
 
       private static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
@@ -173,7 +179,7 @@ public @interface FactorField {
         Checks.checknotnull(ann);
         Checks.checknotnull(type);
         Checks.checkcond(type.isPrimitive() || String.class.equals(type) || type.isEnum(), "'%s' does not have default levels.", type);
-        Object o = ReflectionUtils.invokeMethod(ann, levelsMethodOf(type));
+        Object o = ReflectionUtils.invoke(ann, levelsMethodOf(type));
         Checks.checknotnull(o);
         final Object arr;
         //noinspection ConstantConditions (already checked)
@@ -181,18 +187,23 @@ public @interface FactorField {
           arr = o;
         } else if (o instanceof Class && ((Class) o).isEnum()) {
           ////
-          // 'values' method of an enum is static.
-          arr = ReflectionUtils.invokeMethod(null, ReflectionUtils.getMethod(((Class) o), "values"));
+          // 'values' method of an enum is static and returned value is guaranteed to be an array.
+          arr = ReflectionUtils.invoke(null, ReflectionUtils.getMethod(((Class) o), "values"));
         } else {
           arr = null;
         }
-        Checks.checknotnull(arr);
-        int l = Array.getLength(arr);
-        List<Object> ret = new ArrayList<Object>(l);
-        for (int i = 0; i < l; i++) {
-          ret.add(Array.get(arr, i));
-        }
-        return ret;
+        Checks.checknotnull(arr).getClass();
+        return new AbstractList<Object>() {
+          @Override
+          public Object get(int index) {
+            return Array.get(arr, index);
+          }
+
+          @Override
+          public int size() {
+            return Array.getLength(arr);
+          }
+        };
       }
 
       private static Method levelsMethodOf(Class supportedType) {
@@ -214,11 +225,6 @@ public @interface FactorField {
         @Override
         public Object get(int n) {
           return new IllegalArgumentException();
-        }
-
-        @Override
-        public List<String> getErrorsOnInitialization() {
-          return Collections.emptyList();
         }
       }
     }
@@ -285,7 +291,7 @@ public @interface FactorField {
       } else if (c.isEnum()) {
         // Note that Enum.class.isEnum should return false;
         // Note that 'values' method of an enum is static. It returns an array of the enum object.
-        final Object values = ReflectionUtils.invokeMethod(null, ReflectionUtils.getMethod(c, "values"));
+        final Object values = ReflectionUtils.invoke(null, ReflectionUtils.getMethod(c, "values"));
         Checks.checknotnull(values);
         //noinspection ConstantConditions
         Checks.checkcond(values.getClass().isArray());
@@ -300,20 +306,20 @@ public @interface FactorField {
             return Array.getLength(values);
           }
         };
-      } else if (c.getAnnotation(TupleGeneration.class) != null) {
+      } else if (c.getAnnotation(GenerateWith.class) != null) {
         return new AbstractList<Object>() {
-          TupleGenerator tg = TupleGeneration.TupleGeneratorFactory.INSTANCE.createFromClass(c);
+          CoveringArray ca = GenerateWith.CoveringArrayEngineFactory.INSTANCE.createFromClass(c).getCoveringArray();
 
           @Override
           public Object get(int index) {
             Object ret = ReflectionUtils.create(c);
-            TestCaseUtils.initializeObjectWithTuple(ret, tg.get(index));
+            TestCaseUtils.initializeObjectWithTuple(ret, ca.get(index));
             return ret;
           }
 
           @Override
           public int size() {
-            return (int) tg.size();
+            return ca.size();
           }
         };
       } else {

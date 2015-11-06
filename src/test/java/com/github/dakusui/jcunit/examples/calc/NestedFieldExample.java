@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit.examples.calc;
 
 import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.plugins.generators.IPO2TupleGenerator;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.standard.plugins.JCUnitDesc;
+import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;
@@ -17,7 +17,7 @@ import org.junit.runner.RunWith;
 import org.junit.validator.ValidateWith;
 
 @RunWith(JCUnit.class)
-@ValidateWith(TupleGeneration.Validator.class)
+@ValidateWith(GenerateWith.Validator.class)
 public class NestedFieldExample extends Metatest {
   public NestedFieldExample() {
     super(
@@ -27,9 +27,9 @@ public class NestedFieldExample extends Metatest {
     );
   }
 
-  @TupleGeneration(
+  @GenerateWith(
       generator = @Generator(
-          value = IPO2TupleGenerator.class,
+          value = IPO2CoveringArrayEngine.class,
           args = @Value("2")
       ))
   public static class Struct {
@@ -44,7 +44,7 @@ public class NestedFieldExample extends Metatest {
   }
 
   @Rule
-  public JCUnitDesc testDesc = new JCUnitDesc();
+  public TestDescription testDesc = new TestDescription();
 
   @FactorField(levelsProvider = LevelsProvider$f1.class)
   public int f1;

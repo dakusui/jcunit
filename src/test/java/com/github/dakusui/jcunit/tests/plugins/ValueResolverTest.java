@@ -2,8 +2,11 @@ package com.github.dakusui.jcunit.tests.plugins;
 
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.PluginUtils;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -54,9 +57,10 @@ public class ValueResolverTest {
   public void testArgResolver$normal() {
     Plugin.Factory<TestPlugin, Value> factory = new Plugin.Factory<TestPlugin, Value>(
         TestPlugin.class,
-        new Value.Resolver()
+        new Value.Resolver(),
+        new RunnerContext.Dummy()
     );
-    TestPlugin testPlugin = factory.create(
+    TestPlugin testPlugin = factory.create(Arrays.asList(
         new Value.ArrayBuilder()
             .add("123") //x
             .add("456")  //y
@@ -69,7 +73,7 @@ public class ValueResolverTest {
             .add("Hello") //s
             .add("WORLD") //t
         .build()
-    );
+    ));
     assertEquals(123, testPlugin.x);
     assertEquals(456, testPlugin.y);
     assertEquals(789L, testPlugin.z);
@@ -86,9 +90,10 @@ public class ValueResolverTest {
   public void testStringResolver$normal() {
     Plugin.Factory<TestPlugin, String> factory = new Plugin.Factory<TestPlugin, String>(
         TestPlugin.class,
-        PluginUtils.StringResolver.INSTANCE
+        PluginUtils.StringResolver.INSTANCE,
+        new RunnerContext.Dummy()
     );
-    TestPlugin testPlugin = factory.create(
+    TestPlugin testPlugin = factory.create(Arrays.asList(
         "123", //x
         "456",  //y
         "789",  //z
@@ -99,7 +104,7 @@ public class ValueResolverTest {
         "R", //r
         "Hello", //s,
         "WORLD" //t
-    );
+    ));
     assertEquals(123, testPlugin.x);
     assertEquals(456, testPlugin.y);
     assertEquals(789L, testPlugin.z);

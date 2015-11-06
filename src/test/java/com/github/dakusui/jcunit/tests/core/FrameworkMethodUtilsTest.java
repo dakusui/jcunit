@@ -7,8 +7,6 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.runners.standard.CompositeFrameworkMethod;
 import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
-import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
-import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Rule;
@@ -19,7 +17,6 @@ import org.junit.runners.model.TestClass;
 import org.junit.validator.AnnotationValidator;
 
 import java.lang.annotation.Annotation;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -141,65 +138,32 @@ public class FrameworkMethodUtilsTest {
   @Rule
   public ExpectedException expectedEx = ExpectedException.none();
 
-  public static class TestClass2 {
-    @SuppressWarnings("unused")
-    @Precondition
-    public boolean precondition1() {
-      return true;
-    }
-  }
-
-  public static class TestClass3 {
-    @SuppressWarnings("unused")
-    @CustomTestCases
-    public static List<TestClass3> customTestCases() {
-      return new LinkedList<TestClass3>();
-    }
-  }
-
-  CompositeFrameworkMethod findMethodReferencedByWhenAnnotation(
-      Class<?> testClass,
-      final List<String> annotaionValues) {
-    return FrameworkMethodUtils.buildCompositeFrameworkMethod(new TestClass(testClass), new When() {
-
-      @Override
-      public Class<? extends Annotation> annotationType() {
-        return When.class;
-      }
-
-      @Override
-      public String[] value() {
-        return annotaionValues.toArray(new String[annotaionValues.size()]);
-      }
-    });
-  }
-
   @Test
   public void testSimpleMethodReference() {
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList("precondition1"),
+        Utils.asList("precondition1"),
         UTUtils.<String, List<String>>toMap(
-            UTUtils.entry("precondition1", Utils.toList())
+            UTUtils.entry("precondition1", Utils.asList())
         ));
   }
 
   @Test
   public void testSingleTermMethodReference() {
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList("precondition2&&precondition3"),
+        Utils.asList("precondition2&&precondition3"),
         UTUtils.<String, List<String>>toMap(
-            UTUtils.entry("precondition2", Utils.toList()),
-            UTUtils.entry("precondition3", Utils.toList()
+            UTUtils.entry("precondition2", Utils.asList()),
+            UTUtils.entry("precondition3", Utils.asList()
             )));
   }
 
   @Test
   public void testSingleTermWithNegateMethodReference() {
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList("!precondition2&&precondition3"),
+        Utils.asList("!precondition2&&precondition3"),
         UTUtils.<String, List<String>>toMap(
-            UTUtils.entry("precondition2", Utils.toList()),
-            UTUtils.entry("precondition3", Utils.toList()
+            UTUtils.entry("precondition2", Utils.asList()),
+            UTUtils.entry("precondition3", Utils.asList()
             )));
   }
 
@@ -207,11 +171,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_nonPublic() {
     String methodName = "invalidPrecondition1";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList("The method 'invalidPrecondition1' must be public. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)")
+                Utils.asList("The method 'invalidPrecondition1' must be public. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)")
             )));
   }
 
@@ -219,11 +183,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_typeMismatch() {
     String methodName = "invalidPrecondition2";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "The method 'invalidPrecondition2' must return a boolean value, but 'java.lang.Boolean' is returned. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)"
                 ))));
   }
@@ -232,11 +196,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_nonStatic() {
     String methodName = "invalidPrecondition3";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "The method 'invalidPrecondition3' must not be static. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)"
                 ))));
   }
@@ -245,11 +209,11 @@ public class FrameworkMethodUtilsTest {
   public void testSimpleMethodReferenceToInvalidMethod_nonParameterless() {
     String methodName = "invalidPrecondition4";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "The method 'invalidPrecondition4' must not have any parameter. (in com.github.dakusui.jcunit.tests.core.FrameworkMethodUtilsTest.RetrieverTestClass)"
                 ))));
   }
@@ -262,11 +226,11 @@ public class FrameworkMethodUtilsTest {
     );
     String methodName = "invalidPrecondition5";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "<<SHOULD_NOT_BE_EVALUATED>>"
                 ))));
   }
@@ -280,11 +244,11 @@ public class FrameworkMethodUtilsTest {
     );
     String methodName = "undefinedPrecondition";
     testValidationForMethodAnnotatedWithWhen(
-        Utils.toList(methodName),
+        Utils.asList(methodName),
         UTUtils.<String, List<String>>toMap(
             UTUtils.entry(
                 methodName,
-                Utils.toList(
+                Utils.asList(
                     "<<SHOULD_NOT_BE_EVALUATED>>"
                 ))));
   }
@@ -344,21 +308,21 @@ public class FrameworkMethodUtilsTest {
         expect.isEmpty());
   }
 
-  @Test
-  public void testMethodsAnnotatedWithPrecondition() throws Throwable {
-    List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.PRECONDITION.getMethods(TestClass2.class);
-    assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "precondition1"));
-    TestClass2 testObj = new TestClass2();
-    assertEquals(true, getFrameworkMethodByNameFromList(methodList, "precondition1").invokeExplosively(testObj));
-    assertEquals(0, validateMethod(new Condition.Validator(), getFrameworkMethodByNameFromList(methodList, "precondition1")).size());
-  }
+  private CompositeFrameworkMethod findMethodReferencedByWhenAnnotation(
+      Class<?> testClass,
+      final List<String> annotaionValues) {
+    return FrameworkMethodUtils.buildCompositeFrameworkMethod(new TestClass(testClass), new When() {
 
-  @Test
-  public void testMethodsAnnotatedWithCustomTestCases() throws Throwable {
-    List<FrameworkMethod> methodList = FrameworkMethodUtils.FrameworkMethodRetriever.CUSTOM_TESTCASES.getMethods(TestClass3.class);
-    assertTrue(methodListContainsItemWhoseNameIsSpecified(methodList, "customTestCases"));
-    assertEquals(new LinkedList<TestClass3>(), getFrameworkMethodByNameFromList(methodList, "customTestCases").invokeExplosively(null));
-    assertEquals(0, validateMethod(new CustomTestCases.Validator(), getFrameworkMethodByNameFromList(methodList, "customTestCases")).size());
+      @Override
+      public Class<? extends Annotation> annotationType() {
+        return When.class;
+      }
+
+      @Override
+      public String[] value() {
+        return annotaionValues.toArray(new String[annotaionValues.size()]);
+      }
+    });
   }
 
 
@@ -372,23 +336,5 @@ public class FrameworkMethodUtilsTest {
           }
         }
     );
-  }
-
-  private boolean methodListContainsItemWhoseNameIsSpecified(List<FrameworkMethod> methodList, String methodName) {
-    for (FrameworkMethod each : methodList) {
-      if (each.getName().equals(methodName)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private FrameworkMethod getFrameworkMethodByNameFromList(List<FrameworkMethod> methodList, String methodName) {
-    for (FrameworkMethod each : methodList) {
-      if (each.getName().equals(methodName)) {
-        return each;
-      }
-    }
-    throw new AssertionError("Not found:" + methodName);
   }
 }

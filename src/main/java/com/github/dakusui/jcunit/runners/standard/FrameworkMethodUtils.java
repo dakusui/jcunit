@@ -1,53 +1,39 @@
 package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.runners.standard.annotations.*;
+import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.runners.standard.annotations.ReferenceHandler;
+import com.github.dakusui.jcunit.runners.standard.annotations.ReferenceWalker;
+import com.github.dakusui.jcunit.runners.standard.annotations.ReferrerAttribute;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.List;
 
 /**
  * A class that holds utility methods to retrieve and validate framework methods.
  */
 public class FrameworkMethodUtils {
-  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, When from) {
+  private FrameworkMethodUtils() {
+  }
+
+  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, Annotation from) {
+    Checks.checknotnull(testClass);
+    Checks.checknotnull(from);
+    ReferrerAttribute referrerAttribute = Checks.checknotnull(
+        from.annotationType().getAnnotation(ReferrerAttribute.class),
+        "Annotation '%s' doesn't have %s.", from, ReferrerAttribute.class);
+
     return new ReferenceHandler.ForBuildingCompositeFrameworkMethod()
-        .handleTermArray(new ReferenceWalker<CompositeFrameworkMethod>(testClass, When.class.getAnnotation(ReferrerAttribute.class).value()), from.value());
+        .handleTermArray(
+            new ReferenceWalker<CompositeFrameworkMethod>(
+                testClass,
+                referrerAttribute.value()
+            ),
+            Checks.cast(String[].class, ReflectionUtils.invokeForcibly(from, ReflectionUtils.getMethod(from.getClass(), "value"))));
   }
-
-  public interface FrameworkMethodRetriever {
-    abstract class FrameworkMethodRetrieverBase implements FrameworkMethodRetriever {
-      @Override
-      public List<FrameworkMethod> getMethods(Class<?> testClass) {
-        return new TestClass(testClass).getAnnotatedMethods(this.getAnnotation());
-      }
-
-      abstract protected Class<? extends Annotation> getAnnotation();
-    }
-
-    FrameworkMethodRetriever CUSTOM_TESTCASES = new FrameworkMethodRetrieverBase() {
-      @Override
-      protected Class<? extends Annotation> getAnnotation() {
-        return CustomTestCases.class;
-      }
-    };
-
-    /**
-     * A retriever which gathers methods annotated with {@literal @}{@code Precondition}.
-     */
-    FrameworkMethodRetriever PRECONDITION = new FrameworkMethodRetriever.FrameworkMethodRetrieverBase() {
-      @Override
-      protected Class<? extends Annotation> getAnnotation() {
-        return Precondition.class;
-      }
-    };
-
-    List<FrameworkMethod> getMethods(Class<?> testClass);
-  }
-
 
   /**
    * A base class for JCUnit specific FrameworkMethods.
@@ -59,7 +45,7 @@ public class FrameworkMethodUtils {
       try {
         DUMMY_METHOD = CompositeFrameworkMethod.class.getMethod("dummyMethod");
       } catch (NoSuchMethodException e) {
-        throw new RuntimeException(e);
+        throw Checks.wrap(e);
       }
     }
 

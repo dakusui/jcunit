@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.TupleGeneration;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
@@ -19,11 +19,11 @@ import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.factor;
 import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.newTestCase;
 
 @RunWith(JCUnit.class)
-@TupleGeneration(
+@GenerateWith(
     generator = @Generator(
         value = Replayer.class,
         args = {
-            @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullTupleGenerator" }),
+            @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullCoveringArrayEngine" }),
             @Value("Replay"),
             @Value("All")
         }

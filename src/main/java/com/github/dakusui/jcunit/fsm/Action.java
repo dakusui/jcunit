@@ -1,14 +1,13 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.Utils;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -52,15 +51,10 @@ public interface Action<SUT> extends Serializable {
    */
   String id();
 
-  /**
-   * Return types of the parameters.
-   */
-  List<Class<?>> parameterTypes();
-
   abstract class Void implements Action {
     public static <SUT> Action<SUT> getInstance() {
       //noinspection unchecked
-      return (Action<SUT>)INSTANCE;
+      return (Action<SUT>) INSTANCE;
     }
 
     private static Void INSTANCE = new Void() {
@@ -90,10 +84,6 @@ public interface Action<SUT> extends Serializable {
         return "(VOID)";
       }
 
-      @Override
-      public List<Class<?>> parameterTypes() {
-        return Collections.emptyList();
-      }
     };
   }
 
@@ -174,11 +164,6 @@ public interface Action<SUT> extends Serializable {
     }
 
     @Override
-    public List<Class<?>> parameterTypes() {
-      return this.getParameterTypes();
-    }
-
-    @Override
     public String toString() {
       return method.getName();
     }
@@ -201,7 +186,7 @@ public interface Action<SUT> extends Serializable {
     private Method chooseMethod(Class<?> klass, String name) {
       Method ret = null;
       for (Method each : klass.getMethods()) {
-        if (each.getName().equals(name) && this.getParameterTypes().equals(Utils.toList(each.getParameterTypes()))) {
+        if (each.getName().equals(name) && this.getParameterTypes().equals(Utils.asList(each.getParameterTypes()))) {
           ret = each;
           break;
         }
@@ -215,7 +200,7 @@ public interface Action<SUT> extends Serializable {
      */
     private List<Class<?>> getParameterTypes() {
       Class<?>[] parameterTypes = this.method.getParameterTypes();
-      return Utils.toList(parameterTypes).subList(1, parameterTypes.length);
+      return Utils.asList(parameterTypes).subList(1, parameterTypes.length);
     }
   }
 }
