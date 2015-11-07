@@ -160,7 +160,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM, RunnerContext runnerContext) {
-//    return this.baseCAEngineBuilder.build();
+    //noinspection unchecked
     return new Builder(
         runnerContext,
         fsmFactors,

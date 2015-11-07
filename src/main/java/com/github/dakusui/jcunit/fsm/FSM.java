@@ -239,4 +239,28 @@ public interface FSM<SUT> {
     }
 
   }
+
+  class Edge<SUT> {
+    public final Action<SUT> action;
+    public final Args        args;
+
+    public Edge(Action<SUT> action, Args args) {
+      this.action = action;
+      this.args = args;
+    }
+
+    @Override
+    public int hashCode() {
+      return this.action.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object anotherObject) {
+      if (!(anotherObject instanceof Edge))
+        return false;
+      //noinspection unchecked
+      Edge<SUT> another = (Edge<SUT>) anotherObject;
+      return this.action.equals(another.action) && Arrays.deepEquals(this.args.values(), another.args.values());
+    }
+  }
 }

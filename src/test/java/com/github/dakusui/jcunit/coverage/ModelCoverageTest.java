@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CoverageTest {
+public class ModelCoverageTest {
   @Before
   public void before() {
     UTUtils.configureStdIOs();
@@ -34,9 +34,9 @@ public class CoverageTest {
         .add("F2", "L1", "L2")
         .add("F3", "L1", "L2")
         .build();
-    Coverage.examime(
+    ModelCoverage.examime(
         testSuite,
-        new Coverage.TestSpace(
+        new ModelCoverage.TestSpace(
             factorSpace,
             3,
             new ConstraintBase() {
@@ -47,7 +47,7 @@ public class CoverageTest {
               }
             }
         ),
-        new Coverage.Report.Printer(UTUtils.stdout())
+        new ModelCoverage.Report.Printer(UTUtils.stdout())
     );
   }
 

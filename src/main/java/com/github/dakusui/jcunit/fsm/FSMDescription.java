@@ -7,7 +7,7 @@ import java.util.Map;
 
 import static com.github.dakusui.jcunit.core.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.Checks.checknotnull;
-import static com.github.dakusui.jcunit.fsm.StateRouter.Edge;
+import static com.github.dakusui.jcunit.fsm.FSM.Edge;
 
 public class FSMDescription {
   private final FSM<Object>           fsm;

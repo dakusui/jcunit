@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * A class to measure t-way coverage.
  */
-public class Coverage {
+public class ModelCoverage {
   public final  int        degree;
   public final  int        initialSize;
   public final  Factors    factorSpace;
@@ -36,7 +36,7 @@ public class Coverage {
    * @param factors                 A factor space where test suite's coverage is examined.
    * @param degree                  Strength (number of attributes involved).
    */
-  public Coverage(
+  public ModelCoverage(
       Factors factors,
       final int degree,
       Constraint cm,
@@ -75,13 +75,13 @@ public class Coverage {
                 // This statement will convert tuples in the set into one-degree-stronger,
                 // which is suitable for this instance.
                 if (uncoveredInWeakerDegree.contains(each)) {
-                  Coverage.this.uncoveredInWeakerDegree.add(in);
+                  ModelCoverage.this.uncoveredInWeakerDegree.add(in);
                 }
               }
               //noinspection EmptyCatchBlock
               try {
-                if (!Coverage.this.cm.check(in)) {
-                  Coverage.this.violations.add(in);
+                if (!ModelCoverage.this.cm.check(in)) {
+                  ModelCoverage.this.violations.add(in);
                 }
               } catch (UndefinedSymbol undefinedSymbol) {
               }
@@ -93,7 +93,7 @@ public class Coverage {
     }
   }
 
-  public Coverage processTestSuite(List<Tuple> testSuite) {
+  public ModelCoverage processTestSuite(List<Tuple> testSuite) {
     for (Tuple eachTestCase : testSuite) {
       if (this.yetToBeCovered.isEmpty())
         break;
@@ -126,18 +126,18 @@ public class Coverage {
     return TupleUtils.subtuplesOf(testCase, strength);
   }
 
-  protected Coverage createNext() {
+  protected ModelCoverage createNext() {
     if (this.degree == factorSpace.size())
       return null;
     Set<Tuple> p = new LinkedHashSet<Tuple>();
     p.addAll(this.uncoveredInWeakerDegree);
     p.addAll(this.yetToBeCovered);
-    return new Coverage(factorSpace, degree + 1, this.cm, p, this.report);
+    return new ModelCoverage(factorSpace, degree + 1, this.cm, p, this.report);
   }
 
   public static void examime(List<Tuple> testSuite, TestSpace testSpace, Report report) {
-    Coverage[] coverages = examineTestSuite(testSuite, testSpace, report);
-    for (Coverage each : coverages) {
+    ModelCoverage[] modelCoverages = examineTestSuite(testSuite, testSpace, report);
+    for (ModelCoverage each : modelCoverages) {
       each.report.submit(each);
     }
   }
@@ -158,11 +158,11 @@ public class Coverage {
     return yetToBeCovered;
   }
 
-  private static Coverage[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, Report report) {
+  private static ModelCoverage[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, Report report) {
     Checks.checkcond(testSpace.getStrength() > 0);
-    Coverage[] ret = new Coverage[testSpace.getStrength()];
+    ModelCoverage[] ret = new ModelCoverage[testSpace.getStrength()];
 
-    for (Coverage cur = new Coverage(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
+    for (ModelCoverage cur = new ModelCoverage(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
          cur != null && cur.degree <= testSpace.getStrength();
          cur = cur.createNext()) {
       cur.processTestSuite(testSuite);
@@ -178,7 +178,7 @@ public class Coverage {
   }
 
   public interface Report {
-    void submit(Coverage coverage);
+    void submit(ModelCoverage modelCoverage);
 
     class Printer implements Report {
       private final PrintStream out;
@@ -188,21 +188,21 @@ public class Coverage {
       }
 
       @Override
-      public void submit(Coverage coverage) {
+      public void submit(ModelCoverage modelCoverage) {
         out.printf("STRENGTH=%2s: %3s/%3s/%3s/%3s/%3s (uncovered in weaker degree/violations/covered/yet to be covered/total)%n",
-            coverage.degree,
-            coverage.getUncoveredInWeakerDegree().size(),
-            coverage.getViolations().size(),
-            coverage.getCovered(),
-            coverage.getYetToBeCovered().size(),
-            coverage.initialSize
+            modelCoverage.degree,
+            modelCoverage.getUncoveredInWeakerDegree().size(),
+            modelCoverage.getViolations().size(),
+            modelCoverage.getCovered(),
+            modelCoverage.getYetToBeCovered().size(),
+            modelCoverage.initialSize
         );
-        for (Tuple each : coverage.getYetToBeCovered()) {
+        for (Tuple each : modelCoverage.getYetToBeCovered()) {
           out.printf(
               "%1s:%1s:%s%n",
-              coverage.getViolations().contains(each)
+              modelCoverage.getViolations().contains(each)
                   ? "V" : " ",
-              coverage.getUncoveredInWeakerDegree().contains(each)
+              modelCoverage.getUncoveredInWeakerDegree().contains(each)
                   ? "W" : " ",
               each);
         }

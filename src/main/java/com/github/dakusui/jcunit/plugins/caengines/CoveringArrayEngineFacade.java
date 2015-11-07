@@ -13,48 +13,24 @@ import java.util.Map;
 
 import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
-public class CoveringArrayEngineFacade implements CoveringArrayEngine {
+public class CoveringArrayEngineFacade {
   private final Factors          factors;
   private final Constraint       constraint;
   private final CoverageReporter reporter;
   private final CoveringArray    coveringArray;
 
-  @Override
-  public void init() {
-    // This method doesn't do anything.
-  }
-
-  @Override
   public Factors getFactors() {
     return this.factors;
   }
 
-  @Override
-  public void setFactors(Factors factors) {
-    throw new UnsupportedOperationException("This method is not supported by this class.");
-  }
-
-  @Override
   public Constraint getConstraint() {
     return this.constraint;
   }
 
-  @Override
-  public void setConstraint(Constraint constraint) {
-    throw new UnsupportedOperationException("This method is not supported by this class.");
-  }
-
-  @Override
   public CoverageReporter getCoverageReporter() {
     return this.reporter;
   }
 
-  @Override
-  public void setCoverageReporter(CoverageReporter coverageReporter) {
-    throw new UnsupportedOperationException("This method is not supported by this class.");
-  }
-
-  @Override
   public CoveringArray getCoveringArray() {
     return this.coveringArray;
   }
@@ -87,6 +63,15 @@ public class CoveringArrayEngineFacade implements CoveringArrayEngine {
 
     @Override
     public CoveringArrayEngineFacade build() {
+      // Annotation
+      // -> Config Values
+      // -> Test Class
+      //  -> Factors -> FSM Expansion
+      // Constraint
+      // Coverage report
+
+
+
       // expand FSMs to flatten factors.
       // construct constraint structure.
       //  = Base (user-defined) constraint + FSM constraint + local constraints
