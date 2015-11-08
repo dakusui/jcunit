@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.runners.experimentals.theories;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -95,16 +96,18 @@ public class TheoriesWithJCUnit extends Theories {
     } catch (Throwable throwable) {
       throw Checks.wrap(throwable);
     }
-    final CoveringArrayEngine tg = createCoveringArrayEngine(method.getMethod());
-    tg.setFactors(factorsBuilder.build());
-    tg.init();
+    final CoveringArrayEngine tg = createCoveringArrayEngine(createRunnerContext(), method.getMethod());
+    final FactorSpace factorSpace = new FactorSpace(
+        factorsBuilder.build(),
+        createConstraint(method.getMethod())
+    );
     return new TheoryAnchor(method, testClass) {
       int successes = 0;
       List<AssumptionViolatedException> fInvalidParameters = new ArrayList<AssumptionViolatedException>();
 
       @Override
       public void evaluate() throws Throwable {
-        CoveringArray ca = tg.getCoveringArray();
+        CoveringArray ca = tg.generate(factorSpace);
         for (Tuple each : ca) {
           runWithCompleteAssignment(tuple2assignments(method.getMethod(), testClass, each));
         }
@@ -129,19 +132,27 @@ public class TheoriesWithJCUnit extends Theories {
   }
 
 
-  protected CoveringArrayEngine createCoveringArrayEngine(final Method method) {
+  protected CoveringArrayEngine createCoveringArrayEngine(RunnerContext runnerContext, final Method method) {
     GenerateWith tgAnn = method.getAnnotation(GenerateWith.class);
     CoveringArrayEngine tg;
-    final Constraint cm;
-    RunnerContext runnerContext = createRunnerContext();
     if (tgAnn != null) {
       tg = createCoveringArrayEngine(tgAnn.generator(), runnerContext);
-      cm = createConstraintManager(tgAnn.checker(), runnerContext);
     } else {
       tg = new IPO2CoveringArrayEngine(2);
+    }
+    return tg;
+  }
+
+  protected Constraint createConstraint(final Method method) {
+    final Constraint cm;
+    GenerateWith tgAnn = method.getAnnotation(GenerateWith.class);
+    RunnerContext runnerContext = createRunnerContext();
+    if (tgAnn != null) {
+      cm = createConstraintManager(tgAnn.checker(), runnerContext);
+    } else {
       cm = Constraint.DEFAULT_CONSTRAINT;
     }
-    tg.setConstraint(new ConstraintBase() {
+    return new ConstraintBase() {
       Constraint baseCM = cm;
 
       @Override
@@ -160,8 +171,7 @@ public class TheoriesWithJCUnit extends Theories {
         }
         return b.build();
       }
-    });
-    return tg;
+    };
   }
 
   private RunnerContext createRunnerContext() {

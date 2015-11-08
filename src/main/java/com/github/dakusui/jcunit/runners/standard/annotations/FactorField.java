@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.runners.standard.annotations;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
@@ -308,7 +309,9 @@ public @interface FactorField {
         };
       } else if (c.getAnnotation(GenerateWith.class) != null) {
         return new AbstractList<Object>() {
-          CoveringArray ca = GenerateWith.CoveringArrayEngineFactory.INSTANCE.createFromClass(c).getCoveringArray();
+          // TODO Build factorSpace appropriately #35
+          FactorSpace factorSpace = new FactorSpace.Builder() .build();
+          CoveringArray ca = GenerateWith.CoveringArrayEngineFactory.INSTANCE.createFromClass(c).generate(factorSpace);
 
           @Override
           public Object get(int index) {

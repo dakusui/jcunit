@@ -1,10 +1,13 @@
 package com.github.dakusui.jcunit.examples.testgen;
 
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.utils.CoveringArrayEngines;
 
 import java.io.PrintStream;
@@ -25,6 +28,7 @@ public class TestGenWithoutJUnit {
   }
 
   public void run(PrintStream ps) {
+    // TODO: Update example accordingly (#35)
     Factor os = new Factor.Builder("OS")
         .addLevel("Windows")
         .addLevel("Linux")
@@ -40,20 +44,26 @@ public class TestGenWithoutJUnit {
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
     CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(factors)
         .build();
-    for (Tuple each : engine.getCoveringArray()) {
+    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, Constraint.DEFAULT_CONSTRAINT));
+
+    for (Tuple each : coveringArray) {
       ps.println(each);
     }
   }
 
   public void runMoreFluently(PrintStream ps) {
+    // TODO: Update example accordingly (#35)
+    Factors factors = new Factors.Builder()
+        .add("OS", "Windows", "Linux")
+        .add("Browser", "Chrome", "Firefox")
+        .add("Bits", "32", "64").build();
     CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(
-        new Factors.Builder()
-            .add("OS", "Windows", "Linux")
-            .add("Browser", "Chrome", "Firefox")
-            .add("Bits", "32", "64").build(),
-        IPO2CoveringArrayEngine.class, new String[][]{{"2"}}
+        factors,
+        IPO2CoveringArrayEngine.class, new String[][] { { "2" } }
     ).build();
-    for (Tuple each : engine.getCoveringArray()) {
+
+    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, Constraint.DEFAULT_CONSTRAINT));
+    for (Tuple each : coveringArray) {
       ps.println(each);
     }
   }

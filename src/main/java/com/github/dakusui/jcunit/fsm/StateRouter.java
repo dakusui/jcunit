@@ -2,7 +2,9 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.SimpleCoveringArrayEngine;
@@ -162,9 +164,8 @@ public interface StateRouter<SUT> {
       } else {
         tg =  new IPO2CoveringArrayEngine(2);
       }
-      tg.setFactors(action.parameters());
-      tg.setConstraint(action.parameters().getConstraint());
-      tg.init();
+      final FactorSpace factorSpace = new FactorSpace(action.parameters(), action.parameters().getConstraint());
+      final CoveringArray coveringArray = tg.generate(factorSpace);
       return new AbstractList<Args>() {
         @Override
         public Args get(int index) {
@@ -179,12 +180,12 @@ public interface StateRouter<SUT> {
               });
               return new Args(tmp.toArray());
             }
-          }.apply(tg.getCoveringArray().get(index));
+          }.apply(coveringArray.get(index));
         }
 
         @Override
         public int size() {
-          return tg.getCoveringArray().size();
+          return coveringArray.size();
         }
       };
     }

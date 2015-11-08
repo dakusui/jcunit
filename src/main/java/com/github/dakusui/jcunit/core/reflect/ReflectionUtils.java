@@ -23,22 +23,16 @@ public class ReflectionUtils {
       new Class[] { float.class, Float.class },
       new Class[] { double.class, Double.class },
   };
-  private static final Comparator<? super Member> BY_NAME = new Comparator<Member>() {
-    @Override
-    public int compare(Member o1, Member o2) {
-      return o1.getName().compareTo(o2.getName());
-    }
-  };
 
   private ReflectionUtils() {
   }
 
   public static List<Method> getMethods(Class<?> clazz) {
-    return Utils.sort(Utils.asList(clazz.getMethods()), BY_NAME);
+    return Utils.sort(Utils.asList(clazz.getMethods()), BY_MEMBER_NAME);
   }
 
   public static List<Field> getFields(Class<?> clazz) {
-    return Utils.sort(Utils.asList(clazz.getFields()), BY_NAME);
+    return Utils.sort(Utils.asList(clazz.getFields()), BY_MEMBER_NAME);
   }
 
   public static Field getField(Class<?> clazz, String name) {
@@ -332,4 +326,11 @@ public class ReflectionUtils {
       this.value = value;
     }
   }
+
+  public static final Utils.By<Member> BY_MEMBER_NAME = new Utils.By<Member>() {
+    @Override
+    public Comparable apply(Member in) {
+      return in.getName();
+    }
+  };
 }

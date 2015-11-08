@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+
 /**
  * A common interface of all plugins of JCUnit that can be configured through
  * '{@literal @}Param' annotations.
@@ -65,7 +67,7 @@ public interface Plugin {
       }
 
       public <T> T resolve(Desc<T> desc, S value) {
-        Checks.checknotnull(desc);
+        checknotnull(desc);
         return Checks.cast(desc.parameterType, chooseConverter(
             desc.parameterType,
             findCompatibleConverters(desc.parameterType)
@@ -73,7 +75,7 @@ public interface Plugin {
       }
 
       protected <T> List<Converter<S>> findCompatibleConverters(Class<T> targetType) {
-        Checks.checknotnull(targetType);
+        checknotnull(targetType);
         List<Converter<S>> ret = new ArrayList<Converter<S>>(this.allConverters().size());
 
         for (Converter<S> each : this.allConverters()) {
@@ -148,7 +150,7 @@ public interface Plugin {
         private final Class requestedType;
 
         public Simple(Class requestedType) {
-          this.requestedType = Checks.checknotnull(requestedType);
+          this.requestedType = checknotnull(requestedType);
         }
 
         @Override
@@ -177,9 +179,9 @@ public interface Plugin {
     private final RunnerContext     runnerContext;
 
     public Factory(Class<? super P> pluginClass, Param.Resolver<S> resolver, RunnerContext runnerContext) {
-      this.pluginClass = Checks.checknotnull(pluginClass);
-      this.resolver = Checks.checknotnull(resolver);
-      this.runnerContext = Checks.checknotnull(runnerContext);
+      this.pluginClass = checknotnull(pluginClass);
+      this.resolver = checknotnull(resolver);
+      this.runnerContext = checknotnull(runnerContext);
     }
 
     public P create(List<S> args) {
@@ -288,13 +290,18 @@ public interface Plugin {
           break;
         }
       }
-      Checks.checknotnull(
+      checknotnull(
           paramAnn,
           "@%s annotation is missing for a parameter whose type is %s",
           Param.class,
           parameterType
       );
       return new Param.Desc<T>(paramAnn, parameterType);
+    }
+
+    public static <P extends Plugin, S>
+    Factory<P, S> newFactory(Class<? extends P> pluginClass, Param.Resolver<S> resolver, RunnerContext runnerContext) {
+      return new Factory<P, S>((Class<? super P>) pluginClass, resolver, runnerContext);
     }
   }
 }

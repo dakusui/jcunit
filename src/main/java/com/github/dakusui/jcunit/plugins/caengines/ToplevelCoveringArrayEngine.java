@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
@@ -32,7 +33,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   @Override
-  protected List<Tuple> generate() {
+  protected List<Tuple> generate(Factors factors, Constraint constraint) {
     Factors baseFactors = baseCAEngineBuilder.getFactors();
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
@@ -64,10 +65,6 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
         factorsRebuilder.add(eachFactor);
       }
     }
-    ////
-    // In order to make behaviour of this object compatible with super class's,
-    // set factors.
-    super.setFactors(factorsRebuilder.build());
     return tuples;
   }
 
@@ -87,7 +84,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
     ////
     // Build test cases. At this point, test cases are generated as flatten FSM
     // tuples.
-    Iterable<Tuple> flattenFSMTuples = generateFlattenFSMTestCaseTuples(fsmFactors, fsmCM, runnerContext).getCoveringArray();
+    Iterable<Tuple> flattenFSMTuples = generateFlattenFSMTestCaseTuples(fsmFactors, fsmCM, runnerContext).generate(new FactorSpace(fsmFactors, fsmCM));
     ////
     // First iteration: Build all main scenario sequences to list up
     //                  all edges. And prepare state routers.

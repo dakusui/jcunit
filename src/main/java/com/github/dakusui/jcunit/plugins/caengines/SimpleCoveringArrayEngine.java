@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.plugins.caengines;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,15 +19,14 @@ public class SimpleCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   @Override
-  protected List<Tuple> generate() {
+  protected List<Tuple> generate(Factors factors, Constraint constraint) {
     List<Tuple> ret = new LinkedList<Tuple>();
-    Factors factors = this.getFactors();
     for (String eachFactorName : factors.getFactorNames()) {
       for (Object eachLevel : factors.get(eachFactorName)) {
         Tuple tuple = newTuple(factors);
         tuple.put(eachFactorName, eachLevel);
         try {
-          if (this.getConstraint().check(tuple)) {
+          if (constraint.check(tuple)) {
             ret.add(tuple);
           }
         } catch (UndefinedSymbol undefinedSymbol) {

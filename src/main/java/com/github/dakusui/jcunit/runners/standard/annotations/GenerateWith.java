@@ -155,9 +155,6 @@ public @interface GenerateWith {
           collectLocalConstraintManagers(localCMs, fsmName, fsm);
         }
         generator = new ToplevelCoveringArrayEngine(runnerContext, b, fsms, localCMs);
-        generator.setFactors(factors);
-        generator.setConstraint(constraint);
-        generator.init();
         return generator;
       }
 

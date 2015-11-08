@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -9,11 +10,10 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
-import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.Precondition;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
@@ -40,12 +40,16 @@ public class JCUnit extends Parameterized {
     super(klass);
     List<FrameworkMethod> preconditionMethods = getTestClass().getAnnotatedMethods(Precondition.class);
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
+    RunnerContext runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
+    CoveringArrayEngine coveringArrayEngine = new Generator.Base(klass.getAnnotation(GenerateWith.class).generator(), runnerContext).build();
+    Constraint constraint = new Checker.Base(klass.getAnnotation(GenerateWith.class).checker(), runnerContext).build();
+    // TODO build factor space appropriately #35
+    FactorSpace factorSpace = new FactorSpace.Builder().build();
     try {
       ////
       // Generate a list of test cases using a specified tuple generator
-      CoveringArrayEngine coveringArrayEngine = getCoveringArrayEngineFactory().createFromClass(klass);
+      CoveringArray ca = coveringArrayEngine.generate(factorSpace);
       List<TestCase> testCases = Utils.newList();
-      CoveringArray ca = coveringArrayEngine.getCoveringArray();
       int id;
       for (id = ca.firstId();
            id >= 0; id = ca.nextId(id)) {
@@ -60,7 +64,7 @@ public class JCUnit extends Parameterized {
       id = ca.size();
       ////
       // Compose a list of 'negative test cases' and register them.
-      final Constraint cm = coveringArrayEngine.getConstraint();
+      final Constraint cm = constraint;
       final List<Tuple> violations = cm.getViolations();
       id = registerTestCases(
           testCases,
@@ -78,8 +82,8 @@ public class JCUnit extends Parameterized {
           preconditionMethods);
       Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
       ////
-      // Create and host a test suite object to use it in rules.
-      this.factors = coveringArrayEngine.getFactors();
+      // Create and hold a test suite object to use it in rules.
+      this.factors = factorSpace.factors;
       this.testSuite = new TestSuite(testCases);
       this.runners = Utils.transform(
           this.testSuite,

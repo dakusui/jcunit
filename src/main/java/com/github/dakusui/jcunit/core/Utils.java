@@ -30,28 +30,6 @@ public class Utils {
     return v.equals(o);
   }
 
-  public static <T> List<T> asList(T... elements) {
-    return Arrays.asList(elements);
-  }
-
-  public static <T> List<T> newUnmodifiableList(List<T> elements) {
-    return Collections.unmodifiableList(newList(elements));
-  }
-
-  public static <T> List<T> newList(T... elements) {
-    List<T> ret = new ArrayList<T>(elements.length);
-    ret.addAll(asList(elements));
-    return ret;
-  }
-
-  public static <T> List<T> newList(List<T> elements) {
-    return new ArrayList<T>(elements);
-  }
-
-  public static <T> List<T> newList() {
-    return newList(Collections.<T>emptyList());
-  }
-
   public static boolean deepEq(Object a, Object b) {
     if (a == null || b == null) {
       return b == a;
@@ -156,6 +134,11 @@ public class Utils {
     return c;
   }
 
+  public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
+    Collections.sort(list, by);
+    return list;
+  }
+
   public static <K, V> Map<K, V> toMap(List<V> in, Form<V, K> form) {
     Checks.checknotnull(in);
     Checks.checknotnull(form);
@@ -178,13 +161,30 @@ public class Utils {
     return new LinkedHashMap<K, V>(from);
   }
 
-  public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
-    Collections.sort(list, by);
-    return list;
-  }
-
   public static <E> Set<E> newSet() {
     return new LinkedHashSet<E>();
+  }
+
+  public static <T> List<T> asList(T... elements) {
+    return Arrays.asList(elements);
+  }
+
+  public static <T> List<T> newUnmodifiableList(List<T> elements) {
+    return Collections.unmodifiableList(newList(elements));
+  }
+
+  public static <T> List<T> newList(T... elements) {
+    List<T> ret = new ArrayList<T>(elements.length);
+    ret.addAll(asList(elements));
+    return ret;
+  }
+
+  public static <T> List<T> newList(List<T> elements) {
+    return new ArrayList<T>(elements);
+  }
+
+  public static <T> List<T> newList() {
+    return newList(Collections.<T>emptyList());
   }
 
   public interface Form<I, O> {
@@ -193,5 +193,15 @@ public class Utils {
 
   public interface Predicate<I> {
     boolean apply(I in);
+  }
+
+  public static abstract class By<I> implements Form<I, Object>, Comparator<I> {
+    @Override
+    public abstract Comparable apply(I in);
+
+    @Override
+    public int compare(I o1, I o2) {
+      return apply(o1).compareTo(apply(o2));
+    }
   }
 }

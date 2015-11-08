@@ -3,10 +3,13 @@ package com.github.dakusui.jcunit.tests.caengines;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.IOUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
@@ -210,7 +213,9 @@ public class ReplayerTest {
     CoveringArrayEngine coveringArrayEngine = GenerateWith.CoveringArrayEngineFactory.INSTANCE
         .createFromClass(TestClass.class);
 
-    CoveringArray coveringArray = coveringArrayEngine.getCoveringArray();
+    // TODO: Build factor space accordingly. #35
+    FactorSpace factorSpace = new FactorSpace.Builder().build();
+    CoveringArray coveringArray = coveringArrayEngine.generate(factorSpace);
     assertEquals(2, coveringArray.size());
     assertEquals(100, coveringArray.get(0).get("f1"));
     assertEquals(300, coveringArray.get(0).get("f2"));
@@ -383,7 +388,7 @@ public class ReplayerTest {
       }
 
       @Override
-      protected List<Tuple> generate() {
+      protected List<Tuple> generate(Factors factors, Constraint constraint) {
         return Collections.emptyList();
       }
     }

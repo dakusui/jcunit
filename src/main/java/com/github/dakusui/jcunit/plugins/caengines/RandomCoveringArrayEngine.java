@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,16 +51,15 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   @Override
-  protected List<Tuple> generate() {
+  protected List<Tuple> generate(Factors factors, Constraint constraint) {
     List<Tuple> ret = new ArrayList<Tuple>(size);
     Random random = new Random(this.seed);
-    Factors factors = this.getFactors();
     int retries = 50;
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < retries; j++) {
         Tuple tuple = newTuple(factors, random);
         try {
-          if (this.getConstraint().check(tuple)) {
+          if (constraint.check(tuple)) {
             ret.add(tuple);
             break;
           }
