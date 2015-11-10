@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.utils.CoveringArrayEngines;
 
 import java.io.PrintStream;
@@ -44,7 +44,7 @@ public class TestGenWithoutJUnit {
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
     CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(factors)
         .build();
-    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, Constraint.DEFAULT_CONSTRAINT));
+    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER));
 
     for (Tuple each : coveringArray) {
       ps.println(each);
@@ -62,7 +62,7 @@ public class TestGenWithoutJUnit {
         IPO2CoveringArrayEngine.class, new String[][] { { "2" } }
     ).build();
 
-    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, Constraint.DEFAULT_CONSTRAINT));
+    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER));
     for (Tuple each : coveringArray) {
       ps.println(each);
     }

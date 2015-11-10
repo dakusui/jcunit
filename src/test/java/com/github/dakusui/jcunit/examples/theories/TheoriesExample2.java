@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.examples.theories;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
@@ -47,7 +47,7 @@ public class TheoriesExample2 {
     };
   }
 
-  public static class CM extends ConstraintBase {
+  public static class CM extends ConstraintChecker.Base {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
       Checks.checksymbols(tuple, "a", "b");

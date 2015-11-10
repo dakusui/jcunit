@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import org.hamcrest.CoreMatchers;
@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
-public class LocalConstraintTest {
+public class LocalConstraintCheckerTest {
   public static ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
 
   public enum Spec implements FSMSpec<Object> {
@@ -25,7 +25,7 @@ public class LocalConstraintTest {
     @ParametersSpec
     public static final Parameters equals = new Parameters.Builder()
         .add("another", null, new Object(), "HELLO")
-        .setConstraint(new ConstraintBase() {
+        .setConstraintChecker(new ConstraintChecker.Base() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
             return tuple.get("another") != null;

@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -9,13 +10,14 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
+import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
@@ -42,9 +44,12 @@ public class JCUnit extends Parameterized {
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
     RunnerContext runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
     CoveringArrayEngine coveringArrayEngine = new Generator.Base(klass.getAnnotation(GenerateWith.class).generator(), runnerContext).build();
-    Constraint constraint = new Checker.Base(klass.getAnnotation(GenerateWith.class).checker(), runnerContext).build();
+    ConstraintChecker constraintChecker = new Checker.Base(klass.getAnnotation(GenerateWith.class).checker(), runnerContext).build();
     // TODO build factor space appropriately #35
-    FactorSpace factorSpace = new FactorSpace.Builder().build();
+    FactorSpace factorSpace = new FactorSpace.Builder()
+        .addFactorDefs(getFactorDefsFrom(getTestClass()))
+        .setTopLevelConstraintChecker(constraintChecker)
+        .build();
     try {
       ////
       // Generate a list of test cases using a specified tuple generator
@@ -64,7 +69,7 @@ public class JCUnit extends Parameterized {
       id = ca.size();
       ////
       // Compose a list of 'negative test cases' and register them.
-      final Constraint cm = constraint;
+      final ConstraintChecker cm = constraintChecker;
       final List<Tuple> violations = cm.getViolations();
       id = registerTestCases(
           testCases,
@@ -110,6 +115,18 @@ public class JCUnit extends Parameterized {
     }
   }
 
+  private List<FactorDef<?>> getFactorDefsFrom(TestClass testClass) {
+    List<FactorDef<?>> ret = Utils.newList();
+    for (FrameworkField each : testClass.getAnnotatedFields(FactorField.class)) {
+      ret.add(createFactorDefFrom(each.getName(), each.getAnnotation(FactorField.class)));
+    }
+    return ret;
+  }
+
+  private FactorDef<?> createFactorDefFrom(String name, FactorField annotation) {
+    return new FactorDef.Simple(name, null /* TODO Issue-#35: Implement this appropriately */);
+  }
+
   @Override
   protected List<Runner> getChildren() {
     return this.runners;
@@ -130,10 +147,6 @@ public class JCUnit extends Parameterized {
         return super.getAnnotatedMethods(annotationClass);
       }
     };
-  }
-
-  protected GenerateWith.CoveringArrayEngineFactory getCoveringArrayEngineFactory() {
-    return GenerateWith.CoveringArrayEngineFactory.INSTANCE;
   }
 
   private boolean shouldPerform(Tuple testCase, List<FrameworkMethod> preconditionMethods) {

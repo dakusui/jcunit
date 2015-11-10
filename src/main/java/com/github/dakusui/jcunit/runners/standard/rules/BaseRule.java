@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.runners.standard.rules;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.InternalAnnotation;
@@ -23,12 +23,12 @@ import org.junit.runner.RunWith;
  * @see TestWatcher
  */
 public abstract class BaseRule extends TestWatcher {
-  private Class<?>   testClass;
-  private String     testName;
-  private Factors    factors;
-  private Constraint constraint;
-  private TestSuite  testSuite;
-  private TestCase   testCase;
+  private Class<?>          testClass;
+  private String            testName;
+  private Factors           factors;
+  private ConstraintChecker constraintChecker;
+  private TestSuite         testSuite;
+  private TestCase          testCase;
 
   @Override
   protected void starting(Description d) {
@@ -42,7 +42,7 @@ public abstract class BaseRule extends TestWatcher {
     this.testClass = d.getTestClass();
     this.testName = d.getMethodName();
     this.factors = ann.getFactors();
-    this.constraint = ann.getConstraint();
+    this.constraintChecker = ann.getConstraintChecker();
     this.testSuite = ann.getTestSuite();
     this.testCase = ann.getTestCase();
   }
@@ -59,8 +59,8 @@ public abstract class BaseRule extends TestWatcher {
     return this.factors;
   }
 
-  public Constraint getConstraint() {
-    return this.constraint;
+  public ConstraintChecker getConstraintChecker() {
+    return this.constraintChecker;
   }
 
   public TestSuite getTestSuite() {

@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.tests.caengines;
 
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -28,7 +28,7 @@ public class ForSimpleCoveringArrayEngineTest {
       checker = @Checker(TestClass1.CM.class)
   )
   public static class TestClass1 {
-    public static class CM extends ConstraintBase {
+    public static class CM extends ConstraintChecker.Base {
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
         Checks.checksymbols(tuple, "f1");

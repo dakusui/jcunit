@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.ToplevelCoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import org.junit.runners.model.FrameworkField;
@@ -126,16 +126,13 @@ public @interface GenerateWith {
         ////
         // Wire and build objects.
         Checker checkerAnn = generateWithAnn.checker();
-        Constraint constraint =
-            new Constraint.Builder()
-                .setConstraintManagerClass(checkerAnn.value())
-                .setFactors(factors).build();
+        ConstraintChecker constraintChecker = new Checker.Base(checkerAnn, runnerContext).build();
         Generator generatorAnn = generateWithAnn.generator();
         Class<? extends CoveringArrayEngine> tupleGeneratorClass = generatorAnn.value();
         CoveringArrayEngine.Builder b = new CoveringArrayEngine.Builder(
             runnerContext,
             factors,
-            constraint,
+            constraintChecker,
             tupleGeneratorClass)
             .setResolver(resolver)
             .setConfigArgsForEngine(Arrays.asList(generatorAnn.args()));
@@ -143,7 +140,7 @@ public @interface GenerateWith {
         CoveringArrayEngine generator;
         List<Field> fsmFields = extractFSMFactorFields(switchCoverages.keySet());
         Map<String, FSM> fsms = Utils.newMap();
-        List<Parameters.LocalConstraint> localCMs = Utils.newList();
+        List<Parameters.LocalConstraintChecker> localCMs = Utils.newList();
         for (Field each : fsmFields) {
           ////
           // It's safe to assume fsmLevelsProvider becomes non-null since we are
@@ -158,12 +155,12 @@ public @interface GenerateWith {
         return generator;
       }
 
-      private void collectLocalConstraintManagers(List<Parameters.LocalConstraint> localCMs, String fsmName, FSM<Object> fsm) {
-        for (int i = 0; i < fsm.historyLength(); i++)
+      private void collectLocalConstraintManagers(List<Parameters.LocalConstraintChecker> localCMs, String fsmName, FSM<Object> fsm) {
+        for (int i = 0; i < 2/* TODO: Fix this appropriately: fsm.historyLength()*/ ; i++)
           for (Action<Object> eachAction : fsm.actions()) {
             Parameters parameters = eachAction.parameters();
-            Constraint baseLocalCM = parameters.getConstraint();
-            if (Constraint.DEFAULT_CONSTRAINT.equals(baseLocalCM)) {
+            ConstraintChecker baseLocalCM = parameters.getConstraintChecker();
+            if (ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER.equals(baseLocalCM)) {
               continue;
             }
             List<String> localPlainParameterNames = Utils.transform(parameters, new Utils.Form<Factor, String>() {
@@ -172,7 +169,7 @@ public @interface GenerateWith {
                 return Checks.checknotnull(in).name;
               }
             });
-            Parameters.LocalConstraint localCM = new Parameters.LocalConstraint(
+            Parameters.LocalConstraintChecker localCM = new Parameters.LocalConstraintChecker(
                 baseLocalCM,
                 localPlainParameterNames,
                 fsmName,
@@ -264,7 +261,7 @@ public @interface GenerateWith {
       }
 
       public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
-        return new FSM.Base<SUT>(fsmName, fsmSpecClass, historyLength);
+        return new FSM.Base<SUT>(fsmName, fsmSpecClass);
       }
     }
   }

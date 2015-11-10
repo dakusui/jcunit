@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
 import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -31,7 +31,7 @@ public class BenchMark extends IPO2Test {
     this.strength = 2;
   }
 
-  protected void verify(Factors factors, int strength, Constraint cm,
+  protected void verify(Factors factors, int strength, ConstraintChecker cm,
       TestGenerationResult actual) {
     System.out.println(StringUtils.format(
         "%-40s:(testcases, remainders, time(sec))=(%4s, %4s, %s)",
@@ -62,13 +62,13 @@ public class BenchMark extends IPO2Test {
     return new SanityExpectation(factors).verify(actual.testCases);
   }
 
-  protected VerificationResult verifyConstraintViolation(Constraint cm,
+  protected VerificationResult verifyConstraintViolation(ConstraintChecker cm,
       TestGenerationResult actual) {
     return new NoConstraintViolationExpectation(cm).verify(actual.testCases);
   }
 
   protected VerificationResult verifyCoverage(Factors factors, int strength,
-      Constraint cm, TestGenerationResult actual) {
+      ConstraintChecker cm, TestGenerationResult actual) {
     return new ValidTuplesCoveredExpectation(factors, strength, cm)
         .verify(actual.testCases);
   }
@@ -85,12 +85,12 @@ public class BenchMark extends IPO2Test {
   }
 
   protected PredicateExpectation.Predicate doesViolateConstraint(
-      final Constraint constraint) {
-    Checks.checknotnull(constraint);
+      final ConstraintChecker constraintChecker) {
+    Checks.checknotnull(constraintChecker);
     return new PredicateExpectation.Predicate() {
       @Override public boolean evaluate(Tuple tuple) {
         try {
-          return !constraint.check(tuple);
+          return !constraintChecker.check(tuple);
         } catch (UndefinedSymbol e) {
           return false;
         }
@@ -100,10 +100,10 @@ public class BenchMark extends IPO2Test {
 
   protected TestGenerationResult generate(
       Factors factors, int strength,
-      Constraint constraint,
+      ConstraintChecker constraintChecker,
       IPO2Optimizer optimizer) {
     long before = System.currentTimeMillis();
-    IPO2 ipo2 = createIPO2(factors, strength, constraint, optimizer);
+    IPO2 ipo2 = createIPO2(factors, strength, constraintChecker, optimizer);
     long after = System.currentTimeMillis();
     return new TestGenerationResult(ipo2.getResult(), ipo2.getRemainders(),
         after - before);
@@ -112,75 +112,75 @@ public class BenchMark extends IPO2Test {
   @Test
   public void benchmark1_3$4() {
     Factors factors = buildFactors(factorsDef(3, 4));
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
-        strength, constraint, optimizer);
+        strength, constraintChecker, optimizer);
 
-    verify(factors, strength, constraint, actual);
+    verify(factors, strength, constraintChecker, actual);
   }
 
   @Test
   public void benchmark2_3$13() {
     Factors factors = buildFactors(factorsDef(3, 13));
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
-        strength, constraint, optimizer);
+        strength, constraintChecker, optimizer);
 
-    verify(factors, strength, constraint, actual);
+    verify(factors, strength, constraintChecker, actual);
   }
 
   @Test
   public void benchmark3_4$15_3$17_2$20() {
     Factors factors = buildFactors(factorsDef(4, 15), factorsDef(3, 17),
         factorsDef(2, 20));
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
-        strength, constraint, optimizer);
+        strength, constraintChecker, optimizer);
 
-    verify(factors, strength, constraint, actual);
+    verify(factors, strength, constraintChecker, actual);
   }
 
   @Test
   public void benchmark4_4$1_3$30_2$35() {
     Factors factors = buildFactors(factorsDef(4, 1), factorsDef(3, 30),
         factorsDef(2, 35));
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
-        strength, constraint, optimizer);
+        strength, constraintChecker, optimizer);
 
-    verify(factors, strength, constraint, actual);
+    verify(factors, strength, constraintChecker, actual);
   }
 
   @Test
   public void benchmark5_2$100() {
     Factors factors = buildFactors(factorsDef(2, 100));
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
-        strength, constraint, optimizer);
+        strength, constraintChecker, optimizer);
 
-    verify(factors, strength, constraint, actual);
+    verify(factors, strength, constraintChecker, actual);
   }
 
   @Test
   public void benchmark6_10$20() {
     Factors factors = buildFactors(factorsDef(10, 20));
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
-        strength, constraint, optimizer);
+        strength, constraintChecker, optimizer);
 
-    verify(factors, strength, constraint, actual);
+    verify(factors, strength, constraintChecker, actual);
   }
 
   static class TestGenerationResult {

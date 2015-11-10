@@ -164,7 +164,7 @@ public interface StateRouter<SUT> {
       } else {
         tg =  new IPO2CoveringArrayEngine(2);
       }
-      final FactorSpace factorSpace = new FactorSpace(action.parameters(), action.parameters().getConstraint());
+      final FactorSpace factorSpace = new FactorSpace(action.parameters(), action.parameters().getConstraintChecker());
       final CoveringArray coveringArray = tg.generate(factorSpace);
       return new AbstractList<Args>() {
         @Override

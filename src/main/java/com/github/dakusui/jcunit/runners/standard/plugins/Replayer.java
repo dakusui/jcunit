@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 
@@ -77,11 +77,11 @@ public class Replayer extends CoveringArrayEngine.Base {
   /**
    * {@inheritDoc}
    * @param factors
-   * @param constraint
+   * @param constraintChecker
    */
   @Override
-  protected List<Tuple> generate(Factors factors, Constraint constraint) {
-    return this.generationMode.initializeTuples(this, factors, constraint);
+  protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker) {
+    return this.generationMode.initializeTuples(this, factors, constraintChecker);
   }
 
   @Override
@@ -154,7 +154,7 @@ public class Replayer extends CoveringArrayEngine.Base {
   public enum GenerationMode {
     Replay {
       @Override
-      List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, Constraint constraint) {
+      List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, ConstraintChecker constraintChecker) {
         File baseDir = Recorder.testClassDataDirFor(tupleReplayer.dataDir, tupleReplayer.testClass);
         File[] tupleDirs = tupleReplayer.getRecordedTupleDirectories(tupleReplayer.replayMode,
             baseDir, new FoundTupleObserver() {
@@ -208,12 +208,12 @@ public class Replayer extends CoveringArrayEngine.Base {
     Fallback {
       @SuppressWarnings("unchecked")
       @Override
-      List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, Constraint constraint) {
+      List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, ConstraintChecker constraintChecker) {
         ////
         // Wire
         CoveringArrayEngine generator = tupleReplayer.fallbackGenerator;
 
-        return generator.generate(new FactorSpace(factors, constraint));
+        return generator.generate(new FactorSpace(factors, constraintChecker));
       }
 
       @Override
@@ -239,7 +239,7 @@ public class Replayer extends CoveringArrayEngine.Base {
     };
 
 
-    abstract List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, Constraint constraint);
+    abstract List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, ConstraintChecker constraintChecker);
 
     abstract Tuple getTuple(Replayer tuplePlayer, int tupleId);
 

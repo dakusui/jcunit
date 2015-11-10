@@ -1,16 +1,15 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
-public interface Constraint extends Plugin {
-  Constraint DEFAULT_CONSTRAINT = new NullConstraint();
+public interface ConstraintChecker extends Plugin {
+  ConstraintChecker DEFAULT_CONSTRAINT_CHECKER = new NullConstraintChecker();
 
   /**
    * Returns {@code true} if the given tuple doesn't violate any known constraints.
@@ -28,38 +27,27 @@ public interface Constraint extends Plugin {
 
   void setFactors(Factors factors);
 
-  void addObserver(Observer observer);
-
-  Set<Observer> observers();
-
-  void removeObservers(Observer observer);
-
   List<Tuple> getViolations();
 
-  class Builder {
-    private Class<? extends Constraint> constraintManagerClass;
-    private Factors                     factors;
+  abstract class Base implements ConstraintChecker, Plugin {
+    private Factors factors;
 
-    public Constraint build() {
-      return ReflectionUtils.create(constraintManagerClass);
+    public Base() {
     }
 
-    public Builder setConstraintManagerClass(
-        Class<? extends Constraint> constraintManagerClass) {
-      this.constraintManagerClass = constraintManagerClass;
-      return this;
-    }
-
-    public Builder setFactors(Factors factors) {
+    @Override
+    public void setFactors(Factors factors) {
       this.factors = factors;
-      return this;
     }
 
+    @Override
     public Factors getFactors() {
-      return factors;
+      return this.factors;
     }
-  }
 
-  interface Observer {
+    @Override
+    public List<Tuple> getViolations() {
+      return Collections.emptyList();
+    }
   }
 }

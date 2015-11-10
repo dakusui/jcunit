@@ -2,11 +2,16 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+
+import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.actionName;
+import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.paramName;
+import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.stateName;
 
 /**
  * An interface that represents a sequence of scenarios.
@@ -202,6 +207,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
   class Empty<SUT> implements ScenarioSequence<SUT> {
     public static <SUT> Empty<SUT> getInstance() {
+      //noinspection unchecked
       return (Empty<SUT>) INSTANCE;
     }
 
@@ -275,14 +281,15 @@ public interface ScenarioSequence<SUT> extends Serializable {
    * @param <SUT> A class of software under test.
    */
   class BuilderFromTuple<SUT> {
-    private FSMFactors factors;
-    private Tuple      tuple;
-    private String     fsmName;
+    private Factors factors;
+    private Tuple   tuple;
+    private String  fsmName;
+    private int     historyLength;
 
     public BuilderFromTuple() {
     }
 
-    public BuilderFromTuple<SUT> setFSMFactors(FSMFactors factors) {
+    public BuilderFromTuple<SUT> setFSMFactors(Factors factors) {
       this.factors = factors;
       return this;
     }
@@ -297,11 +304,16 @@ public interface ScenarioSequence<SUT> extends Serializable {
       return this;
     }
 
+    public BuilderFromTuple<SUT> setHistoryLength(int i) {
+      this.historyLength = i;
+      return this;
+    }
+
     public ScenarioSequence<SUT> build() {
       Checks.checknotnull(tuple);
       Checks.checknotnull(factors);
       Checks.checknotnull(fsmName);
-      Checks.checkcond(factors.historyLength(fsmName) > 0);
+      Checks.checkcond(historyLength > 0);
       return new ScenarioSequence.Base<SUT>() {
         @Override
         public Scenario<SUT> get(int i) {
@@ -318,7 +330,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           //noinspection unchecked
-          return (State<SUT>) tuple.get(factors.stateFactorName(fsmName, i));
+          return (State<SUT>) tuple.get(stateName(fsmName, i));
         }
 
         @Override
@@ -326,7 +338,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           Checks.checkcond(i >= 0);
           Checks.checkcond(i < this.size());
           //noinspection unchecked
-          return (Action<SUT>) tuple.get(factors.actionFactorName(fsmName, i));
+          return (Action<SUT>) tuple.get(actionName(fsmName, i));
         }
 
         @Override
@@ -335,7 +347,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           Checks.checkcond(i < this.size());
           Checks.checkcond(j >= 0);
           Checks.checkcond(j < action(i).numParameterFactors());
-          return tuple.get(factors.paramFactorName(fsmName, i, j));
+          return tuple.get(paramName(fsmName, i, j));
         }
 
         @Override
@@ -344,7 +356,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           Checks.checkcond(i < this.size());
           Checks.checkcond(j >= 0);
           Checks.checkcond(j < action(i).numParameterFactors());
-          return tuple.containsKey(factors.paramFactorName(fsmName, i, j));
+          return tuple.containsKey(paramName(fsmName, i, j));
         }
 
         @Override
@@ -353,14 +365,14 @@ public interface ScenarioSequence<SUT> extends Serializable {
           Checks.checkcond(i < this.size());
           Object[] values = new Object[action(i).numParameterFactors()];
           for (int j = 0; j < values.length; j++) {
-            values[j] = tuple.get(factors.paramFactorName(fsmName, i, j));
+            values[j] = tuple.get(paramName(fsmName, i, j));
           }
           return new Args(values);
         }
 
         @Override
         public int size() {
-          return factors.historyLength(fsmName);
+          return historyLength;
         }
       };
     }

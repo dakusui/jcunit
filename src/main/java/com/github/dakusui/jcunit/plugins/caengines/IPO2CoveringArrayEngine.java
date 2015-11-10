@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIPO2Optimizer;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.List;
 
@@ -26,10 +26,10 @@ public class IPO2CoveringArrayEngine extends CoveringArrayEngine.Base {
    * <p/>
    * If more than 1 parameter is given, this method will throw an {@code IllegalArgumentException}.
    * @param factors
-   * @param constraint
+   * @param constraintChecker
    */
   @Override
-  protected List<Tuple> generate(Factors factors, Constraint constraint) {
+  protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker) {
     Checks.checktest(factors.size() >= 2,
         "There must be 2 or more factors, but only %s (%s) given.",
         factors.size(),
@@ -52,11 +52,8 @@ public class IPO2CoveringArrayEngine extends CoveringArrayEngine.Base {
     IPO2 ipo2 = new IPO2(
         factors,
         strength,
-        constraint,
+        constraintChecker,
         new GreedyIPO2Optimizer());
-    ////
-    // Wire constraint checker.
-    constraint.addObserver(ipo2);
     ////
     // Perform IPO algorithm.
     ipo2.ipo();

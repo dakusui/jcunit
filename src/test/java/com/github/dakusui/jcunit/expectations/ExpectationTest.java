@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.expectations;
 
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -107,7 +106,7 @@ public class ExpectationTest {
   @Test
   public void validTuplesCovered01() throws Exception {
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT),
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
@@ -124,7 +123,7 @@ public class ExpectationTest {
     ////
     // Even if there is extra tuple, it should be acceptable.
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT),
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
@@ -142,7 +141,7 @@ public class ExpectationTest {
     ////
     // If there is a missing tuple, it will be complained.
     VerificationResult result = verify(
-        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, Constraint.DEFAULT_CONSTRAINT),
+        new ValidTuplesCoveredExpectation(UTUtils.defaultFactors, 2, ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build(),
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b2").build(),
@@ -206,7 +205,7 @@ public class ExpectationTest {
   @Test
   public void constraintViolationN01() throws Exception {
     VerificationResult result = verify(
-        new NoConstraintViolationExpectation(Constraint.DEFAULT_CONSTRAINT),
+        new NoConstraintViolationExpectation(ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER),
         UTUtils.tuples(
             UTUtils.tupleBuilder().put("A", "a1").put("B", "b1").build()
         )
@@ -217,7 +216,7 @@ public class ExpectationTest {
   @Test(expected = JCUnitAssertionError.class)
   public void constraintViolationE01() throws Exception {
     VerificationResult result = verify(
-        new NoConstraintViolationExpectation(new ConstraintBase() {
+        new NoConstraintViolationExpectation(new ConstraintChecker.Base() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
             return !(new Tuple.Builder().put("A", "a1").put("B", "b1").build().equals(tuple));

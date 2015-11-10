@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class ModelCoverageTest {
         new ModelCoverage.TestSpace(
             factorSpace,
             3,
-            new ConstraintBase() {
+            new ConstraintChecker.Base() {
               @Override
               public boolean check(Tuple tuple) throws UndefinedSymbol {
                 Checks.checksymbols(tuple, "F1", "F2");

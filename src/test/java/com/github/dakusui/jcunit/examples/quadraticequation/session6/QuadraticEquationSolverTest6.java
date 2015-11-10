@@ -4,10 +4,8 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.TypedConstraint;
-import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.plugins.constraints.TypedConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Test;
@@ -43,7 +41,7 @@ public class QuadraticEquationSolverTest6 {
    * Constraint manager.
    */
   public static class CM extends
-      TypedConstraint<QuadraticEquationSolverTest6> {
+      TypedConstraintChecker<QuadraticEquationSolverTest6> {
     @Override
     public boolean check(QuadraticEquationSolverTest6 obj, Tuple testCase)
         throws UndefinedSymbol {

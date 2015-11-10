@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
@@ -14,12 +14,12 @@ public class Strength2Test extends IPO2Test {
     Factors factors = new Factors.Builder()
         .add(factor("F1", "L11"))
         .add(factor("F2", "L21")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -28,12 +28,12 @@ public class Strength2Test extends IPO2Test {
     Factors factors = new Factors.Builder()
         .add(factor("F1", "L11"))
         .add(factor("F2", "L21", "L22")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -42,12 +42,12 @@ public class Strength2Test extends IPO2Test {
     Factors factors = new Factors.Builder()
         .add(factor("F1", "L11", "L12"))
         .add(factor("F2", "L21", "L22")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -58,12 +58,12 @@ public class Strength2Test extends IPO2Test {
         .add(factor("F1", "L11"))
         .add(factor("F2", "L21"))
         .add(factor("F3", "L31")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -75,12 +75,12 @@ public class Strength2Test extends IPO2Test {
         .add(factor("F1", "L11", "L12"))
         .add(factor("F2", "L21"))
         .add(factor("F3", "L31")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -92,12 +92,12 @@ public class Strength2Test extends IPO2Test {
         .add(factor("F1", "L11"))
         .add(factor("F2", "L21"))
         .add(factor("F3", "L31", "F32")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -107,12 +107,12 @@ public class Strength2Test extends IPO2Test {
         .add(factor("F1", "L11", "L12"))
         .add(factor("F2", "L21", "L22"))
         .add(factor("F3", "L31", "L32")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -126,12 +126,12 @@ public class Strength2Test extends IPO2Test {
         .add(factor("F5", "L51", "L52", "L53", "L54", "L55", "L56"))
         .add(factor("F6", "L61", "L62", "L63", "L64", "L65", "L66", "L67"))
         .build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 
@@ -145,12 +145,12 @@ public class Strength2Test extends IPO2Test {
         .add(factor("F5", "L51", "L52", "L53"))
         .add(factor("F6", "L61", "L62"))
         .build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(), ipo.getRemainders()
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(), ipo.getRemainders()
     );
   }
 }

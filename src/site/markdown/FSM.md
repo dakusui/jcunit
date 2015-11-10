@@ -479,7 +479,7 @@ The detail will be discussed as a part of explanation for how you can describe
 
 ### Testing a method with parameters and their constraints
 
-Probably you want to define a constraint for the parameters you give to an action.
+Probably you want to define a topLevelConstraint for the parameters you give to an action.
 It can be done by doing below. 
 
 ```java

@@ -3,25 +3,25 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.*;
 
 public class Parameters extends Factors {
   public static final Parameters EMPTY = new Builder().build();
-  private final Constraint constraint;
+  private final ConstraintChecker constraintChecker;
 
-  public Parameters(Constraint constraint, List<Factor> factors) {
+  public Parameters(ConstraintChecker constraintChecker, List<Factor> factors) {
     super(factors);
-    this.constraint = constraint;
+    this.constraintChecker = constraintChecker;
   }
 
-  public Constraint getConstraint() {
-    return this.constraint;
+  public ConstraintChecker getConstraintChecker() {
+    return this.constraintChecker;
   }
 
   public Object[][] values() {
@@ -34,7 +34,7 @@ public class Parameters extends Factors {
   }
 
   public static class Builder extends Factors.Builder {
-    private Constraint constraint = Constraint.DEFAULT_CONSTRAINT;
+    private ConstraintChecker constraintChecker = ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
 
     public Builder() {
       super();
@@ -63,18 +63,18 @@ public class Parameters extends Factors {
       return this;
     }
 
-    public Builder setConstraint(Constraint constraint) {
-      this.constraint = constraint;
+    public Builder setConstraintChecker(ConstraintChecker constraintChecker) {
+      this.constraintChecker = constraintChecker;
       return this;
     }
 
     public Parameters build() {
-      return new Parameters(this.constraint, this.factors);
+      return new Parameters(this.constraintChecker, this.factors);
     }
   }
 
-  public static class LocalConstraint<S> extends ConstraintBase<S> {
-    protected final Constraint          target;
+  public static class LocalConstraintChecker extends ConstraintChecker.Base {
+    protected final ConstraintChecker   target;
     private final   List<String>        plainParameterNames;
     /**
      * A map from plain factor names used to declare parameters in Parameters.Builder
@@ -88,13 +88,13 @@ public class Parameters extends Factors {
      * @param fsmName             A name of a FSM. {@code Story} field name in standard JCUnit runner.
      * @param historyIndex        The current history index.
      */
-    public LocalConstraint(Constraint target, List<String> plainParameterNames, String fsmName, int historyIndex) {
+    public LocalConstraintChecker(ConstraintChecker target, List<String> plainParameterNames, String fsmName, int historyIndex) {
       this.target = Checks.checknotnull(target);
       this.plainParameterNames = Collections.unmodifiableList(Checks.checknotnull(plainParameterNames));
       this.plainToFlattenFSM = new HashMap<String, String>();
       int i = 0;
       for (String each : this.plainParameterNames) {
-        this.plainToFlattenFSM.put(each, FSMFactors.paramName(fsmName, historyIndex, i));
+        this.plainToFlattenFSM.put(each, FactorDef.Fsm.paramName(fsmName, historyIndex, i));
         i++;
       }
     }
@@ -110,8 +110,8 @@ public class Parameters extends Factors {
         throw new UndefinedSymbol(Utils.transform(e.missingSymbols, new Utils.Form<String, String>() {
               @Override
               public String apply(String in) {
-                if (LocalConstraint.this.plainToFlattenFSM.containsKey(in)) {
-                  return LocalConstraint.this.plainToFlattenFSM.get(in);
+                if (LocalConstraintChecker.this.plainToFlattenFSM.containsKey(in)) {
+                  return LocalConstraintChecker.this.plainToFlattenFSM.get(in);
                 } else {
                   ////
                   // In case unknown symbol is reported, probably underlying constraint

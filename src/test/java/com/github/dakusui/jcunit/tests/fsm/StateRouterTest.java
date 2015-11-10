@@ -17,7 +17,7 @@ import static org.junit.Assume.assumeThat;
 @RunWith(Theories.class)
 public class StateRouterTest {
   @DataPoint("straightFsm")
-  public static FSM<Sut> straightFsm = new FSM.Base<Sut>("sut", StraightSpec.class, 3);
+  public static FSM<Sut> straightFsm = new FSM.Base<Sut>("sut", StraightSpec.class);
 
   @DataPoints("straightFsmState")
   public static List<State<Sut>> straightFsmStates() {
@@ -25,7 +25,7 @@ public class StateRouterTest {
   }
 
   @DataPoint("cyclicFsm")
-  public static FSM<Sut> cyclicFsm = new FSM.Base<Sut>("sut", CyclicSpec.class, 3);
+  public static FSM<Sut> cyclicFsm = new FSM.Base<Sut>("sut", CyclicSpec.class);
 
   @DataPoints("cyclicFsmState")
   public static List<State<Sut>> cyclicFsmStates() {

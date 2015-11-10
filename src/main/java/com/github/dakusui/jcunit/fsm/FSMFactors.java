@@ -6,6 +6,11 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 
 import java.util.*;
 
+import static com.github.dakusui.jcunit.core.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.actionName;
+import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.paramName;
+import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.stateName;
+
 /**
  * Defines factors for FSM(s) using conventions below.
  * A builder of this class creates an adapter for a regular {@code Factors} object,
@@ -45,42 +50,30 @@ public class FSMFactors extends Factors {
 
   public String stateFactorName(String fsmName, int i) {
     Checks.checknotnull(fsmName);
-    Checks.checkcond(this.fsmMap.get(fsmName) != null);
-    Checks.checkcond(0 <= i);
-    Checks.checkcond(i < historyLength(fsmName));
+    checkcond(this.fsmMap.get(fsmName) != null);
+    checkcond(0 <= i);
+    checkcond(i < historyLength(fsmName));
     return stateName(fsmName, i);
   }
 
   public String actionFactorName(String fsmName, int i) {
     Checks.checknotnull(fsmName);
-    Checks.checkcond(this.fsmMap.get(fsmName) != null);
-    Checks.checkcond(0 <= i);
-    Checks.checkcond(i < historyLength(fsmName));
+    checkcond(this.fsmMap.get(fsmName) != null);
+    checkcond(0 <= i);
+    checkcond(i < historyLength(fsmName));
     return actionName(fsmName, i);
   }
 
   public String paramFactorName(String fsmName, int i, int j) {
     Checks.checknotnull(fsmName);
-    Checks.checkcond(this.fsmMap.get(fsmName) != null);
+    checkcond(this.fsmMap.get(fsmName) != null);
     return paramName(fsmName, i, j);
   }
 
   public int historyLength(String fsmName) {
     Checks.checknotnull(fsmName);
-    Checks.checkcond(this.fsmMap.get(fsmName) != null);
-    return this.fsmMap.get(fsmName).historyLength();
-  }
-
-  public static String stateName(String fsmName, int i) {
-    return String.format("FSM:%s:state:%d", fsmName, i);
-  }
-
-  public static String actionName(String fsmName, int i) {
-    return String.format("FSM:%s:action:%d", fsmName, i);
-  }
-
-  public static String paramName(String fsmName, int i, int j) {
-    return String.format("FSM:%s:param:%d:%d", fsmName, i, j);
+    checkcond(this.fsmMap.get(fsmName) != null);
+    return 2;
   }
 
   public static class Builder extends Factors.Builder {
@@ -105,8 +98,7 @@ public class FSMFactors extends Factors {
         String fsmName = entry.getKey();
         processedFSMfactors.add(fsmName);
         FSM<?> fsm = entry.getValue();
-        int len = fsm.historyLength();
-        for (int index = 0; index < len; index++) {
+        for (int index = 0; index < 2; index++) {
           ////
           // Build a factor for {index}th state
           {

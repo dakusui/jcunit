@@ -10,12 +10,12 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
 
 import java.util.*;
 
-public class IPO2 implements Constraint.Observer {
+public class IPO2 {
   public static final Object DontCare = new Object() {
     @Override
     public String toString() {
@@ -23,15 +23,15 @@ public class IPO2 implements Constraint.Observer {
     }
   };
 
-  private final Constraint    constraint;
-  private final Factors       factors;
-  private final int           strength;
-  private final IPO2Optimizer optimizer;
-  private       List<Tuple>   result;
-  private       List<Tuple>   remainders;
+  private final ConstraintChecker constraintChecker;
+  private final Factors           factors;
+  private final int               strength;
+  private final IPO2Optimizer     optimizer;
+  private       List<Tuple>       result;
+  private       List<Tuple>       remainders;
 
   public IPO2(Factors factors, int strength,
-      Constraint constraint,
+      ConstraintChecker constraintChecker,
       IPO2Optimizer optimizer) {
     Checks.checknotnull(factors);
     Checks.checkcond(factors.size() >= 2, "There must be 2 or more factors.");
@@ -41,13 +41,13 @@ public class IPO2 implements Constraint.Observer {
     Checks.checkcond(strength >= 2,
         "The strength must be greater than 1 and less than %d.",
         factors.size());
-    Checks.checknotnull(constraint);
+    Checks.checknotnull(constraintChecker);
     Checks.checknotnull(optimizer);
     this.factors = factors;
     this.strength = strength;
     this.result = null;
     this.remainders = null;
-    this.constraint = constraint;
+    this.constraintChecker = constraintChecker;
     this.optimizer = optimizer;
   }
 
@@ -306,13 +306,13 @@ public class IPO2 implements Constraint.Observer {
       Tuples leftTuples) {
     Checks.checknotnull(tuple);
     Checks.checknotnull(leftTuples);
-    Checks.checknotnull(constraint);
+    Checks.checknotnull(constraintChecker);
     if (!checkConstraints(tuple)) {
       throw new GiveUp(removeDontCareEntries(tuple));
     }
     Tuple work = this.optimizer
         .fillInMissingFactors(tuple.cloneTuple(), leftTuples,
-            constraint, this.factors);
+            constraintChecker, this.factors);
     Checks.checknotnull(work);
     Checks.checkcond(work.keySet().equals(tuple.keySet()),
         "Key set was modified from %s to %s", tuple.keySet(), work.keySet());
@@ -326,7 +326,7 @@ public class IPO2 implements Constraint.Observer {
   private boolean checkConstraints(Tuple cur) {
     Checks.checknotnull(cur);
     try {
-      return constraint.check(removeDontCareEntries(cur));
+      return constraintChecker.check(removeDontCareEntries(cur));
     } catch (UndefinedSymbol e) {
       ////
       // In case checking fails due to insufficient attribute values

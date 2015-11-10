@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.tests.caengines;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.caengines.RandomCoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 
 public class RandomCoveringArrayEngineTest {
   public static abstract class TestClass {
-    public static class CM extends ConstraintBase {
+    public static class CM extends ConstraintChecker.Base {
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
         return !tuple.get("f").equals(tuple.get("g"));

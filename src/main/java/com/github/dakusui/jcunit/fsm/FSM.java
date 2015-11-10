@@ -26,15 +26,12 @@ public interface FSM<SUT> {
 
   List<Action<SUT>> actions();
 
-  int historyLength();
-
   class Base<SUT> implements FSM<SUT> {
-    private final int               historyLength;
     private       List<State<SUT>>  states;
     private       List<Action<SUT>> actions;
     private       State<SUT>        initialState;
 
-    public Base(String fsmName, Class<? extends FSMSpec<SUT>> specClass, int historyLength) {
+    public Base(String fsmName, Class<? extends FSMSpec<SUT>> specClass) {
       Checks.checknotnull(fsmName);
       Checks.checknotnull(specClass);
       ////
@@ -96,7 +93,6 @@ public interface FSM<SUT> {
       );
       this.states = Collections.unmodifiableList(states);
       this.initialState = initialState;
-      this.historyLength = historyLength;
     }
 
     @Override
@@ -112,11 +108,6 @@ public interface FSM<SUT> {
     @Override
     public List<Action<SUT>> actions() {
       return this.actions;
-    }
-
-    @Override
-    public int historyLength() {
-      return historyLength;
     }
 
     private List<Field> getStateFields(Class<? extends FSMSpec<SUT>> specClass) {

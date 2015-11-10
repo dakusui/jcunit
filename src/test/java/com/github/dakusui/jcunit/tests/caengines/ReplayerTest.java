@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
@@ -388,7 +388,7 @@ public class ReplayerTest {
       }
 
       @Override
-      protected List<Tuple> generate(Factors factors, Constraint constraint) {
+      protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker) {
         return Collections.emptyList();
       }
     }

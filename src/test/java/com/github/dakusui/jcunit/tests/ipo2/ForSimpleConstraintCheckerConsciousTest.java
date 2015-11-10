@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.ipo2;
 
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -15,7 +15,7 @@ import java.util.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ForSimpleConstraintConsciousTest extends IPO2Test {
+public class ForSimpleConstraintCheckerConsciousTest extends IPO2Test {
   private List<Tuple> prohibitedTuples = null;
 
   public List<Tuple> getProhibitedTuples() {
@@ -28,8 +28,8 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
   }
 
   @Override
-  public Constraint createConstraintManager() {
-    return new TestConstraint(getProhibitedTuples());
+  public ConstraintChecker createConstraintManager() {
+    return new TestConstraintChecker(getProhibitedTuples());
   }
 
   @Test
@@ -43,12 +43,12 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
         .add(factor("F2", "L21", "L2x"))
         .add(factor("F3", "L31"))
         .add(factor("F4", "L41", "L42")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(),
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(),
         ipo.getRemainders());
   }
 
@@ -63,18 +63,18 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
         .add(factor("F2", "L21", "L2x"))
         .add(factor("F3", "L31"))
         .add(factor("F4", "L41", "L42")).build();
-    Constraint constraint = createConstraintManager();
+    ConstraintChecker constraintChecker = createConstraintManager();
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors,
-        strength, constraint, optimizer);
-    verify(strength, factors, constraint, ipo.getResult(),
+        strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, ipo.getResult(),
         ipo.getRemainders());
   }
 
   @Override
   protected void verifyRemaindersViolateConstraints(List<Tuple> remainders,
-      List<Tuple> result, Constraint constraint) {
+      List<Tuple> result, ConstraintChecker constraintChecker) {
     // Since in this test class there is no implicit constraint, we
     // can simply verify them.
     UTUtils.stdout().println(result);
@@ -83,15 +83,15 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
           find(tuple, result), is(false));
       assertThat(String.format("'%s' doesn't violate any constraints.", tuple),
           checkConstraints(
-              constraint,
+              constraintChecker,
               tuple), is(false));
     }
   }
 
-  public static class TestConstraint implements Constraint {
+  public static class TestConstraintChecker implements ConstraintChecker {
     private final Set<Tuple> constraints;
 
-    TestConstraint(List<Tuple> constraints) {
+    TestConstraintChecker(List<Tuple> constraints) {
       this.constraints = new HashSet<Tuple>();
       this.constraints.addAll(constraints);
     }
@@ -131,20 +131,6 @@ public class ForSimpleConstraintConsciousTest extends IPO2Test {
 
     @Override
     public void setFactors(Factors factors) {
-    }
-
-    @Override
-    public void addObserver(Observer observer) {
-    }
-
-    @Override
-    public Set<Observer> observers() {
-      return null;
-    }
-
-    @Override
-    public void removeObservers(Observer observer) {
-
     }
 
     @Override

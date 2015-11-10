@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
-public class NullConstraint extends ConstraintBase {
-  public NullConstraint() {
+public class NullConstraintChecker extends ConstraintChecker.Base {
+  public NullConstraintChecker() {
   }
 
   @Override

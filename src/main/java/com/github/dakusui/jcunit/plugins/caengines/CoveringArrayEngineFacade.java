@@ -1,51 +1,54 @@
 package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.CoreBuilder;
-import com.github.dakusui.jcunit.core.factor.FactorSource;
+import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.FSM;
-import com.github.dakusui.jcunit.fsm.FSMFactors;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
+import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 public class CoveringArrayEngineFacade {
-  private final FactorSpace               factorSpace;
-  private final CoveringArrayEngine       engine;
-  private final List<FactorSource.Fsm>    fsmFactorSources;
+  private final FactorSpace         factorSpace;
+  private final CoveringArrayEngine engine;
+  private final List<FactorDef<?>>  factorDefs;
 
   private CoveringArrayEngineFacade(
       FactorSpace factorSpace,
       CoveringArrayEngine engine,
-      List<FactorSource.Fsm> fsmFactorSources) {
+      List<FactorDef<?>> factorDefs) {
     this.factorSpace = factorSpace;
     this.engine = engine;
-    this.fsmFactorSources = fsmFactorSources;
+    this.factorDefs = factorDefs;
   }
 
   public CoveringArray generate() {
     final CoveringArray inner;
-    CoveringArray ret = new CoveringArray.Base(
-        inner = this.engine.generate(this.factorSpace)
+    return new CoveringArray.Base(
+        inner = CoveringArrayEngineFacade.this.engine.generate(CoveringArrayEngineFacade.this.factorSpace)
     ) {
       @Override
       public Tuple get(int elementId) {
-        return inner.get(elementId);
+        Tuple.Builder b = new Tuple.Builder();
+        for (FactorDef<?> each : factorDefs) {
+          b.put(each.name, each.getValueFrom(inner.get(elementId)));
+        }
+        return b.build();
       }
     };
-    return ret;
   }
 
   public static class Builder implements CoreBuilder<CoveringArrayEngineFacade> {
     private final GenerateCoveringArrayWith annotation;
-    private final RunnerContext runnerContext;
+    private final RunnerContext             runnerContext;
+    private       List<FactorDef<?>>        factorDefs;
 
     public Builder(
         GenerateCoveringArrayWith ann,
@@ -53,39 +56,25 @@ public class CoveringArrayEngineFacade {
     ) {
       this.annotation = checknotnull(ann);
       this.runnerContext = checknotnull(runnerContext);
+      this.factorDefs = Utils.newList();
+    }
+
+    public Builder add(FactorDef<?> factorDef) {
+      this.factorDefs.add(factorDef);
+      return this;
     }
 
 
     @Override
     public CoveringArrayEngineFacade build() {
-      // Annotation
-      // -> Config Values
-      // -> Test Class
-      //  -> Factors -> FSM Expansion
-      // Constraint
-      // Coverage report
-
-      // expand FSMs to flatten factors.
-      // construct constraint structure.
-      //  = Base (user-defined) constraint + FSM constraint + local constraints
-
-      // let underlying engine compute covering array.
-
-      // collapse FSM factors into Story objects
-
-      // construct FSM factors
-
       CoveringArrayEngine engine = new Generator.Base(this.annotation.engine(), this.runnerContext).build();
+      ConstraintChecker checker = new Checker.Base(this.annotation.checker(), this.runnerContext).build();
 
-      return null;
-    }
+      FactorSpace.Builder fsBuilder = new FactorSpace.Builder();
+      fsBuilder.setTopLevelConstraintChecker(checker);
+      fsBuilder.addFactorDefs(this.factorDefs);
 
-    private static FSMFactors buildFSMFactors(Factors baseFactors, Map<String, FSM> fsms) {
-      FSMFactors.Builder b = new FSMFactors.Builder();
-      for (Map.Entry<String, FSM> each : fsms.entrySet()) {
-        b.addFSM(each.getKey(), each.getValue());
-      }
-      return b.setBaseFactors(baseFactors).build();
+      return new CoveringArrayEngineFacade(fsBuilder.build(), engine, factorDefs);
     }
   }
 }

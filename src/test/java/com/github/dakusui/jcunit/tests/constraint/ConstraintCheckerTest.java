@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.constraints.TypedConstraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.TypedConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
@@ -22,7 +22,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ConstraintTest {
+public class ConstraintCheckerTest {
   private Factors loadFactorsFromClass(Class<?> testClass) {
     Factors.Builder b = new Factors.Builder();
     for (Field f : ReflectionUtils.getAnnotatedFields(testClass, FactorField.class)) {
@@ -39,7 +39,7 @@ public class ConstraintTest {
 
   @Test
   public void testConstraintManager() throws UndefinedSymbol {
-    Constraint manager = new TypedConstraint<TestClass>() {
+    ConstraintChecker manager = new TypedConstraintChecker<TestClass>() {
       @Override
       protected boolean check(TestClass o, Tuple tuple)
           throws UndefinedSymbol {
@@ -61,21 +61,13 @@ public class ConstraintTest {
     assertEquals(1, manager.getFactors().get("f1").levels.size());
     assertEquals(1024, manager.getFactors().get("f1").levels.get(0));
 
-    Constraint.Observer observer = new Constraint.Observer() {
-    };
-    manager.addObserver(observer);
-    assertEquals(1, manager.observers().size());
-
-    manager.removeObservers(observer);
-    assertEquals(0, manager.observers().size());
-
     assertEquals(true,
         manager.check(new Tuple.Builder().put("f1", 100).build()));
 
     assertEquals(128, manager.getViolations().get(0).get("f1"));
   }
 
-  public static class CM extends TypedConstraint<TestClass2> {
+  public static class CM extends TypedConstraintChecker<TestClass2> {
     @Override
     protected boolean check(TestClass2 o, Tuple tuple) throws UndefinedSymbol {
       return false;

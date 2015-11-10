@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers;
 
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
@@ -19,7 +19,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
   public Tuple fillInMissingFactors(
       Tuple tuple,
       Tuples leftTuples,
-      Constraint constraint,
+      ConstraintChecker constraintChecker,
       Factors factors) {
     Factors.Builder missingFactorsBuilder = new Factors.Builder();
     int numMissingFactors = 0;
@@ -40,7 +40,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
     for (int i = 0; i < maxTries; i++) {
       Tuple t = creteRandomTuple(missingFactors, tuple);
       try {
-        if (!constraint.check(t)) {
+        if (!constraintChecker.check(t)) {
           continue;
         }
       } catch (UndefinedSymbol e) {

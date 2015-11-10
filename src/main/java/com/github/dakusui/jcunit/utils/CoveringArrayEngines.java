@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.plugins.PluginUtils;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.util.Arrays;
@@ -19,14 +19,14 @@ public class CoveringArrayEngines {
 
   private static CoveringArrayEngine.Builder<String[]> createSimpleBuilder(
       Factors factors,
-      Constraint constraint,
+      ConstraintChecker constraintChecker,
       Class<? extends CoveringArrayEngine> engineClass,
       String[]... configArgsForEngine
   ) {
     return new CoveringArrayEngine.Builder<String[]>(
         new RunnerContext.Dummy(),
         factors,
-        constraint,
+        constraintChecker,
         engineClass
     ).setResolver(PluginUtils.StringArrayResolver.INSTANCE).setConfigArgsForEngine(Arrays.asList(configArgsForEngine));
   }
@@ -37,7 +37,7 @@ public class CoveringArrayEngines {
       String[]... arguments) {
     return createSimpleBuilder(
         factors,
-        Constraint.DEFAULT_CONSTRAINT,
+        ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER,
         engineClass,
         arguments);
   }

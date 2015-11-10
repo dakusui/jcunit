@@ -9,9 +9,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class TypedConstraint<T>
-    extends ConstraintBase {
-  public TypedConstraint() {
+public abstract class TypedConstraintChecker<T>
+    extends ConstraintChecker.Base {
+  public TypedConstraintChecker() {
   }
 
   @Override public final boolean check(Tuple tuple)

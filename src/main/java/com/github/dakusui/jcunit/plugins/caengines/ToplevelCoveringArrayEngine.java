@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.util.*;
@@ -16,16 +16,16 @@ import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 /**
  */
 public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
-  private final Map<String, FSM>                 fsms;
-  private final CoveringArrayEngine.Builder      baseCAEngineBuilder;
-  private final List<Parameters.LocalConstraint> localCMs;
-  private final RunnerContext                    runnerContext;
+  private final Map<String, FSM>                        fsms;
+  private final CoveringArrayEngine.Builder             baseCAEngineBuilder;
+  private final List<Parameters.LocalConstraintChecker> localCMs;
+  private final RunnerContext                           runnerContext;
 
   public ToplevelCoveringArrayEngine(
       RunnerContext runnerContext,
       CoveringArrayEngine.Builder baseTGbuilder,
       Map<String, FSM> fsms,
-      List<Parameters.LocalConstraint> localCMs) {
+      List<Parameters.LocalConstraintChecker> localCMs) {
     this.runnerContext = checknotnull(runnerContext);
     this.fsms = checknotnull(fsms);
     this.baseCAEngineBuilder = checknotnull(baseTGbuilder);
@@ -33,12 +33,12 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   @Override
-  protected List<Tuple> generate(Factors factors, Constraint constraint) {
+  protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker) {
     Factors baseFactors = baseCAEngineBuilder.getFactors();
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
-    Constraint fsmCM = new FSMConstraint(
-        this.baseCAEngineBuilder.getConstraint(),
+    ConstraintChecker fsmCM = new FSMConstraintChecker(
+        this.baseCAEngineBuilder.getConstraintChecker(),
         this.localCMs
     );
     fsmCM.setFactors(fsmFactors);
@@ -80,7 +80,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
    * Generate test case tuples.
    * Returned tuples already have Story attributes.
    */
-  private List<Tuple> generateTestCaseTuples(Map<String, FSM> fsms, FSMFactors fsmFactors, Constraint fsmCM, RunnerContext runnerContext) {
+  private List<Tuple> generateTestCaseTuples(Map<String, FSM> fsms, FSMFactors fsmFactors, ConstraintChecker fsmCM, RunnerContext runnerContext) {
     ////
     // Build test cases. At this point, test cases are generated as flatten FSM
     // tuples.
@@ -156,7 +156,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
     return checknotnull(eachFactorName.contains(":"));
   }
 
-  private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, Constraint fsmCM, RunnerContext runnerContext) {
+  private CoveringArrayEngine generateFlattenFSMTestCaseTuples(FSMFactors fsmFactors, ConstraintChecker fsmCM, RunnerContext runnerContext) {
     //noinspection unchecked
     return new Builder(
         runnerContext,

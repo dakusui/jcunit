@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.ututils.tuples;
 
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Set;
 
 public class NoConstraintViolationExpectation implements Expectation {
-  private final Constraint cm;
+  private final ConstraintChecker cm;
 
-  public NoConstraintViolationExpectation(Constraint cm) {
+  public NoConstraintViolationExpectation(ConstraintChecker cm) {
     this.cm = Checks.checknotnull(cm);
   }
 

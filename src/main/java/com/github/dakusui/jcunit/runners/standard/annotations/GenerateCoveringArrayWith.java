@@ -1,7 +1,5 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
-import com.github.dakusui.jcunit.core.CoreBuilder;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngineFacade;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.TestClass;
 import org.junit.validator.AnnotationValidator;
@@ -30,14 +28,6 @@ public @interface GenerateCoveringArrayWith {
     @Override
     public List<Exception> validateAnnotatedField(FrameworkField field) {
       return super.validateAnnotatedField(field);
-    }
-  }
-
-  class Base implements CoreBuilder<CoveringArrayEngineFacade> {
-
-    @Override
-    public CoveringArrayEngineFacade build() {
-      return null;
     }
   }
 }

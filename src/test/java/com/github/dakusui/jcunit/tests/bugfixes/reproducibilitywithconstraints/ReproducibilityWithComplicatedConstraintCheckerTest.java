@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -24,10 +24,10 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
 @GenerateWith(
-    checker = @Checker(ReproducibilityWithComplicatedConstraintTest.CM.class)
+    checker = @Checker(ReproducibilityWithComplicatedConstraintCheckerTest.CM.class)
 )
-public class ReproducibilityWithComplicatedConstraintTest {
-  public static class CM extends ConstraintBase {
+public class ReproducibilityWithComplicatedConstraintCheckerTest {
+  public static class CM extends ConstraintChecker.Base {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
       if (!checkLOandHIareInOrder(tuple))
