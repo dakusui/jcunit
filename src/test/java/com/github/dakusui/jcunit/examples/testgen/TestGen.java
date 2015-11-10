@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.ututils.UTUtils;
+import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

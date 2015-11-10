@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.theories;
 
 
 import com.github.dakusui.jcunit.runners.experimentals.theories.TheoriesWithJCUnit;
-import com.github.dakusui.jcunit.ututils.UTUtils;
+import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theory;
 import org.junit.runner.RunWith;

@@ -9,4 +9,12 @@ public class JCUnitEnvironmentException extends JCUnitException {
   public JCUnitEnvironmentException(String message, @SuppressWarnings("SameParameterValue") Throwable t) {
     super(message, t);
   }
+
+  /**
+   * This constructor is reflectively used.
+   */
+  @SuppressWarnings("unused")
+  public JCUnitEnvironmentException(String message) {
+    super(message, null);
+  }
 }

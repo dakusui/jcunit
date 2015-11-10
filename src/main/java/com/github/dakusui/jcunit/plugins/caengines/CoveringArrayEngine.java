@@ -4,11 +4,12 @@ package com.github.dakusui.jcunit.plugins.caengines;
  */
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.util.Collections;
@@ -28,19 +29,19 @@ public interface CoveringArrayEngine extends Plugin {
 
     private RunnerContext                        runnerContext;
     private Factors                              factors;
-    private Constraint                           constraint;
+    private ConstraintChecker                    constraintChecker;
     private Param.Resolver<S>                    resolver;
     private List<S>                              configArgsForEngine;
     private Class<? extends CoveringArrayEngine> engineClass;
 
     public Builder(
         RunnerContext runnerContext,
-        Factors factors, Constraint cm, Class<? extends CoveringArrayEngine> engineClass
+        Factors factors, ConstraintChecker cm, Class<? extends CoveringArrayEngine> engineClass
     ) {
       this.runnerContext = checknotnull(runnerContext);
       this.factors = factors;
       this.engineClass = checknotnull(engineClass);
-      this.constraint = checknotnull(cm);
+      this.constraintChecker = checknotnull(cm);
     }
 
     public Builder setConfigArgsForEngine(List<S> parameters) {
@@ -58,15 +59,15 @@ public interface CoveringArrayEngine extends Plugin {
       return factors;
     }
 
-    public Constraint getConstraint() {
-      return constraint;
+    public ConstraintChecker getConstraintChecker() {
+      return constraintChecker;
     }
 
     public CoveringArrayEngine build() {
-      checknotnull(this.constraint);
+      checknotnull(this.constraintChecker);
       checknotnull(this.engineClass);
       checknotnull(this.factors);
-      checknotnull(this.constraint);
+      checknotnull(this.constraintChecker);
       checknotnull(this.runnerContext);
       CoveringArrayEngine ret;
       Plugin.Factory<CoveringArrayEngine, S> factory;
@@ -118,7 +119,7 @@ public interface CoveringArrayEngine extends Plugin {
 
     final public CoveringArray generate(FactorSpace factorSpace) {
       Checks.checknotnull(factorSpace);
-      return createCoveringArray(generate(factorSpace.factors, factorSpace.constraint));
+      return createCoveringArray(Utils.dedup(generate(factorSpace.factors, factorSpace.constraintChecker)));
     }
 
     protected CoveringArray createCoveringArray(List<Tuple> testCase) {
@@ -131,8 +132,8 @@ public interface CoveringArrayEngine extends Plugin {
      * <p/>
      *
      * @param factors    factors from which tuples will be generated.
-     * @param constraint constraint on tuple generation.
+     * @param constraintChecker constraint on tuple generation.
      */
-    abstract protected List<Tuple> generate(Factors factors, Constraint constraint);
+    abstract protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker);
   }
 }

@@ -10,13 +10,12 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -26,7 +25,6 @@ public class Replayer extends CoveringArrayEngine.Base {
   private final String                    dataDir;
   private final ReplayMode                replayMode;
   private final Class<?>                  testClass;
-  private       SortedMap<Integer, Tuple> tuples;
   private       CoveringArrayEngine       fallbackGenerator;
 
   /**
@@ -76,41 +74,13 @@ public class Replayer extends CoveringArrayEngine.Base {
 
   /**
    * {@inheritDoc}
+   *
    * @param factors
-   * @param constraint
+   * @param constraintChecker
    */
   @Override
-  protected List<Tuple> generate(Factors factors, Constraint constraint) {
-    return this.generationMode.initializeTuples(this, factors, constraint);
-  }
-
-  @Override
-  protected CoveringArray createCoveringArray(List<Tuple> testCases) {
-    return new CoveringArray.Base(testCases) {
-      /**
-       * {@inheritDoc}
-       */
-      @Override
-      public Tuple get(int tupleId) {
-        return Replayer.this.generationMode.getTuple(Replayer.this, tupleId);
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      @Override
-      public int firstId() {
-        return Replayer.this.generationMode.firstId(Replayer.this);
-      }
-
-      /**
-       * {@inheritDoc}
-       */
-      @Override
-      public int nextId(int tupleId) {
-        return Replayer.this.generationMode.nextId(Replayer.this, tupleId);
-      }
-    };
+  protected CoveringArray generate(Factors factors, ConstraintChecker constraintChecker) {
+    return this.generationMode.generateCoveringArray(this, factors, constraintChecker);
   }
 
 
@@ -154,7 +124,11 @@ public class Replayer extends CoveringArrayEngine.Base {
   public enum GenerationMode {
     Replay {
       @Override
-      List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, Constraint constraint) {
+      CoveringArray generateCoveringArray(Replayer tupleReplayer, Factors factors, ConstraintChecker constraintChecker) {
+        return new CoveringArray.Base(this.initializeTuples(tupleReplayer));
+      }
+
+      private List<Tuple> initializeTuples(Replayer tupleReplayer) {
         File baseDir = Recorder.testClassDataDirFor(tupleReplayer.dataDir, tupleReplayer.testClass);
         File[] tupleDirs = tupleReplayer.getRecordedTupleDirectories(tupleReplayer.replayMode,
             baseDir, new FoundTupleObserver() {
@@ -167,85 +141,26 @@ public class Replayer extends CoveringArrayEngine.Base {
             baseDir
         );
         List<Tuple> ret = Utils.newList();
-        tupleReplayer.tuples = new TreeMap<Integer, Tuple>();
         for (File dir : tupleDirs) {
           Tuple tuple = TupleUtils.load(
               IOUtils.openForRead(new File(dir, Recorder.TESTCASE_FILENAME)));
           ret.add(tuple);
-          tupleReplayer.tuples
-              .put(tupleReplayer.getIdFromDirName(dir.getName()), tuple);
         }
         return ret;
       }
-
-      @Override
-      Tuple getTuple(Replayer tuplePlayer, int tupleId) {
-        Checks.checkcond(tuplePlayer.tuples.containsKey(tupleId));
-        return tuplePlayer.tuples.get(tupleId);
-      }
-
-      @Override
-      int nextId(Replayer tuplePlayer, int tupleId) {
-        Checks.checkcond(tuplePlayer.tuples.containsKey(tupleId));
-        Iterator<Integer> tail = tuplePlayer.tuples.tailMap(tupleId).keySet()
-            .iterator();
-        Checks.checkcond(tail.hasNext());
-        tail.next();
-        if (!tail.hasNext()) {
-          return -1;
-        }
-        return tail.next();
-      }
-
-      @Override
-      int firstId(Replayer tuplePlayer) {
-        if (tuplePlayer.tuples.size() == 0) {
-          return -1;
-        }
-        return tuplePlayer.tuples.firstKey();
-      }
     },
     Fallback {
-      @SuppressWarnings("unchecked")
       @Override
-      List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, Constraint constraint) {
-        ////
-        // Wire
-        CoveringArrayEngine generator = tupleReplayer.fallbackGenerator;
-
-        return generator.generate(new FactorSpace(factors, constraint));
-      }
-
-      @Override
-      Tuple getTuple(Replayer tuplePlayer, int tupleId) {
-        // TODO implement fallback generator mechanism #35
-        return null;
-        // return tuplePlayer.fallbackGenerator.getCoveringArray().get(tupleId);
-      }
-
-      @Override
-      int nextId(Replayer tuplePlayer, int tupleId) {
-        // TODO implement fallback generator mechanism #35
-        return -1;
-        // return tuplePlayer.fallbackGenerator.getCoveringArray().nextId(tupleId);
-      }
-
-      @Override
-      int firstId(Replayer tuplePlayer) {
-        // TODO implement fallback generator mechanism #35
-        return -1;
-        // return tuplePlayer.fallbackGenerator.getCoveringArray().firstId();
+      CoveringArray generateCoveringArray(Replayer tupleReplayer, Factors factors, ConstraintChecker constraintChecker) {
+        return tupleReplayer.fallbackGenerator.generate(
+            new FactorSpace.Builder()
+                .addFactorDefs(FactorSpace.convertFactorsIntoSimpleFactorDefs(factors))
+                .setTopLevelConstraintChecker(constraintChecker)
+                .build());
       }
     };
 
-
-    abstract List<Tuple> initializeTuples(Replayer tupleReplayer, Factors factors, Constraint constraint);
-
-    abstract Tuple getTuple(Replayer tuplePlayer, int tupleId);
-
-    abstract int nextId(Replayer tuplePlayer, int tupleId);
-
-    abstract int firstId(Replayer tuplePlayer);
+    abstract CoveringArray generateCoveringArray(Replayer tupleReplayer, Factors factors, ConstraintChecker constraintChecker);
   }
 
   public enum ReplayMode {

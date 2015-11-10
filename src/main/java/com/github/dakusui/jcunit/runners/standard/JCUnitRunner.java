@@ -2,9 +2,10 @@ package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
@@ -28,7 +29,8 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final TestSuite                    testSuite;
   private final TestCase                     testCase;
   private final Map<String, FrameworkMethod> methods;
-  private final Constraint                   constraint;
+  private final ConstraintChecker            constraintChecker;
+  private final FactorSpace                  factorSpace;
 
   /**
    * Creates an object of this class.
@@ -37,10 +39,11 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * @param testCase A test case object.
    * @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
-  public JCUnitRunner(Class<?> clazz, Factors factors, Constraint constraint, TestSuite testSuite, TestCase testCase) throws InitializationError {
+  public JCUnitRunner(Class<?> clazz, FactorSpace factorSpace, ConstraintChecker constraintChecker, TestSuite testSuite, TestCase testCase) throws InitializationError {
     super(clazz);
-    this.factors = Checks.checknotnull(factors);
-    this.constraint = Checks.checknotnull(constraint);
+    this.factorSpace = Checks.checknotnull(factorSpace);
+    this.factors = factorSpace.factors;
+    this.constraintChecker = Checks.checknotnull(constraintChecker);
     this.testSuite = Checks.checknotnull(testSuite);
     this.testCase = Checks.checknotnull(testCase);
     TestClass testClass = getTestClass();
@@ -59,7 +62,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * because {@code {@literal @}BeforeClass} methods and {@code {@literal @}AfterClass}
    * methods are executed for every test case run not before and after all the
    * test cases are executed.
-   * <p/>
+   * <p>
    * {@code BlockJUnit4ClassRunnerWithParameters} does the same.
    *
    * @see org.junit.runners.BlockJUnit4ClassRunner#classBlock(org.junit.runner.notification.RunNotifier)
@@ -75,7 +78,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    */
   @Override
   public Object createTest() {
-    return TestCaseUtils.toTestObject(getTestClass().getJavaClass(), testCase.getTuple());
+    return TestCaseUtils.toTestObject(getTestClass().getJavaClass(), this.factorSpace.convert(testCase.getTuple()));
   }
 
   @Override
@@ -98,7 +101,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     Checks.checknotnull(method);
 
     String name = testName(method);
-    List<? super Annotation> annotations = Utils.<Annotation>newList(new InternalAnnotation(this.factors, this.constraint, this.testSuite, this.testCase));
+    List<? super Annotation> annotations = Utils.<Annotation>newList(new InternalAnnotation(this.factors, this.constraintChecker, this.testSuite, this.testCase));
     annotations.addAll(Utils.asList(method.getAnnotations()));
     ////
     // Elements in the list are all annotations.

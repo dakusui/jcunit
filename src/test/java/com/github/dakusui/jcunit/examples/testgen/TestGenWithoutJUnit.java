@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.utils.CoveringArrayEngines;
 
 import java.io.PrintStream;
@@ -28,7 +28,6 @@ public class TestGenWithoutJUnit {
   }
 
   public void run(PrintStream ps) {
-    // TODO: Update example accordingly (#35)
     Factor os = new Factor.Builder("OS")
         .addLevel("Windows")
         .addLevel("Linux")
@@ -44,7 +43,9 @@ public class TestGenWithoutJUnit {
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
     CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(factors)
         .build();
-    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, Constraint.DEFAULT_CONSTRAINT));
+    CoveringArray coveringArray = engine.generate(new FactorSpace(
+        FactorSpace.convertFactorsIntoSimpleFactorDefs(factors),
+        ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER));
 
     for (Tuple each : coveringArray) {
       ps.println(each);
@@ -52,17 +53,24 @@ public class TestGenWithoutJUnit {
   }
 
   public void runMoreFluently(PrintStream ps) {
-    // TODO: Update example accordingly (#35)
     Factors factors = new Factors.Builder()
         .add("OS", "Windows", "Linux")
         .add("Browser", "Chrome", "Firefox")
         .add("Bits", "32", "64").build();
+    ////
+    // You can build a covering array engine by following code.
+    // Or you can refer to "run" method of this class
+    // if you want to do it more easily.
     CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(
         factors,
-        IPO2CoveringArrayEngine.class, new String[][] { { "2" } }
+        IPO2CoveringArrayEngine.class,
+        new String[][] { { "2" } }
     ).build();
 
-    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, Constraint.DEFAULT_CONSTRAINT));
+    CoveringArray coveringArray = engine.generate(new FactorSpace(
+        FactorSpace.convertFactorsIntoSimpleFactorDefs(factors),
+        ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER)
+    );
     for (Tuple each : coveringArray) {
       ps.println(each);
     }

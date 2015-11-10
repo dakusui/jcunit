@@ -63,7 +63,7 @@ public class PluginUtils {
       List<Converter<String[]>> ret = new LinkedList<Converter<String[]>>();
       for (final Converter<String> each : StringResolver.INSTANCE.allConverters()) {
         ////
-        // If the target is a supported non-array type, the first element in {@code in}
+        // If the base is a supported non-array type, the first element in {@code in}
         // will be picked up and assigned.
         ret.add(new Converter<String[]>() {
           @Override
@@ -79,7 +79,7 @@ public class PluginUtils {
           }
         });
         ////
-        // If the target type is an array of supported type of StringResolver,
+        // If the base type is an array of supported type of StringResolver,
         // it's supported.
         ret.add(new Converter<String[]>() {
           @Override

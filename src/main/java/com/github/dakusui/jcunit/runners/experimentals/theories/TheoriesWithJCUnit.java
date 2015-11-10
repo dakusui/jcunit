@@ -10,8 +10,7 @@ import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintBase;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
 import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
@@ -98,7 +97,7 @@ public class TheoriesWithJCUnit extends Theories {
     }
     final CoveringArrayEngine tg = createCoveringArrayEngine(createRunnerContext(), method.getMethod());
     final FactorSpace factorSpace = new FactorSpace(
-        factorsBuilder.build(),
+        FactorSpace.convertFactorsIntoSimpleFactorDefs(factorsBuilder.build()),
         createConstraint(method.getMethod())
     );
     return new TheoryAnchor(method, testClass) {
@@ -143,17 +142,17 @@ public class TheoriesWithJCUnit extends Theories {
     return tg;
   }
 
-  protected Constraint createConstraint(final Method method) {
-    final Constraint cm;
+  protected ConstraintChecker createConstraint(final Method method) {
+    final ConstraintChecker cm;
     GenerateWith tgAnn = method.getAnnotation(GenerateWith.class);
     RunnerContext runnerContext = createRunnerContext();
     if (tgAnn != null) {
       cm = createConstraintManager(tgAnn.checker(), runnerContext);
     } else {
-      cm = Constraint.DEFAULT_CONSTRAINT;
+      cm = ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
     }
-    return new ConstraintBase() {
-      Constraint baseCM = cm;
+    return new ConstraintChecker.Base() {
+      ConstraintChecker baseCM = cm;
 
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
@@ -178,13 +177,13 @@ public class TheoriesWithJCUnit extends Theories {
     return new RunnerContext.Base(this.getTestClass().getJavaClass());
   }
 
-  protected Constraint createConstraintManager(Checker checkerAnnotation, RunnerContext runnerContext) {
+  protected ConstraintChecker createConstraintManager(Checker checkerAnnotation, RunnerContext runnerContext) {
     Value.Resolver resolver = new Value.Resolver();
     //noinspection unchecked
     return Checks.cast(
-        Constraint.class,
-        new Plugin.Factory<Constraint, Value>(
-            (Class<Constraint>) checkerAnnotation.value(),
+        ConstraintChecker.class,
+        new Plugin.Factory<ConstraintChecker, Value>(
+            (Class<ConstraintChecker>) checkerAnnotation.value(),
             resolver,
             runnerContext
         )
@@ -198,7 +197,7 @@ public class TheoriesWithJCUnit extends Theories {
         CoveringArrayEngine.class,
         new Plugin.Factory<CoveringArrayEngine, Value>((Class<CoveringArrayEngine>) generatorAnnotation.value(),
             resolver,
-            runnerContext).create(Arrays.asList(generatorAnnotation.args())));
+            runnerContext).create(Arrays.asList(generatorAnnotation.configValues())));
   }
 
   private static Assignments tuple2assignments(Method method, TestClass testClass, Tuple t) {

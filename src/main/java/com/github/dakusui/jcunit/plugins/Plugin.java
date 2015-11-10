@@ -105,7 +105,7 @@ public interface Plugin {
 
       public static class PassThroughResolver extends Plugin.Param.Resolver<Object> {
         /**
-         * This resolver always pass through incoming value to target constructor.
+         * This resolver always pass through incoming value to base constructor.
          */
         private static final PassThroughResolver INSTANCE = new PassThroughResolver();
 
@@ -237,7 +237,7 @@ public interface Plugin {
           );
           return constructor.newInstance(resolvedArgs.toArray());
         } catch (JCUnitException e) {
-          throw Checks.wrap(Checks.getRootCauseOf(e), "Failed to resolve args[%s] during instantiation of plugin '%s'", i, this.pluginClass);
+          throw e;
         }
       } catch (InstantiationException e) {
         throw Checks.wrap(

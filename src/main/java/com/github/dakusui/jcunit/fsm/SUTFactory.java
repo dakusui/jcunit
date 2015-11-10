@@ -25,6 +25,7 @@ public interface SUTFactory<SUT> {
       return this.sut;
     }
   }
+
   abstract class Base<B extends Base, SUT> extends InputHistory.CollectorHolder<B> implements SUTFactory<SUT> {
     protected final Class<SUT> clazz;
     protected final List<Arg>  args;
@@ -60,7 +61,6 @@ public interface SUTFactory<SUT> {
         this.type = type;
         this.arg = arg;
       }
-
     }
 
     /**
@@ -69,11 +69,6 @@ public interface SUTFactory<SUT> {
      */
     public static <T> Arg<T> $(Class<T> type, T arg) {
       return new Arg<T>(Checks.checknotnull(type), arg);
-    }
-
-    public static <T> Class<T[]> arr(Class<T> type) {
-      //noinspection unchecked
-      return (Class<T[]>) Array.newInstance(Checks.checknotnull(type), 0).getClass();
     }
 
     public static final Class<boolean[]> BOOLEAN_ARRAY_TYPE = boolean[].class;

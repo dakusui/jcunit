@@ -3,12 +3,15 @@ package com.github.dakusui.jcunit.runners.standard.annotations;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.validator.AnnotationValidator;
@@ -139,7 +142,7 @@ public @interface FactorField {
         return ret;
       }
 
-      private static LevelsProvider levelsProviderOf(FactorField ann) {
+      public static LevelsProvider levelsProviderOf(FactorField ann) {
         assert ann != null;
         //noinspection unchecked
         Plugin.Factory<LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
@@ -151,7 +154,7 @@ public @interface FactorField {
         return factory.create(Arrays.asList(ann.providerParams()));
       }
 
-      private static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
+      public static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
         Checks.checknotnull(ann);
         List<Class> typesProvidedByUser = typesWhoseLevelsAreProvidedBy(ann);
         Checks.checktest(
@@ -283,6 +286,7 @@ public @interface FactorField {
     public static List<Object> defaultLevelsOf(final Class c) {
       Checks.checknotnull(c);
       final Class supportedType;
+      final GenerateCoveringArrayWith ann;
       if (c.isPrimitive()) {
         supportedType = c;
       } else if (ReflectionUtils.isWrapper(c)) {
@@ -307,11 +311,13 @@ public @interface FactorField {
             return Array.getLength(values);
           }
         };
-      } else if (c.getAnnotation(GenerateWith.class) != null) {
+      } else if ((ann = (GenerateCoveringArrayWith) c.getAnnotation(GenerateCoveringArrayWith.class)) != null) {
         return new AbstractList<Object>() {
-          // TODO Build factorSpace appropriately #35
-          FactorSpace factorSpace = new FactorSpace.Builder() .build();
-          CoveringArray ca = GenerateWith.CoveringArrayEngineFactory.INSTANCE.createFromClass(c).generate(factorSpace);
+          FactorSpace factorSpace = new FactorSpace.Builder()
+              .addFactorDefs(JCUnit.getFactorDefsFrom(c))
+              .setTopLevelConstraintChecker(new Checker.Base(ann.checker(), new RunnerContext.Dummy()).build())
+              .build();
+          CoveringArray ca = new Generator.Base(JCUnit.getGenerator(c), new RunnerContext.Dummy()).build().generate(factorSpace);
 
           @Override
           public Object get(int index) {

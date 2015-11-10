@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.io.PrintStream;
 import java.util.LinkedHashSet;
@@ -18,15 +18,15 @@ import java.util.Set;
  * A class to measure t-way coverage.
  */
 public class ModelCoverage {
-  public final  int        degree;
-  public final  int        initialSize;
-  public final  Factors    factorSpace;
-  private final Set<Tuple> yetToBeCovered;
-  private final Set<Tuple> uncoveredInWeakerDegree;
-  private final Set<Tuple> violations;
-  public final  Constraint cm;
-  public final  Report     report;
-  private       int        covered;
+  public final  int               degree;
+  public final  int               initialSize;
+  public final  Factors           factorSpace;
+  private final Set<Tuple>        yetToBeCovered;
+  private final Set<Tuple>        uncoveredInWeakerDegree;
+  private final Set<Tuple>        violations;
+  public final  ConstraintChecker cm;
+  public final  Report            report;
+  private       int               covered;
   protected State state = State.NOT_PROCESSED;
 
   /**
@@ -39,7 +39,7 @@ public class ModelCoverage {
   public ModelCoverage(
       Factors factors,
       final int degree,
-      Constraint cm,
+      ConstraintChecker cm,
       final Set<Tuple> uncoveredInWeakerDegree,
       Report report) {
     Checks.checkcond(degree > 0);
@@ -212,11 +212,11 @@ public class ModelCoverage {
   }
 
   public static class TestSpace {
-    private final Factors    factorSpace;
-    private final int        strength;
-    private final Constraint cm;
+    private final Factors           factorSpace;
+    private final int               strength;
+    private final ConstraintChecker cm;
 
-    public TestSpace(Factors factorSpace, int strength, Constraint cm) {
+    public TestSpace(Factors factorSpace, int strength, ConstraintChecker cm) {
       this.factorSpace = factorSpace;
       this.strength = strength;
       this.cm = cm;
@@ -230,7 +230,7 @@ public class ModelCoverage {
       return strength;
     }
 
-    public Constraint getCm() {
+    public ConstraintChecker getCm() {
       return cm;
     }
   }

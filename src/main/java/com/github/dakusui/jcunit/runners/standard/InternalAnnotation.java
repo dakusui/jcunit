@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
 
@@ -13,14 +13,14 @@ import java.lang.annotation.Annotation;
  */
 public class InternalAnnotation implements Annotation {
 
-  private final TestSuite  testSuite;
-  private final TestCase   testCase;
-  private final Factors    factors;
-  private final Constraint constraint;
+  private final TestSuite         testSuite;
+  private final TestCase          testCase;
+  private final Factors           factors;
+  private final ConstraintChecker constraintChecker;
 
-  public InternalAnnotation(Factors factors, Constraint constraint, TestSuite suite, TestCase testCase) {
+  public InternalAnnotation(Factors factors, ConstraintChecker constraintChecker, TestSuite suite, TestCase testCase) {
     this.factors = Checks.checknotnull(factors);
-    this.constraint = Checks.checknotnull(constraint);
+    this.constraintChecker = Checks.checknotnull(constraintChecker);
     this.testSuite = Checks.checknotnull(suite);
     // Test case can be null if describeChild is invoked in 'JCUnit' level (not in JCUnitRunner level).
     this.testCase = testCase;
@@ -43,7 +43,7 @@ public class InternalAnnotation implements Annotation {
     return this.testCase;
   }
 
-  public Constraint getConstraint() {
-    return this.constraint;
+  public ConstraintChecker getConstraintChecker() {
+    return this.constraintChecker;
   }
 }

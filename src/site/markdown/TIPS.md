@@ -74,7 +74,7 @@ And it validates all the parameters and immediately exits if any one of them is 
 
 Combinatorial testing is an effort to cover pairs (or tuples) with test cases as less as possible to find bugs which cannot be found by testing any single input parameter.
 If a test case, which can possibly contain a lot of meaningful pairs, is revoked by a single parameter, it means the coverage of the test suite will be damaged. 
-Below are the links that would be helpful for understanding how much constraint managements are important in combinatorial testing area. 
+Below are the links that would be helpful for understanding how much topLevelConstraint managements are important in combinatorial testing area. 
 
 * [Combinatorial test cases with constraints in software systems](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6221818)
 * [An Efficient Algorithm for Constraint Handling in Combinatorial Test Generation](http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&arnumber=6569736)
@@ -82,13 +82,13 @@ Below are the links that would be helpful for understanding how much constraint 
 (Of course we want to test the behaviors on such illegal inputs. It will be discussed in the next tip.) 
 
 For this purpose, JCUnit has a mechanism called 'constraints manager'.
-To use a constraint manager, you can do below
+To use a topLevelConstraint manager, you can do below
 
 ```java
 
     @RunWith(JCUnit.class)
     @TupleGeneration(
-        constraint = @Constraint(
+        topLevelConstraint = @Constraint(
             value = QuadraticEquationSolverTestX.CM.class ))
     public class QuadraticEquationSolverTestX {
     ...
@@ -123,16 +123,16 @@ In case the passed tuple violates your constraints, make it return false.
 A test case is passed as a tuple, you need to use 'get' method of it to retrieve the value (level) of it.
 
 "a", "b", or "c" are the names of the fields annotated with '@FactorField'. JCUnit accesses them using 'reflection' techniques of Java.
-JCUnit avoids using tuples for which check method of the specified constraint manager returns 'false'.
+JCUnit avoids using tuples for which check method of the specified topLevelConstraint manager returns 'false'.
 
 ## Tip 5: Writing test cases for error handling (negative tests)
 That being said, handling errors appropriately is another concern.
 A program must complain of invalid parameters in an appropriate way.
 And this characteristic is another aspect of software under test to be tested.
 
-You can do it by overriding 'getViolations' method of a constraint manager and switching the verification procedures based on a test's 'sub-identifier'.
+You can do it by overriding 'getViolations' method of a topLevelConstraint manager and switching the verification procedures based on a test's 'sub-identifier'.
 
-First, by overriding method, return test cases that explicitly violate the constraint represented by the constraint manager class itself.
+First, by overriding method, return test cases that explicitly violate the topLevelConstraint represented by the topLevelConstraint manager class itself.
 
 ```java
 
@@ -313,14 +313,22 @@ You can do it by doing this.
 
 ```java
 
-      public void moreFluentStyleRun(PrintStream ps) {
-        TupleGenerator tg = new TupleGenerator.Builder().setFactors(
-            new Factors.Builder()
-                .add("OS", "Windows", "Linux")
-                .add("Browser", "Chrome", "Firefox")
-                .add("Bits", "32", "64").build()
+      public void runMoreFluently(PrintStream ps) {
+        Factors factors = new Factors.Builder()
+            .add("OS", "Windows", "Linux")
+            .add("Browser", "Chrome", "Firefox")
+            .add("Bits", "32", "64").build();
+        CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(
+            factors,
+            IPO2CoveringArrayEngine.class,
+            new String[][] { { "2" } }
         ).build();
-        for (Tuple each : tg) {
+    
+        CoveringArray coveringArray = engine.generate(new FactorSpace(
+            FactorSpace.convertFactorsIntoSimpleFactorDefs(factors),
+            ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER)
+        );
+        for (Tuple each : coveringArray) {
           ps.println(each);
         }
       }
@@ -354,7 +362,7 @@ manner like "1. You will initialize the object, 2. Now you can do A or B, 3.
 If you did A in step 2, you can do A1, A2, or B1. Otherwise you can only do B1.",
 and A, B, etc can take a few parameters respectively.
 
-You might be able to write a constraint manager to describe this sort of specification
+You might be able to write a topLevelConstraint manager to describe this sort of specification
  but it would be very complicated, boring, and error prone task.
  
 JCUnit has a feature called "FSM support" and the detail and how to use it are 
