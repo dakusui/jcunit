@@ -50,7 +50,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = {
+          configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
               @Value("Fallback")
           }
@@ -88,7 +88,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = {
+          configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }) }))
   public static class TestClass {
     public static int      f1Threshold = 0;
@@ -253,7 +253,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = {
+          configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
               @Value("Fallback"),
               @Value("All")
@@ -278,7 +278,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = {
+          configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
               @Value("Replay"),
               @Value("All")
@@ -346,7 +346,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = {
+          configValues = {
               @Value({ "WrongCoveringArrayEngine", "2" }),
               @Value("Fallback"),
               @Value("All")
@@ -379,7 +379,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass4$TG"), @Value("All") }
+          configValues = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass4$TG"), @Value("All") }
       ))
   public static class TestClass4 {
     public abstract static class TG extends CoveringArrayEngine.Base {
@@ -425,7 +425,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass5$TG2"), @Value("All") }
+          configValues = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass5$TG2"), @Value("All") }
       ))
   public static class TestClass5 extends TestClass4 {
     @SuppressWarnings("unused")
@@ -447,7 +447,7 @@ public class ReplayerTest {
   @GenerateWith(
       generator = @Generator(
           value = Replayer.class,
-          args = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass6$TG3"), @Value("All") }
+          configValues = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass6$TG3"), @Value("All") }
       ))
   public static class TestClass6 extends TestClass4 {
     @SuppressWarnings("unused")

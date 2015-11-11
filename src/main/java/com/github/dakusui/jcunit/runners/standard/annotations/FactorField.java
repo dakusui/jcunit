@@ -139,7 +139,7 @@ public @interface FactorField {
         return ret;
       }
 
-      private static LevelsProvider levelsProviderOf(FactorField ann) {
+      public static LevelsProvider levelsProviderOf(FactorField ann) {
         assert ann != null;
         //noinspection unchecked
         Plugin.Factory<LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
@@ -151,7 +151,7 @@ public @interface FactorField {
         return factory.create(Arrays.asList(ann.providerParams()));
       }
 
-      private static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
+      public static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
         Checks.checknotnull(ann);
         List<Class> typesProvidedByUser = typesWhoseLevelsAreProvidedBy(ann);
         Checks.checktest(

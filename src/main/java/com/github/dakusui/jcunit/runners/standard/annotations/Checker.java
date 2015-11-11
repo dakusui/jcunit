@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.constraints.NullConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
+import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
@@ -15,6 +16,24 @@ import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Checker {
+  Checker DEFAULT = new Checker() {
+
+    @Override
+    public Class<? extends Annotation> annotationType() {
+      return Checker.class;
+    }
+
+    @Override
+    public Class<? extends ConstraintChecker> value() {
+      return NullConstraintChecker.class;
+    }
+
+    @Override
+    public Value[] args() {
+      return new Value[]{};
+    }
+  };
+
   Class<? extends ConstraintChecker> value() default NullConstraintChecker.class;
 
   Value[] args() default {};

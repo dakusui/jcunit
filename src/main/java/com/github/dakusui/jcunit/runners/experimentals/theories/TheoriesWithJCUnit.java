@@ -197,7 +197,7 @@ public class TheoriesWithJCUnit extends Theories {
         CoveringArrayEngine.class,
         new Plugin.Factory<CoveringArrayEngine, Value>((Class<CoveringArrayEngine>) generatorAnnotation.value(),
             resolver,
-            runnerContext).create(Arrays.asList(generatorAnnotation.args())));
+            runnerContext).create(Arrays.asList(generatorAnnotation.configValues())));
   }
 
   private static Assignments tuple2assignments(Method method, TestClass testClass, Tuple t) {

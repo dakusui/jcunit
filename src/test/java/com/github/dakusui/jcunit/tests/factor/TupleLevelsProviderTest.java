@@ -70,7 +70,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @GenerateWith(
-      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = @Value("3"))
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, configValues = @Value("3"))
   )
   public static class TestClass3 {
     @FactorField
@@ -97,7 +97,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @GenerateWith(
-      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = @Value("1"))
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, configValues = @Value("1"))
   )
   public static class TestClass4 {
     @FactorField
@@ -122,7 +122,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @GenerateWith(
-      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("2"), @Value("hello!") })
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, configValues = { @Value("2"), @Value("hello!") })
   )
   public static class TestClass5 {
     @FactorField

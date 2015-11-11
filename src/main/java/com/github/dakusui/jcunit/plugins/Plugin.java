@@ -237,7 +237,7 @@ public interface Plugin {
           );
           return constructor.newInstance(resolvedArgs.toArray());
         } catch (JCUnitException e) {
-          throw Checks.wrap(Checks.getRootCauseOf(e), "Failed to resolve args[%s] during instantiation of plugin '%s'", i, this.pluginClass);
+          throw e;
         }
       } catch (InstantiationException e) {
         throw Checks.wrap(

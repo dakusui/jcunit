@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 @GenerateWith(
     generator = @Generator(
         value = Replayer.class,
-        args = @Value("All")
+        configValues = @Value("All")
     ))
 public class ReplayerExample {
   @Rule

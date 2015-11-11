@@ -22,7 +22,7 @@ import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.newTestCa
 @GenerateWith(
     generator = @Generator(
         value = Replayer.class,
-        args = {
+        configValues = {
             @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullCoveringArrayEngine" }),
             @Value("Replay"),
             @Value("All")

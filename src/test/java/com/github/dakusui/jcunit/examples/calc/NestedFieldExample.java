@@ -30,7 +30,7 @@ public class NestedFieldExample extends Metatest {
   @GenerateWith(
       generator = @Generator(
           value = IPO2CoveringArrayEngine.class,
-          args = @Value("2")
+          configValues = @Value("2")
       ))
   public static class Struct {
     @FactorField(intLevels = { 123, 456 })

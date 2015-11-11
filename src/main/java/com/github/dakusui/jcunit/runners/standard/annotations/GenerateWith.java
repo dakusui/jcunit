@@ -135,7 +135,7 @@ public @interface GenerateWith {
             constraintChecker,
             tupleGeneratorClass)
             .setResolver(resolver)
-            .setConfigArgsForEngine(Arrays.asList(generatorAnn.args()));
+            .setConfigArgsForEngine(Arrays.asList(generatorAnn.configValues()));
         Checks.checkcond(factors.size() > 0, "No factors are found. Check if your factor fields are public.");
         CoveringArrayEngine generator;
         List<Field> fsmFields = extractFSMFactorFields(switchCoverages.keySet());

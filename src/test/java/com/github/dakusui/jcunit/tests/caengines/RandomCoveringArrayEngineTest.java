@@ -48,7 +48,7 @@ public class RandomCoveringArrayEngineTest {
            * test cases because JCUnit deduplicate identical ones after suite generation.
           */
           value = RandomCoveringArrayEngine.class,
-          args = {
+          configValues = {
               @Value("100")
           }),
       checker = @Checker(TestClass.CM.class))
@@ -85,7 +85,7 @@ public class RandomCoveringArrayEngineTest {
   @GenerateWith(
       generator = @Generator(
           value = RandomCoveringArrayEngine.class,
-          args = {
+          configValues = {
               // Only non-negative value is accepted
               @Value("-1")
           }),
@@ -105,7 +105,7 @@ public class RandomCoveringArrayEngineTest {
   @GenerateWith(
       generator = @Generator(
           value = RandomCoveringArrayEngine.class,
-          args = {
+          configValues = {
               @Value("INVALID") // Intentionally broken argument.
           }),
       checker = @Checker(TestClass.CM.class))
@@ -128,7 +128,7 @@ public class RandomCoveringArrayEngineTest {
   @GenerateWith(
       generator = @Generator(
           value = RandomCoveringArrayEngine.class,
-          args = {
+          configValues = {
               @Value("100"),
               @Value("999") // This parameter is unnecessary and should be rejected.
           }),
