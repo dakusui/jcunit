@@ -41,9 +41,7 @@ public class FactorSpace {
     public FactorSpace build() {
       Factors.Builder b = new Factors.Builder();
       for (FactorDef<?> eachDesc : descs) {
-        for (Factor eachFactor : eachDesc.createFactors()) {
-          b.add(eachFactor);
-        }
+        eachDesc.addTo(b);
       }
       Factors factors = b.build();
       ConstraintChecker constraintChecker = new ConstraintChecker.Base() {

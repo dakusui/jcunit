@@ -6,12 +6,12 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.fsm.*;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.ToplevelCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.TestClass;
 import org.junit.validator.AnnotationValidator;
@@ -147,7 +147,7 @@ public @interface GenerateWith {
           // iterating over fsmFields.
           int fsmSwitchCoverage = switchCoverages.get(each);
           String fsmName = each.getName();
-          FSM<Object> fsm = createFSM(each, fsmSwitchCoverage);
+          FSM<Object> fsm = JCUnit.createFSM(each, fsmSwitchCoverage);
           fsms.put(fsmName, fsm);
           collectLocalConstraintManagers(localCMs, fsmName, fsm);
         }
@@ -187,21 +187,6 @@ public @interface GenerateWith {
           }
         }
         return ret;
-      }
-
-      /**
-       * {@code f} Must be annotated with {@code FactorField}. Its {@code levelsProvider} must be an FSMLevelsProvider.
-       * Typed with {@code Story} class.
-       *
-       * @param f              A field from which an FSM is created.
-       * @param switchCoverage A switch coverage number, which is equal to number of scenarios in a main sequence -1.
-       * @return Created FSM object
-       */
-      private static FSM<Object> createFSM(Field f, int switchCoverage) {
-        Checks.checknotnull(f);
-        Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
-        //noinspection unchecked
-        return createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz, switchCoverage + 1);
       }
 
       protected Factors loadFactors(Class<?> klass, Map<Field, Integer> providers) {
@@ -260,9 +245,6 @@ public @interface GenerateWith {
         return ret;
       }
 
-      public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
-        return new FSM.Base<SUT>(fsmName, fsmSpecClass);
-      }
     }
   }
 }

@@ -8,6 +8,9 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.fsm.FSM;
+import com.github.dakusui.jcunit.fsm.Story;
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
@@ -26,6 +29,8 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -105,8 +110,7 @@ public class JCUnit extends Parameterized {
                     factors,
                     cm,
                     testSuite,
-                    in
-                );
+                    in                );
               } catch (InitializationError initializationError) {
                 throw Checks.wrap(initializationError);
               }
@@ -141,7 +145,36 @@ public class JCUnit extends Parameterized {
   }
 
   private FactorDef<?> createFactorDefFrom(FrameworkField field) {
-    return new FactorDef.Simple(field.getName(), levelsProviderOf(field));
+    if (isSimpleFactorField(field)) {
+      return new FactorDef.Simple(field.getName(), levelsProviderOf(field));
+    }
+    return new FactorDef.Fsm(field.getName(), createFSM(field.getField(), 2), 2);
+  }
+
+  private boolean isSimpleFactorField(FrameworkField frameworkField) {
+    if (Story.class.isAssignableFrom(frameworkField.getType())) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * {@code f} Must be annotated with {@code FactorField}. Its {@code levelsProvider} must be an FSMLevelsProvider.
+   * Typed with {@code Story} class.
+   *
+   * @param f              A field from which an FSM is created.
+   * @param switchCoverage A switch coverage number, which is equal to number of scenarios in a main sequence -1.
+   * @return Created FSM object
+   */
+  public static FSM<Object> createFSM(Field f, int switchCoverage) {
+    Checks.checknotnull(f);
+    Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
+    //noinspection unchecked
+    return JCUnit.createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz, switchCoverage + 1);
+  }
+
+  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass, int historyLength) {
+    return new FSM.Base<SUT>(fsmName, fsmSpecClass);
   }
 
   private LevelsProvider levelsProviderOf(final FrameworkField field) {
