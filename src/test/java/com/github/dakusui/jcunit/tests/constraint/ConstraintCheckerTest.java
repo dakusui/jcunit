@@ -56,10 +56,10 @@ public class ConstraintCheckerTest {
       }
     };
 
-    manager.setFactors(loadFactorsFromClass(TestClass.class));
-    assertEquals(1, manager.getFactors().size());
-    assertEquals(1, manager.getFactors().get("f1").levels.size());
-    assertEquals(1024, manager.getFactors().get("f1").levels.get(0));
+    Factors factors = loadFactorsFromClass(TestClass.class);
+    assertEquals(1, factors.size());
+    assertEquals(1, factors.get("f1").levels.size());
+    assertEquals(1024, factors.get("f1").levels.get(0));
 
     assertEquals(true,
         manager.check(new Tuple.Builder().put("f1", 100).build()));

@@ -125,15 +125,6 @@ public class ForSimpleConstraintCheckerConsciousTest extends IPO2Test {
     }
 
     @Override
-    public Factors getFactors() {
-      return null;
-    }
-
-    @Override
-    public void setFactors(Factors factors) {
-    }
-
-    @Override
     public List<Tuple> getViolations() {
       return Collections.emptyList();
     }

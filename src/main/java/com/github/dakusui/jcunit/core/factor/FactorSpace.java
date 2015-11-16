@@ -51,9 +51,12 @@ public class FactorSpace {
             return false;
           for (FactorDef<?> each : descs) {
             if (each instanceof FactorDef.Fsm) {
+              // TODO: FIXME
+              /*
               if (!((FactorDef.Fsm) each).getConstraintChecker().check(tuple)) {
                 return false;
               }
+              */
             }
           }
           return true;

@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -10,6 +9,8 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import java.util.Collections;
 import java.util.List;
 
+import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+
 /**
  * A constraint which validates tuples for FSM scenarios.
  * <p/>
@@ -18,17 +19,19 @@ import java.util.List;
 public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
   private final ConstraintChecker                       baseConstraintChecker;
   private final List<Parameters.LocalConstraintChecker> localCMs;
+  private final FSMFactors                              factors;
 
   /**
    * Creates an object of this class.
    *
    * @param baseCM A constraint manager which validates 'non-FSM' attributes.
    */
-  public FSMConstraintChecker(ConstraintChecker baseCM, List<Parameters.LocalConstraintChecker> localCMS) {
+  public FSMConstraintChecker(ConstraintChecker baseCM, FSMFactors factors, List<Parameters.LocalConstraintChecker> localCMS) {
     super();
-    Checks.checknotnull(baseCM);
+    checknotnull(baseCM);
     this.baseConstraintChecker = baseCM;
-    this.localCMs = Collections.unmodifiableList(Checks.checknotnull(localCMS));
+    this.localCMs = Collections.unmodifiableList(checknotnull(localCMS));
+    this.factors = checknotnull(factors);
   }
 
   @Override
@@ -46,7 +49,7 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
   }
 
   public boolean checkTuple(Tuple tuple) throws UndefinedSymbol {
-    FSMFactors fsmFactors = (FSMFactors) this.getFactors();
+    FSMFactors fsmFactors = this.getFactors();
     for (String each : fsmFactors.getFSMNames()) {
       ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>()
           .setFSMFactors(fsmFactors)
@@ -105,5 +108,9 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
         return true;
     }
     return false;
+  }
+
+  public FSMFactors getFactors() {
+    return factors;
   }
 }

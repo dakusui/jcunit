@@ -37,11 +37,11 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
     Factors baseFactors = baseCAEngineBuilder.getFactors();
     FSMFactors fsmFactors = buildFSMFactors(baseFactors, this.fsms);
 
-    ConstraintChecker fsmCM = new FSMConstraintChecker(
+    FSMConstraintChecker fsmCM = new FSMConstraintChecker(
         this.baseCAEngineBuilder.getConstraintChecker(),
+        fsmFactors,
         this.localCMs
     );
-    fsmCM.setFactors(fsmFactors);
 
     List<Tuple> tuples = Utils.dedup(generateTestCaseTuples(this.fsms, fsmFactors, fsmCM, this.runnerContext));
     ////
@@ -73,7 +73,7 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
     for (Map.Entry<String, FSM> each : fsms.entrySet()) {
       b.addFSM(each.getKey(), each.getValue());
     }
-    return b.setBaseFactors(baseFactors).build();
+    return b.build();
   }
 
   /*

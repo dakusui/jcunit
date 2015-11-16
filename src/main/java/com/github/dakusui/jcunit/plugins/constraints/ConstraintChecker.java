@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
@@ -23,26 +22,10 @@ public interface ConstraintChecker extends Plugin {
    */
   boolean check(Tuple tuple) throws UndefinedSymbol;
 
-  Factors getFactors();
-
-  void setFactors(Factors factors);
-
   List<Tuple> getViolations();
 
   abstract class Base implements ConstraintChecker, Plugin {
-    private Factors factors;
-
     public Base() {
-    }
-
-    @Override
-    public void setFactors(Factors factors) {
-      this.factors = factors;
-    }
-
-    @Override
-    public Factors getFactors() {
-      return this.factors;
     }
 
     @Override

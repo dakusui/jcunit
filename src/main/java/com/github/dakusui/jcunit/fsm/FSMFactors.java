@@ -78,16 +78,10 @@ public class FSMFactors extends Factors {
 
   public static class Builder extends Factors.Builder {
     private Map<String, FSM<?>> fsms = new LinkedHashMap<String, FSM<?>>();
-    private Factors baseFactors;
 
     public Builder addFSM(String name, FSM<?> fsm) {
       Checks.checknotnull(fsm);
       this.fsms.put(name, fsm);
-      return this;
-    }
-
-    public Builder setBaseFactors(Factors baseFactors) {
-      this.baseFactors = baseFactors;
       return this;
     }
 
@@ -159,11 +153,6 @@ public class FSMFactors extends Factors {
               this.add(bb.build());
             }
           }
-        }
-      }
-      for (int index = 0; index < this.baseFactors.size(); index++) {
-        if (!processedFSMfactors.contains(this.baseFactors.get(index).name)) {
-          this.add(this.baseFactors.get(index));
         }
       }
       return new FSMFactors(this.factors, this.fsms);

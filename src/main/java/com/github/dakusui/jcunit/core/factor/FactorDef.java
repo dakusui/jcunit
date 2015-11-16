@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.NullConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 
 import java.util.*;
@@ -156,13 +156,19 @@ public abstract class FactorDef<S> {
           .build().asFactorList();
     }
 
-    public ConstraintChecker getConstraintChecker() {
-      return new ConstraintChecker.Base() {
-        @Override
-        public boolean check(Tuple tuple) throws UndefinedSymbol {
-          return false;
-        }
-      };
+    public ConstraintChecker createConstraintChecker(List<Factor> factors) {
+      Factors.Builder b = new Factors.Builder();
+      for (Factor each : factors) {
+        b.add(each);
+      }
+      return null;
+      /* TODO: Fix me
+      return new FSMConstraintChecker<Object>(
+          new NullConstraintChecker(),
+          b.build(),
+          Collections.<Parameters.LocalConstraintChecker>emptyList()
+      );
+      */
     }
 
     public static String stateName(String fsmName, int i) {

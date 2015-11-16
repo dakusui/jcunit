@@ -148,6 +148,7 @@ public class JCUnit extends Parameterized {
     if (isSimpleFactorField(field)) {
       return new FactorDef.Simple(field.getName(), levelsProviderOf(field));
     }
+    // TODO give appropriate value as historyLength (switchCoverage)
     return new FactorDef.Fsm(field.getName(), createFSM(field.getField(), 2), 2);
   }
 
