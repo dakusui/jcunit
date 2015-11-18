@@ -17,27 +17,22 @@ import static com.github.dakusui.jcunit.core.Checks.checknotnull;
  * An instance of this object is created only by {@see ToplevelCAEngine}.
  */
 public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
-  private final ConstraintChecker                       baseConstraintChecker;
   private final List<Parameters.LocalConstraintChecker> localCMs;
   private final FSMFactors                              factors;
+  private final String                                  fsmName;
 
   /**
    * Creates an object of this class.
-   *
-   * @param baseCM A constraint manager which validates 'non-FSM' attributes.
    */
-  public FSMConstraintChecker(ConstraintChecker baseCM, FSMFactors factors, List<Parameters.LocalConstraintChecker> localCMS) {
+  public FSMConstraintChecker(String fsmName, FSMFactors factors, List<Parameters.LocalConstraintChecker> localCMS) {
     super();
-    checknotnull(baseCM);
-    this.baseConstraintChecker = baseCM;
+    this.fsmName = checknotnull(fsmName);
     this.localCMs = Collections.unmodifiableList(checknotnull(localCMS));
     this.factors = checknotnull(factors);
   }
 
   @Override
   public boolean check(Tuple tuple) throws UndefinedSymbol {
-    if (!this.baseConstraintChecker.check(tuple))
-      return false;
     if (!checkTuple(tuple))
       return false;
     for (Parameters.LocalConstraintChecker each : this.localCMs) {
@@ -50,16 +45,12 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
 
   public boolean checkTuple(Tuple tuple) throws UndefinedSymbol {
     FSMFactors fsmFactors = this.getFactors();
-    for (String each : fsmFactors.getFSMNames()) {
-      ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>()
-          .setFSMFactors(fsmFactors)
-          .setTuple(tuple)
-          .setFSMName(each)
-          .build();
-      if (!checkFSM(each, seq))
-        return false;
-    }
-    return true;
+    ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>()
+        .setFSMFactors(fsmFactors)
+        .setTuple(tuple)
+        .setFSMName(this.fsmName)
+        .build();
+    return checkFSM(this.fsmName, seq);
   }
 
   public static <SUT> boolean checkFSM(String fsmName, ScenarioSequence<SUT> seq) throws UndefinedSymbol {

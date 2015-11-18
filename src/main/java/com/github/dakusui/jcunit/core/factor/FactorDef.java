@@ -3,8 +3,6 @@ package com.github.dakusui.jcunit.core.factor;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.constraints.NullConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 
 import java.util.*;
@@ -151,25 +149,10 @@ public abstract class FactorDef<S> {
 
     @Override
     public List<Factor> createFactors() {
-      return new FSMFactors.Builder()
-          .addFSM(this.name, this.fsm)
+      return new FSMFactors.Builder(this.name, this.fsm, 2)
           .build().asFactorList();
     }
 
-    public ConstraintChecker createConstraintChecker(List<Factor> factors) {
-      Factors.Builder b = new Factors.Builder();
-      for (Factor each : factors) {
-        b.add(each);
-      }
-      return null;
-      /* TODO: Fix me
-      return new FSMConstraintChecker<Object>(
-          new NullConstraintChecker(),
-          b.build(),
-          Collections.<Parameters.LocalConstraintChecker>emptyList()
-      );
-      */
-    }
 
     public static String stateName(String fsmName, int i) {
       return String.format("FSM:%s:state:%d", fsmName, i);
