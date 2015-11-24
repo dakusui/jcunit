@@ -44,20 +44,22 @@ public class FactorSpace {
         eachDesc.addTo(b);
       }
       Factors factors = b.build();
+      final List<ConstraintChecker> constraintCheckers = Utils.transform(
+              descs,
+              new Utils.Form<FactorDef, ConstraintChecker>() {
+                @Override
+                public ConstraintChecker apply(FactorDef in) {
+                  return in.createConstraintChecker();
+                }
+              }
+      );
       ConstraintChecker constraintChecker = new ConstraintChecker.Base() {
         @Override
         public boolean check(Tuple tuple) throws UndefinedSymbol {
           if (!topLevelConstraintChecker.check(tuple))
             return false;
-          for (FactorDef<?> each : descs) {
-            if (each instanceof FactorDef.Fsm) {
-              // TODO: FIXME
-              /*
-              if (!((FactorDef.Fsm) each).getConstraintChecker().check(tuple)) {
-                return false;
-              }
-              */
-            }
+          for (ConstraintChecker each : constraintCheckers) {
+            if (!each.check(tuple)) return false;
           }
           return true;
         }

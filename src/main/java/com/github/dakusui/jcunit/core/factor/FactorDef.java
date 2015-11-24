@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.core.factor;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 
 import java.util.*;
@@ -21,7 +22,9 @@ public abstract class FactorDef<S> {
 
   public abstract void addTo(Factors.Builder factorsBuilder);
 
-  public abstract List<Factor> createFactors();
+  public abstract List<Factor> getFactors();
+
+  public abstract ConstraintChecker createConstraintChecker();
 
   public static class Simple extends FactorDef<Object> {
     private final LevelsProvider levelsProvider;
@@ -46,12 +49,17 @@ public abstract class FactorDef<S> {
     }
 
     @Override
-    public List<Factor> createFactors() {
+    public List<Factor> getFactors() {
       Factor.Builder b = new Factor.Builder(this.name);
       for (int i = 0; i < this.levelsProvider.size(); i++) {
         b.addLevel(this.levelsProvider.get(0));
       }
       return Collections.singletonList(b.build());
+    }
+
+    @Override
+    public ConstraintChecker createConstraintChecker() {
+      return ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
     }
   }
 
@@ -60,6 +68,8 @@ public abstract class FactorDef<S> {
 
     private final FSM<T> fsm;
     private final int    historyLength;
+    private final List<Parameters.LocalConstraintChecker> localCMs;
+    private final FSMFactors fsmFactors;
 
 
     public Fsm(String name, FSM<T> fsm, int historyLength) {
@@ -67,6 +77,9 @@ public abstract class FactorDef<S> {
       this.fsm = checknotnull(fsm);
       checkcond(historyLength > 0);
       this.historyLength = historyLength;
+      this.fsmFactors = new FSMFactors.Builder(this.name, this.fsm, this.historyLength).build();
+      // TODO
+      this.localCMs = Collections.emptyList();
     }
 
     @Override
@@ -148,9 +161,16 @@ public abstract class FactorDef<S> {
     }
 
     @Override
-    public List<Factor> createFactors() {
-      return new FSMFactors.Builder(this.name, this.fsm, 2)
-          .build().asFactorList();
+    public List<Factor> getFactors() {
+      return this.fsmFactors.asFactorList();
+    }
+
+    @Override
+    public ConstraintChecker createConstraintChecker() {
+      return new FSMConstraintChecker(
+              this.name,
+              this.fsmFactors,
+              this.localCMs);
     }
 
 
