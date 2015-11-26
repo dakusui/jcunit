@@ -281,17 +281,11 @@ public interface ScenarioSequence<SUT> extends Serializable {
    * @param <SUT> A class of software under test.
    */
   class BuilderFromTuple<SUT> {
-    private Factors factors;
     private Tuple   tuple;
     private String  fsmName;
     private int     historyLength;
 
     public BuilderFromTuple() {
-    }
-
-    public BuilderFromTuple<SUT> setFSMFactors(Factors factors) {
-      this.factors = factors;
-      return this;
     }
 
     public BuilderFromTuple<SUT> setTuple(Tuple tuple) {
@@ -311,7 +305,6 @@ public interface ScenarioSequence<SUT> extends Serializable {
 
     public ScenarioSequence<SUT> build() {
       Checks.checknotnull(tuple);
-      Checks.checknotnull(factors);
       Checks.checknotnull(fsmName);
       Checks.checkcond(historyLength > 0);
       return new ScenarioSequence.Base<SUT>() {

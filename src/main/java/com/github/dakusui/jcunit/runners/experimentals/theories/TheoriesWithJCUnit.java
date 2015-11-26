@@ -97,7 +97,7 @@ public class TheoriesWithJCUnit extends Theories {
     }
     final CoveringArrayEngine tg = createCoveringArrayEngine(createRunnerContext(), method.getMethod());
     final FactorSpace factorSpace = new FactorSpace(
-        factorsBuilder.build(),
+        FactorSpace.convertFactorsIntoSimpleFactorDefs(factorsBuilder.build()),
         createConstraint(method.getMethod())
     );
     return new TheoryAnchor(method, testClass) {

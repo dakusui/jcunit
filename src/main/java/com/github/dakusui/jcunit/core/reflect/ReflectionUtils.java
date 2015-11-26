@@ -107,7 +107,7 @@ public class ReflectionUtils {
       }
     }).toArray(new Class[typedArgs.length]);
     try {
-      return clazz.getConstructor(types).newInstance(
+      return (T) clazz.getConstructor(types).newInstance(
           Utils.transform(typedArgs, new Utils.Form<TypedArg, Object>() {
             @Override
             public Object apply(TypedArg in) {

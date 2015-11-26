@@ -20,12 +20,14 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
   private final List<Parameters.LocalConstraintChecker> localCMs;
   private final FSMFactors                              factors;
   private final String                                  fsmName;
+  private final int historyLength;
 
   /**
    * Creates an object of this class.
    */
-  public FSMConstraintChecker(String fsmName, FSMFactors factors, List<Parameters.LocalConstraintChecker> localCMS) {
+  public FSMConstraintChecker(String fsmName, int historyLength, FSMFactors factors, List<Parameters.LocalConstraintChecker> localCMS) {
     super();
+    this.historyLength = historyLength;
     this.fsmName = checknotnull(fsmName);
     this.localCMs = Collections.unmodifiableList(checknotnull(localCMS));
     this.factors = checknotnull(factors);
@@ -46,9 +48,9 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
   public boolean checkTuple(Tuple tuple) throws UndefinedSymbol {
     FSMFactors fsmFactors = this.getFactors();
     ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>()
-        .setFSMFactors(fsmFactors)
         .setTuple(tuple)
         .setFSMName(this.fsmName)
+            .setHistoryLength(this.historyLength)
         .build();
     return checkFSM(this.fsmName, seq);
   }

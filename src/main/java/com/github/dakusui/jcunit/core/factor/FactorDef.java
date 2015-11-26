@@ -26,6 +26,8 @@ public abstract class FactorDef<S> {
 
   public abstract ConstraintChecker createConstraintChecker();
 
+  public abstract void compose(Tuple.Builder b, Tuple in);
+
   public static class Simple extends FactorDef<Object> {
     private final LevelsProvider levelsProvider;
 
@@ -61,15 +63,20 @@ public abstract class FactorDef<S> {
     public ConstraintChecker createConstraintChecker() {
       return ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
     }
+
+    @Override
+    public void compose(Tuple.Builder b, Tuple in) {
+      b.put(this.name, in.get(this.name));
+    }
   }
 
 
   public static class Fsm<T> extends FactorDef<Story<T, ? extends FSMSpec<T>>> {
 
-    private final FSM<T> fsm;
-    private final int    historyLength;
+    private final FSM<T>                                  fsm;
+    private final int                                     historyLength;
     private final List<Parameters.LocalConstraintChecker> localCMs;
-    private final FSMFactors fsmFactors;
+    private final FSMFactors                              fsmFactors;
 
 
     public Fsm(String name, FSM<T> fsm, int historyLength) {
@@ -86,6 +93,7 @@ public abstract class FactorDef<S> {
     public Story<T, ? extends FSMSpec<T>> getValueFrom(Tuple plainTuple) {
       ScenarioSequence<T> main = new ScenarioSequence.BuilderFromTuple<T>()
           .setTuple(plainTuple)
+          .setFSMName(this.name)
           .setHistoryLength(this.historyLength)
           .build();
       ScenarioSequence<T> setUp = new StateRouter.Base<T>(this.fsm).routeTo(main.get(0).given);
@@ -168,9 +176,24 @@ public abstract class FactorDef<S> {
     @Override
     public ConstraintChecker createConstraintChecker() {
       return new FSMConstraintChecker(
-              this.name,
-              this.fsmFactors,
-              this.localCMs);
+          this.name,
+          this.historyLength,
+          this.fsmFactors,
+          this.localCMs);
+    }
+
+    @Override
+    public void compose(Tuple.Builder b, Tuple in) {
+      ScenarioSequence<?> mainSequence = new ScenarioSequence.BuilderFromTuple<Object>()
+          .setFSMName(this.name)
+          .setHistoryLength(this.historyLength)
+          .setTuple(in)
+          .build();
+      b.put(this.name, new Story(
+          this.name,
+          new StateRouter.Base(this.fsm).routeTo(mainSequence.state(0)),
+          mainSequence
+      ));
     }
 
 

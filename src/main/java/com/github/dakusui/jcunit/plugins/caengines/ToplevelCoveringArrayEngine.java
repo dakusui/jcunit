@@ -93,7 +93,10 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
     ////
     // Build test cases. At this point, test cases are generated as flatten FSM
     // tuples.
-    Iterable<Tuple> flattenFSMTuples = generateFlattenFSMTestCaseTuples(fsmFactors, fsmCM, runnerContext).generate(new FactorSpace(fsmFactors, fsmCM));
+    Iterable<Tuple> flattenFSMTuples = generateFlattenFSMTestCaseTuples(fsmFactors, fsmCM, runnerContext).generate(
+        new FactorSpace(
+            FactorSpace.convertFactorsIntoSimpleFactorDefs(fsmFactors),
+            fsmCM));
     ////
     // First iteration: Build all main scenario sequences to list up
     //                  all edges. And prepare state routers.
@@ -104,7 +107,6 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
       for (Map.Entry<String, FSM> entry : fsms.entrySet()) {
         String fsmName = entry.getKey();
         ScenarioSequence main = new ScenarioSequence.BuilderFromTuple()
-            .setFSMFactors(fsmFactors)
             .setTuple(eachTuple)
             .setFSMName(fsmName)
             .build();
@@ -134,9 +136,9 @@ public class ToplevelCoveringArrayEngine extends CoveringArrayEngine.Base {
       for (Map.Entry<String, FSM> entry : this.fsms.entrySet()) {
         String fsmName = entry.getKey();
         ScenarioSequence main = new ScenarioSequence.BuilderFromTuple()
-            .setFSMFactors(fsmFactors)
             .setTuple(eachTuple)
             .setFSMName(fsmName)
+                .setHistoryLength(2)
             .build();
         StateRouter router = stateRouters.get(fsmName);
         //noinspection unchecked

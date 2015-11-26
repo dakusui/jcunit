@@ -213,7 +213,9 @@ public class Replayer extends CoveringArrayEngine.Base {
         // Wire
         CoveringArrayEngine generator = tupleReplayer.fallbackGenerator;
 
-        return generator.generate(new FactorSpace(factors, constraintChecker));
+        return generator.generate(new FactorSpace(
+            FactorSpace.convertFactorsIntoSimpleFactorDefs(factors),
+            constraintChecker));
       }
 
       @Override

@@ -40,7 +40,6 @@ public class JCUnit extends Parameterized {
   private final List<Runner> runners;
 
   private final TestSuite testSuite;
-  private final Factors   factors;
 
   /**
    * Only called reflectively by JUnit. Do not use programmatically.
@@ -53,7 +52,7 @@ public class JCUnit extends Parameterized {
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
     RunnerContext runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
     ConstraintChecker constraintChecker = new Checker.Base(getChecker(klass), runnerContext).build();
-    FactorSpace factorSpace = new FactorSpace.Builder()
+    final FactorSpace factorSpace = new FactorSpace.Builder()
         .addFactorDefs(getFactorDefsFrom(getTestClass()))
         .setTopLevelConstraintChecker(constraintChecker)
         .build();
@@ -96,7 +95,6 @@ public class JCUnit extends Parameterized {
       Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
       ////
       // Create and hold a test suite object to use it in rules.
-      this.factors = factorSpace.factors;
       this.testSuite = new TestSuite(testCases);
       this.runners = Utils.transform(
           this.testSuite,
@@ -107,7 +105,7 @@ public class JCUnit extends Parameterized {
               try {
                 return new JCUnitRunner(
                     getTestClass().getJavaClass(),
-                    factors,
+                    factorSpace,
                     cm,
                     testSuite,
                     in                );

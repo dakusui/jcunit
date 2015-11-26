@@ -44,7 +44,9 @@ public class TestGenWithoutJUnit {
     Factors factors = new Factors.Builder().add(os).add(browser).add(bits).build();
     CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(factors)
         .build();
-    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER));
+    CoveringArray coveringArray = engine.generate(new FactorSpace(
+        FactorSpace.convertFactorsIntoSimpleFactorDefs(factors),
+        ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER));
 
     for (Tuple each : coveringArray) {
       ps.println(each);
@@ -62,7 +64,10 @@ public class TestGenWithoutJUnit {
         IPO2CoveringArrayEngine.class, new String[][] { { "2" } }
     ).build();
 
-    CoveringArray coveringArray = engine.generate(new FactorSpace(factors, ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER));
+    CoveringArray coveringArray = engine.generate(new FactorSpace(
+        FactorSpace.convertFactorsIntoSimpleFactorDefs(factors),
+        ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER)
+    );
     for (Tuple each : coveringArray) {
       ps.println(each);
     }

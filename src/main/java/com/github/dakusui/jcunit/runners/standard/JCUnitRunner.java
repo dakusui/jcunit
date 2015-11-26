@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
@@ -29,6 +30,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final TestCase                     testCase;
   private final Map<String, FrameworkMethod> methods;
   private final ConstraintChecker            constraintChecker;
+  private final FactorSpace                  factorSpace;
 
   /**
    * Creates an object of this class.
@@ -37,9 +39,10 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * @param testCase A test case object.
    * @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
-  public JCUnitRunner(Class<?> clazz, Factors factors, ConstraintChecker constraintChecker, TestSuite testSuite, TestCase testCase) throws InitializationError {
+  public JCUnitRunner(Class<?> clazz, FactorSpace factorSpace, ConstraintChecker constraintChecker, TestSuite testSuite, TestCase testCase) throws InitializationError {
     super(clazz);
-    this.factors = Checks.checknotnull(factors);
+    this.factorSpace = Checks.checknotnull(factorSpace);
+    this.factors = factorSpace.factors;
     this.constraintChecker = Checks.checknotnull(constraintChecker);
     this.testSuite = Checks.checknotnull(testSuite);
     this.testCase = Checks.checknotnull(testCase);
@@ -59,7 +62,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * because {@code {@literal @}BeforeClass} methods and {@code {@literal @}AfterClass}
    * methods are executed for every test case run not before and after all the
    * test cases are executed.
-   * <p/>
+   * <p>
    * {@code BlockJUnit4ClassRunnerWithParameters} does the same.
    *
    * @see org.junit.runners.BlockJUnit4ClassRunner#classBlock(org.junit.runner.notification.RunNotifier)
@@ -75,7 +78,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    */
   @Override
   public Object createTest() {
-    return TestCaseUtils.toTestObject(getTestClass().getJavaClass(), testCase.getTuple());
+    return TestCaseUtils.toTestObject(getTestClass().getJavaClass(), this.factorSpace.convert(testCase.getTuple()));
   }
 
   @Override
