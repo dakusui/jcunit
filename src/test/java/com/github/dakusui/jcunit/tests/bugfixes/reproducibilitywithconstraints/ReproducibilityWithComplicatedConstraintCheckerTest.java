@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.core.tuples.Tuple;

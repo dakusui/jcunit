@@ -11,7 +11,6 @@ import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
