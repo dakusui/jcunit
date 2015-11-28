@@ -20,7 +20,7 @@ import java.util.List;
 import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
-@GenerateWith(
+@GenerateCoveringArrayWith(
     checker = @Checker(
         value = QuadraticEquationSolverTestX.CM.class,
         args = { }))

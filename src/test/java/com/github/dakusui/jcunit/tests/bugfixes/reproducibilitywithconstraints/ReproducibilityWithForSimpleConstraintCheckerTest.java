@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.tests.bugfixes.reproducibilitywithconstraints;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
-@GenerateWith(
+@GenerateCoveringArrayWith(
     checker = @Checker(ReproducibilityWithForSimpleConstraintCheckerTest.CM.class)
 )
 public class ReproducibilityWithForSimpleConstraintCheckerTest {

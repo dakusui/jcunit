@@ -3,10 +3,7 @@ package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
-import com.github.dakusui.jcunit.runners.standard.annotations.CustomTestCases;
-import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
@@ -19,8 +16,8 @@ import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.factor;
 import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.newTestCase;
 
 @RunWith(JCUnit.class)
-@GenerateWith(
-    generator = @Generator(
+@GenerateCoveringArrayWith(
+    engine = @Generator(
         value = Replayer.class,
         configValues = {
             @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullCoveringArrayEngine" }),

@@ -30,7 +30,7 @@ import static org.junit.Assert.assertThat;
  * </ul>
  */
 @RunWith(JCUnit.class)
-@GenerateWith(
+@GenerateCoveringArrayWith(
     checker = @Checker(
         value = QuadraticEquationSolverTest6.CM.class,
         args = {}))

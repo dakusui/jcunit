@@ -4,6 +4,7 @@ package com.github.dakusui.jcunit.plugins.caengines;
  */
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -118,7 +119,7 @@ public interface CoveringArrayEngine extends Plugin {
 
     final public CoveringArray generate(FactorSpace factorSpace) {
       Checks.checknotnull(factorSpace);
-      return createCoveringArray(generate(factorSpace.factors, factorSpace.constraintChecker));
+      return createCoveringArray(Utils.dedup(generate(factorSpace.factors, factorSpace.constraintChecker)));
     }
 
     protected CoveringArray createCoveringArray(List<Tuple> testCase) {

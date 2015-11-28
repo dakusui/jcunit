@@ -10,11 +10,9 @@ import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
 import com.github.dakusui.jcunit.ututils.Metatest;
@@ -26,6 +24,7 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
+import org.junit.runners.model.TestClass;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,8 +46,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
@@ -85,8 +84,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }) }))
@@ -210,8 +209,11 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    CoveringArrayEngine coveringArrayEngine = GenerateWith.CoveringArrayEngineFactory.INSTANCE
-        .createFromClass(TestClass.class);
+    CoveringArrayEngine coveringArrayEngine = new Generator.Base(
+        JCUnit.getGenerator(org.junit.runners.model.TestClass.class),
+        new RunnerContext.Dummy()
+    ).build();
+
 
     // TODO: Build factor space accordingly. #35
     FactorSpace factorSpace = new FactorSpace.Builder().build();
@@ -250,8 +252,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
@@ -275,8 +277,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = {
               @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
@@ -343,8 +345,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = {
               @Value({ "WrongCoveringArrayEngine", "2" }),
@@ -376,8 +378,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass4$TG"), @Value("All") }
       ))
@@ -422,8 +424,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass5$TG2"), @Value("All") }
       ))
@@ -444,8 +446,8 @@ public class ReplayerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = Replayer.class,
           configValues = { @Value("com.github.dakusui.jcunit.tests.caengines.ReplayerTest$TestClass6$TG3"), @Value("All") }
       ))

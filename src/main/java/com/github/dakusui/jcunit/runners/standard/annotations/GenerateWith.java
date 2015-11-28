@@ -33,60 +33,6 @@ public @interface GenerateWith {
 
   Reporter reporter() default @Reporter();
 
-
-  class Validator extends AnnotationValidator {
-    @Override
-    public List<Exception> validateAnnotatedClass(TestClass testClass) {
-      // TODO
-      return super.validateAnnotatedClass(testClass);
-    }
-
-    @Override
-    public List<Exception> validateAnnotatedField(FrameworkField f) {
-      List<Exception> errors = new LinkedList<Exception>();
-      ////
-      // The following logic is for validating so called 'FSMfactor fields' , whose
-      // type is Story<FSMSpec<SUT>, SUT>.
-      Checks.checknotnull(f);
-      FactorField ann = f.getAnnotation(FactorField.class);
-      Checks.checknotnull(ann);
-      Checks.checkcond(ann.levelsProvider() != null);
-      Class<? extends LevelsProvider> levelsProvider = ann.levelsProvider();
-      Checks.checknotnull(levelsProvider);
-      Checks.checkcond(
-          FSMLevelsProvider.class.isAssignableFrom(levelsProvider),
-          "'%s' must be a sub-class of '%s', but isn't",
-          levelsProvider.getCanonicalName(),
-          FSMLevelsProvider.class.getCanonicalName()
-      );
-      ////
-      // Another design choice is to allow sub types of Story for FSM factor fields.
-      // But author considered it hurts readability of tests and thus allowed
-      // to use Story<FSMSpec<SUT>, SUT> directly.
-      if (!(Story.class.equals(f.getType()))) {
-        errors.add(new Exception(String.format(
-            "For FSM factor field (field annotated with '%s' whose levelsProvider is '%s') must be exactly '%s', but was '%s'",
-            FactorField.class.getSimpleName(),
-            FSMLevelsProvider.class.getSimpleName(),
-            Story.class.getCanonicalName(),
-            f.getType()
-        )));
-      }
-      Type genericType = f.getField().getGenericType();
-      if (!(genericType instanceof ParameterizedType)) {
-        errors.add(new Exception(String.format(
-            "FSM factor field must have a parameterized type as its generic type. But '%s'(%s)'s generic type was '%s'",
-            f.getName(),
-            f.getDeclaringClass().getCanonicalName(),
-            genericType != null
-                ? genericType.getClass().getCanonicalName()
-                : null
-        )));
-      }
-      return errors;
-    }
-  }
-
   interface CoveringArrayEngineFactory {
     CoveringArrayEngineFactory INSTANCE = new CoveringArrayEngineFactory.Default();
 
@@ -106,8 +52,9 @@ public @interface GenerateWith {
       public CoveringArrayEngine createFromClass(
           Class<?> klazz) {
         Checks.checknotnull(klazz);
-        GenerateWith generateWithAnn = getAnnotation(
-            klazz);
+        GenerateCoveringArrayWith generateWithAnn = getAnnotation(klazz);
+
+
         return createCoveringArrayEngine(klazz, generateWithAnn);
       }
 
@@ -117,7 +64,7 @@ public @interface GenerateWith {
 
       public CoveringArrayEngine createCoveringArrayEngine(
           Class<?> klazz,
-          GenerateWith generateWithAnn) {
+          GenerateCoveringArrayWith generateWithAnn) {
         Checks.checknotnull(klazz);
         Checks.checknotnull(generateWithAnn);
         RunnerContext runnerContext = new RunnerContext.Base(klazz);
@@ -127,7 +74,7 @@ public @interface GenerateWith {
         // Wire and build objects.
         Checker checkerAnn = generateWithAnn.checker();
         ConstraintChecker constraintChecker = new Checker.Base(checkerAnn, runnerContext).build();
-        Generator generatorAnn = generateWithAnn.generator();
+        Generator generatorAnn = generateWithAnn.engine();
         Class<? extends CoveringArrayEngine> tupleGeneratorClass = generatorAnn.value();
         CoveringArrayEngine.Builder b = new CoveringArrayEngine.Builder(
             runnerContext,
@@ -207,19 +154,19 @@ public @interface GenerateWith {
         return factors;
       }
 
-      GenerateWith getAnnotation(
+      GenerateCoveringArrayWith getAnnotation(
           AnnotatedElement annotatedElement) {
-        GenerateWith ret;
-        if (annotatedElement.isAnnotationPresent(GenerateWith.class)) {
-          ret = annotatedElement.getAnnotation(GenerateWith.class);
+        GenerateCoveringArrayWith ret;
+        if (annotatedElement.isAnnotationPresent(GenerateCoveringArrayWith.class)) {
+          ret = annotatedElement.getAnnotation(GenerateCoveringArrayWith.class);
         } else {
           // Fall back to default in case annotation isn't given at all.
-          ret = new GenerateWith() {
+          ret = new GenerateCoveringArrayWith() {
             @Override
-            public Generator generator() {
+            public Generator engine() {
               return ReflectionUtils
                   .getDefaultValueOfAnnotation(GenerateWith.class,
-                      "generator");
+                      "engine");
             }
 
             @Override
@@ -227,13 +174,6 @@ public @interface GenerateWith {
               return ReflectionUtils
                   .getDefaultValueOfAnnotation(GenerateWith.class,
                       "checker");
-            }
-
-            @Override
-            public Reporter reporter() {
-              return ReflectionUtils
-                  .getDefaultValueOfAnnotation(GenerateWith.class,
-                      "reporter");
             }
 
             @Override

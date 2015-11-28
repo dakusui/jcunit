@@ -4,10 +4,7 @@ import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
@@ -17,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.validator.ValidateWith;
 
 @RunWith(JCUnit.class)
-@ValidateWith(GenerateWith.Validator.class)
+@ValidateWith(GenerateCoveringArrayWith.Validator.class)
 public class NestedFieldExample extends Metatest {
   public NestedFieldExample() {
     super(
@@ -27,8 +24,8 @@ public class NestedFieldExample extends Metatest {
     );
   }
 
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = IPO2CoveringArrayEngine.class,
           configValues = @Value("2")
       ))

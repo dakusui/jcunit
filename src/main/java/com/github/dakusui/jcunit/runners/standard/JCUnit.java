@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -108,7 +107,7 @@ public class JCUnit extends Parameterized {
                     factorSpace,
                     cm,
                     testSuite,
-                    in                );
+                    in);
               } catch (InitializationError initializationError) {
                 throw Checks.wrap(initializationError);
               }
@@ -121,20 +120,24 @@ public class JCUnit extends Parameterized {
   }
 
   public Checker getChecker(Class<?> klass) {
-    GenerateWith generateWith = klass.getAnnotation(GenerateWith.class);
+    GenerateCoveringArrayWith generateWith = klass.getAnnotation(GenerateCoveringArrayWith.class);
     return generateWith == null
         ? Checker.DEFAULT
         : generateWith.checker();
   }
 
-  public Generator getGenerator(Class<?> klass) {
-    GenerateWith generateWith = klass.getAnnotation(GenerateWith.class);
-    return generateWith == null
+  public static Generator getGenerator(Class<?> klass) {
+    GenerateCoveringArrayWith annotation = klass.getAnnotation(GenerateCoveringArrayWith.class);
+    return annotation == null
         ? Generator.DEFAULT
-        : generateWith.generator();
+        : annotation.engine();
   }
 
-  private List<FactorDef<?>> getFactorDefsFrom(TestClass testClass) {
+  public static List<FactorDef<?>> getFactorDefsFrom(Class c) {
+    return getFactorDefsFrom(new TestClass(c));
+  }
+
+  private static List<FactorDef<?>> getFactorDefsFrom(TestClass testClass) {
     List<FactorDef<?>> ret = Utils.newList();
     for (FrameworkField each : testClass.getAnnotatedFields(FactorField.class)) {
       ret.add(createFactorDefFrom(each));
@@ -142,7 +145,7 @@ public class JCUnit extends Parameterized {
     return ret;
   }
 
-  private FactorDef<?> createFactorDefFrom(FrameworkField field) {
+  private static FactorDef<?> createFactorDefFrom(FrameworkField field) {
     if (isSimpleFactorField(field)) {
       return new FactorDef.Simple(field.getName(), levelsProviderOf(field));
     }
@@ -150,11 +153,8 @@ public class JCUnit extends Parameterized {
     return new FactorDef.Fsm(field.getName(), createFSM(field.getField(), 2), 2);
   }
 
-  private boolean isSimpleFactorField(FrameworkField frameworkField) {
-    if (Story.class.isAssignableFrom(frameworkField.getType())) {
-      return false;
-    }
-    return true;
+  private static boolean isSimpleFactorField(FrameworkField frameworkField) {
+    return !Story.class.isAssignableFrom(frameworkField.getType());
   }
 
   /**
@@ -176,7 +176,7 @@ public class JCUnit extends Parameterized {
     return new FSM.Base<SUT>(fsmName, fsmSpecClass);
   }
 
-  private LevelsProvider levelsProviderOf(final FrameworkField field) {
+  private static LevelsProvider levelsProviderOf(final FrameworkField field) {
     FactorField ann = field.getAnnotation(FactorField.class);
     LevelsProvider ret = levelsProviderOf(field.getAnnotation(FactorField.class));
     if (ret instanceof FactorField.FactorFactory.Default.DummyLevelsProvider) {

@@ -10,6 +10,7 @@ import com.github.dakusui.jcunit.plugins.constraints.TypedConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -75,7 +76,7 @@ public class ConstraintCheckerTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(checker = @Checker(CM.class))
+  @GenerateCoveringArrayWith(checker = @Checker(CM.class))
   public static class TestClass2 {
     @FactorField(intLevels = { 1, 2, 3 })
     public int f;

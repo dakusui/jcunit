@@ -1,9 +1,6 @@
 package com.github.dakusui.jcunit.examples.recorderreplayer;
 
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateWith;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -16,8 +13,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
-@GenerateWith(
-    generator = @Generator(
+@GenerateCoveringArrayWith(
+    engine = @Generator(
         value = Replayer.class,
         configValues = @Value("All")
     ))

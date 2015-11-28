@@ -41,8 +41,8 @@ public class RandomCoveringArrayEngineTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           /**
            * Statistically, it is possible that random covering engine generates less than 100
            * test cases because JCUnit deduplicate identical ones after suite generation.
@@ -82,8 +82,8 @@ public class RandomCoveringArrayEngineTest {
 
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = RandomCoveringArrayEngine.class,
           configValues = {
               // Only non-negative value is accepted
@@ -102,8 +102,8 @@ public class RandomCoveringArrayEngineTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = RandomCoveringArrayEngine.class,
           configValues = {
               @Value("INVALID") // Intentionally broken argument.
@@ -125,8 +125,8 @@ public class RandomCoveringArrayEngineTest {
   }
 
   @RunWith(JCUnit.class)
-  @GenerateWith(
-      generator = @Generator(
+  @GenerateCoveringArrayWith(
+      engine = @Generator(
           value = RandomCoveringArrayEngine.class,
           configValues = {
               @Value("100"),
