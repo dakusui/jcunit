@@ -216,7 +216,8 @@ public class ReplayerTest {
 
 
     // TODO: Build factor space accordingly. #35
-    FactorSpace factorSpace = new FactorSpace.Builder().build();
+    FactorSpace factorSpace = new FactorSpace.Builder()
+        .build();
     CoveringArray coveringArray = coveringArrayEngine.generate(factorSpace);
     assertEquals(2, coveringArray.size());
     assertEquals(100, coveringArray.get(0).get("f1"));

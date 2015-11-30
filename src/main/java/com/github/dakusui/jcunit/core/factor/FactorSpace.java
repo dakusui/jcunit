@@ -18,7 +18,7 @@ public class FactorSpace {
   public FactorSpace(List<FactorDef> factorDefs, ConstraintChecker constraintChecker) {
     this.factorDefs = Collections.unmodifiableList(factorDefs);
     Factors.Builder b = new Factors.Builder();
-    for (FactorDef<?> eachDesc : factorDefs) {
+    for (FactorDef eachDesc : factorDefs) {
       eachDesc.addTo(b);
     }
     this.factors = b.build();
@@ -56,7 +56,7 @@ public class FactorSpace {
       this.factorDefs = Utils.newList();
     }
 
-    public Builder addFactorDefs(List<FactorDef<?>> defs) {
+    public Builder addFactorDefs(List<FactorDef> defs) {
       this.factorDefs.addAll(defs);
       return this;
     }

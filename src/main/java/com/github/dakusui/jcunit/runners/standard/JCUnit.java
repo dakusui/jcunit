@@ -133,19 +133,19 @@ public class JCUnit extends Parameterized {
         : annotation.engine();
   }
 
-  public static List<FactorDef<?>> getFactorDefsFrom(Class c) {
+  public static List<FactorDef> getFactorDefsFrom(Class c) {
     return getFactorDefsFrom(new TestClass(c));
   }
 
-  private static List<FactorDef<?>> getFactorDefsFrom(TestClass testClass) {
-    List<FactorDef<?>> ret = Utils.newList();
+  private static List<FactorDef> getFactorDefsFrom(TestClass testClass) {
+    List<FactorDef> ret = Utils.newList();
     for (FrameworkField each : testClass.getAnnotatedFields(FactorField.class)) {
       ret.add(createFactorDefFrom(each));
     }
     return ret;
   }
 
-  private static FactorDef<?> createFactorDefFrom(FrameworkField field) {
+  private static FactorDef createFactorDefFrom(FrameworkField field) {
     if (isSimpleFactorField(field)) {
       return new FactorDef.Simple(field.getName(), levelsProviderOf(field));
     }

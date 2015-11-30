@@ -1,29 +1,21 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import org.junit.runners.model.FrameworkField;
-import org.junit.runners.model.TestClass;
 
-import java.lang.reflect.Field;
 import java.util.*;
 
 import static com.github.dakusui.jcunit.core.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
-public abstract class FactorDef<S> {
+public abstract class FactorDef {
   public final String name;
 
   public FactorDef(String name) {
     this.name = checknotnull(name);
   }
-
-  public abstract S getValueFrom(Tuple plainTuple);
 
   public abstract void addTo(Factors.Builder factorsBuilder);
 
@@ -33,17 +25,12 @@ public abstract class FactorDef<S> {
 
   public abstract void compose(Tuple.Builder b, Tuple in);
 
-  public static class Simple extends FactorDef<Object> {
+  public static class Simple extends FactorDef {
     private final LevelsProvider levelsProvider;
 
     public Simple(String name, LevelsProvider levelsProvider) {
       super(name);
       this.levelsProvider = checknotnull(levelsProvider);
-    }
-
-    @Override
-    public Object getValueFrom(Tuple plainTuple) {
-      return checknotnull(plainTuple).get(this.name);
     }
 
     @Override
@@ -76,7 +63,7 @@ public abstract class FactorDef<S> {
   }
 
 
-  public static class Fsm<T> extends FactorDef<Story<T, ? extends FSMSpec<T>>> {
+  public static class Fsm<T> extends FactorDef {
 
     private final FSM<T>                                  fsm;
     private final int                                     historyLength;
@@ -92,17 +79,6 @@ public abstract class FactorDef<S> {
       this.fsmFactors = new FSMFactors.Builder(this.name, this.fsm, this.historyLength).build();
       // TODO
       this.localCMs = Collections.emptyList();
-    }
-
-    @Override
-    public Story<T, ? extends FSMSpec<T>> getValueFrom(Tuple plainTuple) {
-      ScenarioSequence<T> main = new ScenarioSequence.BuilderFromTuple<T>()
-          .setTuple(plainTuple)
-          .setFSMName(this.name)
-          .setHistoryLength(this.historyLength)
-          .build();
-      ScenarioSequence<T> setUp = new StateRouter.Base<T>(this.fsm).routeTo(main.get(0).given);
-      return new Story<T, FSMSpec<T>>(this.name, setUp, main);
     }
 
     @Override
@@ -194,6 +170,7 @@ public abstract class FactorDef<S> {
           .setHistoryLength(this.historyLength)
           .setTuple(in)
           .build();
+      //noinspection unchecked
       b.put(this.name, new Story(
           this.name,
           new StateRouter.Base(this.fsm).routeTo(mainSequence.state(0)),
