@@ -119,7 +119,7 @@ public class JCUnit extends Parameterized {
     }
   }
 
-  public Checker getChecker(Class<?> klass) {
+  public static Checker getChecker(Class<?> klass) {
     GenerateCoveringArrayWith generateWith = klass.getAnnotation(GenerateCoveringArrayWith.class);
     return generateWith == null
         ? Checker.DEFAULT

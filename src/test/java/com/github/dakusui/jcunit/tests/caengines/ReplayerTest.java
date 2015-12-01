@@ -214,9 +214,11 @@ public class ReplayerTest {
         new RunnerContext.Dummy()
     ).build();
 
-
-    // TODO: Build factor space accordingly. #35
+    RunnerContext runnerContext = new RunnerContext.Base(TestClass.class);
+    ConstraintChecker cc = new Checker.Base(JCUnit.getChecker(TestClass.class), runnerContext).build();
     FactorSpace factorSpace = new FactorSpace.Builder()
+        .setTopLevelConstraintChecker(cc)
+        .addFactorDefs(JCUnit.getFactorDefsFrom(TestClass.class))
         .build();
     CoveringArray coveringArray = coveringArrayEngine.generate(factorSpace);
     assertEquals(2, coveringArray.size());
