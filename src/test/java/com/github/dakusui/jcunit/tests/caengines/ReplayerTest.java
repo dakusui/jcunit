@@ -13,8 +13,8 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
-import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
+import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import com.github.dakusui.jcunit.ututils.Metatest;
 import com.github.dakusui.jcunit.ututils.UTUtils;
 import org.junit.Before;
@@ -24,7 +24,6 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.junit.runner.notification.Failure;
-import org.junit.runners.model.TestClass;
 
 import java.io.File;
 import java.io.IOException;
@@ -210,7 +209,7 @@ public class ReplayerTest {
     assertTrue(testResult.wasSuccessful());
 
     CoveringArrayEngine coveringArrayEngine = new Generator.Base(
-        JCUnit.getGenerator(org.junit.runners.model.TestClass.class),
+        JCUnit.getGenerator(TestClass.class),
         new RunnerContext.Dummy()
     ).build();
 
