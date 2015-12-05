@@ -210,7 +210,7 @@ public class ReplayerTest {
 
     CoveringArrayEngine coveringArrayEngine = new Generator.Base(
         JCUnit.getGenerator(TestClass.class),
-        new RunnerContext.Dummy()
+        new RunnerContext.Base(TestClass.class)
     ).build();
 
     RunnerContext runnerContext = new RunnerContext.Base(TestClass.class);
