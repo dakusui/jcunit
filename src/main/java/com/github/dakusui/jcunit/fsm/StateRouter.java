@@ -154,20 +154,21 @@ public interface StateRouter<SUT> {
 
 
     List<Args> possibleArgsList(final Action<SUT> action) {
-      // TODO:  make it cleaner a bit
       if (action.parameters().size() == 0) {
         return Collections.singletonList(new Args(new Object[0]));
       }
-      final CoveringArrayEngine tg;
+      final CoveringArrayEngine engine;
       if (action.parameters().size() == 1) {
-        tg = new SimpleCoveringArrayEngine();
+        engine = new SimpleCoveringArrayEngine();
       } else {
-        tg =  new IPO2CoveringArrayEngine(2);
+        engine =  new IPO2CoveringArrayEngine(2);
       }
       final FactorSpace factorSpace = new FactorSpace(
           FactorSpace.convertFactorsIntoSimpleFactorDefs(action.parameters()),
+          ////
+          // TODO: Build a local constraint checker here. (#35)
           action.parameters().getConstraintChecker());
-      final CoveringArray coveringArray = tg.generate(factorSpace);
+      final CoveringArray coveringArray = engine.generate(factorSpace);
       return new AbstractList<Args>() {
         @Override
         public Args get(int index) {

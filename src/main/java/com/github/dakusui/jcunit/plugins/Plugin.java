@@ -105,7 +105,7 @@ public interface Plugin {
 
       public static class PassThroughResolver extends Plugin.Param.Resolver<Object> {
         /**
-         * This resolver always pass through incoming value to target constructor.
+         * This resolver always pass through incoming value to base constructor.
          */
         private static final PassThroughResolver INSTANCE = new PassThroughResolver();
 

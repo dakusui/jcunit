@@ -150,7 +150,7 @@ public class JCUnit extends Parameterized {
       return new FactorDef.Simple(field.getName(), levelsProviderOf(field));
     }
     // TODO give appropriate value as historyLength (switchCoverage)
-    return new FactorDef.Fsm(field.getName(), createFSM(field.getField(), 2), 2);
+    return new FactorDef.Fsm(field.getName(), createFSM(field.getField(), 2), Collections.<com.github.dakusui.jcunit.fsm.Parameters.LocalConstraintChecker>emptyList(), 2);
   }
 
   private static boolean isSimpleFactorField(FrameworkField frameworkField) {

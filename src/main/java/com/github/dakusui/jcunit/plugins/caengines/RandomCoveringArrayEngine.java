@@ -21,18 +21,12 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngine.Base {
   private final int         size;
 
   /**
-   * TODO: update accordingly.
    * <p/>
-   * The first parameter specifies the number of test cases. This must be
-   * non-negative integer. This parameter is mandatory.
+   * The first parameter specifies the number of test cases to be generated.
+   * This must be non-negative integer and is a mandatory parameter.
    * <p/>
    * The second one specifies a seed for random number generation. By specifying
    * the seed, you can get the same test suite always.
-   * Long value or a fixed string "SYSTEM_PROPERTY" can be given. If the string
-   * "SYSTEM_PROPERTY" is given, JCUnit will get it from a system property
-   * {@code jcunit.generator.randomseed}. And if the system property isn't set,
-   * JCUnit uses a number based on current time as its seed. This parameter is
-   * mandatory.
    *
    * @see SystemProperties.Key#RANDOMSEED
    * @see SystemProperties#randomSeed()

@@ -313,14 +313,22 @@ You can do it by doing this.
 
 ```java
 
-      public void moreFluentStyleRun(PrintStream ps) {
-        TupleGenerator tg = new TupleGenerator.Builder().setFactors(
-            new Factors.Builder()
-                .add("OS", "Windows", "Linux")
-                .add("Browser", "Chrome", "Firefox")
-                .add("Bits", "32", "64").build()
+      public void runMoreFluently(PrintStream ps) {
+        Factors factors = new Factors.Builder()
+            .add("OS", "Windows", "Linux")
+            .add("Browser", "Chrome", "Firefox")
+            .add("Bits", "32", "64").build();
+        CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(
+            factors,
+            IPO2CoveringArrayEngine.class,
+            new String[][] { { "2" } }
         ).build();
-        for (Tuple each : tg) {
+    
+        CoveringArray coveringArray = engine.generate(new FactorSpace(
+            FactorSpace.convertFactorsIntoSimpleFactorDefs(factors),
+            ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER)
+        );
+        for (Tuple each : coveringArray) {
           ps.println(each);
         }
       }

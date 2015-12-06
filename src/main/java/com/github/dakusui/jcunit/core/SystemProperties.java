@@ -37,6 +37,9 @@ public class SystemProperties {
         return "jcunit.replayer";
       }
     },
+    /**
+     * This system property is used  by {@code RandomCoveringArrayEngine}.
+     */
     RANDOMSEED {
       @Override
       public String key() {

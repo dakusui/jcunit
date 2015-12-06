@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
@@ -71,14 +72,13 @@ public abstract class FactorDef {
     private final FSMFactors                              fsmFactors;
 
 
-    public Fsm(String name, FSM<T> fsm, int historyLength) {
+    public Fsm(String name, FSM<T> fsm, List<Parameters.LocalConstraintChecker> constraintCheckers, int historyLength) {
       super(name);
       this.fsm = checknotnull(fsm);
       checkcond(historyLength > 0);
       this.historyLength = historyLength;
       this.fsmFactors = new FSMFactors.Builder(this.name, this.fsm, this.historyLength).build();
-      // TODO
-      this.localCMs = Collections.emptyList();
+      this.localCMs = Collections.unmodifiableList(Utils.newList(constraintCheckers));
     }
 
     @Override

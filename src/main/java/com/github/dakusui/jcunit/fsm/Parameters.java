@@ -11,13 +11,15 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.*;
 
+import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+
 public class Parameters extends Factors {
   public static final Parameters EMPTY = new Builder().build();
   private final ConstraintChecker constraintChecker;
 
   public Parameters(ConstraintChecker constraintChecker, List<Factor> factors) {
     super(factors);
-    this.constraintChecker = constraintChecker;
+    this.constraintChecker = checknotnull(constraintChecker);
   }
 
   public ConstraintChecker getConstraintChecker() {
@@ -54,7 +56,7 @@ public class Parameters extends Factors {
     }
 
     public Builder add(String name, Object firstValue, Object... restValues) {
-      Factor.Builder b = new Factor.Builder(Checks.checknotnull(name));
+      Factor.Builder b = new Factor.Builder(checknotnull(name));
       b.addLevel(firstValue);
       for (Object each : restValues) {
         b.addLevel(each);
@@ -74,7 +76,7 @@ public class Parameters extends Factors {
   }
 
   public static class LocalConstraintChecker extends ConstraintChecker.Base {
-    protected final ConstraintChecker   target;
+    protected final ConstraintChecker   base;
     private final   List<String>        plainParameterNames;
     /**
      * A map from plain factor names used to declare parameters in Parameters.Builder
@@ -83,14 +85,14 @@ public class Parameters extends Factors {
     private final   Map<String, String> plainToFlattenFSM;
 
     /**
-     * @param target              User defined constraint manager for parameters.
+     * @param base                User defined constraint manager for parameters.
      * @param plainParameterNames User friendly parameter name.
      * @param fsmName             A name of a FSM. {@code Story} field name in standard JCUnit runner.
      * @param historyIndex        The current history index.
      */
-    public LocalConstraintChecker(ConstraintChecker target, List<String> plainParameterNames, String fsmName, int historyIndex) {
-      this.target = Checks.checknotnull(target);
-      this.plainParameterNames = Collections.unmodifiableList(Checks.checknotnull(plainParameterNames));
+    public LocalConstraintChecker(ConstraintChecker base, List<String> plainParameterNames, String fsmName, int historyIndex) {
+      this.base = checknotnull(base);
+      this.plainParameterNames = Collections.unmodifiableList(checknotnull(plainParameterNames));
       this.plainToFlattenFSM = new HashMap<String, String>();
       int i = 0;
       for (String each : this.plainParameterNames) {
@@ -102,7 +104,7 @@ public class Parameters extends Factors {
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
       try {
-        return this.target.check(translate(Checks.checknotnull(tuple)));
+        return this.base.check(translate(checknotnull(tuple)));
       } catch (UndefinedSymbol e) {
         ////
         // Translate back missing symbols into 'flatten FSM tuple' representation
