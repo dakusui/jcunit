@@ -11,7 +11,7 @@ import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.runners.experimentals.theories.TheoriesWithJCUnit;
 import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
 import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
-import com.github.dakusui.jcunit.ututils.UTUtils;
+import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.FromDataPoints;
 import org.junit.experimental.theories.Theory;

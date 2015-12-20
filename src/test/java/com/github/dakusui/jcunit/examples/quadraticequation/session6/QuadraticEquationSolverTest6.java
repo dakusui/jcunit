@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.TypedConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
-import com.github.dakusui.jcunit.ututils.UTUtils;
+import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;

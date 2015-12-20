@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.tests.bugfixes.geophile;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.ututils.Metatest;
+import com.github.dakusui.jcunit.testutils.Metatest;
 
 public class GeophileTestBase extends Metatest {
   @FactorField(stringLevels = { "INCLUDED", "EXCLUDED" })

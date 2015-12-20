@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.plugins;
 
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
-import com.github.dakusui.jcunit.ututils.behaviour.BehaviourTestBase;
-import com.github.dakusui.jcunit.ututils.behaviour.TestScenario;
+import com.github.dakusui.jcunit.testutils.behaviour.BehaviourTestBase;
+import com.github.dakusui.jcunit.testutils.behaviour.TestScenario;
 import org.junit.runners.Parameterized;
 
 import static org.junit.Assert.assertEquals;

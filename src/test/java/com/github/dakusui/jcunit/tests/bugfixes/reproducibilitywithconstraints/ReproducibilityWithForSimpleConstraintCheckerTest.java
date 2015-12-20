@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.ututils.UTUtils;
+import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
 

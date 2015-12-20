@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.plugins.Replayer;
-import com.github.dakusui.jcunit.ututils.UTUtils;
+import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
