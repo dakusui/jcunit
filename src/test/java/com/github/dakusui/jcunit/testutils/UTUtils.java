@@ -83,18 +83,6 @@ public class UTUtils {
     return s.contains("surefire");
   }
 
-  public static Result runTests(
-      Class<?> testClass,
-      int expectedRunCount,
-      int expectedFailureCount,
-      int expectedIgnoreCount) {
-    Result result = JUnitCore.runClasses(Checks.checknotnull(testClass));
-    assertEquals(expectedRunCount, result.getRunCount());
-    assertEquals(expectedFailureCount, result.getFailureCount());
-    assertEquals(expectedIgnoreCount, result.getIgnoreCount());
-    return result;
-  }
-
   /**
    * Returns a new map created from {@code entries}.
    * This method should only be used only when you now the types of objects

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.flyingspaghettimonster;
+package com.github.dakusui.jcunit.examples.models.flyingspaghettimonster;
 
 import com.github.dakusui.jcunit.core.Checks;
 

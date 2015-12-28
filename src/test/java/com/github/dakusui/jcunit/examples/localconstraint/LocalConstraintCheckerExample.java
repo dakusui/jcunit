@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.localconstraints;
+package com.github.dakusui.jcunit.examples.localconstraint;
 
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
-public class LocalConstraintCheckerTest {
+public class LocalConstraintCheckerExample {
   public static ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
 
   public enum Spec implements FSMSpec<Object> {

@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
-import com.github.dakusui.jcunit.examples.calc.Calc;
+import com.github.dakusui.jcunit.examples.models.calc.Calc;
 import com.github.dakusui.jcunit.testutils.Metatest;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Rule;
@@ -16,15 +16,7 @@ import org.junit.validator.ValidateWith;
 
 @RunWith(JCUnit.class)
 @ValidateWith(GenerateCoveringArrayWith.Validator.class)
-public class NestedFieldExample extends Metatest {
-  public NestedFieldExample() {
-    super(
-        31, // tests,
-        0,  // failed
-        0   // ignored
-    );
-  }
-
+public class NestedFieldExample {
   @GenerateCoveringArrayWith(
       engine = @Generator(
           value = IPO2CoveringArrayEngine.class,

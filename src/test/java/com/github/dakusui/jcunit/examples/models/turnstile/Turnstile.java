@@ -1,7 +1,7 @@
-package com.github.dakusui.jcunit.examples.fsm.turnstile;
+package com.github.dakusui.jcunit.examples.models.turnstile;
 
 public class Turnstile {
-  State state = State.Locked;
+  public State state = State.Locked;
 
   @SuppressWarnings("unused") // Reflectively invoked by tests
   public void coin() throws InterruptedException {
@@ -17,7 +17,7 @@ public class Turnstile {
     this.state = State.Locked;
   }
 
-  enum State {
+  public enum State {
     Locked,
     Unlocked
   }

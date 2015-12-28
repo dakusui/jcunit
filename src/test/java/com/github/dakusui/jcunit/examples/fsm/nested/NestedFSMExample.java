@@ -1,9 +1,9 @@
-package com.github.dakusui.jcunit.tests.examples.fsm.nested;
+package com.github.dakusui.jcunit.examples.fsm.nested;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.examples.flyingspaghettimonster.FlyingSpaghettiMonster;
+import com.github.dakusui.jcunit.examples.models.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
-public class NestedFSMTest {
+public class NestedFSMExample {
   public enum Spec implements FSMSpec<FlyingSpaghettiMonster> {
     @SuppressWarnings("unused") @StateSpec I {
       @Override

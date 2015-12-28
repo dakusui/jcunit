@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.tests.examples.fsm.methodoverloading;
+package com.github.dakusui.jcunit.tests.features.fsm;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.fsm.*;

@@ -1,5 +1,6 @@
-package com.github.dakusui.jcunit.examples.flyingspaghettimonster;
+package com.github.dakusui.jcunit.examples.fsm.flyigspaghettimonster;
 
+import com.github.dakusui.jcunit.examples.models.flyingspaghettimonster.FlyingSpaghettiMonster;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.fsm.*;
@@ -15,7 +16,7 @@ import org.junit.runner.RunWith;
  * An example to illustrate how to test a finite state machine in JCUnit.
  */
 @RunWith(JCUnit.class)
-public class FlyingSpaghettiMonsterTest {
+public class FlyingSpaghettiMonsterExample {
   /**
    * Fields annotated with {@code StateSpec} will be considered states of the FSM.
    * And they must be public, static, final fields, and typed by an enclosing class.
