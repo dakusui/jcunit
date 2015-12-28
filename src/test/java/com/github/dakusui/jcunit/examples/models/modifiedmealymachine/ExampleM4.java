@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.inputhistory;
+package com.github.dakusui.jcunit.examples.models.modifiedmealymachine;
 
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.*;

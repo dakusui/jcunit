@@ -16,7 +16,11 @@ import static org.junit.Assert.assertTrue;
 @GenerateCoveringArrayWith(
     engine = @Generator(
         value = Replayer.class,
-        configValues = @Value("All")
+        configValues = {
+            @Value("com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine"),
+            @Value("Replay"),
+            @Value("All")
+        }
     ))
 public class ReplayerExample {
   @Rule

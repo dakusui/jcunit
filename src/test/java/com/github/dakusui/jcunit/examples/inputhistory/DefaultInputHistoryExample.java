@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.examples.inputhistory;
 
+import com.github.dakusui.jcunit.examples.models.modifiedmealymachine.ExampleM4;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.testutils.Metatest;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,23 +11,10 @@ import org.junit.runner.RunWith;
 
 import static com.github.dakusui.jcunit.fsm.SUTFactory.Base.$;
 
-public class DefaultInputHistoryTest {
-  @Test
-  public void testAllPassing() {
-    new AllPassing().runTests();
-  }
-
-  @Test
-  public void testFailing() {
-    new Failing().runTests();
-  }
+public class DefaultInputHistoryExample {
 
   @RunWith(JCUnit.class)
-  public static class AllPassing extends Metatest {
-    public AllPassing() {
-      super(17, 0, 0);
-    }
-
+  public static class AllPassing {
     @FactorField(levelsProvider = FSMLevelsProvider.class)
     public Story<ExampleM4.Sut, ExampleM4.CorrectSpec> paramstory;
 
@@ -56,11 +43,7 @@ public class DefaultInputHistoryTest {
   }
 
   @RunWith(JCUnit.class)
-  public static class Failing extends Metatest {
-    public Failing() {
-      super(17, 13, 0);
-    }
-
+  public static class Failing {
     @FactorField(levelsProvider = FSMLevelsProvider.class)
     public Story<ExampleM4.Sut, ExampleM4.IncorrectSpec> paramstory;
 
