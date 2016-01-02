@@ -60,7 +60,6 @@ public interface SUTFactory<SUT> {
         this.type = type;
         this.arg = arg;
       }
-
     }
 
     /**
