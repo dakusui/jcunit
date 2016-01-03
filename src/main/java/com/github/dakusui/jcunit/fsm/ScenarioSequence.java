@@ -2,16 +2,13 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.PrintStream;
 import java.io.Serializable;
 
-import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.actionName;
-import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.paramName;
-import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.stateName;
+import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.*;
 
 /**
  * An interface that represents a sequence of scenarios.
@@ -21,6 +18,7 @@ import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.stateName;
 public interface ScenarioSequence<SUT> extends Serializable {
   /**
    * Performs this scenario with given {@code sut} object.
+   *
    * @param token An object to synchronize scenario sequence execution.
    */
   <T> void perform(Story.Context<SUT, T> context, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer);
@@ -281,9 +279,9 @@ public interface ScenarioSequence<SUT> extends Serializable {
    * @param <SUT> A class of software under test.
    */
   class BuilderFromTuple<SUT> {
-    private Tuple   tuple;
-    private String  fsmName;
-    private int     historyLength;
+    private Tuple  tuple;
+    private String fsmName;
+    private int    historyLength;
 
     public BuilderFromTuple() {
     }
