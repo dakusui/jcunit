@@ -11,9 +11,11 @@ import java.io.Serializable;
 import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.*;
 
 /**
- * An interface that represents a sequence of scenarios.
+ * An interface that represents a sequence of scenarios, each of which consists
+ * of "given", "when", and "then" conditions.
  *
  * @param <SUT> A software (class) under test.
+ * @see Scenario
  */
 public interface ScenarioSequence<SUT> extends Serializable {
   /**
@@ -126,10 +128,10 @@ public interface ScenarioSequence<SUT> extends Serializable {
         // 'checkThrownException'. And if the thrown exception is an expected
         // one, it conforms the spec.)
         passed = true;
-        // Author considers that normally applications inputs that result
-        // in failure should not affect internal state of software module.
-        // Therefore this try caluse should not include the statement above,
-        // "each.perform(sut)" because if we do so, the input to the method
+        // Author considers that normally application inputs that result
+        // in failure should not affect any internal state of a software module.
+        // Therefore this try clause should not include the statement above,
+        // "each.perform(sut)", because if we do so, the input to the method
         // held by 'each' will be recorded in inputHistory.
         try {
           ////

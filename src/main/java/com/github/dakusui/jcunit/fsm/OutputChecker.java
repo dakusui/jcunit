@@ -213,11 +213,20 @@ public interface OutputChecker {
       return CoreMatchers.is(expectation);
     }
 
+    /**
+     * JCUnit verifies the value output by target method "is" the object returned by this
+     * method.
+     *
+     * {@code matches(Object item)} method of a matcher object returned by {@code createMatcher} method
+     * is performed with the object returned by this method.
+     *
+     * @see com.github.dakusui.jcunit.fsm.OutputChecker.ForInputHistory#createMatcher(Object)
+     */
     protected abstract Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol;
 
     public String toString() {
       return String.format(
-          "%s %s#computeExpectation(...)",
+          "%s %s",
           createMatcher("...").toString(),
           StringUtils.toString(this)
       );

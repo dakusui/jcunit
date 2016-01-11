@@ -2,10 +2,7 @@ package com.github.dakusui.jcunit.examples.models.modifiedmealymachine;
 
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.*;
-import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
-import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
-import com.github.dakusui.jcunit.fsm.spec.StateSpec;
+import com.github.dakusui.jcunit.fsm.spec.*;
 
 public enum IncorrectSpec implements FSMSpec<ModifiedMealyMachine> {
   @StateSpec I {
@@ -21,16 +18,12 @@ public enum IncorrectSpec implements FSMSpec<ModifiedMealyMachine> {
            */
           new OutputChecker.ForInputHistory(Output.Type.VALUE_RETURNED) {
             /**
-             * JCUnit verifies the value output by target method "is" the object returned by this
-             * method.
-             *
-             * @see com.github.dakusui.jcunit.fsm.OutputChecker.ForInputHistory#createMatcher(Object)
-             * @param inputHistory
-             * @return
-             * @throws UndefinedSymbol
+             * @see com.github.dakusui.jcunit.fsm.OutputChecker.ForInputHistory#computeExpectation(InputHistory)
              */
             @Override
             protected Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol {
+              // You can get an iterable of values associated with a parameter name.
+              //
               return compose(inputHistory.get("method@param-0"));
             }
 
@@ -60,7 +53,7 @@ public enum IncorrectSpec implements FSMSpec<ModifiedMealyMachine> {
       { "A", "B", "C" }
   }).build();
 
-  @ActionSpec
+  @ActionSpec(alias="method")
   public Expectation<ModifiedMealyMachine> method(Expectation.Builder<ModifiedMealyMachine> b, String s) {
     return b.valid(S)
         .addCollector(new InputHistory.Collector.Default("method"))
