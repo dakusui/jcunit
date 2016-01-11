@@ -17,7 +17,7 @@ public enum IncorrectSpec implements FSMSpec<ModifiedMealyMachine> {
           S,
           /**
            * You can verify the relationships between input history and output by giving an output
-           * checker object to this parameter.
+           * checker object to this paraREmeter.
            */
           new OutputChecker.ForInputHistory(Output.Type.VALUE_RETURNED) {
             /**
