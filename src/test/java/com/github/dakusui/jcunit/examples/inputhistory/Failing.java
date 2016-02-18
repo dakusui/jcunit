@@ -32,7 +32,7 @@ public class Failing {
         // Illustrating how to access constructor with various types of parameters.
         new SUTFactory.Simple<ModifiedMealyMachine>(
             ModifiedMealyMachine.class,
-            $(String.class, "prefix"),
+            $(String.class, "prefix", "data"),
             $(int.class, 1),
             $(int[].class, ii)
         ).addCollector(new InputHistory.Collector.Default("method")),

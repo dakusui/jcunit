@@ -7,15 +7,13 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 
-/**
- * Created by hiroshi on 1/2/16.
- */
 public enum CorrectSpec implements FSMSpec<ModifiedMealyMachine> {
   @StateSpec I {
   },
   @StateSpec S {
     @ActionSpec
-    public Expectation<ModifiedMealyMachine> getS(Expectation.Builder<ModifiedMealyMachine> b) {
+    public Expectation<ModifiedMealyMachine> getS(
+        Expectation.Builder<ModifiedMealyMachine> b) {
       return b.valid(
           S,
           new OutputChecker.ForInputHistory(Output.Type.VALUE_RETURNED) {

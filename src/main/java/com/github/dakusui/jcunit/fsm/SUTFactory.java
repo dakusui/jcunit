@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -63,6 +62,15 @@ public interface SUTFactory<SUT> {
       }
     }
 
+    public static class AliasedArg<T> extends Arg<T> {
+      public final String alias;
+
+      public AliasedArg(Class<T> type, T arg, String alias) {
+        super(type, arg);
+        this.alias = alias;
+      }
+    }
+
     /**
      * A utility method to create {@code Arg} object.
      * {@code static import} this method to reduce number of key-types.
@@ -71,14 +79,22 @@ public interface SUTFactory<SUT> {
       return new Arg<T>(Checks.checknotnull(type), arg);
     }
 
+    /**
+     * A utility method to create {@code Arg} object.
+     * {@code static import} this method to reduce number of key-types.
+     */
+    public static <T> Arg<T> $(Class<T> type, T arg, String alias) {
+      return new AliasedArg<T>(Checks.checknotnull(type), arg, alias);
+    }
+
     public static final Class<boolean[]> BOOLEAN_ARRAY_TYPE = boolean[].class;
-    public static final Class<byte[]> BYTE_ARRAY_TYPE = byte[].class;
-    public static final Class<char[]> CHAR_ARRAY_TYPE = char[].class;
-    public static final Class<short[]> SHORT_ARRAY_TYPE = short[].class;
-    public static final Class<int[]> INT_ARRAY_TYPE = int[].class;
-    public static final Class<long[]> LONG_ARRAY_TYPE = long[].class;
-    public static final Class<float[]> FLOAT_ARRAY_TYPE = float[].class;
-    public static final Class<double[]> DOUBLE_ARRRAY_TYPE = double[].class;
+    public static final Class<byte[]>    BYTE_ARRAY_TYPE    = byte[].class;
+    public static final Class<char[]>    CHAR_ARRAY_TYPE    = char[].class;
+    public static final Class<short[]>   SHORT_ARRAY_TYPE   = short[].class;
+    public static final Class<int[]>     INT_ARRAY_TYPE     = int[].class;
+    public static final Class<long[]>    LONG_ARRAY_TYPE    = long[].class;
+    public static final Class<float[]>   FLOAT_ARRAY_TYPE   = float[].class;
+    public static final Class<double[]>  DOUBLE_ARRRAY_TYPE = double[].class;
   }
 
   class Simple<SUT> extends Base<Simple, SUT> {
