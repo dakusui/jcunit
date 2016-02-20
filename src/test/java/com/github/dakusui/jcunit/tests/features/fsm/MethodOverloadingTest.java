@@ -38,7 +38,7 @@ public class MethodOverloadingTest {
     };
     @ParametersSpec
     public static final Parameters m$s = new Parameters.Builder()
-        .add("a", "hello")
+        .add("hello")
         .build();
 
     @ActionSpec(parametersSpec = "m$s")

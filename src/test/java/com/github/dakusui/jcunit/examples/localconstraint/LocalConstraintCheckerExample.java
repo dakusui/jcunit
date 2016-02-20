@@ -24,7 +24,7 @@ public class LocalConstraintCheckerExample {
     };
     @ParametersSpec
     public static final Parameters equals = new Parameters.Builder()
-        .add("another", null, new Object(), "HELLO")
+        .add(null, new Object(), "HELLO")
         .setConstraintChecker(new ConstraintChecker.Base() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {

@@ -14,7 +14,7 @@ import java.util.*;
 import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 public class Parameters extends Factors {
-  public static final Parameters EMPTY = new Builder().build();
+  public static final Parameters EMPTY = new Builder(new Object[][]{}).build();
   private final ConstraintChecker constraintChecker;
 
   public Parameters(ConstraintChecker constraintChecker, List<Factor> factors) {
@@ -35,12 +35,9 @@ public class Parameters extends Factors {
     return ret;
   }
 
-  public static class Builder extends Factors.Builder {
+  public static class Builder {
     private ConstraintChecker constraintChecker = ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
-
-    public Builder() {
-      super();
-    }
+    private final List<Factor> factors= new LinkedList<Factor>();
 
     public Builder(Object[][] params) {
       super();
@@ -55,8 +52,11 @@ public class Parameters extends Factors {
       }
     }
 
-    public Builder add(String name, Object firstValue, Object... restValues) {
-      Factor.Builder b = new Factor.Builder(checknotnull(name));
+    public Builder() {
+    }
+
+    public Builder add(Object firstValue, Object... restValues) {
+      Factor.Builder b = new Factor.Builder(String.format("p%02d", this.factors.size()));
       b.addLevel(firstValue);
       for (Object each : restValues) {
         b.addLevel(each);
@@ -67,6 +67,11 @@ public class Parameters extends Factors {
 
     public Builder setConstraintChecker(ConstraintChecker constraintChecker) {
       this.constraintChecker = constraintChecker;
+      return this;
+    }
+
+    public Builder add(Factor factor) {
+      this.factors.add(factor);
       return this;
     }
 
