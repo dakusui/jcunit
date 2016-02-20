@@ -8,6 +8,8 @@ import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.As;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.testutils.UTUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -50,6 +52,10 @@ public class AccumulatorInteractionHistoryTest {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Accumulator, AccumulatorInteractionHistoryTest.AccumulatorSpec> story;
 
+  @Before
+  public void before() {
+    UTUtils.configureStdIOs();
+  }
 
   @Test
   public void test() {

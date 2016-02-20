@@ -29,9 +29,10 @@ public class CounterInteractionHistoryTest {
       return builder.valid(I, new OutputChecker.ForInteractionHistory(Output.Type.VALUE_RETURNED) {
         @Override
         protected Object computeExpectation(InteractionHistory interactionHistory) {
-          return !interactionHistory.has("count")
-              ? 0
-              : interactionHistory.get("count").size();
+          return interactionHistory.get("count").size() +
+              (interactionHistory.has("offset")
+                  ? (Integer) interactionHistory.get("offset").get(0)
+                  : 0);
         }
       }).build();
     }
