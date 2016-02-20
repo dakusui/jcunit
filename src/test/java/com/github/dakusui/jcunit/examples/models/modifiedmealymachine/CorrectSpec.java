@@ -1,11 +1,11 @@
 package com.github.dakusui.jcunit.examples.models.modifiedmealymachine;
 
-import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
+import com.github.dakusui.jcunit.runners.standard.annotations.As;
 
 public enum CorrectSpec implements FSMSpec<ModifiedMealyMachine> {
   @StateSpec I {
@@ -16,10 +16,10 @@ public enum CorrectSpec implements FSMSpec<ModifiedMealyMachine> {
         Expectation.Builder<ModifiedMealyMachine> b) {
       return b.valid(
           S,
-          new OutputChecker.ForInputHistory(Output.Type.VALUE_RETURNED) {
+          new OutputChecker.ForInteractionHistory(Output.Type.VALUE_RETURNED) {
             @Override
-            protected Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol {
-              return compose(inputHistory.get("method@param-0"));
+            protected Object computeExpectation(InteractionHistory interactionHistory) {
+              return compose(interactionHistory.get("method@param-0"));
             }
 
             private String compose(Iterable<Object> i) {
@@ -46,9 +46,8 @@ public enum CorrectSpec implements FSMSpec<ModifiedMealyMachine> {
   }).build();
 
   @ActionSpec
-  public Expectation<ModifiedMealyMachine> method(Expectation.Builder<ModifiedMealyMachine> b, String s) {
+  public Expectation<ModifiedMealyMachine> method(Expectation.Builder<ModifiedMealyMachine> b, @As("method@param-0") String s) {
     return b.valid(S)
-        .addCollector(new InputHistory.Collector.Default("method"))
         .build();
   }
 

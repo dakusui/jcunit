@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
@@ -126,6 +125,11 @@ public interface OutputChecker {
     }
   }
 
+  /**
+   * An output checker for nested FSM.
+   * This class is used to check behaviours of FSMs returned by an action. In theory this can be
+   * used for exceptions thrown by a method but you don't want to do it.
+   */
   class FSM extends Base implements OutputChecker {
     String fsmName;
 
@@ -164,8 +168,8 @@ public interface OutputChecker {
     }
   }
 
-  abstract class ForInputHistory extends Base {
-    public ForInputHistory(Output.Type type) {
+  abstract class ForInteractionHistory extends Base {
+    public ForInteractionHistory(Output.Type type) {
       super(type);
     }
 
@@ -174,18 +178,14 @@ public interface OutputChecker {
         final Story.Context<SUT, T> context,
         Output output,
         ScenarioSequence.Observer observer) {
-      InputHistory.Accessed accessedSymbols = new InputHistory.Accessed(context.inputHistory);
+      InteractionHistory.Accessed accessedSymbols = new InteractionHistory.Accessed(context.interactionHistory);
       String expectation;
       boolean passed;
-      try {
-        Object expect = computeExpectation(accessedSymbols);
-        Matcher matcher = Checks.checknotnull(this.createMatcher(expect));
-        passed = matcher.matches(Checks.checknotnull(output).value);
-        expectation = describeExpectation(accessedSymbols, matcher);
-      } catch (UndefinedSymbol e) {
-        passed = false;
-        expectation = StringUtils.format("failed to compute expectation since following symbols are not found in input history: %s", e.missingSymbols);
-      }
+
+      Object expect = computeExpectation(accessedSymbols);
+      Matcher matcher = Checks.checknotnull(this.createMatcher(expect));
+      passed = matcher.matches(Checks.checknotnull(output).value);
+      expectation = describeExpectation(accessedSymbols, matcher);
       return new Result(
           passed,
           StringUtils.format(
@@ -196,7 +196,7 @@ public interface OutputChecker {
       );
     }
 
-    private String describeExpectation(InputHistory.Accessed accessed, Matcher matcher) {
+    private String describeExpectation(InteractionHistory.Accessed accessed, Matcher matcher) {
       String expectation;
       expectation = this.type.describeExpectation(
           StringUtils.format(
@@ -220,9 +220,9 @@ public interface OutputChecker {
      * {@code matches(Object item)} method of a matcher object returned by {@code createMatcher} method
      * is performed with the object returned by this method.
      *
-     * @see com.github.dakusui.jcunit.fsm.OutputChecker.ForInputHistory#createMatcher(Object)
+     * @see ForInteractionHistory#createMatcher(Object)
      */
-    protected abstract Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol;
+    protected abstract Object computeExpectation(InteractionHistory interactionHistory);
 
     public String toString() {
       return String.format(

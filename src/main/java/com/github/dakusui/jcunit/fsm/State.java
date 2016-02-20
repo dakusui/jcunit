@@ -11,8 +11,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +18,7 @@ import java.util.Map;
  */
 public interface State<SUT> extends StateChecker<SUT>, Serializable {
   abstract class Void<SUT> implements State<SUT> {
+    @SuppressWarnings("unchecked")
     public static <SUT> State<SUT> getInstance() {
       return (State<SUT>) INSTANCE;
     }
@@ -39,8 +38,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
               "(VOID)",
               Output.Type.VALUE_RETURNED,
               this,
-              new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, CoreMatchers.anything()),
-              (List<InputHistory.Collector>) Collections.unmodifiableList(Collections.EMPTY_LIST)
+              new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, CoreMatchers.anything())
           );
         }
         return null;
@@ -113,7 +111,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
       Method m = Checks.checknotnull(actionMethods.get(action.id()), "Unknown action '%s' was given.", action);
       Checks.checktest(
           Expectation.class.isAssignableFrom(m.getReturnType()),
-          "Method '%s/%d' of '%s' must return an '%s' object (but '%s' was returned).",
+          "Method '%s/%s' of '%s' must return an '%s' object (but '%s' was returned).",
           m.getName(),
           m.getParameterTypes().length,
           m.getDeclaringClass().getCanonicalName(),

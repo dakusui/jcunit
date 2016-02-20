@@ -1,8 +1,10 @@
 package com.github.dakusui.jcunit.examples.models.modifiedmealymachine;
 
-import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.*;
-import com.github.dakusui.jcunit.fsm.spec.*;
+import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
+import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
+import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 
 public enum IncorrectSpec implements FSMSpec<ModifiedMealyMachine> {
   @StateSpec I {
@@ -16,15 +18,15 @@ public enum IncorrectSpec implements FSMSpec<ModifiedMealyMachine> {
            * You can verify the relationships between input history and output by giving an output
            * checker object to this parameter.
            */
-          new OutputChecker.ForInputHistory(Output.Type.VALUE_RETURNED) {
+          new OutputChecker.ForInteractionHistory(Output.Type.VALUE_RETURNED) {
             /**
-             * @see com.github.dakusui.jcunit.fsm.OutputChecker.ForInputHistory#computeExpectation(InputHistory)
+             * @see ForInteractionHistory#computeExpectation(InteractionHistory)
              */
             @Override
-            protected Object computeExpectation(InputHistory inputHistory) throws UndefinedSymbol {
+            protected Object computeExpectation(InteractionHistory interactionHistory) {
               // You can get an iterable of values associated with a parameter name.
               //
-              return compose(inputHistory.get("method@param-0"));
+              return compose(interactionHistory.get("method@param-0"));
             }
 
             private String compose(Iterable<Object> i) {
@@ -53,10 +55,9 @@ public enum IncorrectSpec implements FSMSpec<ModifiedMealyMachine> {
       { "A", "B", "C" }
   }).build();
 
-  @ActionSpec(alias="method")
+  @ActionSpec
   public Expectation<ModifiedMealyMachine> method(Expectation.Builder<ModifiedMealyMachine> b, String s) {
     return b.valid(S)
-        .addCollector(new InputHistory.Collector.Default("method"))
         .build();
   }
 

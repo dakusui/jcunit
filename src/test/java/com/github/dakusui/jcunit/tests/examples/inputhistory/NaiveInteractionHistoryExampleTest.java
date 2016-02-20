@@ -7,7 +7,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
-public class DefaultInputHistoryExampleTest {
+public class NaiveInteractionHistoryExampleTest {
   public static class AllPassing extends Metatest {
     public AllPassing() {
       super(com.github.dakusui.jcunit.examples.inputhistory.AllPassing.class, 17, 0, 0);

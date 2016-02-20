@@ -3,8 +3,10 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.runners.standard.annotations.As;
 
 import java.io.Serializable;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -51,6 +53,19 @@ public interface Action<SUT> extends Serializable {
    */
   String id();
 
+  /**
+   * Returns an alias of this action.
+   * {@code null} will be returned if an underlying method does not have {@code As} annotation.
+   */
+  String getAlias();
+
+  /**
+   * Returns an alias of a parameter of this action specified by an argument {@code i}.
+   * {@code null} will be returned if {@code i}th parameter of an underlying method does not
+   * have {@code As} annotation.
+   */
+  String getAliasForParameter(int i);
+
   abstract class Void implements Action {
     public static <SUT> Action<SUT> getInstance() {
       //noinspection unchecked
@@ -84,6 +99,15 @@ public interface Action<SUT> extends Serializable {
         return "(VOID)";
       }
 
+      @Override
+      public String getAlias() {
+        return null;
+      }
+
+      @Override
+      public String getAliasForParameter(int i) {
+        return null;
+      }
     };
   }
 
@@ -161,6 +185,28 @@ public interface Action<SUT> extends Serializable {
     @Override
     public String id() {
       return FSM.Base.generateMethodId(this.method);
+    }
+
+    @Override
+    public String getAlias() {
+      As aliasAnn = this.method.getAnnotation(As.class);
+      return aliasAnn == null
+          ? null
+          : aliasAnn.value();
+    }
+
+    @Override
+    public String getAliasForParameter(int i) {
+      Checks.checkparam(i >= 0);
+      Checks.checkparam(i < this.numParameterFactors());
+      Annotation[] annArray = this.method.getParameterAnnotations()[i + 1];
+      String ret = null;
+      for (Annotation each : annArray) {
+        if (each instanceof As) {
+          ret = ((As) each).value();
+        }
+      }
+      return ret;
     }
 
     @Override

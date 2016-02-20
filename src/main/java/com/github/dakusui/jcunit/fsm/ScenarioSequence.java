@@ -91,7 +91,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       Story.Stage stage = context.currentStage();
       observer.startSequence(stage, this);
       SUT sut = context.sut;
-      InputHistory inputHistory = context.inputHistory;
+      InteractionHistory interactionHistory = context.interactionHistory;
       try {
         for (int i = 0; i < this.size(); i++) {
           Scenario<SUT> each = this.get(i);
@@ -105,7 +105,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
                   .addFailedReason(StringUtils.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
             }
           }
-          synchronizer = performEachScenario(context, synchronizer, token, observer, stage, sut, inputHistory, each);
+          synchronizer = performEachScenario(context, synchronizer, token, observer, stage, sut, interactionHistory, each);
         }
       } finally {
         synchronizer.unregister(token);
@@ -113,15 +113,24 @@ public interface ScenarioSequence<SUT> extends Serializable {
       }
     }
 
-    private <T> FSMUtils.Synchronizer performEachScenario(Story.Context<SUT, T> context, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer, Story.Stage stage, SUT sut, InputHistory inputHistory, Scenario<SUT> each) {
+    private <T> FSMUtils.Synchronizer performEachScenario(
+        Story.Context<SUT, T> context,
+        FSMUtils.Synchronizer synchronizer,
+        FSMUtils.Synchronizable token,
+        Observer observer,
+        Story.Stage stage,
+        SUT sut,
+        InteractionHistory interactionHistory,
+        Scenario<SUT> scenario
+    ) {
       Expectation.Result result = null;
-      observer.run(stage, each, sut);
+      observer.run(stage, scenario, sut);
       boolean passed = false;
       try {
         ////
         // Invoke a method in SUT through action corresponding to it.
         // - Invoke the method action in SUT.
-        Object r = each.perform(sut);
+        Object r = scenario.perform(sut);
         // 'passed' only means the method in SUT finished without any exceptions.
         // The returned value will be validated by 'checkReturnedValue'. (if
         // an exception is thrown, the thrown exception will be validated by
@@ -137,13 +146,11 @@ public interface ScenarioSequence<SUT> extends Serializable {
           ////
           // each.perform(sut) didn't throw an exception
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkReturnedValue(context, r, stage, observer);
+          result = scenario.then().checkReturnedValue(context, r, stage, observer);
         } finally {
           ////
           // - Record input history before invoking the action.
-          for (InputHistory.Collector eachCollector : each.then().collectors) {
-            eachCollector.apply(inputHistory, each.with.values());
-          }
+          new InteractionHistory.Collector.Default().apply(interactionHistory, scenario.when, scenario.with);
         }
       } catch (Expectation.Result r) {
         result = r;
@@ -152,7 +159,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       } catch (Throwable t) {
         if (!passed) {
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkThrownException(context, t, observer);
+          result = scenario.then().checkThrownException(context, t, observer);
         } else {
           ////
           // Since the previous catch clause ensures the thrown exception is not
@@ -163,9 +170,9 @@ public interface ScenarioSequence<SUT> extends Serializable {
         try {
           if (result != null) {
             if (result.isSuccessful())
-              observer.passed(stage, each, sut);
+              observer.passed(stage, scenario, sut);
             else
-              observer.failed(stage, each, sut, result);
+              observer.failed(stage, scenario, sut, result);
             result.throwIfFailed();
           }
         } finally {

@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 public interface SUTFactory<SUT> {
-  SUT create(InputHistory inputHistory);
+  SUT create(InteractionHistory interactionHistory);
 
   class Dummy<SUT> implements SUTFactory<SUT> {
     public final SUT sut;
@@ -20,12 +20,12 @@ public interface SUTFactory<SUT> {
     }
 
     @Override
-    public SUT create(InputHistory inputHistory) {
+    public SUT create(InteractionHistory interactionHistory) {
       return this.sut;
     }
   }
 
-  abstract class Base<B extends Base, SUT> extends InputHistory.CollectorHolder<B> implements SUTFactory<SUT> {
+  abstract class Base<SUT> implements SUTFactory<SUT> {
     protected final Class<SUT> clazz;
     protected final List<Arg>  args;
 
@@ -35,39 +35,47 @@ public interface SUTFactory<SUT> {
     }
 
     @Override
-    public SUT create(InputHistory inputHistory) {
+    public SUT create(final InteractionHistory interactionHistory) {
       Object[] argValues = Utils.transform(args,
           new Utils.Form<Arg, Object>() {
             @Override
             public Object apply(Arg in) {
-              return in.arg;
+              if (in.alias != null) {
+                interactionHistory.add(in.alias, in.value);
+              }
+              return in.value;
             }
           }
       ).toArray(new Object[args.size()]);
-      for (InputHistory.Collector each : this.collectors) {
-        each.apply(inputHistory, argValues);
+      if (this.getAlias() != null) {
+        interactionHistory.add(this.getAlias(), argValues);
       }
       return createSUT(argValues);
     }
 
     abstract protected SUT createSUT(Object... args);
 
+    abstract public SUTFactory<SUT> as(String alias);
+
+    abstract public String getAlias();
+
     public static class Arg<T> {
       public final Class<T> type;
-      public final T        arg;
+      public final T        value;
+      public final String   alias;
 
-      public Arg(Class<T> type, T arg) {
-        this.type = type;
-        this.arg = arg;
+      private Arg(Class<T> type, T value) {
+        this(null, type, value);
       }
-    }
 
-    public static class AliasedArg<T> extends Arg<T> {
-      public final String alias;
-
-      public AliasedArg(Class<T> type, T arg, String alias) {
-        super(type, arg);
+      private Arg(String alias, Class<T> type, T value) {
         this.alias = alias;
+        this.type = type;
+        this.value = value;
+      }
+
+      public Arg<T> as(String alias) {
+        return new Arg<T>(Checks.checknotnull(alias), this.type, value);
       }
     }
 
@@ -78,29 +86,18 @@ public interface SUTFactory<SUT> {
     public static <T> Arg<T> $(Class<T> type, T arg) {
       return new Arg<T>(Checks.checknotnull(type), arg);
     }
-
-    /**
-     * A utility method to create {@code Arg} object.
-     * {@code static import} this method to reduce number of key-types.
-     */
-    public static <T> Arg<T> $(Class<T> type, T arg, String alias) {
-      return new AliasedArg<T>(Checks.checknotnull(type), arg, alias);
-    }
-
-    public static final Class<boolean[]> BOOLEAN_ARRAY_TYPE = boolean[].class;
-    public static final Class<byte[]>    BYTE_ARRAY_TYPE    = byte[].class;
-    public static final Class<char[]>    CHAR_ARRAY_TYPE    = char[].class;
-    public static final Class<short[]>   SHORT_ARRAY_TYPE   = short[].class;
-    public static final Class<int[]>     INT_ARRAY_TYPE     = int[].class;
-    public static final Class<long[]>    LONG_ARRAY_TYPE    = long[].class;
-    public static final Class<float[]>   FLOAT_ARRAY_TYPE   = float[].class;
-    public static final Class<double[]>  DOUBLE_ARRRAY_TYPE = double[].class;
   }
 
-  class Simple<SUT> extends Base<Simple, SUT> {
+  class Simple<SUT> extends Base<SUT> {
+    private final String alias;
 
     public Simple(Class<SUT> type, Arg<?>... args) {
+      this(null, type, args);
+    }
+
+    private Simple(String alias, Class<SUT> type, Arg<?>... args) {
       super(type, args);
+      this.alias = alias;
     }
 
     @Override
@@ -123,6 +120,20 @@ public interface SUTFactory<SUT> {
             e.getTargetException(),
             "Exception thrown during instantiation. (%s)", e.getTargetException().getMessage());
       }
+    }
+
+    @Override
+    public SUTFactory<SUT> as(String alias) {
+      return new SUTFactory.Simple<SUT>(
+          Checks.checknotnull(alias),
+          this.clazz,
+          this.args.toArray(new Arg[this.args.size()])
+      );
+    }
+
+    @Override
+    public String getAlias() {
+      return this.alias;
     }
 
     private Constructor<SUT> chooseConstructor(Class<SUT> clazz, Class<?>[] parameterTypes) {

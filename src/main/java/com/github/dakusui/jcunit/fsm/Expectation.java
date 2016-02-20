@@ -24,23 +24,17 @@ public class Expectation<SUT> {
   /**
    * Expected state after an action is performed.
    */
-  public final  State<SUT>                   state;
+  public final  State<SUT>                         state;
   /**
    * A checker which verifies a returned value or a thrown exception.
    */
-  private final OutputChecker                checker;
-  /**
-   * A list of input history collectors.
-   */
-  public final  List<InputHistory.Collector> collectors;
-
+  private final OutputChecker                      checker;
 
   protected Expectation(
       String fsmName,
       Output.Type type,
       State<SUT> state,
-      OutputChecker checker,
-      List<InputHistory.Collector> collectors
+      OutputChecker checker
   ) {
     Checks.checknotnull(type);
     Checks.checknotnull(state);
@@ -48,7 +42,6 @@ public class Expectation<SUT> {
     this.fsmName = fsmName;
     this.state = state;
     this.checker = checker;
-    this.collectors = Collections.unmodifiableList(collectors);
   }
 
   public <T> Result checkThrownException(Story.Context<SUT, T> context, Throwable thrownException, ScenarioSequence.Observer observer) {
@@ -102,7 +95,7 @@ public class Expectation<SUT> {
     return StringUtils.format("state of '%s' is '%s' and %s %s %s", this.fsmName, this.state, this.checker.getType().name, this.checker.getType().entityType(), this.checker.toString());
   }
 
-  public static class Builder<SUT> extends InputHistory.CollectorHolder<Builder<SUT>> {
+  public static class Builder<SUT> {
     private final FSM<SUT>      fsm;
     private final String        fsmName;
     private       Output.Type   type;
@@ -175,8 +168,7 @@ public class Expectation<SUT> {
           this.fsmName,
           this.type,
           this.state,
-          this.checker,
-          this.collectors
+          this.checker
       );
     }
   }
