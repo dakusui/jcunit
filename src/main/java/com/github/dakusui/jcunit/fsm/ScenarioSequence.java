@@ -150,7 +150,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
         } finally {
           ////
           // - Record input history before invoking the action.
-          new InteractionHistory.Collector.Default().apply(interactionHistory, scenario.when, scenario.with);
+          interactionHistory.add(scenario.when, scenario.with);
         }
       } catch (Expectation.Result r) {
         result = r;
@@ -168,13 +168,13 @@ public interface ScenarioSequence<SUT> extends Serializable {
         }
       } finally {
         try {
-          if (result != null) {
-            if (result.isSuccessful())
-              observer.passed(stage, scenario, sut);
-            else
-              observer.failed(stage, scenario, sut, result);
-            result.throwIfFailed();
+          Checks.checknotnull(result);
+          if (result.isSuccessful()) {
+            observer.passed(stage, scenario, sut);
+          } else {
+            observer.failed(stage, scenario, sut, result);
           }
+          result.throwIfFailed();
         } finally {
           synchronizer = synchronizer.finishAndSynchronize(token);
         }

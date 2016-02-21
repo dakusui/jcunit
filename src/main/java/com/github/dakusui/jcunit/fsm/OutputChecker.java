@@ -178,14 +178,13 @@ public interface OutputChecker {
         final Story.Context<SUT, T> context,
         Output output,
         ScenarioSequence.Observer observer) {
-      InteractionHistory.Accessed accessedSymbols = new InteractionHistory.Accessed(context.interactionHistory);
       String expectation;
       boolean passed;
 
-      Object expect = computeExpectation(accessedSymbols);
+      Object expect = computeExpectation(context.interactionHistory);
       Matcher matcher = Checks.checknotnull(this.createMatcher(expect));
       passed = matcher.matches(Checks.checknotnull(output).value);
-      expectation = describeExpectation(accessedSymbols, matcher);
+      expectation = matcher.toString();
       return new Result(
           passed,
           StringUtils.format(
@@ -194,19 +193,6 @@ public interface OutputChecker {
               this.type.describeMismatch(output)
           )
       );
-    }
-
-    private String describeExpectation(InteractionHistory.Accessed accessed, Matcher matcher) {
-      String expectation;
-      expectation = this.type.describeExpectation(
-          StringUtils.format(
-              "%s (%s#computeExpectation(%s))",
-              matcher,
-              this,
-              StringUtils.join(",", accessed.symbols.toArray())
-          )
-      );
-      return expectation;
     }
 
     protected Matcher createMatcher(Object expectation) {

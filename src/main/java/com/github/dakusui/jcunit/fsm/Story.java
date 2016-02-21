@@ -94,7 +94,7 @@ public class Story<
       this.observerFactory = Checks.checknotnull(observerFactory);
     }
 
-    public <T> void execute(Performer<SUT, T> performer, FSMUtils.Synchronizer synchronizer, T testObject) {
+    <T> void execute(Performer<SUT, T> performer, FSMUtils.Synchronizer synchronizer, T testObject) {
       //noinspection unchecked
       Story<SUT, ? extends FSMSpec<SUT>> story = FSMUtils.lookupStory(testObject, this.fsmName);
       Checks.checktest(story != null, "story parameter must not be null.");

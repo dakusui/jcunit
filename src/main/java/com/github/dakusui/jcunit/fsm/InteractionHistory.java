@@ -9,6 +9,7 @@ import java.util.*;
  */
 public interface InteractionHistory {
   <T> void add(String name, T data);
+  void add(Action<?> action, Args args);
 
   boolean has(String name);
 
@@ -29,6 +30,23 @@ public interface InteractionHistory {
     }
 
     @Override
+    public void add(Action<?> action, Args args) {
+      {
+        String alias = action.getAlias();
+        if (alias != null) {
+          this.add(alias, args.values());
+        }
+      }
+      Checks.checkcond(action.numParameterFactors() == args.size());
+      for (int i = 0; i < action.numParameterFactors(); i++) {
+        String alias = action.getAliasForParameter(i);
+        if (alias != null) {
+          this.add(alias, args.values()[i]);
+        }
+      }
+    }
+
+    @Override
     public boolean has(String name) {
       return this.records.containsKey(Checks.checknotnull(name));
     }
@@ -44,40 +62,6 @@ public interface InteractionHistory {
     @Override
     public int size() {
       return this.records.size();
-    }
-  }
-
-  class Accessed implements InteractionHistory {
-    private final InteractionHistory base;
-    final         List<String>       symbols;
-
-    Accessed(InteractionHistory base) {
-      this.base = Checks.checknotnull(base);
-      this.symbols = new ArrayList<String>(base.size());
-    }
-
-    @Override
-    public <T> void add(String name, T data) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean has(String name) {
-      if (!symbols.contains(name))
-        symbols.add(name);
-      return base.has(name);
-    }
-
-    @Override
-    public <E> Record<E> get(String name) {
-      if (!symbols.contains(name))
-        symbols.add(name);
-      return base.get(name);
-    }
-
-    @Override
-    public int size() {
-      return base.size();
     }
   }
 
@@ -121,31 +105,6 @@ public interface InteractionHistory {
 
     public String toString() {
       return this.items.toString();
-    }
-
-
-  }
-
-  interface Collector {
-    void apply(InteractionHistory interactionHistory, Action action, Args args);
-
-    class Default implements Collector {
-      @Override
-      public void apply(InteractionHistory interactionHistory, Action action, Args args) {
-        {
-          String alias = action.getAlias();
-          if (alias != null) {
-            interactionHistory.add(alias, args.values());
-          }
-        }
-        Checks.checkcond(action.numParameterFactors() == args.size());
-        for (int i = 0; i < action.numParameterFactors(); i++) {
-          String alias = action.getAliasForParameter(i);
-          if (alias != null) {
-            interactionHistory.add(alias, args.values()[i]);
-          }
-        }
-      }
     }
   }
 }

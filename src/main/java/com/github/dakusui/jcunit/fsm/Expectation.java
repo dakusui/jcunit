@@ -201,7 +201,9 @@ public class Expectation<SUT> {
       if (!failedFailedReasons.isEmpty()) {
         ret += String.format(": [%s]", StringUtils.join(",", this.failedFailedReasons.toArray()));
       }
-      return ret;
+      return ret != null
+          ? ret.replaceAll("\\s+", " ")
+          : null;
     }
 
     @Override
