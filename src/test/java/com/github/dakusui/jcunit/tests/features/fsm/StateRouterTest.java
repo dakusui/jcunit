@@ -123,8 +123,8 @@ public class StateRouterTest {
 
     @ParametersSpec
     public final static Parameters action1 = new Parameters.Builder()
-        .add("p1", 0, 1, 2)
-        .add("p2", 0, 1, 2)
+        .add(0, 1, 2)
+        .add(0, 1, 2)
         .build();
 
     @ActionSpec
@@ -179,8 +179,8 @@ public class StateRouterTest {
 
     @ParametersSpec
     public final static Parameters action1 = new Parameters.Builder()
-        .add("p1", 0, 1, 2)
-        .add("p2", 0, 1, 2)
+        .add(0, 1, 2)
+        .add(0, 1, 2)
         .build();
 
     @ActionSpec
@@ -188,7 +188,7 @@ public class StateRouterTest {
 
     @ParametersSpec
     public final static Parameters action2 = new Parameters.Builder()
-        .add("p1", 0, 1, 2)
+        .add(0, 1, 2)
         .build();
 
     @ActionSpec

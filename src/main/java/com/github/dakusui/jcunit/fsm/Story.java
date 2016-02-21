@@ -94,7 +94,7 @@ public class Story<
       this.observerFactory = Checks.checknotnull(observerFactory);
     }
 
-    public <T> void execute(Performer<SUT, T> performer, FSMUtils.Synchronizer synchronizer, T testObject) {
+    <T> void execute(Performer<SUT, T> performer, FSMUtils.Synchronizer synchronizer, T testObject) {
       //noinspection unchecked
       Story<SUT, ? extends FSMSpec<SUT>> story = FSMUtils.lookupStory(testObject, this.fsmName);
       Checks.checktest(story != null, "story parameter must not be null.");
@@ -157,27 +157,27 @@ public class Story<
   }
 
   public static class Context<SUT, T> {
-    public final T            testObject;
-    public final InputHistory inputHistory;
-    public final SUT          sut;
-    public       Stage        stage;
+    public final T                  testObject;
+    public final InteractionHistory interactionHistory;
+    public final SUT                sut;
+    public       Stage              stage;
 
     public Context(T testObject, SUTFactory<SUT> sutFactory) {
       this(
           Checks.checknotnull(testObject),
-          new InputHistory.Base(),
+          new InteractionHistory.Base(),
           Checks.checknotnull(sutFactory),
           Stage.SET_UP
       );
     }
 
-    private Context(T testObject, InputHistory inputHistory, SUTFactory<SUT> sutFactory, Stage stage) {
-      this(testObject, inputHistory, sutFactory.create(inputHistory), stage);
+    private Context(T testObject, InteractionHistory interactionHistory, SUTFactory<SUT> sutFactory, Stage stage) {
+      this(testObject, interactionHistory, sutFactory.create(interactionHistory), stage);
     }
 
-    public Context(T testObject, InputHistory inputHistory, SUT sut, Stage stage) {
+    public Context(T testObject, InteractionHistory interactionHistory, SUT sut, Stage stage) {
       this.testObject = Checks.checknotnull(testObject);
-      this.inputHistory = Checks.checknotnull(inputHistory);
+      this.interactionHistory = Checks.checknotnull(interactionHistory);
       this.sut = Checks.checknotnull(sut);
       this.stage = Checks.checknotnull(stage);
     }

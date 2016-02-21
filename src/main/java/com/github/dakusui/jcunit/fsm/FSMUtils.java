@@ -221,7 +221,7 @@ public class FSMUtils {
    *
    * @param f A field to be checked.
    */
-  public static boolean isStoryField(Field f) {
+  private static boolean isStoryField(Field f) {
     return Story.class.isAssignableFrom(f.getType());
   }
 
@@ -239,7 +239,7 @@ public class FSMUtils {
     return ReflectionUtils.getField(testObject.getClass(), fsmName);
   }
 
-  public static <T, SUT> Story<SUT, ? extends FSMSpec<SUT>> lookupStory(T testObject, String name) {
+  static <T, SUT> Story<SUT, ? extends FSMSpec<SUT>> lookupStory(T testObject, String name) {
     Field f = FSMUtils.lookupStoryField(testObject, Checks.checknotnull(name));
     Checks.checktest(f != null, "The field '%s' was not found or not public in the testObject '%s'", name, testObject);
     return ReflectionUtils.getFieldValue(testObject, f);

@@ -39,8 +39,6 @@ public class FlyingSpaghettiMonsterExample {
       @Override
       public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
         return b.valid(COOKED, CoreMatchers.startsWith("Cooking"))
-            .resetCollectors()
-            .addCollector(new InputHistory.Collector.Default("cook"))
             .build();
       }
     },
@@ -61,8 +59,6 @@ public class FlyingSpaghettiMonsterExample {
       @Override
       public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> b, String dish, String sauce) {
         return b.valid(COOKED, CoreMatchers.startsWith("Cooking"))
-            .resetCollectors()
-            .addCollector(new InputHistory.Collector.Default("cook"))
             .build();
       }
     },;

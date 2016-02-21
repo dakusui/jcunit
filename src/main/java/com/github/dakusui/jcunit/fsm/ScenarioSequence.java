@@ -11,9 +11,11 @@ import java.io.Serializable;
 import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.*;
 
 /**
- * An interface that represents a sequence of scenarios.
+ * An interface that represents a sequence of scenarios, each of which consists
+ * of "given", "when", and "then" conditions.
  *
  * @param <SUT> A software (class) under test.
+ * @see Scenario
  */
 public interface ScenarioSequence<SUT> extends Serializable {
   /**
@@ -89,7 +91,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       Story.Stage stage = context.currentStage();
       observer.startSequence(stage, this);
       SUT sut = context.sut;
-      InputHistory inputHistory = context.inputHistory;
+      InteractionHistory interactionHistory = context.interactionHistory;
       try {
         for (int i = 0; i < this.size(); i++) {
           Scenario<SUT> each = this.get(i);
@@ -103,7 +105,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
                   .addFailedReason(StringUtils.format("SUT(%s) isn't in state '%s'", sut, each.given)).build();
             }
           }
-          synchronizer = performEachScenario(context, synchronizer, token, observer, stage, sut, inputHistory, each);
+          synchronizer = performEachScenario(context, synchronizer, token, observer, stage, sut, interactionHistory, each);
         }
       } finally {
         synchronizer.unregister(token);
@@ -111,37 +113,44 @@ public interface ScenarioSequence<SUT> extends Serializable {
       }
     }
 
-    private <T> FSMUtils.Synchronizer performEachScenario(Story.Context<SUT, T> context, FSMUtils.Synchronizer synchronizer, FSMUtils.Synchronizable token, Observer observer, Story.Stage stage, SUT sut, InputHistory inputHistory, Scenario<SUT> each) {
+    private <T> FSMUtils.Synchronizer performEachScenario(
+        Story.Context<SUT, T> context,
+        FSMUtils.Synchronizer synchronizer,
+        FSMUtils.Synchronizable token,
+        Observer observer,
+        Story.Stage stage,
+        SUT sut,
+        InteractionHistory interactionHistory,
+        Scenario<SUT> scenario
+    ) {
       Expectation.Result result = null;
-      observer.run(stage, each, sut);
+      observer.run(stage, scenario, sut);
       boolean passed = false;
       try {
         ////
         // Invoke a method in SUT through action corresponding to it.
         // - Invoke the method action in SUT.
-        Object r = each.perform(sut);
+        Object r = scenario.perform(sut);
         // 'passed' only means the method in SUT finished without any exceptions.
         // The returned value will be validated by 'checkReturnedValue'. (if
         // an exception is thrown, the thrown exception will be validated by
         // 'checkThrownException'. And if the thrown exception is an expected
         // one, it conforms the spec.)
         passed = true;
-        // Author considers that normally applications inputs that result
-        // in failure should not affect internal state of software module.
-        // Therefore this try caluse should not include the statement above,
-        // "each.perform(sut)" because if we do so, the input to the method
+        // Author considers that normally application inputs that result
+        // in failure should not affect any internal state of a software module.
+        // Therefore this try clause should not include the statement above,
+        // "each.perform(sut)", because if we do so, the input to the method
         // held by 'each' will be recorded in inputHistory.
         try {
           ////
           // each.perform(sut) didn't throw an exception
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkReturnedValue(context, r, stage, observer);
+          result = scenario.then().checkReturnedValue(context, r, stage, observer);
         } finally {
           ////
           // - Record input history before invoking the action.
-          for (InputHistory.Collector eachCollector : each.then().collectors) {
-            eachCollector.apply(inputHistory, each.with.values());
-          }
+          interactionHistory.add(scenario.when, scenario.with);
         }
       } catch (Expectation.Result r) {
         result = r;
@@ -150,7 +159,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
       } catch (Throwable t) {
         if (!passed) {
           //noinspection unchecked,ThrowableResultOfMethodCallIgnored
-          result = each.then().checkThrownException(context, t, observer);
+          result = scenario.then().checkThrownException(context, t, observer);
         } else {
           ////
           // Since the previous catch clause ensures the thrown exception is not
@@ -159,13 +168,13 @@ public interface ScenarioSequence<SUT> extends Serializable {
         }
       } finally {
         try {
-          if (result != null) {
-            if (result.isSuccessful())
-              observer.passed(stage, each, sut);
-            else
-              observer.failed(stage, each, sut, result);
-            result.throwIfFailed();
+          Checks.checknotnull(result);
+          if (result.isSuccessful()) {
+            observer.passed(stage, scenario, sut);
+          } else {
+            observer.failed(stage, scenario, sut, result);
           }
+          result.throwIfFailed();
         } finally {
           synchronizer = synchronizer.finishAndSynchronize(token);
         }
