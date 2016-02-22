@@ -168,13 +168,18 @@ public interface ScenarioSequence<SUT> extends Serializable {
         }
       } finally {
         try {
-          Checks.checknotnull(result);
-          if (result.isSuccessful()) {
-            observer.passed(stage, scenario, sut);
-          } else {
-            observer.failed(stage, scenario, sut, result);
+          ////
+          // In case unexpected error is detected, e.g., scenario was not executed
+          // because of insufficient privilege to access SUT, result will not be
+          // created, result can be null.
+          if (result != null) {
+            if (result.isSuccessful()) {
+              observer.passed(stage, scenario, sut);
+            } else {
+              observer.failed(stage, scenario, sut, result);
+            }
+            result.throwIfFailed();
           }
-          result.throwIfFailed();
         } finally {
           synchronizer = synchronizer.finishAndSynchronize(token);
         }

@@ -24,10 +24,11 @@ public class LocalConstraintCheckerExample {
     };
     @ParametersSpec
     public static final Parameters equals = new Parameters.Builder()
-        .add(null, new Object(), "HELLO")
+        .beginParameter("another").addValues(null, new Object(), "HELLO").endParameter()
         .setConstraintChecker(new ConstraintChecker.Base() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
+            System.out.println("***" + tuple.get("another"));
             return tuple.get("another") != null;
           }
         })
@@ -49,6 +50,15 @@ public class LocalConstraintCheckerExample {
 
   @Test
   public void test() {
-    FSMUtils.performStory(this, "primary", new Object(), observerFactory);
+    FSMUtils.performStory(this, "primary", new SUTObject(),
+        observerFactory);
+  }
+
+  public static class SUTObject {
+    @Override
+    public boolean equals(Object another) {
+      System.out.println("-->[" + another + "]");
+      return false;
+    }
   }
 }

@@ -3,12 +3,10 @@ package com.github.dakusui.jcunit.runners.standard.annotations;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -159,7 +157,7 @@ public @interface FactorField {
         List<Class> typesProvidedByUser = typesWhoseLevelsAreProvidedBy(ann);
         Checks.checktest(
             typesProvidedByUser.size() <= 1,
-            "You can use only one type at once but %d were given. (%s)", typesProvidedByUser);
+            "You can use only one type at once but %d were given.", typesProvidedByUser.size());
         if (typesProvidedByUser.size() == 0) {
           return null;
         }

@@ -14,7 +14,7 @@ import java.util.*;
 import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 public class Parameters extends Factors {
-  public static final Parameters EMPTY = new Builder(new Object[][]{}).build();
+  public static final Parameters EMPTY = new Builder(new Object[][] {}).build();
   private final ConstraintChecker constraintChecker;
 
   public Parameters(ConstraintChecker constraintChecker, List<Factor> factors) {
@@ -36,8 +36,10 @@ public class Parameters extends Factors {
   }
 
   public static class Builder {
-    private ConstraintChecker constraintChecker = ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
-    private final List<Factor> factors= new LinkedList<Factor>();
+    private       ConstraintChecker constraintChecker  = ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
+    private final List<Factor>      factors            = new LinkedList<Factor>();
+    private final List<Object>      newParameterValues = new LinkedList<Object>();
+    private String newParamName;
 
     public Builder(Object[][] params) {
       super();
@@ -55,14 +57,8 @@ public class Parameters extends Factors {
     public Builder() {
     }
 
-    public Builder add(Object firstValue, Object... restValues) {
-      Factor.Builder b = new Factor.Builder(String.format("p%02d", this.factors.size()));
-      b.addLevel(firstValue);
-      for (Object each : restValues) {
-        b.addLevel(each);
-      }
-      this.add(b.build());
-      return this;
+    private void add(Factor factor) {
+      this.factors.add(factor);
     }
 
     public Builder setConstraintChecker(ConstraintChecker constraintChecker) {
@@ -70,12 +66,42 @@ public class Parameters extends Factors {
       return this;
     }
 
-    public Builder add(Factor factor) {
-      this.factors.add(factor);
+    public Builder addValues(Object first, Object... rest) {
+      Checks.checkcond(this.newParamName != null);
+      this.newParameterValues.add(first);
+      for (Object each : rest) {
+        this.newParameterValues.add(each);
+      }
+      return this;
+    }
+
+    public Builder beginParameter() {
+      return this.beginParameter(String.format("p%d", this.factors.size()));
+    }
+
+    public Builder beginParameter(String name) {
+      Checks.checkcond(this.newParamName == null);
+      Checks.checknotnull(name);
+      this.newParamName = name;
+      this.newParameterValues.clear();
+      return this;
+    }
+
+    public Builder endParameter() {
+      Checks.checkcond(this.newParamName != null);
+      Factor.Builder b = new Factor.Builder(this.newParamName);
+      for (Object each : this.newParameterValues) {
+        b.addLevel(each);
+      }
+      this.factors.add(b.build());
+      this.newParamName = null;
+      this.newParameterValues.clear();
       return this;
     }
 
     public Parameters build() {
+      Checks.checkcond(this.newParamName == null);
+      Checks.checkcond(this.newParameterValues.isEmpty());
       return new Parameters(this.constraintChecker, this.factors);
     }
   }
