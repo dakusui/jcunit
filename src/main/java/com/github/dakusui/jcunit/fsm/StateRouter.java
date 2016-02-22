@@ -4,16 +4,16 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.SimpleCoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
-import static com.github.dakusui.jcunit.core.Checks.checktest;
+import static com.github.dakusui.jcunit.core.Checks.*;
 
 public interface StateRouter<SUT> {
   ScenarioSequence<SUT> routeTo(State<SUT> state);
@@ -32,7 +32,8 @@ public interface StateRouter<SUT> {
 
     @Override
     public ScenarioSequence<SUT> routeTo(State<SUT> state) {
-      if (this.initialState.equals(state)) return ScenarioSequence.Empty.getInstance();
+      if (this.initialState.equals(state))
+        return ScenarioSequence.Empty.getInstance();
       List<FSM.Edge<SUT>> route = Utils.newList();
       checktest(
           route(this.initialState, state, route, Utils.<State<SUT>>newSet()),
@@ -90,7 +91,8 @@ public interface StateRouter<SUT> {
     }
 
     boolean route(State<SUT> cur, State<SUT> to, List<FSM.Edge<SUT>> route, Set<State<SUT>> visited) {
-      if (!this.adjacents.containsKey(cur)) return false;
+      if (!this.adjacents.containsKey(cur))
+        return false;
       for (State<SUT> each : checknotnull(this.adjacents.get(cur))) {
         route.add(this.links.get(new StatePair<SUT>(cur, each)));
         if (each.equals(to)) {
@@ -161,13 +163,20 @@ public interface StateRouter<SUT> {
       if (action.parameters().size() == 1) {
         engine = new SimpleCoveringArrayEngine();
       } else {
-        engine =  new IPO2CoveringArrayEngine(2);
+        engine = new IPO2CoveringArrayEngine(2);
       }
       final FactorSpace factorSpace = new FactorSpace(
           FactorSpace.convertFactorsIntoSimpleFactorDefs(action.parameters()),
           ////
           // TODO: Build a local constraint checker here. (#35)
-          action.parameters().getConstraintChecker());
+          new ConstraintChecker.Base() {
+            @Override
+            public boolean check(Tuple tuple) throws UndefinedSymbol {
+
+              return action.parameters().getConstraintChecker().check(tuple);
+            }
+          }
+      );
       final CoveringArray coveringArray = engine.generate(factorSpace);
       return new AbstractList<Args>() {
         @Override
