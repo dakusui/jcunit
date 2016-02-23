@@ -66,20 +66,11 @@ public class Parameters extends Factors {
       return this;
     }
 
-    public Builder addValues(Object first, Object... rest) {
-      Checks.checkcond(this.newParamName != null);
-      this.newParameterValues.add(first);
-      for (Object each : rest) {
-        this.newParameterValues.add(each);
-      }
-      return this;
+    public Builder addParameter() {
+      return this.addParameter(String.format("p%d", this.factors.size()));
     }
 
-    public Builder beginParameter() {
-      return this.beginParameter(String.format("p%d", this.factors.size()));
-    }
-
-    public Builder beginParameter(String name) {
+    public Builder addParameter(String name) {
       Checks.checkcond(this.newParamName == null);
       Checks.checknotnull(name);
       this.newParamName = name;
@@ -87,8 +78,12 @@ public class Parameters extends Factors {
       return this;
     }
 
-    public Builder endParameter() {
+    public Builder withValues(Object first, Object... rest) {
       Checks.checkcond(this.newParamName != null);
+      this.newParameterValues.add(first);
+      for (Object each : rest) {
+        this.newParameterValues.add(each);
+      }
       Factor.Builder b = new Factor.Builder(this.newParamName);
       for (Object each : this.newParameterValues) {
         b.addLevel(each);

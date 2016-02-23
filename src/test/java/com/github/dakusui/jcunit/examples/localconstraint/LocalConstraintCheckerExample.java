@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.examples.localconstraint;
 
 
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.*;
@@ -18,50 +17,12 @@ import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class LocalConstraintCheckerExample {
-  private ScenarioSequence.Observer.Factory observerFactory = new ScenarioSequence.Observer.Factory() {
-
-    @Override
-    public ScenarioSequence.Observer createObserver(String fsmName) {
-      return new ScenarioSequence.Observer() {
-        @Override
-        public <SUT> void startSequence(Story.Stage stage, ScenarioSequence<SUT> seq) {
-
-        }
-
-        @Override
-        public <SUT> void run(Story.Stage stage, Scenario<SUT> scenario, SUT sut) {
-          if (scenario.when.id().startsWith("equals")) {
-            Checks.checkcond(scenario.with.values()[0] != null);
-          }
-        }
-
-        @Override
-        public <SUT> void passed(Story.Stage stage, Scenario<SUT> scenario, SUT sut) {
-        }
-
-        @Override
-        public <SUT> void failed(Story.Stage stage, Scenario<SUT> scenario, SUT sut, Expectation.Result result) {
-        }
-
-        @Override
-        public <SUT> void endSequence(Story.Stage stage, ScenarioSequence<SUT> seq) {
-        }
-
-        @Override
-        public ScenarioSequence.Observer createChild(String childName) {
-          assert false;
-          return null;
-        }
-      };
-    }
-  };
-
   public enum Spec implements FSMSpec<Object> {
     @StateSpec I {
     };
     @ParametersSpec
     public static final Parameters equals = new Parameters.Builder()
-        .beginParameter("another").addValues(null, new Object(), "HELLO").endParameter()
+        .addParameter("another").withValues(null, new Object(), "HELLO")
         .setConstraintChecker(new ConstraintChecker.Base() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
@@ -86,13 +47,6 @@ public class LocalConstraintCheckerExample {
 
   @Test
   public void test() {
-    FSMUtils.performStory(this, "primary", new SUTObject(), ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
-  }
-
-  public static class SUTObject {
-    @Override
-    public boolean equals(Object another) {
-      return false;
-    }
+    FSMUtils.performStory(this, "primary", new Object(), ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
   }
 }
