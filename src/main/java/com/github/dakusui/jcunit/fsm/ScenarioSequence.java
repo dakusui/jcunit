@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.*;
 
@@ -327,6 +328,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
           State<SUT> given = this.state(i);
           Action<SUT> when = this.action(i);
           Args with = this.args(i);
+          System.out.printf("%d:given=%s, when=%s, with=%s%n", i, given, when.id(), Arrays.toString(with.values()));
           return new Scenario<SUT>(given, when, with);
         }
 

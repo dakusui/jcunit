@@ -18,7 +18,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class LocalConstraintCheckerExample {
-  private ScenarioSequence.Observer.Factory observerFactory =  new ScenarioSequence.Observer.Factory() {
+  private ScenarioSequence.Observer.Factory observerFactory = new ScenarioSequence.Observer.Factory() {
 
     @Override
     public ScenarioSequence.Observer createObserver(String fsmName) {
@@ -65,11 +65,7 @@ public class LocalConstraintCheckerExample {
         .setConstraintChecker(new ConstraintChecker.Base() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
-            if (tuple.containsKey("another")) {
-              return tuple.get("another") != null;
-            } else {
-              throw new UndefinedSymbol("another");
-            }
+            return tuple.get("another") != null;
           }
         })
         .build();
@@ -90,13 +86,12 @@ public class LocalConstraintCheckerExample {
 
   @Test
   public void test() {
-    FSMUtils.performStory(this, "primary", new SUTObject(), ScenarioSequence.Observer.Factory.ForSimple.INSTANCE );
+    FSMUtils.performStory(this, "primary", new SUTObject(), ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
   }
 
   public static class SUTObject {
     @Override
     public boolean equals(Object another) {
-//      System.out.println("-->[" + another + "]");
       return false;
     }
   }

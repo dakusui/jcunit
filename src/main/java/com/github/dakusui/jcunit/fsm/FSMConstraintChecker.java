@@ -46,7 +46,6 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
   }
 
   public boolean checkTuple(Tuple tuple) throws UndefinedSymbol {
-    FSMFactors fsmFactors = this.getFactors();
     ScenarioSequence<SUT> seq = new ScenarioSequence.BuilderFromTuple<SUT>()
         .setTuple(tuple)
         .setFSMName(this.fsmName)
@@ -55,7 +54,7 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
     return checkFSM(this.fsmName, seq);
   }
 
-  public static <SUT> boolean checkFSM(String fsmName, ScenarioSequence<SUT> seq) throws UndefinedSymbol {
+  private <SUT> boolean checkFSM(String fsmName, ScenarioSequence<SUT> seq) throws UndefinedSymbol {
     State<SUT> expectedState = null;
     for (int i = 0; i < seq.size(); i++) {
       State<SUT> state = seq.state(i);
@@ -74,6 +73,7 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
           return false;
       }
       int numParams = action.numParameterFactors();
+      ConstraintChecker cc = action.parameters().getConstraintChecker();
       for (int j = 0; j < numParams; j++) {
         if (!seq.hasArg(i, j))
           throw new UndefinedSymbol(new String[] { FactorDef.Fsm.paramName(fsmName, i, j) });
@@ -85,6 +85,9 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
           return false;
         }
       }
+      if (!cc.check(extractParametersTuple(seq, i, action.parameters()))) {
+        return false;
+      }
 
       Args args = seq.args(i);
       Expectation<SUT> expectation = state.expectation(action, args);
@@ -93,6 +96,14 @@ public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
       expectedState = expectation.state;
     }
     return true;
+  }
+
+  private <SUT>  Tuple extractParametersTuple(ScenarioSequence<SUT> seq, int index, Parameters parameters) {
+    Tuple.Builder b = new Tuple.Builder();
+    for (int i = 0; i < parameters.size(); i++ ) {
+      b.put(parameters.get(i).name, seq.arg(index, i));
+    }
+    return b.build();
   }
 
   private static boolean isPossible(Object[] possibleValues, Object value) {

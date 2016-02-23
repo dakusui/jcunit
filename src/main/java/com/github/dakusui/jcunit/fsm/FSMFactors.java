@@ -32,18 +32,12 @@ import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.*;
  */
 public class FSMFactors extends Factors {
   public static final Object VOID = new Object();
-  private final int historyLength;
   private final String name;
 
 
-  private FSMFactors(String name, List<Factor> fsmFactors, int historyLength) {
+  private FSMFactors(String name, List<Factor> fsmFactors) {
     super(fsmFactors);
     this.name = name;
-    this.historyLength = historyLength;
-  }
-
-  public int getHistoryLength() {
-    return this.historyLength;
   }
 
   public String getName() {
@@ -128,7 +122,7 @@ public class FSMFactors extends Factors {
           }
         }
       }
-      return new FSMFactors(this.fsmName, this.factors, this.historyLength);
+      return new FSMFactors(this.fsmName, this.factors);
     }
   }
 }
