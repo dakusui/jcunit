@@ -6,11 +6,12 @@ import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.coverage.Metrics;
+import com.github.dakusui.jcunit.coverage.Report;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
-import com.github.dakusui.jcunit.fsm.FSM;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
+import com.github.dakusui.jcunit.fsm.FSMUtils;
 import com.github.dakusui.jcunit.fsm.Story;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
@@ -28,8 +29,6 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -48,21 +47,33 @@ public class JCUnit extends Parameterized {
     super(klass);
     List<FrameworkMethod> preconditionMethods = getTestClass().getAnnotatedMethods(Precondition.class);
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
-    RunnerContext runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
-    ConstraintChecker constraintChecker = new ConstraintChecker.Builder(getChecker(klass), runnerContext).build();
-    final FactorSpace factorSpace = new FactorSpace.Builder()
-        .addFactorDefs(getFactorDefsFrom(getTestClass()))
-        .setTopLevelConstraintChecker(constraintChecker)
-        .build();
     try {
       ////
+      // BEGIN: Plugin creation
+      RunnerContext runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
+      ConstraintChecker constraintChecker = new ConstraintChecker.Builder(getChecker(klass), runnerContext).build();
+      final FactorSpace factorSpace = new FactorSpace.Builder()
+          .addFactorDefs(getFactorDefsFrom(getTestClass()))
+          .setTopLevelConstraintChecker(constraintChecker)
+          .build();
+      runnerContext.setFactorSpace(factorSpace);
+      runnerContext.setConstraintChecker(constraintChecker);
+      CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.FromAnnotation(getGenerator(klass), runnerContext).build();
+      // reporter creation must be done after other instances are created, because it depends on
+      // factors and constraints. This isn't a good design, though... (FIXME)
+      final List<Metrics<?>> metricsList = new LinkedList<Metrics<?>>();
+      for (Reporter each : getReporters(klass)) {
+        metricsList.add(new Metrics.Builder(each, runnerContext).build());
+      }
+      // END: Plugin creation
+      ////
+
+      ////
       // Generate a list of test cases using a specified tuple generator
-      CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.BuilderFromAnnotation(getGenerator(klass), runnerContext).build();
       CoveringArray ca = coveringArrayEngine.generate(factorSpace);
       List<TestCase> testCases = Utils.newList();
       int id;
-      for (id = ca.firstId();
-           id >= 0; id = ca.nextId(id)) {
+      for (id = ca.firstId(); id >= 0; id = ca.nextId(id)) {
         Tuple testCase = ca.get(id);
         if (shouldPerform(testCase, preconditionMethods)) {
           testCases.add(
@@ -113,6 +124,22 @@ public class JCUnit extends Parameterized {
             }
           });
 
+      ////
+      // Build metrics collectors
+      //   Issue-#10
+      //   process entire test suite by metrics objects whose targets are specified "All"
+      for (Metrics each : metricsList) {
+        //noinspection unchecked
+        each.process(Utils.transform(testCases, new Utils.Form<TestCase, Tuple>() {
+          @Override
+          public Tuple apply(TestCase in) {
+            return in.getTuple();
+          }
+        }));
+      }
+      for (Metrics each : metricsList) {
+        new Report.Printer(System.out).submit(each);
+      }
     } catch (JCUnitException e) {
       throw tryToRecreateRootCauseException(Checks.getRootCauseOf(e), e.getMessage());
     }
@@ -130,6 +157,13 @@ public class JCUnit extends Parameterized {
     return annotation == null
         ? Generator.DEFAULT
         : annotation.engine();
+  }
+
+  public static Reporter[] getReporters(Class<?> klass) {
+    GenerateCoveringArrayWith annotation = klass.getAnnotation(GenerateCoveringArrayWith.class);
+    return annotation == null
+        ? new Reporter[0]
+        : annotation.reporters();
   }
 
   public static List<FactorDef> getFactorDefsFrom(Class c) {
@@ -151,37 +185,23 @@ public class JCUnit extends Parameterized {
     LevelsProvider levelsProvider = levelsProviderOf(field);
     int historyLength = 2;
     if (levelsProvider instanceof FSMLevelsProvider) {
-      historyLength = ((FSMLevelsProvider)levelsProvider).historyLength();
+      historyLength = ((FSMLevelsProvider) levelsProvider).historyLength();
     }
-    Checks.checktest(levelsProvider instanceof FSMLevelsProvider, "");
-    return new FactorDef.Fsm(field.getName(), createFSM(field.getField()), Collections.<com.github.dakusui.jcunit.fsm.Parameters.LocalConstraintChecker>emptyList(), historyLength);
+    //noinspection unchecked
+    return new FactorDef.Fsm(
+        field.getName(),
+        FSMUtils.createFSM(field.getField()),
+        Collections.<com.github.dakusui.jcunit.fsm.Parameters.LocalConstraintChecker>emptyList(),
+        historyLength);
   }
 
   private static boolean isSimpleFactorField(FrameworkField frameworkField) {
     return !Story.class.isAssignableFrom(frameworkField.getType());
   }
 
-  /**
-   * {@code f} Must be annotated with {@code FactorField}. Its {@code levelsProvider} must be an FSMLevelsProvider.
-   * Typed with {@code Story} class.
-   *
-   * @param f              A field from which an FSM is created.
-   * @return Created FSM object
-   */
-  public static FSM<Object> createFSM(Field f) {
-    Checks.checknotnull(f);
-    Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
-    //noinspection unchecked
-    return JCUnit.createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz);
-  }
-
-  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass) {
-    return new FSM.Base<SUT>(fsmName, fsmSpecClass);
-  }
-
   private static LevelsProvider levelsProviderOf(final FrameworkField field) {
     FactorField ann = field.getAnnotation(FactorField.class);
-    LevelsProvider ret = Plugins.levelsProviderOf(field.getAnnotation(FactorField.class));
+    LevelsProvider ret = new LevelsProvider.FromFactorField(field.getAnnotation(FactorField.class), RunnerContext.DUMMY).build();
     if (ret instanceof FactorField.FactorFactory.Default.DummyLevelsProvider) {
       List<Object> values = FactorField.FactorFactory.Default.levelsGivenByUserThroughImmediate(ann);
       if (values == null) {

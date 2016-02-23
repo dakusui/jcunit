@@ -5,9 +5,8 @@ import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import java.util.LinkedList;
 import java.util.List;
 
-public class StringUtils {
-  private StringUtils() {
-  }
+public enum StringUtils {
+  ;
 
   /**
    * Returns a user friendly string using given format and arguments.

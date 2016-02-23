@@ -28,9 +28,47 @@ public interface Plugin {
   @Retention(RetentionPolicy.RUNTIME)
   @interface Param {
     enum Source {
-      RUNNER,
+      /**
+       * The parameter's value should be assigned from a runner context item
+       * specified by the value of {@code contextKey}.
+       */
+      CONTEXT,
+      /**
+       * The parameter should be read from a configuration (typically annotation's
+       * value).
+       * Following is an example of this type of parameter source.
+       * <p/>
+       * If a plugin's first constructor parameter is annotated with {@literal @}{@code Param},
+       * and its {@code source} has this element as its value,
+       * <code>
+       * public IPO2CoveringArrayEngine(
+       *
+       * {@literal @}(source = Param.Source.CONFIG, defaultValue = "2") int strength) {
+       * ...
+       * }
+       * </code>
+       * the first {@literal @}{@code Value} will be passed as the value for it after the
+       * string is processed by {@code Plugin.Param.Resolver} by a following code fragment.
+       * <p/>
+       * <code>
+       * Factory<CoveringArrayEngine, Value> pluginFactory = Factory.newFactory(engineClass, new Value.Resolver(), this.runnerContext);
+       * return pluginFactory.create(this.args);
+       * </code>
+       * <p/>
+       * In an example below, the first element of {@code args} is {@literal @}{@code Value("1")}.
+       * This will be processed by
+       * <code>
+       * {@literal @}GenerateCoveringArrayWith( engine = @Generator(value = IPO2CoveringArrayEngine.class, args = {@literal @}Value("1")
+       * ))
+       * </code>
+       * <p/>
+       */
       CONFIG,
-      SYSTEM_PROPERTY
+      /**
+       * The parameter's value should be assigned from a system property specified by the value of
+       * {@code propertyKey}.
+       */
+      SYSTEM_PROPERTY,
     }
 
     SystemProperties.Key propertyKey() default SystemProperties.Key.DUMMY;
@@ -198,7 +236,7 @@ public interface Plugin {
               } else {
                 resolvedArgs.add(PluginUtils.StringArrayResolver.INSTANCE.resolve(each, each.parameterRequirement.defaultValue()));
               }
-            } else if (source == Param.Source.RUNNER) {
+            } else if (source == Param.Source.CONTEXT) {
               Object value = this.runnerContext.get(each.parameterRequirement.contextKey());
               resolvedArgs.add(Checks.cast(each.parameterType, value));
             } else if (source == Param.Source.SYSTEM_PROPERTY) {

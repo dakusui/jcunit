@@ -1,26 +1,19 @@
 package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.combinatoradix.tuple.AttrValue;
-import com.github.dakusui.jcunit.core.SystemProperties;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
-import com.github.dakusui.jcunit.fsm.ScenarioSequence;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 
 import java.lang.reflect.Field;
-import java.util.Map;
 
 import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 /**
  */
-public class TestCaseUtils {
-  private TestCaseUtils() {
-  }
-
+public enum TestCaseUtils {
+  ;
   public static AttrValue<String, Object> factor(String name, Object level) {
     return new AttrValue<String, Object>(name, level);
   }

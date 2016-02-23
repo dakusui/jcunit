@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.coverage;
+package com.github.dakusui.jcunit.future.advancedcombinatorialcoverage;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
@@ -17,16 +17,16 @@ import java.util.Set;
 /**
  * A class to measure t-way coverage.
  */
-public class ModelCoverage {
-  public final  int               degree;
-  public final  int               initialSize;
-  public final  Factors           factorSpace;
-  private final Set<Tuple>        yetToBeCovered;
-  private final Set<Tuple>        uncoveredInWeakerDegree;
-  private final Set<Tuple>        violations;
-  public final  ConstraintChecker cm;
-  public final  Report            report;
-  private       int               covered;
+public class _CombinatorialMetrics {
+  public final  int                 degree;
+  public final  int                 initialSize;
+  public final  Factors             factors;
+  private final Set<Tuple>          yetToBeCovered;
+  private final Set<Tuple>          uncoveredInWeakerDegree;
+  private final Set<Tuple>          violations;
+  public final  ConstraintChecker   cm;
+  public final  CombinatorialReport report;
+  private       int                 covered;
   protected State state = State.NOT_PROCESSED;
 
   /**
@@ -36,15 +36,15 @@ public class ModelCoverage {
    * @param factors                 A factor space where test suite's coverage is examined.
    * @param degree                  Strength (number of attributes involved).
    */
-  public ModelCoverage(
+  public _CombinatorialMetrics(
       Factors factors,
       final int degree,
       ConstraintChecker cm,
       final Set<Tuple> uncoveredInWeakerDegree,
-      Report report) {
+      CombinatorialReport report) {
     Checks.checkcond(degree > 0);
     Checks.checkcond(degree <= factors.size(), "degree=%s, factors.size=%s", degree, factors.size());
-    this.factorSpace = Checks.checknotnull(factors);
+    this.factors = Checks.checknotnull(factors);
     this.degree = degree;
     this.report = Checks.checknotnull(report);
     this.uncoveredInWeakerDegree = new LinkedHashSet<Tuple>();
@@ -75,13 +75,13 @@ public class ModelCoverage {
                 // This statement will convert tuples in the set into one-degree-stronger,
                 // which is suitable for this instance.
                 if (uncoveredInWeakerDegree.contains(each)) {
-                  ModelCoverage.this.uncoveredInWeakerDegree.add(in);
+                  _CombinatorialMetrics.this.uncoveredInWeakerDegree.add(in);
                 }
               }
               //noinspection EmptyCatchBlock
               try {
-                if (!ModelCoverage.this.cm.check(in)) {
-                  ModelCoverage.this.violations.add(in);
+                if (!_CombinatorialMetrics.this.cm.check(in)) {
+                  _CombinatorialMetrics.this.violations.add(in);
                 }
               } catch (UndefinedSymbol undefinedSymbol) {
               }
@@ -93,7 +93,7 @@ public class ModelCoverage {
     }
   }
 
-  public ModelCoverage processTestSuite(List<Tuple> testSuite) {
+  public _CombinatorialMetrics processTestSuite(List<Tuple> testSuite) {
     for (Tuple eachTestCase : testSuite) {
       if (this.yetToBeCovered.isEmpty())
         break;
@@ -126,18 +126,18 @@ public class ModelCoverage {
     return TupleUtils.subtuplesOf(testCase, strength);
   }
 
-  protected ModelCoverage createNext() {
-    if (this.degree == factorSpace.size())
+  protected _CombinatorialMetrics createNext() {
+    if (this.degree == factors.size())
       return null;
     Set<Tuple> p = new LinkedHashSet<Tuple>();
     p.addAll(this.uncoveredInWeakerDegree);
     p.addAll(this.yetToBeCovered);
-    return new ModelCoverage(factorSpace, degree + 1, this.cm, p, this.report);
+    return new _CombinatorialMetrics(factors, degree + 1, this.cm, p, this.report);
   }
 
-  public static void examime(List<Tuple> testSuite, TestSpace testSpace, Report report) {
-    ModelCoverage[] modelCoverages = examineTestSuite(testSuite, testSpace, report);
-    for (ModelCoverage each : modelCoverages) {
+  public static void examine(List<Tuple> testSuite, TestSpace testSpace, CombinatorialReport report) {
+    _CombinatorialMetrics[] combinatorialMetricses = examineTestSuite(testSuite, testSpace, report);
+    for (_CombinatorialMetrics each : combinatorialMetricses) {
       each.report.submit(each);
     }
   }
@@ -158,11 +158,11 @@ public class ModelCoverage {
     return yetToBeCovered;
   }
 
-  private static ModelCoverage[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, Report report) {
+  private static _CombinatorialMetrics[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, CombinatorialReport report) {
     Checks.checkcond(testSpace.getStrength() > 0);
-    ModelCoverage[] ret = new ModelCoverage[testSpace.getStrength()];
+    _CombinatorialMetrics[] ret = new _CombinatorialMetrics[testSpace.getStrength()];
 
-    for (ModelCoverage cur = new ModelCoverage(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
+    for (_CombinatorialMetrics cur = new _CombinatorialMetrics(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
          cur != null && cur.degree <= testSpace.getStrength();
          cur = cur.createNext()) {
       cur.processTestSuite(testSuite);
@@ -177,10 +177,10 @@ public class ModelCoverage {
     PROCESSED
   }
 
-  public interface Report {
-    void submit(ModelCoverage modelCoverage);
+  public interface CombinatorialReport {
+    void submit(_CombinatorialMetrics combinatorialMetrics);
 
-    class Printer implements Report {
+    class Printer implements CombinatorialReport {
       private final PrintStream out;
 
       public Printer(PrintStream out) {
@@ -188,21 +188,21 @@ public class ModelCoverage {
       }
 
       @Override
-      public void submit(ModelCoverage modelCoverage) {
+      public void submit(_CombinatorialMetrics combinatorialMetrics) {
         out.printf("STRENGTH=%2s: %3s/%3s/%3s/%3s/%3s (uncovered in weaker degree/violations/covered/yet to be covered/total)%n",
-            modelCoverage.degree,
-            modelCoverage.getUncoveredInWeakerDegree().size(),
-            modelCoverage.getViolations().size(),
-            modelCoverage.getCovered(),
-            modelCoverage.getYetToBeCovered().size(),
-            modelCoverage.initialSize
+            combinatorialMetrics.degree,
+            combinatorialMetrics.getUncoveredInWeakerDegree().size(),
+            combinatorialMetrics.getViolations().size(),
+            combinatorialMetrics.getCovered(),
+            combinatorialMetrics.getYetToBeCovered().size(),
+            combinatorialMetrics.initialSize
         );
-        for (Tuple each : modelCoverage.getYetToBeCovered()) {
+        for (Tuple each : combinatorialMetrics.getYetToBeCovered()) {
           out.printf(
               "%1s:%1s:%s%n",
-              modelCoverage.getViolations().contains(each)
+              combinatorialMetrics.getViolations().contains(each)
                   ? "V" : " ",
-              modelCoverage.getUncoveredInWeakerDegree().contains(each)
+              combinatorialMetrics.getUncoveredInWeakerDegree().contains(each)
                   ? "W" : " ",
               each);
         }

@@ -19,7 +19,7 @@ import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.newTestCa
 @GenerateCoveringArrayWith(
     engine = @Generator(
         value = Replayer.class,
-        configValues = {
+        args = {
             @Value({ "com.github.dakusui.jcunit.tests.bugfixes.geophile.NullCoveringArrayEngine" }),
             @Value("Replay"),
             @Value("All")

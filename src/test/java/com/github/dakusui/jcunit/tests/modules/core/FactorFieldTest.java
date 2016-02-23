@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Since the default value of each typeLevels method is very self descriptive
- * in FactorField class, check only length of the returned array is larger than
+ * in FactorField class, safeCheck only length of the returned array is larger than
  * zero.
  */
 public class FactorFieldTest {

@@ -90,6 +90,10 @@ public class Expectation<SUT> {
     return b.build();
   }
 
+  public Output.Type getType() {
+    return this.checker.getType();
+  }
+
   @Override
   public String toString() {
     return StringUtils.format("state of '%s' is '%s' and %s %s %s", this.fsmName, this.state, this.checker.getType().name, this.checker.getType().entityType(), this.checker.toString());

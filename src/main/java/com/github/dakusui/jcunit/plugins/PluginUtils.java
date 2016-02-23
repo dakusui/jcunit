@@ -7,9 +7,8 @@ import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public class PluginUtils {
-  private PluginUtils() {
-  }
+public enum PluginUtils {
+  ;
 
   public static boolean str2boolean(String s) {
     Checks.checknotnull(s);

@@ -1,11 +1,10 @@
-package com.github.dakusui.jcunit.tests.modules.coverage;
+package com.github.dakusui.jcunit.future.advancedcombinatorialcoverage;
 
 import com.github.dakusui.combinatoradix.tuple.AttrValue;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.coverage.ModelCoverage;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.testutils.UTUtils;
@@ -16,7 +15,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ModelCoverageTest {
+public class _CombinatorialMetricsTest {
   @Before
   public void before() {
     UTUtils.configureStdIOs();
@@ -35,9 +34,9 @@ public class ModelCoverageTest {
         .add("F2", "L1", "L2")
         .add("F3", "L1", "L2")
         .build();
-    ModelCoverage.examime(
+    _CombinatorialMetrics.examine(
         testSuite,
-        new ModelCoverage.TestSpace(
+        new _CombinatorialMetrics.TestSpace(
             factorSpace,
             3,
             new ConstraintChecker.Base() {
@@ -48,7 +47,7 @@ public class ModelCoverageTest {
               }
             }
         ),
-        new ModelCoverage.Report.Printer(UTUtils.stdout())
+        new _CombinatorialMetrics.CombinatorialReport.Printer(UTUtils.stdout())
     );
   }
 

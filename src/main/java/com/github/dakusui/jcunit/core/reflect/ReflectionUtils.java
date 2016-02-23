@@ -1,18 +1,16 @@
 package com.github.dakusui.jcunit.core.reflect;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.Utils;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 
 
-public class ReflectionUtils {
+public enum ReflectionUtils {
+  ;
   private static final Class<?>[][] primitivesAndWrappers = new Class<?>[][] {
       new Class[] { boolean.class, Boolean.class },
       new Class[] { byte.class, Byte.class },
@@ -24,15 +22,29 @@ public class ReflectionUtils {
       new Class[] { double.class, Double.class },
   };
 
-  private ReflectionUtils() {
-  }
-
   public static List<Method> getMethods(Class<?> clazz) {
     return Utils.sort(Utils.asList(clazz.getMethods()), BY_MEMBER_NAME);
   }
 
   public static List<Field> getFields(Class<?> clazz) {
     return Utils.sort(Utils.asList(clazz.getFields()), BY_MEMBER_NAME);
+  }
+
+  public static Method[] getAnnotatedMethods(Class<?> clazz, Class<? extends Annotation> annClass) {
+    List<Method> methods = getMethods(clazz);
+    List<Method> ret = new ArrayList<Method>(methods.size());
+    for (Method m : methods) {
+      if (m.getAnnotation(annClass) != null) {
+        ret.add(m);
+      }
+    }
+    Collections.sort(ret, new Comparator<Method>() {
+      @Override
+      public int compare(Method o1, Method o2) {
+        return o1.getName().compareTo(o2.getName());
+      }
+    });
+    return ret.toArray(new Method[ret.size()]);
   }
 
   public static Field getField(Class<?> clazz, String name) {
@@ -317,6 +329,16 @@ public class ReflectionUtils {
     return ret.toArray(new Field[ret.size()]);
   }
 
+  public static boolean hasField(Class<?> clazz, String fieldName, FieldChecker... checkers ) {
+    Checks.checknotnull(clazz);
+    Checks.checknotnull(fieldName);
+    Field field = ReflectionUtils.getField(clazz, fieldName);
+    for (FieldChecker each : checkers) {
+      if (!each.check(field)) return false;
+    }
+    return true;
+  }
+
   public static class TypedArg {
     public final Class  type;
     public final Object value;
@@ -333,4 +355,34 @@ public class ReflectionUtils {
       return in.getName();
     }
   };
+
+  public interface FieldChecker {
+    boolean check(Field field);
+
+    enum Basic implements FieldChecker {
+      IS_PUBLIC {
+        @Override
+        public boolean check(Field field) {
+          return Modifier.isPublic(Checks.checknotnull(field).getModifiers());
+        }
+      };
+      public static FieldChecker typeOf(final Class<?> target) {
+        return new FieldChecker() {
+          @Override
+          public boolean check(Field field) {
+            return target.isAssignableFrom(Checks.checknotnull(field).getType());
+          }
+        };
+      }
+
+      public static FieldChecker hasAnnotation(final Class<? extends Annotation> annotationClass) {
+        return new FieldChecker() {
+          @Override
+          public boolean check(Field field) {
+            return Checks.checknotnull(field).getAnnotation(annotationClass) != null;
+          }
+        };
+      }
+    }
+  }
 }
