@@ -17,14 +17,12 @@ import org.junit.runner.RunWith;
 
 @RunWith(JCUnit.class)
 public class LocalConstraintCheckerExample {
-  public static ScenarioSequence.Observer.Factory observerFactory = ScenarioSequence.Observer.Factory.ForSilent.INSTANCE;
-
   public enum Spec implements FSMSpec<Object> {
     @StateSpec I {
     };
     @ParametersSpec
     public static final Parameters equals = new Parameters.Builder()
-        .add(null, new Object(), "HELLO")
+        .addParameter("another").withValues(null, new Object(), "HELLO")
         .setConstraintChecker(new ConstraintChecker.Base() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
@@ -49,6 +47,6 @@ public class LocalConstraintCheckerExample {
 
   @Test
   public void test() {
-    FSMUtils.performStory(this, "primary", new Object(), observerFactory);
+    FSMUtils.performStory(this, "primary", new Object(), ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
   }
 }

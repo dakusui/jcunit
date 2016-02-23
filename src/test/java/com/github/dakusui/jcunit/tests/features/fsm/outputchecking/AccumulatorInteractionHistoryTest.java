@@ -31,7 +31,7 @@ public class AccumulatorInteractionHistoryTest {
 
     @ParametersSpec
     public static final Parameters add = new Parameters.Builder()
-    .add(1, 2, 10)
+    .addParameter().withValues(1, 2, 10)
     .build();
 
     @ActionSpec

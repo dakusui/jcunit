@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.tests.examples.inputhistory;
+package com.github.dakusui.jcunit.tests.examples.fsm.inputhistory;
 
 
 import com.github.dakusui.jcunit.testutils.Metatest;

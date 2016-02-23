@@ -152,7 +152,7 @@ public interface Action<SUT> extends Serializable {
         // compatibility conflicts in future, so I'm not supporting it for now.
         throw Checks.wraptesterror(
             e,
-            "Non-public method testing isn't supported (%s#%s/%d isn't public)",
+            "Non-public method (or anonymous class method) testing isn't supported (%s#%s/%s isn't public)",
             o.getClass().getCanonicalName(),
             this.name,
             args.size()
