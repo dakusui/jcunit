@@ -16,12 +16,7 @@ public interface FSMSpec<SUT> extends StateChecker<SUT> {
       //noinspection unchecked
       return (FSMSpec<SUT>) INSTANCE;
     }
-    public static final FSMSpec<Object> INSTANCE = new FSMSpec<Object>() {
-      @Override
-      public boolean check(Object objet) {
-        return false;
-      }
-    };
+    private static final FSMSpec<?> INSTANCE = new Void();
 
     @Override
     public boolean check(Object o) {

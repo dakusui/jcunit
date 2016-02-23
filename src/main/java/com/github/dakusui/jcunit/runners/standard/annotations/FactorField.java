@@ -5,11 +5,13 @@ import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.Plugins;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.validator.AnnotationValidator;
@@ -23,7 +25,6 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.AbstractList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -102,7 +103,7 @@ public @interface FactorField {
       private static List<Object> levelsOf(String fieldName, final Class fieldType, FactorField ann) {
         Checks.checknotnull(fieldType);
         Checks.checknotnull(ann);
-        final LevelsProvider provider = levelsProviderOf(ann);
+        final LevelsProvider provider = Plugins.levelsProviderOf(ann);
         List<Object> ret;
         if (provider instanceof DummyLevelsProvider) {
           ret = levelsGivenByUserThroughImmediate(ann);
@@ -138,18 +139,6 @@ public @interface FactorField {
         );
         Checks.checktest(!ret.isEmpty(), "No levels: fieldName=%s fieldType=%s provider=%s", fieldName, fieldType, provider);
         return ret;
-      }
-
-      public static LevelsProvider levelsProviderOf(FactorField ann) {
-        assert ann != null;
-        //noinspection unchecked
-        Plugin.Factory<LevelsProvider, Value> factory = new Plugin.Factory<LevelsProvider, Value>(
-            (Class<LevelsProvider>) ann.levelsProvider(),
-            new Value.Resolver(),
-            new RunnerContext.Dummy()
-        );
-        //noinspection ConstantConditions
-        return factory.create(Arrays.asList(ann.providerParams()));
       }
 
       public static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
@@ -313,9 +302,9 @@ public @interface FactorField {
         return new AbstractList<Object>() {
           FactorSpace factorSpace = new FactorSpace.Builder()
               .addFactorDefs(JCUnit.getFactorDefsFrom(c))
-              .setTopLevelConstraintChecker(new Checker.Base(ann.checker(), new RunnerContext.Dummy()).build())
+              .setTopLevelConstraintChecker(new ConstraintChecker.Builder(ann.checker(), new RunnerContext.Dummy()).build())
               .build();
-          CoveringArray ca = new Generator.Base(JCUnit.getGenerator(c), new RunnerContext.Dummy()).build().generate(factorSpace);
+          CoveringArray ca = new CoveringArrayEngine.BuilderFromAnnotation(JCUnit.getGenerator(c), new RunnerContext.Dummy()).build().generate(factorSpace);
 
           @Override
           public Object get(int index) {

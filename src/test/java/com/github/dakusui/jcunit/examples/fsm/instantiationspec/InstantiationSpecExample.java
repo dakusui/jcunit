@@ -1,5 +1,6 @@
-package com.github.dakusui.jcunit.examples.models.modifiedmealymachine;
+package com.github.dakusui.jcunit.examples.fsm.instantiationspec;
 
+import com.github.dakusui.jcunit.examples.models.modifiedmealymachine.ModifiedMealyMachine;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
@@ -7,8 +8,9 @@ import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import com.github.dakusui.jcunit.runners.standard.annotations.As;
 
-public enum CorrectSpec implements FSMSpec<ModifiedMealyMachine> {
+public enum InstantiationSpecExample implements FSMSpec<ModifiedMealyMachine> {
   @StateSpec I {
+
   },
   @StateSpec S {
     public Expectation<ModifiedMealyMachine> getS(
@@ -18,7 +20,7 @@ public enum CorrectSpec implements FSMSpec<ModifiedMealyMachine> {
           new OutputChecker.ForInteractionHistory(Output.Type.VALUE_RETURNED) {
             @Override
             protected Object computeExpectation(InteractionHistory interactionHistory) {
-              return compose(interactionHistory.get("method@param-0"));
+              return compose(interactionHistory.get("param1"));
             }
 
             private String compose(Iterable<Object> i) {
@@ -40,7 +42,7 @@ public enum CorrectSpec implements FSMSpec<ModifiedMealyMachine> {
   }).build();
 
   @ActionSpec
-  public Expectation<ModifiedMealyMachine> method(Expectation.Builder<ModifiedMealyMachine> b, @As("method@param-0") String s) {
+  public Expectation<ModifiedMealyMachine> method(Expectation.Builder<ModifiedMealyMachine> b, @As("param1") String s) {
     return b.valid(S)
         .build();
   }

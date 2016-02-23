@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.testutils.Metatest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +42,12 @@ public class Issue39Test extends Metatest {
       }
     }
 
-    @FactorField(levelsProvider = FSMLevelsProvider.class)
+    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = {@Value("2")})
     public Story<String, Spec> story;
 
     @Test
     public void test() {
-      FSMUtils.performStory(this, "story", "Hello", ScenarioSequence.Observer.Factory.ForSilent.INSTANCE);
+      FSMUtils.performStory(this, "story", "Hello", ScenarioSequence.Observer.Factory.ForSimple.INSTANCE);
     }
   }
 

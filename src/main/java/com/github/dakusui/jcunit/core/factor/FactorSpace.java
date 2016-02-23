@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.jcunit.core.CoreBuilder;
+import com.github.dakusui.jcunit.core.BaseBuilder;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -11,9 +11,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class FactorSpace {
-  public final Factors           factors;
-  public final ConstraintChecker constraintChecker;
-  private final List<FactorDef> factorDefs;
+  public final  Factors           factors;
+  public final  ConstraintChecker constraintChecker;
+  private final List<FactorDef>   factorDefs;
 
   public FactorSpace(List<FactorDef> factorDefs, ConstraintChecker constraintChecker) {
     this.factorDefs = Collections.unmodifiableList(factorDefs);
@@ -46,7 +46,7 @@ public class FactorSpace {
     return ret;
   }
 
-  public static class Builder implements CoreBuilder<FactorSpace> {
+  public static class Builder implements BaseBuilder<FactorSpace> {
 
     private final List<FactorDef> factorDefs;
 

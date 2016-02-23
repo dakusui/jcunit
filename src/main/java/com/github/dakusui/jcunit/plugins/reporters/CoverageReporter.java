@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.plugins.reporters;
 
-import com.github.dakusui.jcunit.core.CoreBuilder;
+import com.github.dakusui.jcunit.core.BaseBuilder;
 import com.github.dakusui.jcunit.plugins.Plugin;
 
 public interface CoverageReporter extends Plugin {
-  class Builder implements CoreBuilder<CoverageReporter> {
+  class Builder implements BaseBuilder<CoverageReporter> {
     public Builder() {
     }
 

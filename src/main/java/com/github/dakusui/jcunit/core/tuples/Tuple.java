@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.jcunit.core.CoreBuilder;
+import com.github.dakusui.jcunit.core.BaseBuilder;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -9,7 +9,7 @@ import java.util.Map;
 public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
   Tuple cloneTuple();
 
-  class Builder implements CoreBuilder<Tuple> {
+  class Builder implements BaseBuilder<Tuple> {
     LinkedHashMap<String, Object> attrs = new LinkedHashMap<String, Object>();
     private boolean unmodifiable;
 

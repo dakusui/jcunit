@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.levelsproviders;
 
-import com.github.dakusui.jcunit.core.CoreBuilder;
+import com.github.dakusui.jcunit.core.BaseBuilder;
 import com.github.dakusui.jcunit.plugins.Plugin;
 
 /**
@@ -18,7 +18,7 @@ public interface LevelsProvider extends Plugin {
   Object get(int n);
 
 
-  class Builder implements CoreBuilder<LevelsProvider> {
+  class Builder implements BaseBuilder<LevelsProvider> {
 
     @Override
     public LevelsProvider build() {

@@ -208,13 +208,13 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    CoveringArrayEngine coveringArrayEngine = new Generator.Base(
+    CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.BuilderFromAnnotation(
         JCUnit.getGenerator(TestClass.class),
         new RunnerContext.Base(TestClass.class)
     ).build();
 
     RunnerContext runnerContext = new RunnerContext.Base(TestClass.class);
-    ConstraintChecker cc = new Checker.Base(JCUnit.getChecker(TestClass.class), runnerContext).build();
+    ConstraintChecker cc = new ConstraintChecker.Builder(JCUnit.getChecker(TestClass.class), runnerContext).build();
     FactorSpace factorSpace = new FactorSpace.Builder()
         .setTopLevelConstraintChecker(cc)
         .addFactorDefs(JCUnit.getFactorDefsFrom(TestClass.class))

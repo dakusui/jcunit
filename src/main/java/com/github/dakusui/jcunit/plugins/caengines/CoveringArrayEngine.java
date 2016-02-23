@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.plugins.caengines;
 /**
  */
 
+import com.github.dakusui.jcunit.core.BaseBuilder;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
@@ -11,6 +12,8 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 
 import java.util.Collections;
 import java.util.List;
@@ -135,5 +138,28 @@ public interface CoveringArrayEngine extends Plugin {
      * @param constraintChecker constraint on tuple generation.
      */
     abstract protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker);
+  }
+
+  class BuilderFromAnnotation implements BaseBuilder<CoveringArrayEngine> {
+    private final Class<? extends CoveringArrayEngine> engineClass;
+    private final RunnerContext                        runnerContext;
+    private final List<Value>                          configValues;
+
+    public BuilderFromAnnotation(Generator engine, RunnerContext runnerContext) {
+      this(engine.value(), runnerContext, Utils.asList(engine.configValues()));
+    }
+
+    private BuilderFromAnnotation(Class<? extends CoveringArrayEngine> engineClass, RunnerContext context, List<Value> configValues) {
+      this.engineClass = checknotnull(engineClass);
+      this.runnerContext = checknotnull(context);
+      this.configValues = checknotnull(Collections.unmodifiableList(configValues));
+    }
+
+    @Override
+    public CoveringArrayEngine build() {
+      Factory<CoveringArrayEngine, Value> pluginFactory
+          = Factory.newFactory(engineClass, new Value.Resolver(), this.runnerContext);
+      return pluginFactory.create(this.configValues);
+    }
   }
 }
