@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * A class to measure t-way coverage.
  */
-public class CombinatorialCoverage {
+public class CombinatorialMetrics {
   public final  int                 degree;
   public final  int                 initialSize;
   public final  Factors             factorSpace;
@@ -36,7 +36,7 @@ public class CombinatorialCoverage {
    * @param factors                 A factor space where test suite's coverage is examined.
    * @param degree                  Strength (number of attributes involved).
    */
-  public CombinatorialCoverage(
+  public CombinatorialMetrics(
       Factors factors,
       final int degree,
       ConstraintChecker cm,
@@ -75,13 +75,13 @@ public class CombinatorialCoverage {
                 // This statement will convert tuples in the set into one-degree-stronger,
                 // which is suitable for this instance.
                 if (uncoveredInWeakerDegree.contains(each)) {
-                  CombinatorialCoverage.this.uncoveredInWeakerDegree.add(in);
+                  CombinatorialMetrics.this.uncoveredInWeakerDegree.add(in);
                 }
               }
               //noinspection EmptyCatchBlock
               try {
-                if (!CombinatorialCoverage.this.cm.check(in)) {
-                  CombinatorialCoverage.this.violations.add(in);
+                if (!CombinatorialMetrics.this.cm.check(in)) {
+                  CombinatorialMetrics.this.violations.add(in);
                 }
               } catch (UndefinedSymbol undefinedSymbol) {
               }
@@ -93,7 +93,7 @@ public class CombinatorialCoverage {
     }
   }
 
-  public CombinatorialCoverage processTestSuite(List<Tuple> testSuite) {
+  public CombinatorialMetrics processTestSuite(List<Tuple> testSuite) {
     for (Tuple eachTestCase : testSuite) {
       if (this.yetToBeCovered.isEmpty())
         break;
@@ -126,18 +126,18 @@ public class CombinatorialCoverage {
     return TupleUtils.subtuplesOf(testCase, strength);
   }
 
-  protected CombinatorialCoverage createNext() {
+  protected CombinatorialMetrics createNext() {
     if (this.degree == factorSpace.size())
       return null;
     Set<Tuple> p = new LinkedHashSet<Tuple>();
     p.addAll(this.uncoveredInWeakerDegree);
     p.addAll(this.yetToBeCovered);
-    return new CombinatorialCoverage(factorSpace, degree + 1, this.cm, p, this.report);
+    return new CombinatorialMetrics(factorSpace, degree + 1, this.cm, p, this.report);
   }
 
   public static void examime(List<Tuple> testSuite, TestSpace testSpace, CombinatorialReport report) {
-    CombinatorialCoverage[] combinatorialCoverages = examineTestSuite(testSuite, testSpace, report);
-    for (CombinatorialCoverage each : combinatorialCoverages) {
+    CombinatorialMetrics[] combinatorialMetricses = examineTestSuite(testSuite, testSpace, report);
+    for (CombinatorialMetrics each : combinatorialMetricses) {
       each.report.submit(each);
     }
   }
@@ -158,11 +158,11 @@ public class CombinatorialCoverage {
     return yetToBeCovered;
   }
 
-  private static CombinatorialCoverage[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, CombinatorialReport report) {
+  private static CombinatorialMetrics[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, CombinatorialReport report) {
     Checks.checkcond(testSpace.getStrength() > 0);
-    CombinatorialCoverage[] ret = new CombinatorialCoverage[testSpace.getStrength()];
+    CombinatorialMetrics[] ret = new CombinatorialMetrics[testSpace.getStrength()];
 
-    for (CombinatorialCoverage cur = new CombinatorialCoverage(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
+    for (CombinatorialMetrics cur = new CombinatorialMetrics(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
          cur != null && cur.degree <= testSpace.getStrength();
          cur = cur.createNext()) {
       cur.processTestSuite(testSuite);
@@ -178,7 +178,7 @@ public class CombinatorialCoverage {
   }
 
   public interface CombinatorialReport {
-    void submit(CombinatorialCoverage combinatorialCoverage);
+    void submit(CombinatorialMetrics combinatorialMetrics);
 
     class Printer implements CombinatorialReport {
       private final PrintStream out;
@@ -188,21 +188,21 @@ public class CombinatorialCoverage {
       }
 
       @Override
-      public void submit(CombinatorialCoverage combinatorialCoverage) {
+      public void submit(CombinatorialMetrics combinatorialMetrics) {
         out.printf("STRENGTH=%2s: %3s/%3s/%3s/%3s/%3s (uncovered in weaker degree/violations/covered/yet to be covered/total)%n",
-            combinatorialCoverage.degree,
-            combinatorialCoverage.getUncoveredInWeakerDegree().size(),
-            combinatorialCoverage.getViolations().size(),
-            combinatorialCoverage.getCovered(),
-            combinatorialCoverage.getYetToBeCovered().size(),
-            combinatorialCoverage.initialSize
+            combinatorialMetrics.degree,
+            combinatorialMetrics.getUncoveredInWeakerDegree().size(),
+            combinatorialMetrics.getViolations().size(),
+            combinatorialMetrics.getCovered(),
+            combinatorialMetrics.getYetToBeCovered().size(),
+            combinatorialMetrics.initialSize
         );
-        for (Tuple each : combinatorialCoverage.getYetToBeCovered()) {
+        for (Tuple each : combinatorialMetrics.getYetToBeCovered()) {
           out.printf(
               "%1s:%1s:%s%n",
-              combinatorialCoverage.getViolations().contains(each)
+              combinatorialMetrics.getViolations().contains(each)
                   ? "V" : " ",
-              combinatorialCoverage.getUncoveredInWeakerDegree().contains(each)
+              combinatorialMetrics.getUncoveredInWeakerDegree().contains(each)
                   ? "W" : " ",
               each);
         }

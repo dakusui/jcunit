@@ -4,10 +4,10 @@ import com.github.dakusui.jcunit.core.Checks;
 
 import java.io.PrintStream;
 
-public interface Report<C extends Coverage> {
+public interface Report<C extends Metrics> {
   void submit(C coverage);
 
-  class Printer<C extends Coverage> implements Report<C> {
+  class Printer<C extends Metrics> implements Report<C> {
     private final PrintStream ps;
 
     Printer(PrintStream ps) {
@@ -16,7 +16,7 @@ public interface Report<C extends Coverage> {
 
     @Override
     public void submit(C coverage) {
-      for (Coverage.Metric<?> each : coverage.metrics()) {
+      for (Metrics.Metric<?> each : coverage.metrics()) {
         this.ps.println(each);
       }
     }
