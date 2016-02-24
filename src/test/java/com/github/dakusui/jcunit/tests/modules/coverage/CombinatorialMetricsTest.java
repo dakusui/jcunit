@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.coverage.CombinatorialCoverage;
+import com.github.dakusui.jcunit.coverage.CombinatorialMetrics;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.testutils.UTUtils;
@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class CombinatorialCoverageTest {
+public class CombinatorialMetricsTest {
   @Before
   public void before() {
     UTUtils.configureStdIOs();
@@ -35,9 +35,9 @@ public class CombinatorialCoverageTest {
         .add("F2", "L1", "L2")
         .add("F3", "L1", "L2")
         .build();
-    CombinatorialCoverage.examime(
+    CombinatorialMetrics.examime(
         testSuite,
-        new CombinatorialCoverage.TestSpace(
+        new CombinatorialMetrics.TestSpace(
             factorSpace,
             3,
             new ConstraintChecker.Base() {
@@ -48,7 +48,7 @@ public class CombinatorialCoverageTest {
               }
             }
         ),
-        new CombinatorialCoverage.CombinatorialReport.Printer(UTUtils.stdout())
+        new CombinatorialMetrics.CombinatorialReport.Printer(UTUtils.stdout())
     );
   }
 
