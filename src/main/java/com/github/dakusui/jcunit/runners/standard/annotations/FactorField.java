@@ -304,7 +304,7 @@ public @interface FactorField {
               .addFactorDefs(JCUnit.getFactorDefsFrom(c))
               .setTopLevelConstraintChecker(new ConstraintChecker.Builder(ann.checker(), new RunnerContext.Dummy()).build())
               .build();
-          CoveringArray ca = new CoveringArrayEngine.BuilderFromAnnotation(JCUnit.getGenerator(c), new RunnerContext.Dummy()).build().generate(factorSpace);
+          CoveringArray ca = new CoveringArrayEngine.FromAnnotation(JCUnit.getGenerator(c), new RunnerContext.Dummy()).build().generate(factorSpace);
 
           @Override
           public Object get(int index) {

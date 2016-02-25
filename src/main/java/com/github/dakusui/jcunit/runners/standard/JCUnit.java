@@ -57,7 +57,7 @@ public class JCUnit extends Parameterized {
     try {
       ////
       // Generate a list of test cases using a specified tuple generator
-      CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.BuilderFromAnnotation(getGenerator(klass), runnerContext).build();
+      CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.FromAnnotation(getGenerator(klass), runnerContext).build();
       CoveringArray ca = coveringArrayEngine.generate(factorSpace);
       List<TestCase> testCases = Utils.newList();
       int id;

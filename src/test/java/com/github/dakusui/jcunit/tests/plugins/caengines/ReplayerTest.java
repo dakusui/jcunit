@@ -208,7 +208,7 @@ public class ReplayerTest {
     assertTrue(testClassDataDir.exists());
     assertTrue(testResult.wasSuccessful());
 
-    CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.BuilderFromAnnotation(
+    CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.FromAnnotation(
         JCUnit.getGenerator(TestClass.class),
         new RunnerContext.Base(TestClass.class)
     ).build();

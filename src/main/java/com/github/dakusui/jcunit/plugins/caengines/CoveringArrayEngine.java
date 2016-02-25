@@ -140,16 +140,16 @@ public interface CoveringArrayEngine extends Plugin {
     abstract protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker);
   }
 
-  class BuilderFromAnnotation implements BaseBuilder<CoveringArrayEngine> {
+  class FromAnnotation implements BaseBuilder<CoveringArrayEngine> {
     private final Class<? extends CoveringArrayEngine> engineClass;
     private final RunnerContext                        runnerContext;
     private final List<Value>                          configValues;
 
-    public BuilderFromAnnotation(Generator engine, RunnerContext runnerContext) {
+    public FromAnnotation(Generator engine, RunnerContext runnerContext) {
       this(engine.value(), runnerContext, Utils.asList(engine.configValues()));
     }
 
-    private BuilderFromAnnotation(Class<? extends CoveringArrayEngine> engineClass, RunnerContext context, List<Value> configValues) {
+    private FromAnnotation(Class<? extends CoveringArrayEngine> engineClass, RunnerContext context, List<Value> configValues) {
       this.engineClass = checknotnull(engineClass);
       this.runnerContext = checknotnull(context);
       this.configValues = checknotnull(Collections.unmodifiableList(configValues));

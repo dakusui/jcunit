@@ -66,7 +66,7 @@ public interface Metrics extends Plugin {
 
   List<Metric<?>> metrics();
 
-  abstract class Base<T> implements Metrics {
+  abstract class Base<T> implements Metrics{
     private final List<Metric<?>> metrics;
     private boolean processedTestSuite = false;
 
