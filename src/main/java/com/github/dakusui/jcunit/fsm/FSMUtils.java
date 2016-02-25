@@ -2,9 +2,18 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
+import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.SimpleCoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import org.hamcrest.CoreMatchers;
 
 import java.lang.reflect.Field;
@@ -17,10 +26,8 @@ import static org.junit.Assert.assertThat;
  * A utility class for FSM (finite state machine) support of JCUnit intended to be
  * used by users of JCUnit.
  */
-public class FSMUtils {
-
-  private FSMUtils() {
-  }
+public enum FSMUtils {
+  ;
 
   /**
    * Resets all stories in {@code testObject} object.
@@ -213,6 +220,63 @@ public class FSMUtils {
     } finally {
       executorService.shutdown();
     }
+  }
+
+  /**
+   * Returns a list of {@code Args} objects of a given {@code Action}.
+   * An action has {@code Parameters} object, which consists of multiple {@code Factor}s.
+   * Since a factor then has multiple possible values (levels), all the possible actual values
+   * for an action can become huge number (millions, billions, trillions...).
+   *
+   * This method returns a practical size of list whose elements are all possible to give the action.
+   * A local constraint checking will be executed to guarantee not to make each element valid.
+   *
+   * This method is used by JCUnit to find a route to a state from an initial state of a given FSM,
+   * which is necessary to generate "setUp" scenario sequence.
+   */
+  public static <SUT> List<Args> possibleArgsList(final Action<SUT> action) {
+    if (action.parameters().size() == 0) {
+      return Collections.singletonList(new Args(new Object[0]));
+    }
+    final CoveringArrayEngine engine;
+    if (action.parameters().size() == 1) {
+      engine = new SimpleCoveringArrayEngine();
+    } else {
+      engine = new IPO2CoveringArrayEngine(2);
+    }
+    final FactorSpace factorSpace = new FactorSpace(
+        FactorSpace.convertFactorsIntoSimpleFactorDefs(action.parameters()),
+        new ConstraintChecker.Base() {
+          @Override
+          public boolean check(Tuple tuple) throws UndefinedSymbol {
+
+            return action.parameters().getConstraintChecker().check(tuple);
+          }
+        }
+    );
+    final CoveringArray coveringArray = engine.generate(factorSpace);
+    return new AbstractList<Args>() {
+      @Override
+      public Args get(int index) {
+        return new Utils.Form<Tuple, Args>() {
+          @Override
+          public Args apply(final Tuple inTuple) {
+            List<Object> tmp = Utils.transform(action.parameters(), new Utils.Form<Factor, Object>() {
+              @Override
+              public Object apply(Factor inFactor) {
+                return inTuple.get(inFactor.name);
+              }
+            });
+            return new Args(tmp.toArray());
+          }
+        }.apply(coveringArray.get(index));
+      }
+
+      @Override
+      public int size() {
+        return coveringArray.size();
+      }
+    };
   }
 
   /**

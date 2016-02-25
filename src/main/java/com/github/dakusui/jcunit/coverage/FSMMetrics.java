@@ -4,10 +4,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class FSMMetrics extends Metrics.Base implements Metrics {
   private final FSM<?> targetFSM;
@@ -77,7 +74,7 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
   public Metric.CoverageMetric<Switch> switchCoverage() {
     final int degree = 1;
     Checks.checkcond(this.historyLength > degree);
-    return new Metric.CoverageMetric<Switch>(allSwithesOf(this.targetFSM, this.switchCoverage)) {
+    return new Metric.CoverageMetric<Switch>(allSwitchesOf(this.targetFSM, this.switchCoverage)) {
       @Override
       protected Set<Switch> getCoveredItemsBy(Tuple tuple) {
         ScenarioSequence scenarioSequence = createScenarioSequenceFromTuple(tuple);
@@ -97,21 +94,21 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
     };
   }
 
-  private static Set<Switch> allSwithesOf(FSM<?> targetFSM, int degree) {
+  private static Set<Switch> allSwitchesOf(FSM<?> targetFSM, int degree) {
     Checks.checknotnull(targetFSM);
     Checks.checkcond(degree >= 1);
     Set<Switch> ret = new HashSet<Switch>();
     if (degree == 1) {
-      for (State eachState : targetFSM.states()) {
-        for (Action from : actionsFrom(eachState, targetFSM)) {
-          for (Action to : actionsTo(eachState, targetFSM)) {
+      for (State<?> eachState : targetFSM.states()) {
+        for (Action<?> from : actionsFrom(eachState, targetFSM)) {
+          for (Action<?> to : actionsTo(eachState, targetFSM)) {
             ret.add(new Switch(from, eachState, to));
           }
         }
       }
     } else {
-      for (Switch each : allSwithesOf(targetFSM, degree - 1)) {
-        for (State nextState : nextStatesOf(each, targetFSM)) {
+      for (Switch each : allSwitchesOf(targetFSM, degree - 1)) {
+        for (State nextState : nextStatesOf(each)) {
           for (Action nextAction : actionsFrom(nextState, targetFSM)) {
             ret.add(new Switch(each, nextState, nextAction));
           }
@@ -121,16 +118,58 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
     return ret;
   }
 
-  private static Set<Action> actionsFrom(State state, FSM targetFSM) {
-    return new HashSet<Action>();
+  private static Set<Action<?>> actionsFrom(State<?> state, FSM<?> targetFSM) {
+    Set<Action<?>> ret = new HashSet<Action<?>>();
+    for (Action<?> eachAction : targetFSM.actions()) {
+      for (Args eachArgs : possibleArgsSet(eachAction)) {
+        ////
+        // Couldn't be fixed
+        @SuppressWarnings("unchecked")
+        Expectation<?> expectation = ((State)state).expectation(eachAction, eachArgs);
+        if (expectation.getType() == Output.Type.VALUE_RETURNED) {
+          ret.add(eachAction);
+        }
+      }
+    }
+    return ret;
   }
 
-  private static Set<Action> actionsTo(State state, FSM targetFSM) {
-    return new HashSet<Action>();
+  private static Set<Action<?>> actionsTo(State<?> state, FSM<?> targetFSM) {
+    Set<Action<?>> ret = new HashSet<Action<?>>();
+    for (State<?> fromState : targetFSM.states()) {
+      for (Action<?> eachAction : targetFSM.actions()) {
+        for (Args eachArgs : possibleArgsSet(eachAction)) {
+          ////
+          // Couldn't be fixed
+          @SuppressWarnings("unchecked")
+          Expectation<?> expectation = ((State)fromState).expectation(eachAction, eachArgs);
+          if (expectation.getType() == Output.Type.VALUE_RETURNED && expectation.state == state) {
+            ret.add(eachAction);
+          }
+        }
+      }
+    }
+    return ret;
   }
 
-  private static State[] nextStatesOf(Switch sw, FSM targetFSM) {
-    return new State[0];
+  private static Set<State<?>> nextStatesOf(Switch sw) {
+    Set<State<?>> ret = new HashSet<State<?>>();
+    State<?> lastState = sw.getLastState();
+    Action<?> lastAction = sw.getLastAction();
+    for (Args eachArgs : possibleArgsSet(lastAction)) {
+      ////
+      // Couldn't be fixed
+      @SuppressWarnings("unchecked")
+      Expectation<?> expectation = ((State)lastState).expectation(lastAction, eachArgs);
+      if (expectation.getType() == Output.Type.VALUE_RETURNED) {
+        ret.add(expectation.state);
+      }
+    }
+    return ret;
+  }
+
+  private static Set<Args> possibleArgsSet(Action<?> action) {
+    return new HashSet<Args>(FSMUtils.possibleArgsList(action));
   }
 
   private ScenarioSequence createScenarioSequence(final ScenarioSequence sequence, final int offset, final int length) {
@@ -179,52 +218,66 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
     };
   }
 
-  public static class Switch {
-    private final List<State>  states;
-    private final List<Action> actions;
+public static class Switch {
+  private final List<State<?>>  states;
+  private final List<Action<?>> actions;
 
-    private Switch(int degree) {
-      this.states = new ArrayList<State>(degree);
-      this.actions = new ArrayList<Action>(degree + 1);
-    }
-    Switch(Action in, State state, Action out) {
-      this(1);
-      this.actions.add(in);
-      this.states.add(state);
-      this.actions.add(out);
-    }
-    Switch(int degree, ScenarioSequence<?> sequence) {
-      this(degree);
-      for (int i = 0; i <= degree; i++) {
-        if (i > 0) {
-          states.add(sequence.get(i).given);
-        }
-        actions.add(sequence.get(i).when);
+  private Switch(int numberOfSwitches) {
+    this.states = new ArrayList<State<?>>(numberOfSwitches);
+    this.actions = new ArrayList<Action<?>>(numberOfSwitches + 1);
+  }
+
+  Switch(Action<?> in, State<?> state, Action<?> out) {
+    this(1);
+    this.actions.add(in);
+    this.states.add(state);
+    this.actions.add(out);
+  }
+
+  /*
+   * This constructor is actually used by allSwitchesMethod but my compiler (IntelliJ) complains with a warning.
+   */
+  @SuppressWarnings("unused")
+  Switch(int degree, ScenarioSequence<?> sequence) {
+    this(degree);
+    for (int i = 0; i <= degree; i++) {
+      if (i > 0) {
+        states.add(sequence.get(i).given);
       }
-    }
-
-    public Switch(Switch base, State nextState, Action nextAction) {
-      this(base.states.size() + 1);
-      Checks.checknotnull(nextAction);
-      Checks.checknotnull(nextState);
-      Checks.checknotnull(base);
-      this.states.addAll(base.states);
-      this.states.add(nextState);
-      this.actions.addAll(base.actions);
-      this.actions.add(nextAction);
-    }
-
-    @Override
-    public int hashCode() {
-      return this.states.hashCode() + this.actions.hashCode();
-    }
-
-    @Override
-    final public boolean equals(Object anotherObject) {
-      if (!(anotherObject instanceof Switch))
-        return false;
-      Switch another = (Switch) anotherObject;
-      return this.states.equals(another.states) && this.actions.equals(another.actions);
+      actions.add(sequence.get(i).when);
     }
   }
+
+  public Switch(Switch base, State nextState, Action nextAction) {
+    this(base.states.size() + 1);
+    Checks.checknotnull(nextAction);
+    Checks.checknotnull(nextState);
+    Checks.checknotnull(base);
+    this.states.addAll(base.states);
+    this.states.add(nextState);
+    this.actions.addAll(base.actions);
+    this.actions.add(nextAction);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.states.hashCode() + this.actions.hashCode();
+  }
+
+  @Override
+  final public boolean equals(Object anotherObject) {
+    if (!(anotherObject instanceof Switch))
+      return false;
+    Switch another = (Switch) anotherObject;
+    return this.states.equals(another.states) && this.actions.equals(another.actions);
+  }
+
+  public State getLastState() {
+    return states.get(states.size() -1);
+  }
+
+  public Action getLastAction() {
+    return actions.get(actions.size() - 1);
+  }
+}
 }

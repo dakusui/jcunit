@@ -14,9 +14,8 @@ import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public class TupleUtils {
-  private TupleUtils() {
-  }
+public enum TupleUtils {
+  ;
 
   public static CartesianTuples enumerateCartesianProduct(final Tuple base, Factor... factors) {
     Checks.checknotnull(base);

@@ -1,15 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.FactorSpace;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
-import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.SimpleCoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.*;
 
@@ -117,7 +108,7 @@ public interface StateRouter<SUT> {
       final Map<State<SUT>, List<State<SUT>>> ret = Utils.newMap();
       for (State<SUT> eachFromState : fsm.states()) {
         for (Action<SUT> eachAction : fsm.actions()) {
-          for (Args eachArgs : possibleArgsList(eachAction)) {
+          for (Args eachArgs : FSMUtils.possibleArgsList(eachAction)) {
             State<SUT> eachToState = eachFromState.expectation(eachAction, eachArgs).state;
             if (State.Void.getInstance().equals(eachToState))
               continue;
@@ -140,7 +131,7 @@ public interface StateRouter<SUT> {
       final Map<StatePair<SUT>, FSM.Edge<SUT>> edges = Utils.newMap();
       for (State<SUT> fromState : fsm.states()) {
         for (Action<SUT> eachAction : fsm.actions()) {
-          for (Args eachArgs : possibleArgsList(eachAction)) {
+          for (Args eachArgs : FSMUtils.possibleArgsList(eachAction)) {
             State<SUT> toState = fromState.expectation(eachAction, eachArgs).state;
             if (State.Void.getInstance().equals(toState))
               continue;
@@ -154,53 +145,6 @@ public interface StateRouter<SUT> {
       return edges;
     }
 
-
-    List<Args> possibleArgsList(final Action<SUT> action) {
-      if (action.parameters().size() == 0) {
-        return Collections.singletonList(new Args(new Object[0]));
-      }
-      final CoveringArrayEngine engine;
-      if (action.parameters().size() == 1) {
-        engine = new SimpleCoveringArrayEngine();
-      } else {
-        engine = new IPO2CoveringArrayEngine(2);
-      }
-      final FactorSpace factorSpace = new FactorSpace(
-          FactorSpace.convertFactorsIntoSimpleFactorDefs(action.parameters()),
-          ////
-          // TODO: Build a local constraint checker here. (#35)
-          new ConstraintChecker.Base() {
-            @Override
-            public boolean check(Tuple tuple) throws UndefinedSymbol {
-
-              return action.parameters().getConstraintChecker().check(tuple);
-            }
-          }
-      );
-      final CoveringArray coveringArray = engine.generate(factorSpace);
-      return new AbstractList<Args>() {
-        @Override
-        public Args get(int index) {
-          return new Utils.Form<Tuple, Args>() {
-            @Override
-            public Args apply(final Tuple inTuple) {
-              List<Object> tmp = Utils.transform(action.parameters(), new Utils.Form<Factor, Object>() {
-                @Override
-                public Object apply(Factor inFactor) {
-                  return inTuple.get(inFactor.name);
-                }
-              });
-              return new Args(tmp.toArray());
-            }
-          }.apply(coveringArray.get(index));
-        }
-
-        @Override
-        public int size() {
-          return coveringArray.size();
-        }
-      };
-    }
 
     static class StatePair<SUT> {
       State<SUT> from;

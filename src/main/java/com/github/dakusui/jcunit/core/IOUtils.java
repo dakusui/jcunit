@@ -4,9 +4,8 @@ import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.io.*;
 
-public class IOUtils {
-  private IOUtils() {
-  }
+public enum IOUtils {
+  ;
 
   /**
    * Creates a file using {@code java.io.File#createNewFile()} method.

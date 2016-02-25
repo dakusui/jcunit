@@ -12,7 +12,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 
-public class ReflectionUtils {
+public enum ReflectionUtils {
+  ;
   private static final Class<?>[][] primitivesAndWrappers = new Class<?>[][] {
       new Class[] { boolean.class, Boolean.class },
       new Class[] { byte.class, Byte.class },
@@ -23,9 +24,6 @@ public class ReflectionUtils {
       new Class[] { float.class, Float.class },
       new Class[] { double.class, Double.class },
   };
-
-  private ReflectionUtils() {
-  }
 
   public static List<Method> getMethods(Class<?> clazz) {
     return Utils.sort(Utils.asList(clazz.getMethods()), BY_MEMBER_NAME);

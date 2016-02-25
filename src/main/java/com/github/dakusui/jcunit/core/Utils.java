@@ -14,10 +14,8 @@ import java.util.*;
  * This is because JCUnit's nature which should be able to be used for any other software
  * (at least as much as possible, I want to make it so).
  */
-public class Utils {
-  private Utils() {
-  }
-
+public enum Utils {
+  ;
 
   /**
    * Returns {@code true} if {@code v} and {@code} are equal,

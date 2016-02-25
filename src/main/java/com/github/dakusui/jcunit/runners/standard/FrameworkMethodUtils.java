@@ -15,9 +15,8 @@ import java.lang.reflect.Method;
 /**
  * A class that holds utility methods to retrieve and validate framework methods.
  */
-public class FrameworkMethodUtils {
-  private FrameworkMethodUtils() {
-  }
+public enum FrameworkMethodUtils {
+  ;
 
   public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, Annotation from) {
     Checks.checknotnull(testClass);
