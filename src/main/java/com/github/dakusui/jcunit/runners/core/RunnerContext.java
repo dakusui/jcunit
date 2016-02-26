@@ -11,7 +11,9 @@ public interface RunnerContext {
     DUMMY("") {
     },
     TEST_CLASS("testClass") {
-    }, RESOLVER("resolver");
+    }, RESOLVER("resolver"),
+    TARGET_ELEMENT_NANE("targetElementName") {
+    };
 
     private final String name;
 

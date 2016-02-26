@@ -3,8 +3,13 @@ package com.github.dakusui.jcunit.coverage;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FSMMetrics extends Metrics.Base implements Metrics {
   private final FSM<?> targetFSM;
@@ -12,14 +17,19 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
   private final String targetFSMName;
   private final int    switchCoverage;
 
-  public FSMMetrics(String fsmName, FSM<?> fsm, int historyLength, int switchCoverage) {
+  public FSMMetrics(
+      @Param(source = Param.Source.RUNNER, contextKey = RunnerContext.Key.TARGET_ELEMENT_NANE) String fsmName,
+      FSM<?> fsm,
+      int historyLength,
+      @Param(source = Param.Source.TARGET_ELEMENT) FactorField factorField,
+      @Param(source = Param.Source.CONFIG) int switchCoverage) {
     Checks.checknotnull(fsmName);
     Checks.checknotnull(fsm);
     Checks.checkcond(historyLength > 0);
     this.targetFSMName = fsmName;
     this.targetFSM = fsm;
     this.historyLength = historyLength;
-    this.switchCoverage = 1;
+    this.switchCoverage = switchCoverage;
   }
 
   private ScenarioSequence createScenarioSequenceFromTuple(Tuple tuple) {
@@ -125,7 +135,7 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
         ////
         // Couldn't be fixed
         @SuppressWarnings("unchecked")
-        Expectation<?> expectation = ((State)state).expectation(eachAction, eachArgs);
+        Expectation<?> expectation = ((State) state).expectation(eachAction, eachArgs);
         if (expectation.getType() == Output.Type.VALUE_RETURNED) {
           ret.add(eachAction);
         }
@@ -142,7 +152,7 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
           ////
           // Couldn't be fixed
           @SuppressWarnings("unchecked")
-          Expectation<?> expectation = ((State)fromState).expectation(eachAction, eachArgs);
+          Expectation<?> expectation = ((State) fromState).expectation(eachAction, eachArgs);
           if (expectation.getType() == Output.Type.VALUE_RETURNED && expectation.state == state) {
             ret.add(eachAction);
           }
@@ -160,7 +170,7 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
       ////
       // Couldn't be fixed
       @SuppressWarnings("unchecked")
-      Expectation<?> expectation = ((State)lastState).expectation(lastAction, eachArgs);
+      Expectation<?> expectation = ((State) lastState).expectation(lastAction, eachArgs);
       if (expectation.getType() == Output.Type.VALUE_RETURNED) {
         ret.add(expectation.state);
       }
@@ -218,66 +228,66 @@ public class FSMMetrics extends Metrics.Base implements Metrics {
     };
   }
 
-public static class Switch {
-  private final List<State<?>>  states;
-  private final List<Action<?>> actions;
+  public static class Switch {
+    private final List<State<?>>  states;
+    private final List<Action<?>> actions;
 
-  private Switch(int numberOfSwitches) {
-    this.states = new ArrayList<State<?>>(numberOfSwitches);
-    this.actions = new ArrayList<Action<?>>(numberOfSwitches + 1);
-  }
+    private Switch(int numberOfSwitches) {
+      this.states = new ArrayList<State<?>>(numberOfSwitches);
+      this.actions = new ArrayList<Action<?>>(numberOfSwitches + 1);
+    }
 
-  Switch(Action<?> in, State<?> state, Action<?> out) {
-    this(1);
-    this.actions.add(in);
-    this.states.add(state);
-    this.actions.add(out);
-  }
+    Switch(Action<?> in, State<?> state, Action<?> out) {
+      this(1);
+      this.actions.add(in);
+      this.states.add(state);
+      this.actions.add(out);
+    }
 
-  /*
-   * This constructor is actually used by allSwitchesMethod but my compiler (IntelliJ) complains with a warning.
-   */
-  @SuppressWarnings("unused")
-  Switch(int degree, ScenarioSequence<?> sequence) {
-    this(degree);
-    for (int i = 0; i <= degree; i++) {
-      if (i > 0) {
-        states.add(sequence.get(i).given);
+    /*
+     * This constructor is actually used by allSwitchesMethod but my compiler (IntelliJ) complains with a warning.
+     */
+    @SuppressWarnings("unused")
+    Switch(int degree, ScenarioSequence<?> sequence) {
+      this(degree);
+      for (int i = 0; i <= degree; i++) {
+        if (i > 0) {
+          states.add(sequence.get(i).given);
+        }
+        actions.add(sequence.get(i).when);
       }
-      actions.add(sequence.get(i).when);
+    }
+
+    public Switch(Switch base, State nextState, Action nextAction) {
+      this(base.states.size() + 1);
+      Checks.checknotnull(nextAction);
+      Checks.checknotnull(nextState);
+      Checks.checknotnull(base);
+      this.states.addAll(base.states);
+      this.states.add(nextState);
+      this.actions.addAll(base.actions);
+      this.actions.add(nextAction);
+    }
+
+    @Override
+    public int hashCode() {
+      return this.states.hashCode() + this.actions.hashCode();
+    }
+
+    @Override
+    final public boolean equals(Object anotherObject) {
+      if (!(anotherObject instanceof Switch))
+        return false;
+      Switch another = (Switch) anotherObject;
+      return this.states.equals(another.states) && this.actions.equals(another.actions);
+    }
+
+    public State getLastState() {
+      return states.get(states.size() - 1);
+    }
+
+    public Action getLastAction() {
+      return actions.get(actions.size() - 1);
     }
   }
-
-  public Switch(Switch base, State nextState, Action nextAction) {
-    this(base.states.size() + 1);
-    Checks.checknotnull(nextAction);
-    Checks.checknotnull(nextState);
-    Checks.checknotnull(base);
-    this.states.addAll(base.states);
-    this.states.add(nextState);
-    this.actions.addAll(base.actions);
-    this.actions.add(nextAction);
-  }
-
-  @Override
-  public int hashCode() {
-    return this.states.hashCode() + this.actions.hashCode();
-  }
-
-  @Override
-  final public boolean equals(Object anotherObject) {
-    if (!(anotherObject instanceof Switch))
-      return false;
-    Switch another = (Switch) anotherObject;
-    return this.states.equals(another.states) && this.actions.equals(another.actions);
-  }
-
-  public State getLastState() {
-    return states.get(states.size() -1);
-  }
-
-  public Action getLastAction() {
-    return actions.get(actions.size() - 1);
-  }
-}
 }
