@@ -124,6 +124,7 @@ public class JCUnit extends Parameterized {
   private List<TestCase> loadTestCases(Class<?> javaClass) {
     File testSuiteFile = IOUtils.determineTestSuiteFile(Checks.checknotnull(javaClass));
     List<?> ret = IOUtils.load(List.class, testSuiteFile);
+    //noinspection unchecked
     return (List<TestCase>)ret;
   }
 

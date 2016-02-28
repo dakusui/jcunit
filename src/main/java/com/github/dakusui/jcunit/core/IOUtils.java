@@ -162,9 +162,4 @@ public enum IOUtils {
     String filename = String.format("%s/testsuites/%s/testsuite.dat", SystemProperties.jcunitBaseDir(), fqcn);
     return new File(filename);
   }
-
-  public static void main(String... args) {
-    System.out.println(System.getProperty("user.dir"));
-    System.out.println(System.getProperty("user.home.dir"));
-  }
 }
