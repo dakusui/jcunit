@@ -88,7 +88,7 @@ public class NestedFSMExample {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<FlyingSpaghettiMonster, Spec> primary;
 
-  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = { @Value("2") })
+  @FactorField(levelsProvider = FSMLevelsProvider.class, args = { @Value("2") })
   public Story<String, NestedSpec> nested;
 
   @Before

@@ -57,6 +57,13 @@ public @interface Value {
     }
   }
 
+  /**
+   * A resolver that converts {@literal @}{@code Value} into a value whose type is specified as
+   * a parameter type of constructor.
+   *
+   * By this resolver, values given by {@literal @}{@code Value} annotation become actual values
+   * that are used by plug-in implementations.
+   */
   class Resolver extends Plugin.Param.Resolver<Value> {
     public Resolver() {
       super(createConverters(PluginUtils.StringArrayResolver.INSTANCE.allConverters()));

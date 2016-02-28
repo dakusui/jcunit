@@ -3,100 +3,193 @@ package com.github.dakusui.jcunit.coverage;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
+import com.github.dakusui.jcunit.runners.standard.annotations.Reporter;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
-public interface Metrics extends Plugin {
+/**
+ * An interface of classes that calculate some metrics about a set of {@code T} instances.
+ *
+ * @param <T> Typically {@code Tuple}
+ * @see FSMMetrics
+ */
+public interface Metrics<T> extends Plugin {
+  void process(List<T> testSuite);
+
+  List<Metric<T>> metrics();
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @Target(ElementType.METHOD)
+  @interface Item {
+  }
+
   interface Metric<T> {
+    void processEach(T tuple);
+
     String name();
 
-    T value();
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.METHOD)
+    @interface Attribute {
+    }
 
-    Class<T> type();
+    class Value {
+      public final Class<?> type;
+      public final Object   value;
+      public final String name;
 
-    void processTestCase(Tuple tuple);
-
-    abstract class CoverageMetric<T> implements Metric<Double> {
-      private final Set<T> notCovered;
-      private final int total;
-
-      public CoverageMetric(Set<T> toCover) {
-        Checks.checknotnull(toCover);
-        Checks.checkcond(toCover.size() > 0);
-        this.notCovered = new HashSet<T>(toCover);
-        this.total = this.notCovered.size();
+      public Value(String name, Class<?> type, Object value) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
       }
+    }
 
-      @Override
-      public Double value() {
-        return (double) this.getCovered() / (double) this.getTotal();
+    enum Utils {
+      ;
+      static List<Value> valuesOf(Metric<?> metric) {
+        Checks.checknotnull(metric);
+        LinkedList<Metric.Value> ret = new LinkedList<Value>();
+        for (Method each : ReflectionUtils.getAnnotatedMethods(metric.getClass(), Attribute.class)) {
+          ret.add(new Value(
+              each.getName(),
+              each.getReturnType(),
+              ReflectionUtils.invoke(metric, each)
+          ));
+        }
+        return ret;
       }
-
-      @Override
-      public Class<Double> type() {
-        return Double.class;
-      }
-
-      @Override
-      public void processTestCase(Tuple tuple) {
-        this.notCovered.removeAll(this.getCoveredItemsBy(tuple));
-      }
-
-      abstract protected Set<T> getCoveredItemsBy(Tuple tuple);
-
-      protected int getCovered() {
-        return getTotal() - this.notCovered.size();
-      };
-
-      protected int getTotal() {
-        return this.total;
-      };
     }
   }
 
-  void processTestSuite(List<Tuple> testSuite);
+  abstract class RatioMetric<T> implements Metric<T> {
+    @Attribute
+    public double getRatio() {
+      return (double) this.getNumerator() / (double) this.getDenominator();
+    }
 
-  List<Metric<?>> metrics();
+    @Attribute
+    abstract int getNumerator();
 
-  abstract class Base<T> implements Metrics{
-    private final List<Metric<?>> metrics;
-    private boolean processedTestSuite = false;
+    @Attribute
+    abstract int getDenominator();
+  }
+
+  abstract class CountMetric<T> extends RatioMetric<T> {
+    private int count   = 0;
+    private int matched = 0;
+
+    @Override
+    public void processEach(T each) {
+      this.count++;
+      if (matches(each)) {
+        this.matched++;
+      }
+    }
+
+    abstract protected boolean matches(T each);
+
+    @Override
+    int getNumerator() {
+      return this.matched;
+    }
+
+    @Override
+    int getDenominator() {
+      return this.count;
+    }
+  }
+
+  /**
+   * A metrics base class that calculates figures about how registered {@code C} instances are
+   * covered by {@code T} instances given by {@code process} method.
+   *
+   * @param <C> {@code Switch} for instance.
+   * @param <T> Typically {@code Tuple}.
+   * @see FSMMetrics#switchCoverage()
+   */
+  abstract class CoverageMetric<C, T> extends RatioMetric<T> {
+    private final Set<C> notCovered;
+    private final int    total;
+
+    public CoverageMetric(Set<C> toCover) {
+      Checks.checknotnull(toCover);
+      Checks.checkcond(toCover.size() > 0);
+      this.notCovered = new HashSet<C>(toCover);
+      this.total = this.notCovered.size();
+    }
+
+    @Attribute
+    @Override
+    public int getNumerator() {
+      return getDenominator() - this.notCovered.size();
+    }
+
+    @Attribute
+    @Override
+    public int getDenominator() {
+      return this.total;
+    }
+
+    @Override
+    public void processEach(T t) {
+      this.notCovered.removeAll(this.getCoveredItemsBy(t));
+    }
+
+    abstract protected Set<C> getCoveredItemsBy(T t);
+  }
+
+  abstract class Base<T> implements Metrics<T> {
+    private List<Metric<T>> metrics            = null;
+    private boolean         testSuiteProcessed = false;
 
     public Base() {
+    }
+
+
+    @Override
+    public void process(List<T> targetList) {
+      Checks.checkcond(
+          !this.testSuiteProcessed,
+          "This object has already processed a test suite. Create a new one."
+      );
       this.metrics = createMetrics();
-    }
-
-    @Override
-    public void processTestSuite(List<Tuple> testSuite) {
-      Checks.checkcond(!this.processedTestSuite, "This object has already processed a test suite. Create a new one.");
-      for (Tuple testCase : testSuite) {
-        for (Metric<?> eachMetric : this.metrics()) {
-          eachMetric.processTestCase(testCase);
-        }
+      for (T eachTarget : targetList) {
+        this.processEach(eachTarget);
       }
-      this.processedTestSuite = true;
+      this.testSuiteProcessed = true;
+    }
+
+    protected void processEach(T testCase) {
+      for (Metric<T> eachCoverageMetric : this.metrics()) {
+        eachCoverageMetric.processEach(testCase);
+      }
     }
 
     @Override
-    public List<Metric<?>> metrics() {
+    public List<Metric<T>> metrics() {
       return this.metrics;
     }
 
-    private List<Metric<?>> createMetrics() {
-      List<Metric<?>> ret = new LinkedList<Metric<?>>();
+    private List<Metric<T>> createMetrics() {
+      List<Metric<T>> ret = new LinkedList<Metric<T>>();
       List<Method> invalidMethods = new LinkedList<Method>();
       List<Method> validMethods = new LinkedList<Method>();
 
       for (Method each : ReflectionUtils.getMethods(this.getClass())) {
-        if (each.getAnnotation(MetricItem.class) != null) {
+        if (each.getAnnotation(Item.class) != null) {
           if (validateMetricMethod(each)) {
             validMethods.add(each);
           } else {
@@ -106,7 +199,8 @@ public interface Metrics extends Plugin {
       }
       if (invalidMethods.isEmpty()) {
         for (Method each : validMethods) {
-          ret.add((Metric) ReflectionUtils.invoke(this, each));
+          //noinspection unchecked
+          ret.add((Metric<T>) Checks.cast(Metric.class, ReflectionUtils.invoke(this, each)));
         }
       } else {
         throw invalidMetrics(invalidMethods);
@@ -119,7 +213,7 @@ public interface Metrics extends Plugin {
           "(%s)Following methods in class %s are not valid. Check they return %s, have no parameter, and have public access:%s",
           "Metrics",
           this.getClass().getCanonicalName(),
-          Metric.class.getCanonicalName(),
+          CoverageMetric.class.getCanonicalName(),
           Utils.transform(invalidMethods, new Utils.Form<Method, String>() {
             @Override
             public String apply(Method in) {
@@ -131,17 +225,32 @@ public interface Metrics extends Plugin {
     }
 
     protected boolean validateMetricMethod(Method method) {
-      if (!Metric.class.isAssignableFrom(method.getReturnType()))
-        return false;
-      if (method.getParameterTypes().length != 0)
-        return false;
-      return true;
+      return Metric.class.isAssignableFrom(method.getReturnType()) && method.getParameterTypes().length == 0;
+    }
+  }
+
+  class Builder {
+    private final Class<? extends Metrics<?>> metricsClass;
+    private final RunnerContext               runnerContext;
+    private final List<Value>                 configValues;
+
+    public Builder(Reporter reporter, RunnerContext runnerContext) {
+      //noinspection unchecked
+      this((Class<? extends Metrics<?>>) reporter.value(), runnerContext, Utils.asList(reporter.args()));
     }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface MetricItem {
+    private Builder(Class<? extends Metrics<?>> metricsClass, RunnerContext runnerContext, List<Value> configValues) {
+      this.metricsClass = metricsClass;
+      this.runnerContext = runnerContext;
+      this.configValues = configValues;
     }
 
+
+    public <T> Metrics<T> build() {
+      Plugin.Factory<Metrics<?>, Value> pluginFactory
+          = Factory.newFactory(this.metricsClass, new Value.Resolver(), this.runnerContext);
+      //noinspection unchecked
+      return (Metrics<T>) pluginFactory.create(this.configValues);
+    }
   }
 }

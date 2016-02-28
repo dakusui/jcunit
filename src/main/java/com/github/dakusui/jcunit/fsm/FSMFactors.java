@@ -32,16 +32,9 @@ import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.*;
  */
 public class FSMFactors extends Factors {
   public static final Object VOID = new Object();
-  private final String name;
 
-
-  private FSMFactors(String name, List<Factor> fsmFactors) {
+  private FSMFactors(List<Factor> fsmFactors) {
     super(fsmFactors);
-    this.name = name;
-  }
-
-  public String getName() {
-    return this.name;
   }
 
   public static class Builder extends Factors.Builder {
@@ -122,7 +115,7 @@ public class FSMFactors extends Factors {
           }
         }
       }
-      return new FSMFactors(this.fsmName, this.factors);
+      return new FSMFactors(this.factors);
     }
   }
 }

@@ -57,7 +57,7 @@ public class TheoriesExample2 {
 
   @Theory
   @GenerateWith(
-      generator = @Generator(value = IPO2CoveringArrayEngine.class, configValues = { @Value("3") }),
+      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("3") }),
       checker = @Checker(CM.class)
   )
   public void test1(
@@ -70,7 +70,7 @@ public class TheoriesExample2 {
   }
 
   @Theory
-  @GenerateWith(generator = @Generator(value = IPO2CoveringArrayEngine.class, configValues = { @Value("2") }))
+  @GenerateWith(generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("2") }))
   public void test2(
       @FromDataPoints("posInt") int a,
       @FromDataPoints("negInt") int b

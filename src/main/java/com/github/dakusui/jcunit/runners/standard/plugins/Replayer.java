@@ -17,8 +17,6 @@ import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class Replayer extends CoveringArrayEngine.Base {
   private final GenerationMode            generationMode;
@@ -50,7 +48,7 @@ public class Replayer extends CoveringArrayEngine.Base {
    * @param dataDirName         A directory to store execution data of this class.
    */
   public Replayer(
-      @Param(contextKey = RunnerContext.Key.TEST_CLASS, source = Param.Source.RUNNER) Class<?> testClass,
+      @Param(contextKey = RunnerContext.Key.TEST_CLASS, source = Param.Source.CONTEXT) Class<?> testClass,
       @Param(source = Param.Source.CONFIG,
           defaultValue = { "com.github.dakusui.jcunit.plugins.caengines.IPO2CAEngine", "2" })
       CoveringArrayEngine coveringArrayEngine,

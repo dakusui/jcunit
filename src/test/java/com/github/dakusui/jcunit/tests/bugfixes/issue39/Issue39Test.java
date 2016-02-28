@@ -42,7 +42,7 @@ public class Issue39Test extends Metatest {
       }
     }
 
-    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = {@Value("2")})
+    @FactorField(levelsProvider = FSMLevelsProvider.class, args = {@Value("2")})
     public Story<String, Spec> story;
 
     @Test

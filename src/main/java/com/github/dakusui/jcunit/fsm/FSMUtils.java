@@ -17,6 +17,7 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import org.hamcrest.CoreMatchers;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -220,6 +221,27 @@ public enum FSMUtils {
     } finally {
       executorService.shutdown();
     }
+  }
+
+  /**
+   * {@code f} Must be annotated with {@code FactorField}. Its {@code levelsProvider} must be an FSMLevelsProvider.
+   * Typed with {@code Story} class.
+   *
+   * @param f              A field from which an FSM is created.
+   * @return Created FSM object
+   */
+  public static FSM<Object> createFSM(Field f) {
+    Checks.checknotnull(f);
+    Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
+    //noinspection unchecked
+    return createFSM(f.getName(), (Class<? extends FSMSpec<Object>>) clazz);
+  }
+
+  /**
+   * Create an FSM object from given {@code FSMSpec} and {@code fsmName}
+   */
+  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass) {
+    return new FSM.Base<SUT>(fsmName, fsmSpecClass);
   }
 
   /**

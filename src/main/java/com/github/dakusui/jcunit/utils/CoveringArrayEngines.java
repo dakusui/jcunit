@@ -12,10 +12,8 @@ import java.util.Arrays;
 /**
  * A collection of convenience methods to instantiate covering array engines.
  */
-public class CoveringArrayEngines {
-  private CoveringArrayEngines() {
-
-  }
+public enum CoveringArrayEngines {
+  ;
 
   private static CoveringArrayEngine.Builder<String[]> createSimpleBuilder(
       Factors factors,

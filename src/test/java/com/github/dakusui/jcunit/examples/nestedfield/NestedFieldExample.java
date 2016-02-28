@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.examples.models.calc.Calc;
-import com.github.dakusui.jcunit.testutils.Metatest;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,7 +19,7 @@ public class NestedFieldExample {
   @GenerateCoveringArrayWith(
       engine = @Generator(
           value = IPO2CoveringArrayEngine.class,
-          configValues = @Value("2")
+          args = @Value("2")
       ))
   public static class Struct {
     @FactorField(intLevels = { 123, 456 })

@@ -1,237 +1,63 @@
 package com.github.dakusui.jcunit.coverage;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
-import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
-import java.io.PrintStream;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
-/**
- * A class to measure t-way coverage.
- */
-public class CombinatorialMetrics {
-  public final  int                 degree;
-  public final  int                 initialSize;
-  public final  Factors             factorSpace;
-  private final Set<Tuple>          yetToBeCovered;
-  private final Set<Tuple>          uncoveredInWeakerDegree;
-  private final Set<Tuple>          violations;
-  public final  ConstraintChecker   cm;
-  public final  CombinatorialReport report;
-  private       int                 covered;
-  protected State state = State.NOT_PROCESSED;
+public class CombinatorialMetrics extends Metrics.Base<Tuple> {
+  private final Factors           factors;
+  private final ConstraintChecker cm;
+  private final int               degree;
 
-  /**
-   * Creates an object of this class.
-   *
-   * @param uncoveredInWeakerDegree Tuples whose degree are less than {@code degree} and known impossible.
-   * @param factors                 A factor space where test suite's coverage is examined.
-   * @param degree                  Strength (number of attributes involved).
-   */
   public CombinatorialMetrics(
-      Factors factors,
-      final int degree,
-      ConstraintChecker cm,
-      final Set<Tuple> uncoveredInWeakerDegree,
-      CombinatorialReport report) {
-    Checks.checkcond(degree > 0);
-    Checks.checkcond(degree <= factors.size(), "degree=%s, factors.size=%s", degree, factors.size());
-    this.factorSpace = Checks.checknotnull(factors);
+      @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTOR_SPACE) FactorSpace factorSpace,
+      @Param(source = Param.Source.CONFIG) int degree) {
+    Checks.checknotnull(factorSpace);
+    Checks.checkcond(degree > 0 && factorSpace.factors.size() >= degree);
+    this.factors = factorSpace.factors;
+    this.cm = factorSpace.constraintChecker;
     this.degree = degree;
-    this.report = Checks.checknotnull(report);
-    this.uncoveredInWeakerDegree = new LinkedHashSet<Tuple>();
-    this.violations = new LinkedHashSet<Tuple>();
-    this.cm = Checks.checknotnull(cm);
-    this.covered = 0;
-    if (this.degree == 1) {
-      this.yetToBeCovered = new LinkedHashSet<Tuple>(factors.generateAllPossibleTuples(1));
-      int c = 0;
-      for (Factor each : factors) {
-        c += each.levels.size();
-      }
-      this.initialSize = c;
-    } else {
-      ////
-      // Any better way than this hack?
-      final int[] c = new int[] { 0 };
-      this.yetToBeCovered = new LinkedHashSet<Tuple>(factors.generateAllPossibleTuples(
-          degree,
-          new Utils.Predicate<Tuple>() {
-            @Override
-            public boolean apply(Tuple in) {
-              c[0]++;
-              for (Tuple each : subtuplesOf(in, degree - 1)) {
-                ////
-                // argument 'uncoveredInWeakerDegree` holds tuples not covered in
-                // the parent of this object.
-                // This statement will convert tuples in the set into one-degree-stronger,
-                // which is suitable for this instance.
-                if (uncoveredInWeakerDegree.contains(each)) {
-                  CombinatorialMetrics.this.uncoveredInWeakerDegree.add(in);
-                }
-              }
-              //noinspection EmptyCatchBlock
-              try {
-                if (!CombinatorialMetrics.this.cm.check(in)) {
-                  CombinatorialMetrics.this.violations.add(in);
-                }
-              } catch (UndefinedSymbol undefinedSymbol) {
-              }
-              return true;
-            }
-          }
-      ));
-      this.initialSize = c[0];
-    }
   }
 
-  public CombinatorialMetrics processTestSuite(List<Tuple> testSuite) {
-    for (Tuple eachTestCase : testSuite) {
-      if (this.yetToBeCovered.isEmpty())
-        break;
-      this.processTestCase(eachTestCase);
-    }
-    this.state = State.PROCESSED;
-    return createNext();
-  }
-
-  protected void processTestCase(Tuple testCase) {
-    try {
-      if (this.cm.check(testCase)) {
-        for (Tuple each : subtuplesOf(testCase, this.degree)) {
-          if (yetToBeCovered.remove(each)) {
-            this.covered++;
-          }
-          if (yetToBeCovered.isEmpty())
-            return;
-        }
-      }
-    } catch (UndefinedSymbol undefinedSymbol) {
-      ////
-      // Actually, this will not happen because the test case given to this method
-      // is a 'complete' one.
-      throw Checks.wrap(undefinedSymbol);
-    }
-  }
-
-  protected Set<Tuple> subtuplesOf(Tuple testCase, int strength) {
-    return TupleUtils.subtuplesOf(testCase, strength);
-  }
-
-  protected CombinatorialMetrics createNext() {
-    if (this.degree == factorSpace.size())
-      return null;
-    Set<Tuple> p = new LinkedHashSet<Tuple>();
-    p.addAll(this.uncoveredInWeakerDegree);
-    p.addAll(this.yetToBeCovered);
-    return new CombinatorialMetrics(factorSpace, degree + 1, this.cm, p, this.report);
-  }
-
-  public static void examime(List<Tuple> testSuite, TestSpace testSpace, CombinatorialReport report) {
-    CombinatorialMetrics[] combinatorialMetricses = examineTestSuite(testSuite, testSpace, report);
-    for (CombinatorialMetrics each : combinatorialMetricses) {
-      each.report.submit(each);
-    }
-  }
-
-  public Set<Tuple> getUncoveredInWeakerDegree() {
-    return uncoveredInWeakerDegree;
-  }
-
-  public Set<Tuple> getViolations() {
-    return violations;
-  }
-
-  public int getCovered() {
-    return covered;
-  }
-
-  public Set<Tuple> getYetToBeCovered() {
-    return yetToBeCovered;
-  }
-
-  private static CombinatorialMetrics[] examineTestSuite(List<Tuple> testSuite, TestSpace testSpace, CombinatorialReport report) {
-    Checks.checkcond(testSpace.getStrength() > 0);
-    CombinatorialMetrics[] ret = new CombinatorialMetrics[testSpace.getStrength()];
-
-    for (CombinatorialMetrics cur = new CombinatorialMetrics(testSpace.getFactorSpace(), 1, testSpace.cm, new LinkedHashSet<Tuple>(), report);
-         cur != null && cur.degree <= testSpace.getStrength();
-         cur = cur.createNext()) {
-      cur.processTestSuite(testSuite);
-      ret[cur.degree - 1] = cur;
-    }
-
-    return ret;
-  }
-
-  private enum State {
-    NOT_PROCESSED,
-    PROCESSED
-  }
-
-  public interface CombinatorialReport {
-    void submit(CombinatorialMetrics combinatorialMetrics);
-
-    class Printer implements CombinatorialReport {
-      private final PrintStream out;
-
-      public Printer(PrintStream out) {
-        this.out = Checks.checknotnull(out);
+  @Item
+  public CoverageMetric<Tuple, Tuple> combinatorialCoverage() {
+    return new CoverageMetric<Tuple, Tuple>(new HashSet<Tuple>(this.factors.generateAllPossibleTuples(degree))) {
+      @Override
+      protected Set<Tuple> getCoveredItemsBy(Tuple tuple) {
+        return TupleUtils.subtuplesOf(tuple, CombinatorialMetrics.this.degree);
       }
 
       @Override
-      public void submit(CombinatorialMetrics combinatorialMetrics) {
-        out.printf("STRENGTH=%2s: %3s/%3s/%3s/%3s/%3s (uncovered in weaker degree/violations/covered/yet to be covered/total)%n",
-            combinatorialMetrics.degree,
-            combinatorialMetrics.getUncoveredInWeakerDegree().size(),
-            combinatorialMetrics.getViolations().size(),
-            combinatorialMetrics.getCovered(),
-            combinatorialMetrics.getYetToBeCovered().size(),
-            combinatorialMetrics.initialSize
-        );
-        for (Tuple each : combinatorialMetrics.getYetToBeCovered()) {
-          out.printf(
-              "%1s:%1s:%s%n",
-              combinatorialMetrics.getViolations().contains(each)
-                  ? "V" : " ",
-              combinatorialMetrics.getUncoveredInWeakerDegree().contains(each)
-                  ? "W" : " ",
-              each);
-        }
-        out.println();
+      public String name() {
+        return "Combinatorial coverage";
       }
-    }
+    };
   }
 
-  public static class TestSpace {
-    private final Factors           factorSpace;
-    private final int               strength;
-    private final ConstraintChecker cm;
+  @Item
+  public RatioMetric<Tuple> violationRatio() {
+    return new CountMetric<Tuple>() {
+      @Override
+      public String name() {
+        return "Violation ratio";
+      }
 
-    public TestSpace(Factors factorSpace, int strength, ConstraintChecker cm) {
-      this.factorSpace = factorSpace;
-      this.strength = strength;
-      this.cm = cm;
-    }
-
-    public Factors getFactorSpace() {
-      return factorSpace;
-    }
-
-    public int getStrength() {
-      return strength;
-    }
-
-    public ConstraintChecker getCm() {
-      return cm;
-    }
+      @Override
+      protected boolean matches(Tuple each) {
+        try {
+          return !cm.check(each);
+        } catch (UndefinedSymbol undefinedSymbol) {
+          throw Checks.wrap(undefinedSymbol, "Unknown symbol '%s' was given. This should not happen under JCUnit.", undefinedSymbol);
+        }
+      }
+    };
   }
 }

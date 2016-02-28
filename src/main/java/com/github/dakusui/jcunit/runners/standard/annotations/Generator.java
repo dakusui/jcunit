@@ -22,12 +22,12 @@ public @interface Generator {
     }
 
     @Override
-    public Value[] configValues() {
+    public Value[] args() {
       return new Value[] { new Value.Builder().add("2").build()};
     }
   };
   Class<? extends CoveringArrayEngine> value() default IPO2CoveringArrayEngine.class;
 
-  Value[] configValues() default {};
+  Value[] args() default {};
 
 }

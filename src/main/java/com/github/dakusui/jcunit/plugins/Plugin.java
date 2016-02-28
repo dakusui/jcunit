@@ -32,7 +32,7 @@ public interface Plugin {
        * The parameter's value should be assigned from a runner context item
        * specified by the value of {@code contextKey}.
        */
-      RUNNER,
+      CONTEXT,
       /**
        * The parameter should be read from a configuration (typically annotation's
        * value).
@@ -43,7 +43,7 @@ public interface Plugin {
        * <code>
        * public IPO2CoveringArrayEngine(
        *
-       * @Param(source = Param.Source.CONFIG, defaultValue = "2") int strength) {
+       * {@literal @}(source = Param.Source.CONFIG, defaultValue = "2") int strength) {
        * ...
        * }
        * </code>
@@ -52,14 +52,13 @@ public interface Plugin {
        * <p/>
        * <code>
        * Factory<CoveringArrayEngine, Value> pluginFactory = Factory.newFactory(engineClass, new Value.Resolver(), this.runnerContext);
-       * return pluginFactory.create(this.configValues);
-       * <p/>
+       * return pluginFactory.create(this.args);
        * </code>
        * <p/>
-       * In an example below, the first element of {@code configValues} is {@literal @}{@Value("1")}.
+       * In an example below, the first element of {@code args} is {@literal @}{@code Value("1")}.
        * This will be processed by
        * <code>
-       * @GenerateCoveringArrayWith( engine = @Generator(value = IPO2CoveringArrayEngine.class, configValues = @Value("1")
+       * {@literal @}GenerateCoveringArrayWith( engine = @Generator(value = IPO2CoveringArrayEngine.class, args = {@literal @}Value("1")
        * ))
        * </code>
        * <p/>
@@ -70,11 +69,6 @@ public interface Plugin {
        * {@code propertyKey}.
        */
       SYSTEM_PROPERTY,
-      /**
-       * The parameter's value should be an annotation attached to the same target
-       * element to which the annotation of the plugin is attached.
-       */
-      TARGET_ELEMENT
     }
 
     SystemProperties.Key propertyKey() default SystemProperties.Key.DUMMY;
@@ -242,7 +236,7 @@ public interface Plugin {
               } else {
                 resolvedArgs.add(PluginUtils.StringArrayResolver.INSTANCE.resolve(each, each.parameterRequirement.defaultValue()));
               }
-            } else if (source == Param.Source.RUNNER) {
+            } else if (source == Param.Source.CONTEXT) {
               Object value = this.runnerContext.get(each.parameterRequirement.contextKey());
               resolvedArgs.add(Checks.cast(each.parameterType, value));
             } else if (source == Param.Source.SYSTEM_PROPERTY) {
