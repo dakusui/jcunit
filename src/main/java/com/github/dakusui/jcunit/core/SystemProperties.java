@@ -46,6 +46,12 @@ public class SystemProperties {
         return "jcunit.generator.randomseed";
       }
     },
+    REUSETESTSUITE {
+      @Override
+      public String key() {
+        return "jcunit.reusetestsuite";
+      }
+    },
     /**
      * Should be used only by {@code PlugIn.Param}.
      */
@@ -116,5 +122,9 @@ public class SystemProperties {
     ////
     // This path will not be executed.
     throw new RuntimeException();
+  }
+
+  public static boolean reuseTestSuite() {
+    return Boolean.parseBoolean(System.getProperty(Key.REUSETESTSUITE.key()));
   }
 }

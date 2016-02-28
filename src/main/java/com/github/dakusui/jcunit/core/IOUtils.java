@@ -95,6 +95,19 @@ public enum IOUtils {
     }
   }
 
+  public static <T> T load(Class<T> clazz, File f) {
+    Object ret = load(f);
+    if (ret == null) {
+      return null;
+    }
+    Checks.checkcond (
+        Checks.checknotnull(clazz).isAssignableFrom(ret.getClass()),
+        "The specified file '%s' is not compatible with '%s'",
+        f.getAbsolutePath(),
+        clazz.getCanonicalName());
+    return (T)ret;
+  }
+
   public static Object load(InputStream is) {
     Checks.checknotnull(is);
     Object ret = null;
@@ -137,5 +150,16 @@ public enum IOUtils {
       }
     }
     return ret && path.delete();
+  }
+
+  public static void mkdirs(File dir) {
+    Checks.checknotnull(dir).mkdirs();
+    Checks.checkcond(dir.exists() && dir.isDirectory(), "Failed to create a directory '%s'.", dir);
+  }
+
+  public static File determineTestSuiteFile(Class<?> testClass) {
+    String fqcn = Checks.checknotnull(testClass).getCanonicalName();
+    String filename = String.format("%s/testsuites/%s/testsuite.dat", SystemProperties.jcunitBaseDir(), fqcn);
+    return new File(filename);
   }
 }
