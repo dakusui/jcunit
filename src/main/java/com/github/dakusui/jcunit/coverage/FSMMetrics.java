@@ -119,7 +119,7 @@ public class FSMMetrics extends Metrics.Base<Tuple> {
 
       @Override
       public String name() {
-        return "Switch coverage (1)";
+        return String.format("Switch coverage (%d)", degree);
       }
     };
   }
