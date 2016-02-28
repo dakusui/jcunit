@@ -81,10 +81,10 @@ public interface Metrics<T> extends Plugin {
     }
 
     @Attribute
-    abstract int getNumerator();
+    public abstract int getNumerator();
 
     @Attribute
-    abstract int getDenominator();
+    public abstract int getDenominator();
   }
 
   abstract class CountMetric<T> extends RatioMetric<T> {
@@ -102,12 +102,14 @@ public interface Metrics<T> extends Plugin {
     abstract protected boolean matches(T each);
 
     @Override
-    int getNumerator() {
+    @Attribute
+    public int getNumerator() {
       return this.matched;
     }
 
     @Override
-    int getDenominator() {
+    @Attribute
+    public int getDenominator() {
       return this.count;
     }
   }

@@ -22,7 +22,7 @@ public class MetricsTest extends Metatest {
 
   @Test
   public void runAllTests() {
-    System.out.print(this.runTests().wasSuccessful());
+    this.runTests();
   }
 
   @RunWith(JCUnit.class)

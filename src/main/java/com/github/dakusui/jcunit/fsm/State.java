@@ -148,6 +148,16 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
     }
 
     @Override
+    public int hashCode() {
+      return this.toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object another) {
+      return this.toString().equals(another.toString());
+    }
+
+    @Override
     public String toString() {
       StateSpec ann = this.stateSpecField.getAnnotation(StateSpec.class);
       if (ann.value().length() > 0) {

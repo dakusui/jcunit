@@ -31,13 +31,13 @@ public class CombinatorialMetrics extends Metrics.Base<Tuple> {
   public CoverageMetric<Tuple, Tuple> combinatorialCoverage() {
     return new CoverageMetric<Tuple, Tuple>(new HashSet<Tuple>(this.factors.generateAllPossibleTuples(degree))) {
       @Override
-      protected Set<Tuple> getCoveredItemsBy(Tuple tuple) {
-        return TupleUtils.subtuplesOf(tuple, CombinatorialMetrics.this.degree);
+      public String name() {
+        return "Combinatorial coverage";
       }
 
       @Override
-      public String name() {
-        return "Combinatorial coverage";
+      protected Set<Tuple> getCoveredItemsBy(Tuple tuple) {
+        return TupleUtils.subtuplesOf(tuple, CombinatorialMetrics.this.degree);
       }
     };
   }

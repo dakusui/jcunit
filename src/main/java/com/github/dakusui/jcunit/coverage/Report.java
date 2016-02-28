@@ -21,9 +21,9 @@ public interface Report {
         this.ps.println(each.name());
         for (Metric.Value eachValue : Metric.Utils.valuesOf(each)) {
           if (double.class == eachValue.type) {
-            this.ps.println(String.format("  %20s - %2.2f", eachValue.name, eachValue.value));
+            this.ps.println(String.format("  %-20s - %2.2f", eachValue.name, eachValue.value));
           } else {
-            this.ps.println(String.format("  %20s - %s", eachValue.name, eachValue.value));
+            this.ps.println(String.format("  %-20s - %s", eachValue.name, eachValue.value));
           }
         }
       }

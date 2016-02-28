@@ -33,9 +33,9 @@ public enum ReflectionUtils {
   public static Method[] getAnnotatedMethods(Class<?> clazz, Class<? extends Annotation> annClass) {
     List<Method> methods = getMethods(clazz);
     List<Method> ret = new ArrayList<Method>(methods.size());
-    for (Method f : methods) {
-      if (f.getAnnotation(annClass) != null) {
-        ret.add(f);
+    for (Method m : methods) {
+      if (m.getAnnotation(annClass) != null) {
+        ret.add(m);
       }
     }
     Collections.sort(ret, new Comparator<Method>() {
