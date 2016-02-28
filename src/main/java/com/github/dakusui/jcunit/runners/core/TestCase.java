@@ -1,11 +1,12 @@
 package com.github.dakusui.jcunit.runners.core;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
-public class TestCase {
+import java.io.Serializable;
+
+public class TestCase implements Serializable {
   private final int     id;
   private final Type    type;
   private final Tuple   tuple;
