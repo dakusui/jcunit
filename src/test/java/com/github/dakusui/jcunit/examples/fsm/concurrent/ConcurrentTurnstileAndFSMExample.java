@@ -15,7 +15,7 @@ import org.junit.runner.RunWith;
 public class ConcurrentTurnstileAndFSMExample {
   @FactorField(levelsProvider = FSMLevelsProvider.class)
   public Story<Turnstile, TurnstileExample.Spec>                           turnstile;
-  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Value("2"))
+  @FactorField(levelsProvider = FSMLevelsProvider.class, args = @Value("2"))
   public Story<FlyingSpaghettiMonster, FlyingSpaghettiMonsterExample.Spec> fsm;
 
   @Test(timeout = 1000)

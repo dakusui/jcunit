@@ -14,7 +14,7 @@ import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 /**
  * A constraint which validates tuples for FSM scenarios.
  * <p/>
- * An instance of this object is created only by {@see ToplevelCAEngine}.
+ * An instance of this object is created only by {@code ToplevelCAEngine}.
  */
 public class FSMConstraintChecker<SUT> extends ConstraintChecker.Base {
   private final List<Parameters.LocalConstraintChecker> localCMs;

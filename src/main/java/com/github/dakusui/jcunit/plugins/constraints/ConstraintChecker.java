@@ -56,6 +56,9 @@ public interface ConstraintChecker extends Plugin {
       this.configValues = checknotnull(configValues);
     }
 
+    /**
+     * Builds a constraint checker.
+     */
     @Override
     public ConstraintChecker build() {
       Factory<ConstraintChecker, Value> pluginFactory

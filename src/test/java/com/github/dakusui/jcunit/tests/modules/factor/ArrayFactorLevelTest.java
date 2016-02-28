@@ -28,7 +28,7 @@ public class ArrayFactorLevelTest {
     @FactorField(intLevels = { 1 })
     public int test;
 
-    @FactorField(levelsProvider = LevelsProvider$factor1.class, providerParams = {})
+    @FactorField(levelsProvider = LevelsProvider$factor1.class, args = {})
     public String[] factor1;
 
     public Normal() {
@@ -61,7 +61,7 @@ public class ArrayFactorLevelTest {
     @FactorField(intLevels = { 1 })
     public int test;
 
-    @FactorField(levelsProvider = LevelsProvider$factor1.class, providerParams = {})
+    @FactorField(levelsProvider = LevelsProvider$factor1.class, args = {})
     public String[] factor1;
 
     public static class LevelsProvider$factor1 extends SimpleLevelsProvider {

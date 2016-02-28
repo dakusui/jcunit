@@ -28,7 +28,6 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngine.Base {
    * The second one specifies a seed for random number generation. By specifying
    * the seed, you can get the same test suite always.
    *
-   * @see SystemProperties.Key#RANDOMSEED
    * @see SystemProperties#randomSeed()
    */
   public RandomCoveringArrayEngine(

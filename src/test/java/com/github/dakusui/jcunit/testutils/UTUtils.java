@@ -4,8 +4,6 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +12,8 @@ import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-
-public class UTUtils {
+public enum UTUtils {
+  ;
   public static final Factors defaultFactors = new Factors.Builder().add(
       new Factor.Builder("A").addLevel("a1").addLevel("a2").build()
   ).add(
@@ -29,9 +26,6 @@ public class UTUtils {
     }
   });
   private static      PrintStream out               = System.out;
-
-  private UTUtils() {
-  }
 
   public synchronized static void configureStdIOs() {
     if (UTUtils.isRunByMaven()) {

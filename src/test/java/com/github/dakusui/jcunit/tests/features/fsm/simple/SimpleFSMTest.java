@@ -90,7 +90,7 @@ public class SimpleFSMTest {
 
   @RunWith(JCUnit.class)
   public static class ExceptionThrowingActionIsPerformedExpectedly extends Base {
-    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Value({"1"}))
+    @FactorField(levelsProvider = FSMLevelsProvider.class, args = @Value({"1"}))
     public Story<SimpleFSM, Spec> brokenFSM;
 
     public ExceptionThrowingActionIsPerformedExpectedly() {
@@ -114,7 +114,7 @@ public class SimpleFSMTest {
 
   @RunWith(JCUnit.class)
   public static class CheckFails extends Base {
-    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Value({"1"}))
+    @FactorField(levelsProvider = FSMLevelsProvider.class, args = @Value({"1"}))
     public Story<SimpleFSM, Spec> brokenFSM;
 
     public CheckFails() {
@@ -138,7 +138,7 @@ public class SimpleFSMTest {
 
   @RunWith(JCUnit.class)
   public static class ExceptionThrownUnexpectedly extends Base {
-    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Value({"1"}))
+    @FactorField(levelsProvider = FSMLevelsProvider.class, args = @Value({"1"}))
     public Story<SimpleFSM, Spec> brokenFSM;
 
     public ExceptionThrownUnexpectedly() {
@@ -162,7 +162,7 @@ public class SimpleFSMTest {
 
   @RunWith(JCUnit.class)
   public static class ValueReturnedUnexpectedly extends Base {
-    @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Value({"1"}))
+    @FactorField(levelsProvider = FSMLevelsProvider.class, args = @Value({"1"}))
     public Story<SimpleFSM, Spec> brokenFSM;
 
     public ValueReturnedUnexpectedly() {
