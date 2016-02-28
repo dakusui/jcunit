@@ -81,7 +81,7 @@ public interface SUTFactory<SUT> {
 
     /**
      * A utility method to create {@code Arg} object.
-     * {@code static import} this method to reduce number of key-types.
+     * Do {@code static import} this method to reduce number of key-types.
      */
     public static <T> Arg<T> $(Class<T> type, T arg) {
       return new Arg<T>(Checks.checknotnull(type), arg);

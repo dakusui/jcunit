@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.runners.standard.CompositeFrameworkMethod;
-import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 

@@ -11,7 +11,6 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.Plugins;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import org.junit.runners.model.FrameworkField;
 import org.junit.validator.AnnotationValidator;
@@ -76,7 +75,7 @@ public @interface FactorField {
    */
   boolean includeNull() default false;
 
-  Value[] providerParams() default {};
+  Value[] args() default {};
 
   interface FactorFactory {
     FactorFactory INSTANCE = new FactorFactory.Default();
@@ -103,7 +102,7 @@ public @interface FactorField {
       private static List<Object> levelsOf(String fieldName, final Class fieldType, FactorField ann) {
         Checks.checknotnull(fieldType);
         Checks.checknotnull(ann);
-        final LevelsProvider provider = Plugins.levelsProviderOf(ann);
+        final LevelsProvider provider = new LevelsProvider.FromFactorField(ann, RunnerContext.DUMMY).build();
         List<Object> ret;
         if (provider instanceof DummyLevelsProvider) {
           ret = levelsGivenByUserThroughImmediate(ann);

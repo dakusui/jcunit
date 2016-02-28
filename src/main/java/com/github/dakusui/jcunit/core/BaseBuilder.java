@@ -6,5 +6,5 @@ package com.github.dakusui.jcunit.core;
  * @param <T> Type of object to be built by this class.
  */
 public interface BaseBuilder<T> {
-  T build();
+  <U extends T> U build();
 }

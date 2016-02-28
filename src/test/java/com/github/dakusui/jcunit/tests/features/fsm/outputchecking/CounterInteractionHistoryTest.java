@@ -43,7 +43,7 @@ public class CounterInteractionHistoryTest {
     }
   }
 
-  @FactorField(levelsProvider = FSMLevelsProvider.class, providerParams = @Value({ "1" }))
+  @FactorField(levelsProvider = FSMLevelsProvider.class, args = @Value({ "1" }))
   public Story<Counter, CounterSpec> story;
 
   @Before

@@ -146,7 +146,7 @@ public interface CoveringArrayEngine extends Plugin {
     private final List<Value>                          configValues;
 
     public FromAnnotation(Generator engine, RunnerContext runnerContext) {
-      this(engine.value(), runnerContext, Utils.asList(engine.configValues()));
+      this(engine.value(), runnerContext, Utils.asList(engine.args()));
     }
 
     private FromAnnotation(Class<? extends CoveringArrayEngine> engineClass, RunnerContext context, List<Value> configValues) {
@@ -159,6 +159,7 @@ public interface CoveringArrayEngine extends Plugin {
     public CoveringArrayEngine build() {
       Factory<CoveringArrayEngine, Value> pluginFactory
           = Factory.newFactory(engineClass, new Value.Resolver(), this.runnerContext);
+      //noinspection unchecked
       return pluginFactory.create(this.configValues);
     }
   }

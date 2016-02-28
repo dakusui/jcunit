@@ -28,10 +28,13 @@ public @interface GenerateCoveringArrayWith {
 
   Checker checker() default @Checker();
 
+  Reporter[] reporters() default {};
+
   class Validator extends AnnotationValidator {
     @Override
     public List<Exception> validateAnnotatedClass(TestClass testClass) {
-      // TODO
+      ////
+      // TODO: Issue-#45
       return super.validateAnnotatedClass(testClass);
     }
 
@@ -56,7 +59,7 @@ public @interface GenerateCoveringArrayWith {
       ////
       // Another design choice is to allow sub types of Story for FSM factor fields.
       // But author considered it hurts readability of tests and thus allowed
-      // to use Story<FSMSpec<SUT>, SUT> directly.
+      // to use Story<SUT, FSMSpec<SUT>> directly.
       if (!(Story.class.equals(f.getType()))) {
         errors.add(new Exception(String.format(
             "For FSM factor field (field annotated with '%s' whose levelsProvider is '%s') must be exactly '%s', but was '%s'",

@@ -1,32 +1,47 @@
 package com.github.dakusui.jcunit.tests.features.metrics;
 
+import com.github.dakusui.jcunit.coverage.CombinatorialMetrics;
 import com.github.dakusui.jcunit.coverage.FSMMetrics;
 import com.github.dakusui.jcunit.examples.fsm.digest.MessageDigestExample;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.Story;
+import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.Reporter;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
+import com.github.dakusui.jcunit.testutils.Metatest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.security.MessageDigest;
 
 
-public class MetricsTest {
-  @RunWith(JCUnit.class)
-  public static class Example {
-    @Reporter(FSMMetrics.class)
-    @FactorField(
-        levelsProvider = FSMLevelsProvider.class,
-        providerParams = {@Value("3")})
-    public Story<MessageDigest, MessageDigestExample.Spec> messageDigestStory;
+public class MetricsTest extends Metatest {
+  public MetricsTest() {
+    super(Example.class, 7, 0, 0);
   }
 
-
   @Test
-  public void test() {
+  public void runAllTests() {
+    System.out.print(this.runTests().wasSuccessful());
+  }
 
+  @RunWith(JCUnit.class)
+  @GenerateCoveringArrayWith(
+      engine = @Generator(IPO2CoveringArrayEngine.class),
+      reporters = {
+          @Reporter(value = FSMMetrics.class, args = { @Value("messageDigestStory"), @Value("1")}),
+          @Reporter(value = CombinatorialMetrics.class, args = { @Value("2") })
+      }
+  )
+  public static class Example {
+    @FactorField(
+        levelsProvider = FSMLevelsProvider.class,
+        args = { @Value("3") })
+    public Story<MessageDigest, MessageDigestExample.Spec> messageDigestStory;
+
+    @Test
+    public void test() {
+
+    }
   }
 }

@@ -35,9 +35,8 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   /**
    * Creates an object of this class.
    *
-   * @param clazz    A test class.
-   * @param testCase A test case object.
-   * @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
+   * @param clazz       A test class.
+   * @param testCase    A test case object.  @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
   public JCUnitRunner(Class<?> clazz, FactorSpace factorSpace, ConstraintChecker constraintChecker, TestSuite testSuite, TestCase testCase) throws InitializationError {
     super(clazz);
@@ -62,7 +61,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
    * because {@code {@literal @}BeforeClass} methods and {@code {@literal @}AfterClass}
    * methods are executed for every test case run not before and after all the
    * test cases are executed.
-   * <p>
+   * <p/>
    * {@code BlockJUnit4ClassRunnerWithParameters} does the same.
    *
    * @see org.junit.runners.BlockJUnit4ClassRunner#classBlock(org.junit.runner.notification.RunNotifier)

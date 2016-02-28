@@ -5,7 +5,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session4;
  *
  * <ul>
  *   <li>session 1: Initial version.</li>
- *   <li>session 4: Implement parameter check in solve method.</li>
+ *   <li>session 4: Implement parameter safeCheck in solve method.</li>
  * </ul>
  */
 public class QuadraticEquationSolver {

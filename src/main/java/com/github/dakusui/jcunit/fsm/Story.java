@@ -29,8 +29,8 @@ public class Story<
   private final     String      name;
   transient private boolean     performed;
 
-  private final ScenarioSequence<SUT> setUp;
-  private final ScenarioSequence<SUT> main;
+  public final ScenarioSequence<SUT> setUp;
+  public final ScenarioSequence<SUT> main;
 
   public Story(String name, ScenarioSequence<SUT> setUp, ScenarioSequence<SUT> main) {
     Checks.checknotnull(name);
