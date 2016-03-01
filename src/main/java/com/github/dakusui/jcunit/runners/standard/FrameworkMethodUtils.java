@@ -25,7 +25,7 @@ public enum FrameworkMethodUtils {
         from.annotationType().getAnnotation(ReferrerAttribute.class),
         "Annotation '%s' doesn't have %s.", from, ReferrerAttribute.class);
 
-    return new ReferenceHandler.ForBuildingCompositeFrameworkMethod()
+    return new ReferenceHandler.CompositeFrameworkMethodBuilderForReferenceHandler(CompositeFrameworkMethod.Mode.Or)
         .handleTermArray(
             new ReferenceWalker<CompositeFrameworkMethod>(
                 testClass,

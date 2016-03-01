@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
 import org.junit.runners.model.FrameworkMethod;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,12 +15,8 @@ public class CompositeFrameworkMethod extends FrameworkMethodUtils.JCUnitFramewo
     private List<FrameworkMethod> methods = new LinkedList<FrameworkMethod>();
     Mode mode = null;
 
-    public Builder() {
-    }
-
-    public Builder setMode(Mode mode) {
-      this.mode = mode;
-      return this;
+    public Builder(Mode mode) {
+      this.mode = Checks.checknotnull(mode);
     }
 
     public Builder addMethod(boolean negate, FrameworkMethod method) {
@@ -65,10 +60,6 @@ public class CompositeFrameworkMethod extends FrameworkMethodUtils.JCUnitFramewo
     Checks.checknotnull(mode, "Mode isn't set yet.");
     this.methods = methods;
     this.mode = mode;
-  }
-
-  public List<FrameworkMethod> getChildren() {
-    return Collections.unmodifiableList(this.methods);
   }
 
   @Override

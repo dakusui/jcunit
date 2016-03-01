@@ -16,12 +16,11 @@ public abstract class ReferenceHandler<T> {
 
   abstract public T handleTermArray(ReferenceWalker<T> walker, String[] terms);
 
-  public static class ForBuildingCompositeFrameworkMethod extends ReferenceHandler<CompositeFrameworkMethod> {
+  public static class CompositeFrameworkMethodBuilderForReferenceHandler extends ReferenceHandler<CompositeFrameworkMethod> {
     final CompositeFrameworkMethod.Builder builder;
 
-    public ForBuildingCompositeFrameworkMethod() {
-      this.builder = new CompositeFrameworkMethod.Builder();
-      this.builder.setMode(CompositeFrameworkMethod.Mode.Or);
+    public CompositeFrameworkMethodBuilderForReferenceHandler(CompositeFrameworkMethod.Mode mode) {
+      this.builder = new CompositeFrameworkMethod.Builder(mode);
     }
 
     @Override
@@ -31,8 +30,7 @@ public abstract class ReferenceHandler<T> {
 
     @Override
     public void handleTerm(ReferenceWalker<CompositeFrameworkMethod> walker, String term) {
-      ForBuildingCompositeFrameworkMethod b = new ForBuildingCompositeFrameworkMethod();
-      b.builder.setMode(CompositeFrameworkMethod.Mode.And);
+      CompositeFrameworkMethodBuilderForReferenceHandler b = new CompositeFrameworkMethodBuilderForReferenceHandler(CompositeFrameworkMethod.Mode.And);
       walker.walk(b, term);
       this.builder.addMethod(false, b.builder.build());
     }

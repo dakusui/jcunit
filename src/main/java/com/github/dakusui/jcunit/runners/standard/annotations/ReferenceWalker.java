@@ -4,21 +4,25 @@ import com.github.dakusui.jcunit.core.Checks;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
+import java.util.List;
+
 public class ReferenceWalker<T> {
   protected final TestClass testClass;
   protected final String    referrerName;
+  private final List<FrameworkMethod> conditonMethods;
 
   public ReferenceWalker(TestClass testClass, String referrerName) {
     this.testClass = testClass;
     this.referrerName = referrerName;
+    this.conditonMethods = this.getConditionMethods(this.testClass);
   }
 
   /**
    * Returns a {@code Method} object or {@code NotFoundMethod} if the specified method is not found or not loadable.
    */
-  public static FrameworkMethod getFrameworkMethodByName(TestClass testClass, String methodName) {
+  private FrameworkMethod getFrameworkMethodByName(String methodName) {
     FrameworkMethod foundMethod = null;
-    for (FrameworkMethod each : testClass.getAnnotatedMethods(Condition.class)) {
+    for (FrameworkMethod each : conditonMethods) {
       if (methodName.equals(each.getName())) {
         Checks.checktest(
             foundMethod == null,
@@ -34,6 +38,11 @@ public class ReferenceWalker<T> {
     return foundMethod;
   }
 
+  private static List<FrameworkMethod> getConditionMethods(TestClass testClass) {
+    // TODO: Issue-#49 Enhance this method to return methods that invoked specified constraints by user.
+    return testClass.getAnnotatedMethods(Condition.class);
+  }
+
   public void walk(ReferenceHandler<T> handler, String[] terms) {
     for (String eachTerm : terms) {
       handler.handleTerm(this, eachTerm);
@@ -47,7 +56,7 @@ public class ReferenceWalker<T> {
       if (negateOperator) {
         each = each.substring(1);
       }
-      m = getFrameworkMethodByName(testClass, each);
+      m = getFrameworkMethodByName(each);
       builder.handleMethod(this, negateOperator, m);
     }
   }

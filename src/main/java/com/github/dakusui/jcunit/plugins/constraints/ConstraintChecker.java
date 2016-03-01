@@ -46,6 +46,10 @@ public interface ConstraintChecker extends Plugin {
     private final RunnerContext                      runnerContext;
     private final List<Value>                        configValues;
 
+    public Builder(Checker checker, Class<?> testClass) {
+      this(checker, new RunnerContext.Base(testClass));
+    }
+
     public Builder(Checker checker, RunnerContext runnerContext) {
       this(checker.value(), runnerContext, Utils.asList(checker.args()));
     }

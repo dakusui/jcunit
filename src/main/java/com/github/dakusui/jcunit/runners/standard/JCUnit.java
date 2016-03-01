@@ -125,7 +125,7 @@ public class JCUnit extends Parameterized {
     File testSuiteFile = IOUtils.determineTestSuiteFile(Checks.checknotnull(javaClass));
     List<?> ret = IOUtils.load(List.class, testSuiteFile);
     //noinspection unchecked
-    return (List<TestCase>)ret;
+    return (List<TestCase>) ret;
   }
 
   private void saveTestCases(Class<?> javaClass, List<TestCase> testCases) {
@@ -135,7 +135,6 @@ public class JCUnit extends Parameterized {
     }
     IOUtils.save(testCases, testSuiteFile);
   }
-
 
 
   public List<TestCase> generateTestCases(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) throws Throwable {
