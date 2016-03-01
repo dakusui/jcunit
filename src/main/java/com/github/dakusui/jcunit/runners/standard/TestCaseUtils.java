@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.combinatoradix.tuple.AttrValue;
-import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
@@ -34,28 +33,6 @@ public enum TestCaseUtils {
       f = ReflectionUtils.getField(testObject, fieldName, FactorField.class);
       ReflectionUtils.setFieldValue(testObject, f, tuple.get(fieldName));
     }
-  }
-
-  /**
-   * Some attributes in a tuple may or may not be able to assign to fields in a test object
-   * in its original form.
-   *
-   * This method make those attributes assignable to those fields.
-   *
-   * In other words, attributes like "FSM:simpleFSM:action:0" are aggregated into one "ScenarioSequence"
-   * attribute "simpleFSM".
-   *
-   */
-  private static Tuple convertSpecialAttributesIntoAssignable(FactorSpace factorSpace, Tuple tuple) {
-    return factorSpace.convert(tuple);
-  }
-
-  private static String extractFSMName(String attributeName) {
-    return attributeName.split(":")[1];
-  }
-
-  private static int extractPositionInScenarioSequence(String attributeName) {
-    return Integer.parseInt(attributeName.split(":")[3]);
   }
 
   public static <T> T toTestObject(Class<T> testClass, Tuple testCase) {

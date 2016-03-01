@@ -1,25 +1,21 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session7;
 
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.constraints.TypedConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
-import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
 import java.io.PrintStream;
-import java.util.LinkedList;
-import java.util.List;
 
 import static org.junit.Assert.assertThat;
 
@@ -42,81 +38,65 @@ import static org.junit.Assert.assertThat;
 public class QuadraticEquationSolverTest7 {
   public static PrintStream ps = UTUtils.DUMMY_PRINTSTREAM;
 
-  /**
-   * Constraint manager.
-   */
-  public static class CM extends
-      TypedConstraintChecker<QuadraticEquationSolverTest7> {
+  public static class CM extends SmartConstraintChecker<QuadraticEquationConstraint> {
     @Override
-    public boolean check(QuadraticEquationSolverTest7 obj, Tuple testCase)
-        throws UndefinedSymbol {
-      Checks.checksymbols(testCase, "a", "b", "c");
-      return obj.discriminantIsNonNegative() && obj.aIsNonZero();
-    }
-
-    @Override
-    protected List<QuadraticEquationSolverTest7> getViolationTestObjects() {
-      List<QuadraticEquationSolverTest7> ret = new LinkedList<QuadraticEquationSolverTest7>();
-      ret.add(create(0, 1, 1));
-      ret.add(create(100, 1, 100));
-      ret.add(create(0, 0, 1));
-      ret.add(create(101, 100, 1));
-      ret.add(create(1, 100, -101));
-      return ret;
-    }
-
-    private static QuadraticEquationSolverTest7 create(int a, int b, int c) {
-      QuadraticEquationSolverTest7 ret = new QuadraticEquationSolverTest7();
-      ret.a = a;
-      ret.b = b;
-      ret.c = c;
-      return ret;
+    protected Class<QuadraticEquationConstraint> getConstraintClass() {
+      return QuadraticEquationConstraint.class;
     }
   }
 
-  public interface Constraint {
-    boolean check(Tuple tuple) throws UndefinedSymbol;
-  }
+  @SuppressWarnings("unused")
   public enum QuadraticEquationConstraint implements Constraint {
-    NON_QUADRATIC {
+    A_IS_NON_ZERO("aIsNonZero") {
       @Override
-      public boolean check(Tuple tuple) throws UndefinedSymbol {
-        return false;
+      protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol {
+        return testObject.a != 0;
       }
     },
-    NEGATIVE_DISCRIMINANT {
+    DISCRIMINANT_NON_NEGATIVE("discriminantIsNonNegative") {
       @Override
-      public boolean check(Tuple tuple) throws UndefinedSymbol {
-        return false;
+      protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol {
+        return testObject.b * testObject.b - 4 * testObject.c * testObject.a >= 0;
       }
-    };
-  }
+    },
+    A_IS_IN_RANGE("coefficientsAreValid") {
+      @Override
+      protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol {
+        return -100 <= testObject.a && testObject.a <= 100;
+      }
+    },
+    B_IS_IN_RANGE("coefficientsAreValid") {
+      @Override
+      protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol {
+        return -100 <= testObject.b && testObject.b <= 100;
+      }
+    },
+    C_IS_IN_RANGE("coefficientsAreValid") {
+      @Override
+      protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol {
+        return -100 <= testObject.c && testObject.c <= 100;
+      }
+    },;
 
-  public static class SmartConstraintChecker<C extends Enum & Constraint> implements ConstraintChecker {
-    private final Class<C> constraintClass;
+    private final String tag;
 
-    public SmartConstraintChecker(Class<C> clazz) {
-      this.constraintClass = clazz;
+    QuadraticEquationConstraint(String tag) {
+      this.tag = tag;
     }
 
     @Override
     public boolean check(Tuple tuple) throws UndefinedSymbol {
-      for (C each : this.constraintClass.getEnumConstants()) {
-        each.check(tuple);
-      };
-      return false;
+      return check(TestCaseUtils.toTestObject(QuadraticEquationSolverTest7.class, tuple));
     }
 
     @Override
-    public List<Tuple> getViolations() {
-      return null;
+    public String value() {
+      return this.tag;
     }
+
+    abstract protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol;
+
   }
-
-
-  public static final int runCount     = 63; // 58 + 5
-  public static final int failureCount = 0;
-  public static final int ignoreCount  = 0;
 
   @FactorField
   public int a;
@@ -125,37 +105,9 @@ public class QuadraticEquationSolverTest7 {
   @FactorField
   public int c;
 
-  @Condition
-  public boolean aIsNonZero() {
-    return this.a != 0;
-  }
-
-  @Condition
-  public boolean discriminantIsNonNegative() {
-    int a = this.a;
-    int b = this.b;
-    int c = this.c;
-    return b * b - 4 * c * a >= 0;
-  }
-
-  @Condition
-  public boolean coefficientsAreValid() {
-    return
-        -100 <= a && a <= 100 &&
-            -100 <= b && b <= 100 &&
-            -100 <= c && c <= 100;
-  }
-
-  /**
-   * Since a constraint manager CM is present, invalid test cases will not be
-   * generated anymore.
-   * <p/>
-   * See, there is a statement {@code throw new Error();}, but no error is reported.
-   * Now, this test isn't executed at all.
-   */
-  @Test(expected = IllegalArgumentException.class)
-  @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
-  public void solveEquation$thenIllegalArgumentExceptionWillBeThrown() {
+//  @Test(expected = IllegalArgumentException.class)
+//  @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
+  public void solveEquation$thenThrowIllegalArgumentException() {
     new QuadraticEquationSolver(
         a,
         b,
@@ -164,10 +116,9 @@ public class QuadraticEquationSolverTest7 {
   }
 
   @Test
-  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
+//  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void solveEquation$thenSolved() {
-    ps.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b * b, -4 * c * a, b * b - 4 * c * a));
-    ps.println(this.coefficientsAreValid());
+    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

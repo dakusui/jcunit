@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.runners.standard.annotations;
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
+import com.github.dakusui.jcunit.runners.core.TestCase;
 import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -31,7 +32,9 @@ public @interface When {
    * @see ReferrerAttribute
    * @see Condition
    */
-  String[] value();
+  String[] value() default {};
+
+  TestCase.Type type() default TestCase.Type.Generated;
 
   class Validator extends AnnotationValidator {
     @Override
@@ -75,7 +78,6 @@ public @interface When {
           terms
       );
     }
-
   }
 }
 
