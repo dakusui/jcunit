@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * A 'recorder' class which stores test execution information in a local file system.
  * The default directory is {@code .jcunit} under the current directory.
- * This class records 'Generated' test cases and 'Custom' and 'Violation' test cases are ignored.
+ * This class records 'GENERATED_NORMAL' test cases and 'CUSTOM' and 'GENERATED_VIOLATION' test cases are ignored.
  * <p/>
  * This rule should be used in a test class annotated with {@literal @}{@code RunWith(JCUnit.class)}.
  * <p/>
@@ -77,7 +77,7 @@ public class Recorder extends BaseRule {
   @Override
   protected void starting(Description d) {
     super.starting(d);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.GENERATED_NORMAL) {
       this.setTestDataDir(testDataDirFor(this.baseDir, this.getTestCase().getId(), d));
 
       synchronized (Recorder.class) {
@@ -96,7 +96,7 @@ public class Recorder extends BaseRule {
   @Override
   protected void failed(Throwable t, Description d) {
     Checks.checkcond(this.initialized);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.GENERATED_NORMAL) {
       Checks.checkcond(this.testDataDir != null);
       IOUtils.save(t, new File(testDataDir, EXCEPTION_FILENAME));
       ////
@@ -156,7 +156,7 @@ public class Recorder extends BaseRule {
 
   public <T> void save(T obj) {
     Checks.checkcond(this.initialized);
-    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.GENERATED_NORMAL) {
       for (Field f : ReflectionUtils
           .getAnnotatedFields(obj.getClass(), Recorder.Record.class)) {
         IOUtils.save(ReflectionUtils.getFieldValue(obj, f), new File(testDataDir, f.getName()));
@@ -169,7 +169,7 @@ public class Recorder extends BaseRule {
     Checks.checkcond(this.initialized);
     T ret = null;
     List<String> fieldsNotFoundInStore = new LinkedList<String>();
-    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.Generated) {
+    if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.GENERATED_NORMAL) {
       ret = (T) ReflectionUtils.create(getTestClass());
       for (Field f : ReflectionUtils
           .getAnnotatedFields(getTestClass(), Recorder.Record.class)) {

@@ -137,6 +137,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     When when = testMethod.getAnnotation(When.class);
     if (when == null)
       return true;
+    // TODO Issue-#49
     String preconditionMethodName = FrameworkMethodUtils.composePreconditionCompositeFrameworkMethodName(when);
     FrameworkMethod preconditionMethod = this.methods.get(preconditionMethodName);
     Checks.checkcond(preconditionMethod != null, "Something went wrong: name=%s, methdos=%s", preconditionMethodName, this.methods);

@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.core.BaseBuilder;
+import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -31,6 +32,10 @@ public interface ConstraintChecker extends Plugin {
 
   List<Tuple> getViolations();
 
+  List<String> getTags();
+
+  boolean violates(Tuple tuple, String constraintTag);
+
   abstract class Base implements ConstraintChecker, Plugin {
     public Base() {
     }
@@ -38,6 +43,18 @@ public interface ConstraintChecker extends Plugin {
     @Override
     public List<Tuple> getViolations() {
       return Collections.emptyList();
+    }
+
+    @Override
+    public List<String> getTags() {
+      return Collections.emptyList();
+    }
+
+    @Override
+    public boolean violates(Tuple tuple, String constraintTag) {
+      Checks.checknotnull(constraintTag);
+      Checks.checknotnull(tuple);
+      return false;
     }
   }
 

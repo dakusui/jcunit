@@ -128,5 +128,15 @@ public class ForSimpleConstraintCheckerConsciousTest extends IPO2Test {
     public List<Tuple> getViolations() {
       return Collections.emptyList();
     }
+
+    @Override
+    public List<String> getTags() {
+      return Collections.emptyList();
+    }
+
+    @Override
+    public boolean violates(Tuple tuple, String constraintTag) {
+      return false;
+    }
   }
 }

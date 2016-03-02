@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
@@ -14,7 +15,25 @@ public class ReferenceWalker<T> {
   public ReferenceWalker(TestClass testClass, String referrerName) {
     this.testClass = testClass;
     this.referrerName = referrerName;
-    this.conditonMethods = this.getConditionMethods(this.testClass);
+    this.conditonMethods = FrameworkMethodUtils.getConditionMethods(testClass);
+  }
+
+  public void walk(ReferenceHandler<T> handler, String[] terms) {
+    for (String eachTerm : terms) {
+      handler.handleTerm(this, eachTerm);
+    }
+  }
+
+  public void walk(ReferenceHandler<T> builder, String term) {
+    for (String each : term.replace(" ", "").split("&&")) {
+      boolean negateOperator = each.startsWith("!");
+      FrameworkMethod m;
+      if (negateOperator) {
+        each = each.substring(1);
+      }
+      m = getFrameworkMethodByName(each);
+      builder.handleMethod(this, negateOperator, m);
+    }
   }
 
   /**
@@ -38,26 +57,4 @@ public class ReferenceWalker<T> {
     return foundMethod;
   }
 
-  private static List<FrameworkMethod> getConditionMethods(TestClass testClass) {
-    // TODO: Issue-#49 Enhance this method to return methods that invoked specified constraints by user.
-    return testClass.getAnnotatedMethods(Condition.class);
-  }
-
-  public void walk(ReferenceHandler<T> handler, String[] terms) {
-    for (String eachTerm : terms) {
-      handler.handleTerm(this, eachTerm);
-    }
-  }
-
-  public void walk(ReferenceHandler<T> builder, String term) {
-    for (String each : term.replace(" ", "").split("&&")) {
-      boolean negateOperator = each.startsWith("!");
-      FrameworkMethod m;
-      if (negateOperator) {
-        each = each.substring(1);
-      }
-      m = getFrameworkMethodByName(each);
-      builder.handleMethod(this, negateOperator, m);
-    }
-  }
 }

@@ -147,7 +147,7 @@ public class JCUnit extends Parameterized {
       Tuple testCase = ca.get(id);
       if (shouldPerform(testCase, preconditionMethods)) {
         testCases.add(
-            new TestCase(id, TestCase.Type.Generated, testCase
+            new TestCase(id, TestCase.Type.GENERATED_NORMAL, testCase
             ));
       }
     }
@@ -160,7 +160,7 @@ public class JCUnit extends Parameterized {
         testCases,
         id,
         violations,
-        TestCase.Type.Violation,
+        TestCase.Type.GENERATED_VIOLATION,
         preconditionMethods);
     ////
     // Compose a list of 'custom test cases' and register them.
@@ -168,7 +168,7 @@ public class JCUnit extends Parameterized {
         testCases,
         id,
         invokeCustomTestCasesMethod(customTestCaseMethods),
-        TestCase.Type.Custom,
+        TestCase.Type.CUSTOM,
         preconditionMethods);
     Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
     return testCases;

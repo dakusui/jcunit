@@ -57,7 +57,7 @@ public abstract class ReferenceHandler<T> {
     public void handleMethod(ReferenceWalker<List<Exception>> walker, boolean negateOperator, FrameworkMethod method) {
       ////
       // Validation specific logic follows
-      if (method.getAnnotation(Condition.class) == null) {
+      if (!isValidConditionMethod(method)) {
         errors.add(new Exception(
             StringUtils.format(
                 "Method '%s' referenced by '%s' in '%s' was found in the class but not annotated with @%s",
@@ -67,6 +67,10 @@ public abstract class ReferenceHandler<T> {
                 Condition.class
             )));
       }
+    }
+
+    private boolean isValidConditionMethod(FrameworkMethod method) {
+      return method.getAnnotation(Condition.class) != null || method.getName().startsWith("#");
     }
 
     @Override

@@ -10,14 +10,14 @@ import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import com.github.dakusui.jcunit.testutils.UTUtils;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.matchers.LessThan;
 
 import java.io.PrintStream;
-
-import static org.junit.Assert.assertThat;
 
 /**
  * An example that tests QuadraticEquationSolver.
@@ -37,6 +37,9 @@ import static org.junit.Assert.assertThat;
         args = {}))
 public class QuadraticEquationSolverTest7 {
   public static PrintStream ps = UTUtils.DUMMY_PRINTSTREAM;
+
+  @Rule
+  public TestDescription testDescription = new TestDescription();
 
   public static class CM extends SmartConstraintChecker<QuadraticEquationConstraint> {
     @Override
@@ -90,7 +93,7 @@ public class QuadraticEquationSolverTest7 {
     }
 
     @Override
-    public String value() {
+    public String tag() {
       return this.tag;
     }
 
@@ -105,20 +108,20 @@ public class QuadraticEquationSolverTest7 {
   @FactorField
   public int c;
 
-//  @Test(expected = IllegalArgumentException.class)
-//  @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
+  @Test(expected = IllegalArgumentException.class)
+  @When({ "#aIsNonZero", "#discriminantIsNonNegative", "#coefficientsAreValid"})
   public void solveEquation$thenThrowIllegalArgumentException() {
     new QuadraticEquationSolver(
         a,
         b,
         c).solve();
-    throw new Error();
   }
-
+/*
   @Test
-//  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
+  @When({ "#aIsNonZero&&#discriminantIsNonNegative&&#coefficientsAreValid" })
   public void solveEquation$thenSolved() {
-    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
+    System.out.println("-->" + this.testDescription.getTestName() + "<--");
+    System.out.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
@@ -126,4 +129,5 @@ public class QuadraticEquationSolverTest7 {
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
         a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
   }
+  */
 }

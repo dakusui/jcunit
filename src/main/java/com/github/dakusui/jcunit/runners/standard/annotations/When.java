@@ -34,7 +34,7 @@ public @interface When {
    */
   String[] value() default {};
 
-  TestCase.Type type() default TestCase.Type.Generated;
+  TestCase.Type[] type() default { TestCase.Type.GENERATED_NORMAL, TestCase.Type.GENERATED_VIOLATION, TestCase.Type.CUSTOM };
 
   class Validator extends AnnotationValidator {
     @Override

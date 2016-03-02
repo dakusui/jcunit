@@ -290,8 +290,8 @@ public class FrameworkMethodUtilsTest {
           }
 
           @Override
-          public TestCase.Type type() {
-            return TestCase.Type.Generated;
+          public TestCase.Type[] type() {
+            return TestCase.Type.values();
           }
         });
     Map<String, List<String>> expect = Utils.newMap(expectations);
@@ -330,8 +330,8 @@ public class FrameworkMethodUtilsTest {
       }
 
       @Override
-      public TestCase.Type type() {
-        return TestCase.Type.Generated;
+      public TestCase.Type[] type() {
+        return TestCase.Type.values();
       }
     });
   }
