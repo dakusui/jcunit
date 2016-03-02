@@ -67,20 +67,32 @@ public enum FrameworkMethodUtils {
     }
   }
 
-  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, Annotation from) {
+  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, Annotation ann) {
     Checks.checknotnull(testClass);
-    Checks.checknotnull(from);
-    ReferrerAttribute referrerAttribute = Checks.checknotnull(
-        from.annotationType().getAnnotation(ReferrerAttribute.class),
-        "Annotation '%s' doesn't have %s.", from, ReferrerAttribute.class);
+    Checks.checknotnull(ann);
 
-    return new ReferenceHandler.CompositeFrameworkMethodBuilderForReferenceHandler(CompositeFrameworkMethod.Mode.Or)
-        .handleTermArray(
-            new ReferenceWalker<CompositeFrameworkMethod>(
-                testClass,
-                referrerAttribute.value()
-            ),
-            Checks.cast(String[].class, ReflectionUtils.invokeForcibly(from, ReflectionUtils.getMethod(from.getClass(), "value"))));
+    ReferrerAttribute referrerAttribute = Checks.checknotnull(
+        ann.annotationType().getAnnotation(ReferrerAttribute.class),
+        "Annotation '%s' doesn't have %s.", ann, ReferrerAttribute.class);
+
+    ReferenceWalker<CompositeFrameworkMethod> referenceWalker = new ReferenceWalker<CompositeFrameworkMethod>(
+        testClass,
+        referrerAttribute.value()
+    );
+    return buildCompositeFrameworkMethod(referenceWalker, ann, referrerAttribute);
+  }
+
+  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(ReferenceWalker<CompositeFrameworkMethod> referenceWalker, Annotation ann, ReferrerAttribute referrerAttribute) {
+    return new ReferenceHandler.Base(CompositeFrameworkMethod.Mode.Or).handleTermArray(
+        referenceWalker,
+        Checks.cast(
+            String[].class,
+            ReflectionUtils.invokeForcibly(
+                ann,
+                ReflectionUtils.getMethod(ann.getClass(), "value")
+            )
+        )
+    );
   }
 
   private static ConstraintChecker getConstraintCheckerFrom(TestClass testClass) {
@@ -97,7 +109,7 @@ public enum FrameworkMethodUtils {
   /**
    * A base class for JCUnit specific FrameworkMethods.
    */
-  static abstract class JCUnitFrameworkMethod extends FrameworkMethod {
+  public static abstract class JCUnitFrameworkMethod extends FrameworkMethod {
     public static final Method DUMMY_METHOD;
 
     static {
@@ -124,10 +136,6 @@ public enum FrameworkMethodUtils {
 
     @Override
     public abstract String getName();
-
-    protected Object invokeExplosivelyInSuper(final Object target, final Object... params) throws Throwable {
-      return super.invokeExplosively(target, params);
-    }
   }
 
   /**
@@ -146,7 +154,8 @@ public enum FrameworkMethodUtils {
 
     @Override
     public Object invokeExplosively(final Object target, final Object... params) throws Throwable {
-      return !((Boolean) invokeExplosivelyInSuper(target, params));
+      //return !((Boolean) invokeExplosivelyInSuper(target, params));
+      return !((Boolean)this.enclosedMethod.invokeExplosively(target, params));
     }
 
     @Override

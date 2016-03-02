@@ -12,12 +12,14 @@ import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
-import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.internal.matchers.LessThan;
 
 import java.io.PrintStream;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * An example that tests QuadraticEquationSolver.
@@ -28,6 +30,7 @@ import java.io.PrintStream;
  * <li>session 4: Implement parameter validation in SUT and test it.</li>
  * <li>session 5: Use constraint checker #1: First step.</li>
  * <li>session 6: Use constraint checker #2: Negative tests.</li>
+ * <li>session 7: Use constraint checker #3: Automatically generated negative tests.</li>
  * </ul>
  */
 @RunWith(JCUnit.class)
@@ -36,7 +39,10 @@ import java.io.PrintStream;
         value = QuadraticEquationSolverTest7.CM.class,
         args = {}))
 public class QuadraticEquationSolverTest7 {
-  public static PrintStream ps = UTUtils.DUMMY_PRINTSTREAM;
+  public static PrintStream ps = System.out;
+  public static final int runCount     = 25; // 20 + 5
+  public static final int failureCount = 0;
+  public static final int ignoreCount  = 0;
 
   @Rule
   public TestDescription testDescription = new TestDescription();
@@ -109,19 +115,19 @@ public class QuadraticEquationSolverTest7 {
   public int c;
 
   @Test(expected = IllegalArgumentException.class)
-  @When({ "#aIsNonZero", "#discriminantIsNonNegative", "#coefficientsAreValid"})
+  @When({ "!#aIsNonZero", "!#discriminantIsNonNegative", "!#coefficientsAreValid" })
   public void solveEquation$thenThrowIllegalArgumentException() {
+    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     new QuadraticEquationSolver(
         a,
         b,
         c).solve();
   }
-/*
+
   @Test
   @When({ "#aIsNonZero&&#discriminantIsNonNegative&&#coefficientsAreValid" })
   public void solveEquation$thenSolved() {
-    System.out.println("-->" + this.testDescription.getTestName() + "<--");
-    System.out.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
+    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
@@ -129,5 +135,4 @@ public class QuadraticEquationSolverTest7 {
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
         a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
   }
-  */
 }
