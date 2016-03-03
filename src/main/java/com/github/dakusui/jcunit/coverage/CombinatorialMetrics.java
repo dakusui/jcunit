@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.coverage;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -18,12 +17,13 @@ public class CombinatorialMetrics extends Metrics.Base<Tuple> {
   private final int               degree;
 
   public CombinatorialMetrics(
-      @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTOR_SPACE) FactorSpace factorSpace,
+      @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTORS) Factors factors,
+      @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.CONSTRAINT_CHECKER) ConstraintChecker constraintChecker,
       @Param(source = Param.Source.CONFIG) int degree) {
-    Checks.checknotnull(factorSpace);
-    Checks.checkcond(degree > 0 && factorSpace.factors.size() >= degree);
-    this.factors = factorSpace.factors;
-    this.cm = factorSpace.constraintChecker;
+    Checks.checknotnull(factors);
+    Checks.checkcond(degree > 0 && factors.size() >= degree);
+    this.factors = Checks.checknotnull(factors);
+    this.cm = Checks.checknotnull(constraintChecker);
     this.degree = degree;
   }
 

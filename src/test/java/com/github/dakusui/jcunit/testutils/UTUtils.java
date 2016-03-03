@@ -72,9 +72,7 @@ public enum UTUtils {
 
   public static boolean isRunByMaven() {
     final String s = System.getProperty("sun.java.command");
-    if (s == null)
-      return false;
-    return s.contains("surefire");
+    return s != null && s.contains("surefire");
   }
 
   /**
@@ -109,6 +107,7 @@ public enum UTUtils {
     for (Object[] eachEntry : entries) {
       Checks.checknotnull(eachEntry);
       Checks.checkcond(eachEntry.length == 2, "Invalid entry is found. '%s'", eachEntry);
+      //noinspection unchecked
       ret.put((K)eachEntry[0], (V)eachEntry[1]);
     }
     return ret;
@@ -122,5 +121,21 @@ public enum UTUtils {
    */
   public static <K, V> Object[] entry(K key, V value) {
     return new Object[] { key, value };
+  }
+
+  public static class MapBuilder<K,V> {
+    private Map<K, V> map;
+    public MapBuilder() {
+      this.map = new LinkedHashMap<K, V>();
+    }
+
+    public MapBuilder<K, V> add(K k, V v) {
+      this.map.put(k, v);
+      return this;
+    }
+
+    public Map<K,V> build() {
+      return this.map;
+    }
   }
 }

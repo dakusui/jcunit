@@ -31,7 +31,7 @@ public @interface When {
    * @see ReferrerAttribute
    * @see Condition
    */
-  String[] value();
+  String[] value() default {};
 
   class Validator extends AnnotationValidator {
     @Override
@@ -75,7 +75,6 @@ public @interface When {
           terms
       );
     }
-
   }
 }
 

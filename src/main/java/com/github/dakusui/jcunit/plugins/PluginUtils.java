@@ -51,6 +51,15 @@ public enum PluginUtils {
     return Double.parseDouble(s);
   }
 
+  public static Class<?> str2Class(String s) {
+    Checks.checknotnull(s);
+    try {
+      return Class.forName(s);
+    } catch (ClassNotFoundException e) {
+      throw Checks.wrap(e);
+    }
+  }
+
   public static class StringArrayResolver extends Plugin.Param.Resolver<String[]> {
     public static StringArrayResolver INSTANCE = new StringArrayResolver();
 
@@ -112,7 +121,7 @@ public enum PluginUtils {
             Plugin.Factory<Plugin, String> factory = new Plugin.Factory<Plugin, String>(
                 tupleGeneratorClass,
                 StringResolver.INSTANCE,
-                new RunnerContext.Dummy()
+                RunnerContext.DUMMY
                 );
             return factory.create(Arrays.asList(in).subList(1, in.length));
           } catch (ClassNotFoundException e) {
@@ -191,6 +200,12 @@ public enum PluginUtils {
         @Override
         protected Object convert(String in) {
           return PluginUtils.str2double(in);
+        }
+      });
+      ret.add(new Converter.Simple<String>(Class.class) {
+        @Override
+        protected Object convert(String in) {
+          return PluginUtils.str2Class(in);
         }
       });
       ////

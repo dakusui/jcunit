@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.examples.quadraticequation.session3.QuadraticEq
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolverTest4;
 import com.github.dakusui.jcunit.examples.quadraticequation.session5.QuadraticEquationSolverTest5;
 import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolverTest6;
+import com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolverTest7;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -64,5 +65,15 @@ public class QuadraticEquationExamplesTest {
     assertEquals(QuadraticEquationSolverTest6.failureCount, result.getFailureCount());
     assertEquals(QuadraticEquationSolverTest6.runCount, result.getRunCount());
     assertEquals(QuadraticEquationSolverTest6.ignoreCount, result.getIgnoreCount());
+  }
+
+  @Test
+  public void verifyTest7() {
+    QuadraticEquationSolverTest7.ps1 = UTUtils.DUMMY_PRINTSTREAM;
+    QuadraticEquationSolverTest7.ps2 = UTUtils.DUMMY_PRINTSTREAM;
+    Result result = JUnitCore.runClasses(QuadraticEquationSolverTest7.class);
+    assertEquals(QuadraticEquationSolverTest7.failureCount, result.getFailureCount());
+    assertEquals(QuadraticEquationSolverTest7.runCount, result.getRunCount());
+    assertEquals(QuadraticEquationSolverTest7.ignoreCount, result.getIgnoreCount());
   }
 }

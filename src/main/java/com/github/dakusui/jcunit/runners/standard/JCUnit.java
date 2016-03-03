@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.coverage.Metrics;
@@ -55,13 +56,22 @@ public class JCUnit extends Parameterized {
       ////
       // BEGIN: Plugin creation
       RunnerContext runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
+      List<FactorDef> factorDefs = getFactorDefsFrom(getTestClass());
+      final Factors.Builder builder = new Factors.Builder();
+      Utils.filter(factorDefs, new Utils.Predicate<FactorDef>() {
+            @Override
+            public boolean apply(FactorDef in) {
+              in.addTo(builder);
+              return true;
+            }
+      });
+      runnerContext.setFactors(builder.build());
       final ConstraintChecker constraintChecker = new ConstraintChecker.Builder(getChecker(klass), runnerContext).build();
+      runnerContext.setConstraintChecker(constraintChecker);
       final FactorSpace factorSpace = new FactorSpace.Builder()
-          .addFactorDefs(getFactorDefsFrom(getTestClass()))
+          .addFactorDefs(factorDefs)
           .setTopLevelConstraintChecker(constraintChecker)
           .build();
-      runnerContext.setFactorSpace(factorSpace);
-      runnerContext.setConstraintChecker(constraintChecker);
       CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.FromAnnotation(getGenerator(klass), runnerContext).build();
       // reporter creation must be done after other instances are created, because it depends on
       // factors and constraints. This isn't a good design, though... (FIXME)
@@ -69,6 +79,8 @@ public class JCUnit extends Parameterized {
       for (Reporter each : getReporters(klass)) {
         metricsList.add(new Metrics.Builder(each, runnerContext).build());
       }
+      // validate constraint checker
+      validateConstraintChecker(constraintChecker);
       // END: Plugin creation
       ////
       if (!SystemProperties.reuseTestSuite() || !IOUtils.determineTestSuiteFile(this.getTestClass().getJavaClass()).exists()) {
@@ -121,11 +133,20 @@ public class JCUnit extends Parameterized {
     }
   }
 
+  private static void validateConstraintChecker(ConstraintChecker constraintChecker) {
+    String regex = "[A-Za-z0-9_]+";
+    for (String eachTag : constraintChecker.getTags()) {
+      String fqcn = constraintChecker.getClass().getCanonicalName();
+      Checks.checkplugin(eachTag != null, "Constraint checker must not return null as a tag. (%s)", fqcn);
+      Checks.checkplugin(eachTag.matches(regex), "A tag returned by constraint checker (%s) must match %s but not (%s)", eachTag, regex, fqcn);
+    }
+  }
+
   private List<TestCase> loadTestCases(Class<?> javaClass) {
     File testSuiteFile = IOUtils.determineTestSuiteFile(Checks.checknotnull(javaClass));
     List<?> ret = IOUtils.load(List.class, testSuiteFile);
     //noinspection unchecked
-    return (List<TestCase>)ret;
+    return (List<TestCase>) ret;
   }
 
   private void saveTestCases(Class<?> javaClass, List<TestCase> testCases) {
@@ -135,7 +156,6 @@ public class JCUnit extends Parameterized {
     }
     IOUtils.save(testCases, testSuiteFile);
   }
-
 
 
   public List<TestCase> generateTestCases(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) throws Throwable {
@@ -148,7 +168,7 @@ public class JCUnit extends Parameterized {
       Tuple testCase = ca.get(id);
       if (shouldPerform(testCase, preconditionMethods)) {
         testCases.add(
-            new TestCase(id, TestCase.Type.Generated, testCase
+            new TestCase(id, TestCase.Type.REGULAR, testCase
             ));
       }
     }
@@ -161,7 +181,7 @@ public class JCUnit extends Parameterized {
         testCases,
         id,
         violations,
-        TestCase.Type.Violation,
+        TestCase.Type.VIOLATION,
         preconditionMethods);
     ////
     // Compose a list of 'custom test cases' and register them.
@@ -169,7 +189,7 @@ public class JCUnit extends Parameterized {
         testCases,
         id,
         invokeCustomTestCasesMethod(customTestCaseMethods),
-        TestCase.Type.Custom,
+        TestCase.Type.CUSTOM,
         preconditionMethods);
     Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
     return testCases;

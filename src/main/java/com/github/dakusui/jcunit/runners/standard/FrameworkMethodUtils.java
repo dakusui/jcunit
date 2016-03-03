@@ -1,16 +1,17 @@
 package com.github.dakusui.jcunit.runners.standard;
 
 import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.runners.standard.annotations.ReferenceHandler;
-import com.github.dakusui.jcunit.runners.standard.annotations.ReferenceWalker;
-import com.github.dakusui.jcunit.runners.standard.annotations.ReferrerAttribute;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A class that holds utility methods to retrieve and validate framework methods.
@@ -18,26 +19,67 @@ import java.lang.reflect.Method;
 public enum FrameworkMethodUtils {
   ;
 
-  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, Annotation from) {
+  public static List<FrameworkMethod> getConditionMethods(TestClass testClass) {
     Checks.checknotnull(testClass);
-    Checks.checknotnull(from);
-    ReferrerAttribute referrerAttribute = Checks.checknotnull(
-        from.annotationType().getAnnotation(ReferrerAttribute.class),
-        "Annotation '%s' doesn't have %s.", from, ReferrerAttribute.class);
+    ConstraintChecker constraintChecker = getConstraintCheckerFrom(testClass);
+    List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
+    ret.addAll(testClass.getAnnotatedMethods(Condition.class));
+    final JCUnitFrameworkMethod.FromConstraintChecker builder
+        = new JCUnitFrameworkMethod.FromConstraintChecker(constraintChecker);
+    ret.addAll(Utils.transform(
+        Utils.concatenate(constraintChecker.getTags(), "*"),
+        new Utils.Form<String, FrameworkMethod>() {
+          @Override
+          public FrameworkMethod apply(String in) {
+            return builder.buildWith(in);
+          }
+        }));
+    return ret;
+  }
 
-    return new ReferenceHandler.ForBuildingCompositeFrameworkMethod()
-        .handleTermArray(
-            new ReferenceWalker<CompositeFrameworkMethod>(
-                testClass,
-                referrerAttribute.value()
-            ),
-            Checks.cast(String[].class, ReflectionUtils.invokeForcibly(from, ReflectionUtils.getMethod(from.getClass(), "value"))));
+  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, Annotation ann) {
+    Checks.checknotnull(testClass);
+    Checks.checknotnull(ann);
+
+    ReferrerAttribute referrerAttribute = Checks.checknotnull(
+        ann.annotationType().getAnnotation(ReferrerAttribute.class),
+        "Annotation '%s' doesn't have %s.", ann, ReferrerAttribute.class);
+
+    ReferenceWalker<CompositeFrameworkMethod> referenceWalker = new ReferenceWalker<CompositeFrameworkMethod>(
+        testClass,
+        referrerAttribute.value()
+    );
+    return buildCompositeFrameworkMethod(referenceWalker, ann, referrerAttribute);
+  }
+
+  public static CompositeFrameworkMethod buildCompositeFrameworkMethod(ReferenceWalker<CompositeFrameworkMethod> referenceWalker, Annotation ann, ReferrerAttribute referrerAttribute) {
+    return new ReferenceHandler.Base(CompositeFrameworkMethod.Mode.Or).handleTermArray(
+        referenceWalker,
+        Checks.cast(
+            String[].class,
+            ReflectionUtils.invokeForcibly(
+                ann,
+                ReflectionUtils.getMethod(ann.getClass(), "value")
+            )
+        )
+    );
+  }
+
+  private static ConstraintChecker getConstraintCheckerFrom(TestClass testClass) {
+    GenerateCoveringArrayWith ann = testClass.getAnnotation(GenerateCoveringArrayWith.class);
+    if (ann == null) {
+      return ConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
+    }
+    return new ConstraintChecker.Builder(
+        ann.checker(),
+        testClass.getJavaClass()
+    ).build();
   }
 
   /**
    * A base class for JCUnit specific FrameworkMethods.
    */
-  static abstract class JCUnitFrameworkMethod extends FrameworkMethod {
+  public static abstract class JCUnitFrameworkMethod extends FrameworkMethod {
     public static final Method DUMMY_METHOD;
 
     static {
@@ -49,10 +91,14 @@ public enum FrameworkMethodUtils {
     }
 
     /**
-     * Returns a new {@code FrameworkMethod} for {@code method}
+     * Creates a new {@code FrameworkMethod} for {@code method}
      */
     public JCUnitFrameworkMethod(Method method) {
       super(method);
+    }
+
+    public JCUnitFrameworkMethod() {
+      this(DUMMY_METHOD);
     }
 
     @Override
@@ -61,8 +107,52 @@ public enum FrameworkMethodUtils {
     @Override
     public abstract String getName();
 
-    protected Object invokeExplosivelyInSuper(final Object target, final Object... params) throws Throwable {
-      return super.invokeExplosively(target, params);
+    /**
+     * A fluent builder constructor which creates a {@code FrameworkMethod} object
+     * from a constraint checker.
+     */
+    public static class FromConstraintChecker {
+      private final ConstraintChecker constraintChecker;
+
+      public FromConstraintChecker(ConstraintChecker constraintChecker) {
+        this.constraintChecker = Checks.checknotnull(constraintChecker);
+      }
+
+      public FrameworkMethod buildWith(final String name) {
+        if ("*".equals(name)) {
+          return new JCUnitFrameworkMethod() {
+            @Override
+            public Object invokeExplosively(Object target, Object... params) throws Throwable {
+              for (String tag : FromConstraintChecker.this.constraintChecker.getTags()) {
+                if ("*".equals(tag)) continue;
+                if (FromConstraintChecker.this.constraintChecker.violates(TestCaseUtils.toTestCase(target), tag)) {
+                  return false;
+                }
+              }
+              return true;
+            }
+
+            @Override
+            public String getName() {
+              return "#*";
+            }
+          };
+        }
+        return new JCUnitFrameworkMethod() {
+          @Override
+          public Object invokeExplosively(Object target, Object... params) throws Throwable {
+            return !FromConstraintChecker.this.constraintChecker.violates(
+                TestCaseUtils.toTestCase(target),
+                name
+            );
+          }
+
+          @Override
+          public String getName() {
+            return String.format("#%s", name);
+          }
+        };
+      }
     }
   }
 
@@ -82,7 +172,7 @@ public enum FrameworkMethodUtils {
 
     @Override
     public Object invokeExplosively(final Object target, final Object... params) throws Throwable {
-      return !((Boolean) invokeExplosivelyInSuper(target, params));
+      return !((Boolean) this.enclosedMethod.invokeExplosively(target, params));
     }
 
     @Override

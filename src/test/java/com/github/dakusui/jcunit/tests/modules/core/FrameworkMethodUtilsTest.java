@@ -322,6 +322,7 @@ public class FrameworkMethodUtilsTest {
       public String[] value() {
         return annotaionValues.toArray(new String[annotaionValues.size()]);
       }
+
     });
   }
 

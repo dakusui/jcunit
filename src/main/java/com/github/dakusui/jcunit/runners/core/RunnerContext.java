@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.runners.core;
 
 import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.factor.FactorSpace;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
@@ -12,21 +12,30 @@ import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getFieldVal
 public interface RunnerContext {
   RunnerContext DUMMY = new Dummy();
 
-  void setFactorSpace(FactorSpace factorSpace);
+  void setFactors(Factors factors);
 
   void setConstraintChecker(ConstraintChecker constraintChecker);
 
   <T> T get(Key key);
 
-  class Dummy implements RunnerContext {
+  Factors getFactors();
 
-    @Override
-    public <T> T get(Key key) {
-      throw new Error("TODO: FIXME: Use Base Instead");
+  class Dummy implements RunnerContext {
+    private Dummy() {
     }
 
     @Override
-    public void setFactorSpace(FactorSpace factorSpace) {
+    public <T> T get(Key key) {
+      throw new UnsupportedOperationException("FIXME: Use Base Instead");
+    }
+
+    @Override
+    public Factors getFactors() {
+      throw new UnsupportedOperationException("FIXME: Use Base Instead");
+    }
+
+    @Override
+    public void setFactors(Factors factors) {
     }
 
     @Override
@@ -42,7 +51,7 @@ public interface RunnerContext {
      */
     TEST_CLASS("testClass") {
     },
-    FACTOR_SPACE("factorSpace") {
+    FACTORS("factors") {
     },
     COVERINGARRAY_ENGINE("coveringArrayEngine") {
     },
@@ -74,7 +83,7 @@ public interface RunnerContext {
 
     // See class level Javadoc.
     @SuppressWarnings("unused")
-    private FactorSpace factorSpace;
+    private Factors factors;
 
     // See class level Javadoc.
     @SuppressWarnings("unused")
@@ -89,8 +98,8 @@ public interface RunnerContext {
     }
 
     @Override
-    public void setFactorSpace(FactorSpace factorSpace) {
-      this.factorSpace = Checks.checknotnull(factorSpace);
+    public void setFactors(Factors factors) {
+      this.factors = Checks.checknotnull(factors);
     }
 
     @Override
@@ -101,6 +110,11 @@ public interface RunnerContext {
     @Override
     public <T> T get(Key key) {
       return getFieldValueForcibly(this, getFieldDeclaredIn(this.getClass(), checknotnull(key).getFieldName()));
+    }
+
+    @Override
+    public Factors getFactors() {
+      return this.factors;
     }
   }
 }

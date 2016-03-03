@@ -22,7 +22,7 @@ public enum CoveringArrayEngines {
       String[]... configArgsForEngine
   ) {
     return new CoveringArrayEngine.Builder<String[]>(
-        new RunnerContext.Dummy(),
+        RunnerContext.DUMMY,
         factors,
         constraintChecker,
         engineClass

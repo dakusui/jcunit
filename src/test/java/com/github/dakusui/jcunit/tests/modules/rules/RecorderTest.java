@@ -35,7 +35,7 @@ public class RecorderTest extends Recorder implements Serializable {
   Factors       factors   = new Factors.Builder()
       .add(new Factor.Builder("f1").addLevel(1).build()).build();
   Tuple         tuple     = new Tuple.Builder().build();
-  TestCase.Type type      = TestCase.Type.Generated;
+  TestCase.Type type      = TestCase.Type.REGULAR;
   TestCase      testCase  = new TestCase(123, this.type, this.tuple);
 
   public RecorderTest() {
@@ -134,7 +134,7 @@ public class RecorderTest extends Recorder implements Serializable {
       throws IOException {
     System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
     System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
-    this.type = TestCase.Type.Custom;
+    this.type = TestCase.Type.CUSTOM;
     this.testCase  = new TestCase(123, this.type, this.tuple);
     wireMocks();
     whenInitializeDirSaveAndLoad$thenDoNotWriteAnything(false);

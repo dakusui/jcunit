@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.SystemProperties;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.lang.annotation.Annotation;
@@ -42,7 +41,7 @@ public interface Plugin {
        * and its {@code source} has this element as its value,
        * <code>
        * public IPO2CoveringArrayEngine(
-       *
+       * <p/>
        * {@literal @}(source = Param.Source.CONFIG, defaultValue = "2") int strength) {
        * ...
        * }
@@ -211,6 +210,9 @@ public interface Plugin {
     }
   }
 
+  abstract class Base implements Plugin {
+  }
+
   class Factory<P extends Plugin, S> {
     private final Class<? super P>  pluginClass;
     private final Param.Resolver<S> resolver;
@@ -226,57 +228,54 @@ public interface Plugin {
       List<Object> resolvedArgs = new LinkedList<Object>();
       try {
         int i = 0;
-        try {
-          Constructor<P> constructor = getConstructor();
-          for (Param.Desc each : getParameterDescs(getConstructor())) {
-            Param.Source source = each.parameterRequirement.source();
-            if (source == Param.Source.CONFIG) {
-              if (i < args.size()) {
-                resolvedArgs.add(resolver.resolve(each, args.get(i)));
-              } else {
-                resolvedArgs.add(PluginUtils.StringArrayResolver.INSTANCE.resolve(each, each.parameterRequirement.defaultValue()));
-              }
-            } else if (source == Param.Source.CONTEXT) {
-              Object value = this.runnerContext.get(each.parameterRequirement.contextKey());
-              resolvedArgs.add(Checks.cast(each.parameterType, value));
-            } else if (source == Param.Source.SYSTEM_PROPERTY) {
-              String defaultValue = null;
-              if (each.parameterRequirement.defaultValue().length > 0) {
-                defaultValue = each.parameterRequirement.defaultValue()[0];
-              }
-              String value = SystemProperties.get(
-                  each.parameterRequirement.propertyKey(),
-                  defaultValue
-              );
-              resolvedArgs.add(PluginUtils.StringResolver.INSTANCE.resolve(each, value));
+        Constructor<P> constructor = getConstructor();
+        for (Param.Desc each : getParameterDescs(getConstructor())) {
+          Param.Source source = each.parameterRequirement.source();
+          if (source == Param.Source.CONFIG) {
+            if (i < args.size()) {
+              resolvedArgs.add(resolver.resolve(each, args.get(i)));
             } else {
-              Checks.checkcond(false,
-                  "Unknown source: '%s' is given.",
-                  source
-              );
+              resolvedArgs.add(PluginUtils.StringArrayResolver.INSTANCE.resolve(each, each.parameterRequirement.defaultValue()));
             }
-
-            if (each.parameterRequirement.source() == Param.Source.CONFIG) {
-              i++;
+          } else if (source == Param.Source.CONTEXT) {
+            Object value = this.runnerContext.get(each.parameterRequirement.contextKey());
+            resolvedArgs.add(Checks.cast(each.parameterType, value));
+          } else if (source == Param.Source.SYSTEM_PROPERTY) {
+            String defaultValue = null;
+            if (each.parameterRequirement.defaultValue().length > 0) {
+              defaultValue = each.parameterRequirement.defaultValue()[0];
             }
+            String value = SystemProperties.get(
+                each.parameterRequirement.propertyKey(),
+                defaultValue
+            );
+            resolvedArgs.add(PluginUtils.StringResolver.INSTANCE.resolve(each, value));
+          } else {
+            Checks.checkcond(false,
+                "Unknown source: '%s' is given.",
+                source
+            );
           }
-          Checks.checktest(
-              i >= args.size(),
-              "Too many arguments are given. %s are extra.",
-              i < args.size()
-                  ? args.subList(i, args.size())
-                  : null);
-          Checks.checktest(resolvedArgs.size() == constructor.getParameterTypes().length,
-              "%s: Too few or to many arguments: required=%s, given=%s",
-              constructor.getDeclaringClass(),
-              constructor.getParameterTypes().length,
-              args.size(),
-              i
-          );
-          return constructor.newInstance(resolvedArgs.toArray());
-        } catch (JCUnitException e) {
-          throw e;
+
+          if (each.parameterRequirement.source() == Param.Source.CONFIG) {
+            i++;
+          }
         }
+        Checks.checktest(
+            i >= args.size(),
+            "Too many arguments are given. %s are extra.",
+            i < args.size()
+                ? args.subList(i, args.size())
+                : null);
+        Checks.checktest(resolvedArgs.size() == constructor.getParameterTypes().length,
+            "%s: Too few or to many arguments: required=%s, given=%s",
+            constructor.getDeclaringClass(),
+            constructor.getParameterTypes().length,
+            args.size(),
+            i
+        );
+        P ret =   constructor.newInstance(resolvedArgs.toArray());
+        return ret;
       } catch (InstantiationException e) {
         throw Checks.wrap(
             e,
@@ -292,7 +291,7 @@ public interface Plugin {
       } catch (InvocationTargetException e) {
         throw Checks.wrap(
             e.getTargetException(),
-            "Failed to instantiate a plugin '%s' due to an illegal access",
+            "Failed to instantiate a plugin '%s' due to an error",
             this.pluginClass
         );
       }
@@ -339,6 +338,7 @@ public interface Plugin {
 
     public static <P extends Plugin, S>
     Factory<P, S> newFactory(Class<? extends P> pluginClass, Param.Resolver<S> resolver, RunnerContext runnerContext) {
+      //noinspection unchecked
       return new Factory<P, S>((Class<? super P>) pluginClass, resolver, runnerContext);
     }
   }
