@@ -26,7 +26,7 @@ public interface LevelsProvider extends Plugin {
   /**
    * A base class to be used to implement a {@code LevelsProvider}.
    */
-  abstract class Base implements LevelsProvider {
+  abstract class Base extends Plugin.Base implements LevelsProvider {
     public Base() {
     }
   }

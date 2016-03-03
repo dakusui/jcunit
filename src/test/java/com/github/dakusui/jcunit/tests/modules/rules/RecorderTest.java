@@ -35,7 +35,7 @@ public class RecorderTest extends Recorder implements Serializable {
   Factors       factors   = new Factors.Builder()
       .add(new Factor.Builder("f1").addLevel(1).build()).build();
   Tuple         tuple     = new Tuple.Builder().build();
-  TestCase.Type type      = TestCase.Type.GENERATED_NORMAL;
+  TestCase.Type type      = TestCase.Type.REGULAR;
   TestCase      testCase  = new TestCase(123, this.type, this.tuple);
 
   public RecorderTest() {

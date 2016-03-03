@@ -203,7 +203,7 @@ public @interface FactorField {
         return ReflectionUtils.getMethod(FactorField.class, lowercaseClassName + "Levels");
       }
 
-      public static final class DummyLevelsProvider implements LevelsProvider {
+      public static final class DummyLevelsProvider extends LevelsProvider.Base implements LevelsProvider {
         public DummyLevelsProvider() {
         }
 
@@ -301,9 +301,9 @@ public @interface FactorField {
         return new AbstractList<Object>() {
           FactorSpace factorSpace = new FactorSpace.Builder()
               .addFactorDefs(JCUnit.getFactorDefsFrom(c))
-              .setTopLevelConstraintChecker(new ConstraintChecker.Builder(ann.checker(), new RunnerContext.Dummy()).build())
+              .setTopLevelConstraintChecker(new ConstraintChecker.Builder(ann.checker(), RunnerContext.DUMMY).build())
               .build();
-          CoveringArray ca = new CoveringArrayEngine.FromAnnotation(JCUnit.getGenerator(c), new RunnerContext.Dummy()).build().generate(factorSpace);
+          CoveringArray ca = new CoveringArrayEngine.FromAnnotation(JCUnit.getGenerator(c), RunnerContext.DUMMY).build().generate(factorSpace);
 
           @Override
           public Object get(int index) {

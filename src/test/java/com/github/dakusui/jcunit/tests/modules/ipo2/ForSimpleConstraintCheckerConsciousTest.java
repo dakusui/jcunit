@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.tests.modules.ipo2;
 
+import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -88,7 +89,7 @@ public class ForSimpleConstraintCheckerConsciousTest extends IPO2Test {
     }
   }
 
-  public static class TestConstraintChecker implements ConstraintChecker {
+  public static class TestConstraintChecker extends Plugin.Base implements ConstraintChecker {
     private final Set<Tuple> constraints;
 
     TestConstraintChecker(List<Tuple> constraints) {

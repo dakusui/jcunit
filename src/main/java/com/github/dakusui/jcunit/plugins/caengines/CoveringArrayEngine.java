@@ -115,7 +115,7 @@ public interface CoveringArrayEngine extends Plugin {
    * An abstract base class that provides a basic implementation of {@code CAEngine}.
    * Users can create a new tuple generator by extending this class.
    */
-  abstract class Base implements CoveringArrayEngine, Plugin {
+  abstract class Base extends Plugin.Base implements CoveringArrayEngine, Plugin {
 
     public Base() {
     }

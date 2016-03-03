@@ -2,62 +2,75 @@ package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.*;
 
 /**
  */
-public abstract class SmartConstraintChecker<C extends Enum & Constraint> implements ConstraintChecker {
+final public class SmartConstraintChecker implements ConstraintChecker {
 
-  private final Set<C>      constraintsToBeCovered;
-  private final List<Tuple> chosenViolations;
+  private final Set<Constraint>             constraintsToBeCovered;
+  private final List<Tuple>                 chosenViolations;
+  private final Class<? extends Constraint> constraintClass;
+  private final Set<Tuple>                  factorLevelsToBeCovered;
+  private Tuple regularTestCase = null;
 
-  public SmartConstraintChecker() {
-    this.constraintsToBeCovered = new HashSet<C>(Arrays.asList(this.getConstraintClass().getEnumConstants()));
+  public SmartConstraintChecker(
+      @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTORS) Factors factors,
+      @Param(source = Param.Source.CONFIG) Class<?> constraintClass
+  ) {
+    this.constraintClass = validateConstraintClass(constraintClass);
+    this.constraintsToBeCovered = new HashSet<Constraint>(this.constraints());
     this.chosenViolations = new LinkedList<Tuple>();
+    if (factors == null) {
+      ////
+      // factorSpace can be null on validation phase.
+      this.factorLevelsToBeCovered = null;
+    } else {
+      this.factorLevelsToBeCovered = new LinkedHashSet<Tuple>(
+          factors.generateAllPossibleTuples(1)
+      );
+    }
   }
 
   @Override
   public boolean check(Tuple tuple) throws UndefinedSymbol {
-    Set<C> violatedConstraints = new HashSet<C>();
-    for (C each : this.constraints()) {
-      if (!each.check(tuple)) {
-        violatedConstraints.add(each);
+    if (checkTupleAndUpdateViolations(tuple)) {
+      if (regularTestCase == null) {
+        regularTestCase = tuple;
       }
-    }
-    if (violatedConstraints.size() == 1) {
-      C constraint = violatedConstraints.iterator().next();
-      if (constraintsToBeCovered.contains(constraint)) {
-        this.constraintsToBeCovered.remove(constraint);
-        tuple.put("#violatedconstraint", constraint);
-        this.chosenViolations.add(tuple);
+      if (!factorLevelsToBeCovered.isEmpty()) {
+        this.factorLevelsToBeCovered.removeAll(TupleUtils.subtuplesOf(tuple, 1));
       }
+      return true;
     }
-    return violatedConstraints.isEmpty();
-  }
-
-  protected Class<C> getConstraintClass() {
-    ParameterizedType superclass =
-        (ParameterizedType) getClass().getGenericSuperclass();
-
-    return (Class<C>) superclass.getActualTypeArguments()[0];
+    return false;
   }
 
   @Override
   public List<Tuple> getViolations() {
-    return this.chosenViolations;
+    List<Tuple> ret = new LinkedList<Tuple>(this.chosenViolations);
+    for (Tuple factorLevel : this.factorLevelsToBeCovered) {
+      ret.add(new Tuple.Builder()
+          .putAll(this.regularTestCase)
+          .putAll(factorLevel)
+          .build());
+    }
+    return ret;
   }
 
   @Override
   public List<String> getTags() {
     return Utils.dedup(Utils.transform(
         this.constraints(),
-        new Utils.Form<C, String>() {
+        new Utils.Form<Constraint, String>() {
           @Override
-          public String apply(C in) {
+          public String apply(Constraint in) {
             return in.tag();
           }
         }
@@ -68,29 +81,61 @@ public abstract class SmartConstraintChecker<C extends Enum & Constraint> implem
   public boolean violates(final Tuple tuple, final String constraintTag) {
     Checks.checknotnull(constraintTag);
     Checks.checknotnull(tuple);
-    return Utils.filter(Utils.filter(
-        constraints(),
-        new Utils.Predicate<C>() {
+    return Utils.filter(
+        Utils.filter(
+            constraints(),
+            new Utils.Predicate<Constraint>() {
+              @Override
+              public boolean apply(Constraint in) {
+                return constraintTag.equals(in.tag());
+              }
+            }
+        ),
+        new Utils.Predicate<Constraint>() {
           @Override
-          public boolean apply(C in) {
-            return constraintTag.equals(in.tag());
+          public boolean apply(Constraint in) {
+            try {
+              return !in.check(tuple);
+            } catch (UndefinedSymbol undefinedSymbol) {
+              // This shouldn't happen because JCUnit calls violates method only with
+              // 'complete' tuple.
+              throw Checks.wrap(undefinedSymbol);
+            }
           }
-        }
-    ), new Utils.Predicate<C>() {
-      @Override
-      public boolean apply(C in) {
-        try {
-          return !in.check(tuple);
-        } catch (UndefinedSymbol undefinedSymbol) {
-          // This shouldn't happen because JCUnit calls violates method only with
-          // 'complete' tuple.
-          throw Checks.wrap(undefinedSymbol);
-        }
-      }
-    }).size() > 0;
+        }).size() > 0;
   }
 
-  protected List<C> constraints() {
-    return Utils.asList(this.getConstraintClass().getEnumConstants());
+
+  private boolean checkTupleAndUpdateViolations(Tuple tuple) throws UndefinedSymbol {
+    Set<Constraint> violatedConstraints = new HashSet<Constraint>();
+    for (Constraint each : this.constraints()) {
+      if (!each.check(tuple)) {
+        violatedConstraints.add(each);
+      }
+    }
+    if (violatedConstraints.size() == 1) {
+      Constraint constraint = violatedConstraints.iterator().next();
+      if (constraintsToBeCovered.contains(constraint)) {
+        this.constraintsToBeCovered.remove(constraint);
+        this.factorLevelsToBeCovered.removeAll(TupleUtils.subtuplesOf(tuple, 1));
+        this.chosenViolations.add(tuple);
+      }
+    }
+    return violatedConstraints.isEmpty();
+  }
+
+  private List<Constraint> constraints() {
+    ////
+    // Java8 compiler complains of this line unless this cast is done.
+    //noinspection RedundantCast
+    return (List<Constraint>)Arrays.asList(this.constraintClass.getEnumConstants());
+  }
+
+  private Class<? extends Constraint> validateConstraintClass(Class<?> constraintClass) {
+    Checks.checknotnull(constraintClass);
+    Checks.checktest(Enum.class.isAssignableFrom(constraintClass), "Given argument '%s' is not an enum.", constraintClass.getCanonicalName());
+    Checks.checktest(Constraint.class.isAssignableFrom(constraintClass), "Given argument '%s' is not a constraint.", constraintClass.getCanonicalName());
+    //noinspection unchecked
+    return (Class<? extends Constraint>) constraintClass;
   }
 }

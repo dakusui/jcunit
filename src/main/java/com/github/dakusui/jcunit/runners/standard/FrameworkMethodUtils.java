@@ -24,47 +24,17 @@ public enum FrameworkMethodUtils {
     ConstraintChecker constraintChecker = getConstraintCheckerFrom(testClass);
     List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
     ret.addAll(testClass.getAnnotatedMethods(Condition.class));
-    final FromConstraintChecker builder
-        = new FromConstraintChecker(constraintChecker);
+    final JCUnitFrameworkMethod.FromConstraintChecker builder
+        = new JCUnitFrameworkMethod.FromConstraintChecker(constraintChecker);
     ret.addAll(Utils.transform(
-        constraintChecker.getTags(),
+        Utils.concatenate(constraintChecker.getTags(), "*"),
         new Utils.Form<String, FrameworkMethod>() {
           @Override
           public FrameworkMethod apply(String in) {
             return builder.buildWith(in);
           }
-        }
-    ));
+        }));
     return ret;
-  }
-
-  /**
-   * A fluent builder constructor which creates a {@code FrameworkMethod} object
-   * from a constraint checker.
-   */
-  public static class FromConstraintChecker {
-    private final ConstraintChecker constraintChecker;
-
-    public FromConstraintChecker(ConstraintChecker constraintChecker) {
-      this.constraintChecker = Checks.checknotnull(constraintChecker);
-    }
-
-    public FrameworkMethod buildWith(final String name) {
-      return new JCUnitFrameworkMethod() {
-        @Override
-        public Object invokeExplosively(Object target, Object... params) throws Throwable {
-          return !FromConstraintChecker.this.constraintChecker.violates(
-              TestCaseUtils.toTestCase(target),
-              name
-          );
-        }
-
-        @Override
-        public String getName() {
-          return String.format("#%s", name);
-        }
-      };
-    }
   }
 
   public static CompositeFrameworkMethod buildCompositeFrameworkMethod(TestClass testClass, Annotation ann) {
@@ -136,6 +106,54 @@ public enum FrameworkMethodUtils {
 
     @Override
     public abstract String getName();
+
+    /**
+     * A fluent builder constructor which creates a {@code FrameworkMethod} object
+     * from a constraint checker.
+     */
+    public static class FromConstraintChecker {
+      private final ConstraintChecker constraintChecker;
+
+      public FromConstraintChecker(ConstraintChecker constraintChecker) {
+        this.constraintChecker = Checks.checknotnull(constraintChecker);
+      }
+
+      public FrameworkMethod buildWith(final String name) {
+        if ("*".equals(name)) {
+          return new JCUnitFrameworkMethod() {
+            @Override
+            public Object invokeExplosively(Object target, Object... params) throws Throwable {
+              for (String tag : FromConstraintChecker.this.constraintChecker.getTags()) {
+                if ("*".equals(tag)) continue;
+                if (FromConstraintChecker.this.constraintChecker.violates(TestCaseUtils.toTestCase(target), tag)) {
+                  return false;
+                }
+              }
+              return true;
+            }
+
+            @Override
+            public String getName() {
+              return "#*";
+            }
+          };
+        }
+        return new JCUnitFrameworkMethod() {
+          @Override
+          public Object invokeExplosively(Object target, Object... params) throws Throwable {
+            return !FromConstraintChecker.this.constraintChecker.violates(
+                TestCaseUtils.toTestCase(target),
+                name
+            );
+          }
+
+          @Override
+          public String getName() {
+            return String.format("#%s", name);
+          }
+        };
+      }
+    }
   }
 
   /**
@@ -154,8 +172,7 @@ public enum FrameworkMethodUtils {
 
     @Override
     public Object invokeExplosively(final Object target, final Object... params) throws Throwable {
-      //return !((Boolean) invokeExplosivelyInSuper(target, params));
-      return !((Boolean)this.enclosedMethod.invokeExplosively(target, params));
+      return !((Boolean) this.enclosedMethod.invokeExplosively(target, params));
     }
 
     @Override

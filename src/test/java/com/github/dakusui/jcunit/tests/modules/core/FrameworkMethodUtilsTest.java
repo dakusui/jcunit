@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.StringUtils;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.standard.CompositeFrameworkMethod;
 import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
@@ -288,11 +287,6 @@ public class FrameworkMethodUtilsTest {
           public String[] value() {
             return ref.toArray(new String[ref.size()]);
           }
-
-          @Override
-          public TestCase.Type[] type() {
-            return TestCase.Type.values();
-          }
         });
     Map<String, List<String>> expect = Utils.newMap(expectations);
     for (FrameworkMethod each : methods) {
@@ -329,10 +323,6 @@ public class FrameworkMethodUtilsTest {
         return annotaionValues.toArray(new String[annotaionValues.size()]);
       }
 
-      @Override
-      public TestCase.Type[] type() {
-        return TestCase.Type.values();
-      }
     });
   }
 

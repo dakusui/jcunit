@@ -153,7 +153,7 @@ public interface Metrics<T> extends Plugin {
     abstract protected Set<C> getCoveredItemsBy(T t);
   }
 
-  abstract class Base<T> implements Metrics<T> {
+  abstract class Base<T> extends Plugin.Base implements Metrics<T> {
     private List<Metric<T>> metrics            = null;
     private boolean         testSuiteProcessed = false;
 

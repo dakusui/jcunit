@@ -44,11 +44,11 @@ public class TestCase implements Serializable {
      * In case explicit constraint checker is present, generated test cases do not violate constraints
      * defined by the checker.
      */
-    GENERATED_NORMAL,
+    REGULAR,
     /**
      * A test case which violates some defined constraint belongs to this category.
      * Test cases returned by {@code ConstraintManager#getViolations} belongs to this.
      */
-    GENERATED_VIOLATION
+    VIOLATION
   }
 }

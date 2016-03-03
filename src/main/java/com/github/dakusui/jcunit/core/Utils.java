@@ -132,6 +132,12 @@ public enum Utils {
     return c;
   }
 
+  public static <T> List<T> concatenate(List<T> a, T... b) {
+    List<T> ret = new LinkedList<T>(a);
+    ret.addAll(Arrays.asList(b));
+    return ret;
+  }
+
   public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
     Collections.sort(list, by);
     return list;

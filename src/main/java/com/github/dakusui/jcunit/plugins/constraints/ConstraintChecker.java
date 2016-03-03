@@ -36,7 +36,7 @@ public interface ConstraintChecker extends Plugin {
 
   boolean violates(Tuple tuple, String constraintTag);
 
-  abstract class Base implements ConstraintChecker, Plugin {
+  abstract class Base extends Plugin.Base implements ConstraintChecker, Plugin {
     public Base() {
     }
 

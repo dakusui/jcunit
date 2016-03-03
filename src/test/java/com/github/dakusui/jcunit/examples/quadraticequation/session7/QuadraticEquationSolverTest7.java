@@ -7,10 +7,7 @@ import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
-import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,23 +33,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(JCUnit.class)
 @GenerateCoveringArrayWith(
     checker = @Checker(
-        value = QuadraticEquationSolverTest7.CM.class,
-        args = {}))
+        value = SmartConstraintChecker.class,
+        args = { @Value("com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolverTest7$QuadraticEquationConstraint")}))
 public class QuadraticEquationSolverTest7 {
-  public static PrintStream ps = System.out;
-  public static final int runCount     = 25; // 20 + 5
-  public static final int failureCount = 0;
-  public static final int ignoreCount  = 0;
-
-  @Rule
-  public TestDescription testDescription = new TestDescription();
-
-  public static class CM extends SmartConstraintChecker<QuadraticEquationConstraint> {
-    @Override
-    protected Class<QuadraticEquationConstraint> getConstraintClass() {
-      return QuadraticEquationConstraint.class;
-    }
-  }
+  public static       PrintStream ps           = System.out;
+  public static final int         runCount     = 28; // 20 (regular) + 8 (violation)
+  public static final int         failureCount = 0;
+  public static final int         ignoreCount  = 0;
 
   @SuppressWarnings("unused")
   public enum QuadraticEquationConstraint implements Constraint {
@@ -107,6 +94,9 @@ public class QuadraticEquationSolverTest7 {
 
   }
 
+  @Rule
+  public TestDescription testDescription = new TestDescription();
+
   @FactorField
   public int a;
   @FactorField
@@ -115,8 +105,29 @@ public class QuadraticEquationSolverTest7 {
   public int c;
 
   @Test(expected = IllegalArgumentException.class)
-  @When({ "!#aIsNonZero", "!#discriminantIsNonNegative", "!#coefficientsAreValid" })
-  public void solveEquation$thenThrowIllegalArgumentException() {
+  //  @When({ "!#aIsNonZero", "!#discriminantIsNonNegative", "!#coefficientsAreValid" })
+  @When({ "!#aIsNonZero" })
+  public void solveEquation1$thenThrowIllegalArgumentException() {
+    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
+    new QuadraticEquationSolver(
+        a,
+        b,
+        c).solve();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  @When({ "!#discriminantIsNonNegative" })
+  public void solveEquation2$thenThrowIllegalArgumentException() {
+    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
+    new QuadraticEquationSolver(
+        a,
+        b,
+        c).solve();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  @When({ "!#coefficientsAreValid" })
+  public void solveEquation3$thenThrowIllegalArgumentException() {
     ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     new QuadraticEquationSolver(
         a,
@@ -125,7 +136,7 @@ public class QuadraticEquationSolverTest7 {
   }
 
   @Test
-  @When({ "#aIsNonZero&&#discriminantIsNonNegative&&#coefficientsAreValid" })
+  @When({ "#*" })
   public void solveEquation$thenSolved() {
     ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,

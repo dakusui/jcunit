@@ -11,7 +11,7 @@ import java.util.Arrays;
 import static org.junit.Assert.assertEquals;
 
 public class ValueResolverTest {
-  public static class TestPlugin implements Plugin {
+  public static class TestPlugin extends Plugin.Base implements Plugin {
     public enum TestEnum {
       WORLD
     }
@@ -58,7 +58,7 @@ public class ValueResolverTest {
     Plugin.Factory<TestPlugin, Value> factory = new Plugin.Factory<TestPlugin, Value>(
         TestPlugin.class,
         new Value.Resolver(),
-        new RunnerContext.Dummy()
+        RunnerContext.DUMMY
     );
     TestPlugin testPlugin = factory.create(Arrays.asList(
         new Value.ArrayBuilder()
@@ -91,7 +91,7 @@ public class ValueResolverTest {
     Plugin.Factory<TestPlugin, String> factory = new Plugin.Factory<TestPlugin, String>(
         TestPlugin.class,
         PluginUtils.StringResolver.INSTANCE,
-        new RunnerContext.Dummy()
+        RunnerContext.DUMMY
     );
     TestPlugin testPlugin = factory.create(Arrays.asList(
         "123", //x

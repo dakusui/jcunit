@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 public class FrameworkMethodUtilsTest {
   @Test
   public void test() throws Throwable {
-    FrameworkMethod method = new FrameworkMethodUtils.FromConstraintChecker(createCC(
+    FrameworkMethod method = new FrameworkMethodUtils.JCUnitFrameworkMethod.FromConstraintChecker(createCC(
         new UTUtils.MapBuilder<String, Boolean>()
         .add("testTag", true)
         .build()
@@ -26,7 +26,7 @@ public class FrameworkMethodUtilsTest {
   }
 
   static ConstraintChecker createCC(final Map<String, Boolean> values) {
-    return new ConstraintChecker() {
+    return new ConstraintChecker.Base() {
       @Override
       public boolean check(Tuple tuple) throws UndefinedSymbol {
         throw new UnsupportedOperationException();
