@@ -69,7 +69,8 @@ public class QuadraticEquationExamplesTest {
 
   @Test
   public void verifyTest7() {
-    QuadraticEquationSolverTest7.ps = UTUtils.DUMMY_PRINTSTREAM;
+    QuadraticEquationSolverTest7.ps1 = UTUtils.DUMMY_PRINTSTREAM;
+    QuadraticEquationSolverTest7.ps2 = UTUtils.DUMMY_PRINTSTREAM;
     Result result = JUnitCore.runClasses(QuadraticEquationSolverTest7.class);
     assertEquals(QuadraticEquationSolverTest7.failureCount, result.getFailureCount());
     assertEquals(QuadraticEquationSolverTest7.runCount, result.getRunCount());

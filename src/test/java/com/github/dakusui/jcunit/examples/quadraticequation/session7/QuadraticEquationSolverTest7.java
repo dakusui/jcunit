@@ -34,10 +34,21 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @GenerateCoveringArrayWith(
     checker = @Checker(
         value = SmartConstraintChecker.class,
-        args = { @Value("com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolverTest7$QuadraticEquationConstraint")}))
+        /*
+         * You can specify an FQCN of a constraint enum class.
+         * When you start it with a '.', it will be replaced with an FQCN of the test class.
+         * In this case, ".$QuadraticEquationConstraint" will be expanded into
+         * "com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolverTest7$QuadraticEquationConstraint".
+         *
+         * Note that a class name of an inner class is "Outer$Inner" in Java. Not "Outer.Inner"
+         *
+         */
+        args = { @Value(".$QuadraticEquationConstraint") }))
 public class QuadraticEquationSolverTest7 {
-  public static       PrintStream ps           = System.out;
-  public static final int         runCount     = 28; // 20 (regular) + 8 (violation)
+  public static       PrintStream ps1 = System.out;
+  public static       PrintStream ps2 = System.err;
+
+  public static final int         runCount     = 28 * 2; // (20 (regular) + 8 (violation)) * 2; One for solve, the other for print.
   public static final int         failureCount = 0;
   public static final int         ignoreCount  = 0;
 
@@ -105,10 +116,8 @@ public class QuadraticEquationSolverTest7 {
   public int c;
 
   @Test(expected = IllegalArgumentException.class)
-  //  @When({ "!#aIsNonZero", "!#discriminantIsNonNegative", "!#coefficientsAreValid" })
   @When({ "!#aIsNonZero" })
   public void solveEquation1$thenThrowIllegalArgumentException() {
-    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     new QuadraticEquationSolver(
         a,
         b,
@@ -118,7 +127,6 @@ public class QuadraticEquationSolverTest7 {
   @Test(expected = IllegalArgumentException.class)
   @When({ "!#discriminantIsNonNegative" })
   public void solveEquation2$thenThrowIllegalArgumentException() {
-    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     new QuadraticEquationSolver(
         a,
         b,
@@ -128,7 +136,6 @@ public class QuadraticEquationSolverTest7 {
   @Test(expected = IllegalArgumentException.class)
   @When({ "!#coefficientsAreValid" })
   public void solveEquation3$thenThrowIllegalArgumentException() {
-    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     new QuadraticEquationSolver(
         a,
         b,
@@ -138,7 +145,6 @@ public class QuadraticEquationSolverTest7 {
   @Test
   @When({ "#*" })
   public void solveEquation$thenSolved() {
-    ps.println(String.format("(a,b,c)=(%d,%d,%d)", a, b, c));
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
@@ -146,4 +152,17 @@ public class QuadraticEquationSolverTest7 {
     assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),
         a * s.x2 * s.x2 + b * s.x2 + c, new LessThan<Double>(0.01));
   }
+
+  @Test
+  @When({ "#aIsNonZero&&#discriminantIsNonNegative&&#coefficientsAreValid" })
+  public void printEquationToStdOut() {
+    ps1.println(String.format("Regular: (a,b,c)=(%d,%d,%d)", a, b, c));
+  }
+
+  @Test
+  @When({ "!#aIsNonZero", "!#discriminantIsNonNegative", "!#coefficientsAreValid" })
+  public void printEquationToStdErr() {
+    ps2.println(String.format("Invalid: (a,b,c)=(%d,%d,%d)", a, b, c));
+  }
+
 }

@@ -21,10 +21,13 @@ final public class SmartConstraintChecker implements ConstraintChecker {
   private Tuple regularTestCase = null;
 
   public SmartConstraintChecker(
+      @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.TEST_CLASS) Class<?> testClass,
       @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTORS) Factors factors,
-      @Param(source = Param.Source.CONFIG) Class<?> constraintClass
+      @Param(source = Param.Source.CONFIG) String constraintClassName
   ) {
-    this.constraintClass = validateConstraintClass(constraintClass);
+    this.constraintClass = validateConstraintClass(findClass(
+        Checks.checknotnull(testClass),
+        Checks.checknotnull(constraintClassName)));
     this.constraintsToBeCovered = new HashSet<Constraint>(this.constraints());
     this.chosenViolations = new LinkedList<Tuple>();
     if (factors == null) {
@@ -35,6 +38,18 @@ final public class SmartConstraintChecker implements ConstraintChecker {
       this.factorLevelsToBeCovered = new LinkedHashSet<Tuple>(
           factors.generateAllPossibleTuples(1)
       );
+    }
+  }
+
+  private Class<?> findClass(Class<?> testClass, String constraintClassName) {
+    String ret = constraintClassName;
+    if (constraintClassName.startsWith(".")) {
+      ret = testClass.getCanonicalName() + constraintClassName.substring(1);
+    }
+    try {
+      return Class.forName(ret);
+    } catch (ClassNotFoundException e) {
+      throw Checks.wrap(e);
     }
   }
 
