@@ -43,6 +43,7 @@ public interface Metrics<T> extends Plugin {
     @Retention(RetentionPolicy.RUNTIME)
     @Target(ElementType.METHOD)
     @interface Attribute {
+      String value();
     }
 
     class Value {
@@ -63,8 +64,9 @@ public interface Metrics<T> extends Plugin {
         Checks.checknotnull(metric);
         LinkedList<Metric.Value> ret = new LinkedList<Value>();
         for (Method each : ReflectionUtils.getAnnotatedMethods(metric.getClass(), Attribute.class)) {
+          String value = each.getAnnotation(Attribute.class).value();
           ret.add(new Value(
-              each.getName(),
+              value,
               each.getReturnType(),
               ReflectionUtils.invoke(metric, each)
           ));
@@ -75,15 +77,15 @@ public interface Metrics<T> extends Plugin {
   }
 
   abstract class RatioMetric<T> implements Metric<T> {
-    @Attribute
+    @Attribute("ratio")
     public double getRatio() {
       return (double) this.getNumerator() / (double) this.getDenominator();
     }
 
-    @Attribute
+    @Attribute("count")
     public abstract int getNumerator();
 
-    @Attribute
+    @Attribute("total")
     public abstract int getDenominator();
   }
 
@@ -102,13 +104,13 @@ public interface Metrics<T> extends Plugin {
     abstract protected boolean matches(T each);
 
     @Override
-    @Attribute
+    @Attribute("count")
     public int getNumerator() {
       return this.matched;
     }
 
     @Override
-    @Attribute
+    @Attribute("total")
     public int getDenominator() {
       return this.count;
     }
@@ -133,14 +135,14 @@ public interface Metrics<T> extends Plugin {
       this.total = this.notCovered.size();
     }
 
-    @Attribute
     @Override
+    @Attribute("count")
     public int getNumerator() {
       return getDenominator() - this.notCovered.size();
     }
 
-    @Attribute
     @Override
+    @Attribute("total")
     public int getDenominator() {
       return this.total;
     }
