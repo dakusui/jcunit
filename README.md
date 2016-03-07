@@ -27,7 +27,7 @@ Please add it to your project's pom.xml
 
 That's it. Let's go.
 
-*NOTE:* Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
+**NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
 
 
 # Copyright and license #
