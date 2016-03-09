@@ -32,6 +32,7 @@ public class QuadraticEquationSolverTest1 {
   public void solveEquation() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
+    System.out.println(s);
     assertThat(a * s.x1 * s.x1 + b * s.x1 + c, is(0.0));
     assertThat(a * s.x2 * s.x2 + b * s.x2 + c, is(0.0));
   }

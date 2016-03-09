@@ -8,9 +8,9 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session1;
  * </ul>
  */
 public class QuadraticEquationSolver {
-  private final double a;
-  private final double b;
-  private final double c;
+  private final int a;
+  private final int b;
+  private final int c;
 
   public static class Solutions {
     public final double x1;
@@ -26,13 +26,16 @@ public class QuadraticEquationSolver {
     }
   }
 
-  public QuadraticEquationSolver(double a, double b, double c) {
+  public QuadraticEquationSolver(int a, int b, int c) {
     this.a = a;
     this.b = b;
     this.c = c;
   }
 
   public Solutions solve() {
+    double a = this.a;
+    double b = this.b;
+    double c = this.c;
     return new Solutions(
         (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a),
         (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a)
