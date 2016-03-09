@@ -2,13 +2,12 @@
 technique.
 
 # Installation
-JCUnit requires Java SE6 or later. 
+JCUnit requires Java SE6 or later.
 It is tested using ```JUnit``` (4.12) and ```mockito-core``` (1.9.5).
 
-## Maven coordinate
-First of all, you will need to link JCUnit to your project.
+You will only need to link JCUnit to your project.
 Below is a pom.xml fragment to describe jcunit's dependency.
-Please add it to your project's pom.xml 
+Please add it to your project's pom.xml
 
 ```xml
 
@@ -16,9 +15,20 @@ Please add it to your project's pom.xml
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
       <version>[0.6.0,)</version>
+      <scope>test</scope>
     </dependency>
-    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
 ```
+
+That's it. Let's go.
+
+**NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
+
 
 # Copyright and license #
 
