@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session7;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.EnumBasedSmartConstraintChecker;

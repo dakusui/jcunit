@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session8;
 
-import com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolver;
+import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;

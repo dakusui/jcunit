@@ -26,7 +26,7 @@ public class QuadraticEquationSolverTest4 {
   public static PrintStream ps = System.out;
 
   public static final int runCount     = 53;
-  public static final int failureCount = 0;
+  public static final int failureCount = 10;
   public static final int ignoreCount  = 0;
 
   @FactorField

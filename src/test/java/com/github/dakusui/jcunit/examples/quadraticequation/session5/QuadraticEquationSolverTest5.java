@@ -47,7 +47,7 @@ public class QuadraticEquationSolverTest5 {
   }
 
   public static final int runCount     = 58;
-  public static final int failureCount = 0;
+  public static final int failureCount = 15;
   public static final int ignoreCount  = 0;
 
   @FactorField
@@ -92,7 +92,6 @@ public class QuadraticEquationSolverTest5 {
         a,
         b,
         c).solve();
-    throw new Error();
   }
 
   @Test

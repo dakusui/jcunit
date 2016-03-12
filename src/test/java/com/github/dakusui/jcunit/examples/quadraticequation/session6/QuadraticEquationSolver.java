@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.quadraticequation.session7;
+package com.github.dakusui.jcunit.examples.quadraticequation.session6;
 
 /**
  * Quadratic equation solver.

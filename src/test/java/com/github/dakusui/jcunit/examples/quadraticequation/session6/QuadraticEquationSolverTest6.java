@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session6;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.TypedConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -115,7 +114,6 @@ public class QuadraticEquationSolverTest6 {
         a,
         b,
         c).solve();
-    throw new Error();
   }
 
   @Test
