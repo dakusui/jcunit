@@ -301,7 +301,7 @@ public interface Plugin {
       Constructor[] constructors = Checks.cast(Constructor[].class, this.pluginClass.getConstructors());
       Checks.checkplugin(
           constructors.length == 1,
-          "There must be 1 and only 1 constructor in order to use '%s' as a JCUnit plug-in. (%s found)",
+          "There must be 1 and only 1 public constructor in order to use '%s' as a JCUnit plug-in(%s found). Also please make sure the class is public and static.",
           this.pluginClass,
           constructors.length);
       //noinspection unchecked

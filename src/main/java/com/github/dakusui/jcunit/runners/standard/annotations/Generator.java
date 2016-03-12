@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.StandardCoveringArrayEngine;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
@@ -18,7 +19,7 @@ public @interface Generator {
 
     @Override
     public Class<? extends CoveringArrayEngine> value() {
-      return IPO2CoveringArrayEngine.class;
+      return StandardCoveringArrayEngine.class;
     }
 
     @Override

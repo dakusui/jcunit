@@ -41,6 +41,7 @@ public class JCUnit extends Parameterized {
   private final List<Runner> runners;
 
   private final TestSuite testSuite;
+  private final RunnerContext runnerContext;
 
   /**
    * Only called reflectively by JUnit. Do not use programmatically.
@@ -49,14 +50,15 @@ public class JCUnit extends Parameterized {
     // To suppress unnecessary validation on @Parameters annotated methods,
     // We have overridden createTestClass method. For detail refer to the method.
     super(klass);
+    this.runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
+
     List<FrameworkMethod> preconditionMethods = getTestClass().getAnnotatedMethods(Precondition.class);
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
     try {
       List<TestCase> testCases;
       ////
       // BEGIN: Plugin creation
-      RunnerContext runnerContext = new RunnerContext.Base(this.getTestClass().getJavaClass());
-      List<FactorDef> factorDefs = getFactorDefsFrom(getTestClass());
+      List<FactorDef> factorDefs = getFactorDefsFrom(getTestClass(), runnerContext);
       final Factors.Builder builder = new Factors.Builder();
       Utils.filter(factorDefs, new Utils.Predicate<FactorDef>() {
             @Override
@@ -217,22 +219,22 @@ public class JCUnit extends Parameterized {
   }
 
   public static List<FactorDef> getFactorDefsFrom(Class c) {
-    return getFactorDefsFrom(new TestClass(c));
+    return getFactorDefsFrom(new TestClass(c), new RunnerContext.Base(c));
   }
 
-  private static List<FactorDef> getFactorDefsFrom(TestClass testClass) {
+  private static List<FactorDef> getFactorDefsFrom(TestClass testClass, RunnerContext runnerContext) {
     List<FactorDef> ret = Utils.newList();
     for (FrameworkField each : testClass.getAnnotatedFields(FactorField.class)) {
-      ret.add(createFactorDefFrom(each));
+      ret.add(createFactorDefFrom(each, runnerContext));
     }
     return ret;
   }
 
-  private static FactorDef createFactorDefFrom(FrameworkField field) {
+  private static FactorDef createFactorDefFrom(FrameworkField field, RunnerContext runnerContext) {
     if (isSimpleFactorField(field)) {
-      return new FactorDef.Simple(field.getName(), levelsProviderOf(field));
+      return new FactorDef.Simple(field.getName(), levelsProviderOf(field, runnerContext));
     }
-    LevelsProvider levelsProvider = levelsProviderOf(field);
+    LevelsProvider levelsProvider = levelsProviderOf(field, runnerContext);
     int historyLength = 2;
     if (levelsProvider instanceof FSMLevelsProvider) {
       historyLength = ((FSMLevelsProvider) levelsProvider).historyLength();
@@ -249,9 +251,9 @@ public class JCUnit extends Parameterized {
     return !Story.class.isAssignableFrom(frameworkField.getType());
   }
 
-  private static LevelsProvider levelsProviderOf(final FrameworkField field) {
+  private static LevelsProvider levelsProviderOf(final FrameworkField field, RunnerContext runnerContext) {
     FactorField ann = field.getAnnotation(FactorField.class);
-    LevelsProvider ret = new LevelsProvider.FromFactorField(field.getAnnotation(FactorField.class), RunnerContext.DUMMY).build();
+    LevelsProvider ret = new LevelsProvider.FromFactorField(field.getAnnotation(FactorField.class), runnerContext).build();
     if (ret instanceof FactorField.FactorFactory.Default.DummyLevelsProvider) {
       List<Object> values = FactorField.FactorFactory.Default.levelsGivenByUserThroughImmediate(ann);
       if (values == null) {

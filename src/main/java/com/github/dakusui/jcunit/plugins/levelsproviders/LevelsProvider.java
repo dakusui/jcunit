@@ -32,8 +32,8 @@ public interface LevelsProvider extends Plugin {
   }
 
   class FromFactorField implements BaseBuilder<LevelsProvider> {
-    private final FactorField    factorField;
-    private final RunnerContext  runnerContext;
+    private final FactorField                  factorField;
+    private final RunnerContext                runnerContext;
     private final Plugin.Param.Resolver<Value> resolver;
 
     public FromFactorField(FactorField factorField, RunnerContext runnerContext) {
@@ -51,6 +51,7 @@ public interface LevelsProvider extends Plugin {
           this.runnerContext
       );
       //noinspection ConstantConditions
-      return factory.create(Arrays.asList(this.factorField.args()));    }
+      return factory.create(Arrays.asList(this.factorField.args()));
+    }
   }
 }

@@ -25,8 +25,8 @@ public class IPO2CoveringArrayEngine extends CoveringArrayEngine.Base {
    * If no parameter is given, it defaults to 2.
    * <p/>
    * If more than 1 parameter is given, this method will throw an {@code IllegalArgumentException}.
-   * @param factors
-   * @param constraintChecker
+   * @param factors from which a covering array is generated.
+   * @param constraintChecker with which a covering array is generated.
    */
   @Override
   protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker) {

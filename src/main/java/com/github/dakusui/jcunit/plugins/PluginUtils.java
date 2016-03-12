@@ -76,8 +76,8 @@ public enum PluginUtils {
         ret.add(new Converter<String[]>() {
           @Override
           public Object convert(Class requested, String[] in) {
-            Checks.checktest(in.length > 0, "Missing value");
-            Checks.checktest(in.length == 1, "Too many values: %s", Arrays.toString(in));
+            Checks.checktest(in.length > 0, "Insufficient number of config values for a plug-in");
+            Checks.checktest(in.length == 1, "Too many config values values for a plug-in: %s", Arrays.toString(in));
             return each.convert(requested, in[0]);
           }
 

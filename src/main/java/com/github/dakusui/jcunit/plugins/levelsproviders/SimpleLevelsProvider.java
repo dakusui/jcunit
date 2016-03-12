@@ -3,8 +3,7 @@ package com.github.dakusui.jcunit.plugins.levelsproviders;
 import com.github.dakusui.jcunit.core.Checks;
 
 public abstract class SimpleLevelsProvider extends LevelsProvider.Base {
-  private Object[] values;
-  protected Object[] args;
+  private final Object[] values;
 
   public SimpleLevelsProvider() {
     ////
