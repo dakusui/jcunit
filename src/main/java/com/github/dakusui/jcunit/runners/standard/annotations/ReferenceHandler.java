@@ -70,7 +70,7 @@ public abstract class ReferenceHandler<T> {
     }
 
     private boolean isValidConditionMethod(FrameworkMethod method) {
-      return method.getAnnotation(Condition.class) != null || method.getName().startsWith("#");
+      return method.getAnnotation(Condition.class) != null || "*".equals(method.getName()) || method.getName().startsWith("#");
     }
 
     @Override

@@ -87,7 +87,7 @@ public class QuadraticEquationSolverTest8 {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  @When({ "!#coefficientsAreValid" })
+  @When({ "!coefficientsAreValid" })
   public void solveEquation3$thenThrowIllegalArgumentException() {
     new QuadraticEquationSolver(
         a,
@@ -96,7 +96,7 @@ public class QuadraticEquationSolverTest8 {
   }
 
   @Test
-  @When({ "#*" })
+  @When({ "*" })
   public void solveEquation$thenSolved() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();
@@ -107,13 +107,13 @@ public class QuadraticEquationSolverTest8 {
   }
 
   @Test
-  @When({ "#aIsNonZero&&#discriminantIsNonNegative&&#coefficientsAreValid" })
+  @When({ "aIsNonZero&&#discriminantIsNonNegative&&coefficientsAreValid" })
   public void printEquationToStdOut() {
     ps1.println(String.format("Regular: (a,b,c)=(%d,%d,%d)", a, b, c));
   }
 
   @Test
-  @When({ "!#aIsNonZero", "!#discriminantIsNonNegative", "!#coefficientsAreValid" })
+  @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
   public void printEquationToStdErr() {
     ps2.println(String.format("Invalid: (a,b,c)=(%d,%d,%d)", a, b, c));
   }
