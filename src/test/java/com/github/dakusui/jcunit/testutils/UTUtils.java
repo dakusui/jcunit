@@ -30,6 +30,8 @@ public enum UTUtils {
   public synchronized static void configureStdIOs() {
     if (UTUtils.isRunByMaven()) {
       setSilent();
+      System.setOut(DUMMY_PRINTSTREAM);
+      System.setErr(DUMMY_PRINTSTREAM);
     } else {
       setVerbose();
     }
