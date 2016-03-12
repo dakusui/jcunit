@@ -1,12 +1,13 @@
 package com.github.dakusui.jcunit.tests.examples.quadraticequation;
 
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolverTest1;
-import com.github.dakusui.jcunit.examples.quadraticequation.session2.QuadraticEquationSolverTest2;
+import com.github.dakusui.jcunit.examples.quadraticequation.session2.QuadraticEquationTest2;
 import com.github.dakusui.jcunit.examples.quadraticequation.session3.QuadraticEquationSolverTest3;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolverTest4;
 import com.github.dakusui.jcunit.examples.quadraticequation.session5.QuadraticEquationSolverTest5;
 import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolverTest6;
 import com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolverTest7;
+import com.github.dakusui.jcunit.examples.quadraticequation.session8.QuadraticEquationSolverTest8;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -26,10 +27,10 @@ public class QuadraticEquationExamplesTest {
 
   @Test
   public void verifyTest2() {
-    Result result = JUnitCore.runClasses(QuadraticEquationSolverTest2.class);
-    assertEquals(QuadraticEquationSolverTest2.failureCount, result.getFailureCount());
-    assertEquals(QuadraticEquationSolverTest2.runCount, result.getRunCount());
-    assertEquals(QuadraticEquationSolverTest2.ignoreCount, result.getIgnoreCount());
+    Result result = JUnitCore.runClasses(QuadraticEquationTest2.class);
+    assertEquals(QuadraticEquationTest2.failureCount, result.getFailureCount());
+    assertEquals(QuadraticEquationTest2.runCount, result.getRunCount());
+    assertEquals(QuadraticEquationTest2.ignoreCount, result.getIgnoreCount());
   }
 
   @Test
@@ -75,5 +76,15 @@ public class QuadraticEquationExamplesTest {
     assertEquals(QuadraticEquationSolverTest7.failureCount, result.getFailureCount());
     assertEquals(QuadraticEquationSolverTest7.runCount, result.getRunCount());
     assertEquals(QuadraticEquationSolverTest7.ignoreCount, result.getIgnoreCount());
+  }
+
+  @Test
+  public void verifyTest8() {
+    QuadraticEquationSolverTest8.ps1 = UTUtils.DUMMY_PRINTSTREAM;
+    QuadraticEquationSolverTest8.ps2 = UTUtils.DUMMY_PRINTSTREAM;
+    Result result = JUnitCore.runClasses(QuadraticEquationSolverTest8.class);
+    assertEquals(QuadraticEquationSolverTest8.failureCount, result.getFailureCount());
+    assertEquals(QuadraticEquationSolverTest8.runCount, result.getRunCount());
+    assertEquals(QuadraticEquationSolverTest8.ignoreCount, result.getIgnoreCount());
   }
 }

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertThat;
  * </ul>
  */
 @RunWith(JCUnit.class)
-public class QuadraticEquationSolverTest2 {
+public class QuadraticEquationTest2 {
   public static final int runCount     = 37;
   public static final int failureCount = 12;
   public static final int ignoreCount  = 16;

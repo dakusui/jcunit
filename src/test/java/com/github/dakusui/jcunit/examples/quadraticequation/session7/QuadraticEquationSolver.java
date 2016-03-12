@@ -1,11 +1,11 @@
-package com.github.dakusui.jcunit.examples.quadraticequation.session4;
+package com.github.dakusui.jcunit.examples.quadraticequation.session7;
 
 /**
  * Quadratic equation solver.
- *
+ * <p/>
  * <ul>
- *   <li>session 1: Initial version.</li>
- *   <li>session 4: Implement parameter safeCheck in solve method.</li>
+ * <li>session 1: Initial version.</li>
+ * <li>session 4: Implement parameter safeCheck in solve method.</li>
  * </ul>
  */
 public class QuadraticEquationSolver {
@@ -34,9 +34,14 @@ public class QuadraticEquationSolver {
   }
 
   public Solutions solve() {
-    if (Math.abs(a) > 100 || Math.abs(b) > 100  || Math.abs(c) > 100 ) throw new IllegalArgumentException(String.format("Coefficient(s) too large. (a, b, c)=(%f, %f, %f)", a, b, c));
-    if (a == 0) throw new IllegalArgumentException("Not a quadratic equation.");
-    if (b * b - 4 * c * a < 0) throw new IllegalArgumentException("No real solutions.");
+    if ((a < -100 || a > 100) ||
+        (b < -100 || b > 100) ||
+        (c < -100 || c > 100))
+      throw new IllegalArgumentException(String.format("Coefficient(s) too large. (a, b, c)=(%d, %d, %d)", a, b, c));
+    if (a == 0)
+      throw new IllegalArgumentException("Not a quadratic equation.");
+    if (b * b - 4 * c * a < 0)
+      throw new IllegalArgumentException("No real solutions.");
     double a = this.a;
     double b = this.b;
     double c = this.c;

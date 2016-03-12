@@ -1,10 +1,9 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session7;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.EnumBasedSmartConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
@@ -33,7 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(JCUnit.class)
 @GenerateCoveringArrayWith(
     checker = @Checker(
-        value = SmartConstraintChecker.class,
+        value = EnumBasedSmartConstraintChecker.class,
         /*
          * You can specify an FQCN of a constraint enum class.
          * When you start it with a '.', it will be replaced with an FQCN of the test class.

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.examples.quadraticequation.session1;
+package com.github.dakusui.jcunit.examples.quadraticequation.session1b;
 
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
  * </ul>
  */
 @RunWith(JCUnit.class)
-public class QuadraticEquationSolverTest1 {
+public class QuadraticEquationTest1 {
   public static final int runCount     = 53;
   public static final int failureCount = 39;
   public static final int ignoreCount  = 0;
@@ -30,7 +30,7 @@ public class QuadraticEquationSolverTest1 {
 
   @Test
   public void solveEquation() {
-    QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
+    QuadraticEquation.Solutions s = new QuadraticEquation(a, b,
         c).solve();
     assertThat(String.format("%dx1^2+%dx1+%d=0 {x1=%f}", a, b, c, s.x1), a * s.x1 * s.x1 + b * s.x1 + c, is(0.0));
     assertThat(String.format("%dx2^2+%dx2+%d=0 {x2=%f}", a, b, c, s.x2), a * s.x2 * s.x2 + b * s.x2 + c, is(0.0));
