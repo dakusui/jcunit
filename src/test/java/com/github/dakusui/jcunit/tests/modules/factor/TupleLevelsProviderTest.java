@@ -13,8 +13,8 @@ import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-@GenerateCoveringArrayWith
 public class TupleLevelsProviderTest {
   @GenerateCoveringArrayWith
   public static class Struct {
@@ -38,7 +38,7 @@ public class TupleLevelsProviderTest {
   }
 
   @Test
-  public void normalTest1() {
+  public void canCreateSubCoveringArrayForStructWithTwoFactors() {
     Result result = JUnitCore.runClasses(TestClass.class);
     assertEquals(true, result.wasSuccessful());
     assertEquals(8, result.getRunCount());
@@ -55,14 +55,11 @@ public class TupleLevelsProviderTest {
     }
   }
 
-  @Test(expected = InvalidTestException.class)
-  public void negativeTest2() throws Throwable {
+  @Test
+  public void canCreateSubCoveringArrayForStructWithOnlyOneFactor() throws Throwable {
     Result result = JUnitCore.runClasses(TestClass2.class);
-    assertFalse(result.wasSuccessful());
-    assertEquals(1, result.getFailureCount());
-    Throwable t = result.getFailures().get(0).getException();
-    t.fillInStackTrace();
-    throw t;
+    assertTrue(result.wasSuccessful());
+    assertEquals(4, result.getRunCount());
   }
 
   @RunWith(JCUnit.class)
