@@ -17,9 +17,9 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
    * When {@code check} method is called the first time, this will be
    * initialized
    */
-  private       Set<Constraint> constraintsToBeCovered = null;
-  private final List<Tuple>     chosenViolations;
-  private final Set<Tuple>      factorLevelsToBeCovered;
+  private Set<Constraint> constraintsToBeCovered = null;
+  private final List<Tuple> chosenViolations;
+  private final Set<Tuple>  factorLevelsToBeCovered;
   /**
    * This will be used as a 'template' to generate 'violation' test cases.
    */
@@ -40,10 +40,10 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
   }
 
   public boolean check(Tuple tuple) throws UndefinedSymbol {
+    if (constraintsToBeCovered == null) {
+      this.constraintsToBeCovered = new LinkedHashSet<Constraint>(getConstraints());
+    }
     if (checkTupleAndUpdateViolations(tuple)) {
-      if (constraintsToBeCovered == null) {
-        this.constraintsToBeCovered = new LinkedHashSet<Constraint>(getConstraints());
-      }
       if (regularTestCase == null) {
         regularTestCase = tuple;
       }
