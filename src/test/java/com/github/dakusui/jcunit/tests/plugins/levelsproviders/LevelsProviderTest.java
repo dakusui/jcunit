@@ -17,7 +17,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class SimpleLevelsProviderTest {
+public class LevelsProviderTest {
   static public class Struct {
     int a;
     int b;

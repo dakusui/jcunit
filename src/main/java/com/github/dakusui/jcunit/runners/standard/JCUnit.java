@@ -255,7 +255,7 @@ public class JCUnit extends Parameterized {
     FactorField ann = field.getAnnotation(FactorField.class);
     LevelsProvider ret = new LevelsProvider.FromFactorField(field.getAnnotation(FactorField.class), runnerContext).build();
     if (ret instanceof FactorField.FactorFactory.Default.DummyLevelsProvider) {
-      List<Object> values = FactorField.FactorFactory.Default.levelsGivenByUserThroughImmediate(ann);
+      List<Object> values = FactorField.FactorFactory.Default.levelsGivenByUserDirectly(ann, runnerContext);
       if (values == null) {
         values = FactorField.DefaultLevels.defaultLevelsOf(field.getType());
       }

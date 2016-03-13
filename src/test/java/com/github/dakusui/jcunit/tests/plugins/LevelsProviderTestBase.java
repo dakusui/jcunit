@@ -11,11 +11,11 @@ import static org.junit.Assert.assertEquals;
  * Spec of LevelsProvider implementations.
  * <pre>
  * Sequence:
- *   [setTargetField(Field), setAnnotation(FactorField}] (both)
+ *   [setTargetField(STATIC_FIELD), setAnnotation(FactorField}] (both)
  *   init(Param[])
  *   {size(), get(int)}*
  * Input:
- *   setTargetField(Field) : void
+ *   setTargetField(STATIC_FIELD) : void
  *   setField(FactorField) : void
  * Output:
  *   getErrorsOnInitialization() : List<String>

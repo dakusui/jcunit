@@ -20,22 +20,158 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import static com.github.dakusui.jcunit.core.Checks.checknotnull;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @ValidateWith(FactorField.Validator.class)
 public @interface FactorField {
+  @interface Source {
+    enum Type {
+      STATIC_METHOD {
+        public List<Object> getLevels(String memberName, Class testClass) {
+          List<Object> ret = new LinkedList<Object>();
+          ////
+          // It's guaranteed that the value returned by the target method is an array of
+          // compatible type.
+          Object arr = ReflectionUtils.invoke(null,
+              ReflectionUtils.getMethod(testClass, memberName)
+              );
+          for (int i = 0; i < Array.getLength(arr); i++) {
+            ret.add(Array.get(arr, i));
+          }
+          return ret;
+        }
+
+        public List<Exception> validateClassToWhichAnnotatedFieldBelongs(Source source, FrameworkField field) {
+          Class<?> enclosingClass = checknotnull(field).getDeclaringClass();
+          List<Exception> ret = new LinkedList<Exception>();
+          try {
+            Method m = enclosingClass.getMethod(source.value());
+            checkModifiers(m, ret);
+            checkParameters(m, ret);
+            checkType(m, field.getType(), m.getReturnType(), ret);
+          } catch (NoSuchMethodException e) {
+            ret.add(new Exception(String.format(
+                "The class '%s' must have a static public method '%s', but no such a method."
+                , enclosingClass.getCanonicalName()
+                , source.value()
+            )));
+          }
+          return ret;
+        }
+      },
+      STATIC_FIELD {
+        public List<Object> getLevels(String memberName, Class testClass) {
+          List<Object> ret = new LinkedList<Object>();
+          ////
+          // It's guaranteed that the value of the field is an array of
+          // compatible type.
+          Object arr = ReflectionUtils.getFieldValue(null, ReflectionUtils.getField(testClass, memberName));
+          for (int i = 0; i < Array.getLength(arr); i++) {
+            ret.add(Array.get(arr, i));
+          }
+          return ret;
+        }
+
+        public List<Exception> validateClassToWhichAnnotatedFieldBelongs(Source source, FrameworkField field) {
+          Class<?> enclosingClass = checknotnull(field).getDeclaringClass();
+          List<Exception> ret = new LinkedList<Exception>();
+          try {
+            Field f = enclosingClass.getField(source.value());
+            checkModifiers(f, ret);
+            checkType(f, field.getType(), f.getType(), ret);
+          } catch (NoSuchFieldException e) {
+            ret.add(new Exception(String.format(
+                "The class '%s' must have a static public field '%s', but no such a field."
+                , enclosingClass.getCanonicalName()
+                , source.value()
+            )));
+          }
+          return ret;
+        }
+      };
+
+      public abstract List<Object> getLevels(String memberName, Class o);
+
+      public abstract List<Exception> validateClassToWhichAnnotatedFieldBelongs(Source source, FrameworkField field);
+
+      static private void checkParameters(Method m, List<Exception> errors) {
+        if (m.getParameterTypes().length != 0) {
+          errors.add(new Exception(String.format(
+              "'%s' method in '%s' must not have any parameters (%s)"
+              , m.getName()
+              , m.getDeclaringClass().getCanonicalName()
+              , Arrays.toString(m.getParameterTypes())
+          )));
+        }
+      }
+
+      static private void checkType(Member member, Class<?> expectedComponentType, Class<?> actualMemberType, List<Exception> errors) {
+        String enclosingClassName = member.getDeclaringClass().getCanonicalName();
+        String memberName = member.getName();
+        String memberType = member.getClass().getSimpleName().toLowerCase();
+        if (!actualMemberType.isArray()) {
+          errors.add(new Exception(String.format(
+              "'%s' %s in %s must be an array, but not (%s)"
+              , memberName
+              , memberType
+              , enclosingClassName
+              , actualMemberType.getCanonicalName()
+          )));
+        } else {
+          if (!expectedComponentType.isAssignableFrom(actualMemberType.getComponentType())) {
+            errors.add(new Exception(String.format(
+                "'%s' %s in %s must be an array whose component type is compatible with '%s' but not (%s)"
+                , memberName
+                , memberType
+                , enclosingClassName
+                , expectedComponentType.getCanonicalName()
+                , actualMemberType.getCanonicalName()
+            )));
+          }
+        }
+      }
+
+      static private void checkModifiers(Member member, List<Exception> errors) {
+        int modifiers = member.getModifiers();
+        String enclosingClassName = member.getDeclaringClass().getCanonicalName();
+        String memberName = member.getName();
+        String memberType = member.getClass().getSimpleName().toLowerCase();
+        if (!Modifier.isPublic(modifiers)) {
+          errors.add(new Exception(String.format(
+              "'%s' %s declared in '%s' must be a static public. But not public.", memberName, memberType, enclosingClassName
+          )));
+        }
+        if (!Modifier.isStatic(modifiers)) {
+          errors.add(new Exception(String.format(
+              "'%s' %s declared in '%s' must be a static public. But not static.", memberName, memberType, enclosingClassName
+          )));
+        }
+      }
+    }
+
+    Type type() default Type.STATIC_METHOD;
+
+    String value();
+  }
+
   class Validator extends AnnotationValidator {
     @Override
     public List<Exception> validateAnnotatedField(FrameworkField field) {
       // TODO: Issue-#45
-      return super.validateAnnotatedField(field);
+      List<Exception> ret = new LinkedList<Exception>();
+      Source sources[] = field.getAnnotation(FactorField.class).from();
+      for (Source each : sources) {
+        ret.addAll(each.type().validateClassToWhichAnnotatedFieldBelongs(each, field));
+      }
+      return ret;
     }
   }
 
@@ -67,6 +203,8 @@ public @interface FactorField {
       "abcdefghijklmnopqrstuvwxyz", "`-=~!@#$%^&*()_+[]\\{}|;':\",./<>?", " "
   };
 
+  Source[] from() default {};
+
   Class<? extends LevelsProvider> levelsProvider() default FactorFactory.Default.DummyLevelsProvider.class;
 
   /**
@@ -85,7 +223,7 @@ public @interface FactorField {
     class Default implements FactorFactory {
       @Override
       public Factor createFromField(Field field) {
-        Checks.checknotnull(field);
+        checknotnull(field);
         Factor.Builder b = new Factor.Builder(field.getName());
         for (Object each : levelsOf(field)) {
           b.addLevel(each);
@@ -94,18 +232,19 @@ public @interface FactorField {
       }
 
       private static List<Object> levelsOf(Field f) {
-        Checks.checknotnull(f);
+        checknotnull(f);
         FactorField ann = f.getAnnotation(FactorField.class);
         return levelsOf(f.getName(), f.getType(), ann);
       }
 
       private static List<Object> levelsOf(String fieldName, final Class fieldType, FactorField ann) {
-        Checks.checknotnull(fieldType);
-        Checks.checknotnull(ann);
-        final LevelsProvider provider = new LevelsProvider.FromFactorField(ann, RunnerContext.DUMMY).build();
+        checknotnull(fieldType);
+        checknotnull(ann);
+        RunnerContext runnerContext = new RunnerContext.Base(fieldType);
+        final LevelsProvider provider = new LevelsProvider.FromFactorField(ann, runnerContext).build();
         List<Object> ret;
         if (provider instanceof DummyLevelsProvider) {
-          ret = levelsGivenByUserThroughImmediate(ann);
+          ret = levelsGivenByUserDirectly(ann, runnerContext);
           if (ret == null) {
             ret = DefaultLevels.defaultLevelsOf(fieldType);
           }
@@ -140,15 +279,28 @@ public @interface FactorField {
         return ret;
       }
 
-      public static List<Object> levelsGivenByUserThroughImmediate(FactorField ann) {
-        Checks.checknotnull(ann);
+      public static List<Object> levelsGivenByUserDirectly(FactorField ann, RunnerContext runnerContext) {
+        checknotnull(ann);
+        checknotnull(runnerContext);
         List<Class> typesProvidedByUser = typesWhoseLevelsAreProvidedBy(ann);
         Checks.checktest(
             typesProvidedByUser.size() <= 1,
             "You can use only one type at once but %d were given.", typesProvidedByUser.size());
         if (typesProvidedByUser.size() == 0) {
+          if (ann.from().length > 0) {
+            Class testClass = runnerContext.get(RunnerContext.Key.TEST_CLASS);
+            List<Object> ret = new LinkedList<Object>();
+            for (Source each : ann.from()) {
+              ret.addAll(each.type().getLevels(each.value(), testClass));
+            }
+            return ret;
+          }
           return null;
         }
+        Checks.checktest(ann.from().length == 0,
+            "You cannot use 'from' attribute of '@%s' when you are explicitly specifying levels."
+            , ann.getClass().getCanonicalName()
+        );
         return levelsOf(ann, typesProvidedByUser.get(0));
       }
 
@@ -166,11 +318,11 @@ public @interface FactorField {
       }
 
       private static List<Object> levelsOf(FactorField ann, Class<?> type) {
-        Checks.checknotnull(ann);
-        Checks.checknotnull(type);
+        checknotnull(ann);
+        checknotnull(type);
         Checks.checkcond(type.isPrimitive() || String.class.equals(type) || type.isEnum(), "'%s' does not have default levels.", type);
         Object o = ReflectionUtils.invoke(ann, levelsMethodOf(type));
-        Checks.checknotnull(o);
+        checknotnull(o);
         final Object arr;
         //noinspection ConstantConditions (already checked)
         if (o.getClass().isArray()) {
@@ -182,7 +334,7 @@ public @interface FactorField {
         } else {
           arr = null;
         }
-        Checks.checknotnull(arr).getClass();
+        checknotnull(arr).getClass();
         return new AbstractList<Object>() {
           @Override
           public Object get(int index) {
@@ -270,7 +422,7 @@ public @interface FactorField {
     }
 
     public static List<Object> defaultLevelsOf(final Class c) {
-      Checks.checknotnull(c);
+      checknotnull(c);
       final Class supportedType;
       final GenerateCoveringArrayWith ann;
       if (c.isPrimitive()) {
@@ -283,7 +435,7 @@ public @interface FactorField {
         // Note that Enum.class.isEnum should return false;
         // Note that 'values' method of an enum is static. It returns an array of the enum object.
         final Object values = ReflectionUtils.invoke(null, ReflectionUtils.getMethod(c, "values"));
-        Checks.checknotnull(values);
+        checknotnull(values);
         //noinspection ConstantConditions
         Checks.checkcond(values.getClass().isArray());
         return new AbstractList<Object>() {
