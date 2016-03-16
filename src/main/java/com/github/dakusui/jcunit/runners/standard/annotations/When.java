@@ -43,14 +43,14 @@ public @interface When {
         )));
       }
 
-      validateMethodsReferenced(
+      validateMethodsReferencedBy(
           When.class,
           new TestClass(method.getDeclaringClass()),
           errors);
       return errors;
     }
 
-    private void validateMethodsReferenced(Class<? extends Annotation> by, TestClass in, List<Exception> errors) {
+    private void validateMethodsReferencedBy(Class<? extends Annotation> by, TestClass in, List<Exception> errors) {
       for (FrameworkMethod each : in.getAnnotatedMethods(by)) {
         String referrer = Checks.checknotnull(by.getAnnotation(ReferrerAttribute.class),
             "Probably framework issue. '%s' does not have %s annotation.",

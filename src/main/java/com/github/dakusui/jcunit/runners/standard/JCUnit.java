@@ -33,9 +33,7 @@ import org.junit.runners.model.TestClass;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class JCUnit extends Parameterized {
   private final List<Runner> runners;
@@ -97,6 +95,7 @@ public class JCUnit extends Parameterized {
         testCases = loadTestCases(this.getTestClass().getJavaClass());
         this.testSuite = new TestSuite(testCases);
       }
+      final Map<FrameworkMethod, Set<Tuple>> coveredMethods = new HashMap<FrameworkMethod, Set<Tuple>>();
       this.runners = Utils.transform(
           this.testSuite,
           new Utils.Form<TestCase, Runner>() {
@@ -109,6 +108,7 @@ public class JCUnit extends Parameterized {
                     factorSpace,
                     constraintChecker,
                     testSuite,
+                    coveredMethods,
                     in);
               } catch (InitializationError initializationError) {
                 throw Checks.wrap(initializationError);

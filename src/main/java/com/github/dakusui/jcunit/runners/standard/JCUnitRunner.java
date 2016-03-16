@@ -4,10 +4,12 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.TestCase;
 import com.github.dakusui.jcunit.runners.core.TestSuite;
+import com.github.dakusui.jcunit.runners.standard.annotations.Uses;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import org.junit.Ignore;
 import org.junit.runner.Description;
@@ -25,25 +27,27 @@ import java.util.*;
  * Runs each test case.
  */
 public class JCUnitRunner extends BlockJUnit4ClassRunner {
-  private final Factors                      factors;
-  private final TestSuite                    testSuite;
-  private final TestCase                     testCase;
-  private final Map<String, FrameworkMethod> methods;
-  private final ConstraintChecker            constraintChecker;
-  private final FactorSpace                  factorSpace;
+  private final Factors                          factors;
+  private final TestSuite                        testSuite;
+  private final TestCase                         testCase;
+  private final Map<String, FrameworkMethod>     methods;
+  private final ConstraintChecker                constraintChecker;
+  private final FactorSpace                      factorSpace;
+  private final Map<FrameworkMethod, Set<Tuple>> coveredMethods;
 
   /**
    * Creates an object of this class.
    *
-   * @param clazz       A test class.
-   * @param testCase    A test case object.  @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
+   * @param clazz          A test class.
+   * @param testCase       A test case object.  @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
-  public JCUnitRunner(Class<?> clazz, FactorSpace factorSpace, ConstraintChecker constraintChecker, TestSuite testSuite, TestCase testCase) throws InitializationError {
+  public JCUnitRunner(Class<?> clazz, FactorSpace factorSpace, ConstraintChecker constraintChecker, TestSuite testSuite, Map<FrameworkMethod, Set<Tuple>> coveredMethods, TestCase testCase) throws InitializationError {
     super(clazz);
     this.factorSpace = Checks.checknotnull(factorSpace);
     this.factors = factorSpace.factors;
     this.constraintChecker = Checks.checknotnull(constraintChecker);
     this.testSuite = Checks.checknotnull(testSuite);
+    this.coveredMethods = Checks.checknotnull(coveredMethods);
     this.testCase = Checks.checknotnull(testCase);
     TestClass testClass = getTestClass();
     Map<String, FrameworkMethod> methods = new LinkedHashMap<String, FrameworkMethod>();
@@ -134,6 +138,15 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   }
 
   private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
+    Tuple subtupleUsedByTestMethod = subtupleUsedByMethod(testMethod, TestCaseUtils.toTestCase(testObject));
+    if (subtupleUsedByTestMethod != null) {
+      if (isAlreadyCovered(testMethod, subtupleUsedByTestMethod)) {
+        return false;
+      }
+      markCovered(testMethod, subtupleUsedByTestMethod);
+    }
+
+
     When when = testMethod.getAnnotation(When.class);
     if (when == null)
       return true;
@@ -154,6 +167,37 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
       throw Checks.wrap(throwable);
     }
     return ret;
+  }
+
+  private boolean isAlreadyCovered(FrameworkMethod testMethod, Tuple subtupleUsedByTestMethod) {
+    if (subtupleUsedByTestMethod == null)
+      return false;
+    ensureSubtupleSetRegistered(testMethod);
+    return this.coveredMethods.get(testMethod).contains(subtupleUsedByTestMethod);
+  }
+
+  private void markCovered(FrameworkMethod testMethod, Tuple subtupleUsedByTestMethod) {
+    ensureSubtupleSetRegistered(testMethod);
+    this.coveredMethods.get(testMethod).add(subtupleUsedByTestMethod);
+  }
+
+  private void ensureSubtupleSetRegistered(FrameworkMethod testMethod) {
+    if (!this.coveredMethods.containsKey(testMethod)) {
+      this.coveredMethods.put(testMethod, new HashSet<Tuple>());
+    }
+  }
+
+  private Tuple subtupleUsedByMethod(FrameworkMethod testMethod, Tuple testCase) {
+    Uses uses = testMethod.getAnnotation(Uses.class);
+    if (uses == null)
+      return null;
+    Tuple.Builder builder = new Tuple.Builder();
+    for (String each : uses.value()) {
+      if ("*".equals(each))
+        return null;
+      builder.put(each, testCase.get(each));
+    }
+    return builder.build();
   }
 
   private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
