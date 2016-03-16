@@ -14,17 +14,22 @@ import org.junit.runners.model.TestClass;
 import java.util.List;
 
 public class SmartConstraintChecker extends SmartConstraintCheckerBase {
-  private final List<EnumBasedSmartConstraintChecker.Constraint> constraints;
+  private final List<Constraint> constraints;
 
   public SmartConstraintChecker(
       @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.TEST_CLASS) final Class<?> testClass,
       @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTORS) Factors factors
   ) {
     super(factors);
-    this.constraints = Utils.transform(new TestClass(testClass).getAnnotatedMethods(Condition.class), new Utils.Form<FrameworkMethod, EnumBasedSmartConstraintChecker.Constraint>() {
+    this.constraints = Utils.transform(Utils.filter(new TestClass(testClass).getAnnotatedMethods(Condition.class), new Utils.Predicate<FrameworkMethod>() {
       @Override
-      public EnumBasedSmartConstraintChecker.Constraint apply(final FrameworkMethod in) {
-        return new EnumBasedSmartConstraintChecker.Constraint() {
+      public boolean apply(FrameworkMethod in) {
+        return in.getAnnotation(Condition.class).constraint();
+      }
+    }), new Utils.Form<FrameworkMethod, Constraint>() {
+      @Override
+      public Constraint apply(final FrameworkMethod in) {
+        return new Constraint() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
             try {
@@ -44,7 +49,7 @@ public class SmartConstraintChecker extends SmartConstraintCheckerBase {
   }
 
   @Override
-  protected List<EnumBasedSmartConstraintChecker.Constraint> getConstraints() {
+  protected List<Constraint> getConstraints() {
     return this.constraints;
   }
 }

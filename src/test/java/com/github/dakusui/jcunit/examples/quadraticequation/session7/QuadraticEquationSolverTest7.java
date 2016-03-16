@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session7;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.EnumBasedSmartConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
@@ -52,7 +53,7 @@ public class QuadraticEquationSolverTest7 {
   public static final int         ignoreCount  = 0;
 
   @SuppressWarnings("unused")
-  public enum QuadraticEquationConstraint implements EnumBasedSmartConstraintChecker.Constraint {
+  public enum QuadraticEquationConstraint implements Constraint {
     A_IS_NON_ZERO("aIsNonZero") {
       @Override
       protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol {

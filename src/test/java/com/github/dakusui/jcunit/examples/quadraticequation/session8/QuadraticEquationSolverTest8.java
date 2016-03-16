@@ -47,12 +47,12 @@ public class QuadraticEquationSolverTest8 {
   @FactorField
   public int c;
 
-  @Condition
+  @Condition(constraint = true)
   public boolean aIsNonZero() {
     return this.a != 0;
   }
 
-  @Condition
+  @Condition(constraint = true)
   public boolean discriminantIsNonNegative() {
     int a = this.a;
     int b = this.b;
@@ -60,7 +60,7 @@ public class QuadraticEquationSolverTest8 {
     return b * b - 4 * c * a >= 0;
   }
 
-  @Condition
+  @Condition(constraint = true)
   public boolean coefficientsAreValid() {
     return
         -100 <= a && a <= 100 &&
@@ -69,7 +69,7 @@ public class QuadraticEquationSolverTest8 {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  @When({ "!#aIsNonZero" })
+  @When({ "!aIsNonZero" })
   public void solveEquation1$thenThrowIllegalArgumentException() {
     new QuadraticEquationSolver(
         a,
@@ -78,7 +78,7 @@ public class QuadraticEquationSolverTest8 {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  @When({ "!#discriminantIsNonNegative" })
+  @When({ "!discriminantIsNonNegative" })
   public void solveEquation2$thenThrowIllegalArgumentException() {
     new QuadraticEquationSolver(
         a,
@@ -107,7 +107,7 @@ public class QuadraticEquationSolverTest8 {
   }
 
   @Test
-  @When({ "aIsNonZero&&#discriminantIsNonNegative&&coefficientsAreValid" })
+  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void printEquationToStdOut() {
     ps1.println(String.format("Regular: (a,b,c)=(%d,%d,%d)", a, b, c));
   }

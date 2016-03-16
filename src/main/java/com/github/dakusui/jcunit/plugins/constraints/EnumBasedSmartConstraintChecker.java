@@ -2,8 +2,6 @@ package com.github.dakusui.jcunit.plugins.constraints;
 
 import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.util.Arrays;
@@ -58,9 +56,4 @@ public class EnumBasedSmartConstraintChecker extends SmartConstraintCheckerBase 
     return (List<Constraint>)Arrays.asList(constraintClass.getEnumConstants());
   }
 
-  public interface Constraint {
-    boolean check(Tuple tuple) throws UndefinedSymbol;
-
-    String tag();
-  }
 }

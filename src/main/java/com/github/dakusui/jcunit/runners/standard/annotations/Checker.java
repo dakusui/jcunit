@@ -7,8 +7,6 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
-
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Checker {
   Checker DEFAULT = new Checker() {
