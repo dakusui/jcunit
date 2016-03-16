@@ -17,7 +17,7 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
    * When {@code check} method is called the first time, this will be
    * initialized
    */
-  private Set<Constraint> constraintsToBeCovered = null;
+  private Set<EnumBasedSmartConstraintChecker.Constraint> constraintsToBeCovered = null;
   private final List<Tuple> chosenViolations;
   private final Set<Tuple>  factorLevelsToBeCovered;
   /**
@@ -41,7 +41,7 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
 
   public boolean check(Tuple tuple) throws UndefinedSymbol {
     if (constraintsToBeCovered == null) {
-      this.constraintsToBeCovered = new LinkedHashSet<Constraint>(getConstraints());
+      this.constraintsToBeCovered = new LinkedHashSet<EnumBasedSmartConstraintChecker.Constraint>(getConstraints());
     }
     if (checkTupleAndUpdateViolations(tuple)) {
       if (regularTestCase == null) {
@@ -70,9 +70,9 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
   @Override
   public List<String> getTags() {
     return Utils.dedup(Utils.transform(this.getConstraints(),
-        new Utils.Form<Constraint, String>() {
+        new Utils.Form<EnumBasedSmartConstraintChecker.Constraint, String>() {
           @Override
-          public String apply(Constraint in) {
+          public String apply(EnumBasedSmartConstraintChecker.Constraint in) {
             return in.tag();
           }
         }
@@ -86,16 +86,16 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
     return Utils.filter(
         Utils.filter(
             this.getConstraints(),
-            new Utils.Predicate<Constraint>() {
+            new Utils.Predicate<EnumBasedSmartConstraintChecker.Constraint>() {
               @Override
-              public boolean apply(Constraint in) {
+              public boolean apply(EnumBasedSmartConstraintChecker.Constraint in) {
                 return constraintTag.equals(in.tag());
               }
             }
         ),
-        new Utils.Predicate<Constraint>() {
+        new Utils.Predicate<EnumBasedSmartConstraintChecker.Constraint>() {
           @Override
-          public boolean apply(Constraint in) {
+          public boolean apply(EnumBasedSmartConstraintChecker.Constraint in) {
             try {
               return !in.check(tuple);
             } catch (UndefinedSymbol undefinedSymbol) {
@@ -107,18 +107,18 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
         }).size() > 0;
   }
 
-  protected abstract List<Constraint> getConstraints();
+  protected abstract List<EnumBasedSmartConstraintChecker.Constraint> getConstraints();
 
 
   private boolean checkTupleAndUpdateViolations(Tuple tuple) throws UndefinedSymbol {
-    Set<Constraint> violatedConstraints = new HashSet<Constraint>();
-    for (Constraint each : this.getConstraints()) {
+    Set<EnumBasedSmartConstraintChecker.Constraint> violatedConstraints = new HashSet<EnumBasedSmartConstraintChecker.Constraint>();
+    for (EnumBasedSmartConstraintChecker.Constraint each : this.getConstraints()) {
       if (!each.check(tuple)) {
         violatedConstraints.add(each);
       }
     }
     if (violatedConstraints.size() == 1) {
-      Constraint constraint = violatedConstraints.iterator().next();
+      EnumBasedSmartConstraintChecker.Constraint constraint = violatedConstraints.iterator().next();
       if (constraintsToBeCovered.contains(constraint)) {
         this.constraintsToBeCovered.remove(constraint);
         this.factorLevelsToBeCovered.removeAll(TupleUtils.subtuplesOf(tuple, 1));
