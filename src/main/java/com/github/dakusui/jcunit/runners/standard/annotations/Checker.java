@@ -9,23 +9,25 @@ import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Checker {
-  Checker DEFAULT = new Checker() {
+  class Default {
+    public static final Checker INSTANCE = new Checker() {
 
-    @Override
-    public Class<? extends Annotation> annotationType() {
-      return Checker.class;
-    }
+      @Override
+      public Class<? extends Annotation> annotationType() {
+        return Checker.class;
+      }
 
-    @Override
-    public Class<? extends ConstraintChecker> value() {
-      return NullConstraintChecker.class;
-    }
+      @Override
+      public Class<? extends ConstraintChecker> value() {
+        return NullConstraintChecker.class;
+      }
 
-    @Override
-    public Value[] args() {
-      return new Value[]{};
-    }
-  };
+      @Override
+      public Value[] args() {
+        return new Value[] {};
+      }
+    };
+  }
 
   Class<? extends ConstraintChecker> value() default NullConstraintChecker.class;
 

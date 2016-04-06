@@ -200,14 +200,14 @@ public class JCUnit extends Parameterized {
   public static Checker getChecker(Class<?> klass) {
     GenerateCoveringArrayWith generateWith = klass.getAnnotation(GenerateCoveringArrayWith.class);
     return generateWith == null
-        ? Checker.DEFAULT
+        ? Checker.Default.INSTANCE
         : generateWith.checker();
   }
 
   public static Generator getGenerator(Class<?> klass) {
     GenerateCoveringArrayWith annotation = klass.getAnnotation(GenerateCoveringArrayWith.class);
     return annotation == null
-        ? Generator.DEFAULT
+        ? Generator.Default.INSTANCE
         : annotation.engine();
   }
 
