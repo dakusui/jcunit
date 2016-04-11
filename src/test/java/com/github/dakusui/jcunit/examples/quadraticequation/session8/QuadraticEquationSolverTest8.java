@@ -38,7 +38,7 @@ public class QuadraticEquationSolverTest8 {
   public static PrintStream ps1 = System.out;
   public static PrintStream ps2 = System.err;
 
-  public static final int runCount     = 28 * 2; // (20 (regular) + 8 (violation)) * 2; One for solve, the other for print.
+  public static final int runCount     = 33 * 2; // (20 (regular) + 8 (violation)) * 2; One for solve, the other for print.
   public static final int failureCount = 0;
   public static final int ignoreCount  = 0;
 
