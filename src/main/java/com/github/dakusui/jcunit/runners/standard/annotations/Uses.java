@@ -25,9 +25,9 @@ public @interface Uses {
     @Override
     public List<Exception> validateAnnotatedMethod(FrameworkMethod method) {
       List<Exception> errors = new LinkedList<Exception>();
-      if (method.getAnnotation(Test.class) == null) {
+      if (method.getAnnotation(Test.class) == null && method.getAnnotation(Condition.class) == null) {
         errors.add(new Exception(StringUtils.format(
-            "This annotation should be used with @%s annotation.", Test.class
+            "This annotation should be used with @%s or @%s annotation.", Test.class, Condition.class
         )));
       }
 

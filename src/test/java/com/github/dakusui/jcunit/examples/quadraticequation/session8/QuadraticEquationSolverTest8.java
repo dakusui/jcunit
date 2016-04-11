@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session8;
 
+import com.github.dakusui.jcunit.coverage.CombinatorialMetrics;
 import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
@@ -28,7 +29,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
  * </ul>
  */
 @RunWith(JCUnit.class)
-@GenerateCoveringArrayWith(checker = @Checker(value = SmartConstraintChecker.class))
+@GenerateCoveringArrayWith(
+    checker = @Checker(value = SmartConstraintChecker.class),
+    reporters = {
+        @Reporter(value = CombinatorialMetrics.class, args = { @Value("2") })
+    })
 public class QuadraticEquationSolverTest8 {
   public static PrintStream ps1 = System.out;
   public static PrintStream ps2 = System.err;
@@ -47,11 +52,13 @@ public class QuadraticEquationSolverTest8 {
   @FactorField
   public int c;
 
+  @Uses({ "a" })
   @Condition(constraint = true)
   public boolean aIsNonZero() {
     return this.a != 0;
   }
 
+  @Uses({ "a", "b", "c" })
   @Condition(constraint = true)
   public boolean discriminantIsNonNegative() {
     int a = this.a;
@@ -60,6 +67,7 @@ public class QuadraticEquationSolverTest8 {
     return b * b - 4 * c * a >= 0;
   }
 
+  @Uses({ "a", "b", "c" })
   @Condition(constraint = true)
   public boolean coefficientsAreValid() {
     return

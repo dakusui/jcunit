@@ -8,10 +8,13 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
+import com.github.dakusui.jcunit.runners.standard.annotations.Uses;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.util.List;
+
+import static com.github.dakusui.jcunit.core.Checks.checksymbols;
 
 public class SmartConstraintChecker extends SmartConstraintCheckerBase {
   private final List<Constraint> constraints;
@@ -29,9 +32,13 @@ public class SmartConstraintChecker extends SmartConstraintCheckerBase {
     }), new Utils.Form<FrameworkMethod, Constraint>() {
       @Override
       public Constraint apply(final FrameworkMethod in) {
+        final Uses uses = in.getAnnotation(Uses.class);
         return new Constraint() {
           @Override
           public boolean check(Tuple tuple) throws UndefinedSymbol {
+            if (uses != null) {
+              checksymbols(tuple, uses.value());
+            }
             try {
               return (Boolean) in.invokeExplosively(TestCaseUtils.toTestObject(testClass, tuple));
             } catch (Throwable throwable) {
