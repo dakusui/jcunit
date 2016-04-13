@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.runners.core.TestSuite;
+import com.github.dakusui.jcunit.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.Uses;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import org.junit.Ignore;

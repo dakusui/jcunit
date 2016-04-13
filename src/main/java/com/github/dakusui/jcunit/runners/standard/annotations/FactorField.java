@@ -433,22 +433,7 @@ public @interface FactorField {
         supportedType = c;
       } else if (c.isEnum()) {
         // Note that Enum.class.isEnum should return false;
-        // Note that 'values' method of an enum is static. It returns an array of the enum object.
-        final Object values = ReflectionUtils.invoke(null, ReflectionUtils.getMethod(c, "values"));
-        checknotnull(values);
-        //noinspection ConstantConditions
-        Checks.checkcond(values.getClass().isArray());
-        return new AbstractList<Object>() {
-          @Override
-          public Object get(int index) {
-            return Array.get(values, index);
-          }
-
-          @Override
-          public int size() {
-            return Array.getLength(values);
-          }
-        };
+        return Arrays.asList(c.getEnumConstants());
       } else if ((ann = (GenerateCoveringArrayWith) c.getAnnotation(GenerateCoveringArrayWith.class)) != null) {
         return new AbstractList<Object>() {
           FactorSpace factorSpace = new FactorSpace.Builder()

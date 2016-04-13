@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.runners.core.TestSuite;
+import com.github.dakusui.jcunit.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.InternalAnnotation;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.rules.TestWatcher;

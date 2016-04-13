@@ -22,7 +22,7 @@ import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.runners.core.TestSuite;
+import com.github.dakusui.jcunit.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
