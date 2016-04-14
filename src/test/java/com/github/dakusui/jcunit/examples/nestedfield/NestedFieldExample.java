@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.examples.nestedfield;
 
-import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;

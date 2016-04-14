@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.caengines;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.SystemProperties;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;

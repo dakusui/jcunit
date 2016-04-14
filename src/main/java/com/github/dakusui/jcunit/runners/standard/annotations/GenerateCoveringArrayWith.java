@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
@@ -18,7 +18,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 @Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)

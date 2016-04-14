@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

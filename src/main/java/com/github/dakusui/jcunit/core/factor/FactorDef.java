@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
@@ -8,8 +8,8 @@ import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public abstract class FactorDef {
   public final String name;

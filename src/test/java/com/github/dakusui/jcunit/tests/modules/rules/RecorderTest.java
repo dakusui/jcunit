@@ -1,11 +1,12 @@
 package com.github.dakusui.jcunit.tests.modules.rules;
 
-import com.github.dakusui.jcunit.core.SystemProperties;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.runners.standard.InternalAnnotation;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -36,7 +37,7 @@ public class RecorderTest extends Recorder implements Serializable {
       .add(new Factor.Builder("f1").addLevel(1).build()).build();
   Tuple         tuple     = new Tuple.Builder().build();
   TestCase.Type type      = TestCase.Type.REGULAR;
-  TestCase      testCase  = new TestCase(123, this.type, this.tuple);
+  TestCase      testCase  = new JCUnit.NumberedTestCase(123, this.type, this.tuple);
 
   public RecorderTest() {
     super(baseDir().getAbsolutePath());
@@ -135,7 +136,7 @@ public class RecorderTest extends Recorder implements Serializable {
     System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
     System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
     this.type = TestCase.Type.CUSTOM;
-    this.testCase  = new TestCase(123, this.type, this.tuple);
+    this.testCase  = new JCUnit.NumberedTestCase(123, this.type, this.tuple);
     wireMocks();
     whenInitializeDirSaveAndLoad$thenDoNotWriteAnything(false);
   }
@@ -166,7 +167,7 @@ public class RecorderTest extends Recorder implements Serializable {
     when(description.getAnnotation(InternalAnnotation.class))
         .thenReturn(ann);
     when(description.getMethodName()).thenReturn("methodName");
-    when(ann.getTestCase()).thenReturn(this.testCase);
+    when(ann.getTestCase()).thenReturn((JCUnit.NumberedTestCase) this.testCase);
     when(ann.getFactors()).thenReturn(factors);
   }
 

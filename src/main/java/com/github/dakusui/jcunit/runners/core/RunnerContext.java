@@ -1,11 +1,11 @@
 package com.github.dakusui.jcunit.runners.core;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getFieldDeclaredIn;
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getFieldValueForcibly;
 

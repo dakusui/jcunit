@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.coverage;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;

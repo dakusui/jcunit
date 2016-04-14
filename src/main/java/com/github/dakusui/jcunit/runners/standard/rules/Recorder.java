@@ -1,8 +1,11 @@
 package com.github.dakusui.jcunit.runners.standard.rules;
 
-import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.framework.TestCase;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.IOUtils;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.runner.Description;
 
 import java.io.File;
@@ -36,7 +39,7 @@ import java.util.List;
  * </pre>
  * <p/>
  * , where <ul>
- * <li>{basedir} is a base directory of JCUnit, which can be configured by a system property {@code "jcunit.basedir"}.</li>
+ * <li>{basedir} is a model directory of JCUnit, which can be configured by a system property {@code "jcunit.basedir"}.</li>
  * <li>{FQCN} is an FQCN of the test class.</li>
  * <li>{testcase id} is an integer which identifies a test case tuple executed by a test class.</li>
  * <li>{test method name} is a name of a test method.</li>
@@ -57,9 +60,9 @@ public class Recorder extends BaseRule {
   private File testDataDir;
 
   /**
-   * Creates an object of this class with {@code null} base directory, which makes
+   * Creates an object of this class with {@code null} model directory, which makes
    * JCUnit use the value System.getProperty("jcunit.basedir")
-   * as the base directory to store test execution data.
+   * as the model directory to store test execution data.
    */
   public Recorder() {
     this(SystemProperties.jcunitBaseDir().getAbsolutePath());
@@ -68,7 +71,7 @@ public class Recorder extends BaseRule {
   /**
    * Creates an object of this class with {@code baseDir}.
    *
-   * @param baseDir base directory of test execution data.
+   * @param baseDir model directory of test execution data.
    */
   public Recorder(String baseDir) {
     this.baseDir = baseDir;
@@ -78,7 +81,7 @@ public class Recorder extends BaseRule {
   protected void starting(Description d) {
     super.starting(d);
     if (SystemProperties.isRecorderEnabled() && this.getTestCase().getType() == TestCase.Type.REGULAR) {
-      this.setTestDataDir(testDataDirFor(this.baseDir, this.getTestCase().getId(), d));
+      this.setTestDataDir(testDataDirFor(this.baseDir, ((JCUnit.NumberedTestCase)this.getTestCase()).getId(), d));
 
       synchronized (Recorder.class) {
         if (this.testDataDir.exists()) {

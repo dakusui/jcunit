@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.levelsproviders;
 
-import com.github.dakusui.jcunit.core.BaseBuilder;
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.BaseBuilder;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
@@ -24,7 +24,7 @@ public interface LevelsProvider extends Plugin {
   Object get(int n);
 
   /**
-   * A base class to be used to implement a {@code LevelsProvider}.
+   * A model class to be used to implement a {@code LevelsProvider}.
    */
   abstract class Base extends Plugin.Base implements LevelsProvider {
     public Base() {

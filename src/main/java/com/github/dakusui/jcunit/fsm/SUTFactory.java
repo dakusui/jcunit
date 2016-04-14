@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

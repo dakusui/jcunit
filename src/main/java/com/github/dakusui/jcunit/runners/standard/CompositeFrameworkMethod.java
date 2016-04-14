@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
 import org.junit.runners.model.FrameworkMethod;
 

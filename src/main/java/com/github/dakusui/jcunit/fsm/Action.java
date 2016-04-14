@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.runners.standard.annotations.As;
 
 import java.io.Serializable;

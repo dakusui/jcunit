@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.modules.core;
 
-import com.github.dakusui.jcunit.core.SystemProperties;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

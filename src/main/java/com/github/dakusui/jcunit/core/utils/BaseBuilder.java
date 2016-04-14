@@ -1,7 +1,7 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.core.utils;
 
 /**
- * A base interface of all builders in JCUnit.
+ * A model interface of all builders in JCUnit.
  *
  * @param <T> Type of object to be built by this class.
  */

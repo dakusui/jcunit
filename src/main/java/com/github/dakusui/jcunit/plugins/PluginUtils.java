@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.plugins.Plugin.Param.Converter;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
@@ -71,7 +71,7 @@ public enum PluginUtils {
       List<Converter<String[]>> ret = new LinkedList<Converter<String[]>>();
       for (final Converter<String> each : StringResolver.INSTANCE.allConverters()) {
         ////
-        // If the base is a supported non-array type, the first element in {@code in}
+        // If the model is a supported non-array type, the first element in {@code in}
         // will be picked up and assigned.
         ret.add(new Converter<String[]>() {
           @Override
@@ -87,7 +87,7 @@ public enum PluginUtils {
           }
         });
         ////
-        // If the base type is an array of supported type of StringResolver,
+        // If the model type is an array of supported type of StringResolver,
         // it's supported.
         ret.add(new Converter<String[]>() {
           @Override

@@ -1,36 +1,48 @@
-package com.github.dakusui.jcunit.runners.core;
+package com.github.dakusui.jcunit.framework;
 
-import com.github.dakusui.jcunit.core.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.Serializable;
 
+/**
+ * A class that represents a test case.
+ */
 public class TestCase implements Serializable {
-  private final int     id;
   private final Type    type;
   private final Tuple   tuple;
 
-  public TestCase(int id, Type type, Tuple tuple) {
-    this.id = id;
+  /**
+   * Creates an object of this class.
+   */
+  protected TestCase(Type type, Tuple tuple) {
     this.type = Checks.checknotnull(type);
     this.tuple = Checks.checknotnull(tuple);
   }
 
-  public int getId() {
-    return id;
-  }
-
+  /**
+   * Returns a type of this object, which represents how this object is generated.
+   *
+   * @see Type
+   */
   public Type getType() {
     return type;
   }
 
+  /**
+   * Returns a tuple that specifies what value should be used for each factor in this test case.
+   * Users can use a returned value {@code Tuple} simply as a {@code Map<String, Object>} whose keys
+   * are factor names and values are corresponding levels.
+   *
+   * @see java.util.Map
+   */
   public Tuple getTuple() {
     return TupleUtils.unmodifiableTuple(tuple);
   }
 
   /**
-   * Identifies what kind of category to which a test case belongs.
+   * A type to identify test cases based on how it is generated.
    */
   public enum Type {
     /**
@@ -46,8 +58,8 @@ public class TestCase implements Serializable {
      */
     REGULAR,
     /**
-     * A test case which violates some defined constraint belongs to this category.
-     * Test cases returned by {@code ConstraintManager#getViolations} belongs to this.
+     * Test cases returned by {@code ConstraintManager#getViolations()} belongs to this.
+     * Typically, a test case which violates some defined constraint belongs to this category.
      */
     VIOLATION
   }

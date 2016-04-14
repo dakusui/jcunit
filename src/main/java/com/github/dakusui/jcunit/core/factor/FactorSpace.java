@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.jcunit.core.BaseBuilder;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.BaseBuilder;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;

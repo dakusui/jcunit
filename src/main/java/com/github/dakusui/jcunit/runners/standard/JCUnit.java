@@ -1,14 +1,16 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.IOUtils;
-import com.github.dakusui.jcunit.core.SystemProperties;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.framework.TestCase;
+import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.IOUtils;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.coverage.Metrics;
 import com.github.dakusui.jcunit.coverage.Report;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -21,8 +23,6 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
-import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.runner.Runner;
 import org.junit.runners.Parameterized;
@@ -38,7 +38,7 @@ import java.util.*;
 public class JCUnit extends Parameterized {
   private final List<Runner> runners;
 
-  private final TestSuite testSuite;
+  private final TestSuite     testSuite;
   private final RunnerContext runnerContext;
 
   /**
@@ -53,17 +53,17 @@ public class JCUnit extends Parameterized {
     List<FrameworkMethod> preconditionMethods = getTestClass().getAnnotatedMethods(Precondition.class);
     List<FrameworkMethod> customTestCaseMethods = getTestClass().getAnnotatedMethods(CustomTestCases.class);
     try {
-      List<TestCase> testCases;
+      List<NumberedTestCase> testCases;
       ////
       // BEGIN: Plugin creation
       List<FactorDef> factorDefs = getFactorDefsFrom(getTestClass(), runnerContext);
       final Factors.Builder builder = new Factors.Builder();
       Utils.filter(factorDefs, new Utils.Predicate<FactorDef>() {
-            @Override
-            public boolean apply(FactorDef in) {
-              in.addTo(builder);
-              return true;
-            }
+        @Override
+        public boolean apply(FactorDef in) {
+          in.addTo(builder);
+          return true;
+        }
       });
       runnerContext.setFactors(builder.build());
       final ConstraintChecker constraintChecker = new ConstraintChecker.Builder(getChecker(klass), runnerContext).build();
@@ -109,7 +109,7 @@ public class JCUnit extends Parameterized {
                     constraintChecker,
                     testSuite,
                     coveredMethods,
-                    in);
+                    (NumberedTestCase) in);
               } catch (InitializationError initializationError) {
                 throw Checks.wrap(initializationError);
               }
@@ -144,14 +144,14 @@ public class JCUnit extends Parameterized {
     }
   }
 
-  private List<TestCase> loadTestCases(Class<?> javaClass) {
+  private List<NumberedTestCase> loadTestCases(Class<?> javaClass) {
     File testSuiteFile = IOUtils.determineTestSuiteFile(Checks.checknotnull(javaClass));
     List<?> ret = IOUtils.load(List.class, testSuiteFile);
     //noinspection unchecked
-    return (List<TestCase>) ret;
+    return (List<NumberedTestCase>) ret;
   }
 
-  private void saveTestCases(Class<?> javaClass, List<TestCase> testCases) {
+  private void saveTestCases(Class<?> javaClass, List<NumberedTestCase> testCases) {
     File testSuiteFile = IOUtils.determineTestSuiteFile(Checks.checknotnull(javaClass));
     if (!testSuiteFile.exists()) {
       IOUtils.mkdirs(testSuiteFile.getParentFile());
@@ -160,17 +160,17 @@ public class JCUnit extends Parameterized {
   }
 
 
-  public List<TestCase> generateTestCases(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) throws Throwable {
+  public List<NumberedTestCase> generateTestCases(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) throws Throwable {
     ////
     // Generate a list of test cases using a specified tuple generator
     CoveringArray ca = coveringArrayEngine.generate(factorSpace);
-    List<TestCase> testCases = Utils.newList();
+    List<NumberedTestCase> testCases = Utils.newList();
     int id;
     for (id = ca.firstId(); id >= 0; id = ca.nextId(id)) {
       Tuple testCase = ca.get(id);
       if (shouldPerform(testCase, preconditionMethods)) {
         testCases.add(
-            new TestCase(id, TestCase.Type.REGULAR, testCase
+            new NumberedTestCase(id, TestCase.Type.REGULAR, testCase
             ));
       }
     }
@@ -313,7 +313,7 @@ public class JCUnit extends Parameterized {
   }
 
   private int registerTestCases(
-      List<TestCase> testCases,
+      List<NumberedTestCase> testCases,
       int id,
       Iterable<Tuple> testCaseTuplesToBeAdded,
       TestCase.Type type,
@@ -321,7 +321,7 @@ public class JCUnit extends Parameterized {
       throws Throwable {
     for (Tuple testCase : testCaseTuplesToBeAdded) {
       if (shouldPerform(testCase, preconditionMethods)) {
-        testCases.add(new TestCase(id, type, testCase));
+        testCases.add(new NumberedTestCase(id, type, testCase));
       }
       id++;
     }
@@ -404,5 +404,18 @@ public class JCUnit extends Parameterized {
         ret = rootCause;
     }
     return ret;
+  }
+
+  public static class NumberedTestCase extends TestCase {
+    private final int id;
+
+    public NumberedTestCase(int id, Type type, Tuple tuple) {
+      super(type, tuple);
+      this.id = id;
+    }
+
+    public int getId() {
+      return id;
+    }
   }
 }

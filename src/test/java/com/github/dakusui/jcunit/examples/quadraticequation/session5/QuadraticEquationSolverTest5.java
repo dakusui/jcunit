@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.examples.quadraticequation.session5;
 
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.plugins.constraints.TypedConstraintChecker;
-import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;

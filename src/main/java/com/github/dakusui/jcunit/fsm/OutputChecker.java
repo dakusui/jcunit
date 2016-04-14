@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 

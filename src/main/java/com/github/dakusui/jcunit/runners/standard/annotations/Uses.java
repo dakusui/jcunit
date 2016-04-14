@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
 
-import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import org.junit.Test;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.FrameworkMethod;

@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 
 import java.lang.reflect.Field;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 /**
  */

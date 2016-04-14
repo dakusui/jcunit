@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.util.*;
 

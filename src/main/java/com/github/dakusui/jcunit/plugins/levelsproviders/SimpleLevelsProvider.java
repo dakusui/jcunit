@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.levelsproviders;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 
 public abstract class SimpleLevelsProvider extends LevelsProvider.Base {
   private final Object[] values;

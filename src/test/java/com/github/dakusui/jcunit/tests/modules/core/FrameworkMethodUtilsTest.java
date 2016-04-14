@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.modules.core;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.runners.standard.CompositeFrameworkMethod;
 import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;

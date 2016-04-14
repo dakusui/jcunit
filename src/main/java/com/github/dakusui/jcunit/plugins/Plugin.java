@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.plugins;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.core.SystemProperties;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
@@ -17,7 +17,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 /**
  * A common interface of all plugins of JCUnit that can be configured through
@@ -142,7 +142,7 @@ public interface Plugin {
 
       public static class PassThroughResolver extends Plugin.Param.Resolver<Object> {
         /**
-         * This resolver always pass through incoming value to base constructor.
+         * This resolver always pass through incoming value to model constructor.
          */
         private static final PassThroughResolver INSTANCE = new PassThroughResolver();
 

@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.core.BaseBuilder;
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.BaseBuilder;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public interface ConstraintChecker extends Plugin {
   ConstraintChecker DEFAULT_CONSTRAINT_CHECKER = new NullConstraintChecker();

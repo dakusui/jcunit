@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.plugins.caengines;
 
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
-import com.github.dakusui.jcunit.core.*;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;

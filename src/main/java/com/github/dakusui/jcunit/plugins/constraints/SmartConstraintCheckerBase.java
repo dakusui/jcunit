@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
   /**
@@ -57,6 +57,8 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
 
   @Override
   public List<Tuple> getViolations() {
+    // fixme It should be guaranteed that each of returned tuples DOES violate at least on constraint
+    //       because this method is "getViolations()".
     List<Tuple> ret = new LinkedList<Tuple>(this.chosenViolations);
     for (Tuple factorLevel : this.factorLevelsToBeCovered) {
       ret.add(new Tuple.Builder()

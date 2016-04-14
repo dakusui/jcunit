@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 /**
  * A constraint which validates tuples for FSM scenarios.

@@ -1,14 +1,13 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.Uses;
 import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import org.junit.Ignore;
@@ -29,7 +28,7 @@ import java.util.*;
 public class JCUnitRunner extends BlockJUnit4ClassRunner {
   private final Factors                          factors;
   private final TestSuite                        testSuite;
-  private final TestCase                         testCase;
+  private final JCUnit.NumberedTestCase          testCase;
   private final Map<String, FrameworkMethod>     methods;
   private final ConstraintChecker                constraintChecker;
   private final FactorSpace                      factorSpace;
@@ -38,10 +37,10 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   /**
    * Creates an object of this class.
    *
-   * @param clazz          A test class.
-   * @param testCase       A test case object.  @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
+   * @param clazz    A test class.
+   * @param testCase A test case object.  @throws InitializationError In case initialization is failed. e.g. More than one constructor is found in the test class.
    */
-  public JCUnitRunner(Class<?> clazz, FactorSpace factorSpace, ConstraintChecker constraintChecker, TestSuite testSuite, Map<FrameworkMethod, Set<Tuple>> coveredMethods, TestCase testCase) throws InitializationError {
+  public JCUnitRunner(Class<?> clazz, FactorSpace factorSpace, ConstraintChecker constraintChecker, TestSuite testSuite, Map<FrameworkMethod, Set<Tuple>> coveredMethods, JCUnit.NumberedTestCase testCase) throws InitializationError {
     super(clazz);
     this.factorSpace = Checks.checknotnull(factorSpace);
     this.factors = factorSpace.factors;
@@ -145,7 +144,6 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
       }
       markCovered(testMethod, subtupleUsedByTestMethod);
     }
-
 
     When when = testMethod.getAnnotation(When.class);
     if (when == null)

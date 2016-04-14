@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.coverage;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.InvalidPluginException;
 import com.github.dakusui.jcunit.plugins.Plugin;
@@ -117,7 +117,7 @@ public interface Metrics<T> extends Plugin {
   }
 
   /**
-   * A metrics base class that calculates figures about how registered {@code C} instances are
+   * A metrics model class that calculates figures about how registered {@code C} instances are
    * covered by {@code T} instances given by {@code process} method.
    *
    * @param <C> {@code Switch} for instance.

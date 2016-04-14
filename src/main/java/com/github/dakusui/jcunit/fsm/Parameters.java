@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -11,7 +11,7 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public class Parameters extends Factors {
   public static final Parameters EMPTY = new Builder(new Object[][] {}).build();

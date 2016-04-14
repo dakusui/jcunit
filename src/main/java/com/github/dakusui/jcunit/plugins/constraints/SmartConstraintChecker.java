@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -14,7 +14,7 @@ import org.junit.runners.model.TestClass;
 
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.Checks.checksymbols;
+import static com.github.dakusui.jcunit.core.utils.Checks.checksymbols;
 
 public class SmartConstraintChecker extends SmartConstraintCheckerBase {
   private final List<Constraint> constraints;

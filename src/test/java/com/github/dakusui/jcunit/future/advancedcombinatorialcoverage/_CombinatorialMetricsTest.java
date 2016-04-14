@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.future.advancedcombinatorialcoverage;
 
 import com.github.dakusui.combinatoradix.tuple.AttrValue;
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;

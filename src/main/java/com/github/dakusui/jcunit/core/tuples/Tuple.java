@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.jcunit.core.BaseBuilder;
+import com.github.dakusui.jcunit.core.utils.BaseBuilder;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;

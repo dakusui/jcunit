@@ -1,22 +1,18 @@
 package com.github.dakusui.jcunit.tests.features.api;
 
-import com.github.dakusui.jcunit.core.TestSuite;
-import com.github.dakusui.jcunit.core.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.framework.TestCase;
+import com.github.dakusui.jcunit.framework.TestSuite;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 public class TestSuiteBuilderTest {
   @Test
-  public void test() {
-    List<TestCase> testSuite = new TestSuite.Builder()
-        .addFactor("factor1", Arrays.asList(1, 2, 3))
-        .addConstraint(new Utils.Predicate<Tuple>() {
+  public void basicTestSuiteBuildingNegativeTestGenerationEnabled() {
+    TestSuite testSuite = new TestSuite.Builder()
+        .addFactor("factor1", 1, 2, 3)
+        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1") {
           @Override
           public boolean apply(Tuple in) {
             return !in.get("factor1").equals(1);
@@ -31,16 +27,15 @@ public class TestSuiteBuilderTest {
     assertEquals(TestCase.Type.REGULAR, testSuite.get(0).getType());
     assertEquals(TestCase.Type.REGULAR, testSuite.get(1).getType());
     assertEquals(TestCase.Type.VIOLATION, testSuite.get(2).getType());
-    assertEquals(0, testSuite.get(0).getId());
-    assertEquals(1, testSuite.get(1).getId());
-    assertEquals(2, testSuite.get(2).getId());
+    assertEquals(1, TestSuite.getViolatedConstraints(testSuite.get(2)).size());
+    assertEquals("factor1 mustn't be 1", TestSuite.getViolatedConstraints(testSuite.get(2)).get(0).tag);
   }
 
   @Test
-  public void test2() {
-    List<TestCase> testSuite = new TestSuite.Builder()
-        .addFactor("factor1", Arrays.asList(1, 2, 3))
-        .addConstraint(new Utils.Predicate<Tuple>() {
+  public void basicTestSuiteBuildingNegativeTestGenerationDisabled() {
+    TestSuite testSuite = new TestSuite.Builder()
+        .addFactor("factor1", 1, 2, 3)
+        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1") {
           @Override
           public boolean apply(Tuple in) {
             return !in.get("factor1").equals(1);
@@ -53,14 +48,12 @@ public class TestSuiteBuilderTest {
     assertEquals(3, testSuite.get(1).getTuple().get("factor1"));
     assertEquals(TestCase.Type.REGULAR, testSuite.get(0).getType());
     assertEquals(TestCase.Type.REGULAR, testSuite.get(1).getType());
-    assertEquals(0, testSuite.get(0).getId());
-    assertEquals(1, testSuite.get(1).getId());
   }
 
   @Test
-  public void test3() {
-    List<TestCase> testSuite = new TestSuite.Builder()
-        .addConstraint(new Utils.Predicate<Tuple>() {
+  public void defaultLevelsCanBeUsed() {
+    TestSuite testSuite = new TestSuite.Builder()
+        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1") {
           @Override
           public boolean apply(Tuple in) {
             return !in.get("factor1").equals(1);

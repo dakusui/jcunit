@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.testutils.behaviour;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 
 public class TestScenario<SUT> {
   public final Given<SUT> given;

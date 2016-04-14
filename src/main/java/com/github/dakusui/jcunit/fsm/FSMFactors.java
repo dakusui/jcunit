@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.factor.FactorDef.Fsm.*;
 
 /**

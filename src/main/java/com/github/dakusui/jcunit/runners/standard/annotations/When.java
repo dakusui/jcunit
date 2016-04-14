@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;

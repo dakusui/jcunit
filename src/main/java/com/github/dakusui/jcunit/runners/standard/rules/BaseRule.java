@@ -1,10 +1,9 @@
 package com.github.dakusui.jcunit.runners.standard.rules;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.core.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.InternalAnnotation;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.rules.TestWatcher;
@@ -12,7 +11,7 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 
 /**
- * A base class for test rules that access JCUnit's runtime information such as,
+ * A model class for test rules that access JCUnit's runtime information such as,
  * test name, test case tuple, test case type, test suite structure.
  *
  * You can extend this class to write your own rules for JCUnit.
@@ -23,12 +22,12 @@ import org.junit.runner.RunWith;
  * @see TestWatcher
  */
 public abstract class BaseRule extends TestWatcher {
-  private Class<?>          testClass;
-  private String            testName;
-  private Factors           factors;
-  private ConstraintChecker constraintChecker;
-  private TestSuite         testSuite;
-  private TestCase          testCase;
+  private Class<?>                testClass;
+  private String                  testName;
+  private Factors                 factors;
+  private ConstraintChecker       constraintChecker;
+  private TestSuite               testSuite;
+  private JCUnit.NumberedTestCase testCase;
 
   @Override
   protected void starting(Description d) {
@@ -67,7 +66,7 @@ public abstract class BaseRule extends TestWatcher {
     return this.testSuite;
   }
 
-  public TestCase getTestCase() {
+  public JCUnit.NumberedTestCase getTestCase() {
     return this.testCase;
   }
 }

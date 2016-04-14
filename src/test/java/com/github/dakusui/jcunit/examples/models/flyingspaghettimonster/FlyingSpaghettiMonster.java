@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.examples.models.flyingspaghettimonster;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 
 public class FlyingSpaghettiMonster {
   private String dish  = null;

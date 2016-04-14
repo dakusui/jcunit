@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.core.utils;
 
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -97,7 +97,7 @@ public class Checks {
    * <p/>
    * A message set to the exception will be composed in the same manner as {@code checknotnull} method.
    *
-   * @see com.github.dakusui.jcunit.core.Checks#checknotnull(Object, String, Object...)
+   * @see Checks#checknotnull(Object, String, Object...)
    */
   public static void checkparam(@SuppressWarnings("SameParameterValue") boolean b, String msgOrFmt, Object... args) {
     if (!b) {
@@ -117,7 +117,7 @@ public class Checks {
   /**
    * A message set to the exception will be composed in the same manner as {@code checknotnull} method.
    *
-   * @see com.github.dakusui.jcunit.core.Checks#checknotnull(Object, String, Object...)
+   * @see Checks#checknotnull(Object, String, Object...)
    */
   public static void checkenv(boolean cond, String msg, Object... args) {
     if (!cond) {

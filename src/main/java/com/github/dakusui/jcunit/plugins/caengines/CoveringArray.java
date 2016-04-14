@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.plugins.caengines;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.AbstractList;

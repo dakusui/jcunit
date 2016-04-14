@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.tests.testutils;
 
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Ignore;

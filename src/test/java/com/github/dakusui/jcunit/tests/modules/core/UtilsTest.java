@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.tests.modules.core;
 
-import com.github.dakusui.jcunit.core.StringUtils;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import org.junit.Test;

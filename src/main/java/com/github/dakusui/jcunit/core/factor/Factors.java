@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.combinatoradix.Combinator;
-import com.github.dakusui.jcunit.core.BaseBuilder;
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.BaseBuilder;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;

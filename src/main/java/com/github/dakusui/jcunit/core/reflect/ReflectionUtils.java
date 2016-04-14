@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.core.reflect;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.StringUtils;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;

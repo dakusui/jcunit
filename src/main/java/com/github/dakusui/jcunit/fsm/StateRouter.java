@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.Checks.*;
+import static com.github.dakusui.jcunit.core.utils.Checks.*;
 
 public interface StateRouter<SUT> {
   ScenarioSequence<SUT> routeTo(State<SUT> state);

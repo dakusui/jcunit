@@ -3,9 +3,9 @@ package com.github.dakusui.jcunit.plugins.caengines;
 /**
  */
 
-import com.github.dakusui.jcunit.core.BaseBuilder;
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.BaseBuilder;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -18,7 +18,7 @@ import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.dakusui.jcunit.core.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public interface CoveringArrayEngine extends Plugin {
   CoveringArray generate(FactorSpace factorSpace);
@@ -112,7 +112,7 @@ public interface CoveringArrayEngine extends Plugin {
   }
 
   /**
-   * An abstract base class that provides a basic implementation of {@code CAEngine}.
+   * An abstract model class that provides a basic implementation of {@code CAEngine}.
    * Users can create a new tuple generator by extending this class.
    */
   abstract class Base extends Plugin.Base implements CoveringArrayEngine, Plugin {

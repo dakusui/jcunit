@@ -26,10 +26,10 @@
  *        |Tuple|          |YourTest|---+--->|Precondition method|
  *        +-----+          +--------+1  |  * +-------------------+
  *                                      |
- *                                      |           (Test)                     (Method level precondition)
- *                                      |    +-----------+       +-------------------+
- *                                      +--->|Test method|------>|Precondition method|
- *                                         * +-----------+1     *+-------------------+
+ *                                      |           (Test)               (Method level precondition)
+ *                                      |    +-----------+       +----------------+
+ *                                      +--->|Test method|------>|Condition method|
+ *                                         * +-----------+1     *+----------------+
  * </pre>
  *
  */

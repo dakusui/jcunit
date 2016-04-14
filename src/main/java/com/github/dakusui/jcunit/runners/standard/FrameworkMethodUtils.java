@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.core.Checks;
-import com.github.dakusui.jcunit.core.Utils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
@@ -77,7 +77,7 @@ public enum FrameworkMethodUtils {
   }
 
   /**
-   * A base class for JCUnit specific FrameworkMethods.
+   * A model class for JCUnit specific FrameworkMethods.
    */
   public static abstract class JCUnitFrameworkMethod extends FrameworkMethod {
     public static final Method DUMMY_METHOD;

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.tests.modules.core;
 
-import com.github.dakusui.jcunit.core.IOUtils;
+import com.github.dakusui.jcunit.core.utils.IOUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.exceptions.SavedObjectBrokenException;

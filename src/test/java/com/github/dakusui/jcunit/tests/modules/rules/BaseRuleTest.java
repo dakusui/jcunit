@@ -1,9 +1,10 @@
 package com.github.dakusui.jcunit.tests.modules.rules;
 
-import com.github.dakusui.jcunit.runners.core.TestCase;
+import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.runners.standard.InternalAnnotation;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.rules.BaseRule;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import org.junit.Before;
@@ -27,7 +28,7 @@ public class BaseRuleTest extends BaseRule {
   Factors       factors   = new Factors.Builder().add(new Factor.Builder("f1").addLevel(1).build()).build();
   Tuple         tuple     = new Tuple.Builder().build();
   TestCase.Type type      = TestCase.Type.CUSTOM;
-  TestCase      testCase  = new TestCase(123, this.type, this.tuple);
+  TestCase      testCase  = new JCUnit.NumberedTestCase(123, this.type, this.tuple);
 
 
   @SuppressWarnings("unchecked")
@@ -36,7 +37,7 @@ public class BaseRuleTest extends BaseRule {
     when(description.getTestClass()).thenReturn((Class) testClass);
     when(description.getAnnotation(InternalAnnotation.class)).thenReturn(ann);
     when(description.getMethodName()).thenReturn("methodName");
-    when(ann.getTestCase()).thenReturn(testCase);
+    when(ann.getTestCase()).thenReturn((JCUnit.NumberedTestCase) testCase);
     when(ann.getFactors()).thenReturn(factors);
   }
 

@@ -1,10 +1,9 @@
 package com.github.dakusui.jcunit.runners.standard;
 
-import com.github.dakusui.jcunit.core.Checks;
+import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.runners.core.TestCase;
-import com.github.dakusui.jcunit.core.TestSuite;
 
 import java.lang.annotation.Annotation;
 
@@ -13,12 +12,12 @@ import java.lang.annotation.Annotation;
  */
 public class InternalAnnotation implements Annotation {
 
-  private final TestSuite         testSuite;
-  private final TestCase          testCase;
-  private final Factors           factors;
-  private final ConstraintChecker constraintChecker;
+  private final TestSuite               testSuite;
+  private final JCUnit.NumberedTestCase testCase;
+  private final Factors                 factors;
+  private final ConstraintChecker       constraintChecker;
 
-  public InternalAnnotation(Factors factors, ConstraintChecker constraintChecker, TestSuite suite, TestCase testCase) {
+  public InternalAnnotation(Factors factors, ConstraintChecker constraintChecker, TestSuite suite, JCUnit.NumberedTestCase testCase) {
     this.factors = Checks.checknotnull(factors);
     this.constraintChecker = Checks.checknotnull(constraintChecker);
     this.testSuite = Checks.checknotnull(suite);
@@ -39,7 +38,7 @@ public class InternalAnnotation implements Annotation {
     return this.testSuite;
   }
 
-  public TestCase getTestCase() {
+  public JCUnit.NumberedTestCase getTestCase() {
     return this.testCase;
   }
 

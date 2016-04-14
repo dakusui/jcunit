@@ -1,8 +1,10 @@
-package com.github.dakusui.jcunit.core;
+package com.github.dakusui.jcunit.core.utils;
 
 
 import java.lang.reflect.Array;
 import java.util.*;
+
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 /**
  * A utility class of JCUnit.
@@ -16,7 +18,6 @@ import java.util.*;
  */
 public enum Utils {
   ;
-
   /**
    * Returns {@code true} if {@code v} and {@code} are equal,
    * {@code false} otherwise.
@@ -60,7 +61,7 @@ public enum Utils {
    * @param in List whose elements to be made  unique.
    */
   public static <T> List<T> dedup(List<T> in) {
-    Checks.checknotnull(in);
+    checknotnull(in);
     List<T> ret = new ArrayList<T>(in.size());
     for (T each : in) {
       if (ret.contains(each))
@@ -94,7 +95,7 @@ public enum Utils {
     };
   }
 
-  public static <I, O> List<O> transform(Iterable<I> in, Form<I, O> form) {
+  public static <I, O> List<O> transform(Iterable<? extends I> in, Form<I, O> form) {
     List<O> ret = new ArrayList<O>();
     for (I each : in) {
       ret.add(form.apply(each));
@@ -105,13 +106,13 @@ public enum Utils {
   public static <I, O> List<O> transform(I[] in, Form<I, O> form) {
     return transform(
         Arrays.asList(in),
-        Checks.checknotnull(form)
+        checknotnull(form)
     );
   }
 
   public static <V> List<V> filter(Iterable<V> unfiltered, Predicate<V> predicate) {
-    Checks.checknotnull(unfiltered);
-    Checks.checknotnull(predicate);
+    checknotnull(unfiltered);
+    checknotnull(predicate);
     List<V> ret = new LinkedList<V>();
     for (V each : unfiltered) {
       if (predicate.apply(each))
@@ -144,8 +145,8 @@ public enum Utils {
   }
 
   public static <K, V> Map<K, V> toMap(List<V> in, Form<V, K> form) {
-    Checks.checknotnull(in);
-    Checks.checknotnull(form);
+    checknotnull(in);
+    checknotnull(form);
     ////
     // In most cases, it's better to use LinkedHashMap in JCUnit because
     // it needs to guarantee the test case generation result the same always.
@@ -173,7 +174,7 @@ public enum Utils {
     return Arrays.asList(elements);
   }
 
-  public static <T> List<T> newUnmodifiableList(List<T> elements) {
+  public static <T> List<T> newUnmodifiableList(List<? extends T> elements) {
     return Collections.unmodifiableList(newList(elements));
   }
 
