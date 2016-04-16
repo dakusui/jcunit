@@ -42,7 +42,7 @@ public class TestCase implements Serializable {
   }
 
   /**
-   * A type to identify test cases based on how it is generated.
+   * A type to categorize test cases based on how it is generated.
    */
   public enum Type {
     /**
