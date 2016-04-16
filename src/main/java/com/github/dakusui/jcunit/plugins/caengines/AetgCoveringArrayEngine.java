@@ -2,15 +2,19 @@ package com.github.dakusui.jcunit.plugins.caengines;
 
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * A covering array generator that implements following algorithm.
- *
+ * <p/>
  * <pre>
  * Assume that we have a system with k test parameters and
  * that the ith parameter has l i different values. Assume that we
@@ -42,15 +46,18 @@ import java.util.List;
  * grew logarithmically in the number of parameters (when all
  * the parameters had the same number of values).
  * </pre>
- *
+ * <p/>
  * This algorithm was first invented by Cohen, et al.
  *
  * @see "Cohen, et al., "The AETG System: An Approach to Testing Based on Combinatorial Design"in IEEE Trans. Softw. Eng., July 1997"
  */
 public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
-  private final int strength;
-  private final int randomSeed;
-  private List<Tuple> currentTestCases;
+  /**
+   * A number M referred to in the paper.
+   */
+  private static int TRIES = 50;
+  private final int         strength;
+  private final int         randomSeed;
 
   public AetgCoveringArrayEngine(
       @Param(source = Param.Source.CONFIG, defaultValue = "2") int strength,
@@ -66,23 +73,55 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       @Override
       public boolean apply(Tuple in) {
         try {
+          ////
+          // SmartConstraintChecker is stateful. I need to come up with a solution
+          // to handle it seemlessly with the other checkers.
+          // Or it maybe is a responsiility of a caller.
           return constraintChecker.check(in);
         } catch (UndefinedSymbol undefinedSymbol) {
+          ////
           // If constraintChecker is present and throws an undefined symbol, the tuple
           // cannot be removed. In this case we should return true.
           return true;
         }
       }
     });
-    return null;
+    List<Tuple> ret = new LinkedList<Tuple>();
+    Set<Tuple> remainingTuples = new HashSet<Tuple>(allPossibleTuples);
+    while (!remainingTuples.isEmpty()) {
+      int newlyCoveredTuples = 0; // If no new tuple can be covered, new test case shouldn't be added.
+      Tuple chosenTestCase = null;
+      for (int i = 0; i < TRIES; i++) {
+        Tuple newTestCaseCandidate = createNewTestCase(factors, remainingTuples);
+        int numCoveredByNewCandidate = countTuplesNewlyCovered(newTestCaseCandidate, remainingTuples, strength);
+        if (numCoveredByNewCandidate > newlyCoveredTuples) {
+          newlyCoveredTuples = numCoveredByNewCandidate;
+          chosenTestCase = newTestCaseCandidate;
+        }
+      }
+      if (chosenTestCase == null) {
+        assert newlyCoveredTuples == 0;
+        ////
+        // Time to give up;
+        return ret;
+      }
+      ret.add(chosenTestCase);
+    }
+    return ret;
   }
 
-  protected List<Tuple> getCurrentTestCases() {
-    return this.currentTestCases;
-  }
-
-  protected Tuple createNewTestCase(Factors factors, List<Tuple> remainingTuples) {
+  private Tuple createNewTestCase(Factors factors, Set<Tuple> remainingTuples) {
     Tuple ret = null;
+    return ret;
+  }
+
+  private int countTuplesNewlyCovered(Tuple testCase, Set<Tuple> tuplesYetToBeCovered, int strength) {
+    int ret = 0;
+    for (Tuple eachSubtuple : TupleUtils.subtuplesOf(testCase, strength)) {
+      if (tuplesYetToBeCovered.contains(eachSubtuple)) {
+        ret++;
+      }
+    }
     return ret;
   }
 }
