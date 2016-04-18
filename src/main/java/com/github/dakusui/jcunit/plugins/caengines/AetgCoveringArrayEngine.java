@@ -1,5 +1,9 @@
 package com.github.dakusui.jcunit.plugins.caengines;
 
+import com.github.dakusui.combinatoradix.Enumerator;
+import com.github.dakusui.combinatoradix.Enumerators;
+import com.github.dakusui.combinatoradix.Permutator;
+import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
@@ -56,8 +60,8 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
    * A number M referred to in the paper.
    */
   private static int TRIES = 50;
-  private final int         strength;
-  private final int         randomSeed;
+  private final int    strength;
+  private final long randomSeed;
 
   public AetgCoveringArrayEngine(
       @Param(source = Param.Source.CONFIG, defaultValue = "2") int strength,
@@ -75,8 +79,8 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
         try {
           ////
           // SmartConstraintChecker is stateful. I need to come up with a solution
-          // to handle it seemlessly with the other checkers.
-          // Or it maybe is a responsiility of a caller.
+          // to handle it seamlessly with the other checkers.
+          // Or it maybe is a responsibility of a caller.
           return constraintChecker.check(in);
         } catch (UndefinedSymbol undefinedSymbol) {
           ////
@@ -88,12 +92,41 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
     });
     List<Tuple> ret = new LinkedList<Tuple>();
     Set<Tuple> remainingTuples = new HashSet<Tuple>(allPossibleTuples);
+    // 14! > Integer.MAX_VALUE > 13!
+    long numTries;
+    Enumerator<String> factorNames;
+    if (factors.size() >= 14 || TRIES > com.github.dakusui.combinatoradix.Utils.nPk(factors.size(), factors.size())) {
+      numTries = TRIES;
+      factorNames = Enumerators.shuffler(
+          Utils.transform(
+              factors, new Utils.Form<Factor, String>() {
+                @Override
+                public String apply(Factor in) {
+                  return in.name;
+                }
+              }
+          ),
+          TRIES,
+          this.randomSeed
+      );
+    } else {
+      factorNames = new Permutator<String>(
+          Utils.transform(factors, new Utils.Form<Factor, String>() {
+            @Override
+            public String apply(Factor in) {
+              return in.name;
+            }
+          }),
+          factors.size()
+      );
+      numTries = factorNames.size();
+    }
     while (!remainingTuples.isEmpty()) {
       int newlyCoveredTuples = 0; // If no new tuple can be covered, new test case shouldn't be added.
       Tuple chosenTestCase = null;
-      for (int i = 0; i < TRIES; i++) {
-        Tuple newTestCaseCandidate = createNewTestCase(factors, remainingTuples);
-        int numCoveredByNewCandidate = countTuplesNewlyCovered(newTestCaseCandidate, remainingTuples, strength);
+      for (int i = 0; i < numTries; i++) {
+        Tuple newTestCaseCandidate = createNewTestCase(factors, this.strength, remainingTuples, factorNames.get(i));
+        int numCoveredByNewCandidate = countTuplesNewlyCoveredBy(newTestCaseCandidate, remainingTuples, strength);
         if (numCoveredByNewCandidate > newlyCoveredTuples) {
           newlyCoveredTuples = numCoveredByNewCandidate;
           chosenTestCase = newTestCaseCandidate;
@@ -110,12 +143,26 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
     return ret;
   }
 
-  private Tuple createNewTestCase(Factors factors, Set<Tuple> remainingTuples) {
-    Tuple ret = null;
-    return ret;
+  private static Tuple createNewTestCase(Factors factors, int strength, Set<Tuple> remainingTuples, List<String> orderedFactorNames) {
+    Tuple.Builder builder = new Tuple.Builder();
+    for (String eachFactorName : orderedFactorNames) {
+      int newlyCoveredTuples = -1;
+      Object valueForCurrentFactor = null;
+      for (Object eachValue : factors.get(eachFactorName)) {
+        builder.put(eachFactorName, eachValue);
+        int coveredByCurrentTuple = countTuplesNewlyCoveredBy(builder.build(), remainingTuples, strength);
+        if (coveredByCurrentTuple > newlyCoveredTuples) {
+          newlyCoveredTuples = coveredByCurrentTuple;
+          valueForCurrentFactor = eachFactorName;
+        }
+      }
+      assert newlyCoveredTuples >= 0;
+      builder.put(eachFactorName, valueForCurrentFactor);
+    }
+    return builder.build();
   }
 
-  private int countTuplesNewlyCovered(Tuple testCase, Set<Tuple> tuplesYetToBeCovered, int strength) {
+  private static int countTuplesNewlyCoveredBy(Tuple testCase, Set<Tuple> tuplesYetToBeCovered, int strength) {
     int ret = 0;
     for (Tuple eachSubtuple : TupleUtils.subtuplesOf(testCase, strength)) {
       if (tuplesYetToBeCovered.contains(eachSubtuple)) {
