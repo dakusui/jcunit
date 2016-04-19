@@ -3,13 +3,13 @@ package com.github.dakusui.jcunit.core.tuples;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
 
 // TODO: Comparison between LinkedHashMap and TreeMap
 // Need to compare behavior change between LinkedHashMap and TreeMap
 // Observation shows LinkedHashMap generates better (smaller) test suite.
 // For now we don't change it for compatibility's sake.
-public class TupleImpl extends /* LinkedHashMap<String, Object>*/ TreeMap<String, Object> implements Tuple {
+public class TupleImpl extends LinkedHashMap<String, Object>/*TreeMap<String, Object>*/ implements Tuple {
   public Tuple cloneTuple() {
     return (Tuple) super.clone();
   }

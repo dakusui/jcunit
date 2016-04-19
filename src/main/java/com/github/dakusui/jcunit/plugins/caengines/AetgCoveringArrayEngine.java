@@ -60,7 +60,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
    * A number M referred to in the paper.
    */
   private static int TRIES = 50;
-  private final int    strength;
+  private final int  strength;
   private final long randomSeed;
 
   public AetgCoveringArrayEngine(
@@ -138,6 +138,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
         // Time to give up;
         return ret;
       }
+      remainingTuples.removeAll(TupleUtils.subtuplesOf(chosenTestCase, strength));
       ret.add(chosenTestCase);
     }
     return ret;
@@ -153,7 +154,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
         int coveredByCurrentTuple = countTuplesNewlyCoveredBy(builder.build(), remainingTuples, strength);
         if (coveredByCurrentTuple > newlyCoveredTuples) {
           newlyCoveredTuples = coveredByCurrentTuple;
-          valueForCurrentFactor = eachFactorName;
+          valueForCurrentFactor = eachValue;
         }
       }
       assert newlyCoveredTuples >= 0;
@@ -163,6 +164,9 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   private static int countTuplesNewlyCoveredBy(Tuple testCase, Set<Tuple> tuplesYetToBeCovered, int strength) {
+    if (testCase.size() < strength) {
+      return 1;
+    }
     int ret = 0;
     for (Tuple eachSubtuple : TupleUtils.subtuplesOf(testCase, strength)) {
       if (tuplesYetToBeCovered.contains(eachSubtuple)) {
