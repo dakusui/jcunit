@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
@@ -59,6 +60,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
   /**
    * A number M referred to in the paper.
    */
+  @SuppressWarnings("FieldCanBeLocal")
   private static int TRIES = 50;
   private final int  strength;
   private final long randomSeed;
@@ -73,23 +75,26 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
 
   @Override
   protected List<Tuple> generate(Factors factors, final ConstraintChecker constraintChecker) {
-    List<Tuple> allPossibleTuples = factors.generateAllPossibleTuples(this.strength, new Utils.Predicate<Tuple>() {
-      @Override
-      public boolean apply(Tuple in) {
-        try {
-          ////
-          // SmartConstraintChecker is stateful. I need to come up with a solution
-          // to handle it seamlessly with the other checkers.
-          // Or it maybe is a responsibility of a caller.
-          return constraintChecker.check(in);
-        } catch (UndefinedSymbol undefinedSymbol) {
-          ////
-          // If constraintChecker is present and throws an undefined symbol, the tuple
-          // cannot be removed. In this case we should return true.
-          return true;
+    List<Tuple> allPossibleTuples = new LinkedList<Tuple>();
+    for (int i = 1; i <= this.strength; i++) {
+      allPossibleTuples.addAll(factors.generateAllPossibleTuples(i, new Utils.Predicate<Tuple>() {
+        @Override
+        public boolean apply(Tuple in) {
+          try {
+            ////
+            // SmartConstraintChecker is stateful. I need to come up with a solution
+            // to handle it seamlessly with the other checkers.
+            // Or it maybe is a responsibility of a caller.
+            return constraintChecker.check(in);
+          } catch (UndefinedSymbol undefinedSymbol) {
+            ////
+            // If constraintChecker is present and throws an undefined symbol, the tuple
+            // cannot be removed. In this case we should return true.
+            return true;
+          }
         }
-      }
-    });
+      }));
+    }
     List<Tuple> ret = new LinkedList<Tuple>();
     Set<Tuple> remainingTuples = new HashSet<Tuple>(allPossibleTuples);
     // 14! > Integer.MAX_VALUE > 13!
@@ -122,7 +127,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       numTries = factorNames.size();
     }
     while (!remainingTuples.isEmpty()) {
-      int newlyCoveredTuples = 0; // If no new tuple can be covered, new test case shouldn't be added.
+      int newlyCoveredTuples = -1; // If no new tuple can be covered, new test case shouldn't be added.
       Tuple chosenTestCase = null;
       for (int i = 0; i < numTries; i++) {
         Tuple newTestCaseCandidate = createNewTestCase(factors, this.strength, remainingTuples, factorNames.get(i));
@@ -133,7 +138,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
         }
       }
       if (chosenTestCase == null) {
-        assert newlyCoveredTuples == 0;
+        Checks.checkcond(remainingTuples.size() == 0);
         ////
         // Time to give up;
         return ret;
@@ -141,6 +146,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       remainingTuples.removeAll(TupleUtils.subtuplesOf(chosenTestCase, strength));
       ret.add(chosenTestCase);
     }
+    assert remainingTuples.isEmpty();
     return ret;
   }
 
