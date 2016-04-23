@@ -53,12 +53,6 @@ public class TestSuiteBuilderTest {
   @Test
   public void defaultLevelsCanBeUsed() {
     TestSuite testSuite = new TestSuite.Builder()
-        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1") {
-          @Override
-          public boolean apply(Tuple in) {
-            return !in.get("factor1").equals(1);
-          }
-        })
         .disableNegativeTests()
         .addBooleanFactor("boolean")
         .addByteFactor("byte")
