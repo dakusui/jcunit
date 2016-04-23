@@ -29,6 +29,10 @@ That's it. Let's go.
 
 **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
 
+# References
+
+* [JCUnit wiki](https://github.com/dakusui/jcunit/wiki)
+* [JCUnit blog; Japanese; 日本語](http://jcunit.hatenablog.jp/)
 
 # Copyright and license #
 
