@@ -12,10 +12,7 @@ import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A covering array generator that implements following algorithm.
@@ -76,30 +73,30 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
   @Override
   protected List<Tuple> generate(Factors factors, final ConstraintChecker constraintChecker) {
     List<Tuple> allPossibleTuples = new LinkedList<Tuple>();
-    for (int i = 1; i <= this.strength; i++) {
-      allPossibleTuples.addAll(factors.generateAllPossibleTuples(i, new Utils.Predicate<Tuple>() {
-        @Override
-        public boolean apply(Tuple in) {
-          try {
-            ////
-            // SmartConstraintChecker is stateful. I need to come up with a solution
-            // to handle it seamlessly with the other checkers.
-            // Or it maybe is a responsibility of a caller.
-            return constraintChecker.check(in);
-          } catch (UndefinedSymbol undefinedSymbol) {
-            ////
-            // If constraintChecker is present and throws an undefined symbol, the tuple
-            // cannot be removed. In this case we should return true.
-            return true;
-          }
+    allPossibleTuples.addAll(factors.generateAllPossibleTuples(this.strength, new Utils.Predicate<Tuple>() {
+      @Override
+      public boolean apply(Tuple in) {
+        try {
+          ////
+          // SmartConstraintChecker is stateful. I need to come up with a solution
+          // to handle it seamlessly with the other checkers.
+          // Or it maybe is a responsibility of a caller.
+          return constraintChecker.check(in);
+        } catch (UndefinedSymbol undefinedSymbol) {
+          ////
+          // If constraintChecker is present and throws an undefined symbol, the tuple
+          // cannot be removed. In this case we should return true.
+          return true;
         }
-      }));
-    }
+      }
+    }));
     List<Tuple> ret = new LinkedList<Tuple>();
     Set<Tuple> remainingTuples = new HashSet<Tuple>(allPossibleTuples);
-    // 14! > Integer.MAX_VALUE > 13!
     long numTries;
     Enumerator<String> factorNames;
+    ////
+    // 14! > Integer.MAX_VALUE > 13! : If we have 14 or more factors, possible permutations will become
+    // larger than Integer.MAX_VALUE, which is equal to or larger than TRIES,
     if (factors.size() >= 14 || TRIES > com.github.dakusui.combinatoradix.Utils.nPk(factors.size(), factors.size())) {
       numTries = TRIES;
       factorNames = Enumerators.shuffler(
@@ -129,8 +126,9 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
     while (!remainingTuples.isEmpty()) {
       int newlyCoveredTuples = -1; // If no new tuple can be covered, new test case shouldn't be added.
       Tuple chosenTestCase = null;
+      Map<String, List<Object>> factorsMap = createFactorsMap(factors);
       for (int i = 0; i < numTries; i++) {
-        Tuple newTestCaseCandidate = createNewTestCase(factors, this.strength, remainingTuples, factorNames.get(i));
+        Tuple newTestCaseCandidate = createNewTestCase(factorsMap, this.strength, remainingTuples, factorNames.get(i));
         int numCoveredByNewCandidate = countTuplesNewlyCoveredBy(newTestCaseCandidate, remainingTuples, strength);
         if (numCoveredByNewCandidate > newlyCoveredTuples) {
           newlyCoveredTuples = numCoveredByNewCandidate;
@@ -143,14 +141,25 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
         // Time to give up;
         return ret;
       }
-      remainingTuples.removeAll(TupleUtils.subtuplesOf(chosenTestCase, strength));
+      if (!remainingTuples.removeAll(TupleUtils.subtuplesOf(chosenTestCase, strength))) {
+        ////
+        // Give up. Because coverage didn't get any better.
+        break;
+      }
       ret.add(chosenTestCase);
     }
-    assert remainingTuples.isEmpty();
     return ret;
   }
 
-  private static Tuple createNewTestCase(Factors factors, int strength, Set<Tuple> remainingTuples, List<String> orderedFactorNames) {
+  private Map<String, List<Object>> createFactorsMap(Factors factors) {
+    Map<String, List<Object>> ret = new HashMap<String, List<Object>>();
+    for (Factor each : factors) {
+      ret.put(each.name, new LinkedList<Object>(each.levels));
+    }
+    return ret;
+  }
+
+  private static Tuple createNewTestCase(Map<String, ? extends List<?>> factors, int strength, Set<Tuple> remainingTuples, List<String> orderedFactorNames) {
     Tuple.Builder builder = new Tuple.Builder();
     for (String eachFactorName : orderedFactorNames) {
       int newlyCoveredTuples = -1;
@@ -163,7 +172,15 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
           valueForCurrentFactor = eachValue;
         }
       }
-      assert newlyCoveredTuples >= 0;
+      ////
+      // Remove already used value. This is done to implement following step in 3)
+      //
+      //    Note that, in this step, each parameter value is considered
+      //    only once for inclusion in a candidate test case.
+      //    Also, that when choosing a value for parameter f j+1 ,
+      //    the possible values are compared with only the j
+      //    values already chosen for parameters f 1 , ..., f j .
+      factors.get(eachFactorName).remove(valueForCurrentFactor);
       builder.put(eachFactorName, valueForCurrentFactor);
     }
     return builder.build();
