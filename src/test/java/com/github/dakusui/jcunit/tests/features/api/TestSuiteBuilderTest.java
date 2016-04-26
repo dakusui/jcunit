@@ -54,12 +54,6 @@ public class TestSuiteBuilderTest {
   @Test
   public void defaultLevelsCanBeUsed() {
     TestSuite testSuite = new TestSuite.Builder()
-        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1") {
-          @Override
-          public boolean apply(Tuple in) {
-            return !in.get("factor1").equals(1);
-          }
-        })
         .disableNegativeTests()
         .addBooleanFactor("boolean")
         .addByteFactor("byte")
@@ -76,7 +70,7 @@ public class TestSuiteBuilderTest {
   }
 
 
-  @Test
+  @Test(timeout = 30000)
   public void aetgTestSuiteBuildingNegativeTestGenerationEnabled() {
     TestSuite testSuite = new TestSuite.Builder(new AetgCoveringArrayEngine(2, 0))
         .addFactor("factor1", 1, 2, 3)
@@ -87,7 +81,7 @@ public class TestSuiteBuilderTest {
     for (TestCase each : testSuite) {
       System.out.println(each.getTuple());
     }
-    assertEquals(7, testSuite.size());
+    assertEquals(9, testSuite.size());
     assertEquals(2, testSuite.get(0).getTuple().get("factor1"));
     assertEquals(3, testSuite.get(1).getTuple().get("factor1"));
     assertEquals(1, testSuite.get(2).getTuple().get("factor1"));

@@ -330,7 +330,7 @@ public class TestSuite extends AbstractList<TestCase> {
                       new Utils.Predicate<Predicate>() {
                         @Override
                         public boolean apply(Predicate constraint) {
-                          return !constraint.apply(in);
+                          return !constraint.apply(new GuardedTuple(in));
                         }
                       }
                   ).isEmpty(),
