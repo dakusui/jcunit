@@ -42,7 +42,7 @@ import java.util.*;
  *    Also, that when choosing a value for parameter f_(j+1) ,
  *    the possible values are compared with only the j
  *    values already chosen for parameters f_1 , ..., f_j .
- *    
+ *
  * We did many experiments with this algorithm. When we
  * set M = 50, i.e., when we generated 50 candidate test cases
  * for each new test case, the number of generated test cases
@@ -124,13 +124,13 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       );
       numTries = factorNames.size();
     }
-    
+
     while (!remainingTuples.isEmpty()) {
       int newlyCoveredTuples = -1; // If no new tuple can be covered, new test case shouldn't be added.
       Tuple chosenTestCase = null;
       Map<String, List<Object>> factorsMap = createFactorsMap(factors);
       for (int i = 0; i < numTries; i++) {
-    	//TODO: as stated in the step 1, the first parameter is NOT randomly generated.
+        //TODO: as stated in the step 1, the first parameter is NOT randomly generated.
         Tuple newTestCaseCandidate = createNewTestCase(factorsMap, this.strength, remainingTuples, factorNames.get(i));
         int numCoveredByNewCandidate = countTuplesNewlyCoveredBy(newTestCaseCandidate, remainingTuples, strength);
         if (numCoveredByNewCandidate > newlyCoveredTuples) {
@@ -139,7 +139,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
         }
       }
       if (chosenTestCase == null) {
-    	  Checks.checkcond(remainingTuples.isEmpty());
+        Checks.checkcond(remainingTuples.isEmpty());
         ////
         // Time to give up;
         return ret;
@@ -147,8 +147,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       if (!remainingTuples.removeAll(TupleUtils.subtuplesOf(chosenTestCase, strength))) {
         ////
         // Give up. Because coverage didn't get any better.
-        //break;
-    	  System.out.println("[exception] chosenTestCase doesn't cover more tuples.");
+        System.out.println("[exception] chosenTestCase doesn't cover more tuples.");
       }
       ret.add(chosenTestCase);
     }
@@ -168,7 +167,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
     for (String eachFactorName : orderedFactorNames) {
       int newlyCoveredTuples = -1;
       Object valueForCurrentFactor = null;
-      
+
       for (Object eachValue : factors.get(eachFactorName)) {
         builder.put(eachFactorName, eachValue);
         Tuple newTuple = builder.build();
@@ -186,7 +185,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       //    Also, that when choosing a value for parameter f j+1 ,
       //    the possible values are compared with only the j
       //    values already chosen for parameters f 1 , ..., f j .
-      
+
       //factors.get(eachFactorName).remove(valueForCurrentFactor);
       builder.put(eachFactorName, valueForCurrentFactor);
     }
@@ -194,26 +193,24 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   private static int countTuplesNewlyCoveredBy(Tuple tuple, Set<Tuple> tuplesYetToBeCovered, int strength) {
-	  int ret = 0;
-	  if (tuple.size() < strength) {
+    int ret = 0;
+    if (tuple.size() < strength) {
       // Even when the tuple size is less than strength, its potential to cover remaining tuples matters.
-    	for(Tuple eachTuple: tuplesYetToBeCovered){
-    		for(Tuple eachSubtuple: TupleUtils.subtuplesOf(eachTuple,tuple.size()))
-    		{
-    			if(tuple.equals(eachSubtuple))
-    				ret++;
-    		}
-    	}
-	  }
-	  else{
-		  for (Tuple eachSubtuple : TupleUtils.subtuplesOf(tuple, strength)) {
-			  if (tuplesYetToBeCovered.contains(eachSubtuple)) {
-				  ret++;
-			  }
-		  }
-	  }
-	  
-	  return ret;
+      for (Tuple eachTuple : tuplesYetToBeCovered) {
+        for (Tuple eachSubtuple : TupleUtils.subtuplesOf(eachTuple, tuple.size())) {
+          if (tuple.equals(eachSubtuple))
+            ret++;
+        }
+      }
+    } else {
+      for (Tuple eachSubtuple : TupleUtils.subtuplesOf(tuple, strength)) {
+        if (tuplesYetToBeCovered.contains(eachSubtuple)) {
+          ret++;
+        }
+      }
+    }
+
+    return ret;
   }
-  
+
 }
