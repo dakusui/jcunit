@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.BaseBuilder;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
@@ -81,10 +81,11 @@ public interface ConstraintChecker extends Plugin {
      * Builds a constraint checker.
      */
     @Override
-    public ConstraintChecker build() {
+    public <CC extends ConstraintChecker> CC build() {
       Factory<ConstraintChecker, Value> pluginFactory
           = Factory.newFactory(constraintClass, new Value.Resolver(), this.runnerContext);
-      return pluginFactory.create(this.configValues);
+      //noinspection unchecked
+      return (CC) pluginFactory.create(this.configValues);
     }
   }
 }

@@ -39,7 +39,7 @@
  * 010:     .addDoubleFactor("double")
  * 011:     .addStringFactor("string")
  * 012:     .addEnumLevels("enum", TestCase.Type.class)
- * 013:     .addConstraint(new TestSuite.Builder.Predicate() {
+ * 013:     .addConstraint(new TestSuite.Builder.Predicate("aConstraint") {
  * 014:         public boolean apply(Tuple in) {
  * 015:             return !in.get("factor1").equals(1);
  * 016:     }})

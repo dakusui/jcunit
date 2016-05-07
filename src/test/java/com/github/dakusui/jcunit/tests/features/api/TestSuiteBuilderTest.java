@@ -67,5 +67,4 @@ public class TestSuiteBuilderTest {
         .build();
     assertEquals(93, testSuite.size());
   }
-
 }

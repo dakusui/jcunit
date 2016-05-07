@@ -150,7 +150,18 @@ public class TestSuite extends AbstractList<TestCase> {
       for (Object each : levels) {
         b.addLevel(each);
       }
-      this.factors.add(b.build());
+      return this.addFactor(b.build());
+    }
+
+    public Builder addFactors(Iterable<Factor> factors) {
+      for (Factor eachFactor : factors) {
+        this.addFactor(eachFactor);
+      }
+      return this;
+    }
+
+    public Builder addFactor(Factor factor) {
+      this.factors.add(factor);
       return this;
     }
 
