@@ -130,27 +130,30 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       Tuple chosenTestCase = null;
       Map<String, List<Object>> factorsMap = createFactorsMap(factors);
       for (int i = 0; i < numTries; i++) {
-        //TODO: as stated in the step 1, the first parameter is NOT randomly generated.
-        Tuple newTestCaseCandidate = createNewTestCase(factorsMap, this.strength, remainingTuples, factorNames.get(i));
-        int numCoveredByNewCandidate = countTuplesNewlyCoveredBy(newTestCaseCandidate, remainingTuples, strength);
+        Tuple newTestCaseCandidate = createNewTestCase(factorsMap, this.strength, remainingTuples, factorNames.get(i), false);
+    	int numCoveredByNewCandidate = countTuplesNewlyCoveredBy(newTestCaseCandidate, remainingTuples, strength);
         if (numCoveredByNewCandidate > newlyCoveredTuples) {
           newlyCoveredTuples = numCoveredByNewCandidate;
           chosenTestCase = newTestCaseCandidate;
         }
       }
+      
       if (chosenTestCase == null) {
         Checks.checkcond(remainingTuples.isEmpty());
         ////
         // Time to give up;
         return ret;
       }
+      
       if (!remainingTuples.removeAll(TupleUtils.subtuplesOf(chosenTestCase, strength))) {
         ////
         // Give up. Because coverage didn't get any better.
         System.out.println("[exception] chosenTestCase doesn't cover more tuples.");
       }
+      
       ret.add(chosenTestCase);
     }
+    
     return ret;
   }
 
@@ -161,9 +164,68 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
     }
     return ret;
   }
-
-  private static Tuple createNewTestCase(Map<String, ? extends List<?>> factors, int strength, Set<Tuple> remainingTuples, List<String> orderedFactorNames) {
-    Tuple.Builder builder = new Tuple.Builder();
+  
+  
+  private static Map<String, Object> selectFirstFactorVal(Map<String, ? extends List<?>> factors, Set<Tuple> remainingTuples, List<String> orderedFactorNames)
+  {
+	  Map<Map<String, Object>, Integer> factorValUncoveredCnt = new HashMap<Map<String, Object>, Integer>();
+	  for(String eachFactorName: orderedFactorNames){
+		  for (Object eachValue : factors.get(eachFactorName))
+		  {  
+			  Map<String, Object> factorVal = new HashMap<String, Object>();	
+			  factorVal.put(eachFactorName,eachValue);
+			  factorValUncoveredCnt.put(factorVal, 0);
+		  }
+	  }
+	  
+	  for(Tuple eachRemainingTuple : remainingTuples){
+		  for(String eachFactorName: orderedFactorNames)
+		  {
+			  Object Value = eachRemainingTuple.get(eachFactorName);
+			  if(null != Value)
+			  {
+				  Map<String, Object> factorVal = new HashMap<String, Object>();	
+				  factorVal.put(eachFactorName,Value);
+				  factorValUncoveredCnt.put(factorVal, factorValUncoveredCnt.get(factorVal) + 1);	 
+			  }
+		  }
+	  }
+	  
+	  Map<String, Object> mostUncoveredFactorVal = new HashMap<String, Object>();	
+	  int mostUncoveredCnt = 0;
+	  for(String eachFactorName: orderedFactorNames){
+		  for (Object eachValue : factors.get(eachFactorName))
+		  {
+			  Map<String, Object> factorVal = new HashMap<String, Object>();	
+			  factorVal.put(eachFactorName, eachValue);
+			  int uncoveredCnt = factorValUncoveredCnt.get(factorVal);
+			  if(uncoveredCnt > mostUncoveredCnt)
+			  {
+				  mostUncoveredCnt = uncoveredCnt;
+				  mostUncoveredFactorVal = factorVal;
+			  }
+		  }	  
+	  }
+	  
+	  return mostUncoveredFactorVal;
+  }
+  
+  private static Tuple createNewTestCase(Map<String, ? extends List<?>> factors, int strength, Set<Tuple> remainingTuples, List<String> orderedFactorNames, boolean allRandom) {
+    
+	  Tuple.Builder builder = new Tuple.Builder();
+	  
+	  /* step 1): choose a parameter f and a value l for f such that that parameter value appears in the greatest number of uncovered pairs.
+  		i.e., among the "remainingTuples", look for the factor value appears in the greatest number */
+	  if(allRandom == false)
+	  {
+		  Map<String, Object> mostUncoveredFactorVal = selectFirstFactorVal(factors, remainingTuples, orderedFactorNames);
+		  String mostUncoveredFactor = mostUncoveredFactorVal.keySet().iterator().next();
+		  builder.put(mostUncoveredFactor, mostUncoveredFactorVal.get(mostUncoveredFactor));
+		  orderedFactorNames.remove(mostUncoveredFactor);
+		  Collections.shuffle(orderedFactorNames);
+	  }   
+	  	  
+    /* steps 2)+3): select values for the remaining factors in the list */			
     for (String eachFactorName : orderedFactorNames) {
       int newlyCoveredTuples = -1;
       Object valueForCurrentFactor = null;
@@ -176,17 +238,14 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
           newlyCoveredTuples = coveredByCurrentTuple;
           valueForCurrentFactor = eachValue;
         }
+//        else if (coveredByCurrentTuple == newlyCoveredTuples)  // to increase randomness in cases different choices lead to same # of uncovered tuples
+//        {
+//        	Random random = new Random();
+//            if(random.nextBoolean()) // true: exchange to the current selection
+//            	valueForCurrentFactor = eachValue;
+//        }
       }
-      ////
-      // Remove already used value. This is done to implement following step in 3)
-      //
-      //    Note that, in this step, each parameter value is considered
-      //    only once for inclusion in a candidate test case.
-      //    Also, that when choosing a value for parameter f j+1 ,
-      //    the possible values are compared with only the j
-      //    values already chosen for parameters f 1 , ..., f j .
-
-      //factors.get(eachFactorName).remove(valueForCurrentFactor);
+      
       builder.put(eachFactorName, valueForCurrentFactor);
     }
     return builder.build();
