@@ -33,6 +33,11 @@
             <name>Hiroshi Ukai</name>
             <email>dakusui@gmail.com</email>
         </developer>
+        <developer>
+            <id>qxshower</id>
+            <name>Xiao Qu</name>
+            <email>xiao.qu@us.abb.com</email>
+        </developer>
     </developers>
 
     <properties>
@@ -43,7 +48,7 @@
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>combinatoradix</artifactId>
-            <version>0.8.2</version>
+            <version>0.8.4</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
