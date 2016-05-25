@@ -12,11 +12,9 @@ import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.plugins.caengines.AetgCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
-import static org.junit.Assert.*;
 
 public class AetgCoveringArrayEngineTest {
   /**
@@ -38,8 +36,7 @@ public class AetgCoveringArrayEngineTest {
         .disableNegativeTests();
     TestSuite testSuite =  testSuiteBuilder.build();
     printReport(factors, testSuite, strength);
-    //assertEquals(10, testSuite.size());
-    assertTrue(10 >= testSuite.size());
+    assertEquals(10, testSuite.size());
   }
 
   @Test(timeout = 30000)
