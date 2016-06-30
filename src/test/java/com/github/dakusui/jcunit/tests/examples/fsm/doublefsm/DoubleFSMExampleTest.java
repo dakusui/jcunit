@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class DoubleFSMExampleTest extends Metatest {
   public DoubleFSMExampleTest() {
-    super(DoubleFSMExample.class, 4, 0, 0);
+    super(DoubleFSMExample.class, 6, 0, 0);
   }
 
   @Test public void testDoubleFSMExampleTest() {

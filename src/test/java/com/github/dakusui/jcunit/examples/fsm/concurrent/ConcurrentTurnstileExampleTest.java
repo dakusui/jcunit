@@ -8,7 +8,7 @@ public class ConcurrentTurnstileExampleTest extends Metatest {
   public ConcurrentTurnstileExampleTest() {
     super(
         ConcurrentTurnstileExample.class,
-        4,
+        6,
         0,
         0
     );

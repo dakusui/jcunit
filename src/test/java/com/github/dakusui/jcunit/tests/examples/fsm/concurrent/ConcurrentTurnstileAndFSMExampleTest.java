@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class ConcurrentTurnstileAndFSMExampleTest extends Metatest {
   public ConcurrentTurnstileAndFSMExampleTest() {
-    super(ConcurrentTurnstileAndFSMExample.class, 12, 0, 0);
+    super(ConcurrentTurnstileAndFSMExample.class, 14, 0, 0);
   }
 
   @Test

@@ -98,17 +98,6 @@ public interface CoveringArrayEngine extends Plugin {
       return ret;
     }
 
-    public Class<? extends CoveringArrayEngine> getEngineClass() {
-      return engineClass;
-    }
-
-    public List<S> getConfigArgsForEngine() {
-      return configArgsForEngine;
-    }
-
-    public Param.Resolver<S> getResolver() {
-      return resolver;
-    }
   }
 
   /**
@@ -122,11 +111,19 @@ public interface CoveringArrayEngine extends Plugin {
 
     final public CoveringArray generate(FactorSpace factorSpace) {
       Checks.checknotnull(factorSpace);
-      return createCoveringArray(Utils.dedup(generate(factorSpace.factors, factorSpace.constraintChecker)));
+      return createCoveringArray(Utils.transform(
+          Utils.dedup(generate(factorSpace.factors, factorSpace.constraintChecker)),
+          new Utils.Form<Tuple, Tuple>() {
+            @Override
+            public Tuple apply(Tuple in) {
+              return new Tuple.Builder().putAll(in).dictionaryOrder(true).build();
+            }
+          }
+      ));
     }
 
-    protected CoveringArray createCoveringArray(List<Tuple> testCase) {
-      return new CoveringArray.Base(testCase);
+    protected CoveringArray createCoveringArray(List<Tuple> testCases) {
+      return new CoveringArray.Base(testCases);
     }
 
     /**
@@ -156,11 +153,11 @@ public interface CoveringArrayEngine extends Plugin {
     }
 
     @Override
-    public CoveringArrayEngine build() {
+    public <T extends CoveringArrayEngine> T build() {
       Factory<CoveringArrayEngine, Value> pluginFactory
           = Factory.newFactory(engineClass, new Value.Resolver(), this.runnerContext);
       //noinspection unchecked
-      return pluginFactory.create(this.configValues);
+      return (T) pluginFactory.create(this.configValues);
     }
   }
 }

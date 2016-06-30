@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class NestedFSMExampleTest extends Metatest {
   public NestedFSMExampleTest() {
-    super(NestedFSMExample.class, 66, 0, 0);
+    super(NestedFSMExample.class, 60, 0, 0);
   }
 
   @Test public void testNestedFSMExampleTest() {

@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.tests.modules.ipo2;
 
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -29,7 +30,15 @@ public class ReproducibilityTest extends IPO2Test {
     IPO2Optimizer optimizer = createOptimizer();
 
     IPO2 ipo = createIPO2(factors, 2, constraintChecker, optimizer);
-    return ipo.getResult();
+    return Utils.transform(
+        ipo.getResult(),
+        new Utils.Form<Tuple, Tuple>() {
+          @Override
+          public Tuple apply(Tuple in) {
+            return new Tuple.Builder().putAll(in).dictionaryOrder(true).build();
+          }
+        }
+    );
   }
 
   @Before

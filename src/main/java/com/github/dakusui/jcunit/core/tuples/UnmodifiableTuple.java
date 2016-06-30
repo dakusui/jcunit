@@ -80,7 +80,7 @@ public class UnmodifiableTuple implements Tuple {
 
   @Override
   public boolean isSubtupleOf(Tuple another) {
-    return TupleImpl.isSubtupleOf(this, another);
+    return Utils.isSubtupleOf(this, another);
   }
 
   @Override

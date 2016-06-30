@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -62,7 +61,7 @@ public abstract class SmartConstraintCheckerBase implements ConstraintChecker {
       ////
       // In case this method is called without check method call, regular test
       // case will become null. But is this a correct fix? FIXME: 4/19/16
-      this.regularTestCase = new TupleImpl();
+      this.regularTestCase = new Tuple.Impl();
     }
     // fixme It should be guaranteed that each of returned tuples DOES violate at least on constraint
     //       because this method is "getViolations()".

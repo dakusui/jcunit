@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 public class NaiveInteractionHistoryExampleTest {
   public static class AllPassing extends Metatest {
     public AllPassing() {
-      super(com.github.dakusui.jcunit.examples.inputhistory.AllPassing.class, 17, 0, 0);
+      super(com.github.dakusui.jcunit.examples.inputhistory.AllPassing.class, 19, 0, 0);
     }
 
     @Test
@@ -20,7 +20,7 @@ public class NaiveInteractionHistoryExampleTest {
   }
   public static class Failing extends Metatest {
     public Failing() {
-      super(com.github.dakusui.jcunit.examples.inputhistory.Failing.class, 17, 13, 0);
+      super(com.github.dakusui.jcunit.examples.inputhistory.Failing.class, 19, 13, 0);
     }
 
     @Test

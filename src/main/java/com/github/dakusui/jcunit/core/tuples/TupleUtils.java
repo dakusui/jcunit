@@ -30,7 +30,7 @@ public enum TupleUtils {
     Combinator<String> c = new Combinator<String>(
         new LinkedList<String>(tuple.keySet()), strength);
     for (List<String> keys : c) {
-      Tuple cur = new TupleImpl();
+      Tuple cur = new Tuple.Impl();
       for (String k : keys) {
         cur.put(k, tuple.get(k));
       }

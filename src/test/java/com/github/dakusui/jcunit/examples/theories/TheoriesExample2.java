@@ -1,16 +1,16 @@
 package com.github.dakusui.jcunit.examples.theories;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.caengines.StandardCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.runners.experimentals.theories.TheoriesWithJCUnit;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
+import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
 import com.github.dakusui.jcunit.runners.standard.annotations.Checker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
-import com.github.dakusui.jcunit.runners.experimentals.theories.TheoriesWithJCUnit;
-import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.Name;
-import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.FromDataPoints;
@@ -57,7 +57,7 @@ public class TheoriesExample2 {
 
   @Theory
   @GenerateWith(
-      generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("3") }),
+      generator = @Generator(value = StandardCoveringArrayEngine.class, args = { @Value("3") }),
       checker = @Checker(CM.class)
   )
   public void test1(
@@ -70,10 +70,10 @@ public class TheoriesExample2 {
   }
 
   @Theory
-  @GenerateWith(generator = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("2") }))
+  @GenerateWith(generator = @Generator(value = StandardCoveringArrayEngine.class, args = { @Value("2") }))
   public void test2(
-      @FromDataPoints("posInt") int a,
-      @FromDataPoints("negInt") int b
+      @FromDataPoints("posInt") @Name("a") int a,
+      @FromDataPoints("negInt") @Name("b") int b
   ) throws Exception {
     UTUtils.stdout().printf("a=%s, b=%s%n", a, b);
   }

@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
@@ -147,7 +146,7 @@ public class IPO2 {
       Factors factors) {
     TupleUtils.CartesianTuples initialTestCases = TupleUtils
         .enumerateCartesianProduct(
-            new TupleImpl(),
+            new Tuple.Impl(),
             factors.asFactorList()
                 .toArray(new Factor[factors.asFactorList().size()])
         );

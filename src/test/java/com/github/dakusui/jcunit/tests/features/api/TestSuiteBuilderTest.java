@@ -65,6 +65,6 @@ public class TestSuiteBuilderTest {
         .addStringFactor("string")
         .addEnumLevels("enum", TestCase.Type.class)
         .build();
-    assertEquals(93, testSuite.size());
+    assertEquals(87, testSuite.size());
   }
 }

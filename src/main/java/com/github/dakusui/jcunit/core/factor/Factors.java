@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.utils.BaseBuilder;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 
 import java.util.*;
@@ -132,7 +131,7 @@ public class Factors implements Iterable<Factor> {
         chosenFactors[i++] = get(fName);
       }
       TupleUtils.CartesianTuples tuples = TupleUtils
-          .enumerateCartesianProduct(new TupleImpl(), chosenFactors);
+          .enumerateCartesianProduct(new Tuple.Impl(), chosenFactors);
       ret.addAll(Utils.filter(tuples, predicate));
     }
     return ret;

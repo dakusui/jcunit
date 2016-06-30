@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleImpl;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -451,7 +450,7 @@ public class TestSuite extends AbstractList<TestCase> {
       }
     }
 
-    static class GuardedTuple extends TupleImpl {
+    static class GuardedTuple extends Tuple.Impl {
       GuardedTuple(Tuple tuple) {
         this.putAll(checknotnull(tuple));
       }
