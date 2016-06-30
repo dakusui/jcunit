@@ -1,6 +1,16 @@
 ![JCUnit](src/main/resources/JCunit-logo.png) is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') 
 technique.
 
+# About 0.7.x
+
+0.7.x of JCUnit is a development versions, where features in progress will be added
+or removed frequently.
+Once developments in 0.7.x finish, 0.8.0, the first one of the next stable versions, 
+will be released.
+
+Until then, please use [0.6.x|https://github.com/dakusui/jcunit/wiki/0.6.x], current
+stable versions, for normal purposes.
+
 # Installation
 JCUnit requires Java SE6 or later.
 It is tested using ```JUnit``` (4.12) and ```mockito-core``` (1.9.5).
