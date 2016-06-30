@@ -24,7 +24,7 @@ Please add it to your project's pom.xml
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>[0.6.4,)</version>
+      <version>[0.7.0,)</version>
       <scope>test</scope>
     </dependency>
     <dependency>
