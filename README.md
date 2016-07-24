@@ -8,7 +8,7 @@ or removed frequently.
 Once developments in 0.7.x finish, 0.8.0, the first one of the next stable versions, 
 will be released.
 
-Until then, please use [0.6.x|https://github.com/dakusui/jcunit/wiki/0.6.x], current
+Until then, please use [0.6.x](https://github.com/dakusui/jcunit/wiki/0.6.x), current
 stable versions, for normal purposes.
 
 # Installation
