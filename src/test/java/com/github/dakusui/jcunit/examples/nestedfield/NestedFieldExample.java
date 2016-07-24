@@ -1,12 +1,15 @@
 package com.github.dakusui.jcunit.examples.nestedfield;
 
 import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.examples.models.calc.Calc;
 import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.annotations.*;
+import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.GenerateCoveringArrayWith;
+import com.github.dakusui.jcunit.runners.standard.annotations.Generator;
+import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
-import com.github.dakusui.jcunit.examples.models.calc.Calc;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Rule;
 import org.junit.Test;
