@@ -11,8 +11,8 @@ import com.github.dakusui.jcunit.testutils.tuples.NoConstraintViolationExpectati
 import com.github.dakusui.jcunit.testutils.tuples.SanityExpectation;
 import com.github.dakusui.jcunit.testutils.tuples.ValidTuplesCoveredExpectation;
 import com.github.dakusui.jcunit.testutils.tuples.VerificationResult;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import org.junit.rules.TestName;
 import java.util.LinkedList;
 import java.util.List;
 
-public class BenchMark extends IPO2Test {
+public class BenchMark extends Ipo2Test {
   @Rule
   public TestName name = new TestName();
   protected int strength;
@@ -101,9 +101,9 @@ public class BenchMark extends IPO2Test {
   protected TestGenerationResult generate(
       Factors factors, int strength,
       ConstraintChecker constraintChecker,
-      IPO2Optimizer optimizer) {
+      Ipo2Optimizer optimizer) {
     long before = System.currentTimeMillis();
-    IPO2 ipo2 = createIPO2(factors, strength, constraintChecker, optimizer);
+    Ipo2 ipo2 = createIPO2(factors, strength, constraintChecker, optimizer);
     long after = System.currentTimeMillis();
     return new TestGenerationResult(ipo2.getResult(), ipo2.getRemainders(),
         after - before);
@@ -113,7 +113,7 @@ public class BenchMark extends IPO2Test {
   public void benchmark1_3$4() {
     Factors factors = buildFactors(factorsDef(3, 4));
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
         strength, constraintChecker, optimizer);
@@ -125,7 +125,7 @@ public class BenchMark extends IPO2Test {
   public void benchmark2_3$13() {
     Factors factors = buildFactors(factorsDef(3, 13));
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
         strength, constraintChecker, optimizer);
@@ -138,7 +138,7 @@ public class BenchMark extends IPO2Test {
     Factors factors = buildFactors(factorsDef(4, 15), factorsDef(3, 17),
         factorsDef(2, 20));
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
         strength, constraintChecker, optimizer);
@@ -151,7 +151,7 @@ public class BenchMark extends IPO2Test {
     Factors factors = buildFactors(factorsDef(4, 1), factorsDef(3, 30),
         factorsDef(2, 35));
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
         strength, constraintChecker, optimizer);
@@ -163,7 +163,7 @@ public class BenchMark extends IPO2Test {
   public void benchmark5_2$100() {
     Factors factors = buildFactors(factorsDef(2, 100));
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
         strength, constraintChecker, optimizer);
@@ -175,7 +175,7 @@ public class BenchMark extends IPO2Test {
   public void benchmark6_10$20() {
     Factors factors = buildFactors(factorsDef(10, 20));
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
     TestGenerationResult actual = generate(factors,
         strength, constraintChecker, optimizer);

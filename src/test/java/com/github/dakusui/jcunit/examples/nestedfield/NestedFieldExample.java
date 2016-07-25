@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.nestedfield;
 
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.examples.models.calc.Calc;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
@@ -21,7 +21,7 @@ import org.junit.validator.ValidateWith;
 public class NestedFieldExample {
   @GenerateCoveringArrayWith(
       engine = @Generator(
-          value = IPO2CoveringArrayEngine.class,
+          value = Ipo2CoveringArrayEngine.class,
           args = @Value("2")
       ))
   public static class Struct {

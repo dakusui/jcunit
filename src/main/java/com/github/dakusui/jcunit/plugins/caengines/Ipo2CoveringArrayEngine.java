@@ -5,16 +5,16 @@ import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIpo2Optimizer;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.List;
 
-public class IPO2CoveringArrayEngine extends CoveringArrayEngine.Base {
+public class Ipo2CoveringArrayEngine extends CoveringArrayEngine.Base {
   private final int strength;
 
-  public IPO2CoveringArrayEngine(
+  public Ipo2CoveringArrayEngine(
       @Param(source = Param.Source.CONFIG, defaultValue = "2") int strength) {
     this.strength = strength;
   }
@@ -49,11 +49,11 @@ public class IPO2CoveringArrayEngine extends CoveringArrayEngine.Base {
         "The strength must be greater than 1 and less than %s, but %s was given.",
         factors.size(),
         strength);
-    IPO2 ipo2 = new IPO2(
+    Ipo2 ipo2 = new Ipo2(
         factors,
         strength,
         constraintChecker,
-        new GreedyIPO2Optimizer());
+        new GreedyIpo2Optimizer());
     ////
     // Perform IPO algorithm.
     ipo2.ipo();

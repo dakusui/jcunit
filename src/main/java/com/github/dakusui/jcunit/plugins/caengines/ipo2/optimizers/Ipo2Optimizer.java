@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuples;
 
 import java.util.List;
 
-public interface IPO2Optimizer {
+public interface Ipo2Optimizer {
   Tuple fillInMissingFactors(Tuple tuple,
       Tuples leftTuples,
       ConstraintChecker constraintChecker,

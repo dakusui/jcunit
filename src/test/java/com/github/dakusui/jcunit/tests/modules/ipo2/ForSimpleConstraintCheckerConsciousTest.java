@@ -6,8 +6,8 @@ import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import java.util.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class ForSimpleConstraintCheckerConsciousTest extends IPO2Test {
+public class ForSimpleConstraintCheckerConsciousTest extends Ipo2Test {
   private List<Tuple> prohibitedTuples = null;
 
   public List<Tuple> getProhibitedTuples() {
@@ -45,9 +45,9 @@ public class ForSimpleConstraintCheckerConsciousTest extends IPO2Test {
         .add(factor("F3", "L31"))
         .add(factor("F4", "L41", "L42")).build();
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = createIPO2(factors,
+    Ipo2 ipo = createIPO2(factors,
         strength, constraintChecker, optimizer);
     verify(strength, factors, constraintChecker, ipo.getResult(),
         ipo.getRemainders());
@@ -65,9 +65,9 @@ public class ForSimpleConstraintCheckerConsciousTest extends IPO2Test {
         .add(factor("F3", "L31"))
         .add(factor("F4", "L41", "L42")).build();
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = createIPO2(factors,
+    Ipo2 ipo = createIPO2(factors,
         strength, constraintChecker, optimizer);
     verify(strength, factors, constraintChecker, ipo.getResult(),
         ipo.getRemainders());

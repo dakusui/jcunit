@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.tests.modules.factor;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
@@ -64,7 +64,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @GenerateCoveringArrayWith(
-      engine = @Generator(value = IPO2CoveringArrayEngine.class, args = @Value("3"))
+      engine = @Generator(value = Ipo2CoveringArrayEngine.class, args = @Value("3"))
   )
   public static class TestClass3 {
     @FactorField
@@ -91,7 +91,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @GenerateCoveringArrayWith(
-      engine = @Generator(value = IPO2CoveringArrayEngine.class, args = @Value("1"))
+      engine = @Generator(value = Ipo2CoveringArrayEngine.class, args = @Value("1"))
   )
   public static class TestClass4 {
     @FactorField
@@ -116,7 +116,7 @@ public class TupleLevelsProviderTest {
 
   @RunWith(JCUnit.class)
   @GenerateCoveringArrayWith(
-      engine = @Generator(value = IPO2CoveringArrayEngine.class, args = { @Value("2"), @Value("hello!") })
+      engine = @Generator(value = Ipo2CoveringArrayEngine.class, args = { @Value("2"), @Value("hello!") })
   )
   public static class TestClass5 {
     @FactorField

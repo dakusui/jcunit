@@ -22,6 +22,6 @@ public class StandardCoveringArrayEngine extends CoveringArrayEngine.Base {
     if (factors.size() < 2 || this.strength < 2) {
       return new SimpleCoveringArrayEngine().generate(factors, constraintChecker);
     }
-    return new IPO2CoveringArrayEngine(this.strength).generate(factors, constraintChecker);
+    return new Ipo2CoveringArrayEngine(this.strength).generate(factors, constraintChecker);
   }
 }

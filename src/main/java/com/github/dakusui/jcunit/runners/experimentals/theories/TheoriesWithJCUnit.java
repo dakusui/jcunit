@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.Plugin;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.experimentals.theories.annotations.GenerateWith;
@@ -137,7 +137,7 @@ public class TheoriesWithJCUnit extends Theories {
     if (tgAnn != null) {
       tg = createCoveringArrayEngine(tgAnn.generator(), runnerContext);
     } else {
-      tg = new IPO2CoveringArrayEngine(2);
+      tg = new Ipo2CoveringArrayEngine(2);
     }
     return tg;
   }
