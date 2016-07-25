@@ -49,7 +49,7 @@ public class ReplayerTest {
       engine = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine", "2" }),
               @Value("Fallback")
           }
       )
@@ -87,7 +87,7 @@ public class ReplayerTest {
       engine = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }) }))
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine", "2" }) }))
   public static class TestClass {
     public static int      f1Threshold = 0;
     @Rule
@@ -258,7 +258,7 @@ public class ReplayerTest {
       engine = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine", "2" }),
               @Value("Fallback"),
               @Value("All")
           }
@@ -283,7 +283,7 @@ public class ReplayerTest {
       engine = @Generator(
           value = Replayer.class,
           args = {
-              @Value({ "com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine", "2" }),
+              @Value({ "com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine", "2" }),
               @Value("Replay"),
               @Value("All")
           }
