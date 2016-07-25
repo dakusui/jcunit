@@ -7,9 +7,9 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIPO2Optimizer;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIpo2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
 
@@ -18,7 +18,7 @@ import java.util.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public abstract class IPO2Test {
+public abstract class Ipo2Test {
   @Before
   public void configureStdIOs() {
     UTUtils.configureStdIOs();
@@ -48,11 +48,11 @@ public abstract class IPO2Test {
     return fb.build();
   }
 
-  protected IPO2 createIPO2(
+  protected Ipo2 createIPO2(
       Factors factors, int strength,
       ConstraintChecker constraintChecker,
-      IPO2Optimizer optimizer) {
-    IPO2 ipo = new IPO2(factors, strength, constraintChecker,
+      Ipo2Optimizer optimizer) {
+    Ipo2 ipo = new Ipo2(factors, strength, constraintChecker,
         optimizer);
     ipo.ipo();
     return ipo;
@@ -185,8 +185,8 @@ public abstract class IPO2Test {
     return new NullConstraintChecker();
   }
 
-  protected GreedyIPO2Optimizer createOptimizer() {
-    return new GreedyIPO2Optimizer();
+  protected GreedyIpo2Optimizer createOptimizer() {
+    return new GreedyIpo2Optimizer();
   }
 
   public static class FactorsDef {

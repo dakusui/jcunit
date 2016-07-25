@@ -4,8 +4,8 @@ import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +17,7 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ReproducibilityTest extends IPO2Test {
+public class ReproducibilityTest extends Ipo2Test {
   List<Tuple> generateTestCases() {
     Factors factors = buildFactors(
         factorsDef(2, 1),
@@ -27,9 +27,9 @@ public class ReproducibilityTest extends IPO2Test {
         factorsDef(2, 1),
         factorsDef(5, 2));
     ConstraintChecker constraintChecker = createConstraintManager();
-    IPO2Optimizer optimizer = createOptimizer();
+    Ipo2Optimizer optimizer = createOptimizer();
 
-    IPO2 ipo = createIPO2(factors, 2, constraintChecker, optimizer);
+    Ipo2 ipo = createIPO2(factors, 2, constraintChecker, optimizer);
     return Utils.transform(
         ipo.getResult(),
         new Utils.Form<Tuple, Tuple>() {

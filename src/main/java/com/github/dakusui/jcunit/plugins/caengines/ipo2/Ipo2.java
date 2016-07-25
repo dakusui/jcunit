@@ -10,11 +10,11 @@ import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.IPO2Optimizer;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
 
 import java.util.*;
 
-public class IPO2 {
+public class Ipo2 {
   public static final Object DontCare = new Object() {
     @Override
     public String toString() {
@@ -25,13 +25,13 @@ public class IPO2 {
   private final ConstraintChecker constraintChecker;
   private final Factors           factors;
   private final int               strength;
-  private final IPO2Optimizer     optimizer;
+  private final Ipo2Optimizer     optimizer;
   private       List<Tuple>       result;
   private       List<Tuple>       remainders;
 
-  public IPO2(Factors factors, int strength,
+  public Ipo2(Factors factors, int strength,
       ConstraintChecker constraintChecker,
-      IPO2Optimizer optimizer) {
+      Ipo2Optimizer optimizer) {
     Checks.checknotnull(factors);
     Checks.checkcond(factors.size() >= 2, "There must be 2 or more factors.");
     Checks.checkcond(factors.size() >= strength,

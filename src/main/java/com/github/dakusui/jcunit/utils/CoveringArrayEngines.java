@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.plugins.PluginUtils;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
@@ -42,6 +42,6 @@ public enum CoveringArrayEngines {
 
 
   public static CoveringArrayEngine.Builder<String[]> createSimpleBuilder(Factors factors) {
-    return createSimpleBuilder(factors, IPO2CoveringArrayEngine.class);
+    return createSimpleBuilder(factors, Ipo2CoveringArrayEngine.class);
   }
 }

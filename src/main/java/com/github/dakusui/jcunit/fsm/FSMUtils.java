@@ -11,7 +11,7 @@ import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.SimpleCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import org.hamcrest.CoreMatchers;
@@ -264,7 +264,7 @@ public enum FSMUtils {
     if (action.parameters().size() == 1) {
       engine = new SimpleCoveringArrayEngine();
     } else {
-      engine = new IPO2CoveringArrayEngine(2);
+      engine = new Ipo2CoveringArrayEngine(2);
     }
     final FactorSpace factorSpace = new FactorSpace(
         FactorSpace.convertFactorsIntoSimpleFactorDefs(action.parameters()),

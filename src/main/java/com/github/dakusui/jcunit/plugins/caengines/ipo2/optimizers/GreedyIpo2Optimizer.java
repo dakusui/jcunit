@@ -6,13 +6,13 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.IPO2;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class GreedyIPO2Optimizer implements IPO2Optimizer {
+public class GreedyIpo2Optimizer implements Ipo2Optimizer {
   private final Random random = new Random(4649);
 
   @Override
@@ -24,7 +24,7 @@ public class GreedyIPO2Optimizer implements IPO2Optimizer {
     Factors.Builder missingFactorsBuilder = new Factors.Builder();
     int numMissingFactors = 0;
     for (String f : tuple.keySet()) {
-      if (tuple.get(f) == IPO2.DontCare) {
+      if (tuple.get(f) == Ipo2.DontCare) {
         numMissingFactors++;
         missingFactorsBuilder.add(factors.get(f));
       }

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.StandardCoveringArrayEngine;
 
 import java.lang.annotation.Annotation;
@@ -29,7 +29,7 @@ public @interface Generator {
       }
     };
   }
-  Class<? extends CoveringArrayEngine> value() default IPO2CoveringArrayEngine.class;
+  Class<? extends CoveringArrayEngine> value() default Ipo2CoveringArrayEngine.class;
 
   Value[] args() default {};
 

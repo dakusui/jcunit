@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
-import com.github.dakusui.jcunit.plugins.caengines.IPO2CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.Ipo2CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.utils.CoveringArrayEngines;
 
@@ -63,7 +63,7 @@ public class TestGenWithoutJUnit {
     // if you want to do it more easily.
     CoveringArrayEngine engine = CoveringArrayEngines.createSimpleBuilder(
         factors,
-        IPO2CoveringArrayEngine.class,
+        Ipo2CoveringArrayEngine.class,
         new String[][] { { "2" } }
     ).build();
 
