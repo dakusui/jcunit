@@ -1,17 +1,19 @@
 package com.github.dakusui.jcunit.fsm;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.*;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static java.lang.String.format;
 
 public class Parameters extends Factors {
   public static final Parameters EMPTY = new Builder(new Object[][] {}).build();
@@ -46,7 +48,7 @@ public class Parameters extends Factors {
       int i = 0;
       for (Object[] each : params) {
         Checks.checktest(each.length > 0, "Invalid factor data found. Each array of this double-array must have at least one element");
-        Factor.Builder b = new Factor.Builder(String.format("p%d", i++));
+        Factor.Builder b = new Factor.Builder(format("p%d", i++));
         for (Object o : each) {
           b.addLevel(o);
         }
@@ -67,7 +69,7 @@ public class Parameters extends Factors {
     }
 
     public Builder addParameter() {
-      return this.addParameter(String.format("p%d", this.factors.size()));
+      return this.addParameter(format("p%d", this.factors.size()));
     }
 
     public Builder addParameter(String name) {

@@ -60,7 +60,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
    */
   @SuppressWarnings("FieldCanBeLocal")
   private static int TRIES = 50;
-  private final int  strength;
+  private final int    strength;
   private final Random random;
 
   public AetgCoveringArrayEngine(
@@ -78,10 +78,6 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
       @Override
       public boolean apply(Tuple in) {
         try {
-          ////
-          // SmartConstraintChecker is stateful. I need to come up with a solution
-          // to handle it seamlessly with the other checkers.
-          // Or it maybe is a responsibility of a caller.
           return constraintBundle.newConstraintChecker().check(in);
         } catch (UndefinedSymbol undefinedSymbol) {
           ////

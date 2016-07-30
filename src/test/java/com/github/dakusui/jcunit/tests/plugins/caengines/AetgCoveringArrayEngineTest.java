@@ -22,7 +22,7 @@ public class AetgCoveringArrayEngineTest {
    * Currently this test only checks the size.
    */
   @Test(timeout = 30000)
-  public void aetgTestSuiteBuildingNegativeTestGenerationEnabled() {
+  public void aetgTestSuiteBuildingNegativeTestGenerationDisabled() {
     int strength = 2;
     Factors factors = new Factors.Builder()
         .add(new Factor.Builder("factor1").addLevel(1).addLevel(2).addLevel(3).build())
@@ -40,7 +40,7 @@ public class AetgCoveringArrayEngineTest {
   }
 
   @Test(timeout = 30000)
-  public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$includingFactorWhichHasOnlyOneLevel() {
+  public void aetgTestSuiteBuildingNegativeTestGenerationDisabled$includingFactorWhichHasOnlyOneLevel() {
     int strength = 2;
     Factors factors = new Factors.Builder()
         .add(new Factor.Builder("factor1").addLevel(1).build())
@@ -59,7 +59,7 @@ public class AetgCoveringArrayEngineTest {
 
 
   @Test(timeout = 30000)
-  public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$fromOnlyOneFactor() {
+  public void aetgTestSuiteBuildingNegativeTestGenerationDisabled$fromOnlyOneFactor() {
     int strength = 1;
     Factors factors = new Factors.Builder()
         .add(new Factor.Builder("factor1").addLevel(1).addLevel(2).addLevel(3).build())
@@ -76,7 +76,7 @@ public class AetgCoveringArrayEngineTest {
 
 
   @Test(timeout = 30000)
-  public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$fromTwoFactors() {
+  public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$onlyTwoFactors() {
     int strength = 2;
     Factors factors = new Factors.Builder()
         .add(new Factor.Builder("factor1").addLevel(1).addLevel(2).addLevel(3).build())
@@ -86,10 +86,94 @@ public class AetgCoveringArrayEngineTest {
     TestSuite.Builder testSuiteBuilder = new TestSuite.Builder(new AetgCoveringArrayEngine(strength, 0))
         .addFactors(
             factors)
-        .disableNegativeTests();
+        .enableNegativeTests();
     TestSuite testSuite =  testSuiteBuilder.build();
     printReport(factors, testSuite, strength);
     assertEquals(9, testSuite.size());
+  }
+
+  @Test(timeout = 30000)
+  public void aetgTestSuiteBuildingNegativeTestGenerationDisabled$simplestConstraintPresent() {
+    int strength = 2;
+    Factors factors = new Factors.Builder()
+        .add(new Factor.Builder("factor1").addLevel(1).addLevel(2).addLevel(3).addLevel(4).build())
+        .add(new Factor.Builder("factor2").addLevel(1).addLevel(2).addLevel(3).build())
+        .add(new Factor.Builder("factor3").addLevel(1).addLevel(2).addLevel(3).build())
+        .build();
+
+    TestSuite.Builder testSuiteBuilder = new TestSuite.Builder(new AetgCoveringArrayEngine(strength, 0))
+        .addFactors(
+            factors)
+        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 4", "factor1") {
+          @Override
+          public boolean apply(Tuple in) {
+            return !Integer.class.cast(in.get("factor1")).equals(4);
+          }
+        })
+        .disableNegativeTests();
+    TestSuite testSuite =  testSuiteBuilder.build();
+    printReport(factors, testSuite, strength);
+    assertEquals(10, testSuite.size());
+  }
+
+  @Test(timeout = 30000)
+  public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$twoFactorConstraintPresent() {
+    int strength = 2;
+    Factors factors = new Factors.Builder()
+        .add(new Factor.Builder("factor1").addLevel(1).addLevel(2).addLevel(3).build())
+        .add(new Factor.Builder("factor2").addLevel(1).addLevel(2).addLevel(3).build())
+        .add(new Factor.Builder("factor3").addLevel(1).addLevel(2).addLevel(3).build())
+        .build();
+
+    TestSuite.Builder testSuiteBuilder = new TestSuite.Builder(new AetgCoveringArrayEngine(strength, 0))
+        .addFactors(
+            factors)
+        .addConstraint(new TestSuite.Predicate("factor1 + factor2 must be less than 5", "factor1", "factor2") {
+          @Override
+          public boolean apply(Tuple in) {
+            int factor1 = Integer.class.cast(in.get("factor2"));
+            int factor2 = Integer.class.cast(in.get("factor3"));
+            return factor1 + factor2 < 5;
+          }
+        })
+        .enableNegativeTests();
+    TestSuite testSuite =  testSuiteBuilder.build();
+    printReport(factors, testSuite, strength);
+    assertEquals(10, testSuite.size());
+  }
+
+  @Test(timeout = 30000)
+  public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$twoTwoFactorConstraintPresent() {
+    int strength = 2;
+    Factors factors = new Factors.Builder()
+        .add(new Factor.Builder("factor1").addLevel(1).addLevel(2).addLevel(3).build())
+        .add(new Factor.Builder("factor2").addLevel(1).addLevel(2).addLevel(3).build())
+        .add(new Factor.Builder("factor3").addLevel(1).addLevel(2).addLevel(3).build())
+        .build();
+
+    TestSuite.Builder testSuiteBuilder = new TestSuite.Builder(new AetgCoveringArrayEngine(strength, 0))
+        .addFactors(
+            factors)
+        .addConstraint(new TestSuite.Predicate("factor1 + factor2 must be less than 5", "factor1", "factor2") {
+          @Override
+          public boolean apply(Tuple in) {
+            int factor1 = Integer.class.cast(in.get("factor2"));
+            int factor2 = Integer.class.cast(in.get("factor3"));
+            return factor1 + factor2 < 5;
+          }
+        })
+        .addConstraint(new TestSuite.Predicate("factor2 + factor 3 must be more than 3", "factor2", "factor3") {
+          @Override
+          public boolean apply(Tuple in) {
+            int factor2 = Integer.class.cast(in.get("factor2"));
+            int factor3 = Integer.class.cast(in.get("factor3"));
+            return factor2 + factor3 > 3;
+          }
+        })
+        .enableNegativeTests();
+    TestSuite testSuite =  testSuiteBuilder.build();
+    printReport(factors, testSuite, strength);
+    assertEquals(10, testSuite.size());
   }
 
   private void printReport(Factors factors, TestSuite testSuite, int strength) {

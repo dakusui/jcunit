@@ -13,6 +13,8 @@ import java.util.List;
 public interface ConstraintBundle {
   /**
    * Returns a new constraint checker instance.
+   * In case constraint bundle can guarantee the returned value is stateless and thread safe,
+   * this method may return the same object always.
    */
   ConstraintChecker newConstraintChecker();
 
@@ -41,16 +43,12 @@ public interface ConstraintBundle {
          */
         @Override
         public ConstraintChecker newConstraintChecker() {
-          return checker;
+          return checker.getFreshObject();
         }
 
         @Override
         public List<Constraint> getConstraints() {
-          Checks.checkcond(checker instanceof SmartConstraintChecker,
-              "This constraint checker (%s) does not allow to access individual constraints",
-              checker.getClass().getCanonicalName()
-          );
-          return SmartConstraintChecker.class.cast(checker).getConstraints();
+          return checker.getConstraints();
         }
 
         @Override

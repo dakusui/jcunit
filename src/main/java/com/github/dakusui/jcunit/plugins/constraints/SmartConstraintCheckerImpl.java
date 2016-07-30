@@ -25,7 +25,7 @@ public class SmartConstraintCheckerImpl extends SmartConstraintChecker {
       @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.TEST_CLASS) final Class<?> testClass,
       @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTORS) final Factors factors
   ) {
-    super(factors);
+    super(testClass, factors);
     this.constraints = Utils.transform(Utils.filter(new TestClass(testClass).getAnnotatedMethods(Condition.class), new Utils.Predicate<FrameworkMethod>() {
       @Override
       public boolean apply(FrameworkMethod in) {
@@ -71,7 +71,12 @@ public class SmartConstraintCheckerImpl extends SmartConstraintChecker {
   }
 
   @Override
-  protected List<Constraint> getConstraints() {
+  public List<Constraint> getConstraints() {
     return this.constraints;
+  }
+
+  @Override
+  public ConstraintChecker getFreshObject() {
+    return new SmartConstraintCheckerImpl(this.testClass, this.factors);
   }
 }

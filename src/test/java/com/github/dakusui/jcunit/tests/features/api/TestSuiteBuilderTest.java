@@ -12,7 +12,7 @@ public class TestSuiteBuilderTest {
   public void basicTestSuiteBuildingNegativeTestGenerationEnabled() {
     TestSuite testSuite = new TestSuite.Builder()
         .addFactor("factor1", 1, 2, 3)
-        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1") {
+        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1", "factor1") {
           @Override
           public boolean apply(Tuple in) {
             return !in.get("factor1").equals(1);
@@ -35,7 +35,7 @@ public class TestSuiteBuilderTest {
   public void basicTestSuiteBuildingNegativeTestGenerationDisabled() {
     TestSuite testSuite = new TestSuite.Builder()
         .addFactor("factor1", 1, 2, 3)
-        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1") {
+        .addConstraint(new TestSuite.Predicate("factor1 mustn't be 1", "factor1") {
           @Override
           public boolean apply(Tuple in) {
             return !in.get("factor1").equals(1);

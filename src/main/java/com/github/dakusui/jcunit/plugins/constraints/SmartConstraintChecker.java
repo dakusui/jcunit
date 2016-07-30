@@ -12,6 +12,8 @@ import java.util.*;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public abstract class SmartConstraintChecker implements ConstraintChecker {
+  protected final Class<?> testClass;
+  protected final Factors factors;
   /**
    * Constraints to be covered by this checker.
    * When {@code check} method is called the first time, this will be
@@ -26,7 +28,9 @@ public abstract class SmartConstraintChecker implements ConstraintChecker {
   private Tuple regularTestCase = null;
 
 
-  public SmartConstraintChecker(Factors factors) {
+  public SmartConstraintChecker(Class<?> testClass, Factors factors) {
+    this.testClass = Checks.checknotnull(testClass);
+    this.factors = factors;
     this.chosenViolations = new LinkedList<Tuple>();
     if (factors == null) {
       ////
@@ -63,7 +67,7 @@ public abstract class SmartConstraintChecker implements ConstraintChecker {
       // case will become null. But is this a correct fix? FIXME: 4/19/16
       this.regularTestCase = new Tuple.Impl();
     }
-    // fixme It should be guaranteed that each of returned tuples DOES violate at least on constraint
+    // fixme It should be guaranteed that each of returned tuples DOES violate at least one constraint
     //       because this method is "getViolations()".
     List<Tuple> ret = new LinkedList<Tuple>(this.chosenViolations);
     for (Tuple factorLevel : this.factorLevelsToBeCovered) {
@@ -115,7 +119,7 @@ public abstract class SmartConstraintChecker implements ConstraintChecker {
         }).size() > 0;
   }
 
-  protected abstract List<Constraint> getConstraints();
+  public abstract List<Constraint> getConstraints();
 
 
   private boolean checkTupleAndUpdateViolations(Tuple tuple) throws UndefinedSymbol {

@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static java.lang.String.format;
 
 public interface ConstraintChecker extends Plugin {
   ConstraintChecker DEFAULT_CONSTRAINT_CHECKER = new NullConstraintChecker();
@@ -36,8 +37,32 @@ public interface ConstraintChecker extends Plugin {
 
   boolean violates(Tuple tuple, String constraintTag);
 
+  List<Constraint> getConstraints();
+
+  /**
+   * Returns a new object or, in case an implementor is sure that the implementation
+   * of this interface is stateless and thread safe, {@code this} object.
+   */
+  ConstraintChecker getFreshObject();
+
+  /**
+   * If a class that extend this is not stateless, you must override {@code getFreshObject()}
+   * and define appropriate behavior,
+   * because the method's implementation provided by this class always return
+   * {@code this} object always.
+   *
+   * @see ConstraintChecker#getFreshObject
+   */
   abstract class Base extends Plugin.Base implements ConstraintChecker, Plugin {
     public Base() {
+    }
+
+    @Override
+    public List<Constraint> getConstraints() {
+      throw new UnsupportedOperationException(
+          format("This constraint checker (%s) does not allow to access individual constraints",
+              this.getClass().getCanonicalName())
+      );
     }
 
     @Override
@@ -55,6 +80,11 @@ public interface ConstraintChecker extends Plugin {
       Checks.checknotnull(constraintTag);
       Checks.checknotnull(tuple);
       return false;
+    }
+
+    @Override
+    public ConstraintChecker getFreshObject() {
+      return this;
     }
   }
 

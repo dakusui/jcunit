@@ -4,10 +4,12 @@ import com.github.dakusui.jcunit.core.utils.BaseBuilder;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class FactorSpace {
@@ -66,6 +68,7 @@ public class FactorSpace {
       return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public FactorSpace build() {
       final List<ConstraintChecker> constraintCheckers = Utils.transform(
@@ -88,7 +91,20 @@ public class FactorSpace {
           }
           return true;
         }
+
+        @Override
+        public List<Constraint> getConstraints() {
+          List<Constraint> ret = new LinkedList<Constraint>(topLevelConstraintChecker.getConstraints());
+          for (ConstraintChecker each : constraintCheckers) {
+            ////
+            // If any of underlying constraint checkers doesn't support getConstraints,
+            // this object doesn't support it, too.
+            ret.addAll(each.getConstraints());
+          }
+          return ret;
+        }
       };
+
       return new FactorSpace(
           this.factorDefs,
           constraintChecker
