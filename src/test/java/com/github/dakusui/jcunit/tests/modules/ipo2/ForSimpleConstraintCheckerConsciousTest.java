@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.tests.modules.ipo2;
 
 import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
@@ -138,6 +139,16 @@ public class ForSimpleConstraintCheckerConsciousTest extends Ipo2Test {
     @Override
     public boolean violates(Tuple tuple, String constraintTag) {
       return false;
+    }
+
+    @Override
+    public List<Constraint> getConstraints() {
+      throw new UnsupportedOperationException("This method is not supported");
+    }
+
+    @Override
+    public ConstraintChecker getFreshObject() {
+      return this;
     }
   }
 }

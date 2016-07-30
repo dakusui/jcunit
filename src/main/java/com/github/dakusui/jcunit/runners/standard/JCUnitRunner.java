@@ -137,6 +137,9 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   }
 
   private boolean shouldInvoke(FrameworkMethod testMethod, Object testObject) {
+    ////
+    // Check if the method is already invoked with the same values for the parameters
+    // used in it.
     Tuple subtupleUsedByTestMethod = subtupleUsedByMethod(testMethod, TestCaseUtils.toTestCase(testObject));
     if (subtupleUsedByTestMethod != null) {
       if (isAlreadyCovered(testMethod, subtupleUsedByTestMethod)) {
@@ -148,7 +151,6 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     When when = testMethod.getAnnotation(When.class);
     if (when == null)
       return true;
-    // TODO Issue-#49
     String preconditionMethodName = FrameworkMethodUtils.composePreconditionCompositeFrameworkMethodName(when);
     FrameworkMethod preconditionMethod = this.methods.get(preconditionMethodName);
     Checks.checkcond(preconditionMethod != null, "Something went wrong: name=%s, methdos=%s", preconditionMethodName, this.methods);

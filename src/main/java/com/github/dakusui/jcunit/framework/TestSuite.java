@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -13,7 +12,7 @@ import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.StandardCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintCheckerBase;
+import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 
@@ -22,6 +21,9 @@ import java.util.*;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Utils.*;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 /**
  * A class that represents a suite of test cases.
@@ -66,7 +68,7 @@ public class TestSuite extends AbstractList<TestCase> {
     checknotnull(testCase);
     checkcond(testCase instanceof Builder.TestCaseWithViolatedConstraints);
     //noinspection ConstantConditions (already checked)
-    return ((Builder.TestCaseWithViolatedConstraints)testCase).constraints;
+    return ((Builder.TestCaseWithViolatedConstraints) testCase).constraints;
   }
 
   /**
@@ -77,17 +79,33 @@ public class TestSuite extends AbstractList<TestCase> {
    */
   public static abstract class Predicate implements Utils.Predicate<Tuple> {
     /**
-     * A tag to identify this object.
+     * A tag to identify to which constraint category this object belongs.
      */
     public final String tag;
 
     /**
-     * Creates an object of this class.
-     *
-     * @param tag A tag to identify this object.
+     * Factor names that this constraint uses. It is not available, this field
+     * will become {@code null}.
      */
-    public Predicate(String tag) {
+    private final String[] factorNames;
+
+    /**
+     * Creates an object of this class.
+     * A constraint checker implementation may generate negative tests by using
+     * a tag. For example, {@code SmartConstraintCheckerImpl}.
+     * <p/>
+     * By {@code factorNames}, a user can specify which factors this object uses.
+     * If no factor name is given, it will be considered that this constraint does not
+     * give information about factor names.
+     *
+     * @param tag         A tag to identify a category to which this object belongs.
+     * @param factorNames Factor names this constraint uses.
+     */
+    public Predicate(String tag, String... factorNames) {
       this.tag = checknotnull(tag);
+      this.factorNames = factorNames.length == 0
+          ? null
+          : factorNames;
     }
 
     /**
@@ -95,7 +113,10 @@ public class TestSuite extends AbstractList<TestCase> {
      */
     @Override
     public String toString() {
-      return this.tag;
+      return this.tag + (this.factorNames == null
+          ? ""
+          : asList(this.factorNames).toString()
+      );
     }
   }
 
@@ -103,19 +124,18 @@ public class TestSuite extends AbstractList<TestCase> {
    * A builder of {@code TestSuite}.
    * If you try to add factors with the same name to an object of this class using {@code addFactor}
    * or {@code addXyzFactor} method multiple times, an exception will be thrown.
-   *
+   * <p/>
    * By default (with the no-parameter constructor) this builder uses {@link StandardCoveringArrayEngine}
    * with strength 2.
-   *
+   * <p/>
    * In order to customize the strength, see {@link Builder#Builder(int)} . To use different type of covering
    * array generator see {@link Builder#Builder(CoveringArrayEngine)}.
-   *
    */
   public static class Builder {
     private final List<Factor>        factors;
     private       CoveringArrayEngine coveringArrayEngine;
-    private List<Predicate> constraints = new LinkedList<Predicate>();
-    private boolean negativeTestsEnabled = false;
+    private List<Predicate> constraints          = new LinkedList<Predicate>();
+    private boolean         negativeTestsEnabled = false;
 
     /**
      * Add a constraint to this object.
@@ -130,13 +150,13 @@ public class TestSuite extends AbstractList<TestCase> {
     /**
      * Add a new factor to this object.
      *
-     * @param name A name of a new factor.
+     * @param name   A name of a new factor.
      * @param levels Levels of the factor.
      */
     public Builder addFactor(final String name, List<?> levels) {
       checknotnull(name);
       checknotnull(levels);
-      checkcond(Utils.filter(this.factors, new Utils.Predicate<Factor>() {
+      checkcond(filter(this.factors, new Utils.Predicate<Factor>() {
             @Override
             public boolean apply(Factor in) {
               return in.name.equals(name);
@@ -167,11 +187,11 @@ public class TestSuite extends AbstractList<TestCase> {
     /**
      * Add a new factor to this object.
      *
-     * @param name A name of a new factor.
+     * @param name   A name of a new factor.
      * @param levels Levels of the factor.
      */
     public Builder addFactor(String name, Object... levels) {
-      this.addFactor(name, Arrays.asList(levels));
+      this.addFactor(name, asList(levels));
       return this;
     }
 
@@ -272,12 +292,14 @@ public class TestSuite extends AbstractList<TestCase> {
      * @param name A name of a new factor
      */
     public Builder addEnumLevels(String name, Class<? extends Enum> enumClass) {
-      this.addFactor(name, Arrays.asList(enumClass.getEnumConstants()));
+      this.addFactor(name, asList(enumClass.getEnumConstants()));
       return this;
     }
 
     /**
      * Enables negative test generation.
+     * If this method is called, the builder will include test cases that violate
+     * constraints generated by a checker.
      */
     public Builder enableNegativeTests() {
       this.negativeTestsEnabled = true;
@@ -286,6 +308,8 @@ public class TestSuite extends AbstractList<TestCase> {
 
     /**
      * Disables negative test generation.
+     * If this method is called, the builder will NOT include test cases that violate
+     * constraints generated by a checker.
      */
     public Builder disableNegativeTests() {
       this.negativeTestsEnabled = false;
@@ -296,8 +320,8 @@ public class TestSuite extends AbstractList<TestCase> {
      * Builds a new {@code TestSuite} object based on given settings.
      */
     public TestSuite build() {
-      FactorSpace.Builder builder = new FactorSpace.Builder();
-      builder.addFactorDefs(Utils.transform(this.factors, new Utils.Form<Factor, FactorDef>() {
+      FactorSpace.Builder factorSpaceBuilder = new FactorSpace.Builder();
+      factorSpaceBuilder.addFactorDefs(Utils.transform(this.factors, new Utils.Form<Factor, FactorDef>() {
         @Override
         public FactorDef apply(final Factor in) {
           return new FactorDef.Simple(in.name, new LevelsProvider() {
@@ -313,39 +337,44 @@ public class TestSuite extends AbstractList<TestCase> {
           });
         }
       }));
-      ConstraintChecker checker = new SmartConstraintCheckerBase(new Factors(factors)) {
-        @Override
-        protected List<Constraint> getConstraints() {
-          return Utils.transform(
-              constraints,
-              new Utils.Form<Predicate, Constraint>() {
-                @Override
-                public Constraint apply(Predicate in) {
-                  return new GuardedConstraint(in.tag, in);
-                }
-              }
-          );
-        }
-      };
-      builder.setTopLevelConstraintChecker(checker);
+      ConstraintChecker checker = new MySmartConstraintChecker();
+      factorSpaceBuilder.setTopLevelConstraintChecker(checker);
       List<TestCase> testCases = new LinkedList<TestCase>();
       testCases.addAll(Utils.transform(
-          this.coveringArrayEngine.generate(builder.build()),
+          this.coveringArrayEngine.generate(factorSpaceBuilder.build()),
           new Utils.Form<Tuple, TestCase>() {
             @Override
             public TestCase apply(final Tuple in) {
-              checkcond(
-                  Utils.filter(
-                      constraints,
-                      new Utils.Predicate<Predicate>() {
-                        @Override
-                        public boolean apply(Predicate constraint) {
-                          return !constraint.apply(new GuardedTuple(in));
-                        }
+              List<Map.Entry<Predicate, Tuple>> violations = filter(transform(
+                  constraints,
+                  new Utils.Form<Predicate, Map.Entry<Predicate, Tuple>>() {
+                    @Override
+                    public Map.Entry<Predicate, Tuple> apply(final Predicate constraint) {
+                      if (!constraint.apply(new GuardedTuple(in))) {
+                        return new AbstractMap.SimpleEntry<Predicate, Tuple>(constraint, in) {
+                          @Override
+                          public String toString() {
+                            return format("%s is violated by %s", constraint, in);
+                          }
+                        };
                       }
-                  ).isEmpty(),
-                  "The covering array engine (%s) in use does not respect constraints.",
-                  coveringArrayEngine.getClass().getCanonicalName()
+                      ;
+                      return null;
+                    }
+                  }
+                  ),
+                  new Utils.Predicate<Map.Entry<Predicate, Tuple>>() {
+                    @Override
+                    public boolean apply(Map.Entry<Predicate, Tuple> in) {
+                      return in != null;
+                    }
+                  }
+              );
+              checkcond(
+                  violations.isEmpty(),
+                  "The covering array engine '%s' does not respect constraints.: %s",
+                  coveringArrayEngine.getClass().getCanonicalName(),
+                  violations
               );
               return new TestCase(TestCase.Type.REGULAR, in);
             }
@@ -360,7 +389,7 @@ public class TestSuite extends AbstractList<TestCase> {
                 return new TestCaseWithViolatedConstraints(
                     TestCase.Type.VIOLATION,
                     in,
-                    Utils.filter(
+                    filter(
                         constraints,
                         new Utils.Predicate<Predicate>() {
                           @Override
@@ -429,10 +458,15 @@ public class TestSuite extends AbstractList<TestCase> {
     static class GuardedConstraint implements Constraint {
       private final Utils.Predicate<Tuple> predicate;
       private final String                 tag;
+      private       String[]               factorNames;
 
-      GuardedConstraint(String tag, Utils.Predicate<Tuple> base) {
+      GuardedConstraint(String tag, Utils.Predicate<Tuple> base, String[] factorNames) {
         this.predicate = checknotnull(base);
         this.tag = checknotnull(tag);
+        ////
+        // factorNames == null means, getFactorNames() method is not supported by
+        // this object.
+        this.factorNames = factorNames;
       }
 
       @Override
@@ -448,6 +482,18 @@ public class TestSuite extends AbstractList<TestCase> {
       public String tag() {
         return this.tag;
       }
+
+      @Override
+      public List<String> getFactorNamesInUse() {
+        if (this.factorNames == null) {
+          throw new UnsupportedOperationException("This constraint doesn't have information about factor names");
+        }
+        return asList(this.factorNames);
+      }
+
+      public String toString() {
+        return this.predicate.toString();
+      }
     }
 
     static class GuardedTuple extends Tuple.Impl {
@@ -457,7 +503,7 @@ public class TestSuite extends AbstractList<TestCase> {
 
       @Override
       public Object get(Object key) {
-        Checks.checkcond(key instanceof String);
+        checkcond(key instanceof String);
         if (!containsKey(key))
           // already checked.
           //noinspection ConstantConditions
@@ -481,6 +527,50 @@ public class TestSuite extends AbstractList<TestCase> {
 
       UndefinedSymbol toUndefinedSymbol() {
         return new UndefinedSymbol(factorName);
+      }
+    }
+
+    private class MySmartConstraintChecker extends SmartConstraintChecker {
+      public MySmartConstraintChecker() {
+        super(Object.class, new Factors(TestSuite.Builder.this.factors));
+      }
+
+      @Override
+      public List<Constraint> getConstraints() {
+        return Utils.transform(
+            constraints,
+            new Utils.Form<Predicate, Constraint>() {
+              @Override
+              public Constraint apply(Predicate eachPredicate) {
+                if (eachPredicate.factorNames != null) {
+                  List<String> notFounds = filter(
+                      dedup(asList(eachPredicate.factorNames)),
+                      new Utils.Predicate<String>() {
+                        @Override
+                        public boolean apply(final String eachFactorName) {
+                          return filter(
+                              TestSuite.Builder.this.factors,
+                              new Utils.Predicate<Factor>() {
+                                @Override
+                                public boolean apply(Factor in) {
+                                  return in.name.equals(eachFactorName);
+                                }
+                              }
+                          ).isEmpty();
+                        }
+                      }
+                  );
+                  checkcond(notFounds.isEmpty(), "Undefined factor(s) %s are used by %s", notFounds, eachPredicate);
+                }
+                return new GuardedConstraint(eachPredicate.tag, eachPredicate, eachPredicate.factorNames);
+              }
+            }
+        );
+      }
+
+      @Override
+      public ConstraintChecker getFreshObject() {
+        return new MySmartConstraintChecker();
       }
     }
   }

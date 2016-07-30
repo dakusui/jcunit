@@ -10,6 +10,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBundle;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.rules.Recorder;
@@ -74,11 +75,11 @@ public class Replayer extends CoveringArrayEngine.Base {
    * {@inheritDoc}
    *
    * @param factors
-   * @param constraintChecker
+   * @param constraintBundle
    */
   @Override
-  protected CoveringArray generate(Factors factors, ConstraintChecker constraintChecker) {
-    return this.generationMode.generateCoveringArray(this, factors, constraintChecker);
+  protected CoveringArray generate(Factors factors, ConstraintBundle constraintBundle) {
+    return this.generationMode.generateCoveringArray(this, factors, constraintBundle.newConstraintChecker());
   }
 
 

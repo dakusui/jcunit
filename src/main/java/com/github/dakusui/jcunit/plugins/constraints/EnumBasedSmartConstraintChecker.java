@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 
 import java.util.Arrays;
@@ -9,7 +9,8 @@ import java.util.List;
 
 /**
  */
-public class EnumBasedSmartConstraintChecker extends SmartConstraintCheckerBase {
+public class EnumBasedSmartConstraintChecker extends SmartConstraintChecker {
+  protected final String   constraintClassName;
 
   private final Class<? extends Constraint> constraintClass;
 
@@ -18,10 +19,9 @@ public class EnumBasedSmartConstraintChecker extends SmartConstraintCheckerBase 
       @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTORS) Factors factors,
       @Param(source = Param.Source.CONFIG) String constraintClassName
   ) {
-    super(factors);
-    this.constraintClass = validateConstraintClass(findClass(
-        Checks.checknotnull(testClass),
-        Checks.checknotnull(constraintClassName)));
+    super(testClass, factors);
+    this.constraintClassName = Checks.checknotnull(constraintClassName);
+    this.constraintClass = validateConstraintClass(findClass(this.testClass, this.constraintClassName));
   }
 
   private Class<?> findClass(Class<?> testClass, String constraintClassName) {
@@ -45,15 +45,20 @@ public class EnumBasedSmartConstraintChecker extends SmartConstraintCheckerBase 
   }
 
   @Override
-  protected List<Constraint> getConstraints() {
+  public List<Constraint> getConstraints() {
     return constraints(this.constraintClass);
+  }
+
+  @Override
+  public ConstraintChecker getFreshObject() {
+    return new EnumBasedSmartConstraintChecker(this.testClass, this.factors, this.constraintClassName);
   }
 
   static private List<Constraint> constraints(Class<? extends Constraint> constraintClass) {
     ////
     // Java8 compiler complains of this line unless this cast is done.
     //noinspection RedundantCast
-    return (List<Constraint>)Arrays.asList(constraintClass.getEnumConstants());
+    return (List<Constraint>) Arrays.asList(constraintClass.getEnumConstants());
   }
 
 }

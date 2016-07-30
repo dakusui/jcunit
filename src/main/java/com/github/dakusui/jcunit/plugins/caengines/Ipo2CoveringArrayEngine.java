@@ -1,13 +1,13 @@
 package com.github.dakusui.jcunit.plugins.caengines;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIpo2Optimizer;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBundle;
 
 import java.util.List;
 
@@ -26,10 +26,10 @@ public class Ipo2CoveringArrayEngine extends CoveringArrayEngine.Base {
    * <p/>
    * If more than 1 parameter is given, this method will throw an {@code IllegalArgumentException}.
    * @param factors from which a covering array is generated.
-   * @param constraintChecker with which a covering array is generated.
+   * @param constraintBundle with which a covering array is generated.
    */
   @Override
-  protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker) {
+  protected List<Tuple> generate(Factors factors, ConstraintBundle constraintBundle) {
     Checks.checktest(factors.size() >= 2,
         "There must be 2 or more factors, but only %s (%s) given.",
         factors.size(),
@@ -52,7 +52,7 @@ public class Ipo2CoveringArrayEngine extends CoveringArrayEngine.Base {
     Ipo2 ipo2 = new Ipo2(
         factors,
         strength,
-        constraintChecker,
+        constraintBundle.newConstraintChecker(),
         new GreedyIpo2Optimizer());
     ////
     // Perform IPO algorithm.
