@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session8;
 
 import com.github.dakusui.jcunit.coverage.CombinatorialMetrics;
 import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolver;
-import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintCheckerImpl;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
@@ -30,7 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(JCUnit.class)
 @GenerateCoveringArrayWith(
-    checker = @Checker(value = SmartConstraintChecker.class),
+    checker = @Checker(value = SmartConstraintCheckerImpl.class),
     reporters = {
         @Reporter(value = CombinatorialMetrics.class, args = { @Value("2") })
     })

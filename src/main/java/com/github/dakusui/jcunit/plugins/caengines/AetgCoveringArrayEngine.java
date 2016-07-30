@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBundle;
 
 import java.util.*;
 
@@ -72,7 +72,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   @Override
-  protected List<Tuple> generate(Factors factors, final ConstraintChecker constraintChecker) {
+  protected List<Tuple> generate(Factors factors, final ConstraintBundle constraintBundle) {
     List<Tuple> allPossibleTuples = new LinkedList<Tuple>();
     allPossibleTuples.addAll(factors.generateAllPossibleTuples(this.strength, new Utils.Predicate<Tuple>() {
       @Override
@@ -82,7 +82,7 @@ public class AetgCoveringArrayEngine extends CoveringArrayEngine.Base {
           // SmartConstraintChecker is stateful. I need to come up with a solution
           // to handle it seamlessly with the other checkers.
           // Or it maybe is a responsibility of a caller.
-          return constraintChecker.check(in);
+          return constraintBundle.newConstraintChecker().check(in);
         } catch (UndefinedSymbol undefinedSymbol) {
           ////
           // If constraintChecker is present and throws an undefined symbol, the tuple

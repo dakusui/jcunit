@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.plugins.caengines;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.SystemProperties;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintBundle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngine.Base {
   }
 
   @Override
-  protected List<Tuple> generate(Factors factors, ConstraintChecker constraintChecker) {
+  protected List<Tuple> generate(Factors factors, ConstraintBundle constraintBundle) {
     List<Tuple> ret = new ArrayList<Tuple>(size);
     Random random = new Random(this.seed);
     int retries = 50;
@@ -52,7 +52,7 @@ public class RandomCoveringArrayEngine extends CoveringArrayEngine.Base {
       for (int j = 0; j < retries; j++) {
         Tuple tuple = newTuple(factors, random);
         try {
-          if (constraintChecker.check(tuple)) {
+          if (constraintBundle.newConstraintChecker().check(tuple)) {
             ret.add(tuple);
             break;
           }

@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  */
-public class EnumBasedSmartConstraintChecker extends SmartConstraintCheckerBase {
+public class EnumBasedSmartConstraintChecker extends SmartConstraintChecker {
 
   private final Class<? extends Constraint> constraintClass;
 

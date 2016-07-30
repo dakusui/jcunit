@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
-import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintCheckerImpl;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.validator.AnnotationValidator;
 import org.junit.validator.ValidateWith;
@@ -58,7 +58,7 @@ public @interface Condition {
       if (method.getAnnotation(Condition.class) != null && method.getAnnotation(Condition.class).constraint()) {
         if (method.getDeclaringClass().getAnnotation(GenerateCoveringArrayWith.class) == null
             || method.getDeclaringClass().getAnnotation(GenerateCoveringArrayWith.class).checker() == null
-            || !SmartConstraintChecker.class.isAssignableFrom(method.getDeclaringClass().getAnnotation(GenerateCoveringArrayWith.class).checker().value())) {
+            || !SmartConstraintCheckerImpl.class.isAssignableFrom(method.getDeclaringClass().getAnnotation(GenerateCoveringArrayWith.class).checker().value())) {
           errors.add(new Exception(String.format(
               "'constraint' attribute of @Condition is set to true for %s#%s, but SmartConstraintChecker isn't present.",
               method.getDeclaringClass().getCanonicalName(),

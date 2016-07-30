@@ -10,13 +10,18 @@ import org.junit.runners.model.TestClass;
 import org.junit.validator.AnnotationValidator;
 import org.junit.validator.ValidateWith;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * This annotations lets JCUnit know which fields are used by a test/condition method,
+ * to which this annotation is attached, used by it.
+ * <p/>
+ * A special value {@code "*"} means "all" and it is a default.
+ *
+ * To access default instance of this annotation,{@see DefaultInstance}
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @ValidateWith(Uses.Validator.class)
@@ -48,12 +53,11 @@ public @interface Uses {
               eachFieldName,
               method.getName(),
               method.getDeclaringClass().getCanonicalName()
-              )));
+          )));
         }
       }
       return errors;
     }
   }
-
-  String[] value() default { "*" };
+  @Uses String[] value() default { "*" };
 }

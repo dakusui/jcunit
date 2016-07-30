@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.caengines.StandardCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintCheckerBase;
+import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 
@@ -313,7 +313,7 @@ public class TestSuite extends AbstractList<TestCase> {
           });
         }
       }));
-      ConstraintChecker checker = new SmartConstraintCheckerBase(new Factors(factors)) {
+      ConstraintChecker checker = new SmartConstraintChecker(new Factors(factors)) {
         @Override
         protected List<Constraint> getConstraints() {
           return Utils.transform(
@@ -447,6 +447,11 @@ public class TestSuite extends AbstractList<TestCase> {
       @Override
       public String tag() {
         return this.tag;
+      }
+
+      @Override
+      public List<String> getFactorNamesInUse() {
+        throw new UnsupportedOperationException("(t.b.d.)");
       }
     }
 

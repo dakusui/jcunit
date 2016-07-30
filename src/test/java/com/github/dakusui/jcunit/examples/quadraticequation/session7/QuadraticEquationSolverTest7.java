@@ -15,6 +15,8 @@ import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
 import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -86,9 +88,11 @@ public class QuadraticEquationSolverTest7 {
     },;
 
     private final String tag;
+    private final String[] factorNamesInUse;
 
-    QuadraticEquationConstraint(String tag) {
+    QuadraticEquationConstraint(String tag, String... factorNamesInUse) {
       this.tag = tag;
+      this.factorNamesInUse = factorNamesInUse;
     }
 
     @Override
@@ -99,6 +103,11 @@ public class QuadraticEquationSolverTest7 {
     @Override
     public String tag() {
       return this.tag;
+    }
+
+    @Override
+    public List<String> getFactorNamesInUse() {
+      return Arrays.asList(this.factorNamesInUse);
     }
 
     abstract protected boolean check(QuadraticEquationSolverTest7 testObject) throws UndefinedSymbol;
