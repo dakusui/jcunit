@@ -12,7 +12,7 @@ Until then, please use [0.6.x](https://github.com/dakusui/jcunit/wiki/0.6.x), cu
 stable versions, for normal purposes.
 
 [![Build Status](https://travis-ci.org/dakusui/jcunit.svg?branch=0.7.x-develop)](https://travis-ci.org/dakusui/0.7.x-develop)
-[![codecov.io](https://codecov.io/github/dakusui/jcunit/coverage.svg?branch=0.7.x-develop)](https://codecov.io/github/dakusui/fruitjuice?branch=0.7.x-develop)
+[![codecov.io](https://codecov.io/github/dakusui/jcunit/coverage.svg?branch=0.7.x-develop)](https://codecov.io/github/dakusui/jcunit?branch=0.7.x-develop)
 
 # Installation
 JCUnit requires Java SE6 or later.
