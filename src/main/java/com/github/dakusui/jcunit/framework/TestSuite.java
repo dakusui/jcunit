@@ -14,6 +14,7 @@ import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
+import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 
 import java.lang.reflect.Array;
@@ -57,6 +58,15 @@ public class TestSuite extends AbstractList<TestCase> {
   @Override
   public int size() {
     return this.testCases.size();
+  }
+
+  public <T extends TestCase> List<T> getTestCases() {
+    //noinspection unchecked
+    return (List<T>) this;
+  }
+
+  public static TestSuite createFrom(Class<?> testClass) {
+    return new JCUnit.Initializer(testClass).getTestSuite();
   }
 
   /**
@@ -358,7 +368,6 @@ public class TestSuite extends AbstractList<TestCase> {
                           }
                         };
                       }
-                      ;
                       return null;
                     }
                   }
