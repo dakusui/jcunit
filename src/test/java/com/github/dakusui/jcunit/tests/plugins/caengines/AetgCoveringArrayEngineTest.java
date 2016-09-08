@@ -12,6 +12,7 @@ import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.plugins.caengines.AetgCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertEquals;
@@ -116,6 +117,7 @@ public class AetgCoveringArrayEngineTest {
     assertEquals(10, testSuite.size());
   }
 
+  @Ignore // Please remove this annotation when you develop constraint handling for Aetg
   @Test(timeout = 30000)
   public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$twoFactorConstraintPresent() {
     int strength = 2;
@@ -142,6 +144,7 @@ public class AetgCoveringArrayEngineTest {
     assertEquals(10, testSuite.size());
   }
 
+  @Ignore // Please remove this annotation when you develop constraint handling for Aetg
   @Test(timeout = 30000)
   public void aetgTestSuiteBuildingNegativeTestGenerationEnabled$twoTwoFactorConstraintPresent() {
     int strength = 2;

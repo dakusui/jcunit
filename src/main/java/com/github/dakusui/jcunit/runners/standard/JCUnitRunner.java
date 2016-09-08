@@ -75,7 +75,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   }
 
   /**
-   * Overrides super class's {@code createTestObject()} method, which throws a {@code java.lang.Exception},
+   * Overrides super class's {@code createTest()} method, which throws a {@code java.lang.Exception},
    * to simplify exception handling.
    */
   @Override
