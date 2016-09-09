@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.IOUtils;
 import com.github.dakusui.jcunit.core.utils.SystemProperties;
 import com.github.dakusui.jcunit.core.utils.Utils;
+import com.github.dakusui.jcunit.core.utils.Utils.Form;
 import com.github.dakusui.jcunit.coverage.Metrics;
 import com.github.dakusui.jcunit.coverage.Report;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
@@ -36,6 +37,7 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 
 public class JCUnit extends Parameterized {
   private final List<Runner> runners;
@@ -49,23 +51,24 @@ public class JCUnit extends Parameterized {
     super(klass);
     try {
       Initializer initializer = new Initializer(klass) {
-        TestSuite createTestSuite(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) throws Throwable {
+        TestSuite createTestSuite(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) {
           List<NumberedTestCase> testCases;
           TestSuite testSuite;
           if (!SystemProperties.reuseTestSuite() || !IOUtils.determineTestSuiteFile(JCUnit.this.getTestClass().getJavaClass()).exists()) {
             testCases = this.generateTestCases(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine);
             ////
             // Create and hold a test suite object to use it in rules.
-            testSuite = new TestSuite(testCases);
+            testSuite = new TestSuite(factorSpace, testCases);
             if (SystemProperties.reuseTestSuite()) {
               this.saveTestCases(JCUnit.this.getTestClass().getJavaClass(), testCases);
             }
           } else {
             testCases = this.loadTestCases(JCUnit.this.getTestClass().getJavaClass());
-            testSuite = new TestSuite(testCases);
+            testSuite = new TestSuite(factorSpace, testCases);
           }
           return testSuite;
         }
+
         void saveTestCases(Class<?> javaClass, List<NumberedTestCase> testCases) {
           File testSuiteFile = IOUtils.determineTestSuiteFile(checknotnull(javaClass));
           if (!testSuiteFile.exists()) {
@@ -81,7 +84,7 @@ public class JCUnit extends Parameterized {
           return (List<NumberedTestCase>) ret;
         }
       }.invoke();
-      this.runners = initializer.getRunners();
+      this.runners = initializer.createRunners();
       // reporter creation must be done after other instances are created, because it depends on
       // factors and constraints. This isn't a good design, though... (FIXME)
       final List<Metrics<?>> metricsList = new LinkedList<Metrics<?>>();
@@ -93,7 +96,7 @@ public class JCUnit extends Parameterized {
       // process entire test suite by metrics objects whose targets are specified "All"
       for (Metrics each : metricsList) {
         //noinspection unchecked
-        each.process(Utils.transform(initializer.getTestCases(), new Utils.Form<TestCase, Tuple>() {
+        each.process(transform(initializer.getTestCases(), new Form<TestCase, Tuple>() {
           @Override
           public Tuple apply(TestCase in) {
             return in.getTuple();
@@ -243,8 +246,8 @@ public class JCUnit extends Parameterized {
   public static class NumberedTestCase extends TestCase {
     private final int id;
 
-    public NumberedTestCase(int id, Type type, Tuple tuple) {
-      super(type, tuple);
+    public NumberedTestCase(int id, Category category, Tuple tuple) {
+      super(category, tuple);
       this.id = id;
     }
 
@@ -254,24 +257,18 @@ public class JCUnit extends Parameterized {
   }
 
   public static class Initializer {
-    final Class<?>      klass;
-    RunnerContext runnerContext;
-    List<Runner>  runners;
-    TestSuite     testSuite;
+    final Class<?> klass;
+    RunnerContext                    runnerContext;
+    TestSuite                        testSuite;
+    FactorSpace                      factorSpace;
+    ConstraintChecker                constraintChecker;
+    Map<FrameworkMethod, Set<Tuple>> coveredMethods;
 
     public Initializer(Class<?> klass) {
       this.klass = checknotnull(klass);
     }
 
-    public RunnerContext getRunnerContext() {
-      return runnerContext;
-    }
-
-    public List<NumberedTestCase> getTestCases() {
-      return this.testSuite.getTestCases();
-    }
-
-    public Initializer invoke() throws Throwable {
+    public Initializer invoke() {
       this.runnerContext = new RunnerContext.Base(this.klass);
       TestClass testClass = new TestClass(this.klass);
       List<FrameworkMethod> preconditionMethods = testClass.getAnnotatedMethods(Precondition.class);
@@ -287,23 +284,27 @@ public class JCUnit extends Parameterized {
           return true;
         }
       });
-      runnerContext.setFactors(builder.build());
-      final ConstraintChecker constraintChecker = new ConstraintChecker.Builder(getChecker(klass), runnerContext).build();
-      runnerContext.setConstraintChecker(constraintChecker);
-      final FactorSpace factorSpace = new FactorSpace.Builder()
+      this.runnerContext.setFactors(builder.build());
+      this.constraintChecker = new ConstraintChecker.Builder(getChecker(klass), runnerContext).build();
+      this.runnerContext.setConstraintChecker(constraintChecker);
+      CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.FromAnnotation(getGenerator(klass), runnerContext).build();
+      this.factorSpace = new FactorSpace.Builder()
           .addFactorDefs(factorDefs)
           .setTopLevelConstraintChecker(constraintChecker)
           .build();
-      CoveringArrayEngine coveringArrayEngine = new CoveringArrayEngine.FromAnnotation(getGenerator(klass), runnerContext).build();
       // validate constraint checker
       validateConstraintChecker(constraintChecker);
       // END: Plugin creation
       ////
       this.testSuite = createTestSuite(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine);
-      final Map<FrameworkMethod, Set<Tuple>> coveredMethods = new HashMap<FrameworkMethod, Set<Tuple>>();
-      this.runners = Utils.transform(
-          testSuite,
-          new Utils.Form<TestCase, Runner>() {
+      this.coveredMethods = new HashMap<FrameworkMethod, Set<Tuple>>();
+      return this;
+    }
+
+    public List<Runner> createRunners() {
+      return transform(
+          this.testSuite,
+          new Form<TestCase, Runner>() {
 
             @Override
             public Runner apply(TestCase in) {
@@ -312,25 +313,33 @@ public class JCUnit extends Parameterized {
                     Initializer.this.klass,
                     factorSpace,
                     constraintChecker,
-                    testSuite,
+                    Initializer.this.testSuite,
                     coveredMethods,
                     (NumberedTestCase) in);
               } catch (InitializationError initializationError) {
-                throw Checks.wrap(initializationError);
+                throw Checks.wraptesterror(initializationError, "Found errors: %s", initializationError.getCauses());
               }
             }
           });
-      return this;
     }
 
-    TestSuite createTestSuite(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) throws Throwable {
-      return new TestSuite(this.generateTestCases(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine));
-    }
-    public List<Runner> getRunners() {
-      return this.runners;
+    public RunnerContext getRunnerContext() {
+      return runnerContext;
     }
 
-    public List<NumberedTestCase> generateTestCases(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) throws Throwable {
+    public List<NumberedTestCase> getTestCases() {
+      return this.testSuite.getTestCases();
+    }
+
+    public FactorSpace getFactorSpace() {
+      return this.factorSpace;
+    }
+
+    TestSuite createTestSuite(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) {
+      return new TestSuite(factorSpace, this.generateTestCases(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine));
+    }
+
+    public List<NumberedTestCase> generateTestCases(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) {
       ////
       // Generate a list of test cases using a specified tuple generator
       CoveringArray ca = coveringArrayEngine.generate(factorSpace);
@@ -340,7 +349,7 @@ public class JCUnit extends Parameterized {
         Tuple testCase = ca.get(id);
         if (shouldPerform(testCase, preconditionMethods)) {
           testCases.add(
-              new NumberedTestCase(id, TestCase.Type.REGULAR, testCase
+              new NumberedTestCase(id, TestCase.Category.REGULAR, testCase
               ));
         }
       }
@@ -353,7 +362,7 @@ public class JCUnit extends Parameterized {
           testCases,
           id,
           violations,
-          TestCase.Type.VIOLATION,
+          TestCase.Category.VIOLATION,
           preconditionMethods);
       ////
       // Compose a list of 'custom test cases' and register them.
@@ -361,7 +370,7 @@ public class JCUnit extends Parameterized {
           testCases,
           id,
           invokeCustomTestCasesMethod(customTestCaseMethods),
-          TestCase.Type.CUSTOM,
+          TestCase.Category.CUSTOM,
           preconditionMethods);
       Checks.checkenv(testCases.size() > 0, "No test to be run was found.");
       return testCases;
@@ -390,12 +399,11 @@ public class JCUnit extends Parameterized {
         List<NumberedTestCase> testCases,
         int id,
         Iterable<Tuple> testCaseTuplesToBeAdded,
-        TestCase.Type type,
-        List<FrameworkMethod> preconditionMethods)
-        throws Throwable {
+        TestCase.Category category,
+        List<FrameworkMethod> preconditionMethods) {
       for (Tuple testCase : testCaseTuplesToBeAdded) {
         if (shouldPerform(testCase, preconditionMethods)) {
-          testCases.add(new NumberedTestCase(id, type, testCase));
+          testCases.add(new NumberedTestCase(id, category, testCase));
         }
         id++;
       }

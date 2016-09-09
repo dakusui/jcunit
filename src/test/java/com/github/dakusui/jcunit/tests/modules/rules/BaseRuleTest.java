@@ -24,11 +24,11 @@ public class BaseRuleTest extends BaseRule {
   @Mock
   public InternalAnnotation ann;
 
-  Class<?>      testClass = BaseRuleTest.class;
-  Factors       factors   = new Factors.Builder().add(new Factor.Builder("f1").addLevel(1).build()).build();
-  Tuple         tuple     = new Tuple.Builder().build();
-  TestCase.Type type      = TestCase.Type.CUSTOM;
-  TestCase      testCase  = new JCUnit.NumberedTestCase(123, this.type, this.tuple);
+  Class<?>          testClass = BaseRuleTest.class;
+  Factors           factors   = new Factors.Builder().add(new Factor.Builder("f1").addLevel(1).build()).build();
+  Tuple             tuple     = new Tuple.Builder().build();
+  TestCase.Category category  = TestCase.Category.CUSTOM;
+  TestCase          testCase  = new JCUnit.NumberedTestCase(123, this.category, this.tuple);
 
 
   @SuppressWarnings("unchecked")
@@ -44,7 +44,7 @@ public class BaseRuleTest extends BaseRule {
   @Test
   public void testJCUnitRule() {
     starting(description);
-    assertEquals(type, this.getTestCase().getType());
+    assertEquals(category, this.getTestCase().getCategory());
     assertEquals(testClass, this.getTestClass());
     assertEquals("methodName", this.getTestName());
     assertEquals(tuple, this.getTestCase().getTuple());

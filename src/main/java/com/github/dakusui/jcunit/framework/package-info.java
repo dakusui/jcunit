@@ -15,7 +15,7 @@
  *   +-----------------+      +---------+       +-----------+        +-----+
  *   |TestSuite.Builder|- - ->|TestSuite|<>---->|TestCase   |<>----->|Tuple|
  *   +-----------------+      +---------+ 1   * +-----------+ 1    1 +-----+
- *           1|                                 |Type  type |
+ *           1|                                 |Category  type |
  *            |                                 +-----------+
  *            |
  *            |               +---------------------------+
@@ -38,7 +38,7 @@
  * 009:     .addFloatFactor("float")
  * 010:     .addDoubleFactor("double")
  * 011:     .addStringFactor("string")
- * 012:     .addEnumLevels("enum", TestCase.Type.class)
+ * 012:     .addEnumLevels("enum", TestCase.Category.class)
  * 013:     .addConstraint(new TestSuite.Builder.Predicate("aConstraint") {
  * 014:         public boolean apply(Tuple in) {
  * 015:             return !in.get("factor1").equals(1);
@@ -88,8 +88,8 @@
  * <p/>
  * In order to know whether a test case in a {@link com.github.dakusui.jcunit.framework.TestSuite} is
  * generated as regular or violation one,
- * you can use {@link com.github.dakusui.jcunit.framework.TestCase#getType()} method which returns
- * {@link com.github.dakusui.jcunit.framework.TestCase.Type}.
+ * you can use {@link com.github.dakusui.jcunit.framework.TestCase#getCategory()} method which returns
+ * {@link com.github.dakusui.jcunit.framework.TestCase.Category}.
  * <p/>
  * <p/>
  * Note that even if a test case is generated as a violation one, it may not violate any given constraint.
@@ -98,7 +98,7 @@
  * tries to cover it by modifying regular test case. And it is possible the test case happens not to violate
  * any constraint.
  * <p/>
- * Therefore, the {@code TestCase.Type} returned by {@code TestCase#getType()} method should be considered
+ * Therefore, the {@code TestCase.Category} returned by {@code TestCase#getCategory()} method should be considered
  * it is representing "how" it is generated.
  * <p/>
  * <p/>
@@ -118,7 +118,7 @@
  * @see com.github.dakusui.jcunit.framework.TestSuite
  * @see com.github.dakusui.jcunit.framework.TestSuite.Builder
  * @see com.github.dakusui.jcunit.framework.TestCase
- * @see com.github.dakusui.jcunit.framework.TestCase.Type
+ * @see com.github.dakusui.jcunit.framework.TestCase.Category
  * @see com.github.dakusui.jcunit.runners.standard.annotations.FactorField
  * @see java.util.Map
  */

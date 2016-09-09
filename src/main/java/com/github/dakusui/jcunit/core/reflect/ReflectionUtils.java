@@ -82,7 +82,7 @@ public enum ReflectionUtils {
    *
    * @param obj An object from which {@code f}'s value is retrieved.
    * @param f   A field of which value is retrieved.
-   * @param <T> Type of the returned value.
+   * @param <T> Category of the returned value.
    */
   public static <T> T getFieldValue(Object obj, Field f) {
     try {
@@ -166,7 +166,7 @@ public enum ReflectionUtils {
    * @param obj    An object on which {@code method} is invoked.
    * @param method A {@code method} to be invoked.
    * @param args   Arguments given to {@code method}.
-   * @param <T>    Type of returned value from {@code method}.
+   * @param <T>    Category of returned value from {@code method}.
    */
   public static <T> T invoke(Object obj, Method method, Object... args) {
     try {

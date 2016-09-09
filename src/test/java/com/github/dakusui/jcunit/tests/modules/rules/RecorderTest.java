@@ -32,12 +32,12 @@ public class RecorderTest extends Recorder implements Serializable {
   @Mock
   public InternalAnnotation ann;
 
-  Class<?>      testClass = RecorderTest.class;
-  Factors       factors   = new Factors.Builder()
+  Class<?>          testClass = RecorderTest.class;
+  Factors           factors   = new Factors.Builder()
       .add(new Factor.Builder("f1").addLevel(1).build()).build();
-  Tuple         tuple     = new Tuple.Builder().build();
-  TestCase.Type type      = TestCase.Type.REGULAR;
-  TestCase      testCase  = new JCUnit.NumberedTestCase(123, this.type, this.tuple);
+  Tuple             tuple     = new Tuple.Builder().build();
+  TestCase.Category category  = TestCase.Category.REGULAR;
+  TestCase          testCase  = new JCUnit.NumberedTestCase(123, this.category, this.tuple);
 
   public RecorderTest() {
     super(baseDir().getAbsolutePath());
@@ -135,8 +135,8 @@ public class RecorderTest extends Recorder implements Serializable {
       throws IOException {
     System.setProperty(SystemProperties.Key.RECORDER.key(), "true");
     System.setProperty(SystemProperties.Key.REPLAYER.key(), "true");
-    this.type = TestCase.Type.CUSTOM;
-    this.testCase  = new JCUnit.NumberedTestCase(123, this.type, this.tuple);
+    this.category = TestCase.Category.CUSTOM;
+    this.testCase  = new JCUnit.NumberedTestCase(123, this.category, this.tuple);
     wireMocks();
     whenInitializeDirSaveAndLoad$thenDoNotWriteAnything(false);
   }

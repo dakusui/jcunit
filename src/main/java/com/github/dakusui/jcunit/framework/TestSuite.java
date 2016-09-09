@@ -15,7 +15,11 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.Runner;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -29,9 +33,10 @@ import static java.util.Arrays.asList;
 /**
  * A class that represents a suite of test cases.
  */
-public class TestSuite extends AbstractList<TestCase> {
+public class TestSuite extends AbstractList<TestCase> implements List<TestCase> {
 
   private final List<TestCase> testCases;
+  private final FactorSpace    factorSpace;
 
   /**
    * Creates an object of this class.
@@ -40,7 +45,8 @@ public class TestSuite extends AbstractList<TestCase> {
    * @param testCases A list of test cases.
    * @see TestSuite.Builder
    */
-  public TestSuite(List<? extends TestCase> testCases) {
+  public TestSuite(FactorSpace factorSpace, List<? extends TestCase> testCases) {
+    this.factorSpace = factorSpace;
     this.testCases = Utils.newUnmodifiableList(testCases);
   }
 
@@ -65,8 +71,60 @@ public class TestSuite extends AbstractList<TestCase> {
     return (List<T>) this;
   }
 
-  public static TestSuite createFrom(Class<?> testClass) {
-    return new JCUnit.Initializer(testClass).getTestSuite();
+  public FactorSpace getFactorSpace() {
+    return factorSpace;
+  }
+
+  public static class Typed<T> extends TestSuite {
+    private final Class<T>           modelClass;
+    private final JCUnit.Initializer initializer;
+    private List<Runner> runners = null;
+
+    /**
+     * Creates an object of this class.
+     * Users of {@link Builder} do not need to call this constructor by themselves.
+     *
+     * @see Builder
+     */
+    protected Typed(Class<T> modelClass, JCUnit.Initializer initializer) {
+      super(initializer.getFactorSpace(), initializer.getTestCases());
+      this.initializer = initializer;
+      this.modelClass = checknotnull(modelClass);
+    }
+
+    public T inject(int i) {
+      return this.getInjector().apply(get(i).getTuple());
+    }
+
+    public Runner concretize(int i) {
+      synchronized (this) {
+        if (this.runners == null) {
+          this.runners = initializer.createRunners();
+        }
+      }
+      return this.runners.get(i);
+    }
+
+    public Result execute(int i) {
+      return new JUnitCore().run(concretize(i));
+    }
+
+    public Class<T> getModelClass() {
+      return this.modelClass;
+    }
+
+    public Form<Tuple, T> getInjector() {
+      return new Form<Tuple, T>() {
+        @Override
+        public T apply(Tuple in) {
+          return TestCaseUtils.toTestObject(Typed.this.getModelClass(), in);
+        }
+      };
+    }
+
+    public static <T> Typed<T> generate(final Class<T> testClass) {
+      return new Typed<T>(testClass, new JCUnit.Initializer(testClass).invoke());
+    }
   }
 
   /**
@@ -82,7 +140,7 @@ public class TestSuite extends AbstractList<TestCase> {
   }
 
   /**
-   * A predicate interface for a {@code Tuple}. Mainly used to define a constraint used by
+   * A predicate base class for a {@code Tuple}. Mainly used to define a constraint used by
    * {@link Builder#addConstraint} method.
    *
    * @see Builder#addConstraint(TestSuite.Predicate)
@@ -348,10 +406,10 @@ public class TestSuite extends AbstractList<TestCase> {
         }
       }));
       ConstraintChecker checker = new MySmartConstraintChecker();
-      factorSpaceBuilder.setTopLevelConstraintChecker(checker);
+      FactorSpace factorSpace = factorSpaceBuilder.setTopLevelConstraintChecker(checker).build();
       List<TestCase> testCases = new LinkedList<TestCase>();
       testCases.addAll(Utils.transform(
-          this.coveringArrayEngine.generate(factorSpaceBuilder.build()),
+          this.coveringArrayEngine.generate(factorSpace),
           new Utils.Form<Tuple, TestCase>() {
             @Override
             public TestCase apply(final Tuple in) {
@@ -370,8 +428,7 @@ public class TestSuite extends AbstractList<TestCase> {
                       }
                       return null;
                     }
-                  }
-                  ),
+                  }),
                   new Utils.Predicate<Map.Entry<Predicate, Tuple>>() {
                     @Override
                     public boolean apply(Map.Entry<Predicate, Tuple> in) {
@@ -385,7 +442,7 @@ public class TestSuite extends AbstractList<TestCase> {
                   coveringArrayEngine.getClass().getCanonicalName(),
                   violations
               );
-              return new TestCase(TestCase.Type.REGULAR, in);
+              return new TestCase(TestCase.Category.REGULAR, in);
             }
           }
       ));
@@ -396,7 +453,7 @@ public class TestSuite extends AbstractList<TestCase> {
               @Override
               public TestCase apply(final Tuple in) {
                 return new TestCaseWithViolatedConstraints(
-                    TestCase.Type.VIOLATION,
+                    TestCase.Category.VIOLATION,
                     in,
                     filter(
                         constraints,
@@ -412,7 +469,7 @@ public class TestSuite extends AbstractList<TestCase> {
             }
         ));
       }
-      return new TestSuite(testCases);
+      return new TestSuite(factorSpace, testCases);
     }
 
     /**
@@ -458,8 +515,8 @@ public class TestSuite extends AbstractList<TestCase> {
     static class TestCaseWithViolatedConstraints extends TestCase {
       private final List<Predicate> constraints;
 
-      protected TestCaseWithViolatedConstraints(Type type, Tuple tuple, List<Predicate> constraints) {
-        super(type, tuple);
+      protected TestCaseWithViolatedConstraints(Category category, Tuple tuple, List<Predicate> constraints) {
+        super(category, tuple);
         this.constraints = Collections.unmodifiableList(checknotnull(constraints));
       }
     }

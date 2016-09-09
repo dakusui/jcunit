@@ -10,24 +10,24 @@ import java.io.Serializable;
  * A class that represents a test case.
  */
 public class TestCase implements Serializable {
-  private final Type    type;
-  private final Tuple   tuple;
+  private final Category category;
+  private final Tuple    tuple;
 
   /**
    * Creates an object of this class.
    */
-  protected TestCase(Type type, Tuple tuple) {
-    this.type = Checks.checknotnull(type);
+  protected TestCase(Category category, Tuple tuple) {
+    this.category = Checks.checknotnull(category);
     this.tuple = Checks.checknotnull(tuple);
   }
 
   /**
-   * Returns a type of this object, which represents how this object is generated.
+   * Returns a category of test object, which represents how this object is generated.
    *
-   * @see Type
+   * @see Category
    */
-  public Type getType() {
-    return type;
+  public Category getCategory() {
+    return category;
   }
 
   /**
@@ -42,9 +42,9 @@ public class TestCase implements Serializable {
   }
 
   /**
-   * A type to categorize test cases based on how it is generated.
+   * An enumeration to categorize test cases based on how it is generated.
    */
-  public enum Type {
+  public enum Category {
     /**
      * A custom test case, which is returned by a method annotated with {@literal @}{@code CustomTestCases}.
      */
