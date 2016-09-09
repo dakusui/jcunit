@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import org.junit.Test;
+import org.junit.runner.Result;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
@@ -85,7 +85,14 @@ public class TypedTestSuiteTest {
   }
 
   @Test
-  public void test() {
-    System.out.println(TestSuite.Typed.generate(TestClass.class).execute(0));
+  public void givenSimpleTestClass$whenCreateTypedTestSuite$thenTestCaseCanBeRun() {
+    Result result = TestSuite.Typed.generate(TestClass.class).execute(0);
+    assertEquals(1, result.getRunCount());
+    assertEquals(0, result.getFailureCount());
+  }
+
+  @Test
+  public void givenSimpleTestClass$whenCreateTypedTestSuite$thenModelClassCorrect() {
+    assertEquals(TestClass.class, TestSuite.Typed.generate(TestClass.class).getModelClass());
   }
 }

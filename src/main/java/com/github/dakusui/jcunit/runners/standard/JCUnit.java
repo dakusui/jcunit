@@ -50,7 +50,7 @@ public class JCUnit extends Parameterized {
     // We have overridden createTestClass method. For detail refer to the method.
     super(klass);
     try {
-      Initializer initializer = new Initializer(klass) {
+      Engine engine = new Engine(klass) {
         TestSuite createTestSuite(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) {
           List<NumberedTestCase> testCases;
           TestSuite testSuite;
@@ -83,20 +83,20 @@ public class JCUnit extends Parameterized {
           //noinspection unchecked
           return (List<NumberedTestCase>) ret;
         }
-      }.invoke();
-      this.runners = initializer.createRunners();
+      };
+      this.runners = engine.createRunners();
       // reporter creation must be done after other instances are created, because it depends on
       // factors and constraints. This isn't a good design, though... (FIXME)
       final List<Metrics<?>> metricsList = new LinkedList<Metrics<?>>();
       for (Reporter each : getReporters(klass)) {
-        metricsList.add(new Metrics.Builder(each, initializer.getRunnerContext()).build());
+        metricsList.add(new Metrics.Builder(each, engine.getRunnerContext()).build());
       }
       ////
       // Issue-#10
       // process entire test suite by metrics objects whose targets are specified "All"
       for (Metrics each : metricsList) {
         //noinspection unchecked
-        each.process(transform(initializer.getTestCases(), new Form<TestCase, Tuple>() {
+        each.process(transform(engine.getTestCases(), new Form<TestCase, Tuple>() {
           @Override
           public Tuple apply(TestCase in) {
             return in.getTuple();
@@ -256,19 +256,16 @@ public class JCUnit extends Parameterized {
     }
   }
 
-  public static class Initializer {
-    final Class<?> klass;
-    RunnerContext                    runnerContext;
-    TestSuite                        testSuite;
-    FactorSpace                      factorSpace;
-    ConstraintChecker                constraintChecker;
-    Map<FrameworkMethod, Set<Tuple>> coveredMethods;
+  public static class Engine implements TestSuite.Typed.ModelingEngine {
+    final Class<?>                         klass;
+    final RunnerContext                    runnerContext;
+    final TestSuite                        testSuite;
+    final FactorSpace                      factorSpace;
+    final ConstraintChecker                constraintChecker;
+    final Map<FrameworkMethod, Set<Tuple>> coveredMethods;
 
-    public Initializer(Class<?> klass) {
+    public Engine(Class<?> klass) {
       this.klass = checknotnull(klass);
-    }
-
-    public Initializer invoke() {
       this.runnerContext = new RunnerContext.Base(this.klass);
       TestClass testClass = new TestClass(this.klass);
       List<FrameworkMethod> preconditionMethods = testClass.getAnnotatedMethods(Precondition.class);
@@ -298,9 +295,9 @@ public class JCUnit extends Parameterized {
       ////
       this.testSuite = createTestSuite(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine);
       this.coveredMethods = new HashMap<FrameworkMethod, Set<Tuple>>();
-      return this;
     }
 
+    @Override
     public List<Runner> createRunners() {
       return transform(
           this.testSuite,
@@ -310,10 +307,10 @@ public class JCUnit extends Parameterized {
             public Runner apply(TestCase in) {
               try {
                 return new JCUnitRunner(
-                    Initializer.this.klass,
+                    Engine.this.klass,
                     factorSpace,
                     constraintChecker,
-                    Initializer.this.testSuite,
+                    Engine.this.testSuite,
                     coveredMethods,
                     (NumberedTestCase) in);
               } catch (InitializationError initializationError) {
@@ -323,14 +320,32 @@ public class JCUnit extends Parameterized {
           });
     }
 
+    @Override
+    public <T> Form<Tuple, T> getInjector() {
+      return new Form<Tuple, T>() {
+        @Override
+        public T apply(Tuple in) {
+          //noinspection unchecked
+          return TestCaseUtils.toTestObject((Class<T>) Engine.this.klass, in);
+        }
+      };
+    }
+
     public RunnerContext getRunnerContext() {
       return runnerContext;
     }
 
+    @Override
     public List<NumberedTestCase> getTestCases() {
       return this.testSuite.getTestCases();
     }
 
+    @Override
+    public TestSuite.Typed.ModelingEngine engine() {
+      return this;
+    }
+
+    @Override
     public FactorSpace getFactorSpace() {
       return this.factorSpace;
     }
