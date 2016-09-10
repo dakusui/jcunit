@@ -82,7 +82,7 @@ public class QuadraticEquationSolverTestX {
   public void solveEquation$ThenSolutionsArePreciseEnough() {
     try {
       System.out.println(String
-          .format("desc=(%s,%s)", desc.getTestName(), desc.getTestCase().getType()));
+          .format("desc=(%s,%s)", desc.getTestName(), desc.getTestCase().getCategory()));
       QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
           c).solve();
       assertThat(String.format("(a,b,c)=(%d,%d,%d)", a, b, c),

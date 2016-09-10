@@ -24,9 +24,9 @@ public class TestSuiteBuilderTest {
     assertEquals(2, testSuite.get(0).getTuple().get("factor1"));
     assertEquals(3, testSuite.get(1).getTuple().get("factor1"));
     assertEquals(1, testSuite.get(2).getTuple().get("factor1"));
-    assertEquals(TestCase.Type.REGULAR, testSuite.get(0).getType());
-    assertEquals(TestCase.Type.REGULAR, testSuite.get(1).getType());
-    assertEquals(TestCase.Type.VIOLATION, testSuite.get(2).getType());
+    assertEquals(TestCase.Category.REGULAR, testSuite.get(0).getCategory());
+    assertEquals(TestCase.Category.REGULAR, testSuite.get(1).getCategory());
+    assertEquals(TestCase.Category.VIOLATION, testSuite.get(2).getCategory());
     assertEquals(1, TestSuite.getViolatedConstraints(testSuite.get(2)).size());
     assertEquals("factor1 mustn't be 1", TestSuite.getViolatedConstraints(testSuite.get(2)).get(0).tag);
   }
@@ -46,8 +46,8 @@ public class TestSuiteBuilderTest {
     assertEquals(2, testSuite.size());
     assertEquals(2, testSuite.get(0).getTuple().get("factor1"));
     assertEquals(3, testSuite.get(1).getTuple().get("factor1"));
-    assertEquals(TestCase.Type.REGULAR, testSuite.get(0).getType());
-    assertEquals(TestCase.Type.REGULAR, testSuite.get(1).getType());
+    assertEquals(TestCase.Category.REGULAR, testSuite.get(0).getCategory());
+    assertEquals(TestCase.Category.REGULAR, testSuite.get(1).getCategory());
   }
 
   @Test
@@ -63,7 +63,7 @@ public class TestSuiteBuilderTest {
         .addFloatFactor("float")
         .addDoubleFactor("double")
         .addStringFactor("string")
-        .addEnumLevels("enum", TestCase.Type.class)
+        .addEnumLevels("enum", TestCase.Category.class)
         .build();
     assertEquals(87, testSuite.size());
   }
