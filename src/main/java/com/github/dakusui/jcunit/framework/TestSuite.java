@@ -84,7 +84,8 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
 
   /**
    * A typed version of {@link TestSuite} class.
-   * Instance of this class is constructed based on a model class by {@code ModelingEngine}
+   * Instance of this class is constructed  by {@code ModelingEngine} based on a
+   * given model class.
    *
    * @param <T> Type of model on which this test suite is generated.
    */
