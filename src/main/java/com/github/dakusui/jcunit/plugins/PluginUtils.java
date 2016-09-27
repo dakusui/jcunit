@@ -101,7 +101,7 @@ public enum PluginUtils {
               i++;
             }
 
-            return each.convert(requested, in[0]);
+            return ret;
           }
 
           @Override

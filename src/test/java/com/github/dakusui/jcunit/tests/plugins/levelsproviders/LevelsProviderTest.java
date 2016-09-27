@@ -7,13 +7,16 @@ import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import com.github.dakusui.jcunit.runners.standard.annotations.Value;
 import com.github.dakusui.jcunit.testutils.UTUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -98,10 +101,10 @@ public class LevelsProviderTest {
 
   @RunWith(JCUnit.class)
   public static class VerifyConfiguredLevelsProvider {
+    @Rule
+    public TestName testName = new TestName();
     @FactorField(
-        levelsProvider = ConfiguredLevelsProvider.class
-        , args = @Value("10")
-    )
+        levelsProvider = ConfiguredLevelsProvider.class, args = @Value("10"))
     public Struct struct;
 
     @BeforeClass
@@ -111,7 +114,79 @@ public class LevelsProviderTest {
 
     @Test
     public void testSimpleLevelsProvider1() {
-      UTUtils.stdout().println(this.struct);
+      assertThat(
+          testName.getMethodName(),
+          CoreMatchers.endsWith("[" + struct.c + "]")
+      );
+    }
+  }
+
+  static public class StringStruct {
+    String a;
+    String b;
+
+    StringStruct(String a, String b) {
+      this.a = a;
+      this.b = b;
+    }
+
+    @Override
+    public int hashCode() {
+      return this.toString().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object another) {
+      return another instanceof Struct && super.equals(another);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("(%s,%s)", a, b);
+    }
+
+  }
+
+  public static class ConfiguredVarArgsLevelsProvider extends LevelsProvider.Base {
+    private final String[] keys;
+
+    public ConfiguredVarArgsLevelsProvider(
+        @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.TEST_CLASS) Class<?> testClass,
+        @Param(source = Param.Source.CONFIG) String... keys
+    ) {
+      this.keys = keys;
+    }
+
+
+    public int size() {
+      return keys.length;
+    }
+
+    @Override
+    public StringStruct get(int n) {
+      return new StringStruct(keys[n], keys[n]);
+    }
+  }
+
+  @RunWith(JCUnit.class)
+  public static class VerifyConfiguredVarArgsLevelsProvider {
+    @FactorField(
+        levelsProvider = ConfiguredVarArgsLevelsProvider.class, args = { @Value({ "Hello", "world" }) })
+    public StringStruct struct;
+
+    @BeforeClass
+    public static void beforeAll() {
+      UTUtils.configureStdIOs();
+    }
+
+    @Test
+    public void testConfiguredVarArgsLevelsProvider1() {
+      assertThat(
+          struct.a,
+          anyOf(
+              equalTo("Hello"),
+              equalTo("world")
+          ));
     }
   }
 
