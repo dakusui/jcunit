@@ -11,7 +11,7 @@ public class Factor implements Iterable<Object> {
   public final String       name;
   public final List<Object> levels;
 
-  public Factor(String name, List<Object> levels) {
+  public Factor(String name, List<?> levels) {
     Checks.checknotnull(name, "A factor's 'name' mustn't be null");
     Checks.checknotnull(levels, "A factor's 'levels' mustn't be null(factor:'%s')", name);
     Checks.checkcond(levels.size() > 0, "Factor '%s' has no levels.", name);

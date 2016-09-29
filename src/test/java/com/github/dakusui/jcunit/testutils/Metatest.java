@@ -6,7 +6,7 @@ import org.junit.runner.Result;
 import static org.junit.Assert.assertEquals;
 
 /**
- * A class to verify result of a test class is not changed.
+ * A class to verify generatedTuples of a test class is not changed.
  */
 public abstract class Metatest {
   public final int expectedFailureCount;

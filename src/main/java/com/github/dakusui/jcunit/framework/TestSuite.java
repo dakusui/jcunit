@@ -127,7 +127,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
        * Each element in the returned list can be run by following code fragment.
        * <p>
        * <code>
-       * Result result = new JUnitCore().run(eachElement);
+       * Result generatedTuples = new JUnitCore().run(eachElement);
        * </code>
        */
       List<? extends Runner> createRunners();

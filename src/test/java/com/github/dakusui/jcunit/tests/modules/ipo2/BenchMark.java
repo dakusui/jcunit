@@ -1,18 +1,18 @@
 package com.github.dakusui.jcunit.tests.modules.ipo2;
 
-import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.testutils.PredicateExpectation;
 import com.github.dakusui.jcunit.testutils.tuples.NoConstraintViolationExpectation;
 import com.github.dakusui.jcunit.testutils.tuples.SanityExpectation;
 import com.github.dakusui.jcunit.testutils.tuples.ValidTuplesCoveredExpectation;
 import com.github.dakusui.jcunit.testutils.tuples.VerificationResult;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class BenchMark extends Ipo2Test {
   protected void verify(Factors factors, int strength, ConstraintChecker cm,
       TestGenerationResult actual) {
     System.out.println(StringUtils.format(
-        "%-40s:(testcases, remainders, time(sec))=(%4s, %4s, %s)",
+        "%-40s:(testcases, remainderTuples, time(sec))=(%4s, %4s, %s)",
         name.getMethodName(),
         actual.testCases.size(),
         actual.remainders.size(),
@@ -103,9 +103,9 @@ public class BenchMark extends Ipo2Test {
       ConstraintChecker constraintChecker,
       Ipo2Optimizer optimizer) {
     long before = System.currentTimeMillis();
-    Ipo2 ipo2 = createIPO2(factors, strength, constraintChecker, optimizer);
+    Ipo.Result result = createIPO2(factors, strength, constraintChecker, optimizer);
     long after = System.currentTimeMillis();
-    return new TestGenerationResult(ipo2.getResult(), ipo2.getRemainders(),
+    return new TestGenerationResult(result.getGeneratedTuples(), result.getRemainderTuples(),
         after - before);
   }
 

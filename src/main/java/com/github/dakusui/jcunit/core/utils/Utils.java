@@ -18,6 +18,29 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
  */
 public enum Utils {
   ;
+
+  private static final Predicate ALWAYS_TRUE = new Predicate() {
+    @Override
+    public boolean apply(Object in) {
+      return true;
+    }
+  };
+
+  public static <T> Predicate<T> not(final Predicate<T> predicate) {
+    checknotnull(predicate);
+    return new Predicate<T>() {
+      @Override
+      public boolean apply(T in) {
+        return !predicate.apply(in);
+      }
+    };
+  }
+
+  public static <T> Predicate<T> alwaysTrue() {
+    //noinspection unchecked
+    return (Predicate<T>)ALWAYS_TRUE;
+  }
+
   /**
    * Returns {@code true} if {@code v} and {@code} are equal,
    * {@code false} otherwise.
@@ -149,7 +172,7 @@ public enum Utils {
     checknotnull(form);
     ////
     // In most cases, it's better to use LinkedHashMap in JCUnit because
-    // it needs to guarantee the test case generation result the same always.
+    // it needs to guarantee the test case generation generatedTuples the same always.
     // So this method returns LinkedHashMap instead of HashMap.
     Map<K, V> ret = new LinkedHashMap<K, V>();
     for (V each : in) {

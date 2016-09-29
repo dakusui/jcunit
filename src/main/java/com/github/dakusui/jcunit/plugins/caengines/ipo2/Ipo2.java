@@ -1,52 +1,33 @@
 package com.github.dakusui.jcunit.plugins.caengines.ipo2;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
 import java.util.*;
 
-public class Ipo2 {
-  public static final Object DontCare = new Object() {
-    @Override
-    public String toString() {
-      return "D/C";
-    }
-  };
+public class Ipo2 extends Ipo {
 
-  private final ConstraintChecker constraintChecker;
-  private final Factors           factors;
-  private final int               strength;
-  private final Ipo2Optimizer     optimizer;
-  private       List<Tuple>       result;
-  private       List<Tuple>       remainders;
+  private final Ipo2Optimizer optimizer;
 
   public Ipo2(Factors factors, int strength,
       ConstraintChecker constraintChecker,
       Ipo2Optimizer optimizer) {
+    super(strength, constraintChecker, factors);
     Checks.checknotnull(factors);
     Checks.checkcond(factors.size() >= 2, "There must be 2 or more factors.");
-    Checks.checkcond(factors.size() >= strength,
-        "The strength must be greater than 1 and less than %d.",
-        factors.size());
-    Checks.checkcond(strength >= 2,
-        "The strength must be greater than 1 and less than %d.",
-        factors.size());
+    Checks.checkcond(factors.size() >= strength, "The strength must be greater than 1 and less than %d.", factors.size());
+    Checks.checkcond(strength >= 2, "The strength must be greater than 1 and less than %d.", factors.size());
     Checks.checknotnull(constraintChecker);
     Checks.checknotnull(optimizer);
-    this.factors = factors;
-    this.strength = strength;
-    this.result = null;
-    this.remainders = null;
-    this.constraintChecker = constraintChecker;
     this.optimizer = optimizer;
   }
 
@@ -75,29 +56,27 @@ public class Ipo2 {
       List<Tuple> tuples) {
     List<Tuple> ret = new ArrayList<Tuple>(tuples.size());
     for (Tuple cur : tuples) {
-      if (checkConstraints(cur)) {
+      if (makeSureTupleDoesnotViolateAnyConstraintExplicitly(cur)) {
         ret.add(cur);
       }
     }
     return ret;
   }
 
-  public void ipo() {
-    if (this.strength < this.factors.size()) {
-      this.remainders = new LinkedList<Tuple>();
-      this.result = initialTestCases(
-          factors.head(factors.get(this.strength).name)
-      );
-    } else if (factors.size() == this.strength) {
-      this.remainders = new LinkedList<Tuple>();
-      this.result = initialTestCases(this.factors);
-      return;
+  @Override
+  public Result ipo() {
+    if (factors.size() == this.strength) {
+      return new Result(
+          generateAllPossibleTuples(this.factors.asFactorList(), Utils.<Tuple>alwaysTrue()),
+          Collections.<Tuple>emptyList());
     }
+    List<Tuple> generatedTuples = generateAllPossibleTuples(
+        factors.head(factors.get(this.strength).name).asFactorList(),
+        Utils.<Tuple>alwaysTrue());
+    List<Tuple> remainderTuples = new LinkedList<Tuple>();
 
     Set<Tuple> leftOver = new LinkedHashSet<Tuple>();
-    for (String factorName :
-        this.factors.tail(this.factors.get(this.strength).name)
-            .getFactorNames()) {
+    for (String factorName : this.factors.tail(this.factors.get(this.strength).name).getFactorNames()) {
       ////
       // Initialize a set that holds all the tuples to be covered in this
       // iteration.
@@ -109,56 +88,25 @@ public class Ipo2 {
       ////
       // Expand test case set horizontally and get the list of test cases
       // that are proven to be invalid.
-      leftOver = hg(result, leftTuples, factors.get(factorName));
+      leftOver = hg(generatedTuples, leftTuples, factors.get(factorName));
       if (leftTuples.isEmpty()) {
         continue;
       }
       ////
       // Expand test case set vertically.
       if (factors.isLastKey(factorName)) {
-        leftOver = vg(result, leftTuples, factors);
+        leftOver = vg(generatedTuples, leftTuples, factors);
       } else {
-        leftOver = vg(result, leftTuples,
+        leftOver = vg(generatedTuples, leftTuples,
             factors.head(factors.nextKey(factorName)));
       }
     }
-    ////
-    // As a result of replacing don't care values, multiple test cases can be identical.
-    // By registering all the members to a new temporary set and adding them back to
-    // the original one, I'm removing those duplicates.
-    LinkedHashSet<Tuple> tmp = new LinkedHashSet<Tuple>(result);
-    this.result.clear();
-    this.result.addAll(tmp);
-    this.remainders.addAll(leftOver);
-  }
-
-  public List<Tuple> getResult() {
-    Checks.checkcond(this.result != null, "Execute ipo() method first");
-    return Collections.unmodifiableList(this.result);
-  }
-
-  public List<Tuple> getRemainders() {
-    Checks.checkcond(this.result != null, "Execute ipo() method first");
-    return Collections.unmodifiableList(this.remainders);
-  }
-
-  private List<Tuple> initialTestCases(
-      Factors factors) {
-    TupleUtils.CartesianTuples initialTestCases = TupleUtils
-        .enumerateCartesianProduct(
-            new Tuple.Impl(),
-            factors.asFactorList()
-                .toArray(new Factor[factors.asFactorList().size()])
-        );
-    List<Tuple> ret = new ArrayList<Tuple>((int) initialTestCases.size());
-    for (Tuple tuple : initialTestCases) {
-      ret.add(tuple);
-    }
-    return ret;
+    remainderTuples.addAll(leftOver);
+    return new Result(generatedTuples, remainderTuples).deduplicate();
   }
 
   /*
-     * Returns a list of test cases in {@code result} which are proven to be not
+     * Returns a list of test cases in {@code generatedTuples} which are proven to be not
      * possible under given constraints.
      */
   private Set<Tuple> hg(
@@ -181,7 +129,7 @@ public class Ipo2 {
             cur,
             leftTuples);
         cur.put(factorName, chosenLevel);
-        if (checkConstraints(cur)) {
+        if (makeSureTupleDoesnotViolateAnyConstraintExplicitly(cur)) {
           leftTuples.removeAll(TupleUtils.subtuplesOf(cur, this.strength));
           validLevelFound = true;
           break;
@@ -199,7 +147,7 @@ public class Ipo2 {
       }
     }
     ////
-    // Remove empty tests from the result.
+    // Remove empty tests from the generatedTuples.
     for (Tuple cur : invalidTests) {
       result.remove(cur);
     }
@@ -222,7 +170,7 @@ public class Ipo2 {
       Tuple best;
       int numCovered;
       Tuple t = factors.createTupleFrom(cur, DontCare);
-      if (checkConstraints(t)) {
+      if (makeSureTupleDoesnotViolateAnyConstraintExplicitly(t)) {
         best = t;
         numCovered = leftTuples.coveredBy(t).size();
       } else {
@@ -284,7 +232,7 @@ public class Ipo2 {
         ////
         // Sub-tuples that do not constraints 'explicitly' will be added
         // to 'leftOver' tuples.
-        if (this.checkConstraints(invalidatedSubTuple)) {
+        if (this.makeSureTupleDoesnotViolateAnyConstraintExplicitly(invalidatedSubTuple)) {
           leftOver.add(invalidatedSubTuple);
         }
       }
@@ -297,7 +245,7 @@ public class Ipo2 {
    * Throws a {@code GiveUp} when this method can't find a valid tuple.
    * <p/>
    * It's guaranteed that {@code tuple} doesn't violate constraints explicitly.
-   * But it is possible that it can violate them as a result of replacing "Don't care'
+   * But it is possible that it can violate them as a generatedTuples of replacing "Don't care'
    * value.
    */
   protected void fillInMissingFactors(
@@ -306,7 +254,7 @@ public class Ipo2 {
     Checks.checknotnull(tuple);
     Checks.checknotnull(leftTuples);
     Checks.checknotnull(constraintChecker);
-    if (!checkConstraints(tuple)) {
+    if (!makeSureTupleDoesnotViolateAnyConstraintExplicitly(tuple)) {
       throw new GiveUp(removeDontCareEntries(tuple));
     }
     Tuple work = this.optimizer
@@ -316,13 +264,13 @@ public class Ipo2 {
     Checks.checkcond(work.keySet().equals(tuple.keySet()),
         "Key set was modified from %s to %s", tuple.keySet(), work.keySet());
     Checks.checkcond(!work.containsValue(DontCare));
-    if (!checkConstraints(work)) {
+    if (!makeSureTupleDoesnotViolateAnyConstraintExplicitly(work)) {
       throw new GiveUp(removeDontCareEntries(work));
     }
     tuple.putAll(work);
   }
 
-  private boolean checkConstraints(Tuple cur) {
+  private boolean makeSureTupleDoesnotViolateAnyConstraintExplicitly(Tuple cur) {
     Checks.checknotnull(cur);
     try {
       return constraintChecker.check(removeDontCareEntries(cur));

@@ -1,10 +1,10 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 
 import java.util.*;
@@ -13,7 +13,7 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public abstract class SmartConstraintChecker implements ConstraintChecker {
   protected final Class<?> testClass;
-  protected final Factors factors;
+  protected final Factors  factors;
   /**
    * Constraints to be covered by this checker.
    * When {@code check} method is called the first time, this will be
@@ -38,8 +38,7 @@ public abstract class SmartConstraintChecker implements ConstraintChecker {
       this.factorLevelsToBeCovered = null;
     } else {
       this.factorLevelsToBeCovered = new LinkedHashSet<Tuple>(
-          factors.generateAllPossibleTuples(1)
-      );
+          factors.generateAllPossibleTuples(1));
     }
   }
 
