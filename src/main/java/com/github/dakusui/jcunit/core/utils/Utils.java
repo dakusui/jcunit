@@ -38,7 +38,7 @@ public enum Utils {
 
   public static <T> Predicate<T> alwaysTrue() {
     //noinspection unchecked
-    return (Predicate<T>)ALWAYS_TRUE;
+    return (Predicate<T>) ALWAYS_TRUE;
   }
 
   /**
@@ -213,6 +213,22 @@ public enum Utils {
 
   public static <T> List<T> newList() {
     return newList(Collections.<T>emptyList());
+  }
+
+  public static <T> Set<T> overlap(Set<T> setA, Set<T> setB) {
+    Set<T> ret;
+    if (setB.size() < setA.size()) {
+      ret = setA;
+      setA = setB;
+      setB = ret;
+    }
+    ret = new HashSet<T>();
+    for (T each : setA) {
+      if (setB.contains(each)) {
+        ret.add(each);
+      }
+    }
+    return ret;
   }
 
   public interface Form<I, O> {

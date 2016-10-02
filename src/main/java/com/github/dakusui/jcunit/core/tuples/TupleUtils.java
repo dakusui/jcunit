@@ -17,6 +17,13 @@ import java.util.*;
 public enum TupleUtils {
   ;
 
+  /**
+   * Returns cartesian product of given factors. If {@code base} is not empty,
+   * Levels of factors not listed in given {@code factors} will be taken from
+   * {@code base}.
+   * @param base Gives levels not listed in {@code factors}.
+   * @param factors Factors from which returned cartesian product will be calculated.
+   */
   public static CartesianTuples enumerateCartesianProduct(final Tuple base, Factor... factors) {
     Checks.checknotnull(base);
     return new CartesianTuples(base, factors);
