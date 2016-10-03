@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.core.utils.SystemProperties;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.utils.Utils.*;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -16,7 +17,6 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import java.util.*;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.enumerateCartesianProduct;
-import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.utils.Checks.wraptesterror;
 import static com.github.dakusui.jcunit.core.utils.Utils.*;
 
@@ -54,11 +54,12 @@ import static com.github.dakusui.jcunit.core.utils.Utils.*;
  * </pre>
  */
 public class Ipo3 extends Ipo {
-  static class AggregatedFactor extends Factor {
+  static class GroupedFactor extends Factor {
+    private static final int NUMBER_OF_RETRIES = 50;
 
     private final List<Factor> subfactors;
 
-    private AggregatedFactor(List<Factor> subfactors, List<Constraint> constraints, int strength) {
+    private GroupedFactor(List<Factor> subfactors, List<Constraint> constraints, int strength) {
       super(composeFactorName(subfactors), optimize(composeLevels(subfactors, constraints), strength));
       this.subfactors = Collections.unmodifiableList(subfactors);
     }
@@ -90,33 +91,43 @@ public class Ipo3 extends Ipo {
       List<Tuple> ret = new LinkedList<Tuple>();
       List<Tuple> work = new ArrayList<Tuple>(tuples);
       while (!subtuples.isEmpty()) {
-        ret.add(chooseNext(work, subtuples, strength));
+        Tuple next;
+        //noinspection StatementWithEmptyBody
+        while ((next = chooseNext(work, subtuples, strength)) == null) {
+          ////
+          // Could not choose that covers at least 1 sub tuple in a variable
+          // subtuples. This can happen but very rare.
+        }
+        ret.add(next);
       }
+
       return ret;
     }
 
     private static Tuple chooseNext(List<Tuple> work, Set<Tuple> subtuples, int strength) {
-      int retries = 50;
       int bestIndex = -1;
       Set<Tuple> subtuplesCoveredByCurrentBestTuple = null;
 
-      for (int i: randomizedIndexes(Math.min(work.size(), retries))) {
+      for (int i : randomizedIndexes(Math.min(work.size(), NUMBER_OF_RETRIES))) {
         Set<Tuple> overlap = Utils.overlap(TupleUtils.subtuplesOf(work.get(i), strength), subtuples);
         if (bestIndex == -1 || overlap.size() > subtuplesCoveredByCurrentBestTuple.size()) {
           bestIndex = i;
           subtuplesCoveredByCurrentBestTuple = overlap;
         }
       }
-      subtuples.removeAll(checknotnull(subtuplesCoveredByCurrentBestTuple));
-      return checknotnull(work.remove(bestIndex));
+      if (bestIndex == -1) {
+        return null;
+      }
+      subtuples.removeAll(subtuplesCoveredByCurrentBestTuple);
+      return work.remove(bestIndex);
     }
 
     private static int[] randomizedIndexes(int num) {
       List<Integer> work = new ArrayList<Integer>(num);
-      for (int i = 0 ; i < num; i++) {
+      for (int i = 0; i < num; i++) {
         work.add(i);
       }
-      Collections.shuffle(work, new Random(0));
+      Collections.shuffle(work, new Random(SystemProperties.randomSeed()));
       int[] ret = new int[num];
       for (int i = 0; i < num; i++) {
         ret[i] = work.get(i);
