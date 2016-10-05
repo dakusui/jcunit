@@ -30,7 +30,7 @@ import static com.github.dakusui.jcunit.core.utils.Utils.*;
  *         t parameters
  *     4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
  *     5.     let π be the set of t -way combinations of values involving parameter
- *             P i and t -1 parameters among the first i – 1 parameters
+ *            Pi and t -1 parameters among the first i – 1 parameters
  *     6.     // horizontal extension for parameter Pi
  *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
  *     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
@@ -39,16 +39,16 @@ import static com.github.dakusui.jcunit.core.utils.Utils.*;
  *     9.         remove from π the combinations of values covered by τ’
  *     10.    }
  *     11.    // vertical extension for parameter P i
- *     12. for (each combination σ in set π ) {
- *     13. if (there exists a test that already covers σ ) {
+ *     12.    for (each combination σ in set π ) {
+ *     13.      if (there exists a test that already covers σ ) {
  *     14.          remove σ from π
  *     15.      } else {
  *     16.          change an existing test, if possible, or otherwise add a new test
  *                  to cover σ and remove it from π
  *     17.      }
- *     18.   }
- *     19.}
- *     20.return ts;
+ *     18.    }
+ *     19.  }
+ *     20.  return ts;
  *    }
  *   See http://barbie.uta.edu/~fduan/ACTS/IPOG_%20A%20General%20Strategy%20for%20T-Way%20Software%20Testing.pdf
  * </pre>
@@ -163,23 +163,55 @@ public class Ipo3 extends Ipo {
 
   @Override
   public Result ipo() {
-    if (factors.size() == this.strength) {
+    if (factors.size() < this.strength) {
+      // FIXME: 10/6/16 In case factors is smaller than strength, nothing can be done. Or
+      //        should return a covering array whose strength is factors.size()?
+      return null;
+    } else if (factors.size() == this.strength) {
       return new Result(
           Collections.<Tuple>emptyList(),
           generateAllPossibleTuples(factors.asFactorList(), filterViolations(constraintChecker)));
     }
-    ////
-    // Group factors used by constraints so that each group disjoints each other.
-    LinkedHashMap<Factor, List<Factor>> aggregatedFactors = new LinkedHashMap<Factor, List<Factor>>();
-    for (List<Factor> eachFactorGroup : transformLazily(this.groupFactorNames(constraintChecker.getConstraints()), transformFactorNamesToFactors())) {
-      aggregatedFactors.put(
-          aggregateFactors(constraintChecker).apply(eachFactorGroup),
-          eachFactorGroup);
-    }
+    /*
+     *   Algorithm: IPOG-Test (int t , ParameterSet ps ) {
+     *     1.  initialize test set ts to be an empty set
+     *     2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
+     *         and Pn
+     *     3.  add into test set ts a test for each combination of values of the first
+     *         t parameters
+     */
+    List<Tuple> ts = generateAllPossibleTuples(factors.asFactorList(), filterViolations(constraintChecker));
+    /*
+     *     4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
+     */
+    /*
+     *
+     *     5.     let π be the set of t -way combinations of values involving parameter
+     *            Pi and t -1 parameters among the first i – 1 parameters
+     *     6.     // horizontal extension for parameter Pi
+     *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
+     *     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+     *                ..., vi-1 , vi ) so that τ’ covers the most number of
+     *                combinations of values in π
+     *     9.         remove from π the combinations of values covered by τ’
+     *     10.    }
+     *     11.    // vertical extension for parameter P i
+     *     12.    for (each combination σ in set π ) {
+     *     13.      if (there exists a test that already covers σ ) {
+     *     14.          remove σ from π
+     *     15.      } else {
+     *     16.          change an existing test, if possible, or otherwise add a new test
+     *                  to cover σ and remove it from π
+     *     17.      }
+     *     18.    }
+     *     19.  }
+     *     20.  return ts;
+     *    }
+     */
     return null;
   }
 
-  protected static Predicate<Tuple> filterViolations(final ConstraintChecker constraintChecker) {
+  private static Predicate<Tuple> filterViolations(final ConstraintChecker constraintChecker) {
     return new Predicate<Tuple>() {
       @Override
       public boolean apply(Tuple in) {
@@ -200,20 +232,11 @@ public class Ipo3 extends Ipo {
        * @param in Already grouped factors
        */
       @Override
-      public Factor apply(List<Factor> in) {
-        String factorName = StringUtils.join("+", in);
-        Factor.Builder builder = new Factor.Builder(factorName);
-        for (Tuple eachTuple : optimizeSubtuples(generateAllPossibleTuples(in, filterViolations(constraintChecker)))) {
-          builder.addLevel(eachTuple);
-        }
-        return builder.build();
+      public GroupedFactor apply(List<Factor> in) {
+        // FIXME: 10/6/16
+        return null;
       }
 
-      private List<Tuple> optimizeSubtuples(List<Tuple> tuples) {
-        ////
-        // fixme: Remove subtuples that do not contribute to combinatorial coverage.
-        return tuples;
-      }
     };
   }
 
@@ -231,13 +254,44 @@ public class Ipo3 extends Ipo {
     };
   }
 
-  List<List<String>> groupFactorNames(List<Constraint> constraints) {
-    ////
-    // fixme: Implement this method.
-    List<Set<String>> ret = new LinkedList<Set<String>>();
-    for (Constraint each : constraints) {
-      each.getFactorNamesInUse();
+  private List<List<String>> groupFactorNames(List<Constraint> constraints) {
+    List<List<String>> work = transform(constraints, new Form<Constraint, List<String>>() {
+      @Override
+      public List<String> apply(Constraint in) {
+        return in.getFactorNamesInUse();
+      }
+    });
+    List<List<String>> ret = new LinkedList<List<String>>();
+    for (List<String> outer : work) {
+      List<String> overlapping = null;
+      for (List<String> inner : ret) {
+        if (overlaps(outer, inner)) {
+          overlapping = inner;
+          break;
+        }
+      }
+      if (overlapping == null) {
+        overlapping = new LinkedList<String>();
+        ret.add(overlapping);
+      }
+      merge(overlapping, outer);
     }
-    return null;
+    return ret;
+  }
+
+  private static void merge(List<String> a, List<String> b) {
+    for (String each : b) {
+      if (!a.contains(each)) {
+        a.add(each);
+      }
+    }
+  }
+
+  private static boolean overlaps(List<String> a, List<String> b) {
+    for (String each : a) {
+      if (b.contains(each))
+        return true;
+    }
+    return false;
   }
 }
