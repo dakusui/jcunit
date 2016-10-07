@@ -183,7 +183,7 @@ public class Checks {
     return StringUtils.format("Message:'%s'", StringUtils.join(",", args));
   }
 
-  public static void fail() {
+  public static IllegalStateException fail() {
     throw new IllegalStateException();
   }
 
