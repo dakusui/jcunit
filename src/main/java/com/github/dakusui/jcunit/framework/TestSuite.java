@@ -151,12 +151,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
          *
          * @see com.github.dakusui.jcunit.runners.standard
          */
-        Factory INSTANCE = new Factory() {
-          @Override
-          public ModelingEngine create(Class modelClass) {
-            return new JCUnit.Engine(modelClass);
-          }
-        };
+        Factory INSTANCE = new Impl(JCUnit.Engine.Config.INSTANCE);
 
         /**
          * Creates an instance of {@link ModelingEngine} which generates a test
@@ -166,6 +161,19 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
          *                   the returned modeling engine.
          */
         ModelingEngine create(Class modelClass);
+
+        class Impl implements Factory {
+          private final JCUnit.Engine.Config config;
+
+          public Impl(JCUnit.Engine.Config config) {
+            this.config = checknotnull(config);
+          }
+
+          @Override
+          public ModelingEngine create(Class modelClass) {
+            return new JCUnit.Engine(this.config, modelClass);
+          }
+        }
       }
     }
 
@@ -175,7 +183,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
 
     /**
      * Creates an object of this class.
-     * Normally this constructor is called through {@link Typed#generate(Class)}
+     * Normally this constructor is called through {@link Typed#generate(Class, JCUnit.Engine.Config)}
      * method and users do not need to call this directly.
      */
     protected Typed(Class<T> modelClass, ModelingEngine engine) {
@@ -232,13 +240,27 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
     }
 
     /**
-     * Generates a test suite from a given model class using a standard engine.
+     * Generates a test suite from a given model class using a standard engine
+     * with given {@code config}.
+     * {@see com.github.dakusui.jcunit.runners.standard.JCUnit.Engine.Config}, also.
      *
+     * @param <T>        Type of test case.
      * @param modelClass A test model class. This also represents each test case.
-     * @param <T> Type of test case.
+     * @param config A config object with which test suite will be generated.
+     */
+    public static <T> Typed<T> generate(final Class<T> modelClass, JCUnit.Engine.Config config) {
+      return new Typed<T>(modelClass, new ModelingEngine.Factory.Impl(config).create(modelClass));
+    }
+
+    /**
+     * Generates a test suite from a given model class using a standard engine using a default
+     * config instance. {@see com.github.dakusui.jcunit.runners.standard.JCUnit.Engine.Config#INSTANCE}
+     *
+     * @param <T>        Type of test case.
+     * @param modelClass A test model class. This also represents each test case.
      */
     public static <T> Typed<T> generate(final Class<T> modelClass) {
-      return new Typed<T>(modelClass, ModelingEngine.Factory.INSTANCE.create(modelClass));
+      return generate(modelClass, JCUnit.Engine.Config.INSTANCE);
     }
   }
 

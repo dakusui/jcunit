@@ -4,12 +4,12 @@ import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.caengines.ipo3.IpoGc;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.constraints.NullConstraintChecker;
 import org.junit.Test;
 
 import java.util.*;
@@ -19,65 +19,99 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.utils.StringUtils.join;
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class IpoGcTest {
   @Test
   public void givenSize2FactorSpaceWithNoConstraint$whenGenerateTestSuite$thenWorksFine() {
-    List<Tuple> generated = new IpoGc(2, emptyConstraint(), createFactors(2)).ipo().getGeneratedTuples();
+    Constraint[] constraints = new Constraint[] {};
+    List<Tuple> generated = new IpoGc(2, constraintChecker(constraints), createFactors(2)).ipo().getGeneratedTuples();
+
+    assertNoViolations(constraints, generated);
     assertEquals("[{A=A1, B=B1}, {A=A1, B=B2}, {A=A2, B=B1}, {A=A2, B=B2}]", generated.toString());
     assertEquals(4, generated.size());
   }
 
   @Test
   public void givenSize3FactorSpaceWithNoConstraint$whenGenerateTestSuite$thenWorksFine() {
-    List<Tuple> generated = new IpoGc(2, emptyConstraint(), createFactors(3)).ipo().getGeneratedTuples();
+    Constraint[] constraints = new Constraint[] {};
+    List<Tuple> generated = new IpoGc(2, constraintChecker(constraints), createFactors(3)).ipo().getGeneratedTuples();
+
+    assertNoViolations(constraints, generated);
     assertEquals("[{A=A1, B=B1, C=C1}, {A=A1, B=B2, C=C2}, {A=A2, B=B1, C=C2}, {A=A2, B=B2, C=C1}]", generated.toString());
     assertEquals(4, generated.size());
   }
 
   @Test
   public void givenSize2FactorSpaceWithConstraintForA$whenGenerateTestSuite$thenWorksFine() {
-    List<Tuple> generated = new IpoGc(2, constraintChecker(constraint("A", "A1")), createFactors(2)).ipo().getGeneratedTuples();
+    Constraint[] constraints = new Constraint[] { constraint("A", "A1") };
+    List<Tuple> generated = new IpoGc(2, constraintChecker(constraints), createFactors(2)).ipo().getGeneratedTuples();
+
+    assertNoViolations(constraints, generated);
     assertEquals("[{A=A1, B=B1}, {A=A1, B=B2}]", generated.toString());
     assertEquals(2, generated.size());
   }
 
   @Test
   public void givenSize3FactorSpaceWithConstraintForA$whenGenerateTestSuite$thenWorksFine() {
-    List<Tuple> generated = new IpoGc(2, constraintChecker(constraint("A", "A1")), createFactors(3)).ipo().getGeneratedTuples();
+    Constraint[] constraints = new Constraint[] { constraint("A", "A1") };
+    List<Tuple> generated = new IpoGc(2, constraintChecker(constraints), createFactors(3)).ipo().getGeneratedTuples();
+
+    assertNoViolations(constraints, generated);
     assertEquals("[{B=B1, C=C1, A=A1}, {B=B1, C=C2, A=A1}, {B=B2, C=C1, A=A1}, {B=B2, C=C2, A=A1}]", generated.toString());
     assertEquals(4, generated.size());
   }
 
   @Test
   public void givenSize4FactorSpaceWithConstraintForAandB$whenGenerateTestSuite$thenWorksFine() {
-    List<Tuple> generated = new IpoGc(2, constraintChecker(constraint("A", "A1"), constraint("B", "B1")), createFactors(4)).ipo().getGeneratedTuples();
-    assertEquals("[{C=C1, D=D1, A=A1, B=B1}, {C=C1, D=D2, A=A1, B=B1}, {C=C2, D=D1, A=A1, B=B1}, {C=C2, D=D2, A=A1, B=B1}, {B=B1, A=A2, C=C1, D=D2}]", generated.toString());
+    Constraint[] constraints = new Constraint[] { constraint("A", "A1"), constraint("B", "B1") };
+    List<Tuple> generated = new IpoGc(2, constraintChecker(constraints), createFactors(4)).ipo().getGeneratedTuples();
+
+    assertNoViolations(constraints, generated);
+    assertEquals("[{C=C1, D=D1, A=A1, B=B1}, {C=C1, D=D2, A=A1, B=B1}, {C=C2, D=D1, A=A1, B=B1}, {C=C2, D=D2, A=A1, B=B1}, {B=B1, A=A1, C=C1, D=D2}]", generated.toString());
     assertEquals(5, generated.size());
   }
 
   @Test
   public void givenSize4FactorSpaceWithConstraintForORedAandB$whenGenerateTestSuite$thenWorksFine() {
-    List<Tuple> generated = new IpoGc(2, constraintChecker(or(constraint("A", "A1"), constraint("B", "B1"))), createFactors(4)).ipo().getGeneratedTuples();
-    assertEquals("[{C=C1, D=D1, A=A1, B=B1}, {C=C1, D=D2, A=A1, B=B2}, {C=C2, D=D1, A=A1, B=B2}, {C=C2, D=D2, A=A2, B=B1}, {A=A2, C=C1, D=D1, B=B2}]", generated.toString());
+    Constraint[] constraints = new Constraint[] { or(constraint("A", "A1"), constraint("B", "B1")) };
+    List<Tuple> generated = new IpoGc(2, constraintChecker(constraints), createFactors(4)).ipo().getGeneratedTuples();
+
+    assertNoViolations(constraints, generated);
+    assertEquals("[{C=C1, D=D1, A=A1, B=B1}, {C=C1, D=D2, A=A1, B=B2}, {C=C2, D=D1, A=A1, B=B2}, {C=C2, D=D2, A=A2, B=B1}, {A=A1, C=C1, D=D1, B=B1}]", generated.toString());
     assertEquals(5, generated.size());
   }
 
   @Test
   public void givenSize6FactorSpaceWithConstraintForCandORedAandB$whenGenerateTestSuite$thenWorksFine() {
+    Constraint[] constraints = new Constraint[] {
+        or(constraint("A", "A1"), constraint("B", "B1")),
+        constraint("C", "C1") };
     List<Tuple> generated = new IpoGc(
         2,
-        constraintChecker(
-            or(constraint("A", "A1"), constraint("B", "B1")),
-            constraint("C", "C1")),
+        constraintChecker(constraints),
         createFactors(6)).ipo().getGeneratedTuples();
+
+    assertNoViolations(constraints, generated);
     assertEquals(
         "[" +
             "{D=D1, E=E1, F=F1, A=A1, B=B1, C=C1}, {D=D1, E=E2, F=F2, A=A1, B=B2, C=C1}, " +
             "{D=D2, E=E1, F=F2, A=A2, B=B1, C=C1}, {D=D2, E=E2, F=F1, A=A1, B=B2, C=C1}, " +
-            "{A=A2, D=D1, E=E1, F=F1, B=B2, C=C1}, {A=A2, E=E2, D=D1, F=F2, B=B1, C=C1}]",
+            "{A=A1, D=D1, E=E2, F=F2, B=B1, C=C1}, {A=A1, F=F1, D=D2, E=E1, B=B1, C=C1}]",
         generated.toString());
     assertEquals(6, generated.size());
+  }
+
+  private void assertNoViolations(Constraint[] constraints, List<Tuple> generated) {
+    for (Constraint eachConstraint : constraints) {
+      for (Tuple eachTestCase : generated) {
+        try {
+          assertTrue(format("%s violates %s", eachTestCase, eachConstraint), eachConstraint.check(eachTestCase));
+        } catch (UndefinedSymbol undefinedSymbol) {
+          throw Checks.wrap(undefinedSymbol);
+        }
+      }
+    }
   }
 
   private Constraint or(final Constraint... constraints) {
@@ -104,6 +138,11 @@ public class IpoGcTest {
         }
         return new ArrayList<String>(ret);
       }
+
+      @Override
+      public String toString() {
+        return format("'or(%s)", StringUtils.join(",", new Object[] { constraints }));
+      }
     };
   }
 
@@ -124,6 +163,11 @@ public class IpoGcTest {
       public List<String> getFactorNamesInUse() {
         return Collections.singletonList(factorName);
       }
+
+      @Override
+      public String toString() {
+        return format("'%s' is one of '%s'", factorName, Arrays.toString(allowedValues));
+      }
     };
   }
 
@@ -136,10 +180,6 @@ public class IpoGcTest {
       factorNameChar++;
     }
     return builder.build();
-  }
-
-  private ConstraintChecker emptyConstraint() {
-    return NullConstraintChecker.DEFAULT_CONSTRAINT_CHECKER;
   }
 
   private ConstraintChecker constraintChecker(Constraint... constraints) {

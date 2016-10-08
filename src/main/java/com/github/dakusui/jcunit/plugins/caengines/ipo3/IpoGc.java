@@ -5,8 +5,6 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.utils.Utils.Form;
 import com.github.dakusui.jcunit.core.utils.Utils.Predicate;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -14,11 +12,12 @@ import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.enumerateCartesianProduct;
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.sortStably;
-import static com.github.dakusui.jcunit.core.utils.Checks.*;
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 
@@ -129,7 +128,7 @@ public class IpoGc extends Ipo {
             chosenTest = createTupleFrom(processedFactors, σ, DontCare);
             ts.add(chosenTest);
           } else {
-            changeTestToCover(chosenTest, σ);
+            changeTestToCover(processedFactors, chosenTest, σ);
             π.remove(σ);
           }
         }
@@ -141,20 +140,36 @@ public class IpoGc extends Ipo {
     return new Result(ts, Collections.<Tuple>emptyList());
   }
 
-  private Form<Tuple, Tuple> fillout(List<Factor> factorList) {
-    final Factors factors = new Factors(factorList);
+  private Form<Tuple, Tuple> fillout(final List<Factor> factors) {
     return new Form<Tuple, Tuple>() {
       int i = 0;
 
       @Override
       public Tuple apply(Tuple in) {
-        for (Map.Entry<String, Object> each : in.entrySet()) {
-          if (each.getValue() == DontCare) {
-            List levels = checknotnull(factors.get(each.getKey())).levels;
-            each.setValue(levels.get(i++ % levels.size()));
+        Tuple projected = projectDontCaresOnly(in);
+        for (Factor each : figureOutInvolvedFactors(factors, projected)) {
+          if (each instanceof GroupedFactor) {
+            projected.putAll(chooseLevelFromGroupedFactor(projected, (GroupedFactor) each));
+          } else {
+            projected.put(each.name, chooseLevelFromSimpleFactor(each));
           }
         }
+        in.putAll(projected);
         return in;
+      }
+
+      private Object chooseLevelFromSimpleFactor(Factor factor) {
+        return factor.levels.get(i++ % factor.levels.size());
+      }
+
+      private Tuple projectDontCaresOnly(Tuple in) {
+        Tuple.Builder b = new Tuple.Builder();
+        for (String key : in.keySet()) {
+          if (in.get(key) == DontCare) {
+            b.put(key, DontCare);
+          }
+        }
+        return b.build();
       }
     };
   }
@@ -187,8 +202,58 @@ public class IpoGc extends Ipo {
    *     to cover σ
    * </pre>
    */
-  private void changeTestToCover(Tuple chosenTest, Tuple σ) {
-    chosenTest.putAll(σ);
+  private void changeTestToCover(List<Factor> factorsToBeChanged, Tuple chosenTest, Tuple σ) {
+    // simple 'chosenTest.putAll(σ)' doesn't work because σ can contain values
+    // under GroupedFactor, whose values picked up at once rather than one by one.
+    for (Factor each : figureOutInvolvedFactors(factorsToBeChanged, σ)) {
+      if (each instanceof GroupedFactor) {
+        chosenTest.putAll(chooseLevelFromGroupedFactor(σ, (GroupedFactor) each));
+      } else {
+        chosenTest.put(each.name, σ.get(each.name));
+      }
+    }
+  }
+
+  private Tuple chooseLevelFromGroupedFactor(Tuple σ, GroupedFactor relatedGroupedFactors) {
+    final Tuple.Builder builder = new Tuple.Builder();
+    for (String key : σ.keySet()) {
+      if (relatedGroupedFactors.getSubfactorNames().contains(key)) {
+        builder.put(key, σ.get(key));
+      }
+    }
+    final Tuple projected = builder.build();
+    return filter(transform(relatedGroupedFactors,
+        new Form<Object, Tuple>() {
+          @Override
+          public Tuple apply(Object in) {
+            return (Tuple) in;
+          }
+        }),
+        new Predicate<Tuple>() {
+
+          @Override
+          public boolean apply(Tuple in) {
+            return in.keySet().containsAll(projected.keySet());
+          }
+        }).get(0);
+  }
+
+  private List<Factor> figureOutInvolvedFactors(List<Factor> factors, Tuple σ) {
+    List<Factor> ret = new ArrayList<Factor>(factors.size());
+    for (String keyName : σ.keySet()) {
+      for (Factor eachFactor : factors) {
+        if (eachFactor instanceof GroupedFactor) {
+          if (((GroupedFactor) eachFactor).getSubfactorNames().contains(keyName) && !ret.contains(eachFactor)) {
+            ret.add(eachFactor);
+          }
+        } else {
+          if (eachFactor.name.equals(keyName)) {
+            ret.add(eachFactor);
+          }
+        }
+      }
+    }
+    return ret;
   }
 
   /**
@@ -197,15 +262,15 @@ public class IpoGc extends Ipo {
    *     to cover σ
    * </pre>
    */
-  private Tuple createTupleFrom(List<Factor> processedFactors, Tuple σ, Object value) {
+  private Tuple createTupleFrom(List<Factor> processedFactors, Tuple σ, Object defaultValue) {
     Tuple ret = σ.cloneTuple();
     for (Factor each : processedFactors) {
       if (each instanceof GroupedFactor) {
         for (Factor eachSubFactor : ((GroupedFactor) each).getSubfactors()) {
-          ret.put(eachSubFactor.name, value);
+          ret.put(eachSubFactor.name, defaultValue);
         }
       } else {
-        ret.put(each.name, value);
+        ret.put(each.name, defaultValue);
       }
     }
     return ret;
@@ -213,6 +278,7 @@ public class IpoGc extends Ipo {
 
 
   /**
+   * Chooses a test from {@code ts} to cover {@code σ}.
    * Returns {@code null} if no test in ts can cover σ.
    * <pre>
    * 16.        change an existing test, if possible, or otherwise add a new test
@@ -300,7 +366,7 @@ public class IpoGc extends Ipo {
         int j = strength - i;
         assert i + j == strength;
 
-        List<Tuple> leftSide = new Factors(processedFactors).generateAllPossibleTuples(i);
+        List<Tuple> leftSide = transform(new Factors(processedFactors).generateAllPossibleTuples(i), expandGroupedFactors(processedFactors));
         List<Tuple> rightSide = coveringArray.allPossibleTuples(j);
         for (Tuple right : rightSide) {
           for (Tuple left : leftSide) {
@@ -309,11 +375,10 @@ public class IpoGc extends Ipo {
             ret.add(cur);
           }
         }
-        processedFactors.addAll(coveringArray.getSubfactors());
-        ret = sortStably(ret, processedFactors);
       }
     } else {
-      List<Tuple> leftSide = new Factors(processedFactors).generateAllPossibleTuples(strength - 1);
+      List<Tuple> leftSide = transform(new Factors(processedFactors).generateAllPossibleTuples(strength - 1),
+          expandGroupedFactors(processedFactors));
       for (Object v : factor) {
         for (Tuple each : leftSide) {
           each = each.cloneTuple();
@@ -321,10 +386,32 @@ public class IpoGc extends Ipo {
           ret.add(each);
         }
       }
-      processedFactors.add(factor);
-      ret = sortStably(ret, processedFactors);
     }
+    processedFactors.add(factor);
     return ret;
+  }
+
+  private Form<Tuple, Tuple> expandGroupedFactors(List<Factor> processedFactors) {
+    final List<GroupedFactor> groupedFactors = transform(filter(processedFactors, isGroupedFactor()), castTo(GroupedFactor.class));
+    return new Form<Tuple, Tuple>() {
+      @Override
+      public Tuple apply(Tuple in) {
+        for (GroupedFactor each : groupedFactors) {
+          if (in.containsKey(each.name))
+            in.putAll((Tuple) in.remove(each.name));
+        }
+        return in;
+      }
+    };
+  }
+
+  private <T> Form<Object, T> castTo(final Class<T> clazz) {
+    return new Form<Object, T>() {
+      @Override
+      public T apply(Object in) {
+        return clazz.cast(in);
+      }
+    };
   }
 
   private static Predicate<Tuple> isViolating(
@@ -347,6 +434,16 @@ public class IpoGc extends Ipo {
     };
   }
 
+  private static Predicate<Factor> isGroupedFactor() {
+    return new Predicate<Factor>() {
+      @Override
+      public boolean apply(Factor in) {
+        return in instanceof GroupedFactor;
+      }
+    };
+  }
+
+
   private List<Factor> arrangeFactors(final Factors factors, final List<Constraint> constraints, final int strength) {
     final List<Factor> ret = new ArrayList<Factor>(factors.asFactorList());
     List<GroupedFactor> groupedFactors = transform(groupFactorNamesUsedByConstraints(constraints),
@@ -362,7 +459,7 @@ public class IpoGc extends Ipo {
                 ret.remove(factor);
                 return factor;
               }
-            }), Utils.filter(constraints, isRelated(subfactors)), strength);
+            }), filter(constraints, isRelated(subfactors)), strength);
           }
         }
     );
@@ -410,81 +507,5 @@ public class IpoGc extends Ipo {
         return true;
     }
     return false;
-  }
-
-  static class GroupedFactor extends Factor {
-    private static final int NUMBER_OF_RETRIES = 50;
-
-    private final List<Factor> subfactors;
-
-    GroupedFactor(List<Factor> subfactors, List<Constraint> constraints, int strength) {
-      super(
-          composeFactorName(subfactors),
-          sortStably(optimize(composeLevels(subfactors, constraints), strength), subfactors));
-      this.subfactors = Collections.unmodifiableList(subfactors);
-    }
-
-    List<Tuple> allPossibleTuples(int strength) {
-      Set<Tuple> work = new LinkedHashSet<Tuple>();
-      for (Object each : this.levels) {
-        work.addAll(TupleUtils.subtuplesOf((Tuple) each, strength));
-      }
-      return sortStably(new ArrayList<Tuple>(work), getSubfactors());
-    }
-
-    private static List<Tuple> composeLevels(final List<Factor> subfactors, final List<Constraint> constraints) {
-      return filter(enumerateCartesianProduct(new Tuple.Impl(), subfactors.toArray(new Factor[subfactors.size()])),
-          new Predicate<Tuple>() {
-            @Override
-            public boolean apply(Tuple in) {
-              for (Constraint each : constraints) {
-                try {
-                  if (!each.check(in)) {
-                    return false;
-                  }
-                } catch (UndefinedSymbol undefinedSymbol) {
-                  throw wraptesterror(undefinedSymbol,
-                      "A constraint '%s' threw '%s' (missing %s). Maybe it is not annotated appropriately.",
-                      each, undefinedSymbol, undefinedSymbol.missingSymbols);
-                }
-              }
-              return true;
-            }
-          });
-    }
-
-    private static List<Tuple> optimize(List<Tuple> tuples, int strength) {
-      if (tuples.isEmpty()) {
-        return tuples;
-      }
-      strength = Math.min(strength, tuples.get(0).size());
-      final int finalStrength = strength;
-      return Utils.filter(tuples, new Predicate<Tuple>() {
-        Set<Tuple> alreadyCovered = new HashSet<Tuple>();
-        @Override
-        public boolean apply(Tuple in) {
-          Set<Tuple> currentSubtuples =TupleUtils.subtuplesOf(in, finalStrength);
-          if (!alreadyCovered.containsAll(currentSubtuples)) {
-            alreadyCovered.addAll(currentSubtuples);
-            return true;
-          }
-          return false;
-        }
-      });
-    }
-
-    private static String composeFactorName(List<Factor> subfactors) {
-      return StringUtils.join("+", transform(subfactors, new Utils.Form<Factor, String>() {
-        @Override
-        public String apply(Factor in) {
-          return in.name;
-        }
-      }));
-    }
-
-    List<Factor> getSubfactors() {
-      return this.subfactors;
-    }
-
   }
 }

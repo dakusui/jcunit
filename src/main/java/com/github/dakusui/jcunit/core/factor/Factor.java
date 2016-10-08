@@ -20,7 +20,7 @@ public class Factor implements Iterable<Object> {
   }
 
   @Override
-  public Iterator<Object> iterator() {
+  public Iterator<? super Object> iterator() {
     return this.levels.iterator();
   }
 
