@@ -1,9 +1,12 @@
 package com.github.dakusui.jcunit.tests.features.api;
 
 import com.github.dakusui.jcunit.core.factor.Factor;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
+import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.runners.standard.annotations.When;
 import org.junit.Test;
 import org.junit.runner.Result;
 
@@ -44,9 +47,20 @@ public class TypedTestSuiteTest {
       return ret;
     }
 
+    @Condition
+    public boolean aIsZero() {
+      return this.a == 0;
+    }
+
     @Test
     public void test() {
       System.out.printf("Hello:%s,%s,%s%n", this.a, this.b, this.c);
+    }
+
+    @Test
+    @When("aIsZero")
+    public void notQuadratic() {
+      System.out.printf("Not a quadratic equation: %s, %s, %s%n", this.a, this.b, this.c);
     }
   }
 
@@ -87,8 +101,19 @@ public class TypedTestSuiteTest {
   @Test
   public void givenSimpleTestClass$whenCreateTypedTestSuite$thenTestCaseCanBeRun() {
     Result result = TestSuite.Typed.generate(TestClass.class).execute(0);
-    assertEquals(1, result.getRunCount());
+    assertEquals(2, result.getRunCount());
     assertEquals(0, result.getFailureCount());
+  }
+
+  @Test
+  public void givenSimpleTestClass$whenCreateTypedTestSuite$thenTestCaseCanBeRunThroughOracles() {
+    int count = 0;
+    TestSuite.Typed<TestClass> testSuite =TestSuite.Typed.generate(TestClass.class);
+    for (Utils.Consumer<TestClass> each : testSuite.getOracles(0)) {
+      each.accept(testSuite.inject(0));
+      count++;
+    }
+    assertEquals(2, count);
   }
 
   @Test

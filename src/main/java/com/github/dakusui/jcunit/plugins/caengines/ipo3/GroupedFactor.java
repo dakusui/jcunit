@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 
 import java.util.*;
 
@@ -22,7 +23,7 @@ class GroupedFactor extends Factor {
   GroupedFactor(List<Factor> subfactors, List<Constraint> constraints, int strength) {
     super(
         composeFactorName(subfactors),
-        sortStably(optimize(composeLevels(subfactors, constraints), strength), subfactors));
+        sortStably(TestCaseUtils.optimize(composeLevels(subfactors, constraints), strength), subfactors));
     this.subfactors = Collections.unmodifiableList(subfactors);
   }
 
@@ -66,27 +67,6 @@ class GroupedFactor extends Factor {
             return true;
           }
         });
-  }
-
-  private static List<Tuple> optimize(List<Tuple> tuples, int strength) {
-    if (tuples.isEmpty()) {
-      return tuples;
-    }
-    strength = Math.min(strength, tuples.get(0).size());
-    final int finalStrength = strength;
-    return filter(tuples, new Utils.Predicate<Tuple>() {
-      Set<Tuple> alreadyCovered = new HashSet<Tuple>();
-
-      @Override
-      public boolean apply(Tuple in) {
-        Set<Tuple> currentSubtuples = TupleUtils.subtuplesOf(in, finalStrength);
-        if (!alreadyCovered.containsAll(currentSubtuples)) {
-          alreadyCovered.addAll(currentSubtuples);
-          return true;
-        }
-        return false;
-      }
-    });
   }
 
   private static String composeFactorName(List<Factor> subfactors) {

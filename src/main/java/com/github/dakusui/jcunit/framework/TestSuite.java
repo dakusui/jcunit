@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -15,10 +16,12 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnitRunner;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
+import org.junit.runners.model.FrameworkMethod;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -203,7 +206,9 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
     }
 
     /**
-     * Concretizes {@code i}th element in this test suite.
+     * Returns {@code i}th element in this test suite as a {@code Runner} object.
+     * Internally, this method concretizes all the test cases in the suite and
+     * caches it.
      *
      * @param i index of the test case to be concretized.
      */
@@ -214,6 +219,31 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
         }
       }
       return this.runners.get(i);
+    }
+
+    public List<Consumer<T>> getOracles(int i) {
+      JCUnitRunner runner = JCUnitRunner.class.cast(this.concretize(i));
+      return Utils.transform(
+          runner.getChildren(),
+          new Utils.Form<FrameworkMethod, Consumer<T>>() {
+            @Override
+            public Consumer<T> apply(final FrameworkMethod in) {
+              return new Consumer<T>() {
+                @Override
+                public void accept(T t) {
+                  try {
+                    in.invokeExplosively(t);
+                  } catch (Error e) {
+                    throw e;
+                  } catch (RuntimeException e) {
+                    throw e;
+                  } catch (Throwable throwable) {
+                    throw Checks.wrap(throwable);
+                  }
+                }
+              };
+            }
+          });
     }
 
     /**
@@ -246,7 +276,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
      *
      * @param <T>        Type of test case.
      * @param modelClass A test model class. This also represents each test case.
-     * @param config A config object with which test suite will be generated.
+     * @param config     A config object with which test suite will be generated.
      */
     public static <T> Typed<T> generate(final Class<T> modelClass, JCUnit.Engine.Config config) {
       return new Typed<T>(modelClass, new ModelingEngine.Factory.Impl(config).create(modelClass));

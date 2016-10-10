@@ -239,6 +239,11 @@ public enum Utils {
     boolean apply(I in);
   }
 
+  public interface Consumer<I> {
+    void accept(I t);
+  }
+
+
   public static abstract class By<I> implements Form<I, Object>, Comparator<I> {
     @Override
     public abstract Comparable apply(I in);

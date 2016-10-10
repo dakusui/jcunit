@@ -5,12 +5,14 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.utils.Utils.Form;
 import com.github.dakusui.jcunit.core.utils.Utils.Predicate;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,7 +67,7 @@ public class IpoGc extends Ipo {
     Checks.checkcond(this.factors.size() >= this.strength);
     if (this.factors.size() == this.strength) {
       return new Result(
-          generateAllPossibleTuples(this.factors.asFactorList(), isViolating(constraintChecker.getConstraints())),
+          generateAllPossibleTuples(this.factors.asFactorList(), isSatisfying(constraintChecker.getConstraints())),
           Collections.<Tuple>emptyList()
       );
     }
@@ -79,7 +81,13 @@ public class IpoGc extends Ipo {
      *     3.  add into test set ts a test for each combination of values of the first
      *         t parameters
      */
-    List<Tuple> ts = generateAllPossibleTuples(processedFactors, isViolating(filter(constraintChecker.getConstraints(), isRelated(processedFactors))));
+    List<Tuple> ts = transform(
+        generateAllPossibleTuples(
+            processedFactors,
+            isSatisfying(filter(constraintChecker.getConstraints(), isRelated(processedFactors)))),
+        expandGroupedFactors(processedFactors)
+    );
+
     /*
      *     4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
      *         * t; strength
@@ -123,22 +131,180 @@ public class IpoGc extends Ipo {
         if (containsTestThatCovers(ts, σ)) {
           π.remove(σ);
         } else {
-          Tuple chosenTest = chooseTestToCover(ts, σ);
+          Tuple chosenTest = chooseTestToCoverGivenTuple(processedFactors, ts, σ);
           if (chosenTest == null) {
-            chosenTest = createTupleFrom(processedFactors, σ, DontCare);
+            chosenTest = createTupleFrom(processedFactors, σ);
             ts.add(chosenTest);
-          } else {
-            changeTestToCover(processedFactors, chosenTest, σ);
-            π.remove(σ);
           }
+          modifyTestToCover(processedFactors, chosenTest, σ);
+          π.remove(σ);
         }
       }
-      ts = transform(ts, fillout(processedFactors));
+      ts = Utils.dedup(transform(ts, fillout(processedFactors)));
     }
     /*     20.  return ts;
      */
-    return new Result(ts, Collections.<Tuple>emptyList());
+    return new Result(TestCaseUtils.optimize(ts, strength), Collections.<Tuple>emptyList());
   }
+
+  /*
+   *  5.     let π be the set of t-way combinations of values involving parameter
+   *         Pi and t -1 parameters among the first i – 1 parameters
+   */
+  private List<Tuple> prepare_π(List<Factor> processedFactors, final Factor factor, int strength) {
+    List<Tuple> ret = new LinkedList<Tuple>();
+    for (int i = 0; i <= strength; i++) {
+      int j = strength - i;
+      assert i + j == strength;
+
+      List<Tuple> rightSide;
+      if (factor instanceof GroupedFactor) {
+        GroupedFactor coveringArray = (GroupedFactor) factor;
+        if (j > coveringArray.getSubfactors().size())
+          continue;
+        rightSide = coveringArray.allPossibleTuples(j);
+      } else {
+        if (j != 1)
+          continue;
+        rightSide = transform(factor.levels, new Form<Object, Tuple>() {
+          @Override
+          public Tuple apply(Object in) {
+            return new Tuple.Builder().put(factor.name, in).build();
+          }
+        });
+      }
+      List<Tuple> leftSide = transform(new Factors(processedFactors).generateAllPossibleTuples(i),
+          expandGroupedFactors(processedFactors));
+      for (Tuple right : rightSide) {
+        for (Tuple left : leftSide) {
+          Tuple cur = right.cloneTuple();
+          cur.putAll(left);
+          ret.add(cur);
+        }
+      }
+    }
+    processedFactors.add(factor);
+    return ret;
+  }
+
+  /*
+   *  8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+   *             ..., vi-1 , vi ) so that τ’ covers the most number of
+   *             combinations of values in π
+   */
+
+  private Object chooseLevelThatCoversMostTuples(Factor fi, Tuple τ, List<Tuple> π) {
+    int numCoveredTuples = -1;
+    Object ret = null;
+    for (Object v : fi) {
+      Tuple τ$ = τ.cloneTuple();
+      if (fi instanceof GroupedFactor) {
+        τ$.putAll((Tuple) v);
+      } else {
+        update_τ_withChosenLevel(fi, τ$, v);
+      }
+      int c = countCoveredTuplesBy(τ$, π);
+      if (c > numCoveredTuples) {
+        numCoveredTuples = c;
+        ret = v;
+      }
+    }
+    checkcond(numCoveredTuples >= 0);
+    return ret;
+  }
+
+  /*
+   *  13.      if (there exists a test that already covers σ ) {
+   */
+  private boolean containsTestThatCovers(List<Tuple> ts, Tuple σ) {
+    for (Tuple each : ts) {
+      if (TupleUtils.isSubtupleOf(σ, each)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Chooses a test from {@code ts} to cover {@code σ}.
+   * Returns {@code null} if no test in ts can cover σ.
+   * <pre>
+   * 16.        change an existing test, if possible, or otherwise add a new test
+   *            to cover σ and remove it from π
+   * </pre>
+   * σ is a partial tuple.
+   * ts is a list of partial test cases,  each of which has same keys.
+   * We already know that ts doesn't contain any test that covers σ.
+   * This method chooses a test from ts by
+   */
+  private Tuple chooseTestToCoverGivenTuple(final List<Factor> factors, List<Tuple> ts, final Tuple σ) {
+    Predicate<Tuple> matches = new Predicate<Tuple>() {
+      @Override
+      public boolean apply(Tuple current) {
+        boolean ret = true;
+        for (Factor each : figureOutInvolvedFactors(factors, σ)) {
+          if (each instanceof GroupedFactor) {
+            for (String eachSubFactorName : ((GroupedFactor) each).getSubfactorNames()) {
+              Object currentLevel = current.get(eachSubFactorName);
+              if (!(DontCare.equals(currentLevel) || Utils.eq(currentLevel, σ.get(eachSubFactorName)))) {
+                ret = false;
+              }
+            }
+          } else {
+            Object currentLevel = current.get(each.name);
+            if (!(DontCare.equals(currentLevel) || Utils.eq(currentLevel, σ.get(each.name)))) {
+              ret = false;
+            }
+          }
+        }
+        return ret;
+      }
+    };
+    List<Tuple> found = filter(ts, matches);
+    return found.isEmpty() ?
+        null :
+        found.get(0);
+  }
+
+  /**
+   * <pre>
+   * 16. change an existing test, if possible, or otherwise add a new test
+   *     to cover σ
+   * </pre>
+   */
+  private void modifyTestToCover(List<Factor> factors, Tuple chosenTest, Tuple σ) {
+    // simple 'chosenTest.putAll(σ)' doesn't work because σ can contain values
+    // under GroupedFactor, whose values picked up at once rather than one by one.
+    for (Factor each : figureOutInvolvedFactors(factors, σ)) {
+      if (each instanceof GroupedFactor) {
+        chosenTest.putAll(chooseLevelFromGroupedFactor(σ, (GroupedFactor) each));
+      } else {
+        chosenTest.put(each.name, σ.get(each.name));
+      }
+    }
+  }
+
+  /**
+   * <pre>
+   * 16. change an existing test, if possible, or otherwise add a new test
+   *     to cover σ
+   * </pre>
+   */
+  private Tuple createTupleFrom(List<Factor> processedFactors, Tuple σ) {
+    Tuple.Builder builder = new Tuple.Builder();
+    for (Factor each : processedFactors) {
+      if (each instanceof GroupedFactor) {
+        for (Factor eachSubFactor : ((GroupedFactor) each).getSubfactors()) {
+          builder.put(eachSubFactor.name, DontCare);
+        }
+      } else {
+        builder.put(each.name, DontCare);
+      }
+    }
+    builder.putAll(σ);
+    return builder.build();
+  }
+
 
   private Form<Tuple, Tuple> fillout(final List<Factor> factors) {
     return new Form<Tuple, Tuple>() {
@@ -196,33 +362,18 @@ public class IpoGc extends Ipo {
     };
   }
 
-  /**
-   * <pre>
-   * 16. change an existing test, if possible, or otherwise add a new test
-   *     to cover σ
-   * </pre>
-   */
-  private void changeTestToCover(List<Factor> factorsToBeChanged, Tuple chosenTest, Tuple σ) {
-    // simple 'chosenTest.putAll(σ)' doesn't work because σ can contain values
-    // under GroupedFactor, whose values picked up at once rather than one by one.
-    for (Factor each : figureOutInvolvedFactors(factorsToBeChanged, σ)) {
-      if (each instanceof GroupedFactor) {
-        chosenTest.putAll(chooseLevelFromGroupedFactor(σ, (GroupedFactor) each));
-      } else {
-        chosenTest.put(each.name, σ.get(each.name));
-      }
-    }
-  }
-
-  private Tuple chooseLevelFromGroupedFactor(Tuple σ, GroupedFactor relatedGroupedFactors) {
+  private Tuple chooseLevelFromGroupedFactor(Tuple σ, GroupedFactor groupedFactor) {
     final Tuple.Builder builder = new Tuple.Builder();
     for (String key : σ.keySet()) {
-      if (relatedGroupedFactors.getSubfactorNames().contains(key)) {
-        builder.put(key, σ.get(key));
+      if (groupedFactor.getSubfactorNames().contains(key)) {
+        Object v = σ.get(key);
+        if (!DontCare.equals(v)) {
+          builder.put(key, v);
+        }
       }
     }
     final Tuple projected = builder.build();
-    return filter(transform(relatedGroupedFactors,
+    return filter(transform(groupedFactor,
         new Form<Object, Tuple>() {
           @Override
           public Tuple apply(Object in) {
@@ -230,10 +381,9 @@ public class IpoGc extends Ipo {
           }
         }),
         new Predicate<Tuple>() {
-
           @Override
           public boolean apply(Tuple in) {
-            return in.keySet().containsAll(projected.keySet());
+            return TupleUtils.isSubtupleOf(projected, in);
           }
         }).get(0);
   }
@@ -256,95 +406,6 @@ public class IpoGc extends Ipo {
     return ret;
   }
 
-  /**
-   * <pre>
-   * 16. change an existing test, if possible, or otherwise add a new test
-   *     to cover σ
-   * </pre>
-   */
-  private Tuple createTupleFrom(List<Factor> processedFactors, Tuple σ, Object defaultValue) {
-    Tuple ret = σ.cloneTuple();
-    for (Factor each : processedFactors) {
-      if (each instanceof GroupedFactor) {
-        for (Factor eachSubFactor : ((GroupedFactor) each).getSubfactors()) {
-          ret.put(eachSubFactor.name, defaultValue);
-        }
-      } else {
-        ret.put(each.name, defaultValue);
-      }
-    }
-    return ret;
-  }
-
-
-  /**
-   * Chooses a test from {@code ts} to cover {@code σ}.
-   * Returns {@code null} if no test in ts can cover σ.
-   * <pre>
-   * 16.        change an existing test, if possible, or otherwise add a new test
-   *            to cover σ and remove it from π
-   * </pre>
-   * σ is a partial tuple.
-   * ts is a list of partial test cases,  each of which has same keys.
-   * We already know that ts doesn't contain any test that covers σ.
-   * This method chooses a test from ts by
-   */
-  private Tuple chooseTestToCover(List<Tuple> ts, Tuple σ) {
-    List<Tuple> found = new LinkedList<Tuple>();
-    for (Tuple each : ts) {
-      boolean canBeChanged = true;
-      for (String eachKeyOfσ : σ.keySet()) {
-        if (!DontCare.equals(each.get(eachKeyOfσ))) {
-          canBeChanged = false;
-          break;
-        }
-      }
-      if (canBeChanged) {
-        found.add(each);
-      }
-    }
-    return found.isEmpty() ?
-        null :
-        found.get(0);
-  }
-
-  /*
-   *  13.      if (there exists a test that already covers σ ) {
-   */
-  private boolean containsTestThatCovers(List<Tuple> ts, Tuple σ) {
-    for (Tuple each : ts) {
-      if (TupleUtils.isSubtupleOf(σ, each)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /*
-   *  8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
-   *             ..., vi-1 , vi ) so that τ’ covers the most number of
-   *             combinations of values in π
-   */
-  private Object chooseLevelThatCoversMostTuples(Factor fi, Tuple τ, List<Tuple> π) {
-    int numCoveredTuples = -1;
-    Object ret = null;
-    for (Object v : fi) {
-      Tuple τ$ = τ.cloneTuple();
-      if (fi instanceof GroupedFactor) {
-        τ$.putAll((Tuple) v);
-      } else {
-        update_τ_withChosenLevel(fi, τ$, v);
-      }
-      int c = countCoveredTuplesBy(τ$, π);
-      if (c > numCoveredTuples) {
-        numCoveredTuples = c;
-        ret = v;
-      }
-    }
-    checkcond(numCoveredTuples >= 0);
-    return ret;
-  }
-
   private int countCoveredTuplesBy(Tuple τ$, final List<Tuple> π) {
     return filter(TupleUtils.subtuplesOf(τ$, this.strength), new Predicate<Tuple>() {
       @Override
@@ -354,42 +415,6 @@ public class IpoGc extends Ipo {
     }).size();
   }
 
-  /*
-   *  5.     let π be the set of t-way combinations of values involving parameter
-   *         Pi and t -1 parameters among the first i – 1 parameters
-   */
-  private List<Tuple> prepare_π(List<Factor> processedFactors, Factor factor, int strength) {
-    List<Tuple> ret = new LinkedList<Tuple>();
-    if (factor instanceof GroupedFactor) {
-      GroupedFactor coveringArray = (GroupedFactor) factor;
-      for (int i = 1; i < strength; i++) {
-        int j = strength - i;
-        assert i + j == strength;
-
-        List<Tuple> leftSide = transform(new Factors(processedFactors).generateAllPossibleTuples(i), expandGroupedFactors(processedFactors));
-        List<Tuple> rightSide = coveringArray.allPossibleTuples(j);
-        for (Tuple right : rightSide) {
-          for (Tuple left : leftSide) {
-            Tuple cur = right.cloneTuple();
-            cur.putAll(left);
-            ret.add(cur);
-          }
-        }
-      }
-    } else {
-      List<Tuple> leftSide = transform(new Factors(processedFactors).generateAllPossibleTuples(strength - 1),
-          expandGroupedFactors(processedFactors));
-      for (Object v : factor) {
-        for (Tuple each : leftSide) {
-          each = each.cloneTuple();
-          each.put(factor.name, v);
-          ret.add(each);
-        }
-      }
-    }
-    processedFactors.add(factor);
-    return ret;
-  }
 
   private Form<Tuple, Tuple> expandGroupedFactors(List<Factor> processedFactors) {
     final List<GroupedFactor> groupedFactors = transform(filter(processedFactors, isGroupedFactor()), castTo(GroupedFactor.class));
@@ -414,7 +439,7 @@ public class IpoGc extends Ipo {
     };
   }
 
-  private static Predicate<Tuple> isViolating(
+  private static Predicate<Tuple> isSatisfying(
       final List<Constraint> constraints) {
     return new Predicate<Tuple>() {
       @Override
