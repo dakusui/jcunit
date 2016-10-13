@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.plugins.caengines.ipo3;
+package com.github.dakusui.jcunit.plugins.caengines.ipogc;
 
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.tuples.Tuple;

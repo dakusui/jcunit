@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.plugins.caengines;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.plugins.caengines.ipo3.IpoGc;
+import com.github.dakusui.jcunit.plugins.caengines.ipogc.IpoGc;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintBundle;
 
 import java.util.List;
