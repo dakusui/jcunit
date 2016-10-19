@@ -126,7 +126,7 @@ public class ForSimpleConstraintCheckerConsciousTest extends Ipo2Test {
     }
 
     @Override
-    public List<Tuple> getViolations() {
+    public List<Tuple> getViolations(Tuple regularTestCase) {
       return Collections.emptyList();
     }
 

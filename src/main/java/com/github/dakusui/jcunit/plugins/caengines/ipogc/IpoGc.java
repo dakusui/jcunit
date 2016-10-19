@@ -72,6 +72,13 @@ public class IpoGc extends Ipo {
       );
     }
     List<Factor> allFactors = arrangeFactors(this.factors, this.constraintChecker.getConstraints(), this.strength);
+    if (allFactors.size() < this.strength)  {
+      return new Result(
+          generateAllPossibleTuples(this.factors.asFactorList(), isSatisfying(constraintChecker.getConstraints())),
+          Collections.<Tuple>emptyList()
+      );
+    }
+
     List<Factor> processedFactors = new LinkedList<Factor>(allFactors.subList(0, this.strength));
     /*
      *   Algorithm: IPOG-Test (int t , ParameterSet ps ) {

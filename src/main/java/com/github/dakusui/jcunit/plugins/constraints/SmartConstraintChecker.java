@@ -59,19 +59,14 @@ public abstract class SmartConstraintChecker implements ConstraintChecker {
   }
 
   @Override
-  public List<Tuple> getViolations() {
-    if (this.regularTestCase == null) {
-      ////
-      // In case this method is called without check method call, regular test
-      // case will become null. But is this a correct fix? FIXME: 4/19/16
-      this.regularTestCase = new Tuple.Impl();
-    }
+  public List<Tuple> getViolations(Tuple regularTestCase) {
+    checknotnull(regularTestCase);
     // fixme It should be guaranteed that each of returned tuples DOES violate at least one constraint
     //       because this method is "getViolations()".
     List<Tuple> ret = new LinkedList<Tuple>(this.chosenViolations);
     for (Tuple factorLevel : this.factorLevelsToBeCovered) {
       ret.add(new Tuple.Builder()
-          .putAll(this.regularTestCase)
+          .putAll(regularTestCase)
           .putAll(factorLevel)
           .build());
     }

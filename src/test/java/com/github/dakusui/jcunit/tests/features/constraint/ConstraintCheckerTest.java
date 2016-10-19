@@ -64,7 +64,7 @@ public class ConstraintCheckerTest {
     assertEquals(true,
         manager.check(new Tuple.Builder().put("f1", 100).build()));
 
-    assertEquals(128, manager.getViolations().get(0).get("f1"));
+    assertEquals(128, manager.getViolations(new Tuple.Builder().build()).get(0).get("f1"));
   }
 
   public static class CM extends TypedConstraintChecker<TestClass2> {

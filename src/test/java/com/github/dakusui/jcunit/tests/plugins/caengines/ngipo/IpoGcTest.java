@@ -457,7 +457,7 @@ public class IpoGcTest {
     }
 
     @Override
-    public List<Tuple> getViolations() {
+    public List<Tuple> getViolations(Tuple regularTestCase) {
       ////
       // This implementation is not capable of generating violations automatically.
       return Collections.emptyList();

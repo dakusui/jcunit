@@ -613,9 +613,10 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
             }
           }
       ));
+      TestCase regularTestCase = testCases.get(0);
       if (negativeTestsEnabled) {
         testCases.addAll(Utils.transform(
-            checker.getViolations(),
+            checker.getViolations(regularTestCase.getTuple()),
             new Utils.Form<Tuple, TestCase>() {
               @Override
               public TestCase apply(final Tuple in) {

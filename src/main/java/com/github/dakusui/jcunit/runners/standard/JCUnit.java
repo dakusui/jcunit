@@ -389,11 +389,12 @@ public class JCUnit extends Parameterized {
           }
         }
       }
+      Tuple regularTestCase = testCases.get(0).getTuple();
       // Skip to number of test cases generated.
       id = ca.size();
       ////
       // Compose a list of 'negative test cases' and register them.
-      final List<Tuple> violations = constraintChecker.getViolations();
+      final List<Tuple> violations = constraintChecker.getViolations(regularTestCase);
       id = registerTestCases(
           config,
           testCases,

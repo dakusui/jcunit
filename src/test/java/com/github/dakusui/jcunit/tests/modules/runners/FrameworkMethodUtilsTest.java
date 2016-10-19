@@ -33,7 +33,7 @@ public class FrameworkMethodUtilsTest {
       }
 
       @Override
-      public List<Tuple> getViolations() {
+      public List<Tuple> getViolations(Tuple regularTestCase) {
         throw new UnsupportedOperationException();
       }
 
