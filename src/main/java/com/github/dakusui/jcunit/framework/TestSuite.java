@@ -353,6 +353,10 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
           : asList(this.factorNames).toString()
       );
     }
+
+    public String[] getFactorNames() {
+      return this.factorNames;
+    }
   }
 
   /**
@@ -765,7 +769,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
     }
 
     private class MySmartConstraintChecker extends SmartConstraintChecker {
-      public MySmartConstraintChecker() {
+      MySmartConstraintChecker() {
         super(Object.class, new Factors(TestSuite.Builder.this.factors));
       }
 
@@ -776,9 +780,9 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
             new Utils.Form<Predicate, Constraint>() {
               @Override
               public Constraint apply(Predicate eachPredicate) {
-                if (eachPredicate.factorNames != null) {
+                if (eachPredicate.getFactorNames() != null) {
                   List<String> notFounds = filter(
-                      dedup(asList(eachPredicate.factorNames)),
+                      dedup(asList(eachPredicate.getFactorNames())),
                       new Utils.Predicate<String>() {
                         @Override
                         public boolean apply(final String eachFactorName) {
@@ -796,7 +800,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
                   );
                   checkcond(notFounds.isEmpty(), "Undefined factor(s) %s are used by %s", notFounds, eachPredicate);
                 }
-                return new GuardedConstraint(eachPredicate.tag, eachPredicate, eachPredicate.factorNames);
+                return new GuardedConstraint(eachPredicate.tag, eachPredicate, eachPredicate.getFactorNames());
               }
             }
         );

@@ -22,11 +22,6 @@ public abstract class SmartConstraintChecker implements ConstraintChecker {
   private Set<Constraint> constraintsToBeCovered = null;
   private final List<Tuple> chosenViolations;
   private final Set<Tuple>  factorLevelsToBeCovered;
-  /**
-   * This will be used as a 'template' to generate 'violation' test cases.
-   */
-  private Tuple regularTestCase = null;
-
 
   public SmartConstraintChecker(Class<?> testClass, Factors factors) {
     this.testClass = Checks.checknotnull(testClass);
@@ -47,9 +42,6 @@ public abstract class SmartConstraintChecker implements ConstraintChecker {
       this.constraintsToBeCovered = new LinkedHashSet<Constraint>(getConstraints());
     }
     if (checkTupleAndUpdateViolations(tuple)) {
-      if (regularTestCase == null) {
-        regularTestCase = tuple;
-      }
       if (!factorLevelsToBeCovered.isEmpty()) {
         this.factorLevelsToBeCovered.removeAll(TupleUtils.subtuplesOf(tuple, 1));
       }

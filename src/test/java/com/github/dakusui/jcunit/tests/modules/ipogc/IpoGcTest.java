@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.tests.plugins.caengines.ngipo;
+package com.github.dakusui.jcunit.tests.modules.ipogc;
 
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
