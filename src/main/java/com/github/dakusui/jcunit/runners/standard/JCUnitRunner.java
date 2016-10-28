@@ -125,7 +125,7 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
   }
 
   @Override
-  protected List<FrameworkMethod> getChildren() {
+  public List<FrameworkMethod> getChildren() {
     List<FrameworkMethod> ret = new LinkedList<FrameworkMethod>();
     for (FrameworkMethod each : computeTestMethods()) {
       if (shouldInvoke(each, createTest()))

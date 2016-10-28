@@ -137,7 +137,7 @@ public interface ScenarioSequence<SUT> extends Serializable {
         // 'checkThrownException'. And if the thrown exception is an expected
         // one, it conforms the spec.)
         passed = true;
-        // Author considers that normally application inputs that result
+        // Author considers that normally application inputs that generatedTuples
         // in failure should not affect any internal state of a software module.
         // Therefore this try clause should not include the statement above,
         // "each.perform(sut)", because if we do so, the input to the method
@@ -170,8 +170,8 @@ public interface ScenarioSequence<SUT> extends Serializable {
         try {
           ////
           // In case unexpected error is detected, e.g., scenario was not executed
-          // because of insufficient privilege to access SUT, result will not be
-          // created, result can be null.
+          // because of insufficient privilege to access SUT, generatedTuples will not be
+          // created, generatedTuples can be null.
           if (result != null) {
             if (result.isSuccessful()) {
               observer.passed(stage, scenario, sut);

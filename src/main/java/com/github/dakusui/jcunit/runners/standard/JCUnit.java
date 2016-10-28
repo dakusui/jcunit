@@ -55,7 +55,7 @@ public class JCUnit extends Parameterized {
           List<NumberedTestCase> testCases;
           TestSuite testSuite;
           if (!SystemProperties.reuseTestSuite() || !IOUtils.determineTestSuiteFile(JCUnit.this.getTestClass().getJavaClass()).exists()) {
-            testCases = this.generateTestCases(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine);
+            testCases = this.generateTestCases(Config.INSTANCE, preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine);
             ////
             // Create and hold a test suite object to use it in rules.
             testSuite = new TestSuite(factorSpace, testCases);
@@ -257,6 +257,21 @@ public class JCUnit extends Parameterized {
   }
 
   public static class Engine implements TestSuite.Typed.ModelingEngine {
+    private Config config;
+
+    public static class Config {
+      public static Config INSTANCE = new Config(true, true, true);
+      public final boolean regular;
+      public final boolean custom;
+      public final boolean negative;
+
+      public Config(boolean regular, boolean custom, boolean negative) {
+        this.regular = regular;
+        this.custom = custom;
+        this.negative = negative;
+      }
+    }
+
     final Class<?>                         klass;
     final RunnerContext                    runnerContext;
     final TestSuite                        testSuite;
@@ -264,7 +279,8 @@ public class JCUnit extends Parameterized {
     final ConstraintChecker                constraintChecker;
     final Map<FrameworkMethod, Set<Tuple>> coveredMethods;
 
-    public Engine(Class<?> klass) {
+    public Engine(Config config, Class<?> klass) {
+      this.config = checknotnull(config);
       this.klass = checknotnull(klass);
       this.runnerContext = new RunnerContext.Base(this.klass);
       TestClass testClass = new TestClass(this.klass);
@@ -295,6 +311,10 @@ public class JCUnit extends Parameterized {
       ////
       this.testSuite = createTestSuite(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine);
       this.coveredMethods = new HashMap<FrameworkMethod, Set<Tuple>>();
+    }
+
+    private Engine(Class<?> klass) {
+      this(Config.INSTANCE, klass);
     }
 
     @Override
@@ -351,29 +371,32 @@ public class JCUnit extends Parameterized {
     }
 
     TestSuite createTestSuite(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) {
-      return new TestSuite(factorSpace, this.generateTestCases(preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine));
+      return new TestSuite(factorSpace, this.generateTestCases(this.config, preconditionMethods, customTestCaseMethods, constraintChecker, factorSpace, coveringArrayEngine));
     }
 
-    public List<NumberedTestCase> generateTestCases(List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) {
+    public List<NumberedTestCase> generateTestCases(Config config, List<FrameworkMethod> preconditionMethods, List<FrameworkMethod> customTestCaseMethods, ConstraintChecker constraintChecker, final FactorSpace factorSpace, CoveringArrayEngine coveringArrayEngine) {
+      checknotnull(config);
       ////
       // Generate a list of test cases using a specified tuple generator
       CoveringArray ca = coveringArrayEngine.generate(factorSpace);
       List<NumberedTestCase> testCases = Utils.newList();
       int id;
-      for (id = ca.firstId(); id >= 0; id = ca.nextId(id)) {
-        Tuple testCase = ca.get(id);
-        if (shouldPerform(testCase, preconditionMethods)) {
-          testCases.add(
-              new NumberedTestCase(id, TestCase.Category.REGULAR, testCase
-              ));
+      if (config.regular) {
+        for (id = ca.firstId(); id >= 0; id = ca.nextId(id)) {
+          Tuple testCase = ca.get(id);
+          if (shouldPerform(testCase, preconditionMethods)) {
+            testCases.add(new NumberedTestCase(id, TestCase.Category.REGULAR, testCase));
+          }
         }
       }
+      Tuple regularTestCase = testCases.get(0).getTuple();
       // Skip to number of test cases generated.
       id = ca.size();
       ////
       // Compose a list of 'negative test cases' and register them.
-      final List<Tuple> violations = constraintChecker.getViolations();
+      final List<Tuple> violations = constraintChecker.getViolations(regularTestCase);
       id = registerTestCases(
+          config,
           testCases,
           id,
           violations,
@@ -382,6 +405,7 @@ public class JCUnit extends Parameterized {
       ////
       // Compose a list of 'custom test cases' and register them.
       registerTestCases(
+          config,
           testCases,
           id,
           invokeCustomTestCasesMethod(customTestCaseMethods),
@@ -411,6 +435,7 @@ public class JCUnit extends Parameterized {
     }
 
     private int registerTestCases(
+        Config config,
         List<NumberedTestCase> testCases,
         int id,
         Iterable<Tuple> testCaseTuplesToBeAdded,
@@ -418,7 +443,9 @@ public class JCUnit extends Parameterized {
         List<FrameworkMethod> preconditionMethods) {
       for (Tuple testCase : testCaseTuplesToBeAdded) {
         if (shouldPerform(testCase, preconditionMethods)) {
-          testCases.add(new NumberedTestCase(id, category, testCase));
+          if (category.isEnabled(config)) {
+            testCases.add(new NumberedTestCase(id, category, testCase));
+          }
         }
         id++;
       }

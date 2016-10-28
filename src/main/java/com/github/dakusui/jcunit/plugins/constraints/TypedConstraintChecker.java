@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit.plugins.constraints;
 
-import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
+import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
@@ -14,25 +14,26 @@ public abstract class TypedConstraintChecker<T>
   public TypedConstraintChecker() {
   }
 
-  @Override public final boolean check(Tuple tuple)
+  @Override
+  public final boolean check(Tuple tuple)
       throws UndefinedSymbol {
     return check(toTestObject(tuple), tuple);
   }
 
   /**
    * Checks if a given object {@code o} comply with the constraints defined by this class or not.
-   *
+   * <p>
    * The second parameter {@code tuple} is used for checking if an attribute in {@code o} is
    * assigned or not.
-
+   * <p>
    * {@code tuple} is used to check if required attributes are actually present
    * in the test case. This is necessary because user codes can't tell if a
    * certain field's value is assigned by JCUnit or just a default value.
-   *
+   * <p>
    * If {@code false} is returned, a tuple generator may give up
    * covering pairs contained in {@code tuple}. The pair coverage will potentially be
    * damaged in case {@code false} is returned incorrectly.
-   *
+   * <p>
    * It is strongly recommended to check if factors involved in the constraints are
    * already assigned by JCUnit by reading {@code tuple}.
    *
@@ -43,7 +44,8 @@ public abstract class TypedConstraintChecker<T>
   protected abstract boolean check(T o, Tuple tuple)
       throws UndefinedSymbol;
 
-  @Override public final List<Tuple> getViolations() {
+  @Override
+  public final List<Tuple> getViolations(Tuple regularTestCase) {
     List<Tuple> ret = new LinkedList<Tuple>();
     for (T testObject : getViolationTestObjects()) {
       ret.add(TestCaseUtils.toTestCase(testObject));

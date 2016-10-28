@@ -1,11 +1,11 @@
 package com.github.dakusui.jcunit.tests.modules.ipo2;
 
-import com.github.dakusui.jcunit.core.utils.Utils;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
+import com.github.dakusui.jcunit.core.utils.Utils;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +29,9 @@ public class ReproducibilityTest extends Ipo2Test {
     ConstraintChecker constraintChecker = createConstraintManager();
     Ipo2Optimizer optimizer = createOptimizer();
 
-    Ipo2 ipo = createIPO2(factors, 2, constraintChecker, optimizer);
+    Ipo.Result result = createIPO2(factors, 2, constraintChecker, optimizer);
     return Utils.transform(
-        ipo.getResult(),
+        result.getGeneratedTuples(),
         new Utils.Form<Tuple, Tuple>() {
           @Override
           public Tuple apply(Tuple in) {

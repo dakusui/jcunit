@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
@@ -15,10 +16,12 @@ import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
+import com.github.dakusui.jcunit.runners.standard.JCUnitRunner;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
+import org.junit.runners.model.FrameworkMethod;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -127,7 +130,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
        * Each element in the returned list can be run by following code fragment.
        * <p>
        * <code>
-       * Result result = new JUnitCore().run(eachElement);
+       * Result generatedTuples = new JUnitCore().run(eachElement);
        * </code>
        */
       List<? extends Runner> createRunners();
@@ -151,12 +154,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
          *
          * @see com.github.dakusui.jcunit.runners.standard
          */
-        Factory INSTANCE = new Factory() {
-          @Override
-          public ModelingEngine create(Class modelClass) {
-            return new JCUnit.Engine(modelClass);
-          }
-        };
+        Factory INSTANCE = new Impl(JCUnit.Engine.Config.INSTANCE);
 
         /**
          * Creates an instance of {@link ModelingEngine} which generates a test
@@ -166,6 +164,19 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
          *                   the returned modeling engine.
          */
         ModelingEngine create(Class modelClass);
+
+        class Impl implements Factory {
+          private final JCUnit.Engine.Config config;
+
+          public Impl(JCUnit.Engine.Config config) {
+            this.config = checknotnull(config);
+          }
+
+          @Override
+          public ModelingEngine create(Class modelClass) {
+            return new JCUnit.Engine(this.config, modelClass);
+          }
+        }
       }
     }
 
@@ -175,7 +186,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
 
     /**
      * Creates an object of this class.
-     * Normally this constructor is called through {@link Typed#generate(Class)}
+     * Normally this constructor is called through {@link Typed#generate(Class, JCUnit.Engine.Config)}
      * method and users do not need to call this directly.
      */
     protected Typed(Class<T> modelClass, ModelingEngine engine) {
@@ -195,7 +206,9 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
     }
 
     /**
-     * Concretizes {@code i}th element in this test suite.
+     * Returns {@code i}th element in this test suite as a {@code Runner} object.
+     * Internally, this method concretizes all the test cases in the suite and
+     * caches it.
      *
      * @param i index of the test case to be concretized.
      */
@@ -206,6 +219,31 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
         }
       }
       return this.runners.get(i);
+    }
+
+    public List<Consumer<T>> getOracles(int i) {
+      JCUnitRunner runner = JCUnitRunner.class.cast(this.concretize(i));
+      return Utils.transform(
+          runner.getChildren(),
+          new Utils.Form<FrameworkMethod, Consumer<T>>() {
+            @Override
+            public Consumer<T> apply(final FrameworkMethod in) {
+              return new Consumer<T>() {
+                @Override
+                public void accept(T t) {
+                  try {
+                    in.invokeExplosively(t);
+                  } catch (Error e) {
+                    throw e;
+                  } catch (RuntimeException e) {
+                    throw e;
+                  } catch (Throwable throwable) {
+                    throw Checks.wrap(throwable);
+                  }
+                }
+              };
+            }
+          });
     }
 
     /**
@@ -232,13 +270,27 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
     }
 
     /**
-     * Generates a test suite from a given model class using a standard engine.
+     * Generates a test suite from a given model class using a standard engine
+     * with given {@code config}.
+     * {@see com.github.dakusui.jcunit.runners.standard.JCUnit.Engine.Config}, also.
      *
+     * @param <T>        Type of test case.
      * @param modelClass A test model class. This also represents each test case.
-     * @param <T> Type of test case.
+     * @param config     A config object with which test suite will be generated.
+     */
+    public static <T> Typed<T> generate(final Class<T> modelClass, JCUnit.Engine.Config config) {
+      return new Typed<T>(modelClass, new ModelingEngine.Factory.Impl(config).create(modelClass));
+    }
+
+    /**
+     * Generates a test suite from a given model class using a standard engine using a default
+     * config instance. {@see com.github.dakusui.jcunit.runners.standard.JCUnit.Engine.Config#INSTANCE}
+     *
+     * @param <T>        Type of test case.
+     * @param modelClass A test model class. This also represents each test case.
      */
     public static <T> Typed<T> generate(final Class<T> modelClass) {
-      return new Typed<T>(modelClass, ModelingEngine.Factory.INSTANCE.create(modelClass));
+      return generate(modelClass, JCUnit.Engine.Config.INSTANCE);
     }
   }
 
@@ -561,9 +613,10 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
             }
           }
       ));
+      TestCase regularTestCase = testCases.get(0);
       if (negativeTestsEnabled) {
         testCases.addAll(Utils.transform(
-            checker.getViolations(),
+            checker.getViolations(regularTestCase.getTuple()),
             new Utils.Form<Tuple, TestCase>() {
               @Override
               public TestCase apply(final Tuple in) {

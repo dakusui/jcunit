@@ -56,7 +56,6 @@ public class Ipo2CoveringArrayEngine extends CoveringArrayEngine.Base {
         new GreedyIpo2Optimizer());
     ////
     // Perform IPO algorithm.
-    ipo2.ipo();
-    return ipo2.getResult();
+    return ipo2.ipo().getGeneratedTuples();
   }
 }

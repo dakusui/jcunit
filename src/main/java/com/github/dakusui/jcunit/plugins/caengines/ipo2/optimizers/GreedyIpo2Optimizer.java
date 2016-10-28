@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers;
 
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.Tuples;
 import com.github.dakusui.jcunit.exceptions.GiveUp;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class GreedyIpo2Optimizer implements Ipo2Optimizer {
     Factors.Builder missingFactorsBuilder = new Factors.Builder();
     int numMissingFactors = 0;
     for (String f : tuple.keySet()) {
-      if (tuple.get(f) == Ipo2.DontCare) {
+      if (tuple.get(f) == Ipo.DontCare) {
         numMissingFactors++;
         missingFactorsBuilder.add(factors.get(f));
       }

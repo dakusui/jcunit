@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit.tests.modules.ipo2;
 
-import com.github.dakusui.jcunit.plugins.Plugin;
-import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
-import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
+import com.github.dakusui.jcunit.plugins.Plugin;
+import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
+import com.github.dakusui.jcunit.plugins.constraints.Constraint;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Test;
 
@@ -48,10 +48,10 @@ public class ForSimpleConstraintCheckerConsciousTest extends Ipo2Test {
     ConstraintChecker constraintChecker = createConstraintManager();
     Ipo2Optimizer optimizer = createOptimizer();
 
-    Ipo2 ipo = createIPO2(factors,
+    Ipo.Result result = createIPO2(factors,
         strength, constraintChecker, optimizer);
-    verify(strength, factors, constraintChecker, ipo.getResult(),
-        ipo.getRemainders());
+    verify(strength, factors, constraintChecker, result.getGeneratedTuples(),
+        result.getRemainderTuples());
   }
 
   @Test
@@ -68,10 +68,9 @@ public class ForSimpleConstraintCheckerConsciousTest extends Ipo2Test {
     ConstraintChecker constraintChecker = createConstraintManager();
     Ipo2Optimizer optimizer = createOptimizer();
 
-    Ipo2 ipo = createIPO2(factors,
-        strength, constraintChecker, optimizer);
-    verify(strength, factors, constraintChecker, ipo.getResult(),
-        ipo.getRemainders());
+    Ipo.Result result = createIPO2(factors, strength, constraintChecker, optimizer);
+    verify(strength, factors, constraintChecker, result.getGeneratedTuples(),
+        result.getRemainderTuples());
   }
 
   @Override
@@ -81,7 +80,7 @@ public class ForSimpleConstraintCheckerConsciousTest extends Ipo2Test {
     // can simply verify them.
     UTUtils.stdout().println(result);
     for (Tuple tuple : remainders) {
-      assertThat(String.format("'%s' is contained in result set.", tuple),
+      assertThat(String.format("'%s' is contained in generatedTuples set.", tuple),
           find(tuple, result), is(false));
       assertThat(String.format("'%s' doesn't violate any constraints.", tuple),
           checkConstraints(
@@ -127,7 +126,7 @@ public class ForSimpleConstraintCheckerConsciousTest extends Ipo2Test {
     }
 
     @Override
-    public List<Tuple> getViolations() {
+    public List<Tuple> getViolations(Tuple regularTestCase) {
       return Collections.emptyList();
     }
 

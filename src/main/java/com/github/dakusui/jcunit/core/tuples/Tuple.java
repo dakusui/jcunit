@@ -74,11 +74,7 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
     }
   }
 
-  // TODO: Comparison between LinkedHashMap and TreeMap
-  // Need to compare behavior change between LinkedHashMap and TreeMap
-  // Observation shows LinkedHashMap generates better (smaller) test suite.
-  // For now we don't change it for compatibility's sake.
-  class Impl extends LinkedHashMap<String, Object>/*TreeMap<String, Object>*/ implements Tuple {
+  class Impl extends LinkedHashMap<String, Object> implements Tuple {
     public Tuple cloneTuple() {
       return (Tuple) super.clone();
     }

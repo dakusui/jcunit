@@ -3,11 +3,18 @@ package com.github.dakusui.jcunit.runners.standard;
 import com.github.dakusui.combinatoradix.tuple.AttrValue;
 import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Utils.filter;
+import static java.lang.Math.min;
 
 /**
  */
@@ -50,5 +57,26 @@ public enum TestCaseUtils {
       b.put(each.getName(), ReflectionUtils.getFieldValue(testObject, each));
     }
     return b.build();
+  }
+
+  public static List<Tuple> optimize(List<Tuple> tuples, int strength) {
+    if (tuples.isEmpty()) {
+      return tuples;
+    }
+    strength = min(strength, tuples.get(0).size());
+    final int finalStrength = strength;
+    return filter(tuples, new Utils.Predicate<Tuple>() {
+      Set<Tuple> alreadyCovered = new HashSet<Tuple>();
+
+      @Override
+      public boolean apply(Tuple in) {
+        Set<Tuple> currentSubtuples = TupleUtils.subtuplesOf(in, finalStrength);
+        if (!alreadyCovered.containsAll(currentSubtuples)) {
+          alreadyCovered.addAll(currentSubtuples);
+          return true;
+        }
+        return false;
+      }
+    });
   }
 }

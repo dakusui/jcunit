@@ -94,6 +94,12 @@ public class Factors implements Iterable<Factor> {
     throw new RuntimeException("Something went wrong.");
   }
 
+  /**
+   * Returns a sub-factor set of this factors objects which consists of factors
+   * after {@code from} parameter (inclusive).
+   *
+   * @param from A factor by which subset of this object is specified.
+   */
   public Factors tail(String from) {
     Checks.checknotnull(from);
     Checks.checkcond(has(from));

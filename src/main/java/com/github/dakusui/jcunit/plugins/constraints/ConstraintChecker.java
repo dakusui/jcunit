@@ -31,7 +31,7 @@ public interface ConstraintChecker extends Plugin {
    */
   boolean check(Tuple tuple) throws UndefinedSymbol;
 
-  List<Tuple> getViolations();
+  List<Tuple> getViolations(Tuple regularTestCase);
 
   List<String> getTags();
 
@@ -66,7 +66,7 @@ public interface ConstraintChecker extends Plugin {
     }
 
     @Override
-    public List<Tuple> getViolations() {
+    public List<Tuple> getViolations(Tuple regularTestCase) {
       return Collections.emptyList();
     }
 

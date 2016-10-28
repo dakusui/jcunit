@@ -1,15 +1,15 @@
 package com.github.dakusui.jcunit.tests.modules.ipo2;
 
-import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
-import com.github.dakusui.jcunit.plugins.constraints.NullConstraintChecker;
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo2;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.GreedyIpo2Optimizer;
 import com.github.dakusui.jcunit.plugins.caengines.ipo2.optimizers.Ipo2Optimizer;
+import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
+import com.github.dakusui.jcunit.plugins.constraints.NullConstraintChecker;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Before;
 
@@ -48,14 +48,13 @@ public abstract class Ipo2Test {
     return fb.build();
   }
 
-  protected Ipo2 createIPO2(
+  protected Ipo2.Result createIPO2(
       Factors factors, int strength,
       ConstraintChecker constraintChecker,
       Ipo2Optimizer optimizer) {
     Ipo2 ipo = new Ipo2(factors, strength, constraintChecker,
         optimizer);
-    ipo.ipo();
-    return ipo;
+    return ipo.ipo();
   }
 
   protected void verify(int givenStrength, Factors givenFactors, ConstraintChecker givenConstraintChecker, List<Tuple> actualTestCases,

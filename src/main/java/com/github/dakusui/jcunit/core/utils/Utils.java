@@ -18,6 +18,29 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
  */
 public enum Utils {
   ;
+
+  private static final Predicate ALWAYS_TRUE = new Predicate() {
+    @Override
+    public boolean apply(Object in) {
+      return true;
+    }
+  };
+
+  public static <T> Predicate<T> not(final Predicate<T> predicate) {
+    checknotnull(predicate);
+    return new Predicate<T>() {
+      @Override
+      public boolean apply(T in) {
+        return !predicate.apply(in);
+      }
+    };
+  }
+
+  public static <T> Predicate<T> alwaysTrue() {
+    //noinspection unchecked
+    return (Predicate<T>) ALWAYS_TRUE;
+  }
+
   /**
    * Returns {@code true} if {@code v} and {@code} are equal,
    * {@code false} otherwise.
@@ -149,7 +172,7 @@ public enum Utils {
     checknotnull(form);
     ////
     // In most cases, it's better to use LinkedHashMap in JCUnit because
-    // it needs to guarantee the test case generation result the same always.
+    // it needs to guarantee the test case generation generatedTuples the same always.
     // So this method returns LinkedHashMap instead of HashMap.
     Map<K, V> ret = new LinkedHashMap<K, V>();
     for (V each : in) {
@@ -192,6 +215,22 @@ public enum Utils {
     return newList(Collections.<T>emptyList());
   }
 
+  public static <T> Set<T> overlap(Set<T> setA, Set<T> setB) {
+    Set<T> ret;
+    if (setB.size() < setA.size()) {
+      ret = setA;
+      setA = setB;
+      setB = ret;
+    }
+    ret = new HashSet<T>();
+    for (T each : setA) {
+      if (setB.contains(each)) {
+        ret.add(each);
+      }
+    }
+    return ret;
+  }
+
   public interface Form<I, O> {
     O apply(I in);
   }
@@ -199,6 +238,11 @@ public enum Utils {
   public interface Predicate<I> {
     boolean apply(I in);
   }
+
+  public interface Consumer<I> {
+    void accept(I t);
+  }
+
 
   public static abstract class By<I> implements Form<I, Object>, Comparator<I> {
     @Override
