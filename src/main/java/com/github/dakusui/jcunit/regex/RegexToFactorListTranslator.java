@@ -23,7 +23,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   protected       Context                                        context;
 
   public RegexToFactorListTranslator(String prefix) {
-    this.terms = new HashMap<String, List<RegexTestSuiteBuilder.Value>>();
+    this.terms = new LinkedHashMap<String, List<RegexTestSuiteBuilder.Value>>();
     this.prefix = prefix;
     this.context = new Context.Impl(this.prefix, null);
   }
