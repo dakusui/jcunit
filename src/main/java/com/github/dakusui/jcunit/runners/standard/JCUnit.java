@@ -17,12 +17,12 @@ import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArray;
 import com.github.dakusui.jcunit.plugins.caengines.CoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
 import com.github.dakusui.jcunit.plugins.levelsproviders.SimpleLevelsProvider;
+import com.github.dakusui.jcunit.regex.RegexLevelsProvider;
 import com.github.dakusui.jcunit.runners.core.RunnerContext;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
 import org.junit.runner.Runner;
@@ -154,27 +154,37 @@ public class JCUnit extends Parameterized {
   }
 
   private static FactorDef createFactorDefFrom(FrameworkField field, RunnerContext runnerContext) {
-    if (isSimpleFactorField(field)) {
-      return new FactorDef.Simple(field.getName(), levelsProviderOf(field, runnerContext));
+    if (isRegexFactorField(field, runnerContext)) {
+      return new FactorDef.Regex(
+          field.getName(),
+          JCUnit.<RegexLevelsProvider>levelsProviderOf(field, runnerContext).getSequence());
     }
-    LevelsProvider levelsProvider = levelsProviderOf(field, runnerContext);
-    int historyLength = 2;
-    if (levelsProvider instanceof FSMLevelsProvider) {
-      historyLength = ((FSMLevelsProvider) levelsProvider).historyLength();
+
+    if (isFsmFactorField(field, runnerContext)) {
+      LevelsProvider levelsProvider = levelsProviderOf(field, runnerContext);
+      int historyLength = 2;
+      if (levelsProvider instanceof FSMLevelsProvider) {
+        historyLength = ((FSMLevelsProvider) levelsProvider).historyLength();
+      }
+      //noinspection unchecked
+      return new FactorDef.Fsm(
+          field.getName(),
+          FSMUtils.createFSM(field.getField()),
+          Collections.<com.github.dakusui.jcunit.fsm.Parameters.LocalConstraintChecker>emptyList(),
+          historyLength);
     }
-    //noinspection unchecked
-    return new FactorDef.Fsm(
-        field.getName(),
-        FSMUtils.createFSM(field.getField()),
-        Collections.<com.github.dakusui.jcunit.fsm.Parameters.LocalConstraintChecker>emptyList(),
-        historyLength);
+    return new FactorDef.Simple(field.getName(), levelsProviderOf(field, runnerContext));
   }
 
-  private static boolean isSimpleFactorField(FrameworkField frameworkField) {
-    return !Story.class.isAssignableFrom(frameworkField.getType());
+  private static boolean isFsmFactorField(FrameworkField field, RunnerContext runnerContext) {
+    return levelsProviderOf(field, runnerContext) instanceof FSMLevelsProvider;
   }
 
-  private static LevelsProvider levelsProviderOf(final FrameworkField field, RunnerContext runnerContext) {
+  private static boolean isRegexFactorField(FrameworkField field, RunnerContext runnerContext) {
+    return levelsProviderOf(field, runnerContext) instanceof RegexLevelsProvider;
+  }
+
+  private static <L extends LevelsProvider> L levelsProviderOf(final FrameworkField field, RunnerContext runnerContext) {
     FactorField ann = field.getAnnotation(FactorField.class);
     LevelsProvider ret = new LevelsProvider.FromFactorField(field.getAnnotation(FactorField.class), runnerContext).build();
     if (ret instanceof FactorField.FactorFactory.Default.DummyLevelsProvider) {
@@ -190,7 +200,8 @@ public class JCUnit extends Parameterized {
         }
       };
     }
-    return ret;
+    //noinspection unchecked
+    return (L) ret;
   }
 
 
@@ -346,7 +357,8 @@ public class JCUnit extends Parameterized {
         @Override
         public T apply(Tuple in) {
           //noinspection unchecked
-          return TestCaseUtils.toTestObject((Class<T>) Engine.this.klass, in);
+
+          return TestCaseUtils.toTestObject((Class<T>) Engine.this.klass, factorSpace.convert(in));
         }
       };
     }

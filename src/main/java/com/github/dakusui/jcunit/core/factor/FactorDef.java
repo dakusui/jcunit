@@ -1,10 +1,15 @@
 package com.github.dakusui.jcunit.core.factor;
 
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Utils;
+import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.plugins.levelsproviders.LevelsProvider;
+import com.github.dakusui.jcunit.regex.Composer;
+import com.github.dakusui.jcunit.regex.Expr;
+import com.github.dakusui.jcunit.regex.Parser;
+import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator;
 
 import java.util.*;
 
@@ -12,12 +17,23 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public abstract class FactorDef {
+  /**
+   * Name of a field to which a value synthesized by this object through {@code compose}
+   * method should be assigned.
+   */
   public final String name;
 
   public FactorDef(String name) {
     this.name = checknotnull(name);
   }
 
+  /**
+   * Adds a list of factors to given {@code Factors.Builder} object.
+   * The builder object will then be used to build factors in {@code FactorSpace}
+   * object.
+   *
+   * @param factorsBuilder A builder to which synthesized factors will be added.
+   */
   public abstract void addTo(Factors.Builder factorsBuilder);
 
   public abstract List<Factor> getFactors();
@@ -189,6 +205,48 @@ public abstract class FactorDef {
 
     public static String paramName(String fsmName, int i, int j) {
       return String.format("FSM:%s:param:%d:%d", fsmName, i, j);
+    }
+  }
+
+  public static class Regex extends FactorDef {
+    private final Factors                                              factors;
+    private final List<TestSuite.Predicate>                            constraints;
+    private final Map<String, List<RegexToFactorListTranslator.Value>> terms;
+    private final Expr expr;
+
+    public Regex(String name, String sequence) {
+      super(name);
+      RegexToFactorListTranslator builder = new RegexToFactorListTranslator(this.name);
+      this.expr = Parser.parse(sequence);
+      this.expr.accept(builder);
+      this.factors = builder.buildFactors();
+      this.constraints = builder.buildConstraints(this.factors.asFactorList());
+      this.terms = builder.terms;
+    }
+
+    @Override
+    public void addTo(Factors.Builder factorsBuilder) {
+      for (Factor each : this.factors) {
+        factorsBuilder.add(each);
+      }
+    }
+
+    @Override
+    public List<Factor> getFactors() {
+      return this.factors.asFactorList();
+    }
+
+    @Override
+    public ConstraintChecker createConstraintChecker() {
+      return new TestSuite.StandardConstraintChecker(this.factors.asFactorList(), this.constraints);
+    }
+
+    @Override
+    public void compose(Tuple.Builder b, Tuple in) {
+      Composer composer;
+      this.expr.accept(composer = new Composer(this.name, in, this.terms));
+
+      b.put(this.name, composer.out);
     }
   }
 }

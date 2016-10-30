@@ -576,7 +576,7 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
           });
         }
       }));
-      ConstraintChecker checker = new MySmartConstraintChecker();
+      ConstraintChecker checker = new StandardConstraintChecker(this.factors, this.constraints);
       FactorSpace factorSpace = factorSpaceBuilder.setTopLevelConstraintChecker(checker).build();
       List<TestCase> testCases = new LinkedList<TestCase>();
       testCases.addAll(Utils.transform(
@@ -617,29 +617,36 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
             }
           }
       ));
-      TestCase regularTestCase = testCases.get(0);
       if (negativeTestsEnabled) {
-        testCases.addAll(Utils.transform(
-            checker.getViolations(regularTestCase.getTuple()),
-            new Utils.Form<Tuple, TestCase>() {
-              @Override
-              public TestCase apply(final Tuple in) {
-                return new TestCaseWithViolatedConstraints(
-                    TestCase.Category.VIOLATION,
-                    in,
-                    filter(
-                        constraints,
-                        new Utils.Predicate<Predicate>() {
-                          @Override
-                          public boolean apply(Predicate constraint) {
-                            return !constraint.apply(in);
+        ////
+        // FIXME: 10/29/16 Come up with a better way to specify regular test case
+        if (testCases.isEmpty()) {
+          System.err.println("Negative test generation was cancelled because there is no regular test case.");
+        } else {
+          TestCase regularTestCase = testCases.get(0);
+
+          testCases.addAll(Utils.transform(
+              checker.getViolations(regularTestCase.getTuple()),
+              new Utils.Form<Tuple, TestCase>() {
+                @Override
+                public TestCase apply(final Tuple in) {
+                  return new TestCaseWithViolatedConstraints(
+                      TestCase.Category.VIOLATION,
+                      in,
+                      filter(
+                          constraints,
+                          new Utils.Predicate<Predicate>() {
+                            @Override
+                            public boolean apply(Predicate constraint) {
+                              return !constraint.apply(in);
+                            }
                           }
-                        }
-                    )
-                );
+                      )
+                  );
+                }
               }
-            }
-        ));
+          ));
+        }
       }
       return new TestSuite(factorSpace, testCases);
     }
@@ -768,48 +775,53 @@ public class TestSuite extends AbstractList<TestCase> implements List<TestCase> 
       }
     }
 
-    private class MySmartConstraintChecker extends SmartConstraintChecker {
-      MySmartConstraintChecker() {
-        super(Object.class, new Factors(TestSuite.Builder.this.factors));
-      }
+  }
 
-      @Override
-      public List<Constraint> getConstraints() {
-        return Utils.transform(
-            constraints,
-            new Utils.Form<Predicate, Constraint>() {
-              @Override
-              public Constraint apply(Predicate eachPredicate) {
-                if (eachPredicate.getFactorNames() != null) {
-                  List<String> notFounds = filter(
-                      dedup(asList(eachPredicate.getFactorNames())),
-                      new Utils.Predicate<String>() {
-                        @Override
-                        public boolean apply(final String eachFactorName) {
-                          return filter(
-                              TestSuite.Builder.this.factors,
-                              new Utils.Predicate<Factor>() {
-                                @Override
-                                public boolean apply(Factor in) {
-                                  return in.name.equals(eachFactorName);
-                                }
+  public static class StandardConstraintChecker extends SmartConstraintChecker {
+
+    private final List<Predicate> constraints;
+
+    public StandardConstraintChecker(List<Factor> factors, List<Predicate> constraints) {
+      super(Object.class, new Factors(factors));
+      this.constraints = constraints;
+    }
+
+    @Override
+    public List<Constraint> getConstraints() {
+      return Utils.transform(
+          constraints,
+          new Form<Predicate, Constraint>() {
+            @Override
+            public Constraint apply(Predicate eachPredicate) {
+              if (eachPredicate.getFactorNames() != null) {
+                List<String> notFounds = filter(
+                    dedup(asList(eachPredicate.getFactorNames())),
+                    new Utils.Predicate<String>() {
+                      @Override
+                      public boolean apply(final String eachFactorName) {
+                        return filter(
+                            StandardConstraintChecker.this.factors,
+                            new Utils.Predicate<Factor>() {
+                              @Override
+                              public boolean apply(Factor in) {
+                                return in.name.equals(eachFactorName);
                               }
-                          ).isEmpty();
-                        }
+                            }
+                        ).isEmpty();
                       }
-                  );
-                  checkcond(notFounds.isEmpty(), "Undefined factor(s) %s are used by %s", notFounds, eachPredicate);
-                }
-                return new GuardedConstraint(eachPredicate.tag, eachPredicate, eachPredicate.getFactorNames());
+                    }
+                );
+                checkcond(notFounds.isEmpty(), "Undefined factor(s) %s are used by %s", notFounds, eachPredicate);
               }
+              return new TestSuite.Builder.GuardedConstraint(eachPredicate.tag, eachPredicate, eachPredicate.getFactorNames());
             }
-        );
-      }
+          }
+      );
+    }
 
-      @Override
-      public ConstraintChecker getFreshObject() {
-        return new MySmartConstraintChecker();
-      }
+    @Override
+    public ConstraintChecker getFreshObject() {
+      return new StandardConstraintChecker(this.factors.asFactorList(), this.constraints);
     }
   }
 }
