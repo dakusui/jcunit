@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session4;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +58,7 @@ public class QuadraticEquationSolverTest4 {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
+  @Given({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
   public void solveEquation$thenIllegalArgumentExceptionWillBeThrown() {
     new QuadraticEquationSolver(
         a,
@@ -67,7 +67,7 @@ public class QuadraticEquationSolverTest4 {
   }
 
   @Test
-  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
+  @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void solveEquation$thenSolved() {
     ps.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b*b, -4*c*a, b*b-4*c*a));
     ps.println(this.coefficientsAreValid());

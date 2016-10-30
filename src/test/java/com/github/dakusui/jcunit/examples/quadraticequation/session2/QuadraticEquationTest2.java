@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session2;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import com.github.dakusui.jcunit.examples.quadraticequation.session1.QuadraticEquationSolver;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class QuadraticEquationTest2 {
   }
 
   @Test
-  @When({ "aIsNonZero&&discriminantIsNonNegative" })
+  @Given({ "aIsNonZero&&discriminantIsNonNegative" })
   public void solveEquation() {
     QuadraticEquationSolver.Solutions s = new QuadraticEquationSolver(a, b,
         c).solve();

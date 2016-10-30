@@ -34,7 +34,7 @@ import java.lang.annotation.Target;
  *
  * @see Condition
  * @see Precondition
- * @see When
+ * @see Given
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.ANNOTATION_TYPE)

@@ -86,7 +86,7 @@ public class QuadraticEquationSolverTest5 {
    * Now, this test isn't executed at all.
    */
   @Test(expected = IllegalArgumentException.class)
-  @When({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
+  @Given({ "!aIsNonZero", "!discriminantIsNonNegative", "!coefficientsAreValid" })
   public void whenSolveEquation$thenIllegalArgumentExceptionWillBeThrown() {
     new QuadraticEquationSolver(
         a,
@@ -95,7 +95,7 @@ public class QuadraticEquationSolverTest5 {
   }
 
   @Test
-  @When({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
+  @Given({ "aIsNonZero&&discriminantIsNonNegative&&coefficientsAreValid" })
   public void whenSolveEquation$thenSolved() {
     ps.println(String.format("(a,b,c,b*b,-4*c*a,discriminant)=(%d,%d,%d,%d,%d,%d)", a, b, c, b * b, -4 * c * a, b * b - 4 * c * a));
     ps.println(this.coefficientsAreValid());

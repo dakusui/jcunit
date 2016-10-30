@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.annotations.Uses;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import org.junit.Ignore;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunNotifier;
@@ -50,10 +50,10 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
     this.testCase = Checks.checknotnull(testCase);
     TestClass testClass = getTestClass();
     Map<String, FrameworkMethod> methods = new LinkedHashMap<String, FrameworkMethod>();
-    for (FrameworkMethod each : testClass.getAnnotatedMethods(When.class)) {
-      When when = each.getAnnotation(When.class);
+    for (FrameworkMethod each : testClass.getAnnotatedMethods(Given.class)) {
+      Given given = each.getAnnotation(Given.class);
 
-      CompositeFrameworkMethod compositeFrameworkMethod = FrameworkMethodUtils.buildCompositeFrameworkMethod(testClass, when);
+      CompositeFrameworkMethod compositeFrameworkMethod = FrameworkMethodUtils.buildCompositeFrameworkMethod(testClass, given);
       methods.put(compositeFrameworkMethod.getName(), compositeFrameworkMethod);
     }
     this.methods = Collections.unmodifiableMap(methods);
@@ -148,10 +148,10 @@ public class JCUnitRunner extends BlockJUnit4ClassRunner {
       markCovered(testMethod, subtupleUsedByTestMethod);
     }
 
-    When when = testMethod.getAnnotation(When.class);
-    if (when == null)
+    Given given = testMethod.getAnnotation(Given.class);
+    if (given == null)
       return true;
-    String preconditionMethodName = FrameworkMethodUtils.composePreconditionCompositeFrameworkMethodName(when);
+    String preconditionMethodName = FrameworkMethodUtils.composePreconditionCompositeFrameworkMethodName(given);
     FrameworkMethod preconditionMethod = this.methods.get(preconditionMethodName);
     Checks.checkcond(preconditionMethod != null, "Something went wrong: name=%s, methdos=%s", preconditionMethodName, this.methods);
     boolean ret;

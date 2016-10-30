@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import org.junit.Test;
 import org.junit.runner.Result;
 
@@ -58,7 +58,7 @@ public class TypedTestSuiteTest {
     }
 
     @Test
-    @When("aIsZero")
+    @Given("aIsZero")
     public void notQuadratic() {
       System.out.printf("Not a quadratic equation: %s, %s, %s%n", this.a, this.b, this.c);
     }

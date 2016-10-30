@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit.tests.modules.core;
 import com.github.dakusui.jcunit.runners.standard.annotations.ReferenceHandler;
 import com.github.dakusui.jcunit.runners.standard.annotations.ReferenceWalker;
 import com.github.dakusui.jcunit.runners.standard.annotations.ReferrerAttribute;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
@@ -11,11 +11,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FrameworkMethodUtilsTestHelper {
-  public static List<FrameworkMethod> findReferencedFrameworkMethods(TestClass testClass, When by) {
+  public static List<FrameworkMethod> findReferencedFrameworkMethods(TestClass testClass, Given by) {
     return new ForCollectingReferencedMethods()
         .handleTermArray(new ReferenceWalker<List<FrameworkMethod>>(
                 testClass,
-                When.class.getAnnotation(ReferrerAttribute.class).value()),
+                Given.class.getAnnotation(ReferrerAttribute.class).value()),
             by.value());
   }
 

@@ -21,8 +21,8 @@ import java.util.List;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @ReferrerAttribute("value")
-@ValidateWith(When.Validator.class)
-public @interface When {
+@ValidateWith(Given.Validator.class)
+public @interface Given {
   /**
    * Returns an array of method names within the same class this annotation is
    * attached to.
@@ -44,7 +44,7 @@ public @interface When {
       }
 
       validateMethodsReferencedBy(
-          When.class,
+          Given.class,
           new TestClass(method.getDeclaringClass()),
           errors);
       return errors;

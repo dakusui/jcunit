@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.runners.standard.CompositeFrameworkMethod;
 import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -80,57 +80,57 @@ public class FrameworkMethodUtilsTest {
     }
 
     @Test
-    @When("precondition1")
+    @Given("precondition1")
     public void scenario1() {
     }
 
     @Test
-    @When("precondition2&&precondition3")
+    @Given("precondition2&&precondition3")
     public void scenario2() {
     }
 
     @Test
-    @When("!precondition2&&precondition3")
+    @Given("!precondition2&&precondition3")
     public void scenario3() {
     }
 
     @Test
-    @When("precondition2&&!precondition3")
+    @Given("precondition2&&!precondition3")
     public void scenario4() {
     }
 
     @Test
-    @When({ "!precondition2&&!precondition3", "precondition1" })
+    @Given({ "!precondition2&&!precondition3", "precondition1" })
     public void scenario5() {
     }
 
     @Test
-    @When("invalidPrecondition1")
+    @Given("invalidPrecondition1")
     public void invalidScenario1() {
     }
 
     @Test
-    @When("invalidPrecondition2")
+    @Given("invalidPrecondition2")
     public void invalidScenario2() {
     }
 
     @Test
-    @When("invalidPrecondition3")
+    @Given("invalidPrecondition3")
     public void invalidScenario3() {
     }
 
     @Test
-    @When("invalidPrecondition4")
+    @Given("invalidPrecondition4")
     public void invalidScenario4() {
     }
 
     @Test
-    @When("invalidPrecondition5")
+    @Given("invalidPrecondition5")
     public void invalidScenario5() {
     }
 
     @Test
-    @When("undefinedPrecondition")
+    @Given("undefinedPrecondition")
     public void invalidScenario6() {
     }
   }
@@ -276,11 +276,11 @@ public class FrameworkMethodUtilsTest {
 
     List<FrameworkMethod> methods = FrameworkMethodUtilsTestHelper.findReferencedFrameworkMethods(
         new TestClass(RetrieverTestClass.class),
-        new When() {
+        new Given() {
 
           @Override
           public Class<? extends Annotation> annotationType() {
-            return When.class;
+            return Given.class;
           }
 
           @Override
@@ -311,11 +311,11 @@ public class FrameworkMethodUtilsTest {
   private CompositeFrameworkMethod findMethodReferencedByWhenAnnotation(
       Class<?> testClass,
       final List<String> annotaionValues) {
-    return FrameworkMethodUtils.buildCompositeFrameworkMethod(new TestClass(testClass), new When() {
+    return FrameworkMethodUtils.buildCompositeFrameworkMethod(new TestClass(testClass), new Given() {
 
       @Override
       public Class<? extends Annotation> annotationType() {
-        return When.class;
+        return Given.class;
       }
 
       @Override

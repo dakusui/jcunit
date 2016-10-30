@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.tests.modules.core;
 
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.When;
+import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -27,7 +27,7 @@ public class PreconditionTest {
     }
 
     @Test
-    @When("precondition")
+    @Given("precondition")
     public void test1() {
     }
   }

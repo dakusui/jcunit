@@ -181,7 +181,7 @@ public enum FrameworkMethodUtils {
     }
   }
 
-  public static String composePreconditionCompositeFrameworkMethodName(When ann) {
+  public static String composePreconditionCompositeFrameworkMethodName(Given ann) {
     Checks.checknotnull(ann);
     StringBuilder b = new StringBuilder();
     String[] values = ann.value();

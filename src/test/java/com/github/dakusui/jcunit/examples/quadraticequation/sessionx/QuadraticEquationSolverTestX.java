@@ -69,7 +69,7 @@ public class QuadraticEquationSolverTestX {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  @When({ "!aIsNonZero", "!discriminantIsNonNegative" })
+  @Given({ "!aIsNonZero", "!discriminantIsNonNegative" })
   public void solveEquation$ThenIllegalArgumentExceptionWillBeThrown() {
     new QuadraticEquationSolver(
         a,
@@ -78,7 +78,7 @@ public class QuadraticEquationSolverTestX {
   }
 
   @Test
-  @When({ "aIsNonZero&&discriminantIsNonNegative" })
+  @Given({ "aIsNonZero&&discriminantIsNonNegative" })
   public void solveEquation$ThenSolutionsArePreciseEnough() {
     try {
       System.out.println(String
