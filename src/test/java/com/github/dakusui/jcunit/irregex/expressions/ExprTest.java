@@ -1,15 +1,13 @@
 package com.github.dakusui.jcunit.irregex.expressions;
 
 
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.framework.TestCase;
+import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.regex.Composer;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Printer;
 import com.github.dakusui.jcunit.regex.RegexTestSuiteBuilder;
-import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.Factors;
-import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.framework.TestCase;
-import com.github.dakusui.jcunit.framework.TestSuite;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -137,15 +135,40 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.buildTestSuite());
   }
 
-  private String toString(Factors factors) {
-    StringBuilder b = new StringBuilder();
-    for (Factor each : factors) {
-      b.append(each.name);
-      b.append(" -- ");
-      b.append(each.levels);
-      b.append("\n");
-    }
-    return b.toString();
+  @Test
+  public void factorSpaceBuilderRep3() {
+    Expr expr;
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
+    (expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 2, 3), alt("digest0", "digest1")))
+        .accept(regexTestSuiteBuilder);
+    System.out.println(regexTestSuiteBuilder.toString());
+    System.out.println();
+    expr.accept(new Printer(System.out));
+    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+  }
+
+  @Test
+  public void factorSpaceBuilderRep4() {
+    Expr expr;
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
+    (expr = rep(alt("update1", "update2"), 2, 3))
+        .accept(regexTestSuiteBuilder);
+    System.out.println(regexTestSuiteBuilder.toString());
+    System.out.println();
+    expr.accept(new Printer(System.out));
+    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+  }
+
+  @Test
+  public void factorSpaceBuilderRep5() {
+    Expr expr;
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
+    (expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 1, 2)))
+        .accept(regexTestSuiteBuilder);
+    System.out.println(regexTestSuiteBuilder.toString());
+    System.out.println();
+    expr.accept(new Printer(System.out));
+    System.out.println(regexTestSuiteBuilder.buildTestSuite());
   }
 
   private void printTestSuite(TestSuite testSuite) {

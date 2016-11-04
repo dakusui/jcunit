@@ -3,13 +3,16 @@ package com.github.dakusui.jcunit.regex;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.framework.TestSuite;
 
 import java.util.*;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.utils.Utils.eq;
+import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static java.lang.String.format;
+import static java.util.Collections.disjoint;
 
 public class RegexToFactorListTranslator implements Expr.Visitor {
   protected static final Object VOID = new Object() {
@@ -100,38 +103,48 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     List<TestSuite.Predicate> ret = new LinkedList<TestSuite.Predicate>();
     for (final Factor eachFactor : factors) {
       for (final Object eachLevel : eachFactor.levels) {
-        Checks.checkcond(eachLevel instanceof List || RegexToFactorListTranslator.VOID.equals(eachLevel));
+        checkcond(eachLevel instanceof List || VOID.equals(eachLevel));
         //noinspection unchecked,ConstantConditions
-        if (!RegexToFactorListTranslator.VOID.equals(eachLevel) && !Utils.filter((List) eachLevel, new Utils.Predicate() {
+        if (!VOID.equals(eachLevel) && !filter((List) eachLevel, new Utils.Predicate() {
           @Override
           public boolean apply(Object o) {
-            return o instanceof RegexTestSuiteBuilder.Reference;
+            return o instanceof Reference;
           }
         }).isEmpty()) {
           //noinspection ConstantConditions
           for (final Object eachElement : (List) eachLevel) {
-            if (!(eachElement instanceof RegexTestSuiteBuilder.Reference))
+            if (!(eachElement instanceof Reference))
               continue;
-            final String referee = ((RegexTestSuiteBuilder.Reference) eachElement).key;
+            final String referee = ((Reference) eachElement).key;
             final String referer = eachFactor.name;
-            final String tag = String.format("constraint(%s->%s)", referer, referee);
+            final String tag = format("constraint(%s->%s)", referer, referee);
 
             ret.add(new TestSuite.Predicate(tag, referer, referee) {
               @Override
               public boolean apply(Tuple tuple) {
-                if (Utils.eq(tuple.get(referer), eachLevel)) {
-                  return !Utils.eq(tuple.get(referee), RegexToFactorListTranslator.VOID);
+                System.out.printf("tuple(%s,%s):%s (eachLevel=%s)%n", referer, referee, tuple, eachLevel);
+                Object refererObject = tuple.get(referer);
+                Object refereeObject = tuple.get(referee);
+                if (refersTo(refererObject, eachLevel)) {
+                  return !eq(refereeObject, VOID);
                 }
-                return Utils.eq(tuple.get(referee), RegexToFactorListTranslator.VOID);
+                return eq(refereeObject, VOID);
               }
 
               @Override
               public String toString() {
-                return tag;
+                return format("constraint(%s=%s->%s)", referer, eachLevel, referee);
+              }
+
+              private boolean refersTo(Object refererObject, Object level) {
+                return refererObject instanceof Collection &&
+                    level instanceof Collection &&
+                    !disjoint((Collection) refererObject, (Collection) level);
               }
             });
           }
         }
+
       }
     }
     return ret;
@@ -152,7 +165,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   private boolean isReferenced(final String eachKey) {
     for (Map.Entry<String, List<RegexTestSuiteBuilder.Value>> each : this.terms.entrySet()) {
       if (isAlt(each.getKey())) {
-        if (!Utils.filter(each.getValue(), new Utils.Predicate<RegexTestSuiteBuilder.Value>() {
+        if (!filter(each.getValue(), new Utils.Predicate<RegexTestSuiteBuilder.Value>() {
           @Override
           public boolean apply(RegexTestSuiteBuilder.Value in) {
             return in instanceof RegexTestSuiteBuilder.Reference && ((RegexTestSuiteBuilder.Reference) in).key.equals(eachKey);
