@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.irregex.expressions;
 
-import com.github.dakusui.jcunit.plugins.caengines.RandomCoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.caengines.IpoGcCoveringArrayEngine;
 import com.github.dakusui.jcunit.regex.RegexLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
@@ -17,7 +17,7 @@ import java.util.List;
 
 @RunWith(JCUnit.class)
 @GenerateCoveringArrayWith(
-    engine = @Generator(value = RandomCoveringArrayEngine.class, args = { @Value("50") }))
+    engine = @Generator(value = IpoGcCoveringArrayEngine.class))
 public class MessageDigestExample {
 
   private MessageDigest messageDigest;
@@ -27,7 +27,7 @@ public class MessageDigestExample {
 
   @FactorField(
       levelsProvider = RegexLevelsProvider.class,
-      args = { @Value({ "reset{0,1}(update1|update2){1,2}(digest0|digest1)" }) }
+      args = { @Value({ "(updateWithDummy reset){0,1}(update1|update2|update3){0,1,2}(digest1|digest2)" }) }
   )
   public List<String> scenario;
 

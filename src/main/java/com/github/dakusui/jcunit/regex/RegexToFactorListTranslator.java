@@ -8,11 +8,9 @@ import com.github.dakusui.jcunit.framework.TestSuite;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.utils.Utils.eq;
+import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static java.lang.String.format;
-import static java.util.Collections.disjoint;
 
 public class RegexToFactorListTranslator implements Expr.Visitor {
   protected static final Object VOID = new Object() {
@@ -101,50 +99,57 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
 
   public List<TestSuite.Predicate> buildConstraints(List<Factor> factors) {
     List<TestSuite.Predicate> ret = new LinkedList<TestSuite.Predicate>();
-    for (final Factor eachFactor : factors) {
-      for (final Object eachLevel : eachFactor.levels) {
-        checkcond(eachLevel instanceof List || VOID.equals(eachLevel));
-        //noinspection unchecked,ConstantConditions
-        if (!VOID.equals(eachLevel) && !filter((List) eachLevel, new Utils.Predicate() {
-          @Override
-          public boolean apply(Object o) {
-            return o instanceof Reference;
+    for (final Factor each : factors) {
+      final List<String> referrers = Utils.transform(getReferringFactors(each, factors), new Utils.Form<Factor, String>() {
+        @Override
+        public String apply(Factor in) {
+          return in.name;
+        }
+      });
+      if (referrers.isEmpty())
+        continue;
+      final String referee = each.name;
+      final String tag = format("constraint(%s->%s)", referrers, referee);
+      ret.add(new TestSuite.Predicate(
+          tag,
+          concatenate(referrers, referee).toArray(new String[referrers.size() + 1])) {
+        @Override
+        public boolean apply(Tuple in) {
+          for (String eachReferrer : referrers) {
+            Object referrerValue = in.get(eachReferrer);
+            if (!VOID.equals(referrerValue) && !filter(((List) referrerValue), new Utils.Predicate() {
+              @Override
+              public boolean apply(Object in) {
+                return in instanceof Reference && ((Reference) in).key.equals(referee);
+              }
+            }).isEmpty()) {
+              return !VOID.equals(in.get(referee));
+            }
           }
-        }).isEmpty()) {
-          //noinspection ConstantConditions
-          for (final Object eachElement : (List) eachLevel) {
-            if (!(eachElement instanceof Reference))
-              continue;
-            final String referee = ((Reference) eachElement).key;
-            final String referer = eachFactor.name;
-            final String tag = format("constraint(%s->%s)", referer, referee);
+          return VOID.equals(in.get(referee));
+        }
+      });
+    }
+    return ret;
+  }
 
-            ret.add(new TestSuite.Predicate(tag, referer, referee) {
-              @Override
-              public boolean apply(Tuple tuple) {
-                System.out.printf("tuple(%s,%s):%s (eachLevel=%s)%n", referer, referee, tuple, eachLevel);
-                Object refererObject = tuple.get(referer);
-                Object refereeObject = tuple.get(referee);
-                if (refersTo(refererObject, eachLevel)) {
-                  return !eq(refereeObject, VOID);
-                }
-                return eq(refereeObject, VOID);
+  private List<Factor> getReferringFactors(Factor referred, List<Factor> factors) {
+    List<Factor> ret = new LinkedList<Factor>();
+    outer:
+    for (Factor each : factors) {
+      if (each == referred)
+        continue;
+      for (Object eachLevel : each.levels) {
+        if (eachLevel instanceof List) {
+          for (Object eachElement : (List) eachLevel) {
+            if (eachElement instanceof Reference) {
+              if (referred.name.equals(((Reference) eachElement).key)) {
+                ret.add(each);
+                continue outer;
               }
-
-              @Override
-              public String toString() {
-                return format("constraint(%s=%s->%s)", referer, eachLevel, referee);
-              }
-
-              private boolean refersTo(Object refererObject, Object level) {
-                return refererObject instanceof Collection &&
-                    level instanceof Collection &&
-                    !disjoint((Collection) refererObject, (Collection) level);
-              }
-            });
+            }
           }
         }
-
       }
     }
     return ret;
