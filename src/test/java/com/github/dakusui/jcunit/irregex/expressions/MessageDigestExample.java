@@ -27,7 +27,7 @@ public class MessageDigestExample {
 
   @FactorField(
       levelsProvider = RegexLevelsProvider.class,
-      args = { @Value({ "(updateWithDummy reset){0,1}(update1|update2|update3){0,1,2}(digest1|digest2)" }) }
+      args = { @Value({ "(updateWithDummy reset){0,1}(update1|update2|update3){0,2}(digest1|digest2)" }) }
   )
   public List<String> scenario;
 

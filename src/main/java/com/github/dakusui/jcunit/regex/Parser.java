@@ -13,7 +13,7 @@ import static java.util.Arrays.asList;
 
 public class Parser {
 
-  public static final Pattern QUANTIFIER_PATTERN = Pattern.compile("^\\{[0-9]+(,[0-9]+)*\\}");
+  public static final Pattern QUANTIFIER_PATTERN = Pattern.compile("^\\{([0-9]+),([0-9]+)\\}");
   public static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_ ][A-Za-z_0-9 ]*");
 
   static class Context {
@@ -98,18 +98,9 @@ public class Parser {
       Matcher m;
       if ((m = QUANTIFIER_PATTERN.matcher(nextHead)).find()) {
         ret = new Context(
-            new Expr.Rep(ret.expr, parseQuantifier(m.group(0))),
+            new Expr.Rep(ret.expr, Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2))),
             tail(ret.tokens));
       }
-    }
-    return ret;
-  }
-
-  private static int[] parseQuantifier(String quantifier) {
-    String[] parts = quantifier.substring(1, quantifier.length() - 1).split(",");
-    int[] ret = new int[parts.length];
-    for (int i = 0; i < ret.length; i++) {
-      ret[i] = Integer.parseInt(parts[i]);
     }
     return ret;
   }

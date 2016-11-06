@@ -6,7 +6,10 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.framework.TestSuite;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
@@ -58,6 +61,21 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   }
 
   public void visit(Expr.Rep exp) {
+    List<Expr> repeatedExprs = new LinkedList<Expr>();
+    for (int i = 0; i < exp.getMin(); i++) {
+      repeatedExprs.add(exp.getChild());
+    }
+    if (exp.getMin() < exp.getMax()) {
+      Expr.Alt cur = new Expr.Alt(Utils.asList(exp.getChild(), Expr.Cat.EMPTY));
+      for (int i = exp.getMin() + 1; i < exp.getMax(); i++) {
+        cur = new Expr.Alt(Utils.<Expr>asList(cur, Expr.Cat.EMPTY));
+      }
+      repeatedExprs.add(cur);
+    }
+    for (Expr each : repeatedExprs) {
+      each.accept(this);
+    }
+    /*
     List<Expr> exprs = new LinkedList<Expr>();
     for (int i : exp.getTimes()) {
       List<Expr> repeatedExprs = new LinkedList<Expr>();
@@ -74,6 +92,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
           Collections.singletonList((RegexTestSuiteBuilder.Value) new RegexTestSuiteBuilder.Reference(composeKey(this.prefix, expr.id())))
       );
     }
+    */
   }
 
   public void visit(Expr.Leaf leaf) {

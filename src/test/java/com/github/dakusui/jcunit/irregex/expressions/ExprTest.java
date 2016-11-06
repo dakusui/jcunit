@@ -14,6 +14,9 @@ import java.io.PrintStream;
 
 import static com.github.dakusui.jcunit.regex.Expr.Factory.*;
 import static java.lang.String.format;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class ExprTest {
   @Test
@@ -46,10 +49,11 @@ public class ExprTest {
     RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
     (expr = alt("Hello", "hello"))
         .accept(regexTestSuiteBuilder);
-    System.out.println(regexTestSuiteBuilder.toString());
-    System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
+    assertThat(testSuite.get(0).getTuple().toString(), containsString("[Hello]"));
+    assertThat(testSuite.get(1).getTuple().toString(), containsString("[hello]"));
+    assertEquals(2, testSuite.size());
   }
 
   @Test
@@ -58,10 +62,18 @@ public class ExprTest {
     RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
     (expr = cat(alt("Hello", "hello"), alt("Hi", "HI")))
         .accept(regexTestSuiteBuilder);
-    System.out.println(regexTestSuiteBuilder.toString());
-    System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
+    printTestSuite(testSuite);
+    assertThat(testSuite.get(0).getTuple().toString(), containsString("[Hello]"));
+    assertThat(testSuite.get(0).getTuple().toString(), containsString("[Hi]"));
+    assertThat(testSuite.get(1).getTuple().toString(), containsString("[Hello]"));
+    assertThat(testSuite.get(1).getTuple().toString(), containsString("[HI]"));
+    assertThat(testSuite.get(2).getTuple().toString(), containsString("[hello]"));
+    assertThat(testSuite.get(2).getTuple().toString(), containsString("[Hi]"));
+    assertThat(testSuite.get(3).getTuple().toString(), containsString("[hello]"));
+    assertThat(testSuite.get(3).getTuple().toString(), containsString("[HI]"));
+    assertEquals(4, testSuite.size());
   }
 
   @Test
@@ -70,10 +82,9 @@ public class ExprTest {
     RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
     (expr = cat(alt("Hello", alt("Hi", "HI")), "howdy"))
         .accept(regexTestSuiteBuilder);
-    System.out.println(regexTestSuiteBuilder.toString());
-    System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
+    printTestSuite(testSuite);
   }
 
   @Test
@@ -117,7 +128,7 @@ public class ExprTest {
   public void factorSpaceBuilderRep() {
     Expr expr;
     RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
-    (expr = rep("Hello", 0, 1, 2))
+    (expr = rep("Hello", 0, 1))
         .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     expr.accept(new Printer(System.out));
@@ -127,7 +138,7 @@ public class ExprTest {
   public void factorSpaceBuilderRep2() {
     Expr expr;
     RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
-    (expr = rep(cat("Hello", alt("World", "WORLD")), 0, 1, 2))
+    (expr = rep(cat("Hello", alt("World", "WORLD")), 1, 2))
         .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();

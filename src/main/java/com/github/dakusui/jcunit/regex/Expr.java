@@ -1,9 +1,11 @@
 package com.github.dakusui.jcunit.regex;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -57,7 +59,9 @@ public interface Expr {
     }
   }
 
-  public static class Cat extends Composite implements Expr {
+  class Cat extends Composite implements Expr {
+    static final Cat EMPTY = new Cat(Collections.<Expr>emptyList());
+
     Cat(List<Expr> children) {
       super(children);
     }
@@ -78,12 +82,15 @@ public interface Expr {
   }
 
   class Rep extends Base implements Expr {
-    private final Expr  child;
-    private final int[] times;
+    private final Expr child;
+    private final int  min;
+    private final int  max;
 
-    Rep(Expr child, int[] times) {
-      this.child = child;
-      this.times = times;
+    Rep(Expr child, int min, int max) {
+      checkcond(min >= 0 && min <= max);
+      this.child = checknotnull(child);
+      this.min = min;
+      this.max = max;
     }
 
     public void accept(Visitor visitor) {
@@ -92,10 +99,11 @@ public interface Expr {
 
     @Override
     public String toString() {
-      return format("%s:%s:%s",
+      return format("%s:%s{%s,%s}",
           this.getClass().getSimpleName().toLowerCase(),
           Utils.str(this.child),
-          Arrays.toString(this.times)
+          this.min,
+          this.max
       );
     }
 
@@ -103,8 +111,12 @@ public interface Expr {
       return child;
     }
 
-    int[] getTimes() {
-      return times;
+    int getMin() {
+      return this.min;
+    }
+
+    int getMax() {
+      return this.max;
     }
   }
 
@@ -159,8 +171,8 @@ public interface Expr {
       }));
     }
 
-    public static Expr rep(Object exp, int... times) {
-      return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), times);
+    public static Expr rep(Object exp, int min, int max) {
+      return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), min, max);
     }
   }
 }
