@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Reference;
+import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Value;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -11,12 +12,12 @@ import java.util.Map;
 import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.composeKey;
 
 public class Composer implements Expr.Visitor {
-  private final String                                         prefix;
-  private final Tuple                                          tuple;
-  private final Map<String, List<RegexTestSuiteBuilder.Value>> terms;
+  private final String                   prefix;
+  private final Tuple                    tuple;
+  private final Map<String, List<Value>> terms;
   public List<Object> out = new LinkedList<Object>();
 
-  public Composer(String prefix, Tuple tuple, Map<String, List<RegexTestSuiteBuilder.Value>> terms) {
+  public Composer(String prefix, Tuple tuple, Map<String, List<Value>> terms) {
     this.prefix = prefix;
     this.tuple = tuple;
     this.terms = terms;
@@ -44,14 +45,15 @@ public class Composer implements Expr.Visitor {
 
   @Override
   public void visit(Expr.Rep exp) {
-    String key = ((Reference)this.terms.get(
-        composeKey(this.prefix, exp.id()))
-        .get(0)).key;
-    for (Object eachElement : (List) tuple.get(key)) {
-      if (eachElement instanceof Reference) {
-        chooseChild((Reference) eachElement, Collections.singletonList(exp.getChild())).accept(this);
-      } else {
-        out.add(eachElement);
+    for (Value each : this.terms.get(composeKey(this.prefix, exp.id()))) {
+      if (each instanceof Reference) {
+        for (Object eachElement : (List) tuple.get(((Reference) each).key)) {
+          if (eachElement instanceof Reference) {
+            chooseChild((Reference) eachElement, Collections.singletonList(exp.getChild())).accept(this);
+          } else {
+            out.add(eachElement);
+          }
+        }
       }
     }
   }

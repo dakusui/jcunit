@@ -11,8 +11,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
-import static com.github.dakusui.jcunit.core.utils.Utils.filter;
+import static com.github.dakusui.jcunit.core.utils.Utils.*;
+import static com.github.dakusui.jcunit.regex.Expr.Cat.EMPTY;
 import static java.lang.String.format;
 
 public class RegexToFactorListTranslator implements Expr.Visitor {
@@ -60,21 +60,37 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
-  public void visit(Expr.Rep exp) {
+  public void visit(Expr.Rep expr) {
     List<Expr> repeatedExprs = new LinkedList<Expr>();
-    for (int i = 0; i < exp.getMin(); i++) {
-      repeatedExprs.add(exp.getChild());
+    for (int i = 0; i < expr.getMin(); i++) {
+      repeatedExprs.add(expr.getChild());
     }
-    if (exp.getMin() < exp.getMax()) {
-      Expr.Alt cur = new Expr.Alt(Utils.asList(exp.getChild(), Expr.Cat.EMPTY));
-      for (int i = exp.getMin() + 1; i < exp.getMax(); i++) {
-        cur = new Expr.Alt(Utils.<Expr>asList(cur, Expr.Cat.EMPTY));
+    if (expr.getMin() < expr.getMax()) {
+      Expr.Alt cur = new Expr.Alt(Utils.asList(expr.getChild(), EMPTY));
+      for (int i = expr.getMin() + 1; i < expr.getMax(); i++) {
+        cur = new Expr.Alt(Utils.<Expr>asList(cur, EMPTY));
       }
       repeatedExprs.add(cur);
     }
     for (Expr each : repeatedExprs) {
       each.accept(this);
     }
+    this.terms.put(
+        composeKey(this.prefix, expr.id()),
+        transform(filter(repeatedExprs, new Utils.Predicate<Expr>() {
+              @Override
+              public boolean apply(Expr in) {
+                return !(in instanceof Expr.Leaf);
+              }
+            }),
+            new Utils.Form<Expr, Value>() {
+              @Override
+              public Reference apply(Expr in) {
+                return newReference(in);
+              }
+            }
+        )
+    );
     /*
     List<Expr> exprs = new LinkedList<Expr>();
     for (int i : exp.getTimes()) {
@@ -220,6 +236,10 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
 
   private boolean isCat(String key) {
     return key.startsWith("REGEX:" + this.prefix + ":cat-");
+  }
+
+  private Reference newReference(Expr expr) {
+    return new Reference(composeKey(this.prefix, expr.id()));
   }
 
   interface Context {
