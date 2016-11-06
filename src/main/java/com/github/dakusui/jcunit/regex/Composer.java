@@ -4,11 +4,11 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Reference;
 import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Value;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.VOID;
 import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.composeKey;
 
 public class Composer implements Expr.Visitor {
@@ -27,7 +27,10 @@ public class Composer implements Expr.Visitor {
   public void visit(Expr.Alt exp) {
     String key = composeKey(this.prefix, exp.id());
     //noinspection ConstantConditions
-    for (Object eachElement : (List) tuple.get(key)) {
+    Object values = tuple.get(key);
+    if (VOID.equals(values))
+      return;
+    for (Object eachElement : (List) values) {
       if (eachElement instanceof Reference) {
         chooseChild((Reference) eachElement, exp.getChildren()).accept(this);
       } else {
@@ -40,21 +43,6 @@ public class Composer implements Expr.Visitor {
   public void visit(Expr.Cat exp) {
     for (Expr each : exp.getChildren()) {
       each.accept(this);
-    }
-  }
-
-  @Override
-  public void visit(Expr.Rep exp) {
-    for (Value each : this.terms.get(composeKey(this.prefix, exp.id()))) {
-      if (each instanceof Reference) {
-        for (Object eachElement : (List) tuple.get(((Reference) each).key)) {
-          if (eachElement instanceof Reference) {
-            chooseChild((Reference) eachElement, Collections.singletonList(exp.getChild())).accept(this);
-          } else {
-            out.add(eachElement);
-          }
-        }
-      }
     }
   }
 

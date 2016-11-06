@@ -39,12 +39,6 @@ public class Printer implements Expr.Visitor {
   }
 
   @Override
-  public void visit(Expr.Rep exp) {
-    exp.getChild().accept(this);
-    ps.printf("{%s,%s}", exp.getMin(), exp.getMax());
-  }
-
-  @Override
   public void visit(Expr.Leaf leaf) {
     ps.print(leaf.value());
   }

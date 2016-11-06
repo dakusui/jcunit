@@ -11,6 +11,8 @@ import com.github.dakusui.jcunit.regex.RegexTestSuiteBuilder;
 import org.junit.Test;
 
 import java.io.PrintStream;
+import java.util.List;
+import java.util.Map;
 
 import static com.github.dakusui.jcunit.regex.Expr.Factory.*;
 import static java.lang.String.format;
@@ -37,10 +39,16 @@ public class ExprTest {
     printTestSuite(testSuite);
     for (TestCase each : testSuite) {
       System.out.print(each.getCategory() + ":");
-      Composer composer = new Composer("aPrefix", each.getTuple(), regexTestSuiteBuilder.terms);
-      expr.accept(composer);
-      System.out.println(StringUtils.join(" ", composer.out));
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
     }
+  }
+
+  private List<Object> compose(Map<String, List<RegexTestSuiteBuilder.Value>> terms, Expr expr, TestCase each) {
+    List<Object> out;
+    Composer composer = new Composer("aPrefix", each.getTuple(), terms);
+    expr.accept(composer);
+    out = composer.out;
+    return out;
   }
 
   @Test
@@ -179,7 +187,23 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    for (TestCase testCase : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, testCase)));
+    }
+  }
+
+  @Test
+  public void factorSpaceBuilderRep6() {
+    Expr expr;
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
+    (expr = cat(rep(rep("reset", 0, 1), 0, 1), rep(alt("update1", "update2"), 1, 2)))
+        .accept(regexTestSuiteBuilder);
+    System.out.println(regexTestSuiteBuilder.toString());
+    System.out.println();
+    expr.accept(new Printer(System.out));
+    for (TestCase testCase : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, testCase)));
+    }
   }
 
   private void printTestSuite(TestSuite testSuite) {
