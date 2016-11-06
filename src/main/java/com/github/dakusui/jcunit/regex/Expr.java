@@ -1,9 +1,12 @@
 package com.github.dakusui.jcunit.regex;
 
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -57,7 +60,7 @@ public interface Expr {
     }
   }
 
-  public static class Cat extends Composite implements Expr {
+  class Cat extends Composite implements Expr {
     Cat(List<Expr> children) {
       super(children);
     }
@@ -77,34 +80,40 @@ public interface Expr {
     }
   }
 
-  class Rep extends Base implements Expr {
-    private final Expr  child;
-    private final int[] times;
+  class Rep extends Cat {
+    static final Cat EMPTY = new Cat(Collections.<Expr>emptyList());
 
-    Rep(Expr child, int[] times) {
-      this.child = child;
-      this.times = times;
+    Rep(Expr child, int min, int max) {
+      super(createChildren(child, min, max));
     }
 
-    public void accept(Visitor visitor) {
-      visitor.visit(this);
+    private static List<Expr> createChildren(Expr child, int min, int max) {
+      checknotnull(child);
+      checkcond(min <= max);
+      List<Expr> ret = new LinkedList<Expr>();
+      Expr cur = null;
+      for (int i = 0; i < max; i++) {
+        if (i < min) {
+          ret.add(child);
+        } else {
+          if (cur == null) {
+            cur = new Alt(asList(cloneIfAlt(child), EMPTY));
+          } else {
+            cur = new Alt(asList(cloneIfAlt(cur), EMPTY));
+          }
+        }
+      }
+      if (cur != null) {
+        ret.add(cur);
+      }
+      return ret;
     }
 
-    @Override
-    public String toString() {
-      return format("%s:%s:%s",
-          this.getClass().getSimpleName().toLowerCase(),
-          Utils.str(this.child),
-          Arrays.toString(this.times)
-      );
-    }
-
-    Expr getChild() {
-      return child;
-    }
-
-    int[] getTimes() {
-      return times;
+    private static Expr cloneIfAlt(Expr cur) {
+      if (cur instanceof Alt) {
+        return new Alt(((Alt) cur).getChildren());
+      }
+      return cur;
     }
   }
 
@@ -128,8 +137,6 @@ public interface Expr {
     void visit(Alt exp);
 
     void visit(Cat exp);
-
-    void visit(Rep exp);
 
     void visit(Leaf leaf);
   }
@@ -159,8 +166,9 @@ public interface Expr {
       }));
     }
 
-    public static Expr rep(Object exp, int... times) {
-      return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), times);
+    public static Expr rep(Object exp, int min, int max) {
+      //      return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), min, max);
+      return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), min, max);
     }
   }
 }

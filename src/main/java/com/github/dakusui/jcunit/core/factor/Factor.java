@@ -44,9 +44,5 @@ public class Factor implements Iterable<Object> {
     public String getName() {
       return name;
     }
-
-    public boolean hasLevel(Object v) {
-      return this.levels.contains(v);
-    }
   }
 }

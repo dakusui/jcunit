@@ -3,12 +3,16 @@ package com.github.dakusui.jcunit.regex;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.framework.TestSuite;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
+import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
+import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static java.lang.String.format;
 
 public class RegexToFactorListTranslator implements Expr.Visitor {
@@ -18,12 +22,12 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
       return "(VOID)";
     }
   };
-  public final    Map<String, List<RegexTestSuiteBuilder.Value>> terms;
-  protected final String                                         prefix;
-  protected       Context                                        context;
+  public final    Map<String, List<Value>> terms;
+  protected final String                   prefix;
+  protected       Context                  context;
 
   public RegexToFactorListTranslator(String prefix) {
-    this.terms = new LinkedHashMap<String, List<RegexTestSuiteBuilder.Value>>();
+    this.terms = new LinkedHashMap<String, List<Value>>();
     this.prefix = prefix;
     this.context = new Context.Impl(this.prefix, null);
   }
@@ -56,25 +60,6 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
-  public void visit(Expr.Rep exp) {
-    List<Expr> exprs = new LinkedList<Expr>();
-    for (int i : exp.getTimes()) {
-      List<Expr> repeatedExprs = new LinkedList<Expr>();
-      for (int j = 0; j < i; j++) {
-        repeatedExprs.add(exp.getChild());
-      }
-      exprs.add(new Expr.Cat(repeatedExprs));
-    }
-    if (!exprs.isEmpty()) {
-      Expr expr;
-      (expr = new Expr.Alt(exprs)).accept(this);
-      this.terms.put(
-          composeKey(this.prefix, exp.id()),
-          Collections.singletonList((RegexTestSuiteBuilder.Value) new RegexTestSuiteBuilder.Reference(composeKey(this.prefix, expr.id())))
-      );
-    }
-  }
-
   public void visit(Expr.Leaf leaf) {
     this.context.add(leaf);
   }
@@ -98,38 +83,55 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
 
   public List<TestSuite.Predicate> buildConstraints(List<Factor> factors) {
     List<TestSuite.Predicate> ret = new LinkedList<TestSuite.Predicate>();
-    for (final Factor eachFactor : factors) {
-      for (final Object eachLevel : eachFactor.levels) {
-        Checks.checkcond(eachLevel instanceof List || RegexToFactorListTranslator.VOID.equals(eachLevel));
-        //noinspection unchecked,ConstantConditions
-        if (!RegexToFactorListTranslator.VOID.equals(eachLevel) && !Utils.filter((List) eachLevel, new Utils.Predicate() {
-          @Override
-          public boolean apply(Object o) {
-            return o instanceof RegexTestSuiteBuilder.Reference;
+    for (final Factor each : factors) {
+      final List<String> referrers = Utils.transform(getReferringFactors(each, factors), new Utils.Form<Factor, String>() {
+        @Override
+        public String apply(Factor in) {
+          return in.name;
+        }
+      });
+      if (referrers.isEmpty())
+        continue;
+      final String referee = each.name;
+      final String tag = format("constraint(%s->%s)", referrers, referee);
+      ret.add(new TestSuite.Predicate(
+          tag,
+          concatenate(referrers, referee).toArray(new String[referrers.size() + 1])) {
+        @Override
+        public boolean apply(Tuple in) {
+          for (String eachReferrer : referrers) {
+            Object referrerValue = in.get(eachReferrer);
+            if (!VOID.equals(referrerValue) && !filter(((List) referrerValue), new Utils.Predicate() {
+              @Override
+              public boolean apply(Object in) {
+                return in instanceof Reference && ((Reference) in).key.equals(referee);
+              }
+            }).isEmpty()) {
+              return !VOID.equals(in.get(referee));
+            }
           }
-        }).isEmpty()) {
-          //noinspection ConstantConditions
-          for (final Object eachElement : (List) eachLevel) {
-            if (!(eachElement instanceof RegexTestSuiteBuilder.Reference))
-              continue;
-            final String referee = ((RegexTestSuiteBuilder.Reference) eachElement).key;
-            final String referer = eachFactor.name;
-            final String tag = String.format("constraint(%s->%s)", referer, referee);
+          return VOID.equals(in.get(referee));
+        }
+      });
+    }
+    return ret;
+  }
 
-            ret.add(new TestSuite.Predicate(tag, referer, referee) {
-              @Override
-              public boolean apply(Tuple tuple) {
-                if (Utils.eq(tuple.get(referer), eachLevel)) {
-                  return !Utils.eq(tuple.get(referee), RegexToFactorListTranslator.VOID);
-                }
-                return Utils.eq(tuple.get(referee), RegexToFactorListTranslator.VOID);
+  private List<Factor> getReferringFactors(Factor referred, List<Factor> factors) {
+    List<Factor> ret = new LinkedList<Factor>();
+    outer:
+    for (Factor each : factors) {
+      if (each == referred)
+        continue;
+      for (Object eachLevel : each.levels) {
+        if (eachLevel instanceof List) {
+          for (Object eachElement : (List) eachLevel) {
+            if (eachElement instanceof Reference) {
+              if (referred.name.equals(((Reference) eachElement).key)) {
+                ret.add(each);
+                continue outer;
               }
-
-              @Override
-              public String toString() {
-                return tag;
-              }
-            });
+            }
           }
         }
       }
@@ -152,7 +154,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   private boolean isReferenced(final String eachKey) {
     for (Map.Entry<String, List<RegexTestSuiteBuilder.Value>> each : this.terms.entrySet()) {
       if (isAlt(each.getKey())) {
-        if (!Utils.filter(each.getValue(), new Utils.Predicate<RegexTestSuiteBuilder.Value>() {
+        if (!filter(each.getValue(), new Utils.Predicate<RegexTestSuiteBuilder.Value>() {
           @Override
           public boolean apply(RegexTestSuiteBuilder.Value in) {
             return in instanceof RegexTestSuiteBuilder.Reference && ((RegexTestSuiteBuilder.Reference) in).key.equals(eachKey);

@@ -1,19 +1,23 @@
 package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Reference;
+import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Value;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.VOID;
+import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.composeKey;
+
 public class Composer implements Expr.Visitor {
-  private final String                                         prefix;
-  private final Tuple                                          tuple;
-  private final Map<String, List<RegexTestSuiteBuilder.Value>> terms;
+  private final String                   prefix;
+  private final Tuple                    tuple;
+  private final Map<String, List<Value>> terms;
   public List<Object> out = new LinkedList<Object>();
 
-  public Composer(String prefix, Tuple tuple, Map<String, List<RegexTestSuiteBuilder.Value>> terms) {
+  public Composer(String prefix, Tuple tuple, Map<String, List<Value>> terms) {
     this.prefix = prefix;
     this.tuple = tuple;
     this.terms = terms;
@@ -21,11 +25,14 @@ public class Composer implements Expr.Visitor {
 
   @Override
   public void visit(Expr.Alt exp) {
-    String key = RegexToFactorListTranslator.composeKey(this.prefix, exp.id());
+    String key = composeKey(this.prefix, exp.id());
     //noinspection ConstantConditions
-    for (Object eachElement : (List) tuple.get(key)) {
-      if (eachElement instanceof RegexTestSuiteBuilder.Reference) {
-        chooseChild((RegexTestSuiteBuilder.Reference) eachElement, exp.getChildren()).accept(this);
+    Object values = tuple.get(key);
+    if (VOID.equals(values))
+      return;
+    for (Object eachElement : (List) values) {
+      if (eachElement instanceof Reference) {
+        chooseChild((Reference) eachElement, exp.getChildren()).accept(this);
       } else {
         out.add(eachElement);
       }
@@ -40,25 +47,13 @@ public class Composer implements Expr.Visitor {
   }
 
   @Override
-  public void visit(Expr.Rep exp) {
-    String key = ((RegexTestSuiteBuilder.Reference)this.terms.get(RegexToFactorListTranslator.composeKey(this.prefix, exp.id())).get(0)).key;
-    for (Object eachElement : (List) tuple.get(key)) {
-      if (eachElement instanceof RegexTestSuiteBuilder.Reference) {
-        chooseChild((RegexTestSuiteBuilder.Reference) eachElement, Collections.singletonList(exp.getChild())).accept(this);
-      } else {
-        out.add(eachElement);
-      }
-    }
-  }
-
-  @Override
   public void visit(Expr.Leaf leaf) {
     out.add(leaf.value());
   }
 
-  private Expr chooseChild(RegexTestSuiteBuilder.Reference element, List<Expr> children) {
+  private Expr chooseChild(Reference element, List<Expr> children) {
     for (Expr each : children) {
-      if (RegexToFactorListTranslator.composeKey(this.prefix, each.id()).equals(element.key)) {
+      if (composeKey(this.prefix, each.id()).equals(element.key)) {
         return each;
       }
     }

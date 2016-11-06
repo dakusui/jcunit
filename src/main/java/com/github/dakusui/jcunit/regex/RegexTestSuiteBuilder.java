@@ -26,7 +26,9 @@ public class RegexTestSuiteBuilder extends RegexToFactorListTranslator {
     for (Factor eachFactor : factors) {
       builder.addFactor(eachFactor);
     }
+    System.out.println();
     for (TestSuite.Predicate eachPredicate : buildConstraints(factors.asFactorList())) {
+      System.out.println(eachPredicate);
       builder.addConstraint(eachPredicate);
     }
     return builder.build();

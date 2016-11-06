@@ -39,21 +39,6 @@ public class Printer implements Expr.Visitor {
   }
 
   @Override
-  public void visit(Expr.Rep exp) {
-    exp.getChild().accept(this);
-    boolean first = true;
-    ps.print("{");
-    for (int each : exp.getTimes()) {
-      if (!first) {
-        ps.print(",");
-      }
-      ps.print(each);
-      first = false;
-    }
-    ps.print("}");
-  }
-
-  @Override
   public void visit(Expr.Leaf leaf) {
     ps.print(leaf.value());
   }
