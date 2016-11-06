@@ -151,13 +151,13 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     return eachKey.startsWith("REGEX:" + this.prefix + ":alt-");
   }
 
-  private boolean isReferenced(final String eachKey) {
+  private boolean isReferenced(final String key) {
     for (Map.Entry<String, List<RegexTestSuiteBuilder.Value>> each : this.terms.entrySet()) {
       if (isAlt(each.getKey())) {
         if (!filter(each.getValue(), new Utils.Predicate<RegexTestSuiteBuilder.Value>() {
           @Override
           public boolean apply(RegexTestSuiteBuilder.Value in) {
-            return in instanceof RegexTestSuiteBuilder.Reference && ((RegexTestSuiteBuilder.Reference) in).key.equals(eachKey);
+            return in instanceof RegexTestSuiteBuilder.Reference && ((RegexTestSuiteBuilder.Reference) in).key.equals(key);
           }
         }).isEmpty()) {
           return true;

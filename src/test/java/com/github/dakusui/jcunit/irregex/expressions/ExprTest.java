@@ -38,17 +38,8 @@ public class ExprTest {
     TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
     printTestSuite(testSuite);
     for (TestCase each : testSuite) {
-      System.out.print(each.getCategory() + ":");
       System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
     }
-  }
-
-  private List<Object> compose(Map<String, List<RegexTestSuiteBuilder.Value>> terms, Expr expr, TestCase each) {
-    List<Object> out;
-    Composer composer = new Composer("aPrefix", each.getTuple(), terms);
-    expr.accept(composer);
-    out = composer.out;
-    return out;
   }
 
   @Test
@@ -92,7 +83,9 @@ public class ExprTest {
         .accept(regexTestSuiteBuilder);
     expr.accept(new Printer(System.out));
     TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
-    printTestSuite(testSuite);
+    for (TestCase each : testSuite) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -104,7 +97,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -116,7 +112,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
 
@@ -129,7 +128,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -140,6 +142,11 @@ public class ExprTest {
         .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     expr.accept(new Printer(System.out));
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
+
   }
 
   @Test
@@ -151,7 +158,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -163,7 +173,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -175,7 +188,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -187,6 +203,7 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
+    System.out.println();
     for (TestCase testCase : regexTestSuiteBuilder.buildTestSuite()) {
       System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, testCase)));
     }
@@ -212,5 +229,13 @@ public class ExprTest {
     for (TestCase each : testSuite) {
       ps.println(format("%4d:%s:%s", i++, each.getCategory(), each.getTuple()));
     }
+  }
+
+  private List<Object> compose(Map<String, List<RegexTestSuiteBuilder.Value>> terms, Expr expr, TestCase each) {
+    List<Object> out;
+    Composer composer = new Composer("aPrefix", each.getTuple(), terms);
+    expr.accept(composer);
+    out = composer.out;
+    return out;
   }
 }
