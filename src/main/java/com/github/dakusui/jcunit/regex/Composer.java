@@ -1,75 +1,97 @@
 package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Utils.Form;
-import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Reference;
-import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.Value;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.VOID;
-import static java.lang.String.format;
 
-public class Composer implements Expr.Visitor {
-  private final String                   prefix;
-  private final Tuple                    tuple;
-  private final Map<String, List<Value>> terms;
-  public List<Object> out = new LinkedList<Object>();
+public class Composer {
+  private final String prefix;
+  private final Expr   topLevel;
+  private final Map<String, Expr> exprs;
 
-  public Composer(String prefix, Tuple tuple, Map<String, List<Value>> terms) {
+  public Composer(String prefix, Expr topLevel) {
     this.prefix = prefix;
-    this.tuple = tuple;
-    this.terms = terms;
+    this.topLevel = topLevel;
+    this.exprs = createMap(this.topLevel);
   }
 
-  @Override
-  public void visit(Expr.Alt expr) {
-    String key = composeKey(expr);
-    //noinspection ConstantConditions
-    Object values = tuple.get(key);
-    if (VOID.equals(values))
-      return;
-    for (Object eachElement : (List) values) {
-      if (eachElement instanceof Reference) {
-        chooseChild((Reference) eachElement, expr.getChildren()).accept(this);
-      } else {
-        out.add(eachElement);
+  public List<Object> compose(Tuple tuple) {
+    ComposerVisitor visitor = new ComposerVisitor(tuple, this.exprs);
+    this.topLevel.accept(visitor);
+    return visitor.out;
+  }
+
+  private Map<String, Expr> createMap(Expr top) {
+    final Map<String, Expr> ret = new HashMap<String, Expr>();
+    top.accept(new Expr.Visitor() {
+      @Override
+      public void visit(Expr.Alt exp) {
+        ret.put(Composer.this.composeKey(exp), exp);
+        for (Expr each : exp.getChildren()) {
+          each.accept(this);
+        }
       }
-    }
-  }
 
-  @Override
-  public void visit(Expr.Cat exp) {
-    for (Expr each : exp.getChildren()) {
-      each.accept(this);
-    }
-  }
-
-  @Override
-  public void visit(Expr.Leaf leaf) {
-    out.add(leaf.value());
-  }
-
-  private Expr chooseChild(Reference element, List<Expr> children) {
-    for (Expr each : children) {
-      if (composeKey(each).equals(element.key) || ((this.terms.get(composeKey(each)).size() == 1) && this.terms.get(composeKey(each)).get(0).equals(element.key))) {
-        return each;
+      @Override
+      public void visit(Expr.Cat exp) {
+        ret.put(Composer.this.composeKey(exp), exp);
+        for (Expr each : exp.getChildren()) {
+          each.accept(this);
+        }
       }
-    }
-    throw new RuntimeException(format("%s didn't match any of %s ",
-        element.key,
-        transform(children, new Form<Expr, String>() {
-          @Override
-          public String apply(Expr in) {
-            return format("REGEX:%s:%s", prefix, in.id());
-          }
-        })));
+
+      @Override
+      public void visit(Expr.Leaf exp) {
+        ret.put(Composer.this.composeKey(exp), exp);
+      }
+    });
+    return ret;
   }
 
   private String composeKey(Expr expr) {
     return RegexToFactorListTranslator.composeKey(this.prefix, expr.id());
+  }
+
+  private class ComposerVisitor implements Expr.Visitor {
+    private final Tuple             tuple;
+    private final Map<String, Expr> exprs;
+    public List<Object> out = new LinkedList<Object>();
+
+    private ComposerVisitor(Tuple tuple, Map<String, Expr> exprs) {
+      this.tuple = tuple;
+      this.exprs = exprs;
+    }
+
+    @Override
+    public void visit(Expr.Alt expr) {
+      //noinspection ConstantConditions
+      Object values = tuple.get(composeKey(expr));
+      if (VOID.equals(values))
+        return;
+      for (Object each : (List) values) {
+        if (each instanceof Reference) {
+          this.exprs.get(((Reference) each).key).accept(this);
+        } else {
+          out.add(each);
+        }
+      }
+    }
+
+    @Override
+    public void visit(Expr.Cat expr) {
+      for (Expr each : expr.getChildren()) {
+        each.accept(this);
+      }
+    }
+
+    @Override
+    public void visit(Expr.Leaf expr) {
+      out.add(expr.value());
+    }
   }
 }
