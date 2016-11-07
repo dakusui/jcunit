@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.framework.TestSuite;
+import com.github.dakusui.jcunit.regex.Expr.Leaf;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -35,7 +36,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   public void visit(Expr.Alt expr) {
     Context original = this.context;
     original.add(expr);
-    this.context = createSimpleContext(expr.id());
+    this.context = createContext(expr.id());
     try {
       for (Expr each : expr.getChildren()) {
         each.accept(this);
@@ -49,7 +50,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   public void visit(Expr.Cat expr) {
     Context original = this.context;
     original.add(expr);
-    this.context = createSimpleContext(expr.id());
+    this.context = createContext(expr.id());
     try {
       for (Expr each : expr.getChildren()) {
         each.accept(this);
@@ -60,7 +61,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
-  public void visit(Expr.Leaf leaf) {
+  public void visit(Leaf leaf) {
     this.context.add(leaf);
   }
 
@@ -69,7 +70,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     for (String eachKey : this.terms.keySet()) {
       if (isAlt(eachKey)) {
         Factor.Builder b = new Factor.Builder(eachKey);
-        for (RegexTestSuiteBuilder.Value eachValue : this.terms.get(eachKey)) {
+        for (Value eachValue : this.terms.get(eachKey)) {
           b.addLevel(this.resolve(new LinkedList<Object>(), eachValue));
         }
         if (isReferenced(eachKey)) {
@@ -143,7 +144,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     return format("REGEX:%s:%s", prefix, id);
   }
 
-  private Context createSimpleContext(String factorName) {
+  private Context createContext(String factorName) {
     return new Context.Impl(this.prefix, factorName);
   }
 
@@ -151,13 +152,13 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     return eachKey.startsWith("REGEX:" + this.prefix + ":alt-");
   }
 
-  private boolean isReferenced(final String eachKey) {
-    for (Map.Entry<String, List<RegexTestSuiteBuilder.Value>> each : this.terms.entrySet()) {
+  private boolean isReferenced(final String key) {
+    for (Map.Entry<String, List<Value>> each : this.terms.entrySet()) {
       if (isAlt(each.getKey())) {
-        if (!filter(each.getValue(), new Utils.Predicate<RegexTestSuiteBuilder.Value>() {
+        if (!filter(each.getValue(), new Utils.Predicate<Value>() {
           @Override
-          public boolean apply(RegexTestSuiteBuilder.Value in) {
-            return in instanceof RegexTestSuiteBuilder.Reference && ((RegexTestSuiteBuilder.Reference) in).key.equals(eachKey);
+          public boolean apply(Value in) {
+            return in instanceof Reference && ((Reference) in).key.equals(key);
           }
         }).isEmpty()) {
           return true;
@@ -167,13 +168,13 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     return false;
   }
 
-  private List<Object> resolve(List<Object> values, RegexTestSuiteBuilder.Value value) {
-    if (value instanceof RegexTestSuiteBuilder.Immediate) {
-      values.add(((RegexTestSuiteBuilder.Immediate) value).value);
+  private List<Object> resolve(List<Object> values, Value value) {
+    if (value instanceof Immediate) {
+      values.add(((Immediate) value).value);
     } else {
-      String key = ((RegexTestSuiteBuilder.Reference) value).key;
+      String key = ((Reference) value).key;
       if (isCat(key)) {
-        for (RegexTestSuiteBuilder.Value each : this.terms.get(key)) {
+        for (Value each : this.terms.get(key)) {
           resolve(values, each);
         }
       } else {
@@ -190,12 +191,12 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   interface Context {
     void add(Expr value);
 
-    List<RegexTestSuiteBuilder.Value> values();
+    List<Value> values();
 
     String name();
 
     class Impl implements Context {
-      final List<RegexTestSuiteBuilder.Value> seq;
+      final List<Value> seq;
 
       final         String name;
       private final String prefix;
@@ -203,21 +204,21 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
       Impl(String prefix, String name) {
         this.prefix = prefix;
         this.name = name;
-        this.seq = new LinkedList<RegexTestSuiteBuilder.Value>();
+        this.seq = new LinkedList<Value>();
       }
 
-      RegexTestSuiteBuilder.Value toValue(Expr expr) {
-        RegexTestSuiteBuilder.Value value;
-        if (expr instanceof Expr.Leaf) {
-          value = new RegexTestSuiteBuilder.Immediate(((Expr.Leaf) expr).value());
+      Value toValue(Expr expr) {
+        Value value;
+        if (expr instanceof Leaf) {
+          value = new Immediate(((Leaf) expr).value());
         } else {
-          value = new RegexTestSuiteBuilder.Reference(composeKey(this.prefix, expr.id()));
+          value = new Reference(composeKey(this.prefix, expr.id()));
         }
         return value;
       }
 
       @Override
-      public List<RegexTestSuiteBuilder.Value> values() {
+      public List<Value> values() {
         return this.seq;
       }
 
@@ -231,32 +232,4 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
-  public interface Value {
-  }
-
-  static class Reference implements Value {
-    final String key;
-
-    Reference(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public String toString() {
-      return format("Reference:<%s>", this.key);
-    }
-  }
-
-  static class Immediate implements Value {
-    private final Object value;
-
-    Immediate(Object value) {
-      this.value = value;
-    }
-
-    @Override
-    public String toString() {
-      return format("Immediate:<%s>", this.value);
-    }
-  }
 }

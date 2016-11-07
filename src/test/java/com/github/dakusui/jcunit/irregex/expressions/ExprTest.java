@@ -4,10 +4,7 @@ package com.github.dakusui.jcunit.irregex.expressions;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
-import com.github.dakusui.jcunit.regex.Composer;
-import com.github.dakusui.jcunit.regex.Expr;
-import com.github.dakusui.jcunit.regex.Printer;
-import com.github.dakusui.jcunit.regex.RegexTestSuiteBuilder;
+import com.github.dakusui.jcunit.regex.*;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -29,7 +26,7 @@ public class ExprTest {
             alt("hello",
                 cat("hello", "!")
             )),
-        cat("world", ","), rep("everyone", 0, 1));
+        cat("world", ","), rep("everyone", 1, 3));
 
     expr.accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
@@ -38,17 +35,8 @@ public class ExprTest {
     TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
     printTestSuite(testSuite);
     for (TestCase each : testSuite) {
-      System.out.print(each.getCategory() + ":");
       System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
     }
-  }
-
-  private List<Object> compose(Map<String, List<RegexTestSuiteBuilder.Value>> terms, Expr expr, TestCase each) {
-    List<Object> out;
-    Composer composer = new Composer("aPrefix", each.getTuple(), terms);
-    expr.accept(composer);
-    out = composer.out;
-    return out;
   }
 
   @Test
@@ -92,7 +80,9 @@ public class ExprTest {
         .accept(regexTestSuiteBuilder);
     expr.accept(new Printer(System.out));
     TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
-    printTestSuite(testSuite);
+    for (TestCase each : testSuite) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -104,7 +94,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -116,7 +109,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
 
@@ -129,7 +125,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -140,6 +139,11 @@ public class ExprTest {
         .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     expr.accept(new Printer(System.out));
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
+
   }
 
   @Test
@@ -151,7 +155,25 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
+  }
+
+  @Test
+  public void factorSpaceBuilderRep2b() {
+    Expr expr;
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder();
+    (expr = rep(alt("World", "WORLD"), 2, 3))
+        .accept(regexTestSuiteBuilder);
+    System.out.println(regexTestSuiteBuilder.toString());
+    System.out.println();
+    expr.accept(new Printer(System.out));
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -163,7 +185,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -175,7 +200,10 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
-    System.out.println(regexTestSuiteBuilder.buildTestSuite());
+    System.out.println();
+    for (TestCase each : regexTestSuiteBuilder.buildTestSuite()) {
+      System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, each)));
+    }
   }
 
   @Test
@@ -187,6 +215,7 @@ public class ExprTest {
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
+    System.out.println();
     for (TestCase testCase : regexTestSuiteBuilder.buildTestSuite()) {
       System.out.println(StringUtils.join(" ", compose(regexTestSuiteBuilder.terms, expr, testCase)));
     }
@@ -212,5 +241,16 @@ public class ExprTest {
     for (TestCase each : testSuite) {
       ps.println(format("%4d:%s:%s", i++, each.getCategory(), each.getTuple()));
     }
+  }
+
+  private List<Object> compose(Map<String, List<Value>> terms, Expr expr, TestCase each) {
+    return new Composer("aPrefix", expr).compose(each.getTuple());
+    /*
+    List<Object> out;
+    Composer.ComposerVisitor composerVisitor = new Composer.ComposerVisitor("aPrefix", each.getTuple(), terms, exprs);
+    expr.accept(composerVisitor);
+    out = composerVisitor.out;
+    return out;
+    */
   }
 }

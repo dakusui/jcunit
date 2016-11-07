@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit.regex;
 
+import com.github.dakusui.jcunit.core.utils.Utils.Form;
+
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -91,27 +93,29 @@ public interface Expr {
       checknotnull(child);
       checkcond(min <= max);
       List<Expr> ret = new LinkedList<Expr>();
-      Expr cur = null;
-      for (int i = 0; i < max; i++) {
-        if (i < min) {
-          ret.add(child);
-        } else {
-          if (cur == null) {
-            cur = new Alt(asList(cloneIfAlt(child), EMPTY));
-          } else {
-            cur = new Alt(asList(cloneIfAlt(cur), EMPTY));
-          }
-        }
+      for (int i = 0; i < min; i++) {
+        ret.add(cloneIfAlt(child));
       }
-      if (cur != null) {
-        ret.add(cur);
-      }
+      repeat(ret, child, max - min);
       return ret;
+    }
+
+    private static Expr repeat(List<Expr> exprs, Expr expr, int times) {
+      if (times == 0) {
+        return EMPTY;
+      }
+      exprs.add(new Alt(asList(cloneIfAlt(expr), repeat(exprs, expr, times - 1))));
+      return exprs.get(exprs.size() - 1);
     }
 
     private static Expr cloneIfAlt(Expr cur) {
       if (cur instanceof Alt) {
-        return new Alt(((Alt) cur).getChildren());
+        return new Alt(transform(((Alt) cur).getChildren(), new Form<Expr, Expr>() {
+          @Override
+          public Expr apply(Expr in) {
+            return cloneIfAlt(in);
+          }
+        }));
       }
       return cur;
     }
@@ -145,7 +149,7 @@ public interface Expr {
     ;
 
     public static Expr cat(Object... exps) {
-      return new Cat(transform(asList(exps), new com.github.dakusui.jcunit.core.utils.Utils.Form<Object, Expr>() {
+      return new Cat(transform(asList(exps), new Form<Object, Expr>() {
         public Expr apply(Object in) {
           if (in instanceof Expr) {
             return (Expr) in;
@@ -156,7 +160,7 @@ public interface Expr {
     }
 
     public static Expr alt(Object... exps) {
-      return new Alt(transform(asList(exps), new com.github.dakusui.jcunit.core.utils.Utils.Form<Object, Expr>() {
+      return new Alt(transform(asList(exps), new Form<Object, Expr>() {
         public Expr apply(Object in) {
           if (in instanceof Expr) {
             return (Expr) in;
@@ -167,7 +171,6 @@ public interface Expr {
     }
 
     public static Expr rep(Object exp, int min, int max) {
-      //      return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), min, max);
       return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), min, max);
     }
   }

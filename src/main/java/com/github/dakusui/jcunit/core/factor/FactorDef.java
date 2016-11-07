@@ -209,10 +209,9 @@ public abstract class FactorDef {
   }
 
   public static class Regex extends FactorDef {
-    private final Factors                                              factors;
-    private final List<TestSuite.Predicate>                            constraints;
-    private final Map<String, List<RegexToFactorListTranslator.Value>> terms;
-    private final Expr expr;
+    private final Factors                   factors;
+    private final List<TestSuite.Predicate> constraints;
+    private final Expr                      expr;
 
     public Regex(String name, String sequence) {
       super(name);
@@ -221,7 +220,6 @@ public abstract class FactorDef {
       this.expr.accept(builder);
       this.factors = builder.buildFactors();
       this.constraints = builder.buildConstraints(this.factors.asFactorList());
-      this.terms = builder.terms;
     }
 
     @Override
@@ -243,10 +241,7 @@ public abstract class FactorDef {
 
     @Override
     public void compose(Tuple.Builder b, Tuple in) {
-      Composer composer;
-      this.expr.accept(composer = new Composer(this.name, in, this.terms));
-
-      b.put(this.name, composer.out);
+      b.put(this.name, new Composer(this.name, expr).compose(in));
     }
   }
 }
