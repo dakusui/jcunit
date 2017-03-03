@@ -6,7 +6,7 @@
     <version>0.7.4-SNAPSHOT</version>
     <description>Automated combinatorial testing framework on top of JUnit
     </description>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
     <name>jcunit</name>
     <url>https://github.com/dakusui/jcunit</url>
@@ -44,6 +44,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <modules>
+       <module>core</module>
+    </modules>
+
+    <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>com.github.dakusui</groupId>
@@ -64,7 +69,8 @@
             <scope>test</scope>
             <optional>true</optional>
         </dependency>
-    </dependencies>
+      </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
