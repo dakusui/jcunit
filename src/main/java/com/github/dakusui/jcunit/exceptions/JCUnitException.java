@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.exceptions;
 
-public class JCUnitException extends RuntimeException {
+public abstract class JCUnitException extends RuntimeException {
 
   /**
    * A serial version UID.

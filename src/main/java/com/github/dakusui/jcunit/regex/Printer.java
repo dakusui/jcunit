@@ -42,4 +42,9 @@ public class Printer implements Expr.Visitor {
   public void visit(Expr.Leaf leaf) {
     ps.print(leaf.value());
   }
+
+  @Override
+  public void visit(Expr.Empty empty) {
+    ps.print(empty);
+  }
 }

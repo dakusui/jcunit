@@ -15,6 +15,7 @@ import java.util.Map;
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 
 public class RegexToFactorListTranslator implements Expr.Visitor {
   protected static final Object VOID = new Object() {
@@ -23,16 +24,22 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
       return "(VOID)";
     }
   };
+  /**
+   * A mapping from factor names to terms held by composite (alt/cat) expressions.
+   */
   public final    Map<String, List<Value>> terms;
   protected final String                   prefix;
   protected       Context                  context;
+  private final   Expr                     topLevelExpression;
 
-  public RegexToFactorListTranslator(String prefix) {
+  public RegexToFactorListTranslator(String prefix, Expr topLevelExpression) {
+    this.topLevelExpression = topLevelExpression;
     this.terms = new LinkedHashMap<String, List<Value>>();
     this.prefix = prefix;
     this.context = new Context.Impl(this.prefix, null);
   }
 
+  @Override
   public void visit(Expr.Alt expr) {
     Context original = this.context;
     original.add(expr);
@@ -47,6 +54,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
+  @Override
   public void visit(Expr.Cat expr) {
     Context original = this.context;
     original.add(expr);
@@ -61,21 +69,37 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
+  @Override
   public void visit(Leaf leaf) {
     this.context.add(leaf);
   }
 
+  @Override
+  public void visit(Expr.Empty empty) {
+    this.context.add(empty);
+  }
+
   public Factors buildFactors() {
+    this.topLevelExpression.accept(this);
     final Factors.Builder builder = new Factors.Builder();
     for (String eachKey : this.terms.keySet()) {
+      Factor.Builder b = new Factor.Builder(eachKey);
+      if (isReferencedByAltDirectlyOrIndirectly(eachKey) || isAlt(eachKey)) {
+        b.addLevel(VOID);
+      }
       if (isAlt(eachKey)) {
-        Factor.Builder b = new Factor.Builder(eachKey);
         for (Value eachValue : this.terms.get(eachKey)) {
-          b.addLevel(this.resolve(new LinkedList<Object>(), eachValue));
+          b.addLevel(resolveIfImmediate(eachValue));
+          //          b.addLevel(this.resolve(eachValue));
         }
-        if (isReferenced(eachKey)) {
-          b.addLevel(VOID);
+      } else /* , that is, if (isCat(eachKey)) */ {
+        List<Object> work = new LinkedList<Object>();
+        for (Value eachValue : this.terms.get(eachKey)) {
+          work.addAll(this.resolve(eachValue));
         }
+        b.addLevel(work);
+      }
+      if (b.size() > 1 || (b.size() == 1 && composeKey(this.prefix, this.topLevelExpression.id()).equals(eachKey))) {
         builder.add(b.build());
       }
     }
@@ -148,11 +172,12 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     return new Context.Impl(this.prefix, factorName);
   }
 
-  private boolean isAlt(String eachKey) {
-    return eachKey.startsWith("REGEX:" + this.prefix + ":alt-");
+  private boolean isAlt(String key) {
+    return key.startsWith("REGEX:" + this.prefix + ":alt-") ||
+        key.startsWith("REGEX:" + this.prefix + ":rep-");
   }
 
-  private boolean isReferenced(final String key) {
+  private boolean isReferencedByAltDirectlyOrIndirectly(final String key) {
     for (Map.Entry<String, List<Value>> each : this.terms.entrySet()) {
       if (isAlt(each.getKey())) {
         if (!filter(each.getValue(), new Utils.Predicate<Value>() {
@@ -168,9 +193,23 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     return false;
   }
 
+  private List<Object> resolveIfImmediate(Value value) {
+    if (value instanceof Immediate)
+      return resolveImmediate(value);
+    return singletonList((Object) value);
+  }
+
+  private List<Object> resolve(Value value) {
+    return resolve(new LinkedList<Object>(), value);
+  }
+
+  private List<Object> resolveImmediate(Value value) {
+    return singletonList(((Immediate) value).value);
+  }
+
   private List<Object> resolve(List<Object> values, Value value) {
     if (value instanceof Immediate) {
-      values.add(((Immediate) value).value);
+      values.add(resolveImmediate(value));
     } else {
       String key = ((Reference) value).key;
       if (isCat(key)) {

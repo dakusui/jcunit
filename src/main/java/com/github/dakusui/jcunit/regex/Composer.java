@@ -49,6 +49,11 @@ public class Composer {
       public void visit(Expr.Leaf exp) {
         ret.put(Composer.this.composeKey(exp), exp);
       }
+
+      @Override
+      public void visit(Expr.Empty exp) {
+        ret.put(Composer.this.composeKey(exp), exp);
+      }
     });
     return ret;
   }
@@ -92,6 +97,11 @@ public class Composer {
     @Override
     public void visit(Expr.Leaf expr) {
       out.add(expr.value());
+    }
+
+    @Override
+    public void visit(Expr.Empty empty) {
+
     }
   }
 }

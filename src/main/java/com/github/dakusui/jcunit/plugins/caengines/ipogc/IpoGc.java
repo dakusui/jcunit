@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.plugins.caengines.ipogc;
 
+import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -14,10 +15,7 @@ import com.github.dakusui.jcunit.plugins.constraints.Constraint;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
 import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
@@ -72,7 +70,7 @@ public class IpoGc extends Ipo {
       );
     }
     List<Factor> allFactors = arrangeFactors(this.factors, this.constraintChecker.getConstraints(), this.strength);
-    if (allFactors.size() < this.strength)  {
+    if (allFactors.size() < this.strength) {
       return new Result(
           generateAllPossibleTuples(this.factors.asFactorList(), isSatisfying(constraintChecker.getConstraints())),
           Collections.<Tuple>emptyList()
@@ -151,7 +149,7 @@ public class IpoGc extends Ipo {
     }
     /*     20.  return ts;
      */
-    return new Result(TestCaseUtils.optimize(ts, strength), Collections.<Tuple>emptyList());
+    return new Result(TestCaseUtils.optimize(TestCaseUtils.unique(ts), strength), Collections.<Tuple>emptyList());
   }
 
   /*
@@ -478,7 +476,8 @@ public class IpoGc extends Ipo {
 
   private List<Factor> arrangeFactors(final Factors factors, final List<Constraint> constraints, final int strength) {
     final List<Factor> ret = new ArrayList<Factor>(factors.asFactorList());
-    List<GroupedFactor> groupedFactors = transform(groupFactorNamesUsedByConstraints(constraints),
+    List<GroupedFactor> groupedFactors = transform(
+        groupFactorNamesUsedByConstraints(constraints),
         new Form<List<String>, GroupedFactor>() {
           List<Factor> subfactors;
 
@@ -507,6 +506,61 @@ public class IpoGc extends Ipo {
         return in.getFactorNamesInUse();
       }
     });
+    return Utils.toList(findLargestDisjointedGroups(Utils.toLinkedHashSet(work)));
+  }
+
+  private LinkedHashSet<List<String>> findLargestDisjointedGroups(LinkedHashSet<List<String>> in) {
+    while (anyConnectedPairs(in)) {
+      in = mergeConnected(in);
+    }
+    return in;
+  }
+
+  private boolean anyConnectedPairs(LinkedHashSet<List<String>> in) {
+    if (in.size() < 2) {
+      return false;
+    }
+    for (List<List<String>> each : new Combinator<List<String>>(Utils.toList(in), 2)) {
+      if (Utils.containsAny(each.get(0), each.get(1)))
+        return true;
+    }
+    return false;
+  }
+
+  private LinkedHashSet<List<String>> mergeConnected(LinkedHashSet<List<String>> in) {
+    LinkedHashSet<List<String>> ret = new LinkedHashSet<List<String>>();
+    Combinator<List<String>> combinator = new Combinator<List<String>>(Utils.toList(in), 2);
+    for (List<List<String>> each : combinator) {
+      checkcond(each.size() == 2);
+      List<String> a = each.get(0);
+      List<String> b = each.get(1);
+      if (Utils.containsAny(a, b)) {
+        ret.remove(a);
+        ret.remove(b);
+        ret.add(merge(a, b));
+      } else {
+        ret.add(a);
+        ret.add(b);
+      }
+    }
+    return ret;
+  }
+
+  private <T> List<T> merge(List<T> a, List<T> b) {
+    List<T> ret = new LinkedList<T>(a);
+    _merge(ret, b);
+    return ret;
+  }
+
+
+  private List<List<String>> _groupFactorNamesUsedByConstraints
+      (List<Constraint> constraints) {
+    List<List<String>> work = transform(constraints, new Form<Constraint, List<String>>() {
+      @Override
+      public List<String> apply(Constraint in) {
+        return in.getFactorNamesInUse();
+      }
+    });
     List<List<String>> ret = new LinkedList<List<String>>();
     for (List<String> outer : work) {
       List<String> overlapping = null;
@@ -520,13 +574,13 @@ public class IpoGc extends Ipo {
         overlapping = new LinkedList<String>();
         ret.add(overlapping);
       }
-      merge(overlapping, outer);
+      _merge(overlapping, outer);
     }
     return ret;
   }
 
-  private static void merge(List<String> a, List<String> b) {
-    for (String each : b) {
+  private static <T> void _merge(List<T> a, List<T> b) {
+    for (T each : b) {
       if (!a.contains(each)) {
         a.add(each);
       }

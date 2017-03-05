@@ -13,13 +13,14 @@ import java.util.List;
 import java.util.Set;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
-import static com.github.dakusui.jcunit.core.utils.Utils.filter;
+import static com.github.dakusui.jcunit.core.utils.Utils.*;
 import static java.lang.Math.min;
 
 /**
  */
 public enum TestCaseUtils {
   ;
+
   public static AttrValue<String, Object> factor(String name, Object level) {
     return new AttrValue<String, Object>(name, level);
   }
@@ -78,5 +79,10 @@ public enum TestCaseUtils {
         return false;
       }
     });
+  }
+
+  public static List<Tuple> unique(List<Tuple> tuples) {
+    //return tuples;
+    return toList(toLinkedHashSet(tuples));
   }
 }

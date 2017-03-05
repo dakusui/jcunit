@@ -144,6 +144,17 @@ public enum Utils {
     return ret;
   }
 
+  public static <T> boolean containsAny(List<T> a, List<T> b) {
+    boolean ret = false;
+    for (T outer : a) {
+      for (T inner : b) {
+        if (Utils.eq(outer, inner))
+          return true;
+      }
+    }
+    return false;
+  }
+
   public static <T> T[] concatenate(T[] a, T[] b) {
     int aLen = a.length;
     int bLen = b.length;
@@ -229,6 +240,14 @@ public enum Utils {
       }
     }
     return ret;
+  }
+
+  public static <T> List<T> toList(LinkedHashSet<T> set) {
+    return new LinkedList<T>(set);
+  }
+
+  public static <T> LinkedHashSet<T> toLinkedHashSet(List<T> list) {
+    return new LinkedHashSet<T>(list);
   }
 
   public interface Form<I, O> {

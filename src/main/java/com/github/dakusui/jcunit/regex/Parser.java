@@ -1,58 +1,240 @@
 package com.github.dakusui.jcunit.regex;
 
-import com.github.dakusui.jcunit.core.utils.Utils;
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.utils.Utils.transform;
-import static java.util.Arrays.asList;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static com.github.dakusui.jcunit.regex.Parser.Type.ALT;
+import static com.github.dakusui.jcunit.regex.Parser.Type.CAT;
+import static java.lang.String.format;
 
 public class Parser {
+  private static final Pattern QUANTIFIER_PATTERN = Pattern.compile("^\\{([0-9]+),([0-9]+)}");
+  //public static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_][A-Za-z_0-9]*");
+  //  public static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_ ][A-Za-z_0-9 ]*");
+  private static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_][A-Za-z_0-9]*");
+  private final Expr.Factory exprFactory;
 
-  public static final Pattern QUANTIFIER_PATTERN = Pattern.compile("^\\{([0-9]+),([0-9]+)\\}");
-  public static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_ ][A-Za-z_0-9 ]*");
+  public Parser() {
+    this.exprFactory = new Expr.Factory();
+  }
 
-  static class Context {
-    public static final Context LAST = new Context(null, null);
-    final Expr         expr;
-    final List<String> tokens;
+  public Expr parse(String regex) {
+    return parse(preprocess(regex));
+  }
 
-    Context(Expr expr, List<String> tokens) {
-      this.expr = expr;
-      this.tokens = tokens;
+  enum Type {
+    CAT("*"),
+    ALT("+"),;
+
+    final String value;
+
+    Type(String value) {
+      this.value = value;
     }
 
-    boolean hasNext() {
-      return this.expr != null;
+    public String asString() {
+      return "(" + this.value;
+    }
+
+    public String toString() {
+      return asString();
     }
   }
 
-  public static void main(String... args) {
-    System.out.println(Parser.parse("(Hello|hello)world{0,1}everyone"));
-    System.out.println(Parser.parse("(Hello|hello){0,1}world everyone"));
-    System.out.println(Parser.parse("(Hello|hello)world everyone{0,1}"));
-    System.out.println(Parser.parse("(Hello{0,11}|hello)world everyone"));
-    System.out.println(Parser.parse("(Hello|hello{100,129})world everyone"));
-    System.out.println(Parser.parse("(Hello world){100,129}world everyone"));
-  }
-
-
-  public static Expr parse(String regex) {
-    return parse(tokenize(regex));
-  }
-
-  private static List<String> tokenize(String input) {
+  public static List<String> preprocess(String input) {
     List<String> ret = new LinkedList<String>();
-    for (String[] cur = nextToken(input); cur != null; cur = nextToken(cur[1])) {
-      if ("|".equals(cur[0]))
-        continue;
-      ret.add(cur[0]);
-    }
+    List<String> read = new LinkedList<String>();
+    preprocess(read, ret, tokenizer(input), true);
     return ret;
+  }
+
+  private enum SymbolType {
+    OPEN,
+    WORD,
+    CHOICE,
+    CLOSE;
+
+    static SymbolType determine(String cur) {
+      checknotnull(cur);
+      if ("(".equals(cur)) {
+        return OPEN;
+      } else if ("|".equals(cur)) {
+        return CHOICE;
+      } else if (")".equals(cur)) {
+        return CLOSE;
+      }
+      return WORD;
+    }
+  }
+
+  private enum PreprocessingState {
+    I, I_R, I_T,
+    ALT_I, ALT_R, ALT_T,
+    CAT_R, CAT_T,
+    T
+  }
+
+  private static void preprocess(List<String> read, List<String> output, Iterator<String> input, boolean topLevel) {
+    Type type = null;
+    List<String> work = new LinkedList<String>();
+    try {
+      PreprocessingState state = PreprocessingState.I;
+      while (input.hasNext() && state != PreprocessingState.T) {
+        String cur = input.next();
+        read.add(cur);
+        SymbolType symbolType = SymbolType.determine(cur);
+        switch (state) {
+        case I:
+          switch (symbolType) {
+          case OPEN:
+            preprocess(read, work, input, false);
+            state = PreprocessingState.I_T;
+            break;
+          case WORD:
+            work.add(cur);
+            state = PreprocessingState.I_T;
+            break;
+          default:
+            throw syntaxError(cur, read);
+          }
+          break;
+        case I_T:
+          switch (symbolType) {
+          case CHOICE:
+            state = PreprocessingState.ALT_I;
+            type = ALT;
+            break;
+          case WORD:
+            state = PreprocessingState.CAT_T;
+            type = CAT;
+            work.add(cur);
+            break;
+          case OPEN:
+            state = PreprocessingState.CAT_T;
+            type = CAT;
+            preprocess(read, work, input, false);
+            break;
+          case CLOSE:
+            if (!topLevel) {
+              state = PreprocessingState.T;
+              break;
+            }
+          default:
+            throw syntaxError(cur, read);
+          }
+          break;
+        case ALT_I:
+          switch (symbolType) {
+          case OPEN:
+            preprocess(read, work, input, false);
+            state = PreprocessingState.ALT_T;
+            break;
+          case WORD:
+            work.add(cur);
+            state = PreprocessingState.ALT_T;
+            break;
+          default:
+            throw syntaxError(cur, read);
+          }
+          break;
+        case ALT_T:
+          switch (symbolType) {
+          case CHOICE:
+            state = PreprocessingState.ALT_I;
+            break;
+          case CLOSE:
+            state = PreprocessingState.T;
+            break;
+          default:
+            throw syntaxError(cur, read);
+          }
+          break;
+        case CAT_T:
+          switch (symbolType) {
+          case OPEN:
+            state = PreprocessingState.CAT_T;
+            preprocess(read, work, input, false);
+            break;
+          case WORD:
+            work.add(cur);
+            break;
+          case CLOSE:
+            state = PreprocessingState.T;
+            break;
+          default:
+            throw syntaxError(cur, read);
+          }
+          break;
+        case CAT_R:
+          switch (symbolType) {
+          case CLOSE:
+            state = PreprocessingState.CAT_T;
+            break;
+          default:
+            throw syntaxError(cur, read);
+          }
+          break;
+        case T:
+          throw syntaxError(cur, read);
+        }
+      }
+      if (topLevel && input.hasNext()) {
+        throw syntaxError(input.next(), work);
+      }
+      if (!Arrays.asList(PreprocessingState.I_T, PreprocessingState.T, PreprocessingState.ALT_T, PreprocessingState.CAT_T).contains(state)) {
+        throw inputShouldNotEndHere(state);
+      }
+    } finally {
+      work.add(0, (type == null ? CAT : type).toString());
+      work.add(")");
+      output.addAll(work);
+    }
+  }
+
+  private static RuntimeException syntaxError(String token, List<String> work) {
+    throw new InvalidTestException(
+        format(
+            "token '%s' should not come after: '%s'",
+            token,
+            StringUtils.join("", work.subList(0, Math.max(0, work.size() - 1))))
+    );
+  }
+
+  private static RuntimeException inputShouldNotEndHere(PreprocessingState state) {
+    throw new InvalidTestException(format("Input should not end here: '%s'", state));
+  }
+
+  private static Iterator<String> tokenizer(final String input) {
+    return new Iterator<String>() {
+      String[] nextToken = nextToken(input);
+
+      @Override
+      public boolean hasNext() {
+        return nextToken != null;
+      }
+
+      @Override
+      public String next() {
+        if (!hasNext())
+          throw new NoSuchElementException();
+        try {
+          return nextToken[0];
+        } finally {
+          nextToken = nextToken(nextToken[1]);
+        }
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   private static String[] nextToken(String input) {
@@ -65,6 +247,14 @@ public class Parser {
     {
       Matcher m = LEAF_PATTERN.matcher(input);
       if (m.find()) {
+        /*
+        String matchedPart = m.group(0);
+        String work = matchedPart.contains(" ") ?
+            matchedPart.substring(0, matchedPart.indexOf(" ")) :
+            matchedPart;
+        return new String[] { work, input.substring(work.length()).trim() };
+        */
+        //return new String[] { m.group(0), input.substring(m.group(0).length()).trim() };
         return new String[] { m.group(0), input.substring(m.group(0).length()) };
       }
     }
@@ -75,59 +265,49 @@ public class Parser {
       }
     }
 
-    throw new RuntimeException(String.format("Syntax error: Unparsable: '%s'", input));
+    throw new InvalidTestException(format("Syntax error: Unparsable: '%s' did neither match '%s' nor '%s'", input, LEAF_PATTERN, QUANTIFIER_PATTERN));
   }
 
-  private static Expr parse(List<String> tokens) {
-    Context result = readCat(tokens);
+  private Expr parse(List<String> tokens) {
+    Context result = readTerm(tokens);
     checkcond(result.tokens.isEmpty(), "Syntax error: unparsed=%s", result.tokens);
     return result.expr;
   }
 
-  private static Context readTerm(List<String> tokens) {
+  private Context readTerm(List<String> tokens) {
     String head = head(tokens);
-    checkcond(!"|".equals(head), "Syntax error: head='%s'; tokens='%s'", head, tokens);
     Context ret;
-    if ("(".equals(head)) {
+    if (ALT.asString().equals(head)) {
       ret = readAlt(tail(tokens));
+    } else if (CAT.asString().equals(head)) {
+      ret = readCat(tail(tokens));
     } else {
-      ret = readLeaves(tokens);
+      ret = readLeaf(tokens);
     }
     String nextHead;
     if (ret.tokens != null && (nextHead = head(ret.tokens)) != null) {
       Matcher m;
       if ((m = QUANTIFIER_PATTERN.matcher(nextHead)).find()) {
         ret = new Context(
-            new Expr.Rep(ret.expr, Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2))),
+            this.exprFactory.rep(ret.expr, Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2))),
             tail(ret.tokens));
       }
     }
     return ret;
   }
 
-  private static Context readLeaves(List<String> tokens) {
+  private Context readLeaf(List<String> tokens) {
     String head = head(tokens);
     if (head == null)
       return Context.LAST;
-    checkcond(!"(".equals(head), "Syntax error: head='%s', tokens='%s'", head, tokens);
-    checkcond(!")".equals(head), "Syntax error: head='%s', tokens='%s'", head, tokens);
-    List<Expr> work = transform(asList(head.split(" +")), new Utils.Form<String, Expr>() {
-      @Override
-      public Expr apply(String in) {
-        return new Expr.Leaf(in);
-      }
-    });
-    if (work.size() == 1) {
-      return new Context(work.get(0), tail(tokens));
-    }
-    return new Context(new Expr.Cat(work), tail(tokens));
+    return new Context(this.exprFactory.leaf(head), tail(tokens));
   }
 
-  private static Context readAlt(List<String> tokens) {
+  private Context readAlt(List<String> tokens) {
     List<Expr> work = new LinkedList<Expr>();
     for (Context context = readTerm(tokens); context.hasNext(); context = readTerm(tokens)) {
-      tokens = context.tokens;
       work.add(context.expr);
+      tokens = context.tokens;
       if (")".equals(head(tokens))) {
         tokens = tail(tokens);
         break;
@@ -136,16 +316,20 @@ public class Parser {
     if (work.size() == 1) {
       return new Context(work.get(0), tokens);
     }
-    return new Context(new Expr.Alt(work), tokens);
+    return new Context(this.exprFactory.alt(work), tokens);
   }
 
-  private static Context readCat(List<String> tokens) {
+  private Context readCat(List<String> tokens) {
     List<Expr> work = new LinkedList<Expr>();
     for (Context context = readTerm(tokens); context.hasNext(); context = readTerm(tokens)) {
       work.add(context.expr);
       tokens = context.tokens;
+      if (")".equals(head(tokens))) {
+        tokens = tail(tokens);
+        break;
+      }
     }
-    return new Context(new Expr.Cat(work), tokens);
+    return new Context(this.exprFactory.cat(work), tokens);
   }
 
   private static String head(List<String> tokens) {
@@ -157,5 +341,20 @@ public class Parser {
 
   private static List<String> tail(List<String> tokens) {
     return tokens.subList(1, tokens.size());
+  }
+
+  static class Context {
+    static final Context LAST = new Context(null, null);
+    final Expr         expr;
+    final List<String> tokens;
+
+    Context(Expr expr, List<String> tokens) {
+      this.expr = expr;
+      this.tokens = tokens;
+    }
+
+    boolean hasNext() {
+      return this.expr != null;
+    }
   }
 }
