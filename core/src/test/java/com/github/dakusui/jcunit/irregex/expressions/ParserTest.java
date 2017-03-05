@@ -27,19 +27,20 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(JCUnit.class)
 public class ParserTest {
-  public static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter NAME_FORMATTER = new RegexTestUtils.ExprTreePrinter.InternalNodeFormatter() {
+  private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter NAME_FORMATTER = new RegexTestUtils.ExprTreePrinter.InternalNodeFormatter() {
     @Override
     public String format(Expr.Composite expr) {
       return expr.name();
     }
   };
-  public static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter ID_FORMATTER   = new RegexTestUtils.ExprTreePrinter.InternalNodeFormatter() {
+  private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter ID_FORMATTER   = new RegexTestUtils.ExprTreePrinter.InternalNodeFormatter() {
     @Override
     public String format(Expr.Composite expr) {
       return expr.id();
     }
   };
   //String input = "git ((clone URL (dir){0,1})|(pull( origin BRANCH_PULLED_FROM){0,1})|(push origin BRANCH(_BRAHCH){0,1}))";
+  @SuppressWarnings("WeakerAccess")
   @FactorField(stringLevels = {
       /* 0*/ "(A){0,1}abc(B){0,1};abc,Aabc,abcB,AabcB;(*(*A){0,1}abc(*B){0,1})",    // 0: OK - 4; abc,A abc, abc B, A abc B
       /* 1*/ "(A){0,1}abc(B){1,2};abcB,AabcB,abcBB,AabcBB;(*(*A){0,1}abc(*B){1,2})", // 1: OK - 4; abc, A abc B, abc BB, A abc BB
@@ -54,15 +55,18 @@ public class ParserTest {
       /*10*/ "(A)(B){0,1};A,AB;(*(*A)(*B){0,1})",                                   //10:
       /*11*/ "A(B);AB;(*A(*B))",                                       //11:
       /*12*/ "A{0,2};,A,AA;(*A{0,2})",                               //12: OK - 3; ,A,AA
-      /*13*/ "(A|(B)(C));A,BC;(*(+ABC))",                                    //13:
-      /*14*/ "(git)(clone)(URL);gitcloneURL;(*(*git)(*clone)(*URL))",               //14: NG - 1; git clone URL
-      /*15*/ "git;git;(*git)",
-      /*16*/ "(A|B){2,3};BBA,AA,BBB,BB,AAA,AAB;(*(+AB){2,3})",
-      /*17*/ "A{1,2};A,AA;(*A{1,2})",
-      /*18*/ "(A|B){0,1};,A,B;(*(+AB){0,1})",
-      /*19*/ "A{0,1}B{0,1};,A,B,AB;(*A{0,1}B{0,1})",
-      /*20*/ "A;A;(*A)",
-      /*21*/ "(A);A;(*(*A))"
+      /*13*/ "(git)(clone)(URL);gitcloneURL;(*(*git)(*clone)(*URL))",               //14: NG - 1; git clone URL
+      /*14*/ "git;git;(*git)",
+      /*15*/ "(A|B){2,3};BBA,AA,BBB,BB,AAA,AAB;(*(+AB){2,3})",
+      /*16*/ "A{1,2};A,AA;(*A{1,2})",
+      /*17*/ "(A|B){0,1};,A,B;(*(+AB){0,1})",
+      /*18*/ "A{0,1}B{0,1};,A,B,AB;(*A{0,1}B{0,1})",
+      /*19*/ "A;A;(*A)",
+      /*20*/ "(A);A;(*(*A))",
+      /*21*/ "(A)(A);AA;(*(*A)(*A))",
+      /*22*/ "(A|B);A,B;(*(+AB))",
+//      "((A)|((B)(C)));_;_"
+      //      /*13*/ "(A|(B)(C));A,BC;(*(+ABC))",                                    //13: - should result in error
   })
   public String _input;
 
@@ -108,7 +112,7 @@ public class ParserTest {
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());
-//    assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
+    assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
   }
 
   @Test
@@ -127,12 +131,17 @@ public class ParserTest {
     for (Factor each : factorSpace.factors) {
       System.out.println(each.name + ":" + each.levels);
     }
+/*
+    for (Constraint each : factorSpace.constraintChecker.getConstraints()) {
+      System.out.println(each);
+      System.out.println("  " + each.getFactorNamesInUse());
+    }
+    */
   }
 
   private RegexTestSuiteBuilder getRegexTestSuiteBuilder() {
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("input", new Parser().parse(input()));
-//    new Parser().parse(input()).accept(regexTestSuiteBuilder);
-    return regexTestSuiteBuilder;
+    //    new Parser().parse(input()).accept(regexTestSuiteBuilder);
+    return new RegexTestSuiteBuilder("input", new Parser().parse(input()));
   }
 
 

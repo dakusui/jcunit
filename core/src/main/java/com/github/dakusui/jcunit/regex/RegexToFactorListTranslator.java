@@ -15,6 +15,7 @@ import java.util.Map;
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 
 public class RegexToFactorListTranslator implements Expr.Visitor {
   protected static final Object VOID = new Object() {
@@ -38,6 +39,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     this.context = new Context.Impl(this.prefix, null);
   }
 
+  @Override
   public void visit(Expr.Alt expr) {
     Context original = this.context;
     original.add(expr);
@@ -52,6 +54,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
+  @Override
   public void visit(Expr.Cat expr) {
     Context original = this.context;
     original.add(expr);
@@ -66,6 +69,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
   }
 
+  @Override
   public void visit(Leaf leaf) {
     this.context.add(leaf);
   }
@@ -80,14 +84,15 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     final Factors.Builder builder = new Factors.Builder();
     for (String eachKey : this.terms.keySet()) {
       Factor.Builder b = new Factor.Builder(eachKey);
-      if (isReferencedByAltDirectlyOrIndirectly/*ByAlt*/(eachKey)) {
+      if (isReferencedByAltDirectlyOrIndirectly(eachKey) || isAlt(eachKey)) {
         b.addLevel(VOID);
       }
       if (isAlt(eachKey)) {
         for (Value eachValue : this.terms.get(eachKey)) {
-          b.addLevel(this.resolve(eachValue));
+          b.addLevel(resolveIfImmediate(eachValue));
+          //          b.addLevel(this.resolve(eachValue));
         }
-      } else /* if (isCat(eachKey)) */ {
+      } else /* , that is, if (isCat(eachKey)) */ {
         List<Object> work = new LinkedList<Object>();
         for (Value eachValue : this.terms.get(eachKey)) {
           work.addAll(this.resolve(eachValue));
@@ -188,13 +193,23 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     return false;
   }
 
+  private List<Object> resolveIfImmediate(Value value) {
+    if (value instanceof Immediate)
+      return resolveImmediate(value);
+    return singletonList((Object) value);
+  }
+
   private List<Object> resolve(Value value) {
     return resolve(new LinkedList<Object>(), value);
   }
 
+  private List<Object> resolveImmediate(Value value) {
+    return singletonList(((Immediate) value).value);
+  }
+
   private List<Object> resolve(List<Object> values, Value value) {
     if (value instanceof Immediate) {
-      values.add(((Immediate) value).value);
+      values.add(resolveImmediate(value));
     } else {
       String key = ((Reference) value).key;
       if (isCat(key)) {

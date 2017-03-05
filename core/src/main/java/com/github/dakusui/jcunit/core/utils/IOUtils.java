@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.core.utils;
 
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
+import com.github.dakusui.jcunit.exceptions.JCUnitEnvironmentException;
 
 import java.io.*;
 
@@ -139,7 +139,7 @@ public enum IOUtils {
   public static boolean deleteRecursive(File path) {
     Checks.checknotnull(path);
     if (!path.exists()) {
-      throw new JCUnitException(
+      throw new JCUnitEnvironmentException(
           String.format("Path '%s' was not found.", path.getAbsolutePath()), null);
     }
     boolean ret = true;

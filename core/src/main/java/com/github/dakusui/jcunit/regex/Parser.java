@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.exceptions.JCUnitException;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -109,119 +108,107 @@ public class Parser {
     List<String> work = new LinkedList<String>();
     try {
       PreprocessingState state = PreprocessingState.I;
-      while (input.hasNext()) {
+      while (input.hasNext() && state != PreprocessingState.T) {
         String cur = input.next();
-        read.add(cur);
-
-        SymbolType symbolType = SymbolType.determine(cur);
-        switch (state) {
-        case I:
-          switch (symbolType) {
-          case OPEN:
-            preprocess(read, work, input, false);
-            state = PreprocessingState.I_T;
+        try {
+          SymbolType symbolType = SymbolType.determine(cur);
+          switch (state) {
+          case I:
+            switch (symbolType) {
+            case OPEN:
+              preprocess(read, work, input, false);
+              state = PreprocessingState.I_T;
+              break;
+            case WORD:
+              work.add(cur);
+              state = PreprocessingState.I_T;
+              break;
+            default:
+              throw syntaxError(cur, read);
+            }
             break;
-          case WORD:
-            work.add(cur);
-            state = PreprocessingState.I_T;
+          case I_T:
+            switch (symbolType) {
+            case CHOICE:
+              state = PreprocessingState.ALT_I;
+              type = ALT;
+              break;
+            case WORD:
+              state = PreprocessingState.CAT_T;
+              type = CAT;
+              work.add(cur);
+              break;
+            case OPEN:
+              state = PreprocessingState.CAT_T;
+              type = CAT;
+              preprocess(read, work, input, false);
+              break;
+            case CLOSE:
+              if (!topLevel) {
+                state = PreprocessingState.T;
+                break;
+              }
+            default:
+              throw syntaxError(cur, read);
+            }
             break;
-          default:
-            throw syntaxError(cur, read);
-          }
-          break;
-        case I_R:
-          switch (symbolType) {
-          case CLOSE:
-            state = PreprocessingState.I_T;
+          case ALT_I:
+            switch (symbolType) {
+            case OPEN:
+              preprocess(read, work, input, false);
+              state = PreprocessingState.ALT_T;
+              break;
+            case WORD:
+              work.add(cur);
+              state = PreprocessingState.ALT_T;
+              break;
+            default:
+              throw syntaxError(cur, read);
+            }
             break;
-          default:
-            throw syntaxError(cur, read);
-          }
-          break;
-        case I_T:
-          switch (symbolType) {
-          case CHOICE:
-            state = PreprocessingState.ALT_I;
-            type = ALT;
-            break;
-          case WORD:
-            state = PreprocessingState.CAT_T;
-            type = CAT;
-            work.add(cur);
-            break;
-          case OPEN:
-            state = PreprocessingState.CAT_T;
-            type = CAT;
-            preprocess(read, work, push_back(cur, input), false);
-            break;
-          case CLOSE:
-            if (!topLevel) {
+          case ALT_T:
+            switch (symbolType) {
+            case CLOSE:
               state = PreprocessingState.T;
               break;
+            default:
+              throw syntaxError(cur, read);
             }
-          default:
+            break;
+          case CAT_T:
+            switch (symbolType) {
+            case OPEN:
+              state = PreprocessingState.CAT_T;
+              preprocess(read, work, input, false);
+              break;
+            case WORD:
+              work.add(cur);
+              break;
+            case CLOSE:
+              state = PreprocessingState.T;
+              break;
+            default:
+              throw syntaxError(cur, read);
+            }
+            break;
+          case CAT_R:
+            switch (symbolType) {
+            case CLOSE:
+              state = PreprocessingState.CAT_T;
+              break;
+            default:
+              throw syntaxError(cur, read);
+            }
+            break;
+          case T:
             throw syntaxError(cur, read);
           }
-          break;
-        case ALT_I:
-          switch (symbolType) {
-          case OPEN:
-            preprocess(read, work, push_back(cur, input), false);
-            state = PreprocessingState.ALT_T;
-            break;
-          case WORD:
-            work.add(cur);
-            state = PreprocessingState.ALT_T;
-            break;
-          default:
-            throw syntaxError(cur, read);
-          }
-          break;
-        case ALT_R:
-          switch (symbolType) {
-          case CLOSE:
-            state = PreprocessingState.ALT_T;
-            break;
-          default:
-            throw syntaxError(cur, read);
-          }
-          break;
-        case ALT_T:
-          switch (symbolType) {
-          case CLOSE:
-            state = PreprocessingState.T;
-            break;
-          default:
-            throw syntaxError(cur, read);
-          }
-          break;
-        case CAT_T:
-          switch (symbolType) {
-          case OPEN:
-            state = PreprocessingState.CAT_T;
-            preprocess(read, work, input, false);
-            break;
-          case WORD:
-            break;
-          case CLOSE:
-            state = PreprocessingState.T;
-            break;
-          default:
-            throw syntaxError(cur, read);
-          }
-          break;
-        case CAT_R:
-          switch (symbolType) {
-          case CLOSE:
-            state = PreprocessingState.CAT_T;
-            break;
-          default:
-            throw syntaxError(cur, read);
-          }
-          break;
-        case T:
-          throw syntaxError(cur, read);
+        } finally {
+          read.add(cur);
         }
+      }
+      if (topLevel && input.hasNext()) {
+        throw syntaxError(input.next(), work);
       }
       if (!Arrays.asList(PreprocessingState.I_T, PreprocessingState.T, PreprocessingState.ALT_T, PreprocessingState.CAT_T).contains(state)) {
         throw inputShouldNotEndHere(state);
@@ -234,11 +221,11 @@ public class Parser {
   }
 
   private static RuntimeException syntaxError(String token, List<String> work) {
-    return new JCUnitException(String.format("token '%s' should not come after: '%s'", token, StringUtils.join(" ", work)), null);
+    throw new InvalidTestException(String.format("token '%s' should not come after: '%s'", token, StringUtils.join("", work)), null);
   }
 
   private static RuntimeException inputShouldNotEndHere(PreprocessingState state) {
-    return new JCUnitException(String.format("Input should not end here: '%s'", state), null);
+    throw new InvalidTestException(String.format("Input should not end here: '%s'", state), null);
   }
 
   private static Iterator<String> tokenizer(final String input) {

@@ -16,15 +16,19 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JCUnit.class)
 public class RegexExample {
-  public static final int runCount     = 22;
-  public static final int failureCount = 0;
-  public static final int ignoreCount  = 0;
+  public static final int             runCount        = 22;
+  public static final int             failureCount    = 0;
+  public static final int             ignoreCount     = 0;
   @Rule
-  public TestDescription testDescription = new TestDescription();
+  public              TestDescription testDescription = new TestDescription();
 
   //  private static final String INPUT = "(Hello|hello)world everyone{0,1}(A|B|C)";
   //private static final String INPUT = "(Hello|hello)world (everyone{0,1}(A|B|C){1,2}){0,1}";
-  private static final String INPUT = "git clone URL DIRNAME{0,1}";
+  private static final String INPUT = "(git)(" +
+      "((clone)(URL)(DIRNAME){0,1})" +
+      "|" + "(pull)" +
+      "|" + "((push)(origin)(master))" +
+      ")";
   //      "git(clone(URL(DIRNAME){0,1}))";
 
   @FactorField(levelsProvider = RegexLevelsProvider.class, args = { @Value(INPUT) })

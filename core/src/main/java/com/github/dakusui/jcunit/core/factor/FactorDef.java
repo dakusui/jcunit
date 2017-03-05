@@ -23,7 +23,9 @@ public abstract class FactorDef {
    */
   public final String name;
 
-  public FactorDef(String name) {
+
+  @SuppressWarnings("WeakerAccess")
+  protected FactorDef(String name) {
     this.name = checknotnull(name);
   }
 
@@ -217,7 +219,6 @@ public abstract class FactorDef {
       super(name);
       try {
         RegexToFactorListTranslator builder = new RegexToFactorListTranslator(this.name, this.expr = new Parser().parse(sequence));
-//        this.expr = new Parser().parse(sequence);
         this.expr.accept(builder);
         this.factors = builder.buildFactors();
         this.constraints = builder.buildConstraints(this.factors.asFactorList());
