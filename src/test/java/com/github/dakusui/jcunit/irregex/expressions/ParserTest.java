@@ -70,7 +70,9 @@ public class ParserTest {
       /*23*/ "(A|B|C);A,B,C;(*(+ABC))",
       /*24*/ "(A|B|(C(D{0,1})));A,B,CD,C;(*(+AB(*C(*D{0,1}))))",
       /*25*/ "((A{0,1})|B|(C{0,1}));,,A,B,C;(*(+(*A{0,1})B(*C{0,1})))", // limitation; where multiple component can result in the same result can produce the same test cases.
-      /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))" // limitation. see above
+      /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))", // limitation. see above
+      /*27*/ "A|B|C;A,B,C;(+ABC)",
+      /*28*/ "(A)|(B)|(C);A,B,C;(+(*A)(*B)(*C))"
   })
   public String _input;
 
