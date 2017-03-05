@@ -84,8 +84,10 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     final Factors.Builder builder = new Factors.Builder();
     for (String eachKey : this.terms.keySet()) {
       Factor.Builder b = new Factor.Builder(eachKey);
-      if (isReferencedByAltDirectlyOrIndirectly(eachKey) || isAlt(eachKey)) {
-        b.addLevel(VOID);
+      if (!isTopLevel(eachKey)) {
+        if (isReferencedByAltDirectlyOrIndirectly(eachKey) || isAlt(eachKey)) {
+          b.addLevel(VOID);
+        }
       }
       if (isAlt(eachKey)) {
         for (Value eachValue : this.terms.get(eachKey)) {
@@ -99,11 +101,15 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
         }
         b.addLevel(work);
       }
-      if (b.size() > 1 || (b.size() == 1 && composeKey(this.prefix, this.topLevelExpression.id()).equals(eachKey))) {
+      if (b.size() > 1 || (b.size() == 1 && isTopLevel(eachKey))) {
         builder.add(b.build());
       }
     }
     return builder.build();
+  }
+
+  private boolean isTopLevel(String eachKey) {
+    return composeKey(this.prefix, this.topLevelExpression.id()).equals(eachKey);
   }
 
   public List<TestSuite.Predicate> buildConstraints(List<Factor> factors) {
