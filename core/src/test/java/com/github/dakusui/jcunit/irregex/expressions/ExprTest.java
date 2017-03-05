@@ -5,6 +5,8 @@ import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.framework.TestCase;
 import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.regex.*;
+import com.github.dakusui.jcunit.testutils.UTUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -28,6 +30,11 @@ public class ExprTest {
 
   private Expr rep(Object arg, int min, int max) {
     return exprFactory.rep(arg, min, max);
+  }
+
+  @Before
+  public void before() {
+    UTUtils.configureStdIOs();
   }
 
   @Test

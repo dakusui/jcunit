@@ -23,7 +23,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static sun.security.krb5.internal.Krb5.DEBUG;
 
 @Ignore
 public class Ipo2CoverageTest {
@@ -178,7 +177,6 @@ public class Ipo2CoverageTest {
         new GreedyIpo2Optimizer()
     ).ipo().getGeneratedTuples();
 
-    printFactors(factors);
     assertNoMissingTuples(factors, strength, constraints, generated);
     assertNoViolations(constraints, generated);
     assertEquals(110, generated.size());
@@ -298,14 +296,6 @@ public class Ipo2CoverageTest {
         }).isEmpty();
       }
     });
-  }
-
-  private void printFactors(Factors factors) {
-    if (DEBUG) {
-      for (Factor each : factors) {
-        System.out.println(each.name + ":" + each.levels);
-      }
-    }
   }
 
   private Constraint not(final Constraint constraint) {

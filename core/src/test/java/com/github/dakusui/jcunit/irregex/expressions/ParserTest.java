@@ -11,8 +11,10 @@ import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit.regex.RegexTestSuiteBuilder;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
+import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -65,10 +67,17 @@ public class ParserTest {
       /*20*/ "(A);A;(*(*A))",
       /*21*/ "(A)(A);AA;(*(*A)(*A))",
       /*22*/ "(A|B);A,B;(*(+AB))",
-//      "((A)|((B)(C)));_;_"
-      //      /*13*/ "(A|(B)(C));A,BC;(*(+ABC))",                                    //13: - should result in error
+      /*23*/ "(A|B|C);A,B,C;(*(+ABC))",
+      /*24*/ "(A|B|(C(D{0,1})));A,B,CD,C;(*(+AB(*C(*D{0,1}))))",
+      /*25*/ "((A{0,1})|B|(C{0,1}));,,A,B,C;(*(+(*A{0,1})B(*C{0,1})))", // limitation; where multiple component can result in the same result can produce the same test cases.
+      /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))" // limitation. see above
   })
   public String _input;
+
+  @Before
+  public void before() {
+    UTUtils.configureStdIOs();
+  }
 
   @Test
   public void parseTreePrintingWithId() {
