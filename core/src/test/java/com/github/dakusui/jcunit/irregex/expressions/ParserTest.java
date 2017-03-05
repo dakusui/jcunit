@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit.irregex.expressions;
 
+import com.github.dakusui.jcunit.core.factor.Factor;
 import com.github.dakusui.jcunit.core.factor.FactorDef;
 import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
@@ -40,24 +41,28 @@ public class ParserTest {
   };
   //String input = "git ((clone URL (dir){0,1})|(pull( origin BRANCH_PULLED_FROM){0,1})|(push origin BRANCH(_BRAHCH){0,1}))";
   @FactorField(stringLevels = {
-      "(A){0,1}abc(B){0,1};abc,Aabc,abcB,AabcB;(*(*A){0,1}abc(*B){0,1})",    // 0: OK - 4; abc,A abc, abc B, A abc B
-      "(A){0,1}abc(B){1,2};abcB,AabcB,abcBB,AabcBB;(*(*A){0,1}abc(*B){1,2})", // 1: OK - 4; abc, A abc B, abc BB, A abc BB
-      "A(B|C);AB,AC;(*A(+BC))",                               // 2: OK - 2; AB, AC
-      "(A)(B|C);AB,AC;(*(*A)(+BC))",                             // 3: OK - 2; AB, AC
-      "(A)(B|C){0,1};A,AB,AC;(*(*A)(+BC){0,1})",                      // 4: OK - 3; A, AB, AC
-      "A(B|C){0,1};A,AB,AC;(*A(+BC){0,1})",                        // 5: OK - 3; A, AB, AC
-      "(A(B|C));AB,AC;(*(*A(+BC)))",                             // 6: NG - 2; AB, AC
-      "(A(B|C)){0,1};,AB,AC;(*(*A(+BC)){0,1})",                       // 7: NG - 3; ,AB, AC
-      "A(B(C){0,1}){0,1};A,AB,ABC;(*A(*B(*C){0,1}){0,1})",                          // 8:
-      "(A B){0,1};,AB;(*(*A B){0,1})",                                 // 9:
-      "A B{0,1};,AB;(*A B{0,1})",                                   //10:
-      "A(B);AB;(*A(*B))",                                       //11:
-      "A{0,2};,A,AA;(*A{0,2})",                               //12: OK - 3; ,A,AA
-      "(A|B C);A,BC;(*(+AB C))",                                    //13:
-      "git clone URL;gitcloneURL;(*git clone URL)",               //14: NG - 1; git clone URL
-      "git;git;(*git)",
-      "(A|B){2,3};AA,ABA,BBA,AAA,ABB,AB,AAB,BAA,BAB,BA;(*(+AB){2,3})",
-      "git clone URL DIRNAME{0,1};_;_"
+      /* 0*/ "(A){0,1}abc(B){0,1};abc,Aabc,abcB,AabcB;(*(*A){0,1}abc(*B){0,1})",    // 0: OK - 4; abc,A abc, abc B, A abc B
+      /* 1*/ "(A){0,1}abc(B){1,2};abcB,AabcB,abcBB,AabcBB;(*(*A){0,1}abc(*B){1,2})", // 1: OK - 4; abc, A abc B, abc BB, A abc BB
+      /* 2*/ "A(B|C);AB,AC;(*A(+BC))",                               // 2: OK - 2; AB, AC
+      /* 3*/ "(A)(B|C);AB,AC;(*(*A)(+BC))",                             // 3: OK - 2; AB, AC
+      /* 4*/ "(A)(B|C){0,1};A,AB,AC;(*(*A)(+BC){0,1})",                      // 4: OK - 3; A, AB, AC
+      /* 5*/ "A(B|C){0,1};A,AB,AC;(*A(+BC){0,1})",                        // 5: OK - 3; A, AB, AC
+      /* 6*/ "(A(B|C));AB,AC;(*(*A(+BC)))",                             // 6: NG - 2; AB, AC
+      /* 7*/ "(A(B|C)){0,1};,AB,AC;(*(*A(+BC)){0,1})",                       // 7: NG - 3; ,AB, AC
+      /* 8*/ "A(B(C){0,1}){0,1};A,AB,ABC;(*A(*B(*C){0,1}){0,1})",                          // 8:
+      /* 9*/ "(AB){0,1};,AB;(*(*AB){0,1})",                                 // 9:
+      /*10*/ "(A)(B){0,1};A,AB;(*(*A)(*B){0,1})",                                   //10:
+      /*11*/ "A(B);AB;(*A(*B))",                                       //11:
+      /*12*/ "A{0,2};,A,AA;(*A{0,2})",                               //12: OK - 3; ,A,AA
+      /*13*/ "(A|(B)(C));A,BC;(*(+ABC))",                                    //13:
+      /*14*/ "(git)(clone)(URL);gitcloneURL;(*(*git)(*clone)(*URL))",               //14: NG - 1; git clone URL
+      /*15*/ "git;git;(*git)",
+      /*16*/ "(A|B){2,3};BBA,AA,BBB,BB,AAA,AAB;(*(+AB){2,3})",
+      /*17*/ "A{1,2};A,AA;(*A{1,2})",
+      /*18*/ "(A|B){0,1};,A,B;(*(+AB){0,1})",
+      /*19*/ "A{0,1}B{0,1};,A,B,AB;(*A{0,1}B{0,1})",
+      /*20*/ "A;A;(*A)",
+      /*21*/ "(A);A;(*(*A))"
   })
   public String _input;
 
@@ -75,16 +80,14 @@ public class ParserTest {
 
   @Test
   public void printTestSuite() {
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("input");
-    new Parser().parse(input()).accept(regexTestSuiteBuilder);
+    RegexTestSuiteBuilder regexTestSuiteBuilder = getRegexTestSuiteBuilder();
     RegexTestUtils.printTestSuite(regexTestSuiteBuilder.buildTestSuite());
   }
 
   @Test
   public void printGeneratedList() {
     FactorDef factorDef = new FactorDef.Regex("input", input());
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("input");
-    new Parser().parse(input()).accept(regexTestSuiteBuilder);
+    RegexTestSuiteBuilder regexTestSuiteBuilder = getRegexTestSuiteBuilder();
 
     FactorSpace factorSpace = new FactorSpace.Builder()
         .addFactorDefs(singletonList(factorDef))
@@ -105,12 +108,31 @@ public class ParserTest {
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());
+//    assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
   }
 
   @Test
   public void testInterpret() {
-    //    System.out.println(this.input() + ":" + StringUtils.join(" ", Parser.interpret(this.input())));
-    assertEquals(expectationForTokenizedStrings(), StringUtils.join("", Parser.interpret(this.input())));
+    //    System.out.println(this.input() + ":" + StringUtils.join(" ", Parser.preprocess(this.input())));
+    assertEquals(expectationForTokenizedStrings(), StringUtils.join("", Parser.preprocess(this.input())));
+  }
+
+  @Test
+  public void printFactorSpace() {
+    FactorDef factorDef = new FactorDef.Regex("input", input());
+    FactorSpace factorSpace = new FactorSpace.Builder()
+        .addFactorDefs(singletonList(factorDef))
+        .build();
+
+    for (Factor each : factorSpace.factors) {
+      System.out.println(each.name + ":" + each.levels);
+    }
+  }
+
+  private RegexTestSuiteBuilder getRegexTestSuiteBuilder() {
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("input", new Parser().parse(input()));
+//    new Parser().parse(input()).accept(regexTestSuiteBuilder);
+    return regexTestSuiteBuilder;
   }
 
 

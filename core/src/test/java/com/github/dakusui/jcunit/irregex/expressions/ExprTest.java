@@ -32,15 +32,15 @@ public class ExprTest {
 
   @Test
   public void factorSpaceBuilder() {
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
     Expr expr = cat(
         alt("Hello",
             alt("hello",
                 cat("hello", "!")
             )),
         cat("world", ","), rep("everyone", 1, 3));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
 
-    expr.accept(regexTestSuiteBuilder);
+//    expr.accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     expr.accept(new Printer(System.out));
     System.out.println();
@@ -54,9 +54,9 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderSimple() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = alt("Hello", "hello"))
-        .accept(regexTestSuiteBuilder);
+    expr = alt("Hello", "hello");
+//        .accept(regexTestSuiteBuilder);
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
     expr.accept(new Printer(System.out));
     TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
     assertThat(testSuite.get(0).getTuple().toString(), containsString("[Hello]"));
@@ -67,9 +67,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderSimple2() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat(alt("Hello", "hello"), alt("Hi", "HI")))
-        .accept(regexTestSuiteBuilder);
+    expr = cat(alt("Hello", "hello"), alt("Hi", "HI"));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    ()
+//        .accept(regexTestSuiteBuilder);
     expr.accept(new Printer(System.out));
     TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
     RegexTestUtils.printTestSuite(testSuite);
@@ -87,9 +88,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderNested() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat(alt("Hello", alt("Hi", "HI")), "howdy"))
-        .accept(regexTestSuiteBuilder);
+    expr = cat(alt("Hello", alt("Hi", "HI")), "howdy");
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = cat(alt("Hello", alt("Hi", "HI")), "howdy"))
+//        .accept(regexTestSuiteBuilder);
     expr.accept(new Printer(System.out));
     TestSuite testSuite = regexTestSuiteBuilder.buildTestSuite();
     for (TestCase each : testSuite) {
@@ -100,9 +102,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderNested2() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat(alt("Hello", cat(alt("Hi", "HI")), "howdy")))
-        .accept(regexTestSuiteBuilder);
+    expr = cat(alt("Hello", cat(alt("Hi", "HI")), "howdy"));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = cat(alt("Hello", cat(alt("Hi", "HI")), "howdy")))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -115,9 +118,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderNested3() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat("Hello", cat("Hi", "!")))
-        .accept(regexTestSuiteBuilder);
+    expr = cat("Hello", cat("Hi", "!"));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = cat("Hello", cat("Hi", "!")))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -131,9 +135,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderNested4() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat(alt("Hello", cat(alt("Hi", "HI")), "howdy")))
-        .accept(regexTestSuiteBuilder);
+    expr = cat(alt("Hello", cat(alt("Hi", "HI")), "howdy"));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = cat(alt("Hello", cat(alt("Hi", "HI")), "howdy")))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -146,9 +151,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderRep() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = rep("Hello", 0, 1))
-        .accept(regexTestSuiteBuilder);
+    expr = rep("Hello", 0, 1);
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = rep("Hello", 0, 1))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     expr.accept(new Printer(System.out));
     System.out.println();
@@ -161,9 +167,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderRep2() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = rep(cat("Hello", alt("World", "WORLD")), 1, 2))
-        .accept(regexTestSuiteBuilder);
+    expr = rep(cat("Hello", alt("World", "WORLD")), 1, 2);
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = rep(cat("Hello", alt("World", "WORLD")), 1, 2))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -176,9 +183,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderRep2b() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = rep(alt("World", "WORLD"), 2, 3))
-        .accept(regexTestSuiteBuilder);
+    expr = rep(alt("World", "WORLD"), 2, 3);
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = rep(alt("World", "WORLD"), 2, 3))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -191,9 +199,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderRep3() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 2, 3), alt("digest0", "digest1")))
-        .accept(regexTestSuiteBuilder);
+    expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 2, 3), alt("digest0", "digest1"));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 2, 3), alt("digest0", "digest1")))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -206,9 +215,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderRep4() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = rep(alt("update1", "update2"), 2, 3))
-        .accept(regexTestSuiteBuilder);
+    expr = rep(alt("update1", "update2"), 2, 3);
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = rep(alt("update1", "update2"), 2, 3))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -221,9 +231,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderRep5() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 1, 2)))
-        .accept(regexTestSuiteBuilder);
+    expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 1, 2));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = cat(rep("reset", 0, 1), rep(alt("update1", "update2"), 1, 2)))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));
@@ -236,9 +247,10 @@ public class ExprTest {
   @Test
   public void factorSpaceBuilderRep6() {
     Expr expr;
-    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix");
-    (expr = cat(rep(rep("reset", 0, 1), 0, 1), rep(alt("update1", "update2"), 1, 2)))
-        .accept(regexTestSuiteBuilder);
+    expr = cat(rep(rep("reset", 0, 1), 0, 1), rep(alt("update1", "update2"), 1, 2));
+    RegexTestSuiteBuilder regexTestSuiteBuilder = new RegexTestSuiteBuilder("aPrefix", expr);
+//    (expr = cat(rep(rep("reset", 0, 1), 0, 1), rep(alt("update1", "update2"), 1, 2)))
+//        .accept(regexTestSuiteBuilder);
     System.out.println(regexTestSuiteBuilder.toString());
     System.out.println();
     expr.accept(new Printer(System.out));

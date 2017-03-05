@@ -155,7 +155,7 @@ public class Checks {
    * @param args     Arguments to be embedded in {@code msg}.
    */
   public static RuntimeException wrap(Throwable e, String msgOrFmt, Object... args) {
-    throw new JCUnitException(composeMessage(msgOrFmt, args) + ":["  +e.getMessage() + "]", e);
+    throw new JCUnitException(composeMessage(msgOrFmt, args), e);
   }
 
   /**

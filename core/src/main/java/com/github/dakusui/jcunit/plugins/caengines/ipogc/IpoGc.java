@@ -149,7 +149,7 @@ public class IpoGc extends Ipo {
     }
     /*     20.  return ts;
      */
-    return new Result(TestCaseUtils.optimize(ts, strength), Collections.<Tuple>emptyList());
+    return new Result(TestCaseUtils.optimize(TestCaseUtils.unique(ts), strength), Collections.<Tuple>emptyList());
   }
 
   /*
@@ -506,7 +506,7 @@ public class IpoGc extends Ipo {
         return in.getFactorNamesInUse();
       }
     });
-    return toList(findLargestDisjointedGroups(toLinkedHashSet(work)));
+    return Utils.toList(findLargestDisjointedGroups(Utils.toLinkedHashSet(work)));
   }
 
   private LinkedHashSet<List<String>> findLargestDisjointedGroups(LinkedHashSet<List<String>> in) {
@@ -516,16 +516,11 @@ public class IpoGc extends Ipo {
     return in;
   }
 
-  private <T> List<T> toList(LinkedHashSet<T> set) {
-    return new LinkedList<T>(set);
-  }
-
-  private <T> LinkedHashSet<T> toLinkedHashSet(List<T> list) {
-    return new LinkedHashSet<T>(list);
-  }
-
   private boolean anyConnectedPairs(LinkedHashSet<List<String>> in) {
-    for (List<List<String>> each : new Combinator<List<String>>(toList(in), 2)) {
+    if (in.size() < 2) {
+      return false;
+    }
+    for (List<List<String>> each : new Combinator<List<String>>(Utils.toList(in), 2)) {
       if (Utils.containsAny(each.get(0), each.get(1)))
         return true;
     }
@@ -534,7 +529,7 @@ public class IpoGc extends Ipo {
 
   private LinkedHashSet<List<String>> mergeConnected(LinkedHashSet<List<String>> in) {
     LinkedHashSet<List<String>> ret = new LinkedHashSet<List<String>>();
-    Combinator<List<String>> combinator = new Combinator<List<String>>(toList(in), 2);
+    Combinator<List<String>> combinator = new Combinator<List<String>>(Utils.toList(in), 2);
     for (List<List<String>> each : combinator) {
       checkcond(each.size() == 2);
       List<String> a = each.get(0);

@@ -56,6 +56,11 @@ public enum RegexTestUtils {
       System.out.println(indentString() + "leaf:'" + leaf + "'");
     }
 
+    @Override
+    public void visit(Expr.Empty empty) {
+      System.out.println(indentString() + "empty");
+    }
+
     String indentString() {
       String ret = "";
       for (int i = 0; i < indent; i++) {

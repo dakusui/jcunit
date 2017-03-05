@@ -11,8 +11,8 @@ import java.util.Map;
 public class RegexTestSuiteBuilder extends RegexToFactorListTranslator {
   private final Context topLevelContext;
 
-  public RegexTestSuiteBuilder(String prefix) {
-    super(prefix);
+  public RegexTestSuiteBuilder(String prefix, Expr topLevelExpression) {
+    super(prefix, topLevelExpression);
     this.topLevelContext = this.context;
   }
 

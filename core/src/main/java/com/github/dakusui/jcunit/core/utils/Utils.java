@@ -242,6 +242,14 @@ public enum Utils {
     return ret;
   }
 
+  public static <T> List<T> toList(LinkedHashSet<T> set) {
+    return new LinkedList<T>(set);
+  }
+
+  public static <T> LinkedHashSet<T> toLinkedHashSet(List<T> list) {
+    return new LinkedHashSet<T>(list);
+  }
+
   public interface Form<I, O> {
     O apply(I in);
   }

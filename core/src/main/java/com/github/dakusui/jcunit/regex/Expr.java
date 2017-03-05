@@ -2,16 +2,12 @@ package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.utils.Utils.Form;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 public interface Expr {
   void accept(Visitor visitor);
@@ -32,11 +28,32 @@ public interface Expr {
     private final String id;
 
     Base(AtomicInteger counter) {
-      this.id = format("%s-%d", this.getClass().getSimpleName().toLowerCase(), counter.getAndIncrement());
+      this.id = composeId(counter);
+    }
+
+    String composeId(AtomicInteger counter) {
+      return format("%s-%d", composeName(), counter.getAndIncrement());
+    }
+
+    String composeName() {
+      return this.getClass().getSimpleName().toLowerCase();
     }
 
     public String id() {
       return id;
+    }
+  }
+
+  class Empty extends Base implements Expr {
+    static Empty INSTANCE = new Empty(new AtomicInteger(0));
+
+    Empty(AtomicInteger counter) {
+      super(counter);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
     }
   }
 
@@ -82,10 +99,11 @@ public interface Expr {
     }
   }
 
-  class Rep extends Cat {
-    static final Cat EMPTY = new Cat(new AtomicInteger(0), Collections.<Expr>emptyList());
-    final private int max;
-    final private int min;
+
+  class Rep extends Alt {
+    private static final Expr EMPTY = Empty.INSTANCE;
+    private final int min;
+    private final int max;
 
     Rep(AtomicInteger counter, Expr child, int min, int max) {
       super(counter, createChildren(counter, child, min, max));
@@ -93,28 +111,36 @@ public interface Expr {
       this.max = max;
     }
 
+    public String name() {
+      return format("%s{%s,%s}", super.name(), this.min, this.max);
+    }
+
     @Override
     public String toString() {
-      return format("%s(%s,%s)", super.toString(), this.min, this.max);
+      return name();
     }
 
     private static List<Expr> createChildren(AtomicInteger counter, Expr child, int min, int max) {
-      checknotnull(child);
-      checkcond(min <= max);
       List<Expr> ret = new LinkedList<Expr>();
-      for (int i = 0; i < min; i++) {
-        ret.add(cloneIfAlt(counter, child));
+      for (int i = min; i <= max; i++) {
+        if (i == 0) {
+          ret.add(EMPTY);
+        } else {
+          List<Expr> work = new LinkedList<Expr>();
+          for (int j = 0; j < min; j++) {
+            work.add(child);
+          }
+          for (int j = min; j < i; j++) {
+            work.add(cloneIfAlt(counter, child));
+          }
+          ret.add(
+              work.size() == 1 ?
+                  work.get(0) :
+                  new Cat(counter, work)
+          );
+        }
       }
-      repeat(counter, ret, child, max - min);
       return ret;
-    }
-
-    private static Expr repeat(AtomicInteger counter, List<Expr> exprs, Expr expr, int times) {
-      if (times == 0) {
-        return EMPTY;
-      }
-      exprs.add(new Alt(counter, asList(cloneIfAlt(counter, expr), repeat(counter, exprs, expr, times - 1))));
-      return exprs.get(exprs.size() - 1);
     }
 
     private static Expr cloneIfAlt(final AtomicInteger counter, Expr cur) {
@@ -157,6 +183,8 @@ public interface Expr {
     void visit(Cat exp);
 
     void visit(Leaf leaf);
+
+    void visit(Empty empty);
   }
 
   class Factory {

@@ -23,11 +23,16 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
       return "(VOID)";
     }
   };
+  /**
+   * A mapping from factor names to terms held by composite (alt/cat) expressions.
+   */
   public final    Map<String, List<Value>> terms;
   protected final String                   prefix;
   protected       Context                  context;
+  private final   Expr                     topLevelExpression;
 
-  public RegexToFactorListTranslator(String prefix) {
+  public RegexToFactorListTranslator(String prefix, Expr topLevelExpression) {
+    this.topLevelExpression = topLevelExpression;
     this.terms = new LinkedHashMap<String, List<Value>>();
     this.prefix = prefix;
     this.context = new Context.Impl(this.prefix, null);
@@ -65,19 +70,33 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     this.context.add(leaf);
   }
 
+  @Override
+  public void visit(Expr.Empty empty) {
+    this.context.add(empty);
+  }
+
   public Factors buildFactors() {
+    this.topLevelExpression.accept(this);
     final Factors.Builder builder = new Factors.Builder();
     for (String eachKey : this.terms.keySet()) {
-//      if (isAlt(eachKey)) {
-        Factor.Builder b = new Factor.Builder(eachKey);
+      Factor.Builder b = new Factor.Builder(eachKey);
+      if (isReferencedByAltDirectlyOrIndirectly/*ByAlt*/(eachKey)) {
+        b.addLevel(VOID);
+      }
+      if (isAlt(eachKey)) {
         for (Value eachValue : this.terms.get(eachKey)) {
-          b.addLevel(this.resolve(new LinkedList<Object>(), eachValue));
+          b.addLevel(this.resolve(eachValue));
         }
-        if (isReferenced(eachKey)) {
-          b.addLevel(VOID);
+      } else /* if (isCat(eachKey)) */ {
+        List<Object> work = new LinkedList<Object>();
+        for (Value eachValue : this.terms.get(eachKey)) {
+          work.addAll(this.resolve(eachValue));
         }
+        b.addLevel(work);
+      }
+      if (b.size() > 1 || (b.size() == 1 && composeKey(this.prefix, this.topLevelExpression.id()).equals(eachKey))) {
         builder.add(b.build());
-//      }
+      }
     }
     return builder.build();
   }
@@ -149,10 +168,11 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   }
 
   private boolean isAlt(String key) {
-    return key.startsWith("REGEX:" + this.prefix + ":alt-");
+    return key.startsWith("REGEX:" + this.prefix + ":alt-") ||
+        key.startsWith("REGEX:" + this.prefix + ":rep-");
   }
 
-  private boolean isReferenced(final String key) {
+  private boolean isReferencedByAltDirectlyOrIndirectly(final String key) {
     for (Map.Entry<String, List<Value>> each : this.terms.entrySet()) {
       if (isAlt(each.getKey())) {
         if (!filter(each.getValue(), new Utils.Predicate<Value>() {
@@ -166,6 +186,10 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
       }
     }
     return false;
+  }
+
+  private List<Object> resolve(Value value) {
+    return resolve(new LinkedList<Object>(), value);
   }
 
   private List<Object> resolve(List<Object> values, Value value) {
@@ -185,8 +209,7 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
   }
 
   private boolean isCat(String key) {
-    return key.startsWith("REGEX:" + this.prefix + ":cat-") ||
-        key.startsWith("REGEX:" + this.prefix + ":rep-");
+    return key.startsWith("REGEX:" + this.prefix + ":cat-");
   }
 
   interface Context {
