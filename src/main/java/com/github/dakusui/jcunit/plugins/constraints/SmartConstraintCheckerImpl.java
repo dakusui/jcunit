@@ -14,6 +14,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checksymbols;
@@ -34,7 +35,7 @@ public class SmartConstraintCheckerImpl extends SmartConstraintChecker {
     }), new Utils.Form<FrameworkMethod, Constraint>() {
       @Override
       public Constraint apply(final FrameworkMethod in) {
-        Uses ann =  in.getAnnotation(Uses.class);
+        Uses ann = in.getAnnotation(Uses.class);
         final Uses uses = ann != null
             ? ann
             : DefaultInstance.USES;
@@ -78,5 +79,16 @@ public class SmartConstraintCheckerImpl extends SmartConstraintChecker {
   @Override
   public ConstraintChecker getFreshObject() {
     return new SmartConstraintCheckerImpl(this.testClass, this.factors);
+  }
+
+  public static class NoNegativeTests extends SmartConstraintCheckerImpl {
+    public NoNegativeTests(@Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.TEST_CLASS) Class<?> testClass, @Param(source = Param.Source.CONTEXT, contextKey = RunnerContext.Key.FACTORS) Factors factors) {
+      super(testClass, factors);
+    }
+
+    @Override
+    public List<Tuple> getViolations(Tuple regularTestCase) {
+      return Collections.emptyList();
+    }
   }
 }

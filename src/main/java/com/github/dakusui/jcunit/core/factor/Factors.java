@@ -207,5 +207,9 @@ public class Factors implements Iterable<Factor> {
     public Factors build() {
       return new Factors(this.factors);
     }
+
+    public boolean isEmpty() {
+      return this.factors.isEmpty();
+    }
   }
 }

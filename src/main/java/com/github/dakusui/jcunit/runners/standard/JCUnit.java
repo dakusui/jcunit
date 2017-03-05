@@ -38,6 +38,7 @@ import java.util.*;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.utils.Utils.transform;
+import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.unique;
 
 public class JCUnit extends Parameterized {
   private final List<Runner> runners;
@@ -406,7 +407,7 @@ public class JCUnit extends Parameterized {
       id = ca.size();
       ////
       // Compose a list of 'negative test cases' and register them.
-      final List<Tuple> violations = constraintChecker.getViolations(regularTestCase);
+      final List<Tuple> violations = unique(constraintChecker.getViolations(regularTestCase));
       id = registerTestCases(
           config,
           testCases,

@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.exceptions.UndefinedSymbol;
 import com.github.dakusui.jcunit.plugins.constraints.Constraint;
-import com.github.dakusui.jcunit.runners.standard.TestCaseUtils;
 
 import java.util.*;
 
@@ -16,6 +15,8 @@ import static com.github.dakusui.jcunit.core.tuples.TupleUtils.sortStably;
 import static com.github.dakusui.jcunit.core.utils.Checks.wraptesterror;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static com.github.dakusui.jcunit.core.utils.Utils.transform;
+import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.optimize;
+import static com.github.dakusui.jcunit.runners.standard.TestCaseUtils.unique;
 
 class GroupedFactor extends Factor {
   private final List<Factor> subfactors;
@@ -23,7 +24,7 @@ class GroupedFactor extends Factor {
   GroupedFactor(List<Factor> subfactors, List<Constraint> constraints, int strength) {
     super(
         composeFactorName(subfactors),
-        sortStably(TestCaseUtils.optimize(composeLevels(subfactors, constraints), strength), subfactors));
+        sortStably(optimize(unique(composeLevels(subfactors, constraints)), strength), subfactors));
     this.subfactors = Collections.unmodifiableList(subfactors);
   }
 

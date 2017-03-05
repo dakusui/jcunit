@@ -4,9 +4,7 @@ import com.github.dakusui.jcunit.core.utils.BaseBuilder;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
   Tuple cloneTuple();
@@ -72,6 +70,7 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       }
       return true;
     }
+
   }
 
   class Impl extends LinkedHashMap<String, Object> implements Tuple {

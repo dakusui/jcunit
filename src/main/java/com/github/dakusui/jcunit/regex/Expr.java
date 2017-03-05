@@ -2,16 +2,12 @@ package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.utils.Utils.Form;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 
 public interface Expr {
   void accept(Visitor visitor);
@@ -29,11 +25,18 @@ public interface Expr {
   }
 
   abstract class Base implements Expr {
-    private static final AtomicInteger counter = new AtomicInteger(0);
     private final String id;
 
-    Base() {
-      this.id = format("%s-%d", this.getClass().getSimpleName().toLowerCase(), counter.getAndIncrement());
+    Base(AtomicInteger counter) {
+      this.id = composeId(counter);
+    }
+
+    String composeId(AtomicInteger counter) {
+      return format("%s-%d", composeName(), counter.getAndIncrement());
+    }
+
+    String composeName() {
+      return this.getClass().getSimpleName().toLowerCase();
     }
 
     public String id() {
@@ -41,10 +44,24 @@ public interface Expr {
     }
   }
 
+  class Empty extends Base implements Expr {
+    static Empty INSTANCE = new Empty(new AtomicInteger(0));
+
+    Empty(AtomicInteger counter) {
+      super(counter);
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
+
   class Leaf extends Base implements Expr {
     private final Object value;
 
-    Leaf(Object value) {
+    Leaf(AtomicInteger counter, Object value) {
+      super(counter);
       this.value = value;
     }
 
@@ -63,8 +80,8 @@ public interface Expr {
   }
 
   class Cat extends Composite implements Expr {
-    Cat(List<Expr> children) {
-      super(children);
+    Cat(AtomicInteger counter, List<Expr> children) {
+      super(counter, children);
     }
 
     public void accept(Visitor visitor) {
@@ -73,8 +90,8 @@ public interface Expr {
   }
 
   class Alt extends Composite implements Expr {
-    Alt(List<Expr> children) {
-      super(children);
+    Alt(AtomicInteger counter, List<Expr> children) {
+      super(counter, children);
     }
 
     public void accept(Visitor visitor) {
@@ -82,38 +99,56 @@ public interface Expr {
     }
   }
 
-  class Rep extends Cat {
-    static final Cat EMPTY = new Cat(Collections.<Expr>emptyList());
 
-    Rep(Expr child, int min, int max) {
-      super(createChildren(child, min, max));
+  class Rep extends Alt {
+    private static final Expr EMPTY = Empty.INSTANCE;
+    private final int min;
+    private final int max;
+
+    Rep(AtomicInteger counter, Expr child, int min, int max) {
+      super(counter, createChildren(counter, child, min, max));
+      this.min = min;
+      this.max = max;
     }
 
-    private static List<Expr> createChildren(Expr child, int min, int max) {
-      checknotnull(child);
-      checkcond(min <= max);
+    public String name() {
+      return format("%s{%s,%s}", super.name(), this.min, this.max);
+    }
+
+    @Override
+    public String toString() {
+      return name();
+    }
+
+    private static List<Expr> createChildren(AtomicInteger counter, Expr child, int min, int max) {
       List<Expr> ret = new LinkedList<Expr>();
-      for (int i = 0; i < min; i++) {
-        ret.add(cloneIfAlt(child));
+      for (int i = min; i <= max; i++) {
+        if (i == 0) {
+          ret.add(EMPTY);
+        } else {
+          List<Expr> work = new LinkedList<Expr>();
+          for (int j = 0; j < min; j++) {
+            work.add(child);
+          }
+          for (int j = min; j < i; j++) {
+            work.add(cloneIfAlt(counter, child));
+          }
+          ret.add(
+              work.size() == 1 ?
+                  work.get(0) :
+                  new Cat(counter, work)
+          );
+        }
       }
-      repeat(ret, child, max - min);
       return ret;
     }
 
-    private static Expr repeat(List<Expr> exprs, Expr expr, int times) {
-      if (times == 0) {
-        return EMPTY;
-      }
-      exprs.add(new Alt(asList(cloneIfAlt(expr), repeat(exprs, expr, times - 1))));
-      return exprs.get(exprs.size() - 1);
-    }
-
-    private static Expr cloneIfAlt(Expr cur) {
+    private static Expr cloneIfAlt(final AtomicInteger counter, Expr cur) {
       if (cur instanceof Alt) {
-        return new Alt(transform(((Alt) cur).getChildren(), new Form<Expr, Expr>() {
+        return new Alt(counter, transform(((Alt) cur).getChildren(), new Form<Expr, Expr>() {
           @Override
           public Expr apply(Expr in) {
-            return cloneIfAlt(in);
+            return cloneIfAlt(counter, in);
           }
         }));
       }
@@ -124,16 +159,21 @@ public interface Expr {
   abstract class Composite extends Base implements Expr {
     private final List<Expr> children;
 
-    Composite(List<Expr> children) {
+    Composite(AtomicInteger counter, List<Expr> children) {
+      super(counter);
       this.children = children;
     }
 
-    List<Expr> getChildren() {
+    public List<Expr> getChildren() {
       return this.children;
     }
 
     public String toString() {
-      return format("%s:%s", this.getClass().getSimpleName().toLowerCase(), this.getChildren());
+      return format("%s:%s", name(), this.getChildren());
+    }
+
+    public String name() {
+      return this.getClass().getSimpleName().toLowerCase();
     }
   }
 
@@ -143,35 +183,45 @@ public interface Expr {
     void visit(Cat exp);
 
     void visit(Leaf leaf);
+
+    void visit(Empty empty);
   }
 
-  enum Factory {
-    ;
+  class Factory {
+    private final AtomicInteger counter;
 
-    public static Expr cat(Object... exps) {
-      return new Cat(transform(asList(exps), new Form<Object, Expr>() {
+    public Factory() {
+      this.counter = new AtomicInteger(1);
+    }
+
+    public Expr leaf(Object value) {
+      return new Leaf(counter, value);
+    }
+
+    public Expr cat(List exps) {
+      return new Cat(this.counter, transform(exps, new Form<Object, Expr>() {
         public Expr apply(Object in) {
           if (in instanceof Expr) {
             return (Expr) in;
           }
-          return new Leaf(in);
+          return new Leaf(counter, in);
         }
       }));
     }
 
-    public static Expr alt(Object... exps) {
-      return new Alt(transform(asList(exps), new Form<Object, Expr>() {
+    public Expr alt(List exps) {
+      return new Alt(counter, transform(exps, new Form<Object, Expr>() {
         public Expr apply(Object in) {
           if (in instanceof Expr) {
             return (Expr) in;
           }
-          return new Leaf(in);
+          return new Leaf(counter, in);
         }
       }));
     }
 
-    public static Expr rep(Object exp, int min, int max) {
-      return new Rep(exp instanceof Expr ? (Expr) exp : new Leaf(exp), min, max);
+    public Expr rep(Object exp, int min, int max) {
+      return new Rep(counter, exp instanceof Expr ? (Expr) exp : new Leaf(counter, exp), min, max);
     }
   }
 }

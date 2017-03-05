@@ -21,7 +21,6 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static sun.security.krb5.internal.Krb5.DEBUG;
 
 public class IpoGcTest {
   @Test
@@ -156,8 +155,6 @@ public class IpoGcTest {
     Factors factors;
     int strength = 2;
     List<Tuple> generated = new IpoGc(strength, constraintChecker(constraints), factors = createFactors(3, 4, 1, 24)).ipo().getGeneratedTuples();
-
-    printFactors(factors);
     assertNoViolations(constraints, generated);
     assertNoMissingTuples(factors, strength, constraints, generated);
     assertEquals(110, generated.size());
@@ -267,14 +264,6 @@ public class IpoGcTest {
         }).isEmpty();
       }
     });
-  }
-
-  private void printFactors(Factors factors) {
-    if (DEBUG) {
-      for (Factor each : factors) {
-        System.out.println(each.name + ":" + each.levels);
-      }
-    }
   }
 
   private Constraint not(final Constraint constraint) {

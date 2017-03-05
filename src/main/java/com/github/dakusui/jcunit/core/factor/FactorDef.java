@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.core.factor;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Utils;
+import com.github.dakusui.jcunit.exceptions.JCUnitException;
 import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit.plugins.constraints.ConstraintChecker;
@@ -13,8 +14,7 @@ import com.github.dakusui.jcunit.regex.RegexToFactorListTranslator;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static com.github.dakusui.jcunit.core.utils.Checks.*;
 
 public abstract class FactorDef {
   /**
@@ -23,7 +23,9 @@ public abstract class FactorDef {
    */
   public final String name;
 
-  public FactorDef(String name) {
+
+  @SuppressWarnings("WeakerAccess")
+  protected FactorDef(String name) {
     this.name = checknotnull(name);
   }
 
@@ -215,11 +217,14 @@ public abstract class FactorDef {
 
     public Regex(String name, String sequence) {
       super(name);
-      RegexToFactorListTranslator builder = new RegexToFactorListTranslator(this.name);
-      this.expr = Parser.parse(sequence);
-      this.expr.accept(builder);
-      this.factors = builder.buildFactors();
-      this.constraints = builder.buildConstraints(this.factors.asFactorList());
+      try {
+        RegexToFactorListTranslator builder = new RegexToFactorListTranslator(this.name, this.expr = new Parser().parse(sequence));
+        this.expr.accept(builder);
+        this.factors = builder.buildFactors();
+        this.constraints = builder.buildConstraints(this.factors.asFactorList());
+      } catch (JCUnitException e) {
+        throw wrap(e, "Failed to parse sequence '%s' used in factor '%s'", sequence, name);
+      }
     }
 
     @Override

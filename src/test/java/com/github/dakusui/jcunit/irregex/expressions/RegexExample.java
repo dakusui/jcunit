@@ -1,37 +1,44 @@
 package com.github.dakusui.jcunit.irregex.expressions;
 
+import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit.plugins.caengines.IpoGcCoveringArrayEngine;
+import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintCheckerImpl;
 import com.github.dakusui.jcunit.regex.RegexLevelsProvider;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.runners.standard.annotations.Value;
+import com.github.dakusui.jcunit.runners.standard.annotations.*;
+import com.github.dakusui.jcunit.runners.standard.rules.TestDescription;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static java.lang.String.format;
-
 @RunWith(JCUnit.class)
+@GenerateCoveringArrayWith(
+    engine = @Generator(value = IpoGcCoveringArrayEngine.class),
+    checker = @Checker(value = SmartConstraintCheckerImpl.NoNegativeTests.class)
+)
 public class RegexExample {
-  public static final int runCount     = 22;
+
+  public static final int runCount     = 7;
   public static final int failureCount = 0;
   public static final int ignoreCount  = 0;
 
-  @FactorField(levelsProvider = RegexLevelsProvider.class, args = {
-      @Value({ "(Hello|hello)world everyone{0,1}(A|B|C)" })
-  })
+  @Rule
+  public TestDescription testDescription = new TestDescription();
+
+  private static final String INPUT = "(git)(" +
+      "((clone)(URL)(DIRNAME){0,1})" +
+      "|" + "pull" +
+      "|" + "((push)(origin)(BRANCH{0,1}COLON_BRANCH{0,1}))" +
+      ")";
+
+  @SuppressWarnings("WeakerAccess")
+  @FactorField(levelsProvider = RegexLevelsProvider.class, args = { @Value(INPUT) })
   public List<String> regex;
 
-  @FactorField
-  public int i;
-
-
   @Test
-  public void test() {
-    System.out.println(this.toString());
-  }
-
-  public String toString() {
-    return format("i=%s; regex=%s", i, regex);
+  public void print() {
+    System.out.println(testDescription.getTestCase().getCategory() + ":" + StringUtils.join(" ", this.regex));
   }
 }
