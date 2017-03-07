@@ -1,0 +1,11 @@
+target/
+/.jcunit
+/.settings
+/.project
+/.classpath
+/.djunitplugin
+/jcoverage.ser
+/.idea
+/*.iml
+.DS_Store
+*~
