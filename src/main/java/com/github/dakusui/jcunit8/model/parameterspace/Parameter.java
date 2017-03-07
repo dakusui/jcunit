@@ -13,10 +13,12 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-public interface Parameter<T> {
+public interface Parameter<T, D> {
   String getName();
 
   List<Factor> getFactors();
+
+  List<Argument<T, D>> getArguments();
 
   List<Constraint.ForTuple> getConstraints();
 
@@ -24,7 +26,7 @@ public interface Parameter<T> {
 
   Factor toFactor(List<Tuple> tuples);
 
-  abstract class Base<T> implements Parameter<T> {
+  abstract class Base<T, D> implements Parameter<T, D> {
     private final String name;
 
     Base(String name) {
@@ -71,26 +73,31 @@ public interface Parameter<T> {
     abstract T composeValueFrom(Tuple tuple);
   }
 
-  interface Simple<T> extends Parameter<T> {
-    abstract class Impl<T> extends Base<T> implements Simple<T> {
+  interface Simple<T, D> extends Parameter<T, D> {
+    abstract class Impl<T, D> extends Base<T, D> implements Simple<T, D> {
       Impl(String name) {
         super(name);
       }
     }
 
-    static <T> Simple<T> create(String name, Object... args) {
+    static <U, E> Simple<U, E> create(String name, Object... args) {
       Factor factor = Utils.createFactor(name, args);
 
-      return new Impl<T>(name) {
+      return new Impl<U, E>(name) {
         @Override
-        T composeValueFrom(Tuple tuple) {
+        U composeValueFrom(Tuple tuple) {
           //noinspection unchecked
-          return (T) tuple.get(name);
+          return (U) tuple.get(name);
         }
 
         @Override
         public List<Factor> getFactors() {
           return singletonList(factor);
+        }
+
+        @Override
+        public List<Argument<U, E>> getArguments() {
+          return null;
         }
 
         @Override
@@ -105,6 +112,6 @@ public interface Parameter<T> {
   interface Fsm extends Parameter {
   }
 
-  interface Regex<T> extends Parameter<List<T>> {
+  interface Regex<T, D> extends Parameter<List<T>, D> {
   }
 }
