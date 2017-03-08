@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.VOID;
+import static java.util.Arrays.asList;
 
 public class Composer {
   private final String prefix;
@@ -20,10 +22,26 @@ public class Composer {
     this.exprs = createMap(this.topLevel);
   }
 
-  public List<Object> compose(Tuple tuple) {
+  public List<String> compose(Tuple tuple) {
     ComposerVisitor visitor = new ComposerVisitor(tuple, this.exprs);
     this.topLevel.accept(visitor);
-    return visitor.out;
+    return splitOnWhiteSpaces(visitor.out);
+  }
+
+
+  private List<String> splitOnWhiteSpaces(List<Object> in) {
+    List<String> ret = new LinkedList<>();
+    for (Object each : in) {
+      Checks.checkcond(each instanceof String);
+      //noinspection ConstantConditions
+      String eachString = (String) each;
+      if (!eachString.contains(" ")) {
+        ret.add(eachString);
+      } else {
+        ret.addAll(asList(eachString.split(" +")));
+      }
+    }
+    return ret;
   }
 
   private Map<String, Expr> createMap(Expr top) {

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public interface ParameterSpace<T> {
   List<String> getParameterNames();
 
-  <P> Parameter<P> getParameter(String name);
+  <P, D> Parameter<P, D> getParameter(String name);
 
   List<Constraint<T>> getConstraints();
 
@@ -46,12 +46,12 @@ public interface ParameterSpace<T> {
         }
 
         @Override
-        public <P> Parameter<P> getParameter(String name) {
+        public <P, D> Parameter<P, D> getParameter(String name) {
           //noinspection unchecked,OptionalGetWithoutIsPresent
-          return (Parameter<P>) (parameters
+          return (Parameter<P, D>) (parameters
               .stream()
               .filter(parameter -> parameter.getName().equals(name))
-              .findFirst().<Parameter<P>>get());
+              .findFirst().<Parameter<P, D>>get());
         }
 
         @Override
