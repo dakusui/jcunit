@@ -226,22 +226,6 @@ public enum Utils {
     return newList(Collections.<T>emptyList());
   }
 
-  public static <T> Set<T> overlap(Set<T> setA, Set<T> setB) {
-    Set<T> ret;
-    if (setB.size() < setA.size()) {
-      ret = setA;
-      setA = setB;
-      setB = ret;
-    }
-    ret = new HashSet<T>();
-    for (T each : setA) {
-      if (setB.contains(each)) {
-        ret.add(each);
-      }
-    }
-    return ret;
-  }
-
   public static <T> List<T> toList(LinkedHashSet<T> set) {
     return new LinkedList<T>(set);
   }

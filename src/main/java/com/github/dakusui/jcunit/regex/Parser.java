@@ -3,7 +3,10 @@ package com.github.dakusui.jcunit.regex;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,12 +15,20 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit.regex.Parser.Type.ALT;
 import static com.github.dakusui.jcunit.regex.Parser.Type.CAT;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 public class Parser {
   private static final Pattern QUANTIFIER_PATTERN = Pattern.compile("^\\{([0-9]+),([0-9]+)}");
-  //public static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_][A-Za-z_0-9]*");
-  //  public static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_ ][A-Za-z_0-9 ]*");
-  private static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_][A-Za-z_0-9]*");
+  /*
+   * We can implement the same mechanism by considering a white space a 'concatenation operator',
+   * but it increases number of factors and constraints generated. And it results
+   * in poorer performance.
+   * Instead, treat white spaces within a word just as part of the word, and after reverse
+   * regex generation finishes, JCUnit will split into pieces.
+   *
+   * See Composer, too.
+   */
+  private static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_]([A-Za-z_0-9 ]*[A-Za-z_0-9])?");
   private final Expr.Factory exprFactory;
 
   public Parser() {
@@ -187,7 +198,7 @@ public class Parser {
       if (topLevel && input.hasNext()) {
         throw syntaxError(input.next(), work);
       }
-      if (!Arrays.asList(PreprocessingState.I_T, PreprocessingState.T, PreprocessingState.ALT_T, PreprocessingState.CAT_T).contains(state)) {
+      if (!asList(PreprocessingState.I_T, PreprocessingState.T, PreprocessingState.ALT_T, PreprocessingState.CAT_T).contains(state)) {
         throw inputShouldNotEndHere(state);
       }
     } finally {

@@ -72,7 +72,8 @@ public class ParserTest {
       /*25*/ "((A{0,1})|B|(C{0,1}));,,A,B,C;(*(+(*A{0,1})B(*C{0,1})))", // limitation; where multiple component can result in the same result can produce the same test cases.
       /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))", // limitation. see above
       /*27*/ "A|B|C;A,B,C;(+ABC)",
-      /*28*/ "(A)|(B)|(C);A,B,C;(+(*A)(*B)(*C))"
+      /*28*/ "(A)|(B)|(C);A,B,C;(+(*A)(*B)(*C))",
+      /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*git clone  URL(*dir){0,1})"
   })
   public String _input;
 
@@ -142,12 +143,6 @@ public class ParserTest {
     for (Factor each : factorSpace.factors) {
       System.out.println(each.name + ":" + each.levels);
     }
-/*
-    for (Constraint each : factorSpace.constraintChecker.getConstraints()) {
-      System.out.println(each);
-      System.out.println("  " + each.getFactorNamesInUse());
-    }
-    */
   }
 
   private RegexTestSuiteBuilder getRegexTestSuiteBuilder() {

@@ -253,7 +253,7 @@ public class ExprTest {
     }
   }
 
-  private List<Object> compose(Map<String, List<Value>> terms, Expr expr, TestCase each) {
+  private List<String> compose(Map<String, List<Value>> terms, Expr expr, TestCase each) {
     return new Composer("aPrefix", expr).compose(each.getTuple());
     /*
     List<Object> out;
