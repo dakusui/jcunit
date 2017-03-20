@@ -1,7 +1,6 @@
-package com.github.dakusui.jcunit8.model.parameterspace;
+package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.model.factorspace.Constraint;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -9,18 +8,17 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public interface ParameterSpace<T> {
+public interface ParameterSpace {
   List<String> getParameterNames();
 
-  <P, D> Parameter<P, D> getParameter(String name);
+  <P> Parameter<P> getParameter(String name);
 
-  List<Constraint<T>> getConstraints();
+  List<Constraint> getConstraints();
 
-  T createObject(Tuple tuple);
 
   class Builder<T> {
-    List<Parameter>     parameters  = new LinkedList<>();
-    List<Constraint<T>> constraints = new LinkedList<>();
+    List<Parameter>  parameters  = new LinkedList<>();
+    List<Constraint> constraints = new LinkedList<>();
     private Function<Tuple, T> objectFactory;
 
     public Builder addParameter(Parameter parameter) {
@@ -28,7 +26,7 @@ public interface ParameterSpace<T> {
       return this;
     }
 
-    public Builder addConstraint(Constraint<T> constraint) {
+    public Builder addConstraint(Constraint constraint) {
       this.constraints.add(constraint);
       return this;
     }
@@ -38,30 +36,25 @@ public interface ParameterSpace<T> {
       return this;
     }
 
-    public ParameterSpace<T> build() {
-      return new ParameterSpace<T>() {
+    public ParameterSpace build() {
+      return new ParameterSpace() {
         @Override
         public List<String> getParameterNames() {
           return parameters.stream().map(Parameter::getName).collect(Collectors.toList());
         }
 
         @Override
-        public <P, D> Parameter<P, D> getParameter(String name) {
+        public <P> Parameter<P> getParameter(String name) {
           //noinspection unchecked,OptionalGetWithoutIsPresent
-          return (Parameter<P, D>) (parameters
+          return (Parameter<P>) (parameters
               .stream()
               .filter(parameter -> parameter.getName().equals(name))
-              .findFirst().<Parameter<P, D>>get());
+              .findFirst().<Parameter<P>>get());
         }
 
         @Override
-        public List<Constraint<T>> getConstraints() {
+        public List<Constraint> getConstraints() {
           return Collections.unmodifiableList(constraints);
-        }
-
-        @Override
-        public T createObject(Tuple tuple) {
-          return objectFactory.apply(tuple);
         }
       };
     }

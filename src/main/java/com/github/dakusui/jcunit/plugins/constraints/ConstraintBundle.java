@@ -29,7 +29,7 @@ public interface ConstraintBundle {
   List<Constraint> getConstraints();
 
   /**
-   * Checks if {@code getConstraints()} method is allowed or not.
+   * Checks if {@code generateConstraints()} method is allowed or not.
    */
   boolean allowsDecomposition();
 

@@ -97,7 +97,7 @@ public class FactorSpace {
           List<Constraint> ret = new LinkedList<Constraint>(topLevelConstraintChecker.getConstraints());
           for (ConstraintChecker each : constraintCheckers) {
             ////
-            // If any of underlying constraint checkers doesn't support getConstraints,
+            // If any of underlying constraint checkers doesn't support generateConstraints,
             // this object doesn't support it, too.
             ret.addAll(each.getConstraints());
           }

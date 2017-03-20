@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.model.testsuite;
+package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
