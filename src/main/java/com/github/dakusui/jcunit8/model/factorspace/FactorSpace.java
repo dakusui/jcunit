@@ -7,9 +7,7 @@ public interface FactorSpace {
 
   List<Constraint.ForTuple> getConstraints();
 
-  Characteristics getCharacteristics();
-
-  static FactorSpace merge(List<FactorSpace> factorSpaces) {
+  static FactorSpace join(List<FactorSpace> factorSpaces) {
     // TODO
     return null;
   }
@@ -36,11 +34,6 @@ public interface FactorSpace {
       @Override
       public List<Constraint.ForTuple> getConstraints() {
         return constraints;
-      }
-
-      @Override
-      public Characteristics getCharacteristics() {
-        return null;
       }
     };
   }

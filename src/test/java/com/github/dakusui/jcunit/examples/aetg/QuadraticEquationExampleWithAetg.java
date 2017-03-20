@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 
 
 /**
- * This class is created from {@code com.github.dakusui.jcunit.examples.quadraticequation.session8.QuadraticEquationSolverTest8}.
+ * This class is created from {@code com.github.dakusui.jcunit.examples.quadraticequation.session8.QuadraticEquationSolverTestForIcst2017}.
  */
 @RunWith(JCUnit.class)
 @GenerateCoveringArrayWith(

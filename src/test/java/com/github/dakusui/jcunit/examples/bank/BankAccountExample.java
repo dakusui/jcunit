@@ -29,6 +29,14 @@ public class BankAccountExample {
   @SuppressWarnings("WeakerAccess")
   public int transferAmount;
 
+  /*
+   * open getBalance
+   * open deposit getBalance
+   * open withdraw getBalance
+   * open deposit withdrow getBalance
+   * open deposit transfer getBalance
+   * ...
+   */
   @SuppressWarnings("WeakerAccess")
   @FactorField(
       levelsProvider = RegexLevelsProvider.class,
@@ -44,6 +52,10 @@ public class BankAccountExample {
     return calculateExpectedBalance() < 0;
   }
 
+  @Test
+  public void print() {
+    System.out.println(operationSequence.toString() + "," + depositAmount + "," + withdrawAmount + ", " + "," + transferAmount);
+  }
   @Given("!overdraftHappens")
   @Test
   public void whenPerformScenario$thenBalanceIsCorrect() {
@@ -77,7 +89,7 @@ public class BankAccountExample {
     int ret = 0;
     for (String operation : operationSequence) {
       if ("open".equals(operation)) {
-        this.account = Account.open();
+      this.account = Account.open();
       } else if ("deposit".equals(operation)) {
         ret += this.depositAmount;
       } else if ("withdraw".equals(operation)) {
