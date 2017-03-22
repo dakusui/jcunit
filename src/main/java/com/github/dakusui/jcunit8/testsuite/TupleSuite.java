@@ -1,12 +1,46 @@
 package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit8.core.Utils;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.github.dakusui.jcunit8.exceptions.FrameworkException.checkStrengthIsInRange;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+
+/**
+ * A list of tuples all of whose entries have the same attribute names. An implementation
+ * of this interface must also guarantee that it doesn't have the same element.
+ */
 public interface TupleSuite extends List<Tuple> {
-  static TupleSuite fromTuples(List<Tuple> tuples) {
+  List<String> getAttributeNames();
+
+  /**
+   * Returns all t-way tuples in this {@code TupleSuite} where t is {@code strength}.
+   *
+   * @param strength Strength of t-way tuples to be returned.
+   */
+  TupleSet subtuplesOf(int strength);
+
+  TupleSuite project(List<String> keys);
+
+  static TupleSuite fromTuples(List<Tuple> tuples_) {
+    List<Tuple> tuples = unmodifiableList(Utils.unique(tuples_));
+    final List<String> attributeNames = tuples.isEmpty() ?
+        emptyList() :
+        unmodifiableList(new ArrayList<>(tuples.get(0).keySet()));
+    ////
+    // Make sure all the tuples in this suite object have the same set of attribute
+    // names.
+    tuples.forEach(tuple -> {
+      assert attributeNames.equals(new ArrayList<>(tuple.keySet()));
+    });
+
     class Impl extends AbstractList<Tuple> implements TupleSuite {
       @Override
       public Tuple get(int index) {
@@ -17,7 +51,28 @@ public interface TupleSuite extends List<Tuple> {
       public int size() {
         return tuples.size();
       }
+
+      @Override
+      public List<String> getAttributeNames() {
+        return attributeNames;
+      }
+
+      @Override
+      public TupleSet subtuplesOf(int strength) {
+        checkStrengthIsInRange(strength, attributeNames);
+        TupleSet.Builder builder = new TupleSet.Builder();
+        for (Tuple each : this) {
+          builder.addAll(TupleUtils.subtuplesOf(each, strength));
+        }
+        return builder.build();
+      }
+
+      @Override
+      public TupleSuite project(List<String> keys) {
+        return fromTuples(this.stream().map(tuple -> Utils.project(keys, tuple)).collect(Collectors.toList()));
+      }
     }
     return new Impl();
   }
+
 }

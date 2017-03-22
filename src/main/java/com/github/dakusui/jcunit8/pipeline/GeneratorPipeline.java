@@ -6,6 +6,8 @@ import com.github.dakusui.jcunit8.core.Requirement;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.pipeline.stage.Generator;
+import com.github.dakusui.jcunit8.pipeline.stage.Joiner;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import com.github.dakusui.jcunit8.testsuite.TupleSuite;
 
@@ -53,20 +55,25 @@ public interface GeneratorPipeline<T> {
   }
 
   class Builder<T> {
-    private final Generator.Factory  generatorFactory;
-    private final Function<Tuple, T> concretizer;
+    private final Generator.Factory                                                generatorFactory;
+    private final Function<Tuple, T>                                               concretizer;
+    private final Joiner                                                           joiner;
+    private final Function<List<FactorSpace.Internal>, List<FactorSpace.Internal>> partitioner;
 
     public static Builder<Tuple> createPassthroughBuilder(Generator.Factory generatorFactory) {
-      return new Builder<>(generatorFactory, tuple -> tuple);
+      return new Builder<>(generatorFactory, null, tuple -> tuple, null);
     }
 
-    public Builder(Generator.Factory generatorFactory, Function<Tuple, T> concretizer) {
+    public Builder(Generator.Factory generatorFactory, Joiner joiner, Function<Tuple, T> concretizer, Function<List<FactorSpace.Internal>, List<FactorSpace.Internal>> partitioner) {
       this.generatorFactory = requireNonNull(generatorFactory);
+      this.joiner = requireNonNull(joiner);
       this.concretizer = requireNonNull(concretizer);
+      this.partitioner = partitioner;
     }
 
     public GeneratorPipeline<T> build() {
       return new GeneratorPipeline.Base<T>() {
+
         @Override
         public Function<ParameterSpace, List<FactorSpace.Internal>> encoder() {
           return (ParameterSpace parameterSpace) -> parameterSpace.getParameterNames().stream()
@@ -77,7 +84,7 @@ public interface GeneratorPipeline<T> {
 
         @Override
         public Function<List<FactorSpace.Internal>, List<FactorSpace.Internal>> partitioner() {
-          return null;
+          return partitioner;
         }
 
         @Override
@@ -87,7 +94,7 @@ public interface GeneratorPipeline<T> {
 
         @Override
         public BinaryOperator<TupleSuite> joiner() {
-          return null;
+          return joiner;
         }
 
         @Override

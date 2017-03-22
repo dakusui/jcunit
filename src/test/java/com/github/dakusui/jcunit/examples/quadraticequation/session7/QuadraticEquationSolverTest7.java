@@ -42,7 +42,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
          * In this case, ".$QuadraticEquationConstraint" will be expanded into
          * "com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolverTest7$QuadraticEquationConstraint".
          *
-         * Note that a class name of an inner class is "Outer$Inner" in Java. Not "Outer.Inner"
+         * Note that a class name of an productOn class is "Outer$Inner" in Java. Not "Outer.Inner"
          *
          */
         args = { @Value(".$QuadraticEquationConstraint") }))
