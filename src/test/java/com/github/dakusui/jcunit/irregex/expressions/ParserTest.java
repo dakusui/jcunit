@@ -73,7 +73,7 @@ public class ParserTest {
       /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))", // limitation. see above
       /*27*/ "A|B|C;A,B,C;(+ABC)",
       /*28*/ "(A)|(B)|(C);A,B,C;(+(*A)(*B)(*C))",
-      /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*git clone URL(*dir){0,1})"
+      /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*git clone  URL(*dir){0,1})"
   })
   public String _input;
 
