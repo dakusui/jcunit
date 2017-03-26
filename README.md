@@ -1,21 +1,16 @@
 ![JCUnit](src/main/resources/JCunit-logo.png) is a framework to perform combinatorial tests using 'pairwise'(or more generally 't-wise') 
 technique.
 
-# About 0.7.x
+# About 0.8.x
 
-0.7.x of JCUnit is a development versions, where features in progress will be added
-or removed frequently.
-Once developments in 0.7.x finish, 0.8.0, the first one of the next stable versions, 
-will be released.
-
-Until then, please use [0.6.x](https://github.com/dakusui/jcunit/wiki/0.6.x), current
-stable versions, for normal purposes.
+I'm planning major chane in 0.8.x including move to Java 8, redesigning
+pipeline mechanism, etc., most of which are incompatible with older versions.
 
 [![Build Status](https://travis-ci.org/dakusui/jcunit.svg?branch=0.7.x-develop)](https://travis-ci.org/dakusui/jcunit)
 [![codecov.io](https://codecov.io/github/dakusui/jcunit/coverage.svg?branch=0.7.x-develop)](https://codecov.io/github/dakusui/jcunit?branch=0.7.x-develop)
 
 # Installation
-JCUnit requires Java SE6 or later.
+JCUnit(8) requires Java SE8 or later.
 It is tested using ```JUnit``` (4.12) and ```mockito-core``` (1.9.5).
 
 You will only need to link JCUnit to your project.
