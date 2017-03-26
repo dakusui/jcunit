@@ -1,11 +1,9 @@
 package com.github.dakusui.jcunit8.factorspace;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public interface ParameterSpace {
@@ -15,14 +13,17 @@ public interface ParameterSpace {
 
   List<Constraint> getConstraints();
 
-
-  class Builder<T> {
+  class Builder {
     List<Parameter>  parameters  = new LinkedList<>();
     List<Constraint> constraints = new LinkedList<>();
-    private Function<Tuple, T> objectFactory;
 
     public Builder addParameter(Parameter parameter) {
       this.parameters.add(parameter);
+      return this;
+    }
+
+    public Builder addAllParameters(Collection<? extends Parameter> parameters) {
+      parameters.forEach(Builder.this::addParameter);
       return this;
     }
 
@@ -31,8 +32,8 @@ public interface ParameterSpace {
       return this;
     }
 
-    public Builder setObjectFactory(Function<Tuple, T> objectFactory) {
-      this.objectFactory = objectFactory;
+    public Builder addAllConstraints(Collection<? extends Constraint> constraints) {
+      constraints.forEach(Builder.this::addConstraint);
       return this;
     }
 

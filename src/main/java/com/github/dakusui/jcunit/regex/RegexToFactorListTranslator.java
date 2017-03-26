@@ -5,78 +5,18 @@ import com.github.dakusui.jcunit.core.factor.Factors;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.framework.TestSuite;
-import com.github.dakusui.jcunit.regex.Expr.Leaf;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
 import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 
-public class RegexToFactorListTranslator implements Expr.Visitor {
-  protected static final Object VOID = new Object() {
-    @Override
-    public String toString() {
-      return "(VOID)";
-    }
-  };
-  /**
-   * A mapping from factor names to terms held by composite (alt/cat) expressions.
-   */
-  public final    Map<String, List<Value>> terms;
-  protected final String                   prefix;
-  protected       Context                  context;
-  private final   Expr                     topLevelExpression;
+public class RegexToFactorListTranslator extends RegexTranslator {
 
   public RegexToFactorListTranslator(String prefix, Expr topLevelExpression) {
-    this.topLevelExpression = topLevelExpression;
-    this.terms = new LinkedHashMap<String, List<Value>>();
-    this.prefix = prefix;
-    this.context = new Context.Impl(this.prefix, null);
-  }
-
-  @Override
-  public void visit(Expr.Alt expr) {
-    Context original = this.context;
-    original.add(expr);
-    this.context = createContext(expr.id());
-    try {
-      for (Expr each : expr.getChildren()) {
-        each.accept(this);
-      }
-    } finally {
-      this.terms.put(composeKey(this.prefix, this.context.name()), this.context.values());
-      this.context = original;
-    }
-  }
-
-  @Override
-  public void visit(Expr.Cat expr) {
-    Context original = this.context;
-    original.add(expr);
-    this.context = createContext(expr.id());
-    try {
-      for (Expr each : expr.getChildren()) {
-        each.accept(this);
-      }
-    } finally {
-      this.terms.put(composeKey(this.prefix, this.context.name()), this.context.values());
-      this.context = original;
-    }
-  }
-
-  @Override
-  public void visit(Leaf leaf) {
-    this.context.add(leaf);
-  }
-
-  @Override
-  public void visit(Expr.Empty empty) {
-    this.context.add(empty);
+    super(topLevelExpression, prefix);
   }
 
   public Factors buildFactors() {
@@ -106,10 +46,6 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
       }
     }
     return builder.build();
-  }
-
-  private boolean isTopLevel(String eachKey) {
-    return composeKey(this.prefix, this.topLevelExpression.id()).equals(eachKey);
   }
 
   public List<TestSuite.Predicate> buildConstraints(List<Factor> factors) {
@@ -169,112 +105,4 @@ public class RegexToFactorListTranslator implements Expr.Visitor {
     }
     return ret;
   }
-
-  static String composeKey(String prefix, String id) {
-    return format("REGEX:%s:%s", prefix, id);
-  }
-
-  private Context createContext(String factorName) {
-    return new Context.Impl(this.prefix, factorName);
-  }
-
-  private boolean isAlt(String key) {
-    return key.startsWith("REGEX:" + this.prefix + ":alt-") ||
-        key.startsWith("REGEX:" + this.prefix + ":rep-");
-  }
-
-  private boolean isReferencedByAltDirectlyOrIndirectly(final String key) {
-    for (Map.Entry<String, List<Value>> each : this.terms.entrySet()) {
-      if (isAlt(each.getKey())) {
-        if (!filter(each.getValue(), new Utils.Predicate<Value>() {
-          @Override
-          public boolean apply(Value in) {
-            return in instanceof Reference && ((Reference) in).key.equals(key);
-          }
-        }).isEmpty()) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  private List<Object> resolveIfImmediate(Value value) {
-    if (value instanceof Immediate)
-      return resolveImmediate(value);
-    return singletonList((Object) value);
-  }
-
-  private List<Object> resolve(Value value) {
-    return resolve(new LinkedList<Object>(), value);
-  }
-
-  private List<Object> resolveImmediate(Value value) {
-    return singletonList(((Immediate) value).value);
-  }
-
-  private List<Object> resolve(List<Object> values, Value value) {
-    if (value instanceof Immediate) {
-      values.add(resolveImmediate(value));
-    } else {
-      String key = ((Reference) value).key;
-      if (isCat(key)) {
-        for (Value each : this.terms.get(key)) {
-          resolve(values, each);
-        }
-      } else {
-        values.add(value);
-      }
-    }
-    return values;
-  }
-
-  private boolean isCat(String key) {
-    return key.startsWith("REGEX:" + this.prefix + ":cat-");
-  }
-
-  interface Context {
-    void add(Expr value);
-
-    List<Value> values();
-
-    String name();
-
-    class Impl implements Context {
-      final List<Value> seq;
-
-      final         String name;
-      private final String prefix;
-
-      Impl(String prefix, String name) {
-        this.prefix = prefix;
-        this.name = name;
-        this.seq = new LinkedList<Value>();
-      }
-
-      Value toValue(Expr expr) {
-        Value value;
-        if (expr instanceof Leaf) {
-          value = new Immediate(((Leaf) expr).value());
-        } else {
-          value = new Reference(composeKey(this.prefix, expr.id()));
-        }
-        return value;
-      }
-
-      @Override
-      public List<Value> values() {
-        return this.seq;
-      }
-
-      public String name() {
-        return this.name;
-      }
-
-      public void add(Expr expr) {
-        this.seq.add(toValue(expr));
-      }
-    }
-  }
-
 }

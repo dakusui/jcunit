@@ -77,7 +77,7 @@ public class Composer {
   }
 
   private String composeKey(Expr expr) {
-    return RegexToFactorListTranslator.composeKey(this.prefix, expr.id());
+    return RegexTranslator.composeKey(this.prefix, expr.id());
   }
 
   private class ComposerVisitor implements Expr.Visitor {

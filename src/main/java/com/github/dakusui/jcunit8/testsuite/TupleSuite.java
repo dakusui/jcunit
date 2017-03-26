@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.github.dakusui.jcunit8.exceptions.FrameworkException.checkStrengthIsInRange;
+import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStrengthIsInRange;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
@@ -59,7 +59,7 @@ public interface TupleSuite extends List<Tuple> {
 
       @Override
       public TupleSet subtuplesOf(int strength) {
-        checkStrengthIsInRange(strength, attributeNames);
+        checkIfStrengthIsInRange(strength, attributeNames);
         TupleSet.Builder builder = new TupleSet.Builder();
         for (Tuple each : this) {
           builder.addAll(TupleUtils.subtuplesOf(each, strength));

@@ -4,6 +4,26 @@ import java.util.List;
 import java.util.OptionalDouble;
 
 public interface FactorSpace {
+  static FactorSpace create(List<? extends Factor> factors, List<Constraint> constraints) {
+    return new FactorSpace() {
+      @Override
+      public List<Factor> getFactors() {
+        //noinspection unchecked
+        return (List<Factor>) factors;
+      }
+
+      @Override
+      public Characteristics getCharacteristics() {
+        return new Characteristics.Impl(factors, constraints);
+      }
+
+      @Override
+      public List<Constraint> getConstraints() {
+        return constraints;
+      }
+    };
+  }
+
   List<Constraint> getConstraints();
 
   List<Factor> getFactors();
@@ -25,10 +45,11 @@ public interface FactorSpace {
 
     class Impl implements Characteristics {
       private final List<Constraint>      constraints;
-      private final List<Factor.Internal> factors;
+      private final List<Factor> factors;
 
-      public Impl(List<Factor.Internal> factors, List<Constraint> constraints) {
-        this.factors = factors;
+      public Impl(List<? extends Factor> factors, List<Constraint> constraints) {
+        //noinspection unchecked
+        this.factors = (List<Factor>) factors;
         this.constraints = constraints;
       }
 
@@ -53,36 +74,6 @@ public interface FactorSpace {
             Double.NaN;
       }
 
-    }
-  }
-
-  interface Internal extends FactorSpace {
-    List<Factor> getFactors();
-
-    List<Constraint> getConstraints();
-
-    static Internal merge(List<Internal> internalFactorSpaces) {
-      // TODO
-      return null;
-    }
-
-    static FactorSpace.Internal create(List<Factor> factors, List<Constraint> constraints) {
-      return new Internal() {
-        @Override
-        public List<Factor> getFactors() {
-          return factors;
-        }
-
-        @Override
-        public Characteristics getCharacteristics() {
-          return null;
-        }
-
-        @Override
-        public List<Constraint> getConstraints() {
-          return constraints;
-        }
-      };
     }
   }
 }

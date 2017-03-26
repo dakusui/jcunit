@@ -1,8 +1,8 @@
-package com.github.dakusui.jcunit8.pipeline.stage;
+package com.github.dakusui.jcunit8.pipeline.stages;
 
 import com.github.dakusui.combinatoradix.Cartesianator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.core.Requirement;
+import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSuite;
@@ -140,9 +140,7 @@ public interface Joiner extends BinaryOperator<TupleSuite> {
       @Override
       public Tuple get(int index) {
         Tuple.Builder builder = new Tuple.Builder();
-        for (Tuple each : this.inner.get(index)) {
-          builder.putAll(each);
-        }
+        this.inner.get(index).forEach(builder::putAll);
         return builder.build();
       }
 

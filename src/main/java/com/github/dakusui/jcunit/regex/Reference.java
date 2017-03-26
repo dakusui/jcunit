@@ -3,8 +3,8 @@ package com.github.dakusui.jcunit.regex;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static java.lang.String.format;
 
-class Reference implements Value {
-  final String key;
+public class Reference implements Value {
+  public final String key;
 
   Reference(String key) {
     this.key = checknotnull(key);
