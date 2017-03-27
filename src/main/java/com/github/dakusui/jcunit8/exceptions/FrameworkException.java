@@ -11,6 +11,10 @@ public abstract class FrameworkException extends BaseException {
     super(format);
   }
 
+  protected FrameworkException(String format, Throwable t) {
+    super(format, t);
+  }
+
   @SuppressWarnings("WeakerAccess")
   public static void checkCondition(boolean b, Function<String, ? extends FrameworkException> exceptionFactory, Supplier<String> messageSupplier) {
     if (!b)
@@ -19,6 +23,11 @@ public abstract class FrameworkException extends BaseException {
 
   public static FrameworkException unexpectedByDesign() {
     throw new FrameworkException("Unexpected by design") {
+    };
+  }
+
+  public static FrameworkException unexpectedByDesign(Throwable t) {
+    throw new FrameworkException("Unexpected by design", t) {
     };
   }
 }

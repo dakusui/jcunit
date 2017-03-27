@@ -154,6 +154,5 @@ public interface Config<T> {
               .collect(toList())
       );
     }
-
   }
 }

@@ -3,10 +3,19 @@ package com.github.dakusui.jcunit8.factorspace;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.List;
-import java.util.function.Predicate;
 
-public interface Constraint extends Predicate<Tuple> {
-  boolean test(Tuple testObject);
+public interface Constraint extends TestPredicate {
+  static Constraint fromCondition(TestPredicate testPredicate) {
+    return new Constraint() {
+      @Override
+      public boolean test(Tuple testObject) {
+        return testPredicate.test(testObject);
+      }
 
-  List<String> involvedKeys();
+      @Override
+      public List<String> involvedKeys() {
+        return testPredicate.involvedKeys();
+      }
+    };
+  }
 }

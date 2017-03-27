@@ -67,6 +67,9 @@ public class TheoriesExample2 {
       @FromDataPoints("negLong") @Name("d") long d
   ) throws Exception {
     UTUtils.stdout().printf("a=%s, b=%s, c=%d, d=%d%n", a, b, c, d);
+    if (d != -300) {
+      throw new RuntimeException();
+    }
   }
 
   @Theory
