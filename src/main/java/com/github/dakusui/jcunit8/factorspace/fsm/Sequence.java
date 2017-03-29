@@ -24,7 +24,7 @@ public interface Sequence<SUT> extends List<Edge<SUT>>, Stimulus<SUT> {
 
     @Override
     public void accept(Player<SUT> player) {
-      player.play(this);
+      player.visit(this);
     }
   }
 

@@ -1,37 +1,64 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
+import com.github.dakusui.jcunit.fsm.Expectation;
+
 public interface Player<SUT> {
-  void play(Stimulus<SUT> stimulus);
+  void visit(Stimulus<SUT> stimulus);
 
-  void play(Edge<SUT> edge);
+  void visit(Edge<SUT> edge);
 
-  void play(Sequence<SUT> sequence);
+  void visit(Sequence<SUT> sequence);
 
-  void play(Scenario<SUT> scenario);
+  void visit(Scenario<SUT> scenario);
 
-  class Simple<SUT> implements Player<SUT> {
+  abstract class Base<SUT> implements Player<SUT> {
+    protected final SUT sut;
+
+    public Base(SUT sut) {
+      this.sut = sut;
+    }
 
     @Override
-    public void play(Stimulus<SUT> stimulus) {
+    public void visit(Stimulus<SUT> stimulus) {
       throw new UnsupportedOperationException();
     }
 
     @Override
-    public void play(Edge<SUT> edge) {
-
-    }
-
-    @Override
-    public void play(Sequence<SUT> sequence) {
+    public void visit(Sequence<SUT> sequence) {
       for (Edge<SUT> each : sequence) {
         each.accept(this);
       }
     }
 
     @Override
-    public void play(Scenario<SUT> scenario) {
+    public void visit(Scenario<SUT> scenario) {
       scenario.setUp().accept(this);
       scenario.main().accept(this);
+    }
+
+    public void play(Scenario<SUT> scenario) {
+      scenario.setUp().get(0).from.check(sut);
+      visit(scenario);
+    }
+  }
+
+  class Simple<SUT> extends Base<SUT> {
+    public Simple(SUT sut) {
+      super(sut);
+    }
+
+    @Override
+    public void visit(Edge<SUT> edge) {
+      ////
+      // TODO
+      Expectation<SUT> expectation = edge.from.expectation(edge.action, edge.args);
+      try {
+        edge.action.perform(sut, edge.args);
+      } catch (Throwable throwable) {
+        throwable.printStackTrace();
+      } finally {
+        expectation.state.check(sut);
+      }
     }
   }
 }

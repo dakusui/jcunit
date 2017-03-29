@@ -100,7 +100,7 @@ public interface Pipeline<T> {
               parameterSpace.getConstraints().stream(),
               parameterSpace.getParameterNames().stream()
                   .map((String name) ->
-                      Parameter.Simple.createConstraintFrom((Parameter.Simple) parameterSpace.getParameter(name))
+                      Parameter.Simple.createConstraintFrom((Parameter.Simple<Object>) parameterSpace.getParameter(name))
                   )
                   .collect(toList()).stream()
           ).collect(toList())

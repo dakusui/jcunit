@@ -197,7 +197,6 @@ public class IpoGc extends Ipo {
    *             ..., vi-1 , vi ) so that τ’ covers the most number of
    *             combinations of values in π
    */
-
   private Object chooseLevelThatCoversMostTuples(Factor fi, Tuple τ, List<Tuple> π) {
     int numCoveredTuples = -1;
     Object ret = null;

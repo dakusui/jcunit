@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.fsm;
+package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.combinatoradix.Cartesianator;
 

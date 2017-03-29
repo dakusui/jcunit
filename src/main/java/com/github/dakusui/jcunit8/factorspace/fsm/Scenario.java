@@ -26,7 +26,7 @@ public interface Scenario<SUT> extends Stimulus<SUT> {
 
     @Override
     public void accept(Player<SUT> player) {
-      player.play(this);
+      player.visit(this);
     }
   }
 }

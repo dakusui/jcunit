@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.factorspace.fsm;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
