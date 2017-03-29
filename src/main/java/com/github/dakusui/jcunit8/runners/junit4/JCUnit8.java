@@ -91,10 +91,9 @@ public class JCUnit8 extends Theories {
 
       protected void runWithCompleteAssignment(final Assignments complete)
           throws Throwable {
-        new BlockJUnit4ClassRunner(getTestClass().getJavaClass()) {
+        new BlockJUnit4ClassRunner(testClass.getJavaClass()) {
           @Override
-          protected void collectInitializationErrors(
-              List<Throwable> errors) {
+          protected void collectInitializationErrors(List<Throwable> errors) {
             // do nothing
           }
 

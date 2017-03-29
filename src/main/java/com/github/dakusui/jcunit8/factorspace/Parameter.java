@@ -1,12 +1,15 @@
 package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.Story;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
 import com.github.dakusui.jcunit.regex.Composer;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
-import com.github.dakusui.jcunit8.factorspace.regex.RegexFactorSpaceTranslator;
+import com.github.dakusui.jcunit8.factorspace.fsm.FsmComposer;
+import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
+import com.github.dakusui.jcunit8.factorspace.fsm.Player;
+import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
+import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -108,7 +111,7 @@ public interface Parameter<T> {
   }
 
   interface Simple<T> extends Parameter<T> {
-    static Constraint createConstraintFrom(Parameter.Simple parameter) {
+    static <T> Constraint createConstraintFrom(Parameter.Simple<T> parameter) {
       return new Constraint() {
         @Override
         public boolean test(Tuple testObject) {
@@ -178,10 +181,10 @@ public interface Parameter<T> {
       public Impl(String name, String regex, List<List<U>> knownValues, Function<String, U> func, Predicate<List<U>> check) {
         super(name, knownValues, check);
         Expr expr = new Parser().parse(regex);
-        RegexFactorSpaceTranslator translator = new RegexFactorSpaceTranslator(name, expr);
+        RegexDecomposer translator = new RegexDecomposer(name, expr);
         this.func = func;
         this.composer = new Composer(name, expr);
-        this.factorSpace = translator.buildFactorSpace();
+        this.factorSpace = translator.decompose();
       }
 
 
@@ -238,6 +241,35 @@ public interface Parameter<T> {
     }
   }
 
-  interface Fsm<SUT, SPEC extends FSMSpec<SUT>> extends Parameter<Story<SUT, SPEC>> {
+  interface Fsm<SUT> extends Parameter<Scenario<SUT>> {
+
+    class Impl<SUT> extends Parameter.Base<Scenario<SUT>> {
+      private final FsmDecomposer<SUT> decomposer;
+      private final FsmComposer<SUT>   composer;
+
+      Impl(String name, FiniteStateMachine<SUT> model, List<Scenario<SUT>> knownValues, int scenarioLength, Predicate<Scenario<SUT>> check) {
+        super(name, knownValues, check);
+        this.decomposer = new FsmDecomposer<>(name, model, scenarioLength);
+        this.composer = new FsmComposer<>(name, model, scenarioLength);
+      }
+
+      @Override
+      public Scenario<SUT> composeValueFrom(Tuple tuple) {
+        return composer.composeValueFrom(tuple);
+      }
+
+      @Override
+      protected List<Factor> decompose() {
+        return decomposer.getFactors();
+      }
+
+      @Override
+      protected List<Constraint> generateConstraints() {
+        return decomposer.getConstraints();
+      }
+    }
   }
 }
+
+
+

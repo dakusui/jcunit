@@ -17,7 +17,7 @@ import static org.junit.Assume.assumeThat;
 @RunWith(Theories.class)
 public class StateRouterTest {
   @DataPoint("straightFsm")
-  public static FSM<Sut> straightFsm = new FSM.Base<Sut>("sut", StraightSpec.class);
+  public static FiniteStateMachine<Sut> straightFsm = new FiniteStateMachine.Impl<Sut>("sut", StraightSpec.class);
 
   @DataPoints("straightFsmState")
   public static List<State<Sut>> straightFsmStates() {
@@ -25,7 +25,7 @@ public class StateRouterTest {
   }
 
   @DataPoint("cyclicFsm")
-  public static FSM<Sut> cyclicFsm = new FSM.Base<Sut>("sut", CyclicSpec.class);
+  public static FiniteStateMachine<Sut> cyclicFsm = new FiniteStateMachine.Impl<Sut>("sut", CyclicSpec.class);
 
   @DataPoints("cyclicFsmState")
   public static List<State<Sut>> cyclicFsmStates() {
@@ -35,32 +35,32 @@ public class StateRouterTest {
   @Theory
   public void givenStraightFsmAndGoalStateIsNotInitial$whenRoute$thenSequenceEndsWithGoal(
       @FromDataPoints("straightFsmState") State<Sut> goalState,
-      @FromDataPoints("straightFsm") FSM<Sut> fsm) {
+      @FromDataPoints("straightFsm") FiniteStateMachine<Sut> fsm) {
     givenGoalStateIsNotInitial$whenRoute$thenSequenceEndsWithGoal(goalState, fsm);
   }
 
   @Theory
   public void givenStraightFsmAndGoalStateIsInitial$whenRoute$thenSequenceIsEmpty(
       @FromDataPoints("straightFsmState") State<Sut> goalState,
-      @FromDataPoints("straightFsm") FSM<Sut> fsm) {
+      @FromDataPoints("straightFsm") FiniteStateMachine<Sut> fsm) {
     givenGoalStateIsInitial$whenRoute$thenSequenceIsEmpty(goalState, fsm);
   }
 
   @Theory
   public void givenCyclicFsmAndGoalStateIsNotInitial$whenRoute$thenSequenceEndsWithGoal(
       @FromDataPoints("cyclicFsmState") State<Sut> goalState,
-      @FromDataPoints("cyclicFsm") FSM<Sut> fsm) {
+      @FromDataPoints("cyclicFsm") FiniteStateMachine<Sut> fsm) {
     givenGoalStateIsNotInitial$whenRoute$thenSequenceEndsWithGoal(goalState, fsm);
   }
 
   @Theory
   public void givenCyclicFsmAndGoalStateIsInitial$whenRoute$thenSequenceIsEmpty(
       @FromDataPoints("cyclicFsmState") State<Sut> goalState,
-      @FromDataPoints("cyclicFsm") FSM<Sut> fsm) {
+      @FromDataPoints("cyclicFsm") FiniteStateMachine<Sut> fsm) {
     givenGoalStateIsInitial$whenRoute$thenSequenceIsEmpty(goalState, fsm);
   }
 
-  private void givenGoalStateIsInitial$whenRoute$thenSequenceIsEmpty(State<Sut> goalState, FSM<Sut> fsm) {
+  private void givenGoalStateIsInitial$whenRoute$thenSequenceIsEmpty(State<Sut> goalState, FiniteStateMachine<Sut> fsm) {
     assumeThat(fsm.initialState(), CoreMatchers.is(goalState));
 
     StateRouter<Sut> router = new StateRouter.Base<Sut>(fsm);
@@ -68,7 +68,7 @@ public class StateRouterTest {
     assertEquals(0, scenarioSequence.size());
   }
 
-  private void givenGoalStateIsNotInitial$whenRoute$thenSequenceEndsWithGoal(State<Sut> goalState, FSM<Sut> fsm) {
+  private void givenGoalStateIsNotInitial$whenRoute$thenSequenceEndsWithGoal(State<Sut> goalState, FiniteStateMachine<Sut> fsm) {
     assumeThat(fsm.initialState(), CoreMatchers.not(CoreMatchers.is(goalState)));
 
     StateRouter<Sut> router = new StateRouter.Base<Sut>(fsm);

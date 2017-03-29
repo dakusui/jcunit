@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 public class FSMMetrics extends Metrics.Base<Tuple> {
-  private final FSM<?> targetFSM;
-  private final int    historyLength;
-  private final String targetFSMName;
-  private final int    switchCoverage;
+  private final FiniteStateMachine<?> targetFSM;
+  private final int                   historyLength;
+  private final String                targetFSMName;
+  private final int                   switchCoverage;
 
   /**
    * The second user config parameter specifies 'switch coverage', which is equal to a number
@@ -133,7 +133,7 @@ public class FSMMetrics extends Metrics.Base<Tuple> {
         .build();
   }
 
-  private static Set<Switch> allSwitchesOf(FSM<?> targetFSM, int degree) {
+  private static Set<Switch> allSwitchesOf(FiniteStateMachine<?> targetFSM, int degree) {
     Checks.checknotnull(targetFSM);
     Checks.checkcond(degree >= 1);
     Set<Switch> ret = new HashSet<Switch>();
@@ -157,7 +157,7 @@ public class FSMMetrics extends Metrics.Base<Tuple> {
     return ret;
   }
 
-  private static Set<Action<?>> actionsFrom(State<?> state, FSM<?> targetFSM) {
+  private static Set<Action<?>> actionsFrom(State<?> state, FiniteStateMachine<?> targetFSM) {
     Set<Action<?>> ret = new HashSet<Action<?>>();
     for (Action<?> eachAction : targetFSM.actions()) {
       for (Args eachArgs : possibleArgsSet(eachAction)) {
@@ -173,7 +173,7 @@ public class FSMMetrics extends Metrics.Base<Tuple> {
     return ret;
   }
 
-  private static Set<Action<?>> actionsTo(State<?> state, FSM<?> targetFSM) {
+  private static Set<Action<?>> actionsTo(State<?> state, FiniteStateMachine<?> targetFSM) {
     Set<Action<?>> ret = new HashSet<Action<?>>();
     for (State<?> fromState : targetFSM.states()) {
       for (Action<?> eachAction : targetFSM.actions()) {

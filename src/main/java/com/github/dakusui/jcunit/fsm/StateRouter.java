@@ -10,12 +10,12 @@ public interface StateRouter<SUT> {
   ScenarioSequence<SUT> routeTo(State<SUT> state);
 
   class Base<SUT> implements StateRouter<SUT> {
-    private final Map<State<SUT>, List<State<SUT>>>  adjacents;
-    private final Map<StatePair<SUT>, FSM.Edge<SUT>> links;
-    private final State<SUT>                         initialState;
+    private final Map<State<SUT>, List<State<SUT>>>                 adjacents;
+    private final Map<StatePair<SUT>, FiniteStateMachine.Edge<SUT>> links;
+    private final State<SUT>                                        initialState;
 
 
-    public Base(FSM<SUT> fsm) {
+    public Base(FiniteStateMachine<SUT> fsm) {
       this.adjacents = buildAdjacents(fsm);
       this.links = buildLinks(fsm);
       this.initialState = fsm.initialState();
@@ -25,7 +25,7 @@ public interface StateRouter<SUT> {
     public ScenarioSequence<SUT> routeTo(State<SUT> state) {
       if (this.initialState.equals(state))
         return ScenarioSequence.Empty.getInstance();
-      List<FSM.Edge<SUT>> route = Utils.newList();
+      List<FiniteStateMachine.Edge<SUT>> route = Utils.newList();
       checktest(
           route(this.initialState, state, route, Utils.<State<SUT>>newSet()),
           "The state '%s' can't be reached from the initial state of the given FSM.",
@@ -35,7 +35,7 @@ public interface StateRouter<SUT> {
       return buildScenarioSequenceFromTransitions(route);
     }
 
-    private ScenarioSequence<SUT> buildScenarioSequenceFromTransitions(final List<FSM.Edge<SUT>> route) {
+    private ScenarioSequence<SUT> buildScenarioSequenceFromTransitions(final List<FiniteStateMachine.Edge<SUT>> route) {
       return new ScenarioSequence.Base<SUT>() {
         @Override
         public int size() {
@@ -47,7 +47,7 @@ public interface StateRouter<SUT> {
           checkcond(i >= 0 && i < size());
           State<SUT> ret = StateRouter.Base.this.initialState;
           for (int c = 0; c < i; c++) {
-            ret = next(ret, new FSM.Edge<SUT>(action(c), args(c)));
+            ret = next(ret, new FiniteStateMachine.Edge<SUT>(action(c), args(c)));
           }
           return ret;
         }
@@ -81,7 +81,7 @@ public interface StateRouter<SUT> {
       };
     }
 
-    boolean route(State<SUT> cur, State<SUT> to, List<FSM.Edge<SUT>> route, Set<State<SUT>> visited) {
+    boolean route(State<SUT> cur, State<SUT> to, List<FiniteStateMachine.Edge<SUT>> route, Set<State<SUT>> visited) {
       if (!this.adjacents.containsKey(cur))
         return false;
       for (State<SUT> each : checknotnull(this.adjacents.get(cur))) {
@@ -103,7 +103,7 @@ public interface StateRouter<SUT> {
       return false;
     }
 
-    Map<State<SUT>, List<State<SUT>>> buildAdjacents(FSM<SUT> fsm) {
+    Map<State<SUT>, List<State<SUT>>> buildAdjacents(FiniteStateMachine<SUT> fsm) {
       // from -> tos
       final Map<State<SUT>, List<State<SUT>>> ret = Utils.newMap();
       for (State<SUT> eachFromState : fsm.states()) {
@@ -127,8 +127,8 @@ public interface StateRouter<SUT> {
       return ret.get(eachFromState);
     }
 
-    Map<StatePair<SUT>, FSM.Edge<SUT>> buildLinks(FSM<SUT> fsm) {
-      final Map<StatePair<SUT>, FSM.Edge<SUT>> edges = Utils.newMap();
+    Map<StatePair<SUT>, FiniteStateMachine.Edge<SUT>> buildLinks(FiniteStateMachine<SUT> fsm) {
+      final Map<StatePair<SUT>, FiniteStateMachine.Edge<SUT>> edges = Utils.newMap();
       for (State<SUT> fromState : fsm.states()) {
         for (Action<SUT> eachAction : fsm.actions()) {
           for (Args eachArgs : FSMUtils.possibleArgsList(eachAction)) {
@@ -138,7 +138,7 @@ public interface StateRouter<SUT> {
             StatePair<SUT> link = new StatePair<SUT>(fromState, toState);
             if (edges.containsKey(link))
               continue;
-            edges.put(link, new FSM.Edge<SUT>(eachAction, eachArgs));
+            edges.put(link, new FiniteStateMachine.Edge<SUT>(eachAction, eachArgs));
           }
         }
       }
@@ -167,7 +167,7 @@ public interface StateRouter<SUT> {
       }
     }
 
-    private static <SUT> State<SUT> next(State<SUT> state, FSM.Edge<SUT> t) {
+    private static <SUT> State<SUT> next(State<SUT> state, FiniteStateMachine.Edge<SUT> t) {
       return state.expectation(t.action, t.args).state;
     }
   }

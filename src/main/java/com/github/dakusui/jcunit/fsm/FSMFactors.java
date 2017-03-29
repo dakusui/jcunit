@@ -38,11 +38,11 @@ public class FSMFactors extends Factors {
   }
 
   public static class Builder extends Factors.Builder {
-    private final String fsmName;
-    private final FSM<?> fsm;
-    private final int historyLength;
+    private final String                fsmName;
+    private final FiniteStateMachine<?> fsm;
+    private final int                   historyLength;
 
-    public Builder(String fsmName, FSM<?> fsm, int historyLength) {
+    public Builder(String fsmName, FiniteStateMachine<?> fsm, int historyLength) {
       this.fsmName = checknotnull(fsmName);
       this.fsm = checknotnull(fsm);
       checkcond(historyLength > 0);
@@ -52,7 +52,7 @@ public class FSMFactors extends Factors {
     @Override
     public FSMFactors build() {
       String fsmName = this.fsmName;
-      FSM<?> fsm = this.fsm;
+      FiniteStateMachine<?> fsm = this.fsm;
       for (int index = 0; index < this.historyLength; index++) {
         ////
         // Build a factor for {index}th state

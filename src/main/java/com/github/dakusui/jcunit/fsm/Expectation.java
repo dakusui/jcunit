@@ -100,15 +100,15 @@ public class Expectation<SUT> {
   }
 
   public static class Builder<SUT> {
-    private final FSM<SUT>      fsm;
-    private final String        fsmName;
-    private       Output.Type   type;
-    private       OutputChecker checker;
-    private       State<SUT>    state;
+    private final FiniteStateMachine<SUT> fsm;
+    private final String                  fsmName;
+    private       Output.Type             type;
+    private       OutputChecker           checker;
+    private       State<SUT>              state;
 
     Builder(
         String fsmName,
-        FSM<SUT> fsm
+        FiniteStateMachine<SUT> fsm
     ) {
       this.fsm = fsm;
       this.fsmName = fsmName;

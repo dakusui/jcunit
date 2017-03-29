@@ -184,7 +184,7 @@ public interface Action<SUT> extends Serializable {
 
     @Override
     public String id() {
-      return FSM.Base.generateMethodId(this.method);
+      return FiniteStateMachine.Impl.generateMethodId(this.method);
     }
 
     @Override

@@ -17,7 +17,8 @@ import java.util.concurrent.Callable;
  * @see FSMUtils#performStory(Object, String, Object, ScenarioSequence.Observer.Factory)
  */
 public class Story<
-    SUT, SPEC extends FSMSpec<SUT> // Do not remove to refactor. See Javadoc of this parameter.
+    SUT, SPEC extends Enum<? extends StateChecker<SUT>> & StateChecker<SUT>
+    // extends FSMSpec<SUT> // Do not remove to refactor. See Javadoc of this parameter.
     >
     implements Serializable,
     FSMUtils.Synchronizable {
@@ -183,9 +184,9 @@ public class Story<
     }
 
 
-    public Story<SUT, ? extends FSMSpec<SUT>> lookUpFSMStory(String name) {
+    public <U extends Enum<? extends StateChecker<SUT>> & StateChecker<SUT>> Story<SUT, U> lookUpFSMStory(String name) {
       //noinspection unchecked
-      return (Story<SUT, ? extends FSMSpec<SUT>>) Checks.checknotnull(
+      return (Story<SUT, U>) Checks.checknotnull(
           FSMUtils.lookupStory(
               (T) this.testObject,
               Checks.checknotnull(name)

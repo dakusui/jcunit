@@ -16,12 +16,12 @@ import java.util.List;
 
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
 
-public class RegexFactorSpaceTranslator extends RegexTranslator {
-  public RegexFactorSpaceTranslator(String name, Expr topLevel) {
+public class RegexDecomposer extends RegexTranslator {
+  public RegexDecomposer(String name, Expr topLevel) {
     super(topLevel, name);
   }
 
-  public FactorSpace buildFactorSpace() {
+  public FactorSpace decompose() {
     List<? extends Factor> factors = buildFactors();
     return FactorSpace.create(factors, buildConstraints(factors));
   }

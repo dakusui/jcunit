@@ -230,7 +230,7 @@ public enum FSMUtils {
    * @param f              A field from which an FSM is created.
    * @return Created FSM object
    */
-  public static FSM<Object> createFSM(Field f) {
+  public static FiniteStateMachine<Object> createFSM(Field f) {
     Checks.checknotnull(f);
     Class<?> clazz = (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[1];
     //noinspection unchecked
@@ -240,8 +240,8 @@ public enum FSMUtils {
   /**
    * Create an FSM object from given {@code FSMSpec} and {@code fsmName}
    */
-  public static <SUT> FSM<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass) {
-    return new FSM.Base<SUT>(fsmName, fsmSpecClass);
+  public static <SUT> FiniteStateMachine<SUT> createFSM(String fsmName, Class<? extends FSMSpec<SUT>> fsmSpecClass) {
+    return new FiniteStateMachine.Impl<SUT>(fsmName, fsmSpecClass);
   }
 
   /**

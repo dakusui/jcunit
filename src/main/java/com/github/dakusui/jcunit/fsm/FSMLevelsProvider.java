@@ -1,10 +1,9 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
 import com.github.dakusui.jcunit.plugins.levelsproviders.MappingLevelsProviderBase;
 
-public class FSMLevelsProvider<SUT> extends MappingLevelsProviderBase<Story<SUT, FSMSpec<SUT>>> {
+public class FSMLevelsProvider<SUT, SPEC extends Enum<? extends StateChecker<SUT>> & StateChecker<SUT>> extends MappingLevelsProviderBase<Story<SUT, SPEC>> {
   private final int historyLength;
 
   public FSMLevelsProvider(@Param(source = Param.Source.CONFIG, defaultValue = "2") int historyLength) {

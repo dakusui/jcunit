@@ -19,19 +19,19 @@ import java.util.*;
  *
  * @param <SUT> A software under test.
  */
-public interface FSM<SUT> {
+public interface FiniteStateMachine<SUT> {
   State<SUT> initialState();
 
   List<State<SUT>> states();
 
   List<Action<SUT>> actions();
 
-  class Base<SUT> implements FSM<SUT> {
+  class Impl<SUT> implements FiniteStateMachine<SUT> {
     private       List<State<SUT>>  states;
     private       List<Action<SUT>> actions;
     private       State<SUT>        initialState;
 
-    public Base(String fsmName, Class<? extends FSMSpec<SUT>> specClass) {
+    public Impl(String fsmName, Class<? extends FSMSpec<SUT>> specClass) {
       Checks.checknotnull(fsmName);
       Checks.checknotnull(specClass);
       ////
@@ -191,7 +191,7 @@ public interface FSM<SUT> {
       return ret;
     }
 
-    private State<SUT> createState(String fsmName, FSM<SUT> fsm, final Field stateSpecField, final Map<String, Method> actionMethods) {
+    private State<SUT> createState(String fsmName, FiniteStateMachine<SUT> fsm, final Field stateSpecField, final Map<String, Method> actionMethods) {
       final FSMSpec<SUT> stateSpec = getStateSpecValue(validateStateSpecField(stateSpecField));
       return new State.Base<SUT>(fsmName, fsm, stateSpec, actionMethods, stateSpecField);
     }
