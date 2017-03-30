@@ -17,19 +17,19 @@ import static java.util.Collections.unmodifiableList;
  * A list of tuples all of whose entries have the same attribute names. An implementation
  * of this interface must also guarantee that it doesn't have the same element.
  */
-public interface TupleSuite extends List<Tuple> {
+public interface SchemafulTupleSet extends List<Tuple> {
   List<String> getAttributeNames();
 
   /**
-   * Returns all t-way tuples in this {@code TupleSuite} where t is {@code strength}.
+   * Returns all t-way tuples in this {@code SchemafulTupleSet} where t is {@code strength}.
    *
    * @param strength Strength of t-way tuples to be returned.
    */
   TupleSet subtuplesOf(int strength);
 
-  TupleSuite project(List<String> keys);
+  SchemafulTupleSet project(List<String> keys);
 
-  static TupleSuite fromTuples(List<Tuple> tuples_) {
+  static SchemafulTupleSet fromTuples(List<Tuple> tuples_) {
     List<Tuple> tuples = unmodifiableList(Utils.unique(tuples_));
     final List<String> attributeNames = tuples.isEmpty() ?
         emptyList() :
@@ -41,7 +41,7 @@ public interface TupleSuite extends List<Tuple> {
       assert attributeNames.equals(new ArrayList<>(tuple.keySet()));
     });
 
-    class Impl extends AbstractList<Tuple> implements TupleSuite {
+    class Impl extends AbstractList<Tuple> implements SchemafulTupleSet {
       @Override
       public Tuple get(int index) {
         return tuples.get(index);
@@ -68,7 +68,7 @@ public interface TupleSuite extends List<Tuple> {
       }
 
       @Override
-      public TupleSuite project(List<String> keys) {
+      public SchemafulTupleSet project(List<String> keys) {
         return fromTuples(this.stream().map(tuple -> Utils.project(keys, tuple)).collect(Collectors.toList()));
       }
     }

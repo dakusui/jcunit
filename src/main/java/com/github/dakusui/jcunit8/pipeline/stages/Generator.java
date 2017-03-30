@@ -1,8 +1,11 @@
 package com.github.dakusui.jcunit8.pipeline.stages;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.pipeline.Requirement;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.pipeline.Requirement;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGwithConstraints;
 
 import java.util.List;
 
@@ -21,17 +24,27 @@ public interface Generator {
       this.factorSpace = factorSpace;
       this.requirement = requirement;
     }
+
+    public final List<Tuple> generate() {
+      this.validate();
+      return Utils.unique(generateCore());
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    protected void validate() {
+      Checks.checkcond(this.factorSpace.getFactors().size() >= requirement.strength());
+    }
+
+    protected abstract List<Tuple> generateCore();
   }
+
   interface Factory {
     Generator create(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement);
 
     class Standard implements Factory {
       @Override
       public Generator create(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-        return () -> {
-          // TODO
-          throw new UnsupportedOperationException();
-        };
+        return new IpoGwithConstraints(seeds, requirement, factorSpace);
       }
     }
   }

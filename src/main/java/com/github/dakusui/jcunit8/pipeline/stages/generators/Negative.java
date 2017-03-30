@@ -18,7 +18,7 @@ public class Negative extends Generator.Base {
   }
 
   @Override
-  public List<Tuple> generate() {
+  public List<Tuple> generateCore() {
     return generateNegativeTests(seeds, factorSpace);
   }
 

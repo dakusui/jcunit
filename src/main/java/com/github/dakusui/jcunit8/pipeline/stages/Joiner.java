@@ -4,8 +4,8 @@ import com.github.dakusui.combinatoradix.Cartesianator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
-import com.github.dakusui.jcunit8.testsuite.TupleSuite;
 
 import java.util.*;
 import java.util.function.BinaryOperator;
@@ -16,19 +16,19 @@ import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface Joiner extends BinaryOperator<TupleSuite> {
+public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
   abstract class Base implements Joiner {
     @Override
-    public TupleSuite apply(TupleSuite lhs, TupleSuite rhs) {
+    public SchemafulTupleSet apply(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       if (Collections.disjoint(lhs.getAttributeNames(), rhs.getAttributeNames())) {
         return outerJoin(lhs, rhs);
       }
       return innerJoin(overlap(lhs.getAttributeNames(), rhs.getAttributeNames()), lhs, rhs);
     }
 
-    protected abstract TupleSuite outerJoin(TupleSuite lhs, TupleSuite rhs);
+    protected abstract SchemafulTupleSet outerJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs);
 
-    protected abstract TupleSuite innerJoin(List<String> sharedKeys, TupleSuite lhs, TupleSuite rhs);
+    protected abstract SchemafulTupleSet innerJoin(List<String> sharedKeys, SchemafulTupleSet lhs, SchemafulTupleSet rhs);
 
     private static List<String> overlap(List<String> lhs, List<String> rhs) {
       return lhs.stream().filter(rhs::contains).collect(toList());
@@ -43,7 +43,7 @@ public interface Joiner extends BinaryOperator<TupleSuite> {
     }
 
     @Override
-    protected TupleSuite outerJoin(TupleSuite lhs, TupleSuite rhs) {
+    protected SchemafulTupleSet outerJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       TupleSet allTuplesToBeCovered = computeTuplesToBeCovered(lhs, rhs, this.requirement.strength());
       List<Tuple> work = new LinkedList<>();
       {
@@ -66,11 +66,11 @@ public interface Joiner extends BinaryOperator<TupleSuite> {
           break;
         work.add(tuple);
       }
-      return TupleSuite.fromTuples(work);
+      return SchemafulTupleSet.fromTuples(work);
     }
 
     @Override
-    protected TupleSuite innerJoin(List<String> sharedKeys, TupleSuite lhs, TupleSuite rhs) {
+    protected SchemafulTupleSet innerJoin(List<String> sharedKeys, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       List<Tuple> work = new LinkedList<>();
       TupleSet allTuplesToBeCovered = computeTuplesToBeCovered(
           lhs,
@@ -87,15 +87,15 @@ public interface Joiner extends BinaryOperator<TupleSuite> {
                 work.add(connected);
               })
       );
-      return TupleSuite.fromTuples(work);
+      return SchemafulTupleSet.fromTuples(work);
     }
 
     private Tuple connect(Tuple tuple1, Tuple tuple2) {
       return new Tuple.Builder().putAll(tuple1).putAll(tuple2).build();
     }
 
-    private List<String> keysNotShared(List<String> sharedKeys, TupleSuite tupleSuite) {
-      return tupleSuite.getAttributeNames().stream().filter(s -> !sharedKeys.contains(s)).collect(toList());
+    private List<String> keysNotShared(List<String> sharedKeys, SchemafulTupleSet schemafulTupleSet) {
+      return schemafulTupleSet.getAttributeNames().stream().filter(s -> !sharedKeys.contains(s)).collect(toList());
     }
 
     private Tuple chooseBestTupleFrom(List<Tuple> fromTupleSuite, TupleSet allTuplesToBeCovered) {
@@ -119,7 +119,7 @@ public interface Joiner extends BinaryOperator<TupleSuite> {
           .count();
     }
 
-    private static TupleSet computeTuplesToBeCovered(TupleSuite lhs, TupleSuite rhs, int strength) {
+    private static TupleSet computeTuplesToBeCovered(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength) {
       TupleSet.Builder builder = new TupleSet.Builder();
       for (int i = 1; i < strength; i++) {
         TupleSet lhsTupleSet = lhs.subtuplesOf(strength - i);

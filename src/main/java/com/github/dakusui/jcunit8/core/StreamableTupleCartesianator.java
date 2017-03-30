@@ -5,6 +5,7 @@ import com.github.dakusui.combinatoradix.Domains;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 
+import java.util.AbstractList;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -27,5 +28,19 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tup
 
   public Stream<Tuple> stream() {
     return StreamSupport.stream(this.spliterator(), false);
+  }
+
+  public List<Tuple> asList() {
+    return new AbstractList<Tuple>() {
+      @Override
+      public Tuple get(int index) {
+        return StreamableTupleCartesianator.this.get(index);
+      }
+
+      @Override
+      public int size() {
+        return (int) StreamableTupleCartesianator.this.size();
+      }
+    };
   }
 }

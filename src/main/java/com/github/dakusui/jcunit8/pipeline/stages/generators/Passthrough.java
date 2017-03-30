@@ -13,7 +13,7 @@ public class Passthrough extends Generator.Base {
   }
 
   @Override
-  public List<Tuple> generate() {
+  public List<Tuple> generateCore() {
     return this.seeds;
   }
 }

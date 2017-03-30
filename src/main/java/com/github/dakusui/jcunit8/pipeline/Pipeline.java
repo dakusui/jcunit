@@ -7,8 +7,8 @@ import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
-import com.github.dakusui.jcunit8.testsuite.TupleSuite;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -57,14 +57,14 @@ public interface Pipeline<T> {
           .build();
     }
 
-    TupleSuite engine(Config<T> config, ParameterSpace parameterSpace) {
+    SchemafulTupleSet engine(Config<T> config, ParameterSpace parameterSpace) {
       return config.partitioner()
           .apply(config.encoder().apply(parameterSpace)).stream()
           .map(config.optimizer())
           .map(config.generator(config.getRequirement()))
           .reduce(config.joiner())
           .map(
-              (TupleSuite tuples) -> TupleSuite.fromTuples(
+              (SchemafulTupleSet tuples) -> SchemafulTupleSet.fromTuples(
                   tuples.stream()
                       .map((Tuple tuple) -> {
                         Tuple.Builder builder = new Tuple.Builder();

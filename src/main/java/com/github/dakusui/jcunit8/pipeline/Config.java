@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.jcunit8.testsuite.TupleSuite;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -26,9 +26,9 @@ public interface Config<T> {
 
   Function<List<FactorSpace>, List<FactorSpace>> partitioner();
 
-  Function<FactorSpace, TupleSuite> generator(Requirement requirement);
+  Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement);
 
-  BinaryOperator<TupleSuite> joiner();
+  BinaryOperator<SchemafulTupleSet> joiner();
 
   Function<Tuple, T> concretizer();
 
@@ -106,12 +106,12 @@ public interface Config<T> {
     }
 
     @Override
-    public Function<FactorSpace, TupleSuite> generator(Requirement requirement) {
-      return (FactorSpace factorSpace) -> TupleSuite.fromTuples(generatorFactory.create(emptyList(), factorSpace, requirement).generate());
+    public Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement) {
+      return (FactorSpace factorSpace) -> SchemafulTupleSet.fromTuples(generatorFactory.create(emptyList(), factorSpace, requirement).generate());
     }
 
     @Override
-    public BinaryOperator<TupleSuite> joiner() {
+    public BinaryOperator<SchemafulTupleSet> joiner() {
       return joiner;
     }
 
