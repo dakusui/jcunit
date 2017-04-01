@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmComposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
-import com.github.dakusui.jcunit8.factorspace.fsm.Player;
 import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
 import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 

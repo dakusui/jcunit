@@ -33,7 +33,7 @@ public class PipelineException extends FrameworkException {
     Predicate<Constraint> checkNoNonSimpleParameterInvolved =
         (Constraint constraint) -> disjoint(nonSimpleParameters, constraint.involvedKeys());
     checkCondition(
-        parameterSpace.getConstraints().stream().noneMatch(checkNoNonSimpleParameterInvolved),
+        parameterSpace.getConstraints().stream().allMatch(checkNoNonSimpleParameterInvolved),
         PipelineException::new,
         () -> format("A constraint that involves non-simple parameter was found:%s",
             parameterSpace.getConstraints().stream().filter(checkNoNonSimpleParameterInvolved)

@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGwithConstraints;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.Cartesian;
 
 import java.util.List;
 
@@ -44,7 +44,10 @@ public interface Generator {
     class Standard implements Factory {
       @Override
       public Generator create(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-        return new IpoGwithConstraints(seeds, requirement, factorSpace);
+        ////
+        // TODO
+        //return new IpoGwithConstraints(seeds, requirement, factorSpace);
+        return new Cartesian(seeds, factorSpace, requirement);
       }
     }
   }

@@ -17,7 +17,7 @@ public @interface ConfigureWith {
 
     class Impl implements ConfigFactory {
       @SuppressWarnings("WeakerAccess")
-      protected Requirement requirement() {
+      public Requirement requirement() {
         return new Requirement.Builder()
             .withStrength(2)
             .withNegativeTestGeneration(false)
@@ -26,7 +26,7 @@ public @interface ConfigureWith {
 
       @Override
       public Config<Tuple> create() {
-        return new Config.Builder<Tuple>(requirement()).build();
+        return Config.Builder.forTuple(requirement()).build();
       }
     }
   }

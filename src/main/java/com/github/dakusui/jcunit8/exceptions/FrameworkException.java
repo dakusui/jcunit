@@ -27,7 +27,16 @@ public abstract class FrameworkException extends BaseException {
   }
 
   public static FrameworkException unexpectedByDesign(Throwable t) {
+    if (t instanceof Error)
+      throw (Error) t;
+    if (t instanceof RuntimeException)
+      throw (RuntimeException) t;
     throw new FrameworkException("Unexpected by design", t) {
+    };
+  }
+
+  public static FrameworkException unexpectedByDesign(String message) {
+    throw new FrameworkException(String.format("Unexpected by design:%s", message)) {
     };
   }
 }
