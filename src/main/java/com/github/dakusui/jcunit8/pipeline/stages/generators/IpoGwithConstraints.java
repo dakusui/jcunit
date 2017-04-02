@@ -85,7 +85,7 @@ public class IpoGwithConstraints extends IpoG {
       allFactors.forEach(factor -> put(factor.getName(), factor));
     }};
     List<Constraint> allConstraints = this.factorSpace.getConstraints();
-    List<Tuple> ts = allPossibleTuples(this.factorSpace.getFactors(), t)
+    List<Tuple> ts = allPossibleTuples(this.factorSpace.getFactors().subList(0, t), t)
         .collect(toList());
     List<Factor> processedFactors = new LinkedList<>(allFactors.subList(0, t));
     int n = allFactors.size();
@@ -96,7 +96,11 @@ public class IpoGwithConstraints extends IpoG {
      */
     TupleSet π;
     for (int i = t + 1; i <= n; i++) {
+      /*     5.    let π be the set of t -way combinations of values involving parameter
+       *            Pi and t -1 parameters among the first i – 1 parameters
+       */
       Factor Pi = allFactors.get(i - 1);
+      π = prepare_π(processedFactors, Pi, t);
       ////
       // OVERRIDING
       List<String> processedFactorNames = processedFactors.stream().map(Factor::getName).collect(toList());
@@ -118,10 +122,6 @@ public class IpoGwithConstraints extends IpoG {
       // OVERRIDING
       ////
 
-      /*     5.    let π be the set of t -way combinations of values involving parameter
-       *            Pi and t -1 parameters among the first i – 1 parameters
-       */
-      π = prepare_π(processedFactors, Pi, t);
       /*     6.     // horizontal extension for parameter Pi
        *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
        */
@@ -159,18 +159,14 @@ public class IpoGwithConstraints extends IpoG {
           List<Tuple> work = ts;
           Tuple chosenTest = chooseTestToCoverGivenTuple(processedFactors, ts, σ)
               // OVERRIDING
-              .filter(tuple -> satisfiesAllOf(fullyInvolvedConstraints).test(tuple))
+              .map(this::removeDontCareValues)
+              .filter(tuple -> satisfiesAllOf(fullyInvolved(allConstraints, tuple.keySet())).test(tuple))
               // OVERRIDING
               .filter(
                   tuple -> assignmentsAllowedByAllPartiallyInvolvedConstraints(
                       tuple,
-                      Stream.concat(
-                          tuple.keySet().stream()
-                              .filter(s -> Objects.equals(tuple.get(s), DontCare))
-                              .map(allFactorsMap::get),
-                          allInvolvedFactorsNotInTuple.stream()
-                      ).collect(toList()),
-                      partiallyInvolvedConstraints
+                      involvedFactorsNotInTuple(allInvolvedFactorsNotInTuple, allConstraints, tuple.keySet()),
+                      partiallyInvolved(allConstraints, tuple.keySet())
                   ).findFirst().isPresent())
               .findFirst()
               .orElseGet(() -> {
@@ -196,6 +192,37 @@ public class IpoGwithConstraints extends IpoG {
     }
     ts.addAll(0, seeds);
     return ts;
+  }
+
+  private static List<Factor> involvedFactorsNotInTuple(List<Factor> factors, List<Constraint> allConstraints, Set<String> factorNamesInTuple) {
+    return factors.stream()
+        .filter(factor -> !factorNamesInTuple.contains(factor.getName()))
+        .filter(((Predicate<Factor>) factor -> fullyInvolved(allConstraints, factorNamesInTuple).stream().flatMap(constraint -> constraint.involvedKeys().stream()).collect(toSet()).contains(factor.getName()))
+            .or(factor -> partiallyInvolved(allConstraints, factorNamesInTuple).stream().flatMap(constraint -> constraint.involvedKeys().stream()).collect(toSet()).contains(factor.getName())))
+        .collect(toList());
+  }
+
+  private static List<Constraint> fullyInvolved(List<Constraint> constraints, Set<String> factorNames) {
+    return constraints.stream()
+        .filter(constraint -> factorNames.containsAll(constraint.involvedKeys()))
+        .collect(toList());
+  }
+
+  private static List<Constraint> partiallyInvolved(List<Constraint> constraints, Set<String> factorNames) {
+    return constraints.stream()
+        .filter(constraint -> !factorNames.containsAll(constraint.involvedKeys()))
+        .filter(constraint -> !disjoint(constraint.involvedKeys(), factorNames))
+        .collect(toList());
+  }
+
+  private Tuple removeDontCareValues(Tuple tuple) {
+    if (!tuple.containsValue(DontCare))
+      return tuple;
+    Tuple.Builder builder = new Tuple.Builder();
+    tuple.keySet().stream()
+        .filter(s -> !Objects.equals(tuple.get(s), DontCare))
+        .forEach(s -> builder.put(s, tuple.get(s)));
+    return builder.build();
   }
 
   @Override
