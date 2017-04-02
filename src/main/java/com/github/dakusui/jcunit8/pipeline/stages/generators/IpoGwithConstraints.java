@@ -204,25 +204,34 @@ public class IpoGwithConstraints extends IpoG {
      *            Pi and t -1 parameters among the first i – 1 parameters
      */
     processedFactors.add(factor);
-    List<Constraint> fullyInvolvedConstraints = getFullyInvolvedConstraints(
-        processedFactors.stream().map(Factor::getName).collect(toList()),
-        this.factorSpace.getConstraints()
-    );
-    List<Constraint> partiallyInvolvedConstraints = getPartiallyInvolvedConstraints(
-        processedFactors.stream().map(Factor::getName).collect(toList()),
-        this.factorSpace.getConstraints()
-    );
     return new TupleSet.Builder().addAll(
         new StreamableCombinator<>(
             processedFactors,
             strength
         ).stream()
-            .flatMap(factors -> new StreamableTupleCartesianator(factors).stream())
-            .filter(tuple -> !precovered.contains(tuple))
-            .filter(tuple -> satisfiesAllOf(fullyInvolvedConstraints).test(tuple))
-            .filter(tuple -> satisfiesAllOf(partiallyInvolvedConstraints).test(tuple))
+            .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
+            .filter((Tuple tuple) -> !precovered.contains(tuple))
+            .filter((Tuple tuple) -> satisfiesAllOf(constraintsFullyCoveredBy(this.factorSpace.getConstraints(), tuple)).test(tuple))
+            .filter((Tuple tuple) -> assignmentsAllowedByAllPartiallyInvolvedConstraints(
+                tuple,
+                processedFactors.stream().filter((Factor eachFactor) -> !tuple.keySet().contains(eachFactor.getName())).collect(toList()),
+                constraintsPartiallyCoveredBy(this.factorSpace.getConstraints(), tuple)
+            ).findFirst().isPresent())
             .collect(toList()))
         .build();
+  }
+
+  private List<Constraint> constraintsFullyCoveredBy(List<Constraint> constraints, Tuple tuple) {
+    return constraints.stream()
+        .filter(constraint -> tuple.keySet().containsAll(constraints))
+        .collect(toList());
+  }
+
+  private List<Constraint> constraintsPartiallyCoveredBy(List<Constraint> constraints, Tuple tuple) {
+    return constraints.stream()
+        .filter(constraint -> !tuple.keySet().containsAll(constraint.involvedKeys()))
+        .filter(constraint -> !Collections.disjoint(tuple.keySet(), constraint.involvedKeys()))
+        .collect(toList());
   }
 
 
@@ -332,9 +341,15 @@ public class IpoGwithConstraints extends IpoG {
         .orElse(tuple -> true);
   }
 
-  private static Stream<Tuple> assignmentsAllowedByAllPartiallyInvolvedConstraints(Tuple tuple, List<Factor> allInvolvedFactorsNotInTuple, List<Constraint> partiallyInvolvedConstraints) {
+  private static Stream<Tuple> assignmentsAllowedByAllPartiallyInvolvedConstraints(
+      Tuple tuple,
+      List<Factor> allInvolvedFactorsNotInTuple,
+      List<Constraint> partiallyInvolvedConstraints
+  ) {
     return new StreamableTupleCartesianator(allInvolvedFactorsNotInTuple).stream()
-        .map(eachTuple -> new Tuple.Builder().putAll(tuple).putAll(eachTuple).build())
+        .map(eachTuple -> {
+          return new Tuple.Builder().putAll(tuple).putAll(eachTuple).build();
+        })
         .filter(
             (Tuple eachTuple) -> partiallyInvolvedConstraints.stream()
                 .allMatch(
@@ -352,7 +367,7 @@ public class IpoGwithConstraints extends IpoG {
 
   private static List<Constraint> getFullyInvolvedConstraints(List<String> factorNames, List<Constraint> allConstraints) {
     return allConstraints.stream()
-        .filter(constraint -> factorNames.containsAll(constraint.involvedKeys()))
+        .filter((Constraint eachConstraint) -> factorNames.containsAll(eachConstraint.involvedKeys()))
         .collect(toList());
   }
 }
