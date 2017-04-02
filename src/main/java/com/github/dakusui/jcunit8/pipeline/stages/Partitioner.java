@@ -13,21 +13,23 @@ import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
-public interface Partitioner extends Function<List<FactorSpace>, List<FactorSpace>> {
+public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
   class Standard implements Partitioner {
     @Override
-    public List<FactorSpace> apply(List<FactorSpace> factorSpaces) {
-      List<Constraint> constraints = factorSpaces.stream().flatMap(factorSpace -> factorSpace.getConstraints().stream()).collect(toList());
+    public List<FactorSpace> apply(FactorSpace factorSpace) {
+      List<Constraint> constraints = new LinkedList<>(factorSpace.getConstraints());
       List<List<Constraint>> groupedConstraints = new LinkedList<>();
       while (!constraints.isEmpty()) {
         groupedConstraints.add(findConnectedConstraints(constraints.remove(0), constraints));
       }
 
       List<FactorSpace> ret = new LinkedList<>();
-      List<Factor> factors = factorSpaces.stream().flatMap(factorSpace -> factorSpace.getFactors().stream()).collect(toList());
+      List<Factor> factors = factorSpace.getFactors();
       for (List<Constraint> eachConstraintGroup : groupedConstraints) {
         List<String> involvedKeys = Utils.unique(eachConstraintGroup.stream().flatMap(constraint -> constraint.involvedKeys().stream()).collect(toList()));
         List<Factor> involvedFactors = factors.stream().filter(factor -> involvedKeys.contains(factor.getName())).collect(toList());
+        if (involvedFactors.isEmpty())
+          continue;
         ret.add(FactorSpace.create(
             involvedFactors,
             eachConstraintGroup

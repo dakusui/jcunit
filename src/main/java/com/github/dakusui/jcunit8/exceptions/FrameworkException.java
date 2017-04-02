@@ -21,6 +21,14 @@ public abstract class FrameworkException extends BaseException {
       throw exceptionFactory.apply(messageSupplier.get());
   }
 
+  public static void checkCondition(boolean b, Function<String, ? extends FrameworkException> exceptionFactory) {
+    checkCondition(b, exceptionFactory, () -> "Unexpected by design");
+  }
+
+  public static void checkCondition(boolean b) {
+    checkCondition(b, FrameworkException::unexpectedByDesign);
+  }
+
   public static FrameworkException unexpectedByDesign() {
     throw new FrameworkException("Unexpected by design") {
     };

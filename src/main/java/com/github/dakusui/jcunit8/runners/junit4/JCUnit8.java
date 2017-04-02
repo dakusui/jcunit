@@ -1,9 +1,9 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
-import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
+import com.github.dakusui.jcunit8.exceptions.BaseException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.factorspace.TestPredicate;
@@ -12,16 +12,18 @@ import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Oracle;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
+import org.junit.Ignore;
+import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
@@ -29,34 +31,54 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunit8.factorspace.Parameter.Factory;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 public class JCUnit8 extends org.junit.runners.Parameterized {
   private final SortedMap<String, TestPredicate> predicates;
-  private       TestSuite<Tuple>                 testSuite;
+  private final TestSuite<Tuple>                 testSuite;
   private final List<Runner>                     runners;
 
   public JCUnit8(Class<?> klass) throws Throwable {
     super(klass);
-    ConfigFactory configFactory = getConfigFactory();
-    this.predicates = buildTestConstraintMap(configFactory);
-    this.testSuite = buildTestSuite(
-        configFactory.create(),
-        buildParameterSpace(
-            buildParameterMap(configFactory).values().stream()
-                .collect(toList()),
-            this.predicates.values().stream()
-                .filter(each -> each instanceof Constraint)
-                .map(Constraint.class::cast)
-                .collect(toList())
-        ));
-    this.runners = createRunners();
+    try {
+      ConfigFactory configFactory = getConfigFactory();
+      this.predicates = buildTestConstraintMap(configFactory);
+      this.testSuite = buildTestSuite(
+          configFactory.create(),
+          buildParameterSpace(
+              buildParameterMap(configFactory).values().stream()
+                  .collect(toList()),
+              this.predicates.values().stream()
+                  .filter(each -> each instanceof Constraint)
+                  .map(Constraint.class::cast)
+                  .collect(toList())
+          ));
+      this.runners = createRunners();
+    } catch (BaseException e) {
+      if (e.getCause() instanceof InitializationError) {
+        throw e.getCause();
+      }
+      throw e;
+    }
   }
+
+  @Override
+  protected void collectInitializationErrors(List<Throwable> errors) {
+    super.collectInitializationErrors(errors);
+    this.validateParameterSourceMethods(errors);
+  }
+
+  private void validateParameterSourceMethods(List<Throwable> errors) {
+    // TODO
+  }
+
 
   @Override
   protected List<Runner> getChildren() {
@@ -67,17 +89,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
    * Mock {@code Parameterized} runner of JUnit 4.12.
    */
   @Override
-  protected TestClass createTestClass(Class<?> clazz) {
-    return new TestClass(clazz) {
-      public List<FrameworkMethod> getAnnotatedMethods(
-          Class<? extends Annotation> annotationClass) {
-        if (Parameterized.Parameters.class.equals(annotationClass)) {
-          return singletonList(new FrameworkMethod(ReflectionUtils.getMethod(DummyMethodHolderForParameterizedRunner.class, "dummy")));
-
-        }
-        return super.getAnnotatedMethods(annotationClass);
-      }
-    };
+  protected TestClass createTestClass(Class<?> testClass) {
+    return createTestClassMock(super.createTestClass(testClass));
   }
 
   private ConfigFactory getConfigFactory() {
@@ -99,104 +112,20 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   private List<Runner> createRunners() {
     AtomicInteger i = new AtomicInteger(0);
     return this.testSuite.stream()
-        .map(new Function<TestCase<Tuple>, Runner>() {
-          @Override
-          public Runner apply(TestCase<Tuple> tupleTestCase) {
-            try {
-              return new BlockJUnit4ClassRunner(getTestClass().getClass()) {
-                int id = i.getAndIncrement();
-
-                @Override
-                protected String getName() {
-                  return String.format("[%d]", this.id);
-                }
-
-                @Override
-                protected String testName(final FrameworkMethod method) {
-                  return String.format("%s[%d]", method.getName(), this.id);
-                }
-
-                @Override
-                protected void validateConstructor(List<Throwable> errors) {
-                  validateZeroArgConstructor(errors);
-                }
-
-                protected void validateTestMethods(List<Throwable> errors) {
-                  validatePublicVoidNoArgMethods(Oracle.class, false, errors);
-                }
-
-                @Override
-                protected Description describeChild(FrameworkMethod method) {
-                  String name = testName(method);
-                  List<? super Annotation> annotations = asList(method.getAnnotations());
-                  ////
-                  // Elements in the list are all annotations.
-                  //noinspection SuspiciousToArrayCall
-                  return Description.createTestDescription(
-                      getTestClass().getJavaClass(),
-                      name,
-                      annotations.toArray(new Annotation[annotations.size()]));
-                }
-
-
-                @Override
-                public List<FrameworkMethod> getChildren() {
-                  List<FrameworkMethod> ret = new LinkedList<>();
-                  for (FrameworkMethod each : computeTestMethods()) {
-                    if (shouldInvoke(each, createTest()))
-                      ret.add(each);
-                  }
-                  if (ret.isEmpty())
-                    ret.add(getDummyMethodForNoMatchingMethodFound());
-                  return ret;
-                }
-
-                private boolean shouldInvoke(FrameworkMethod each, Object test) {
-                  return true;
-                }
-
-                @Override
-                public Object createTest() {
-                  try {
-                    return getTestClass().getOnlyConstructor().newInstance();
-                  } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                    throw unexpectedByDesign(e);
-                  }
-                }
-
-
-                private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
-                  try {
-                    return new FrameworkMethod(getClass().getMethod("noMatchingTestMethodIsFoundForThisTestCase")) {
-                      @Override
-                      public String getName() {
-                        return String.format("%s:%s", super.getName(), TupleUtils.toString(tupleTestCase.get()));
-                      }
-                    };
-                  } catch (NoSuchMethodException e) {
-                    throw unexpectedByDesign(e);
-                  }
-                }
-              };
-            } catch (InitializationError initializationError) {
-              throw unexpectedByDesign(initializationError);
-            }
+        .map((Function<TestCase<Tuple>, Runner>) tupleTestCase -> {
+          try {
+            return new MyBlockJUnit4ClassRunner(i.getAndIncrement(), tupleTestCase);
+          } catch (InitializationError initializationError) {
+            throw unexpectedByDesign(initializationError);
           }
-
         })
         .collect(toList());
   }
 
-  /**
-   * A class referenced by createTestClass method.
-   * This is only used to mock JUnit's Parameterized runner.
-   */
-  public static class DummyMethodHolderForParameterizedRunner {
-    @SuppressWarnings("unused") // This method is referenced reflectively.
-    @Parameters
-    public static Object[][] dummy() {
-      return new Object[][] { {} };
-    }
+  private Optional<TestPredicate> lookupTestPredicate(String name) {
+    return this.predicates.containsKey(name) ?
+        Optional.of(this.predicates.get(name)) :
+        Optional.empty();
   }
 
   private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(ConfigFactory configFactory) {
@@ -226,17 +155,15 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
   private static Function<Object, TestPredicate> buildTestPredicateCreatorFrom(FrameworkMethod method) {
-    List<String> involvedParameterNames = getParameterAnnotationsFrom(method, From.class).stream()
-        .map(From::value)
-        .collect(toList());
     return o -> new TestPredicate() {
       @Override
-      public boolean test(Tuple testObject) {
+      public boolean test(Tuple tuple) {
         try {
-          return (boolean) method.invokeExplosively(o, involvedParameterNames.stream()
-              .map(testObject::get)
-              .toArray()
-          );
+          return (boolean) method.invokeExplosively(
+              o,
+              involvedKeys().stream()
+                  .map(tuple::get)
+                  .toArray());
         } catch (Throwable e) {
           throw unexpectedByDesign(e);
         }
@@ -244,7 +171,9 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
       @Override
       public List<String> involvedKeys() {
-        return involvedParameterNames;
+        return getParameterAnnotationsFrom(method, From.class).stream()
+            .map(From::value)
+            .collect(toList());
       }
     };
   }
@@ -260,7 +189,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
     return (Object o) -> {
       try {
-        return (com.github.dakusui.jcunit8.factorspace.Parameter.Factory) method.invokeExplosively(o);
+        return (Factory) method.invokeExplosively(o);
       } catch (Throwable throwable) {
         throw unexpectedByDesign(throwable);
       }
@@ -276,5 +205,165 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
               .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
               .findFirst().orElseThrow(RuntimeException::new);
         }).collect(toList());
+  }
+
+  /**
+   * This method is only used through reflection to let JUnit know the test case is ignored since
+   * no matching test method is defined for it.
+   *
+   * @see JCUnit8.MyBlockJUnit4ClassRunner#getDummyMethodForNoMatchingMethodFound()
+   */
+  @Ignore
+  @SuppressWarnings("unused")
+  public static void noMatchingTestMethodIsFoundForThisTestCase() {
+  }
+
+
+  private class MyBlockJUnit4ClassRunner extends BlockJUnit4ClassRunner {
+    private final TestCase<Tuple> tupleTestCase;
+    int id;
+
+    MyBlockJUnit4ClassRunner(int id, TestCase<Tuple> tupleTestCase) throws InitializationError {
+      super(JCUnit8.this.getTestClass().getJavaClass());
+      this.tupleTestCase = tupleTestCase;
+      this.id = id;
+    }
+
+    @Override
+    protected String getName() {
+      return String.format("[%d]", this.id);
+    }
+
+    @Override
+    protected String testName(final FrameworkMethod method) {
+      return String.format("%s[%d]", method.getName(), this.id);
+    }
+
+    @Override
+    protected void validateConstructor(List<Throwable> errors) {
+      validateZeroArgConstructor(errors);
+    }
+
+    @Override
+    protected void validateTestMethods(List<Throwable> errors) {
+      // TODO
+    }
+
+    @Override
+    protected Description describeChild(FrameworkMethod method) {
+      return Description.createTestDescription(
+          getTestClass().getJavaClass(),
+          testName(method),
+          method.getAnnotations()
+      );
+    }
+
+    @Override
+    public List<FrameworkMethod> getChildren() {
+      try {
+        List<FrameworkMethod> ret = new LinkedList<>();
+        for (FrameworkMethod each : computeTestMethods()) {
+          if (shouldInvoke(each, tupleTestCase.get()))
+            ret.add(each);
+        }
+        if (ret.isEmpty())
+          ret.add(getDummyMethodForNoMatchingMethodFound());
+        return ret;
+      } catch (Throwable t) {
+        throw unexpectedByDesign(t);
+      }
+    }
+
+    /**
+     * Returns a {@link Statement} that invokes {@code method} on {@code test}
+     */
+    @Override
+    protected Statement methodInvoker(final FrameworkMethod method, final Object test) {
+      return new InvokeMethod(method, test) {
+        @Override
+        public void evaluate() throws Throwable {
+          Object[] args = getParameterAnnotationsFrom(method, From.class).stream()
+              .map(From::value)
+              .map(s -> tupleTestCase.get().get(s))
+              .collect(toList())
+              .toArray();
+          method.invokeExplosively(test, args);
+        }
+      };
+    }
+
+    @Override
+    public Object createTest() {
+      try {
+        return getTestClass().getOnlyConstructor().newInstance();
+      } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        throw unexpectedByDesign(e);
+      }
+    }
+
+    @Override
+    protected Annotation[] getRunnerAnnotations() {
+      return new Annotation[0];
+    }
+
+    private boolean shouldInvoke(FrameworkMethod each, Tuple tuple) {
+      ////
+      // TODO: Should be memoized.
+      return buildPredicate(each.getAnnotation(Given.class).value()).test(tuple);
+    }
+
+    private <T> Predicate<T> buildPredicate(String[] definition) {
+      try {
+        return Arrays.stream(definition)
+            .map((String s) -> asList(s.split("&&")))
+            .map(
+                (List<String> terms) -> terms.stream()
+                    .map((String s) -> {
+                      if (Given.ALL_CONSTRAINTS.equals(s)) {
+                        StringJoiner joiner = new StringJoiner("&&");
+                        predicates.keySet().stream()
+                            .filter(k -> predicates.get(k) instanceof Constraint)
+                            .forEach(joiner::add);
+                        return joiner.toString();
+                      }
+                      return s;
+                    })
+                    .map((String s) -> {
+                      String name = s;
+                      boolean negate = false;
+                      if (s.startsWith("!")) {
+                        negate = true;
+                        name = s.substring(1);
+                      }
+                      TestPredicate predicate = lookupTestPredicate(name).orElseThrow(() -> unexpectedByDesign(s));
+                      //noinspection unchecked
+                      return !negate ?
+                          (Predicate<T>) predicate :
+                          (Predicate<T>) predicate.negate();
+
+                    })
+                    .reduce(Predicate::and)
+                    .orElse((T t) -> false)
+            )
+            .reduce(Predicate::or)
+            .orElse((T t) -> true);
+      } catch (Exception e) {
+        e.printStackTrace();
+        throw unexpectedByDesign(e);
+      }
+    }
+
+    private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
+      try {
+        return new FrameworkMethod(JCUnit8.class.getMethod("noMatchingTestMethodIsFoundForThisTestCase")) {
+          @Override
+          public String getName() {
+            return String.format("%s:%s", super.getName(), TupleUtils.toString(tupleTestCase.get()));
+          }
+        };
+      } catch (NoSuchMethodException e) {
+        throw unexpectedByDesign(e);
+      }
+    }
   }
 }

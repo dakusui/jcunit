@@ -10,11 +10,13 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @ValidateWith(Given.Validator.class)
 public @interface Given {
+  String ALL_CONSTRAINTS = "*";
+
   /**
    * Returns an array of method names within the same class this annotation is
    * attached to.
    */
-  String[] value() default {};
+  String[] value() default { ALL_CONSTRAINTS };
 
   class Validator extends AnnotationValidator {
   }

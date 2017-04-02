@@ -17,7 +17,7 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tup
 
   private static Domains<String, Object> buildDomains(List<Factor> factors) {
     Domains.Builder<String, Object> builder = new Domains.Builder<>();
-    factors.forEach(factor -> builder.addDomain(factor.getName(), factor.getLevels()));
+    factors.forEach(factor -> builder.addDomain(factor.getName(), factor.getLevels().toArray()));
     return builder.build();
   }
 

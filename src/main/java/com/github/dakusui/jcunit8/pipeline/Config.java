@@ -22,9 +22,9 @@ public interface Config<T> {
   /**
    * Returns a function that encodes a parameter space into internal factor spaces.
    */
-  Function<ParameterSpace, List<FactorSpace>> encoder();
+  Function<ParameterSpace, FactorSpace> encoder();
 
-  Function<List<FactorSpace>, List<FactorSpace>> partitioner();
+  Function<FactorSpace, List<FactorSpace>> partitioner();
 
   Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement);
 
@@ -93,15 +93,17 @@ public interface Config<T> {
     }
 
     @Override
-    public Function<ParameterSpace, List<FactorSpace>> encoder() {
-      return (ParameterSpace parameterSpace) -> parameterSpace.getParameterNames().stream()
-          .map((Function<String, Parameter>) parameterSpace::getParameter)
-          .map(Parameter::toFactorSpace)
-          .collect(toList());
+    public Function<ParameterSpace, FactorSpace> encoder() {
+      return (ParameterSpace parameterSpace) -> FactorSpace.create(parameterSpace.getParameterNames().stream()
+              .map((Function<String, Parameter>) parameterSpace::getParameter)
+              .map(Parameter::toFactorSpace)
+              .flatMap(factorSpace -> factorSpace.getFactors().stream())
+              .collect(toList()),
+          parameterSpace.getConstraints());
     }
 
     @Override
-    public Function<List<FactorSpace>, List<FactorSpace>> partitioner() {
+    public Function<FactorSpace, List<FactorSpace>> partitioner() {
       return partitioner;
     }
 
