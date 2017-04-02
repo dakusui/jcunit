@@ -37,7 +37,17 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
         factors.removeAll(involvedFactors);
       }
 
-      ret.add(FactorSpace.create(factors, Collections.emptyList()));
+      ret.add(FactorSpace.create(
+          factors,
+          factorSpace.getConstraints().stream()
+              .filter(constraint -> !Collections.disjoint(
+                  constraint.involvedKeys(),
+                  factors.stream()
+                      .map(Factor::getName)
+                      .collect(toList())
+              ))
+              .collect(toList())
+      ));
       return ret;
     }
 
