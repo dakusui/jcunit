@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit8.testsuite;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.core.Utils;
+import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStrengthIsInRange;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * A list of tuples all of whose entries have the same attribute names. An implementation
@@ -38,7 +40,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
     // Make sure all the tuples in this suite object have the same set of attribute
     // names.
     tuples.forEach(tuple -> {
-      assert attributeNames.equals(new ArrayList<>(tuple.keySet()));
+      FrameworkException.checkCondition(attributeNames.stream().collect(toSet()).equals(tuple.keySet()));
     });
 
     class Impl extends AbstractList<Tuple> implements SchemafulTupleSet {

@@ -214,7 +214,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
    * @see JCUnit8.MyBlockJUnit4ClassRunner#getDummyMethodForNoMatchingMethodFound()
    */
   @Ignore
-  @SuppressWarnings("unused")
+  @SuppressWarnings({ "unused", "WeakerAccess" })
   public static void noMatchingTestMethodIsFoundForThisTestCase() {
   }
 
