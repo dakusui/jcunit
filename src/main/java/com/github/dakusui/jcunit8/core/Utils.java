@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.function.Function;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
 import static java.util.Collections.singletonList;
@@ -76,5 +77,14 @@ public enum Utils {
 
   private static Method getToStringMethod(Class<?> klass) {
     return getMethod(klass, "toString");
+  }
+
+  public static <T> T debug(T value) {
+    return debug(value, t -> t);
+  }
+
+  public static <T> T debug(T value, Function<T, Object> formatter) {
+    System.out.println(formatter.apply(value));
+    return value;
   }
 }

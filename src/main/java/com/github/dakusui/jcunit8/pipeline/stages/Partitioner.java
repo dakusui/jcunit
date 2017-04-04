@@ -20,7 +20,12 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
       List<Constraint> constraints = new LinkedList<>(factorSpace.getConstraints());
       List<List<Constraint>> groupedConstraints = new LinkedList<>();
       while (!constraints.isEmpty()) {
-        groupedConstraints.add(findConnectedConstraints(constraints.remove(0), constraints));
+        groupedConstraints.add(new LinkedList<Constraint>() {
+          {
+            add(constraints.remove(0));
+            addAll(findConnectedConstraints(get(0), constraints));
+          }
+        });
       }
 
       List<FactorSpace> ret = new LinkedList<>();

@@ -8,8 +8,8 @@ public interface Constraint extends TestPredicate {
   static Constraint fromCondition(TestPredicate testPredicate) {
     return new Constraint() {
       @Override
-      public boolean test(Tuple testObject) {
-        return testPredicate.test(testObject);
+      public boolean test(Tuple tuple) {
+        return testPredicate.test(tuple);
       }
 
       @Override

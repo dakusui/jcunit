@@ -12,20 +12,21 @@ import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo.DontCare;
+import static java.util.Collections.disjoint;
+import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
-abstract public class IpoG extends Generator.Base {
-  final TupleSet precovered;
+public class IpoG extends Generator.Base {
+  private final TupleSet precovered;
 
-  IpoG(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
+  public IpoG(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
     super(seeds, factorSpace, requirement);
     this.precovered = new TupleSet.Builder().addAll(seeds.stream()
         .flatMap(tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream())
@@ -66,47 +67,214 @@ abstract public class IpoG extends Generator.Base {
    * </pre>
    */
   @Override
-  abstract public List<Tuple> generateCore();
+  public List<Tuple> generateCore() {
+    if (this.factorSpace.getFactors().size() == this.requirement.strength()) {
+      return allPossibleTuples(this.factorSpace.getFactors(), this.requirement.strength())
+          .filter(satisfiesAllOf(this.factorSpace.getConstraints())) // OVERRIDING
+          .collect(toList());
+    }
 
-  abstract TupleSet prepare_π(List<Factor> processedFactors, Factor factor, int strength);
+    /*
+     *   Algorithm: IPOG-Test (int t , ParameterSet ps ) {
+     *     1.  initialize test set ts to be an empty set
+     *     2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
+     *         and Pn
+     *     3.  add into test set ts a test for each combination of values of the first
+     *         t parameters
+     */
+    int t = this.requirement.strength();
+    List<Factor> allFactors = this.factorSpace.getFactors().stream()
+        .sorted(comparingInt(o -> -o.getLevels().size()))
+        .collect(toList());
+    List<Constraint> allConstraints = this.factorSpace.getConstraints();
+    List<Tuple> ts = allPossibleTuples(allFactors.subList(0, t), t)
+        .collect(toList());
+    List<Factor> processedFactors = new LinkedList<>(allFactors.subList(0, t));
+    int n = allFactors.size();
+  /*
+   *     4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
+     *         * t; strength
+     *         * 0-origin
+     */
+    TupleSet π;
+    for (int i = t + 1; i <= n; i++) {
+      System.out.println("=======");
+      ts.forEach(System.out::println);
+      System.out.println("-------");
+      /*     5.    let π be the set of t -way combinations of values involving parameter
+       *            Pi and t -1 parameters among the first i – 1 parameters
+       */
+      Factor Pi = allFactors.get(i - 1);
+      π = prepare_π(processedFactors, Pi, allFactors, allConstraints, t);
+      /*     6.     // horizontal extension for parameter Pi
+       *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
+       */
+      for (Tuple τ : ts) {
+        /*     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+         *                ..., vi-1 , vi ) so that τ’ covers the most number of
+         *                combinations of values in π
+         */
+        // OVERRIDING
+        Object vi = chooseLevelThatCoversMostTuples(
+            τ, Pi, π, t,
+            allFactors,
+            allConstraints
+        ).orElseThrow(FrameworkException::unexpectedByDesign);
+        τ.put(Pi.getName(), vi);
+        /*  9.         remove from π the combinations of values covered by τ’
+         */
+        π.removeAll(TupleUtils.subtuplesOf(modifyTupleWith(τ, Pi.getName(), vi), t));
+      }
+
+      System.out.println("****");
+      ts.forEach(System.out::println);
+      System.out.println("::::");
+      /* 10.
+       * 11.    // vertical extension for parameter P i
+       * 12.    for (each combination σ in set π ) {
+       */
+      for (Tuple σ : new LinkedList<>(π)) {
+        /* 13.      if (there exists a test that already covers σ ) {
+         * 14.          remove σ from π
+         * 15.      } else {
+         * 16.        change an existing test, if possible, or otherwise add a new test
+         *            to cover σ and remove it from π
+         * 17.      }
+         */
+        if (ts.stream().anyMatch((Tuple each) -> TupleUtils.isSubtupleOf(σ, each))) {
+          π.remove(σ);
+        } else {
+          List<Tuple> work = ts;
+          Tuple chosenTest = incompleteTestsToCoverGivenTuple(ts, σ)
+              .filter(
+                  tuple -> assignmentsAllowedByConstraints(
+                      new Tuple.Builder().putAll(removeDontCares(tuple)).putAll(σ).build(),
+                      allFactors,
+                      allConstraints
+                  ).findFirst().isPresent())
+              .findFirst()
+              .orElseGet(() -> {
+                Tuple ret = createTupleFrom(
+                    processedFactors.stream().map(Factor::getName).collect(toList()),
+                    σ
+                );
+                System.out.println("orElse:" + ret);
+                work.add(ret);
+                return ret;
+              });
+          /*
+           * <pre>
+           * 16. change an existing test, if possible, or otherwise add a new test
+           *     to cover σ
+           * </pre>
+           */
+          chosenTest.putAll(σ);
+          π.remove(σ);
+        }
+      }
+      System.out.println("====");
+      ts/*.stream().filter(tuple -> tuple.containsValue(DontCare))*/.forEach(System.out::println);
+      ts = ts.stream()
+          .map(
+              replaceDontCareValuesWithActualLevels(
+                  allFactors,
+                  allConstraints)
+          ).collect(toList());
+      System.out.println("----");
+      ts/*.stream().filter(tuple -> tuple.containsValue(DontCare)))*/.forEach(System.out::println);
+      System.out.println("....");
+    }
+    ts.addAll(0, seeds);
+    return ts;
+  }
+
+  private TupleSet prepare_π(List<Factor> alreadyProcessedFactors, Factor factor, List<Factor> allFactors, List<Constraint> allConstraints, int strength) {
+    /*     5.     let π be the set of t -way combinations of values involving parameter
+     *            Pi and t -1 parameters among the first i – 1 parameters
+     */
+    alreadyProcessedFactors.add(factor);
+    return new TupleSet.Builder().addAll(
+        new StreamableCombinator<>(
+            alreadyProcessedFactors,
+            strength
+        ).stream()
+            .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
+            .filter((Tuple tuple) -> !precovered.contains(tuple))
+            .filter((Tuple tuple) -> satisfiesAllOf(
+                getFullyInvolvedConstraints(
+                    tuple.keySet(),
+                    allConstraints)).test(tuple))
+            .filter((Tuple tuple) -> assignmentsAllowedByConstraints(
+                tuple,
+                allFactors,
+                allConstraints
+            ).findFirst().isPresent())
+            .collect(toList()))
+        .build();
+  }
 
   /*
    *  8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
    *             ..., vi-1 , vi ) so that τ’ covers the most number of
    *             combinations of values in π
    */
-  abstract Optional<Object> chooseLevelThatCoversMostTuples(Tuple τ, Factor fi, TupleSet π, int t, List<Factor> allFactors, List<Constraint> fullyInvolvedConstraints, List<Constraint> partiallyInvolvedConstraints);
+  private static Optional<Object> chooseLevelThatCoversMostTuples(Tuple τ, Factor fi, TupleSet π, int t, List<Factor> allFactors, List<Constraint> allConstraints) {
+    return fi.getLevels().stream()
+        .map(o -> modifyTupleWith(τ, fi.getName(), o))
+        .filter(
+            tuple -> satisfiesAllOf(getFullyInvolvedConstraints(
+                tuple.keySet(), allConstraints)
+            ).test(tuple)
+        )
+        .filter(
+            tuple -> assignmentsAllowedByConstraints(
+                tuple,
+                allFactors,
+                allConstraints
+            ).findFirst().isPresent()
+        )
+        .max(
+            (Tuple t1, Tuple t2) ->
+                (int) (countCoveredTuplesBy(t1, π, t) - countCoveredTuplesBy(t2, π, t))
+        )
+        .map((Tuple tuple) -> tuple.get(fi.getName()));
+  }
 
-  Tuple modifyTupleWith(Tuple τ, String factorName, Object o1) {
+  private static Tuple modifyTupleWith(Tuple τ, String factorName, Object o1) {
     return new Tuple.Builder().putAll(τ).put(factorName, o1).build();
   }
 
-  long countCoveredTuplesBy(Tuple τ$, final TupleSet π, int t) {
+  /**
+   * Counts number of tuples in {@code π} covered by {@code τ$}.
+   *
+   * @param τ$ A tuple to cover tuples in π.
+   * @param π  A set of tuples to be covered by {@code τ$}.
+   * @param t  strength
+   */
+  private static long countCoveredTuplesBy(Tuple τ$, final TupleSet π, int t) {
     return TupleUtils.subtuplesOf(τ$, t).stream()
         .filter(π::contains)
         .count();
   }
 
-  Stream<Tuple> allPossibleTuples(List<Factor> factors, int strength) throws FrameworkException {
+  public static Stream<Tuple> allPossibleTuples(List<Factor> factors, int strength) throws FrameworkException {
+    FrameworkException.checkCondition(
+        factors.size() >= strength
+    );
+    Map<String, Factor> factorValues = new HashMap<String, Factor>() {{
+      factors.forEach(factor -> put(factor.getName(), factor));
+    }};
     //noinspection RedundantTypeArguments
     return new StreamableCombinator<>(
         factors.stream()
             .map(Factor::getName)
             .collect(toList()), strength)
         .stream()
-        .flatMap((List<String> strings) -> new StreamableTupleCartesianator(
-            strings.stream()
-                .map(
-                    (String s) -> factors.stream()
-                        .filter(factor -> s.equals(factor.getName()))
-                        .findFirst()
-                        /*
-                         * This explicit type parameter is necessary to suppress a compilation error in some
-                         * JDK versions.
-                         */
-                        .<FrameworkException>orElseThrow(FrameworkException::unexpectedByDesign)
-                )
-                .collect(toList())).stream()
+        .flatMap((List<String> chosenFactorNames) -> new StreamableTupleCartesianator(
+                chosenFactorNames.stream()
+                    .map(factorValues::get)
+                    .collect(toList())
+            ).stream()
         );
   }
 
@@ -120,25 +288,17 @@ abstract public class IpoG extends Generator.Base {
    * σ is a partial tuple.
    * ts is a list of partial test cases,  each of which has same keys.
    * We already know that ts doesn't contain any test that covers σ.
-   * This method chooses a test from ts by
+   * This method chooses tests from ts by
    */
-  Stream<Tuple> chooseTestToCoverGivenTuple(final List<Factor> factors, List<Tuple> ts, final Tuple σ) {
-    Predicate<Tuple> matches = current -> {
-      for (Factor each : figureOutInvolvedFactors(factors, σ)) {
-        Object currentLevel = current.get(each.getName());
-        if (!(DontCare.equals(currentLevel) || Objects.equals(currentLevel, σ.get(each.getName())))) {
-          return false;
-        }
-      }
-      return true;
-    };
-    return ts.stream().filter(matches);
-  }
-
-  private List<Factor> figureOutInvolvedFactors(List<Factor> factors, Tuple σ) {
-    return factors.stream()
-        .filter(factor -> σ.keySet().contains(factor.getName()))
-        .collect(toList());
+  public static Stream<Tuple> incompleteTestsToCoverGivenTuple(List<Tuple> ts, final Tuple σ) {
+    return ts.stream()
+        .filter((Tuple each) -> σ.keySet().stream()
+            .allMatch(eachFactorNameIn_σ -> {
+              if (!each.containsKey(eachFactorNameIn_σ))
+                return true;
+              Object eachLevel = each.get(eachFactorNameIn_σ);
+              return Objects.equals(eachLevel, DontCare) || Objects.equals(eachLevel, σ.get(eachFactorNameIn_σ));
+            }));
   }
 
   /**
@@ -147,56 +307,146 @@ abstract public class IpoG extends Generator.Base {
    *     to cover σ
    * </pre>
    */
-  Tuple createTupleFrom(List<String> processedFactorNames, Tuple σ) {
+  private static Tuple createTupleFrom(List<String> factorNames, Tuple σ) {
     Tuple.Builder builder = new Tuple.Builder();
-    for (String each : processedFactorNames) {
+    for (String each : factorNames) {
       builder.put(each, DontCare);
     }
     builder.putAll(σ);
     return builder.build();
   }
 
-  Function<Tuple, Tuple> replaceDontCareValuesWithActualLevels(final List<Factor> factorsToBeExplored, List<Constraint> allInvolvedConstraints) {
+
+  public static Function<Tuple, Tuple> replaceDontCareValuesWithActualLevels(final List<Factor> allFactors, List<Constraint> allConstraints) {
     return new Function<Tuple, Tuple>() {
       int i = 0;
+      int maxReadAheadSize = allFactors.stream()
+          .map(factor -> factor.getLevels().size())
+          .max(comparingInt(o -> o))
+          .orElseThrow(FrameworkException::unexpectedByDesign);
 
       @Override
       public Tuple apply(Tuple in) {
-        Tuple projected = projectDontCaresOnly(in);
-        for (Factor each : figureOutInvolvedFactors(factorsToBeExplored, projected)) {
-          projected.put(each.getName(), chooseLevelFromSimpleFactor(each));
-        }
-        in.putAll(projected);
-        return in;
+        List<Factor> dontCareFactors = dontCareFactors(in, allFactors);
+        if (dontCareFactors.isEmpty())
+          return in;
+        i = i % maxReadAheadSize;
+        return new Tuple.Builder()
+            .putAll(in)
+            .putAll(
+                chooseAssignment(
+                    assignmentsForDontCaresUnderConstraints(
+                        in,
+                        allFactors,
+                        allConstraints
+                    ),
+                    i++
+                ).orElseThrow(FrameworkException::unexpectedByDesign)
+            ).build();
       }
 
-      private Object chooseLevelFromSimpleFactor(Factor factor) {
-        return factor.getLevels().get(i++ % factor.getLevels().size());
+      private Optional<Tuple> chooseAssignment(Stream<Tuple> tupleStream, int index) {
+        //return tupleStream.findFirst();
+        List<Tuple> work = tupleStream.limit(index + 1).collect(toList());
+        return work.isEmpty() ?
+            Optional.empty() :
+            Optional.of(work.get(index % work.size()));
       }
 
-      private Tuple projectDontCaresOnly(Tuple in) {
-        Tuple.Builder b = new Tuple.Builder();
-        for (String key : in.keySet()) {
-          if (in.get(key) == DontCare) {
-            b.put(key, DontCare);
-          }
-        }
-        return b.build();
+      List<Factor> dontCareFactors(Tuple tuple, List<Factor> factors) {
+        return factors.stream()
+            .filter(
+                (Factor eachFactor) ->
+                    tuple.containsKey(eachFactor.getName()) && tuple.get(eachFactor.getName()) == DontCare
+            )
+            .collect(toList());
       }
     };
   }
 
-  /**
-   * <pre>
-   * 16. change an existing test, if possible, or otherwise add a new test
-   *     to cover σ
-   * </pre>
-   */
-  void modifyTestToCover(List<Factor> factors, Tuple chosenTest, Tuple σ) {
-    // simple 'chosenTest.putAll(σ)' doesn't work because σ can contain values
-    // under GroupedFactor, whose values picked up at once rather than one by one.
-    for (Factor each : figureOutInvolvedFactors(factors, σ)) {
-      chosenTest.put(each.getName(), σ.get(each.getName()));
+  public static Tuple removeDontCares(Tuple in) {
+    Tuple.Builder builder = new Tuple.Builder();
+    in.keySet().stream()
+        .filter(s -> !DontCare.equals(in.get(s)))
+        .forEach(s -> builder.put(s, in.get(s)));
+    return builder.build();
+  }
+
+  public static Stream<Tuple> assignmentsForDontCaresUnderConstraints(Tuple in, List<Factor> allFactors, List<Constraint> allConstraints) {
+    return assignmentsAllowedByConstraints(
+        removeDontCares(in),
+        allFactors,
+        allConstraints
+    );
+  }
+
+  public static Predicate<Tuple> satisfiesAllOf(List<Constraint> predicates) {
+    return predicates.stream()
+        .map((Function<Constraint, Predicate<Tuple>>) constraint -> constraint)
+        .reduce(Predicate::and)
+        .orElse(tuple -> true);
+  }
+
+  public static Stream<Tuple> assignmentsAllowedByConstraints(
+      Tuple tuple,
+      List<Factor> allFactors,
+      List<Constraint> allConstraints
+  ) {
+    FrameworkException.checkCondition(!tuple.containsValue(DontCare));
+    List<Constraint> fullyInvolvedConstraints = getFullyInvolvedConstraints(
+        tuple.keySet(),
+        allConstraints
+    );
+    if (!satisfiesAllOf(fullyInvolvedConstraints).test(tuple)) {
+      return Stream.empty();
     }
+    List<Constraint> partiallyInvolvedConstraints = tuple.isEmpty() ?
+        allConstraints :
+        getPartiallyInvolvedConstraints(
+            tuple.keySet(),
+            allConstraints
+        );
+    //noinspection RedundantTypeArguments
+    List<Factor> allUnassignedFactors = partiallyInvolvedConstraints.stream()
+        .flatMap(constraint -> constraint.involvedKeys().stream())
+        .collect(toSet()).stream()
+        .filter(s -> !tuple.containsKey(s))
+        .map(
+            s -> allFactors.stream()
+                .filter(factor -> factor.getName().equals(s))
+                .findFirst().<FrameworkException>orElseThrow(FrameworkException::unexpectedByDesign)
+        )
+        .collect(toList());
+
+    return assignmentsAllowedByAllPartiallyInvolvedConstraintsInternal(
+        tuple,
+        allUnassignedFactors,
+        partiallyInvolvedConstraints
+    );
+  }
+
+  private static Stream<Tuple> assignmentsAllowedByAllPartiallyInvolvedConstraintsInternal(
+      Tuple baseTuple,
+      List<Factor> allFreeFactors,
+      List<Constraint> partiallyInvolvedConstraints
+  ) {
+    return new StreamableTupleCartesianator(allFreeFactors).stream()
+        .map(assignments -> new Tuple.Builder().putAll(baseTuple).putAll(assignments).build())
+        .filter(satisfiesAllOf(partiallyInvolvedConstraints))
+        ;
+  }
+
+  public static List<Constraint> getFullyInvolvedConstraints(Collection<String> assignedFactorNames, List<Constraint> allConstraints) {
+    return allConstraints.stream()
+        .filter((Constraint eachConstraint) -> assignedFactorNames.containsAll(eachConstraint.involvedKeys()))
+        .collect(toList());
+  }
+
+  public static List<Constraint> getPartiallyInvolvedConstraints(Collection<String> assignedFactorNames, List<Constraint> allConstraints) {
+    return allConstraints.stream()
+        .filter((Constraint eachConstraint) -> !assignedFactorNames.containsAll(eachConstraint.involvedKeys()))
+        .filter((Constraint eachConstraint) -> !disjoint(eachConstraint.involvedKeys(), assignedFactorNames))
+        .collect(toList());
+
   }
 }

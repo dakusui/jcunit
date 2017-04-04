@@ -127,8 +127,8 @@ public interface Parameter<T> {
     class Impl<T> extends Base<T> implements Simple<T> {
       final Factor factor;
 
-      public Impl(String name, List<T> allLevels, Predicate<T> validityChecker) {
-        super(name, allLevels, validityChecker);
+      public Impl(String name, List<T> allLevels, Predicate<T> check) {
+        super(name, allLevels, check);
         this.factor = Factor.create(name, allLevels.stream().filter(Impl.this::check).collect(toList()).toArray());
       }
 

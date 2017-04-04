@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.Cartesian;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.function.Function;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.summarizingDouble;
 import static java.util.stream.Collectors.toList;
 
 public interface Config<T> {
@@ -49,13 +47,7 @@ public interface Config<T> {
 
     public Builder(Requirement requirement) {
       this.requirement = requirement;
-      this.generatorFactory = new Generator.Factory.Standard() {
-        @Override
-        public Generator create(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirements) {
-          //return new Cartesian(seeds, factorSpace, requirement);
-          return super.create(seeds, factorSpace, requirements);
-        }
-      };
+      this.generatorFactory = new Generator.Factory.Standard();
       this.joiner = new Joiner.Standard(requirement);
       this.partitioner = new Partitioner.Standard();
     }

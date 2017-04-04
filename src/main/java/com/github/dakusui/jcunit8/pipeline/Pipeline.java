@@ -11,6 +11,7 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -61,6 +62,7 @@ public interface Pipeline<T> {
       return config.partitioner()
           .apply(config.encoder().apply(parameterSpace)).stream()
           .map(config.optimizer())
+          .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
           .map(config.generator(config.getRequirement()))
           .reduce(config.joiner())
           .map(

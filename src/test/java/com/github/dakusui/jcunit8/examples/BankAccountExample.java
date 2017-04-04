@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 @RunWith(JCUnit8.class)
 @ConfigureWith(BankAccountExample.BankAccountConfigFactory.class)
 public class BankAccountExample {
-  public static class BankAccountConfigFactory extends ConfigFactory.Impl {
+  public static class BankAccountConfigFactory extends ConfigFactory.Default {
     @SuppressWarnings("unused")
     @ParameterSource
     public static Regex.Factory<String> scenario() {

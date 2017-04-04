@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public interface TestPredicate extends Predicate<Tuple> {
-  boolean test(Tuple testObject);
+  boolean test(Tuple tuple);
 
   List<String> involvedKeys();
 }
