@@ -18,6 +18,11 @@ public interface Factor {
       public List<Object> getLevels() {
         return levels;
       }
+
+      @Override
+      public String toString() {
+        return String.format("%s:%s", name, levels);
+      }
     };
   }
 

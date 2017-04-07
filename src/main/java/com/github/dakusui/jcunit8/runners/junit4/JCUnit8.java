@@ -175,6 +175,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
             .map(From::value)
             .collect(toList());
       }
+
+      @Override
+      public String toString() {
+        return method.getMethod().getName();
+      }
     };
   }
 

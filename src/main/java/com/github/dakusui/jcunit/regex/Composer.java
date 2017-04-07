@@ -3,10 +3,7 @@ package com.github.dakusui.jcunit.regex;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.VOID;
 import static java.util.Arrays.asList;

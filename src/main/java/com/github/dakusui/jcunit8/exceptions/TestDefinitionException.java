@@ -1,5 +1,9 @@
 package com.github.dakusui.jcunit8.exceptions;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+
+import java.util.List;
+
 import static java.lang.String.format;
 
 /**
@@ -17,5 +21,9 @@ public class TestDefinitionException extends BaseException {
 
   public static TestDefinitionException fsmDoesNotHaveRouteToSpecifiedState(Object destinationState, String fsmName, Object fsmModel) {
     throw new TestDefinitionException(String.format("No route to '%s' was found on FSM:'%s'(%s)", destinationState, fsmName, fsmModel));
+  }
+
+  public static TestDefinitionException failedToCover(String factorName, List<Object> factorLevels, Tuple tuple) {
+    throw new TestDefinitionException(String.format("Factor '%s' doesn't have any valid level '%s' for tuple '%s'", factorName, factorLevels, tuple));
   }
 }

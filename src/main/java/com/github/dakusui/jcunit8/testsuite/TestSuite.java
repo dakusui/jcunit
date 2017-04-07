@@ -31,9 +31,12 @@ public interface TestSuite<T> extends List<TestCase<T>> {
     public Builder<T> add(Tuple in) {
       requireNonNull(in);
       Tuple.Builder b = new Tuple.Builder();
+      b.putAll(in);
+      /*
       parameterSpace.getParameterNames().forEach(
           (String s) -> b.put(s, parameterSpace.getParameter(s).composeValueFrom(in))
       );
+      */
       tuples.add(b.build());
       return this;
     }

@@ -16,6 +16,11 @@ public interface Constraint extends TestPredicate {
       public List<String> involvedKeys() {
         return testPredicate.involvedKeys();
       }
+
+      @Override
+      public String toString() {
+        return testPredicate.toString();
+      }
     };
   }
 }

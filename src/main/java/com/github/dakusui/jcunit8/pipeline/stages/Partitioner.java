@@ -5,10 +5,7 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
@@ -56,7 +53,7 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
       return ret;
     }
 
-    private List<Constraint> findConnectedConstraints(Constraint constraint, List<Constraint> in) {
+    private static List<Constraint> findConnectedConstraints(Constraint constraint, List<Constraint> in) {
       assert !in.contains(constraint);
       List<Constraint> work = findDirectlyConnectedConstraints(constraint, in);
       for (Constraint each : new ArrayList<>(work)) {
@@ -65,7 +62,7 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
       return work;
     }
 
-    private List<Constraint> findDirectlyConnectedConstraints(Constraint constraint, List<Constraint> in) {
+    private static List<Constraint> findDirectlyConnectedConstraints(Constraint constraint, List<Constraint> in) {
       List<Constraint> ret = new LinkedList<>();
       for (Constraint each : new ArrayList<>(in)) {
         if (!Collections.disjoint(constraint.involvedKeys(), each.involvedKeys())) {
@@ -74,6 +71,28 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
         }
       }
       return ret;
+    }
+
+  }
+
+  class ConnectedConstraintFinder {
+    private final List<Constraint> allConstraints;
+
+    public ConnectedConstraintFinder(List<Constraint> constraints) {
+      this.allConstraints = constraints;
+    }
+
+    private List<Constraint> find(Constraint constraint) {
+      return Standard.findConnectedConstraints(constraint, new ArrayList<Constraint>(this.allConstraints) {{ remove(constraint);}});
+    }
+
+    public List<Constraint> findAll(List<Constraint> constraints) {
+      LinkedHashSet<Constraint> work = new LinkedHashSet<>();
+      for (Constraint each : constraints) {
+        work.addAll(find(each));
+        work.add(each);
+      }
+      return new ArrayList<>(work);
     }
   }
 }

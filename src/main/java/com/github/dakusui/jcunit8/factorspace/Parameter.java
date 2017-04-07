@@ -110,11 +110,11 @@ public interface Parameter<T> {
   }
 
   interface Simple<T> extends Parameter<T> {
-    static <T> Constraint createConstraintFrom(Parameter.Simple<T> parameter) {
+    static Constraint createConstraintFrom(Parameter parameter) {
       return new Constraint() {
         @Override
-        public boolean test(Tuple testObject) {
-          return parameter.check(parameter.composeValueFrom(testObject));
+        public boolean test(Tuple tuple) {
+          return parameter.check(parameter.composeValueFrom(tuple));
         }
 
         @Override
