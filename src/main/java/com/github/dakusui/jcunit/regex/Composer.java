@@ -3,10 +3,7 @@ package com.github.dakusui.jcunit.regex;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.VOID;
 import static java.util.Arrays.asList;
@@ -77,7 +74,7 @@ public class Composer {
   }
 
   private String composeKey(Expr expr) {
-    return RegexToFactorListTranslator.composeKey(this.prefix, expr.id());
+    return RegexTranslator.composeKey(this.prefix, expr.id());
   }
 
   private class ComposerVisitor implements Expr.Visitor {

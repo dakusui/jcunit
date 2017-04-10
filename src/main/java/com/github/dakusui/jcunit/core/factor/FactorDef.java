@@ -81,16 +81,14 @@ public abstract class FactorDef {
     }
   }
 
-
   public static class Fsm<T> extends FactorDef {
-
-    private final FSM<T>                                  fsm;
+    private final FiniteStateMachine<T>                   fsm;
     private final int                                     historyLength;
     private final List<Parameters.LocalConstraintChecker> localCMs;
     private final FSMFactors                              fsmFactors;
 
 
-    public Fsm(String name, FSM<T> fsm, List<Parameters.LocalConstraintChecker> constraintCheckers, int historyLength) {
+    public Fsm(String name, FiniteStateMachine<T> fsm, List<Parameters.LocalConstraintChecker> constraintCheckers, int historyLength) {
       super(name);
       this.fsm = checknotnull(fsm);
       checkcond(historyLength > 0);
@@ -102,7 +100,7 @@ public abstract class FactorDef {
     @Override
     public void addTo(Factors.Builder factorsBuilder) {
       String fsmName = this.name;
-      FSM<?> fsm = this.fsm;
+      FiniteStateMachine<?> fsm = this.fsm;
       for (int index = 0; index < historyLength; index++) {
         ////
         // Build a factor for {index}th state

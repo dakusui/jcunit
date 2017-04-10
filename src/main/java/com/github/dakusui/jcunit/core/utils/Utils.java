@@ -209,7 +209,8 @@ public enum Utils {
   }
 
   public static <T> List<T> newUnmodifiableList(List<? extends T> elements) {
-    return Collections.unmodifiableList(newList(elements));
+    //noinspection RedundantTypeArguments
+    return Collections.<T>unmodifiableList(newList(elements));
   }
 
   public static <T> List<T> newList(T... elements) {

@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.runners.standard.annotations;
 
-import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintCheckerImpl;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.validator.AnnotationValidator;
 import org.junit.validator.ValidateWith;
@@ -16,6 +15,10 @@ import java.util.List;
 @Target(ElementType.METHOD)
 @ValidateWith(Condition.Validator.class)
 public @interface Condition {
+  /**
+   * Conditions cannot be overloaded.
+   */
+
   class Validator extends AnnotationValidator {
     /**
      * Validates a precondition method.
@@ -47,6 +50,8 @@ public @interface Condition {
             testClass.getCanonicalName()
         )));
       }
+      // TODO
+      /*
       Class<?>[] parameterTypes = method.getMethod().getParameterTypes();
       if (parameterTypes.length != 0) {
         errors.add(new Exception(String.format(
@@ -55,6 +60,8 @@ public @interface Condition {
             testClass.getCanonicalName()
         )));
       }
+      */
+      /*
       if (method.getAnnotation(Condition.class) != null && method.getAnnotation(Condition.class).constraint()) {
         if (method.getDeclaringClass().getAnnotation(GenerateCoveringArrayWith.class) == null
             || method.getDeclaringClass().getAnnotation(GenerateCoveringArrayWith.class).checker() == null
@@ -66,6 +73,7 @@ public @interface Condition {
               )));
         }
       }
+      */
       return errors;
     }
   }

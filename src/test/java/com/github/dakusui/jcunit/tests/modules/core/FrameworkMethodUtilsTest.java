@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit.runners.standard.FrameworkMethodUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit.runners.standard.annotations.Given;
 import com.github.dakusui.jcunit.testutils.UTUtils;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -205,6 +206,7 @@ public class FrameworkMethodUtilsTest {
                 ))));
   }
 
+  @Ignore
   @Test
   public void testSimpleMethodReferenceToInvalidMethod_nonParameterless() {
     String methodName = "invalidPrecondition4";
