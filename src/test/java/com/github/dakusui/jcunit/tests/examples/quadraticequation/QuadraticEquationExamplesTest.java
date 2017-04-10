@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit.examples.quadraticequation.session4.QuadraticEq
 import com.github.dakusui.jcunit.examples.quadraticequation.session5.QuadraticEquationSolverTest5;
 import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolverTest6;
 import com.github.dakusui.jcunit.examples.quadraticequation.session7.QuadraticEquationSolverTest7;
-import com.github.dakusui.jcunit.examples.quadraticequation.session8.QuadraticEquationSolverTest8;
+import com.github.dakusui.jcunit.examples.quadraticequation.session8.QuadraticEquationSolverTestForIcst2017;
 import com.github.dakusui.jcunit.testutils.UTUtils;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -80,11 +80,11 @@ public class QuadraticEquationExamplesTest {
 
   @Test
   public void verifyTest8() {
-    QuadraticEquationSolverTest8.ps1 = UTUtils.DUMMY_PRINTSTREAM;
-    QuadraticEquationSolverTest8.ps2 = UTUtils.DUMMY_PRINTSTREAM;
-    Result result = JUnitCore.runClasses(QuadraticEquationSolverTest8.class);
-    assertEquals(QuadraticEquationSolverTest8.failureCount, result.getFailureCount());
-    assertEquals(QuadraticEquationSolverTest8.runCount, result.getRunCount());
-    assertEquals(QuadraticEquationSolverTest8.ignoreCount, result.getIgnoreCount());
+    QuadraticEquationSolverTestForIcst2017.ps1 = UTUtils.DUMMY_PRINTSTREAM;
+    QuadraticEquationSolverTestForIcst2017.ps2 = UTUtils.DUMMY_PRINTSTREAM;
+    Result result = JUnitCore.runClasses(QuadraticEquationSolverTestForIcst2017.class);
+    assertEquals(QuadraticEquationSolverTestForIcst2017.failureCount, result.getFailureCount());
+    assertEquals(QuadraticEquationSolverTestForIcst2017.runCount, result.getRunCount());
+    assertEquals(QuadraticEquationSolverTestForIcst2017.ignoreCount, result.getIgnoreCount());
   }
 }

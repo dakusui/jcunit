@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.examples.quadraticequation.session8;
 
 import com.github.dakusui.jcunit.coverage.CombinatorialMetrics;
 import com.github.dakusui.jcunit.examples.quadraticequation.session6.QuadraticEquationSolver;
+import com.github.dakusui.jcunit.plugins.caengines.AetgCoveringArrayEngine;
 import com.github.dakusui.jcunit.plugins.constraints.SmartConstraintCheckerImpl;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.*;
@@ -30,11 +31,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 @RunWith(JCUnit.class)
 @GenerateCoveringArrayWith(
+    //    engine = @Generator(value = IpoGcCoveringArrayEngine.class),
+    engine = @Generator(value = AetgCoveringArrayEngine.class),
+    //    engine = @Generator(value = Ipo2CoveringArrayEngine.class),
+
     checker = @Checker(value = SmartConstraintCheckerImpl.class),
     reporters = {
         @Reporter(value = CombinatorialMetrics.class, args = { @Value("2") })
     })
-public class QuadraticEquationSolverTest8 {
+public class QuadraticEquationSolverTestForIcst2017 {
   public static PrintStream ps1 = System.out;
   public static PrintStream ps2 = System.err;
 
@@ -45,7 +50,7 @@ public class QuadraticEquationSolverTest8 {
   @Rule
   public TestDescription testDescription = new TestDescription();
 
-  @FactorField
+  @FactorField // { 1, 0, -1, 100, -100, Integer.MAX_VALUE,  Integer.MIN_VALUE }
   public int a;
   @FactorField
   public int b;
@@ -78,7 +83,7 @@ public class QuadraticEquationSolverTest8 {
 
   @Test(expected = IllegalArgumentException.class)
   @Given({ "!aIsNonZero" })
-  public void solveEquation1$thenThrowIllegalArgumentException() {
+  public void whenSolveEquation1$thenThrowIllegalArgumentException() {
     new QuadraticEquationSolver(
         a,
         b,
