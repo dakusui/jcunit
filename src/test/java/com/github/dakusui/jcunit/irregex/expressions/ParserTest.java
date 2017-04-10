@@ -76,8 +76,6 @@ public class ParserTest {
       /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*git clone  URL(*dir){0,1})",
       /*30*/ "(A|B){0,2};,AA,BB,AB,A,B,BA;(*(+AB){0,2})",
       /*31*/ "(A|B){1,3};ABA,AA,BBA,BB,A,AAA,ABB,AB,AAB,B,BAA,BAB,BBB,BA;(*(+AB){1,3})",
-      /*32*/ "(A|B){0,3};ABA,AA,BBA,BB,A,AAA,ABB,AB,AAB,B,BAA,BAB,BBB,BA;(*(+AB){0,3})",
-
   })
   public String _input;
 
