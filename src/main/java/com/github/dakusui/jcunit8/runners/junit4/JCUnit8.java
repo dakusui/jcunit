@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
 import com.github.dakusui.jcunit8.exceptions.BaseException;
+import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.factorspace.TestPredicate;
@@ -49,11 +50,12 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     super(klass);
     try {
       ConfigFactory configFactory = getConfigFactory();
-      this.predicates = buildTestConstraintMap(configFactory);
+      Object parameterSpaceDefinition = createParameterSpaceDefinition();
+      this.predicates = buildTestConstraintMap(parameterSpaceDefinition);
       this.testSuite = buildTestSuite(
           configFactory.create(),
           buildParameterSpace(
-              buildParameterMap(configFactory).values().stream()
+              buildParameterMap(parameterSpaceDefinition).values().stream()
                   .collect(toList()),
               this.predicates.values().stream()
                   .filter(each -> each instanceof Constraint)
@@ -71,7 +73,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
   @Override
   protected void collectInitializationErrors(List<Throwable> errors) {
-    super.collectInitializationErrors(errors);
+    // TODO
+    //    super.collectInitializationErrors(errors);
     this.validateParameterSourceMethods(errors);
   }
 
@@ -96,10 +99,29 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   private ConfigFactory getConfigFactory() {
     try {
       //noinspection unchecked
-      return this.getTestClass().getAnnotation(ConfigureWith.class).value().newInstance();
+      return getConfigureWithAnnotation().value().newInstance();
     } catch (InstantiationException | IllegalAccessException e) {
       throw unexpectedByDesign(e);
     }
+  }
+
+  private Object createParameterSpaceDefinition() {
+    ConfigureWith configureWith = getConfigureWithAnnotation();
+    Class parameterSpaceDefinitionClass = configureWith.parameterSpace();
+    try {
+      if (Objects.equals(parameterSpaceDefinitionClass, Object.class))
+        parameterSpaceDefinitionClass = this.getTestClass().getJavaClass();
+      return parameterSpaceDefinitionClass.newInstance();
+    } catch (IllegalAccessException | InstantiationException e) {
+      throw TestDefinitionException.testClassIsInvalid(parameterSpaceDefinitionClass);
+    }
+  }
+
+  private ConfigureWith getConfigureWithAnnotation() {
+    ConfigureWith ret = this.getTestClass().getAnnotation(ConfigureWith.class);
+    if (ret == null)
+      ret = ConfigureWith.DEFAULT_INSTANCE;
+    return ret;
   }
 
   private ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter> parameters, List<Constraint> constraints) {
@@ -128,27 +150,27 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         Optional.empty();
   }
 
-  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(ConfigFactory configFactory) {
+  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(Object parameterSpaceDefinition) {
     return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter>() {{
-      new TestClass(configFactory.getClass()).getAnnotatedMethods(ParameterSource.class).forEach(
+      new TestClass(parameterSpaceDefinition.getClass()).getAnnotatedMethods(ParameterSource.class).forEach(
           frameworkMethod -> put(frameworkMethod.getName(),
               buildParameterFactoryCreatorFrom(frameworkMethod)
-                  .apply(configFactory)
+                  .apply(parameterSpaceDefinition)
                   .create(frameworkMethod.getName())
           ));
     }};
   }
 
-  private static SortedMap<String, TestPredicate> buildTestConstraintMap(ConfigFactory configFactory) {
+  private static SortedMap<String, TestPredicate> buildTestConstraintMap(Object parameterSpaceDefinition) {
     return new TreeMap<String, TestPredicate>() {
       {
-        new TestClass(configFactory.getClass()).getAnnotatedMethods(Condition.class).stream()
+        new TestClass(parameterSpaceDefinition.getClass()).getAnnotatedMethods(Condition.class).stream()
             .filter((FrameworkMethod frameworkMethod) -> frameworkMethod.getAnnotation(Condition.class).constraint())
             .forEach((FrameworkMethod frameworkMethod) -> put(
                 frameworkMethod.getName(),
                 frameworkMethod.getAnnotation(Condition.class).constraint() ?
-                    buildConstraintCreatorFrom(frameworkMethod).apply(configFactory) :
-                    buildTestPredicateCreatorFrom(frameworkMethod).apply(configFactory)
+                    buildConstraintCreatorFrom(frameworkMethod).apply(parameterSpaceDefinition) :
+                    buildTestPredicateCreatorFrom(frameworkMethod).apply(parameterSpaceDefinition)
             ));
       }
     };

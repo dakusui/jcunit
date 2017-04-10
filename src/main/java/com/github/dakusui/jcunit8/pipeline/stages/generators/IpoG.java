@@ -23,7 +23,6 @@ import static com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo.DontCare;
 import static java.util.Collections.disjoint;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertTrue;
 
 public class IpoG extends Generator.Base {
   private final TupleSet precovered;
@@ -114,7 +113,6 @@ public class IpoG extends Generator.Base {
          *                ..., vi-1 , vi ) so that τ’ covers the most number of
          *                combinations of values in π
          */
-        // OVERRIDING
         Object vi = chooseLevelThatCoversMostTuples(
             τ, Pi, π, t,
             allFactors,
@@ -215,11 +213,6 @@ public class IpoG extends Generator.Base {
   private static Optional<Object> chooseLevelThatCoversMostTuples(Tuple τ, Factor fi, TupleSet π, int t, List<Factor> allFactors, List<Constraint> allConstraints) {
     return fi.getLevels().stream()
         .map((Object eachLevel) -> modifyTupleWith(τ, fi.getName(), eachLevel))
-        .filter(
-            (Tuple tuple) -> satisfiesAllOf(getFullyInvolvedConstraints(
-                tuple.keySet(), allConstraints)
-            ).test(tuple)
-        )
         .filter(isAllowedTuple(allFactors, allConstraints))
         .max(
             (Tuple t1, Tuple t2) ->
@@ -274,7 +267,7 @@ public class IpoG extends Generator.Base {
         if (dontCareFactors.isEmpty())
           return in;
         i = i % maxReadAheadSize;
-        Tuple ret = new Tuple.Builder()
+        return new Tuple.Builder()
             .putAll(in)
             .putAll(
                 chooseAssignment(
@@ -286,8 +279,6 @@ public class IpoG extends Generator.Base {
                     i++
                 ).orElseThrow(FrameworkException::unexpectedByDesign)
             ).build();
-        assertTrue(isAllowedTuple(allFactors, allConstraints).test(ret));
-        return ret;
       }
 
       private Optional<Tuple> chooseAssignment(Stream<Tuple> tupleStream, int index) {
@@ -300,7 +291,7 @@ public class IpoG extends Generator.Base {
     };
   }
 
-  static List<Factor> dontCareFactors(Tuple tuple, List<Factor> factors) {
+  private static List<Factor> dontCareFactors(Tuple tuple, List<Factor> factors) {
     return factors.stream()
         .filter(
             (Factor eachFactor) ->
@@ -309,17 +300,11 @@ public class IpoG extends Generator.Base {
         .collect(toList());
   }
 
-  public static Tuple removeDontCares(Tuple in) {
+  private static Tuple removeDontCares(Tuple in) {
     Tuple.Builder builder = new Tuple.Builder();
     in.keySet().stream()
         .filter(s -> !DontCare.equals(in.get(s)))
         .forEach(s -> builder.put(s, in.get(s)));
-    return builder.build();
-  }
-
-  private static Tuple project(Tuple tuple, List<String> factorNames) {
-    Tuple.Builder builder = new Tuple.Builder();
-    factorNames.forEach(s -> builder.put(s, tuple.get(s)));
     return builder.build();
   }
 
@@ -370,28 +355,11 @@ public class IpoG extends Generator.Base {
   public static Stream<Tuple> streamAssignmentsForDontCaresUnderConstraints(Tuple in, List<Factor> allFactors, List<Constraint> allConstraints) {
     List<Factor> dontCareFactors = dontCareFactors(in, allFactors);
     return new StreamableTupleCartesianator(dontCareFactors).stream()
-        .flatMap(new Function<Tuple, Stream<Tuple>>() {
-          @Override
-          public Stream<Tuple> apply(Tuple tuple) {
-            return streamAssignmentsAllowedByConstraints(
-                new Tuple.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
-                allFactors,
-                allConstraints
-            );
-          }
-        });
-/*
-    return streamAssignmentsAllowedByConstraints(
-        removeDontCares(in),
-        allFactors,
-        allConstraints
-    ).map(tuple -> project(
-        tuple,
-        in.keySet().stream()
-            .filter(s -> Objects.equals(in.get(s), DontCare))
-            .collect(toList())
-    ));
-    */
+        .flatMap(tuple -> streamAssignmentsAllowedByConstraints(
+            new Tuple.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
+            allFactors,
+            allConstraints
+        ));
   }
 
   public static Stream<Tuple> streamAssignmentsAllowedByConstraints(

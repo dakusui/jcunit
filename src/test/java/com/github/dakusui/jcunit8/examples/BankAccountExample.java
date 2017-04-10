@@ -14,111 +14,108 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
-import static com.github.dakusui.jcunit8.examples.BankAccountExample.BankAccountConfigFactory.calculateBalance;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JCUnit8.class)
-@ConfigureWith(BankAccountExample.BankAccountConfigFactory.class)
+@ConfigureWith(ConfigFactory.Default.class)
 public class BankAccountExample {
-  public static class BankAccountConfigFactory extends ConfigFactory.Default {
-    @ParameterSource
-    public static Regex.Factory<String> scenario() {
-      return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,3}getBalance");
-    }
-
-    @ParameterSource
-    public static Simple.Factory<Integer> depositAmount() {
-      return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-    }
-
-    @ParameterSource
-    public static Simple.Factory<Integer> withdrawAmount() {
-      return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, - 1));
-    }
-
-    @ParameterSource
-    public static Simple.Factory<Integer> transferAmount() {
-      return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-    }
-
-    @Condition(constraint = true)
-    public static boolean depositUsed(
-        @From("scenario") List<String> scenario,
-        @From("depositAmount") int amount
-    ) {
-      //noinspection SimplifiableIfStatement
-      if (!scenario.contains("deposit")) {
-        return amount == -1;
-      } else {
-        return amount != -1;
-      }
-    }
-
-    @Condition(constraint = true)
-    public static boolean withdrawUsed(
-        @From("scenario") List<String> scenario,
-        @From("withdrawAmount") int amount
-    ) {
-      //noinspection SimplifiableIfStatement
-      if (!scenario.contains("withdraw")) {
-        return amount == -1;
-      } else {
-        return amount != -1;
-      }
-    }
-
-    @Condition(constraint = true)
-    public static boolean transferUsed(
-        @From("scenario") List<String> scenario,
-        @From("transferAmount") int amount
-    ) {
-      //noinspection SimplifiableIfStatement
-      if (!scenario.contains("transfer")) {
-        return amount == -1;
-      } else {
-        return amount != -1;
-      }
-    }
-
-    @Condition(constraint = true)
-    public static boolean overdraftNotHappens(
-        @From("scenario") List<String> scenario,
-        @From("depositAmount") int amountOfDeposit,
-        @From("withdrawAmount") int amountOfWithdraw,
-        @From("transferAmount") int amountOfTransfer
-    ) {
-      return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
-    }
-
-    static int calculateBalance(List<String> scenario,
-        int amountOfDeposit,
-        int amountOfWithdraw,
-        int amountOfTransfer) {
-      int balance = 0;
-      for (String op : scenario) {
-        if ("deposit".equals(op)) {
-          balance += amountOfDeposit;
-        } else if ("withdraw".equals(op)) {
-          balance -= amountOfWithdraw;
-        } else if ("transfer".equals(op)) {
-          balance -= amountOfTransfer;
-        }
-        if (balance < 0) {
-          return balance;
-        }
-      }
-      return balance;
-    }
-  }
 
   private BankAccount myAccount;
   private BankAccount anotherAccount = BankAccount.open();
 
+  @ParameterSource
+  public static Regex.Factory<String> scenario() {
+    return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,3}getBalance");
+  }
+
+  @ParameterSource
+  public static Simple.Factory<Integer> depositAmount() {
+    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  }
+
+  @ParameterSource
+  public static Simple.Factory<Integer> withdrawAmount() {
+    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  }
+
+  @ParameterSource
+  public static Simple.Factory<Integer> transferAmount() {
+    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  }
+
+  @Condition(constraint = true)
+  public boolean depositUsed(
+      @From("scenario") List<String> scenario,
+      @From("depositAmount") int amount
+  ) {
+    //noinspection SimplifiableIfStatement
+    if (!scenario.contains("deposit")) {
+      return amount == -1;
+    } else {
+      return amount != -1;
+    }
+  }
+
+  @Condition(constraint = true)
+  public boolean withdrawUsed(
+      @From("scenario") List<String> scenario,
+      @From("withdrawAmount") int amount
+  ) {
+    //noinspection SimplifiableIfStatement
+    if (!scenario.contains("withdraw")) {
+      return amount == -1;
+    } else {
+      return amount != -1;
+    }
+  }
+
+  @Condition(constraint = true)
+  public boolean transferUsed(
+      @From("scenario") List<String> scenario,
+      @From("transferAmount") int amount
+  ) {
+    //noinspection SimplifiableIfStatement
+    if (!scenario.contains("transfer")) {
+      return amount == -1;
+    } else {
+      return amount != -1;
+    }
+  }
+
+  @Condition(constraint = true)
+  public boolean overdraftNotHappens(
+      @From("scenario") List<String> scenario,
+      @From("depositAmount") int amountOfDeposit,
+      @From("withdrawAmount") int amountOfWithdraw,
+      @From("transferAmount") int amountOfTransfer
+  ) {
+    return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
+  }
+
+  static int calculateBalance(List<String> scenario,
+      int amountOfDeposit,
+      int amountOfWithdraw,
+      int amountOfTransfer) {
+    int balance = 0;
+    for (String op : scenario) {
+      if ("deposit".equals(op)) {
+        balance += amountOfDeposit;
+      } else if ("withdraw".equals(op)) {
+        balance -= amountOfWithdraw;
+      } else if ("transfer".equals(op)) {
+        balance -= amountOfTransfer;
+      }
+      if (balance < 0) {
+        return balance;
+      }
+    }
+    return balance;
+  }
 
   @Test
   @Given("overdraftNotHappens")
-  public void performScenario(
+  public void whenPerformScenario$thenBalanceIsCorrect(
       @From("scenario") List<String> scenario,
       @From("depositAmount") int amountOfDeposit,
       @From("withdrawAmount") int amountOfWithdraw,
