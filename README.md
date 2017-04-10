@@ -20,7 +20,8 @@ major release, 0.8.x.
 It will no longer be working with old Java SE6 and require Java 8. Neither
 it will not be compatible with older versions of JCUnit. The new version is
 called "JCUnit 8" named after both Java 8 and the next major version of JCUnit,
-0.8.x.
+0.8.x. Not only that, functionalities of older versions are removed from
+JCUnit8.
 
 ## About 0.7.x
 [![Build Status](https://travis-ci.org/dakusui/jcunit.svg?branch=0.7.x-develop)](https://travis-ci.org/dakusui/jcunit)[![codecov.io](https://codecov.io/github/dakusui/jcunit/coverage.svg?branch=0.7.x-develop)](https://codecov.io/github/dakusui/jcunit?branch=0.7.x-develop)
