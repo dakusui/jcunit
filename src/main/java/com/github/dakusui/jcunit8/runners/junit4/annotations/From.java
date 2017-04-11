@@ -11,6 +11,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+
 @Retention(RUNTIME)
 @Target(PARAMETER)
 @ParametersSuppliedBy(SpecificDataPointsSupplier.class)
@@ -18,6 +19,12 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface From {
   String value();
 
+  /**
+   * Make sure
+   * - referenced parameter is available
+   * - referenced parameter is compatible
+   * - A method that provides referenced parameter is visible
+   */
   class Validator extends AnnotationValidator {
 
   }

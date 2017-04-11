@@ -11,8 +11,12 @@ import static java.lang.String.format;
  * {@literal @}{@code Runwith(JCUnit.class)}), is invalid.
  */
 public class TestDefinitionException extends BaseException {
-  protected TestDefinitionException(String message) {
+  private TestDefinitionException(String message) {
     super(message);
+  }
+
+  private TestDefinitionException(String message, Throwable e) {
+    super(message, e);
   }
 
   public static TestDefinitionException testClassIsInvalid(Class testClass) {
@@ -25,5 +29,9 @@ public class TestDefinitionException extends BaseException {
 
   public static TestDefinitionException failedToCover(String factorName, List<Object> factorLevels, Tuple tuple) {
     throw new TestDefinitionException(String.format("Factor '%s' doesn't have any valid level '%s' for tuple '%s'", factorName, factorLevels, tuple));
+  }
+
+  public static TestDefinitionException failedToInstantiateSut(Throwable e, String fmt, Object... args) {
+    throw new TestDefinitionException(String.format(fmt, args), e);
   }
 }

@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.runners.junit4;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit.runners.standard.annotations.Condition;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.exceptions.BaseException;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;

@@ -1,7 +1,9 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit.fsm.Action;
+import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
+import com.github.dakusui.jcunit.fsm.Parameters;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 
@@ -85,7 +87,7 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
   private Object[] union(List<Parameters> parametersList, int j) {
     return unique(
         parametersList.stream()
-            .flatMap(factors -> factors.get(j).levels.stream())
+            .flatMap(factors -> factors.get(j).getLevels().stream())
             .collect(toList())
     ).toArray();
   }
@@ -108,11 +110,11 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
         Action action = getActionFromTuple(testObject, i);
         for (int j = 0; j < maxActionParams; j++) {
           if (j < action.numParameterFactors()) {
-            if (!action.parameters().get(j).levels.contains(getActionArgFromTuple(testObject, i, j))) {
+            if (!action.parameters().get(j).getLevels().contains(getActionArgFromTuple(testObject, i, j))) {
               return false;
             }
           } else {
-            if (getActionArgFromTuple(testObject, i, j) != FSMFactors.VOID)
+            if (getActionArgFromTuple(testObject, i, j) != Parameters.VOID)
               return false;
           }
         }

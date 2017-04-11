@@ -19,6 +19,14 @@ import static java.util.Collections.singletonList;
 public enum Utils {
   ;
 
+  // TODO: Move somewhere else more appropriate
+  public static final Object DontCare = new Object() {
+    @Override
+    public String toString() {
+      return "D/C";
+    }
+  };
+
   public static <T> List<T> unique(List<T> in) {
     return new ArrayList<>(new LinkedHashSet<>(in));
   }

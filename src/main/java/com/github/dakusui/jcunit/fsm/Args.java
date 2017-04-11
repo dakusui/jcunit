@@ -2,10 +2,13 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.core.utils.Utils;
 
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public class Args implements Serializable {
   private final Object[] values;
@@ -24,16 +27,12 @@ public class Args implements Serializable {
   }
 
   public Type[] types() {
-    return Utils.transformLazily(
-        Utils.asList(this.values),
-        new Utils.Form<Object, Type>() {
-          @Override
-          public Type apply(Object in) {
-            return in != null
-                ? in.getClass()
-                : null;
-          }
-        }).toArray(new Type[this.values.length]);
+    return Stream.of(this.values())
+        .map((Function<Object, Type>) in -> in != null
+            ? in.getClass()
+            : null)
+        .collect(toList())
+        .toArray(new Type[this.values.length]);
   }
 
   @Override

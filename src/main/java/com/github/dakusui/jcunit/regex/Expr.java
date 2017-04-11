@@ -1,13 +1,11 @@
 package com.github.dakusui.jcunit.regex;
 
-import com.github.dakusui.jcunit.core.utils.Utils.Form;
-
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.jcunit.core.utils.Utils.transform;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public interface Expr {
   void accept(Visitor visitor);
@@ -145,12 +143,7 @@ public interface Expr {
 
     private static Expr cloneIfAlt(final AtomicInteger counter, Expr cur) {
       if (cur instanceof Alt) {
-        return new Alt(counter, transform(((Alt) cur).getChildren(), new Form<Expr, Expr>() {
-          @Override
-          public Expr apply(Expr in) {
-            return cloneIfAlt(counter, in);
-          }
-        }));
+        return new Alt(counter, ((Alt) cur).getChildren().stream().map(in -> cloneIfAlt(counter, in)).collect(toList()));
       }
       return cur;
     }
@@ -199,25 +192,23 @@ public interface Expr {
     }
 
     public Expr cat(List exps) {
-      return new Cat(this.counter, transform(exps, new Form<Object, Expr>() {
-        public Expr apply(Object in) {
-          if (in instanceof Expr) {
-            return (Expr) in;
-          }
-          return new Leaf(counter, in);
+      //noinspection unchecked
+      return new Cat(this.counter, (List<Expr>) exps.stream().map(in -> {
+        if (in instanceof Expr) {
+          return in;
         }
-      }));
+        return new Leaf(counter, in);
+      }).collect(toList()));
     }
 
     public Expr alt(List exps) {
-      return new Alt(counter, transform(exps, new Form<Object, Expr>() {
-        public Expr apply(Object in) {
-          if (in instanceof Expr) {
-            return (Expr) in;
-          }
-          return new Leaf(counter, in);
+      //noinspection unchecked
+      return new Alt(counter, (List<Expr>) exps.stream().map(in -> {
+        if (in instanceof Expr) {
+          return in;
         }
-      }));
+        return new Leaf(counter, in);
+      }).collect(toList()));
     }
 
     public Expr rep(Object exp, int min, int max) {

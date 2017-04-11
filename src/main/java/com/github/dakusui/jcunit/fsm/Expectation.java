@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
@@ -44,7 +44,7 @@ public class Expectation<SUT> {
     this.checker = checker;
   }
 
-  public <T> Result checkThrownException(Story.Context<SUT, T> context, Throwable thrownException, ScenarioSequence.Observer observer) {
+  public <T> Result checkThrownException(Context<SUT, T> context, Throwable thrownException, Observer observer) {
     Checks.checknotnull(context);
     //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
@@ -66,7 +66,7 @@ public class Expectation<SUT> {
     return b.build();
   }
 
-  public <T> Result checkReturnedValue(Story.Context<SUT, T> context, Object returnedValue, Story.Stage stage, ScenarioSequence.Observer observer) {
+  public <T> Result checkReturnedValue(Context<SUT, T> context, Object returnedValue, Stage stage, Observer observer) {
     Checks.checknotnull(context);
     Result.Builder b = new Result.Builder("Expectation was not satisfied");
     ////
@@ -120,10 +120,10 @@ public class Expectation<SUT> {
 
     public Builder<SUT> invalid(Class<? extends Throwable> klass) {
       Checks.checknotnull(klass);
-      return this.invalid(FSMSpec.Void.<SUT>getInstance(), klass);
+      return this.invalid(FsmSpec.Void.<SUT>getInstance(), klass);
     }
 
-    public Builder<SUT> invalid(FSMSpec<SUT> state, Class<? extends Throwable> klass) {
+    public Builder<SUT> invalid(FsmSpec<SUT> state, Class<? extends Throwable> klass) {
       Checks.checknotnull(state);
       this.type = Output.Type.EXCEPTION_THROWN;
       this.state = chooseState(state);
@@ -131,20 +131,20 @@ public class Expectation<SUT> {
       return this;
     }
 
-    public Builder<SUT> valid(FSMSpec<SUT> state) {
+    public Builder<SUT> valid(FsmSpec<SUT> state) {
       return valid(state, CoreMatchers.anything());
     }
 
-    public Builder<SUT> valid(FSMSpec<SUT> state, Object returnedValue) {
+    public Builder<SUT> valid(FsmSpec<SUT> state, Object returnedValue) {
       return valid(state, CoreMatchers.is(returnedValue));
     }
 
-    public Builder<SUT> valid(FSMSpec<SUT> state, Matcher matcher) {
+    public Builder<SUT> valid(FsmSpec<SUT> state, Matcher matcher) {
       Checks.checknotnull(matcher);
       return valid(state, new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, matcher));
     }
 
-    public Builder<SUT> valid(FSMSpec<SUT> state, OutputChecker checker) {
+    public Builder<SUT> valid(FsmSpec<SUT> state, OutputChecker checker) {
       Checks.checknotnull(state);
       Checks.checknotnull(checker);
       this.type = Output.Type.VALUE_RETURNED;
@@ -156,7 +156,7 @@ public class Expectation<SUT> {
     private State<SUT> chooseState(StateChecker<SUT> stateChecker) {
       Checks.checknotnull(fsm);
       Checks.checknotnull(stateChecker);
-      if (stateChecker == FSMSpec.Void.getInstance()) {
+      if (stateChecker == FsmSpec.Void.getInstance()) {
         return State.Void.getInstance();
       }
       for (State<SUT> each : fsm.states()) {

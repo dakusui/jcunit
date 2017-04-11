@@ -41,7 +41,7 @@ public @interface ConfigureWith {
    *
    * @see com.github.dakusui.jcunit8.factorspace.ParameterSpace
    * @see ParameterSource
-   * @see com.github.dakusui.jcunit.runners.standard.annotations.Condition
+   * @see Condition
    */
   Class<?> parameterSpace() default Object.class;
 

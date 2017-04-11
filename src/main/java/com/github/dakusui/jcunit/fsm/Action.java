@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.runners.standard.annotations.As;
 
 import java.io.Serializable;
@@ -11,6 +10,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 /**
  * An interface that represents an action that can be performed on {@code SUT}.
@@ -75,8 +76,7 @@ public interface Action<SUT> extends Serializable {
     private static Void INSTANCE = new Void() {
       @Override
       public Object perform(Object o, Args args) throws Throwable {
-        return FSMFactors.VOID;
-
+        return Parameters.VOID;
       }
 
       @Override
@@ -119,8 +119,8 @@ public interface Action<SUT> extends Serializable {
     /**
      * Creates an object of this class.
      *
-     * @param method     An {@code ActionSpec}  annotated method in {@code FSMSpec}.
-     * @param parameters A {@code ParametersSpec} annotated field's value in {@code FSMSpec}.
+     * @param method     An {@code ActionSpec}  annotated method in {@code FsmSpec}.
+     * @param parameters A {@code ParametersSpec} annotated field's value in {@code FsmSpec}.
      */
     public Base(Method method, Parameters parameters) {
       this.method = method;
@@ -232,7 +232,7 @@ public interface Action<SUT> extends Serializable {
     private Method chooseMethod(Class<?> klass, String name) {
       Method ret = null;
       for (Method each : klass.getMethods()) {
-        if (each.getName().equals(name) && this.getParameterTypes().equals(Utils.asList(each.getParameterTypes()))) {
+        if (each.getName().equals(name) && this.getParameterTypes().equals(asList(each.getParameterTypes()))) {
           ret = each;
           break;
         }
@@ -246,7 +246,7 @@ public interface Action<SUT> extends Serializable {
      */
     private List<Class<?>> getParameterTypes() {
       Class<?>[] parameterTypes = this.method.getParameterTypes();
-      return Utils.asList(parameterTypes).subList(1, parameterTypes.length);
+      return asList(parameterTypes).subList(1, parameterTypes.length);
     }
   }
 }

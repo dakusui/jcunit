@@ -4,15 +4,15 @@ import com.github.dakusui.jcunit.core.utils.BaseBuilder;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
-  Tuple cloneTuple();
-
   class Builder implements BaseBuilder<Tuple> {
-    LinkedHashMap<String, Object> attrs = new LinkedHashMap<String, Object>();
-    private boolean unmodifiable;
-    private boolean dictionaryOrder;
+    LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
+    private boolean dictionaryOrder = true;
 
     public Builder put(String k, Object v) {
       this.attrs.put(k, v);
@@ -21,11 +21,6 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
 
     public Builder putAll(Map<String, Object> map) {
       this.attrs.putAll(map);
-      return this;
-    }
-
-    public Builder setUnmodifiable(boolean unmodifiable) {
-      this.unmodifiable = unmodifiable;
       return this;
     }
 
@@ -41,9 +36,6 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       for (String k : this.attrs.keySet()) {
         ret.put(k, this.attrs.get(k));
       }
-      if (this.unmodifiable) {
-        ret = new UnmodifiableTuple(ret);
-      }
       if (this.dictionaryOrder) {
         Tuple sorted = new Sorted();
         sorted.putAll(ret);
@@ -57,6 +49,7 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
 
   enum Utils {
     ;
+
     static boolean isSubtupleOf(Tuple a, Tuple b) {
       Checks.checknotnull(a);
       Checks.checknotnull(b);
@@ -64,7 +57,7 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
         return false;
       }
       for (String k : a.keySet()) {
-        if (!com.github.dakusui.jcunit.core.utils.Utils.eq(a.get(k), b.get(k))) {
+        if (!Objects.equals(a.get(k), b.get(k))) {
           return false;
         }
       }
@@ -74,23 +67,15 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
   }
 
   class Impl extends LinkedHashMap<String, Object> implements Tuple {
-    public Tuple cloneTuple() {
-      return (Tuple) super.clone();
-    }
-
-    @Override public boolean isSubtupleOf(Tuple another) {
+    @Override
+    public boolean isSubtupleOf(Tuple another) {
       return Utils.isSubtupleOf(this, another);
     }
   }
 
   class Sorted extends TreeMap<String, Object> implements Tuple {
-
     @Override
-    public Tuple cloneTuple() {
-      return (Tuple) super.clone();
-    }
-
-    @Override public boolean isSubtupleOf(Tuple another) {
+    public boolean isSubtupleOf(Tuple another) {
       return Utils.isSubtupleOf(this, another);
     }
   }

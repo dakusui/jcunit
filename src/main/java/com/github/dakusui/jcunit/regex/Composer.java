@@ -5,12 +5,17 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.util.*;
 
-import static com.github.dakusui.jcunit.regex.RegexToFactorListTranslator.VOID;
 import static java.util.Arrays.asList;
 
 public class Composer {
-  private final String prefix;
-  private final Expr   topLevel;
+  public static final Object VOID = new Object() {
+    @Override
+    public String toString() {
+      return "(VOID)";
+    }
+  };
+  private final String            prefix;
+  private final Expr              topLevel;
   private final Map<String, Expr> exprs;
 
   public Composer(String prefix, Expr topLevel) {

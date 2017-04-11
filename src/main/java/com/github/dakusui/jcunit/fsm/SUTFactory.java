@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.Utils;
+import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -9,21 +9,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 public interface SUTFactory<SUT> {
   SUT create(InteractionHistory interactionHistory);
-
-  class Dummy<SUT> implements SUTFactory<SUT> {
-    public final SUT sut;
-
-    public Dummy(SUT sut) {
-      this.sut = sut;
-    }
-
-    @Override
-    public SUT create(InteractionHistory interactionHistory) {
-      return this.sut;
-    }
-  }
 
   abstract class Base<SUT> implements SUTFactory<SUT> {
     protected final Class<SUT> clazz;
@@ -36,17 +25,14 @@ public interface SUTFactory<SUT> {
 
     @Override
     public SUT create(final InteractionHistory interactionHistory) {
-      Object[] argValues = Utils.transform(args,
-          new Utils.Form<Arg, Object>() {
-            @Override
-            public Object apply(Arg in) {
-              if (in.alias != null) {
-                interactionHistory.add(in.alias, in.value);
-              }
-              return in.value;
+      Object[] argValues = args.stream().map(
+          in -> {
+            if (in.alias != null) {
+              interactionHistory.add(in.alias, in.value);
             }
+            return in.value;
           }
-      ).toArray(new Object[args.size()]);
+      ).collect(toList()).toArray(new Object[args.size()]);
       if (this.getAlias() != null) {
         interactionHistory.add(this.getAlias(), argValues);
       }
@@ -103,22 +89,15 @@ public interface SUTFactory<SUT> {
     @Override
     protected SUT createSUT(Object... args) {
       try {
-        return chooseConstructor(this.clazz, Utils.transform(this.args,
-            new Utils.Form<Arg, Class>() {
-              @Override
-              public Class apply(Arg in) {
-                return in.type;
-              }
-            }
-        ).toArray(new Class[this.args.size()])).newInstance(args);
+        return chooseConstructor(this.clazz, this.args.stream().map(
+            in -> in.type
+        ).collect(toList()).toArray(new Class[this.args.size()])).newInstance(args);
       } catch (InstantiationException e) {
-        throw Checks.wrappluginerror(e, "Failed to instantiate %s", this.clazz);
+        throw TestDefinitionException.failedToInstantiateSut(e, "Failed to instantiate %s", this.clazz);
       } catch (IllegalAccessException e) {
-        throw Checks.wrappluginerror(e, "Illegal access. Constructor of %s is not public enough", this.clazz);
+        throw TestDefinitionException.failedToInstantiateSut(e, "Illegal access. Constructor of %s is not public enough", this.clazz);
       } catch (InvocationTargetException e) {
-        throw Checks.wrappluginerror(
-            e.getTargetException(),
-            "Exception thrown during instantiation. (%s)", e.getTargetException().getMessage());
+        throw TestDefinitionException.failedToInstantiateSut(e, "Exception thrown during instantiation. (%s)", e.getTargetException().getMessage());
       }
     }
 
@@ -140,7 +119,7 @@ public interface SUTFactory<SUT> {
       try {
         return clazz.getConstructor(parameterTypes);
       } catch (NoSuchMethodException e) {
-        throw Checks.wrappluginerror(e, "No mathing constructor found %s(%s)", clazz, parameterTypes);
+        throw TestDefinitionException.failedToInstantiateSut(e, "No mathing constructor found %s(%s)", clazz, parameterTypes);
       }
     }
   }

@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
 /**
@@ -13,7 +12,7 @@ public interface OutputChecker {
   /**
    * Checks if this object should be performed for a given scenario type.
    */
-  boolean shouldBeCheckedFor(Story.Stage stage);
+  boolean shouldBeCheckedFor(Stage stage);
 
   Output.Type getType();
 
@@ -25,7 +24,7 @@ public interface OutputChecker {
    * @param output   An output to be checked. (Output can be either returned object or thrown exception by a method)
    * @param observer An observer to which the checking result will be reported.
    */
-  <SUT, T> Result check(Story.Context<SUT, T> context, Output output, ScenarioSequence.Observer observer);
+  <SUT, T> Result check(Context<SUT, T> context, Output output, Observer observer);
 
 
   class Result {
@@ -56,7 +55,7 @@ public interface OutputChecker {
     }
 
     @Override
-    public boolean shouldBeCheckedFor(Story.Stage stage) {
+    public boolean shouldBeCheckedFor(Stage stage) {
       return true;
     }
 
@@ -72,7 +71,7 @@ public interface OutputChecker {
     /**
      * Creates an object of this class.
      *
-     * @param type expected output type.
+     * @param type    expected output type.
      * @param matcher expectation for output.
      */
     public MatcherBased(Output.Type type, Matcher matcher) {
@@ -82,9 +81,9 @@ public interface OutputChecker {
 
     @Override
     public <SUT, T> Result check(
-        Story.Context<SUT, T> context,
+        Context<SUT, T> context,
         Output output,
-        ScenarioSequence.Observer observer) {
+        Observer observer) {
       if (this.type != output.type) {
         if (output.type == Output.Type.EXCEPTION_THROWN) {
           Checks.checkcond(output.value instanceof Throwable);
@@ -130,6 +129,7 @@ public interface OutputChecker {
    * This class is used to check behaviours of FSMs returned by an action. In theory this can be
    * used for exceptions thrown by a method but you don't want to do it.
    */
+  /*
   class FSM extends Base implements OutputChecker {
     String fsmName;
 
@@ -142,7 +142,7 @@ public interface OutputChecker {
     }
 
     @Override
-    public <SUT, T> Result check(Story.Context<SUT, T> context, Output output, ScenarioSequence.Observer observer) {
+    public <SUT, T> Result check(Context<SUT, T> context, Output output, Observer observer) {
       Checks.checknotnull(context);
       Story story = context.lookUpFSMStory(this.fsmName);
       if (!Checks.checknotnull(story).isPerformed()) {
@@ -163,59 +163,9 @@ public interface OutputChecker {
     }
 
     @Override
-    public boolean shouldBeCheckedFor(Story.Stage stage) {
-      return stage == Story.Stage.MAIN;
+    public boolean shouldBeCheckedFor(Stage stage) {
+      return stage == Stage.MAIN;
     }
   }
-
-  abstract class ForInteractionHistory extends Base {
-    public ForInteractionHistory(Output.Type type) {
-      super(type);
-    }
-
-    @Override
-    public <SUT, T> Result check(
-        final Story.Context<SUT, T> context,
-        Output output,
-        ScenarioSequence.Observer observer) {
-      String expectation;
-      boolean passed;
-
-      Object expect = computeExpectation(context.interactionHistory);
-      Matcher matcher = Checks.checknotnull(this.createMatcher(expect));
-      passed = matcher.matches(Checks.checknotnull(output).value);
-      expectation = matcher.toString();
-      return new Result(
-          passed,
-          StringUtils.format(
-              "Expectation: %s%nActual:      %s",
-              expectation,
-              this.type.describeMismatch(output)
-          )
-      );
-    }
-
-    protected Matcher createMatcher(Object expectation) {
-      return CoreMatchers.is(expectation);
-    }
-
-    /**
-     * JCUnit verifies the value output by target method "is" the object returned by this
-     * method.
-     *
-     * {@code matches(Object item)} method of a matcher object returned by {@code createMatcher} method
-     * is performed with the object returned by this method.
-     *
-     * @see ForInteractionHistory#createMatcher(Object)
-     */
-    protected abstract Object computeExpectation(InteractionHistory interactionHistory);
-
-    public String toString() {
-      return String.format(
-          "%s %s",
-          createMatcher("...").toString(),
-          StringUtils.toString(this)
-      );
-    }
-  }
+  */
 }

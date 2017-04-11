@@ -100,7 +100,7 @@ class FsmTupleAccessor<SUT> {
       public List<Object> get(int index) {
         return new ArrayList<Object>() {{
           add(eachAction);
-          addAll(eachAction.parameters().get(index).levels);
+          addAll(eachAction.parameters().get(index).getLevels());
         }};
       }
     };

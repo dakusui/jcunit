@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit.plugins.caengines.ipo2.Ipo.DontCare;
+import static com.github.dakusui.jcunit8.core.Utils.DontCare;
 import static java.util.Collections.disjoint;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;

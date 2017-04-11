@@ -4,41 +4,37 @@ import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public enum StringUtils {
   ;
 
   /**
    * Returns a user friendly string using given format and arguments.
-   *
+   * <p>
    * Should only be used for messages directly shown to users because this method
    * does relatively heavy conversions to keep the returned string concise and
    * informative.
    * Also note that unlike {@code String#format}, only '%s' specifier is supported.
    *
    * @param format A format string.
-   * @param args Arguments referenced by the format specifier in the format string.
+   * @param args   Arguments referenced by the format specifier in the format string.
    */
   public static String format(String format, Object... args) {
-    Utils.Form<Object, String> formatter = new Utils.Form<Object, String>() {
-      @Override
-      public String apply(Object in) {
-        if (in == null)
-          return null;
-        //noinspection ConstantConditions (it's already checked)
-        Class<?> toStringDeclaringClass = ReflectionUtils.getMethod(in.getClass(), "toString").getDeclaringClass();
-        if (Object.class.equals(toStringDeclaringClass)) {
-          return StringUtils.toString(in);
-        } else if (in instanceof Class) {
-          return getSimpleName((Class) in);
-        }
-        return in.toString();
-      }
-
-    };
     return String.format(
         Checks.checknotnull(format),
-        Utils.transform(args, formatter).toArray());
+        Stream.of(args).map(in -> {
+          if (in == null)
+            return null;
+          //noinspection ConstantConditions (it's already checked)
+          Class<?> toStringDeclaringClass = ReflectionUtils.getMethod(in.getClass(), "toString").getDeclaringClass();
+          if (Object.class.equals(toStringDeclaringClass)) {
+            return toString(in);
+          } else if (in instanceof Class) {
+            return getSimpleName((Class) in);
+          }
+          return in.toString();
+        }).toArray());
   }
 
   public static String toString(Object o) {

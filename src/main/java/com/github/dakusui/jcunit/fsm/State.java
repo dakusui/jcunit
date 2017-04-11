@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
-import com.github.dakusui.jcunit.fsm.spec.FSMSpec;
+import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import org.hamcrest.CoreMatchers;
 
@@ -86,13 +86,13 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
   Expectation<SUT> expectation(Action<SUT> action, Args args);
 
   class Base<SUT> implements State<SUT> {
-    final         FSMSpec<SUT>            stateSpec;
+    final         FsmSpec<SUT>            stateSpec;
     private final Map<String, Method>     actionMethods;
     private final Field                   stateSpecField;
     private final FiniteStateMachine<SUT> fsm;
     private final String                  fsmName;
 
-    public Base(String fsmName, FiniteStateMachine<SUT> fsm, FSMSpec<SUT> stateSpec, Map<String, Method> actionMethods, Field stateSpecField) {
+    public Base(String fsmName, FiniteStateMachine<SUT> fsm, FsmSpec<SUT> stateSpec, Map<String, Method> actionMethods, Field stateSpecField) {
       this.fsm = fsm;
       this.stateSpec = stateSpec;
       this.actionMethods = actionMethods;

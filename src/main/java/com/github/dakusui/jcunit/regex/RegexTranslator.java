@@ -1,23 +1,14 @@
 package com.github.dakusui.jcunit.regex;
 
-import com.github.dakusui.jcunit.core.utils.Utils;
-
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static com.github.dakusui.jcunit.core.utils.Utils.filter;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 
 public abstract class RegexTranslator implements Expr.Visitor {
-  protected static final Object VOID = new Object() {
-    @Override
-    public String toString() {
-      return "(VOID)";
-    }
-  };
   /**
    * A mapping from factor names to terms held by composite (alt/cat) expressions.
    */
@@ -93,12 +84,7 @@ public abstract class RegexTranslator implements Expr.Visitor {
   protected boolean isReferencedByAltDirectlyOrIndirectly(final String key) {
     for (Map.Entry<String, List<Value>> each : this.terms.entrySet()) {
       if (isAlt(each.getKey())) {
-        if (!filter(each.getValue(), new Utils.Predicate<Value>() {
-          @Override
-          public boolean apply(Value in) {
-            return in instanceof Reference && ((Reference) in).key.equals(key);
-          }
-        }).isEmpty()) {
+        if (each.getValue().stream().anyMatch(in -> in instanceof Reference && ((Reference) in).key.equals(key))) {
           return true;
         }
       }
@@ -109,11 +95,11 @@ public abstract class RegexTranslator implements Expr.Visitor {
   protected List<Object> resolveIfImmediate(Value value) {
     if (value instanceof Immediate)
       return resolveImmediate(value);
-    return singletonList((Object) value);
+    return singletonList(value);
   }
 
   protected List<Object> resolve(Value value) {
-    return resolve(new LinkedList<Object>(), value);
+    return resolve(new LinkedList<>(), value);
   }
 
   private List<Object> resolveImmediate(Value value) {
