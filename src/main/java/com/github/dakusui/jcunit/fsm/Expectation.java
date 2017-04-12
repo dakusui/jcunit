@@ -44,11 +44,11 @@ public class Expectation<SUT> {
     this.checker = checker;
   }
 
-  public <T> Result checkThrownException(Context<SUT, T> context, Throwable thrownException, Observer observer) {
+  public <T> Expectation.Result checkThrownException(Context<SUT, T> context, Throwable thrownException, Observer observer) {
     Checks.checknotnull(context);
     //noinspection ThrowableResultOfMethodCallIgnored
     Checks.checknotnull(thrownException);
-    Result.Builder b = new Result.Builder("Expectation was not satisfied");
+    Expectation.Result.Builder b = new Expectation.Result.Builder("Expectation was not satisfied");
     OutputChecker.Result r = this.checker.check(
         context,
         new Output(
@@ -66,9 +66,9 @@ public class Expectation<SUT> {
     return b.build();
   }
 
-  public <T> Result checkReturnedValue(Context<SUT, T> context, Object returnedValue, Stage stage, Observer observer) {
+  public <T> Expectation.Result checkReturnedValue(Context<SUT, T> context, Object returnedValue, Stage stage, Observer observer) {
     Checks.checknotnull(context);
-    Result.Builder b = new Result.Builder("Expectation was not satisfied");
+    Expectation.Result.Builder b = new Expectation.Result.Builder("Expectation was not satisfied");
     ////
     // Only when type is 'MAIN', returned FSM value will be checked.
     if (checker.shouldBeCheckedFor(stage)) {
@@ -89,6 +89,7 @@ public class Expectation<SUT> {
     }
     return b.build();
   }
+
 
   public Output.Type getType() {
     return this.checker.getType();
@@ -120,7 +121,7 @@ public class Expectation<SUT> {
 
     public Builder<SUT> invalid(Class<? extends Throwable> klass) {
       Checks.checknotnull(klass);
-      return this.invalid(FsmSpec.Void.<SUT>getInstance(), klass);
+      return this.invalid(FsmSpec.Void.getInstance(), klass);
     }
 
     public Builder<SUT> invalid(FsmSpec<SUT> state, Class<? extends Throwable> klass) {

@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 
 public class FlyingSpaghettiMonster {
   private String dish  = null;
-  public String cook(String pasta, String sauce) {
+  public String cook(/*String pasta, String sauce*/) {
     Checks.checknotnull(pasta);
     this.dish = pasta;
     return String.format("Cooking %s %s", pasta, sauce);

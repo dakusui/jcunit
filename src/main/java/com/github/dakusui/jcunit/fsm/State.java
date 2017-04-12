@@ -107,7 +107,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
 
     @Override
     public Expectation<SUT> expectation(Action<SUT> action, Args args) {
-      Expectation<SUT> ret = null;
+      Expectation<SUT> ret;
       Method m = Checks.checknotnull(actionMethods.get(action.id()), "Unknown action '%s' was given.", action);
       Checks.checktest(
           Expectation.class.isAssignableFrom(m.getReturnType()),
@@ -119,7 +119,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
           m.getReturnType().getCanonicalName()
       );
       Object[] argsToMethod = Utils.concatenate(
-          new Object[] { new Expectation.Builder<SUT>(this.fsmName, fsm) },
+          new Object[] { new Expectation.Builder<>(this.fsmName, fsm) },
           args.values()
       );
       try {
@@ -136,7 +136,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
         );
       } catch (IllegalAccessException e) {
         // Since the method is validated in advance, this path should never be executed.
-        Checks.fail();
+        throw Checks.fail();
       } catch (InvocationTargetException e) {
         throw Checks.wraptesterror(
             e,

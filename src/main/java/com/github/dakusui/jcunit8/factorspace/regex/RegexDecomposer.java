@@ -14,6 +14,13 @@ import java.util.stream.Collectors;
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
 
 public class RegexDecomposer extends RegexTranslator {
+  public static final Object VOID = new Object() {
+    @Override
+    public String toString() {
+      return "(VOID)";
+    }
+  };
+
   public RegexDecomposer(String name, Expr topLevel) {
     super(topLevel, name);
   }
@@ -30,7 +37,7 @@ public class RegexDecomposer extends RegexTranslator {
       List<Object> b = new LinkedList<>();
       if (!isTopLevel(eachKey)) {
         if (isReferencedByAltDirectlyOrIndirectly(eachKey) || isAlt(eachKey)) {
-          b.add(Composer.VOID);
+          b.add(VOID);
         }
       }
       if (isAlt(eachKey)) {
@@ -67,11 +74,11 @@ public class RegexDecomposer extends RegexTranslator {
         public boolean test(Tuple in) {
           for (String eachReferrer : referrers) {
             Object referrerValue = in.get(eachReferrer);
-            if (!Composer.VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {
-              return !Composer.VOID.equals(in.get(referee));
+            if (!VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {
+              return !VOID.equals(in.get(referee));
             }
           }
-          return Composer.VOID.equals(in.get(referee));
+          return VOID.equals(in.get(referee));
         }
 
         @Override

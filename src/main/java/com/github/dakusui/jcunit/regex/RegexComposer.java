@@ -2,23 +2,18 @@ package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
 import java.util.*;
 
 import static java.util.Arrays.asList;
 
-public class Composer {
-  public static final Object VOID = new Object() {
-    @Override
-    public String toString() {
-      return "(VOID)";
-    }
-  };
+public class RegexComposer {
   private final String            prefix;
   private final Expr              topLevel;
   private final Map<String, Expr> exprs;
 
-  public Composer(String prefix, Expr topLevel) {
+  public RegexComposer(String prefix, Expr topLevel) {
     this.prefix = prefix;
     this.topLevel = topLevel;
     this.exprs = createMap(this.topLevel);
@@ -51,7 +46,7 @@ public class Composer {
     top.accept(new Expr.Visitor() {
       @Override
       public void visit(Expr.Alt exp) {
-        ret.put(Composer.this.composeKey(exp), exp);
+        ret.put(RegexComposer.this.composeKey(exp), exp);
         for (Expr each : exp.getChildren()) {
           each.accept(this);
         }
@@ -59,7 +54,7 @@ public class Composer {
 
       @Override
       public void visit(Expr.Cat exp) {
-        ret.put(Composer.this.composeKey(exp), exp);
+        ret.put(RegexComposer.this.composeKey(exp), exp);
         for (Expr each : exp.getChildren()) {
           each.accept(this);
         }
@@ -67,12 +62,12 @@ public class Composer {
 
       @Override
       public void visit(Expr.Leaf exp) {
-        ret.put(Composer.this.composeKey(exp), exp);
+        ret.put(RegexComposer.this.composeKey(exp), exp);
       }
 
       @Override
       public void visit(Expr.Empty exp) {
-        ret.put(Composer.this.composeKey(exp), exp);
+        ret.put(RegexComposer.this.composeKey(exp), exp);
       }
     });
     return ret;
@@ -96,7 +91,7 @@ public class Composer {
     public void visit(Expr.Alt expr) {
       //noinspection ConstantConditions
       Object values = tuple.get(composeKey(expr));
-      if (VOID.equals(values))
+      if (RegexDecomposer.VOID.equals(values))
         return;
       for (Object each : (List) values) {
         if (each instanceof Reference) {

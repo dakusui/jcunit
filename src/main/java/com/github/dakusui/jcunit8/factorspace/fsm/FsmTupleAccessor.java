@@ -1,12 +1,17 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.*;
+import com.github.dakusui.jcunit.fsm.Action;
+import com.github.dakusui.jcunit.fsm.Args;
+import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
+import com.github.dakusui.jcunit.fsm.State;
 import com.github.dakusui.jcunit8.core.StreamableCartesianator;
+import com.github.dakusui.jcunit8.factorspace.Factor;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -75,11 +80,12 @@ class FsmTupleAccessor<SUT> {
   }
 
   private Stream<Edge<SUT>> allPossibleEdges(State<SUT> from, Action<SUT> action, State<SUT> to) {
-    //noinspection unchecked
+    //noinspection uncheckedew
     return this.model.actions().stream()
         .filter(action::equals)
         .flatMap(
             eachAction -> new StreamableCartesianator<>(actionAndArgsList(eachAction)).stream())
+        .filter((List<Object> objects) -> to.equals(from.expectation(action, new Args(objects.subList(1, objects.size()).toArray())).state))
         .map((List<Object> arguments) -> Edge.Builder.from(from)
             .with(
                 (Action<SUT>) arguments.get(0),
@@ -100,7 +106,12 @@ class FsmTupleAccessor<SUT> {
       public List<Object> get(int index) {
         return new ArrayList<Object>() {{
           add(eachAction);
-          addAll(eachAction.parameters().get(index).getLevels());
+          eachAction.parameters().forEach(new Consumer<Factor>() {
+            @Override
+            public void accept(Factor factor) {
+              add(factor.getLevels());
+            }
+          });
         }};
       }
     };

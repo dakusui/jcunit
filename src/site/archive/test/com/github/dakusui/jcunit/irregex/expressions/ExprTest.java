@@ -257,7 +257,7 @@ public class ExprTest {
     return new Composer("aPrefix", expr).compose(each.getTuple());
     /*
     List<Object> out;
-    Composer.ComposerVisitor composerVisitor = new Composer.ComposerVisitor("aPrefix", each.getTuple(), terms, exprs);
+    RegexComposer.ComposerVisitor composerVisitor = new RegexComposer.ComposerVisitor("aPrefix", each.getTuple(), terms, exprs);
     expr.accept(composerVisitor);
     out = composerVisitor.out;
     return out;

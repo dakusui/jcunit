@@ -1,6 +1,14 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
+import com.github.dakusui.jcunit.fsm.Action;
+import com.github.dakusui.jcunit.fsm.Args;
 import com.github.dakusui.jcunit.fsm.Expectation;
+import com.github.dakusui.jcunit.fsm.State;
+
+import java.util.function.Predicate;
+
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public interface Player<SUT> {
   void visit(Stimulus<SUT> stimulus);
@@ -40,6 +48,7 @@ public interface Player<SUT> {
       scenario.setUp().get(0).from.check(sut);
       visit(scenario);
     }
+
   }
 
   class Simple<SUT> extends Base<SUT> {
@@ -49,16 +58,41 @@ public interface Player<SUT> {
 
     @Override
     public void visit(Edge<SUT> edge) {
-      ////
-      // TODO
       Expectation<SUT> expectation = edge.from.expectation(edge.action, edge.args);
       try {
-        edge.action.perform(sut, edge.args);
+        assertThat(
+            edge.action.perform(sut, edge.args),
+            expectation.getType().returnedValueMatcher(getOutputChecker(sut, edge.from, edge.action, edge.args))
+        );
+        checkState(expectation);
+      } catch (AssertionError e) {
+        throw e;
       } catch (Throwable throwable) {
-        throwable.printStackTrace();
-      } finally {
-        expectation.state.check(sut);
+        assertThat(
+            throwable,
+            expectation.getType().thrownExceptionMatcher(getExceptionChecker(sut, edge.from, edge.action, edge.args))
+        );
+        checkState(expectation);
       }
+    }
+
+    private void checkState(Expectation<SUT> expectation) {
+      assertTrue(
+          String.format(
+              "SUT '%s' is not in state '%s'",
+              sut,
+              expectation.state
+          ),
+          expectation.state.check(sut)
+      );
+    }
+
+    protected Predicate<Object> getOutputChecker(SUT sut, State<SUT> from, Action<SUT> action, Args args) {
+      return o -> true;
+    }
+
+    protected Predicate<Throwable> getExceptionChecker(SUT sut, State<SUT> from, Action<SUT> action, Args args) {
+      return o -> true;
     }
   }
 }

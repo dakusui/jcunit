@@ -21,8 +21,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 
 public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
-
-  private final List<Factor>     factors;
+  public static final Object VOID = new Object();
+  private final List<Factor> factors;
   private final List<Constraint> constraints;
   private final int              maxActionParams;
 
@@ -114,7 +114,7 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
               return false;
             }
           } else {
-            if (getActionArgFromTuple(testObject, i, j) != Parameters.VOID)
+            if (getActionArgFromTuple(testObject, i, j) != VOID)
               return false;
           }
         }

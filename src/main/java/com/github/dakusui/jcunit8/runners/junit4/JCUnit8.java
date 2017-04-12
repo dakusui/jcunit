@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit8.runners.junit4;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.exceptions.BaseException;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -10,11 +9,8 @@ import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith.ConfigFactory;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.Ignore;
@@ -65,9 +61,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       this.runners = createRunners();
     } catch (BaseException e) {
       if (e.getCause() instanceof InitializationError) {
-        throw e.getCause();
+        throw TestDefinitionException.wrap(e.getCause());
       }
       throw e;
+    } catch (Throwable throwable) {
+      throw TestDefinitionException.wrap(throwable);
     }
   }
 
@@ -336,6 +334,9 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     private boolean shouldInvoke(FrameworkMethod each, Tuple tuple) {
       ////
       // TODO: Should be memoized.
+      //noinspection SimplifiableIfStatement
+      if (each.getAnnotation(Given.class) == null)
+        return true;
       return buildPredicate(each.getAnnotation(Given.class).value()).test(tuple);
     }
 

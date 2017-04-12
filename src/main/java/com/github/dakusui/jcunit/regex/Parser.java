@@ -26,7 +26,7 @@ public class Parser {
    * Instead, treat white spaces within a word just as part of the word, and after reverse
    * regex generation finishes, JCUnit will split into pieces.
    *
-   * See Composer, too.
+   * See RegexComposer, too.
    */
   private static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_]([A-Za-z_0-9 ]*[A-Za-z_0-9])?");
   private final Expr.Factory exprFactory;

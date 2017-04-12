@@ -27,6 +27,11 @@ public class Edge<SUT> implements Stimulus<SUT> {
     player.visit(this);
   }
 
+  @Override
+  public String toString() {
+    return String.format("%s.%s(%s) -> %s", this.from, this.action, this.args, this.to);
+  }
+
   public static class Builder<SUT> {
     private final State<SUT>  from;
     private       Action<SUT> action;
@@ -54,7 +59,9 @@ public class Edge<SUT> implements Stimulus<SUT> {
 
     public Edge<SUT> build() {
       assert action.numParameterFactors() == args.size();
-      assert to.equals(from.expectation(action, args));
+      if (!to.equals(from.expectation(action, args).state)) {
+        throw new RuntimeException();
+      }
       return new Edge<>(from, action, args, to);
     }
   }

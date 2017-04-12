@@ -154,7 +154,7 @@ public interface FiniteStateMachine<SUT> {
       // The field should be static.
       Object ret = ReflectionUtils.getFieldValue(null, Checks.checknotnull(field));
       Checks.checktest(ret instanceof Parameters, "The field '%s' in %s must be typed %s", field.getName(), field.getDeclaringClass().getCanonicalName(), Parameters.class.getSimpleName());
-      Checks.checktest((((Parameters) ret).values()).length > 0,
+      Checks.checktest((((Parameters) ret).values()).size() > 0,
           "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
           field.getName(), field.getType().getCanonicalName());
       ////

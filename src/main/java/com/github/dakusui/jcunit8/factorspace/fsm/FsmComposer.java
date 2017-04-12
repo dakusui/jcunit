@@ -33,7 +33,7 @@ public class FsmComposer<SUT> extends FsmTupleAccessor<SUT> {
             this.model.initialState(),
             destination,
             new LinkedList<>(),
-            new ArrayList<>(this.model.states().size())
+            new ArrayList<>(this.model.states())
         )
     ).build();
   }

@@ -1,59 +1,78 @@
 package com.github.dakusui.jcunit8.examples.flyingspaghettimonster;
 
 import com.github.dakusui.jcunit.fsm.Expectation;
+import com.github.dakusui.jcunit.fsm.Parameters;
 import com.github.dakusui.jcunit.fsm.spec.ActionSpec;
 import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
+import com.github.dakusui.jcunit.fsm.spec.ParametersSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 
 public enum FlyingSpaghettiMonsterSpec implements FsmSpec<FlyingSpaghettiMonster> {
   @StateSpec I {
     @Override
-    public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
-      return false;
+    public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> builder, String pasta) {
+      return builder.valid(COOKING).build();
+    }
+
+    @Override
+    public Expectation<FlyingSpaghettiMonster> takeOff(Expectation.Builder<FlyingSpaghettiMonster> builder) {
+      return builder.valid(FLYING).build();
     }
   },
   @StateSpec COOKING {
     @Override
-    public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
-      return false;
+    public Expectation<FlyingSpaghettiMonster> serve(Expectation.Builder<FlyingSpaghettiMonster> builder) {
+      return builder.valid(COOKED).build();
     }
   },
-  @StateSpec EATING {
+  @StateSpec COOKED {
     @Override
-    public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
-      return false;
+    public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> builder) {
+      return builder.valid(I).build();
     }
   },
+
   @StateSpec FLYING {
     @Override
-    public boolean check(FlyingSpaghettiMonster flyingSpaghettiMonster) {
-      return false;
-    }
-
-    @ActionSpec
-    public Expectation<FlyingSpaghettiMonster> land(Expectation.Builder<FlyingSpaghettiMonster> builder) {
+    public Expectation<FlyingSpaghettiMonster> perch(Expectation.Builder<FlyingSpaghettiMonster> builder) {
       return builder.valid(I).build();
     }
   };
 
+  @Override
+  public boolean check(FlyingSpaghettiMonster fsm) {
+    return true;
+  }
+
+  @ParametersSpec
+  public static final Parameters cook = new Parameters.Builder("cook")
+      .add("peperoncino", "meat sauce")
+      .build();
+
   @ActionSpec
-  public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> builder) {
-    return builder.invalid().build();
+  public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> builder, String pasta) {
+    return builder.invalid(this, Throwable.class).build();
+  }
+
+
+  @ActionSpec
+  public Expectation<FlyingSpaghettiMonster> serve(Expectation.Builder<FlyingSpaghettiMonster> builder) {
+    return builder.invalid(this, Throwable.class).build();
   }
 
   @ActionSpec
   public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> builder) {
-    return builder.invalid().build();
+    return builder.invalid(this, Throwable.class).build();
   }
 
   @ActionSpec
-  public Expectation<FlyingSpaghettiMonster> land(Expectation.Builder<FlyingSpaghettiMonster> builder) {
-    return builder.invalid().build();
+  public Expectation<FlyingSpaghettiMonster> perch(Expectation.Builder<FlyingSpaghettiMonster> builder) {
+    return builder.invalid(this, Throwable.class).build();
   }
 
   @ActionSpec
-  public Expectation<FlyingSpaghettiMonster> fly(Expectation.Builder<FlyingSpaghettiMonster> builder) {
-    return builder.invalid().build();
+  public Expectation<FlyingSpaghettiMonster> takeOff(Expectation.Builder<FlyingSpaghettiMonster> builder) {
+    return builder.invalid(this, Throwable.class).build();
   }
 }
 

@@ -1,7 +1,14 @@
 package com.github.dakusui.jcunit8.examples.flyingspaghettimonster;
 
-/**
- * Created by hiroshi.ukai on 4/11/17.
- */
 public class FlyingSpaghettiMonster {
+  public void cook() {
+  }
+  public void eat() {
+  }
+  public void serve() {
+  }
+  public void takeOff() {
+  }
+  public void perch() {
+  }
 }

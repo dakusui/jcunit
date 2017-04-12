@@ -2,6 +2,14 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+
+import java.util.function.Predicate;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Output {
   public final Object value;
@@ -27,6 +35,27 @@ public class Output {
       public String entityType() {
         return "exception";
       }
+
+      @Override
+      public Matcher<Object> returnedValueMatcher(Predicate<Object> test) {
+        throw new AssertionError("An exception is expected to be thrown, but a value was returned");
+      }
+
+      @Override
+      public Matcher<Throwable> thrownExceptionMatcher(Predicate<Throwable> test) {
+        return new BaseMatcher<Throwable>() {
+          @Override
+          public void describeTo(Description description) {
+            description.appendText(describeExpectation(test));
+          }
+
+          @Override
+          public boolean matches(Object o) {
+            assertThat(o, CoreMatchers.instanceOf(Throwable.class));
+            return test.test((Throwable) o);
+          }
+        };
+      }
     },
     /**
      * Expects that a value is returned of the method.
@@ -41,6 +70,26 @@ public class Output {
       public String entityType() {
         return "value";
       }
+
+      @Override
+      public Matcher<Object> returnedValueMatcher(Predicate<Object> test) {
+        return new BaseMatcher<Object>() {
+          @Override
+          public void describeTo(Description description) {
+            description.appendText(describeExpectation(test));
+          }
+
+          @Override
+          public boolean matches(Object o) {
+            return test.test(o);
+          }
+        };
+      }
+
+      @Override
+      public Matcher<Throwable> thrownExceptionMatcher(Predicate<Throwable> test) {
+        throw new AssertionError("A value is expected to be returned, but an exception was returned");
+      }
     };
 
     public final String name;
@@ -50,6 +99,11 @@ public class Output {
     }
 
     abstract protected String entityType();
+
+    public abstract Matcher<Object> returnedValueMatcher(Predicate<Object> test);
+
+    public abstract Matcher<Throwable> thrownExceptionMatcher(Predicate<Throwable> test);
+
 
     public String describeExpectation(Object matcher) {
       return StringUtils.format(

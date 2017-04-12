@@ -3,6 +3,8 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.As;
+import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
+import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -10,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
 
@@ -76,7 +79,7 @@ public interface Action<SUT> extends Serializable {
     private static Void INSTANCE = new Void() {
       @Override
       public Object perform(Object o, Args args) throws Throwable {
-        return Parameters.VOID;
+        return FsmDecomposer.VOID;
       }
 
       @Override
@@ -170,16 +173,16 @@ public interface Action<SUT> extends Serializable {
 
     @Override
     public Object[] parameterFactorLevels(int i) {
-      Object[][] paramFactors = this.parameters.values();
-      Checks.checkcond(0 <= i && i < paramFactors.length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
-      return paramFactors[i];
+      List<List> paramFactors = this.parameters.values();
+      Checks.checkcond(0 <= i && i < paramFactors.size(), "i must be less than %d and greater than or equal to 0 but %d", paramFactors.size(), i);
+      return paramFactors.get(i).toArray();
     }
 
     @Override
     public int numParameterFactors() {
-      Object[][] paramFactors = this.parameters.values();
+      List<List> paramFactors = this.parameters.values();
       // It's safe to access the first parameter because it's already validated.
-      return paramFactors.length;
+      return paramFactors.size();
     }
 
     @Override
@@ -230,15 +233,13 @@ public interface Action<SUT> extends Serializable {
     }
 
     private Method chooseMethod(Class<?> klass, String name) {
-      Method ret = null;
-      for (Method each : klass.getMethods()) {
-        if (each.getName().equals(name) && this.getParameterTypes().equals(asList(each.getParameterTypes()))) {
-          ret = each;
-          break;
-        }
-      }
-      Checks.checktest(ret != null, "No method '%s' is found in '%s'", name, klass.getCanonicalName());
-      return ret;
+      return Stream.of(klass.getMethods())
+          .filter((Method eachMethod) -> eachMethod.getName().equals(name))
+          .filter((Method eachMethod) -> getParameterTypes().equals(asList(eachMethod.getParameterTypes())))
+          .findFirst()
+          .orElseThrow(
+              TestDefinitionException.sutDoesNotHaveSpecifiedMethod(klass, name, getParameterTypes())
+          );
     }
 
     /**
