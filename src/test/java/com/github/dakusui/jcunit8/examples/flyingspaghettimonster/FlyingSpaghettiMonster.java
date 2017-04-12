@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.examples.flyingspaghettimonster;
 
 public class FlyingSpaghettiMonster {
-  public void cook() {
+  public void cook(String dish) {
   }
   public void eat() {
   }

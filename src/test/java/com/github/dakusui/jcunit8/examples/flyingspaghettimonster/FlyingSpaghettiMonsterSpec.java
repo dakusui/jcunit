@@ -45,7 +45,7 @@ public enum FlyingSpaghettiMonsterSpec implements FsmSpec<FlyingSpaghettiMonster
   }
 
   @ParametersSpec
-  public static final Parameters cook = new Parameters.Builder("cook")
+  public static final Parameters cook = new Parameters.Builder("dish")
       .add("peperoncino", "meat sauce")
       .build();
 

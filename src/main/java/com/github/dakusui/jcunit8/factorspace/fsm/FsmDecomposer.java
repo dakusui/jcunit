@@ -22,18 +22,18 @@ import static java.util.stream.IntStream.range;
 
 public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
   public static final Object VOID = new Object();
-  private final List<Factor> factors;
+  private final List<Factor>     factors;
   private final List<Constraint> constraints;
   private final int              maxActionParams;
 
   public FsmDecomposer(String name, FiniteStateMachine<SUT> model, int scenarioLength) {
     super(name, model, scenarioLength);
-    this.factors = decompose();
-    this.constraints = generateConstraints();
     this.maxActionParams = model.actions().stream()
         .mapToInt(value -> value.parameters().size())
         .max()
         .orElse(0);
+    this.constraints = generateConstraints();
+    this.factors = decompose();
   }
 
   public List<Factor> getFactors() {
@@ -87,7 +87,8 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
   private Object[] union(List<Parameters> parametersList, int j) {
     return unique(
         parametersList.stream()
-            .flatMap(factors -> factors.get(j).getLevels().stream())
+            .filter((Parameters factors) -> factors.size() > j)
+            .flatMap((Parameters factors) -> factors.get(j).getLevels().stream())
             .collect(toList())
     ).toArray();
   }

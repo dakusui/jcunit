@@ -83,8 +83,8 @@ class FsmTupleAccessor<SUT> {
     //noinspection uncheckedew
     return this.model.actions().stream()
         .filter(action::equals)
-        .flatMap(
-            eachAction -> new StreamableCartesianator<>(actionAndArgsList(eachAction)).stream())
+        .flatMap((Action<SUT> eachAction)
+            -> new StreamableCartesianator<>(actionAndArgsList(eachAction)).stream())
         .filter((List<Object> objects) -> to.equals(from.expectation(action, new Args(objects.subList(1, objects.size()).toArray())).state))
         .map((List<Object> arguments) -> Edge.Builder.from(from)
             .with(
