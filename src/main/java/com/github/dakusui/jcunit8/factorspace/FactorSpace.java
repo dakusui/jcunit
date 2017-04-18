@@ -1,10 +1,14 @@
 package com.github.dakusui.jcunit8.factorspace;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalDouble;
 
+import static java.lang.String.format;
+
 public interface FactorSpace {
   static FactorSpace create(List<? extends Factor> factors, List<Constraint> constraints) {
+    List<Constraint> work = new ArrayList<>(constraints);
     return new FactorSpace() {
       @Override
       public List<Factor> getFactors() {
@@ -19,7 +23,12 @@ public interface FactorSpace {
 
       @Override
       public List<Constraint> getConstraints() {
-        return constraints;
+        return work;
+      }
+
+      @Override
+      public String toString() {
+        return format("factors:%s,constraints:%s", factors, constraints);
       }
     };
   }
@@ -44,8 +53,8 @@ public interface FactorSpace {
     double averageNumberOfLevels();
 
     class Impl implements Characteristics {
-      private final List<Constraint>      constraints;
-      private final List<Factor> factors;
+      private final List<Constraint> constraints;
+      private final List<Factor>     factors;
 
       public Impl(List<? extends Factor> factors, List<Constraint> constraints) {
         //noinspection unchecked

@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.factorspace.fsm;
 
 import com.github.dakusui.jcunit.fsm.Action;
 import com.github.dakusui.jcunit.fsm.Args;
+import com.github.dakusui.jcunit.fsm.Output;
 import com.github.dakusui.jcunit.fsm.State;
 
 public class Edge<SUT> implements Stimulus<SUT> {
@@ -17,9 +18,13 @@ public class Edge<SUT> implements Stimulus<SUT> {
     this.to = to;
   }
 
-  public boolean isValid() {
+  public boolean isPossible() {
     return action.parameters().size() == args.size() &&
         from.expectation(action, args).state.equals(to);
+  }
+
+  public boolean isValid() {
+    return from.expectation(action, args).getType() == Output.Type.VALUE_RETURNED;
   }
 
   @Override
@@ -29,7 +34,7 @@ public class Edge<SUT> implements Stimulus<SUT> {
 
   @Override
   public String toString() {
-    return String.format("%s.%s(%s) -> %s", this.from, this.action, this.args, this.to);
+    return String.format("%s.%s(%s)->%s", this.from, this.action, this.args, this.to);
   }
 
   public static class Builder<SUT> {

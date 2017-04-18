@@ -3,9 +3,9 @@ package com.github.dakusui.jcunit8.factorspace;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
 import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
-import com.github.dakusui.jcunit.regex.RegexComposer;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
+import com.github.dakusui.jcunit.regex.RegexComposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmComposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
@@ -42,7 +42,7 @@ public interface Parameter<T> {
     protected final Predicate<T> check;
     private final   List<T>      knownValues;
 
-    Base(String name, List<T> knownValues, Predicate<T> check) {
+    protected Base(String name, List<T> knownValues, Predicate<T> check) {
       this.name = requireNonNull(name);
       this.check = requireNonNull(check);
       this.knownValues = unmodifiableList(requireNonNull(knownValues));
@@ -112,18 +112,11 @@ public interface Parameter<T> {
   }
 
   interface Simple<T> extends Parameter<T> {
-    static Constraint createConstraintFrom(Parameter parameter) {
-      return new Constraint() {
-        @Override
-        public boolean test(Tuple tuple) {
-          return parameter.check(parameter.composeValueFrom(tuple));
-        }
-
-        @Override
-        public List<String> involvedKeys() {
-          return singletonList(parameter.getName());
-        }
-      };
+    static <T> Constraint createConstraintFrom(Parameter<T> parameter) {
+      return Constraint.create(
+          tuple -> parameter.check(parameter.composeValueFrom(tuple)),
+          singletonList(parameter.getName())
+      );
     }
 
     class Impl<T> extends Base<T> implements Simple<T> {
@@ -153,6 +146,11 @@ public interface Parameter<T> {
       @Override
       public boolean check(T value) {
         return check.test(value);
+      }
+
+      @Override
+      public String toString() {
+        return String.format("Simple:%s:%s", factor.getName(), factor.getLevels());
       }
     }
 
@@ -244,13 +242,14 @@ public interface Parameter<T> {
 
   interface Fsm<SUT> extends Parameter<Scenario<SUT>> {
     class Impl<SUT> extends Parameter.Base<Scenario<SUT>> implements Fsm<SUT> {
-      private final FsmDecomposer<SUT> decomposer;
-      private final FsmComposer<SUT>   composer;
+      private final FsmComposer<SUT> composer;
+      private final FactorSpace      factorSpace;
 
       Impl(String name, FiniteStateMachine<SUT> model, List<Scenario<SUT>> knownValues, int scenarioLength, Predicate<Scenario<SUT>> check) {
         super(name, knownValues, check);
-        this.decomposer = new FsmDecomposer<>(name, model, scenarioLength);
+        FsmDecomposer<SUT> decomposer = new FsmDecomposer<>(name, model, scenarioLength);
         this.composer = new FsmComposer<>(name, model, scenarioLength);
+        this.factorSpace = FactorSpace.create(decomposer.getFactors(), decomposer.getConstraints());
       }
 
       @Override
@@ -260,27 +259,18 @@ public interface Parameter<T> {
 
       @Override
       protected List<Factor> decompose() {
-        return decomposer.getFactors();
+        return factorSpace.getFactors();
       }
 
       @Override
       protected List<Constraint> generateConstraints() {
-        return decomposer.getConstraints();
+        return factorSpace.getConstraints();
       }
     }
 
     class Factory<SUT> extends Parameter.Factory.Base<Scenario<SUT>> {
       private final Class<? extends FsmSpec<SUT>> fsmSpecClass;
       private       int                           scenarioLength;
-
-      public Factory(Class<? extends FsmSpec<SUT>> fsmSpecClass, int scenarioLength) {
-        this.fsmSpecClass = requireNonNull(fsmSpecClass);
-        this.scenarioLength = checkValue(scenarioLength, (Integer value) -> value > 0);
-      }
-
-      public static <SUT_> Factory<SUT_> of(Class<? extends FsmSpec<SUT_>> fsmSpecClass, int scenarioLength) {
-        return new Factory<>(fsmSpecClass, scenarioLength);
-      }
 
       @Override
       public Fsm<SUT> create(String name) {
@@ -291,6 +281,15 @@ public interface Parameter<T> {
             scenarioLength,
             check
         );
+      }
+
+      public Factory(Class<? extends FsmSpec<SUT>> fsmSpecClass, int scenarioLength) {
+        this.fsmSpecClass = requireNonNull(fsmSpecClass);
+        this.scenarioLength = checkValue(scenarioLength, (Integer value) -> value > 0);
+      }
+
+      public static <SUT_> Factory<SUT_> of(Class<? extends FsmSpec<SUT_>> fsmSpecClass, int scenarioLength) {
+        return new Factory<>(fsmSpecClass, scenarioLength);
       }
     }
   }

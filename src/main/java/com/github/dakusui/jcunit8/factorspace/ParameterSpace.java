@@ -57,6 +57,11 @@ public interface ParameterSpace {
         public List<Constraint> getConstraints() {
           return Collections.unmodifiableList(constraints);
         }
+
+        @Override
+        public String toString() {
+          return String.format("parameters:%s,constraints:%s", parameters, constraints);
+        }
       };
     }
   }

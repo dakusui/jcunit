@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.As;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
-import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
+import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -79,7 +79,7 @@ public interface Action<SUT> extends Serializable {
     private static Void INSTANCE = new Void() {
       @Override
       public Object perform(Object o, Args args) throws Throwable {
-        return FsmDecomposer.VOID;
+        return RegexDecomposer.VOID;
       }
 
       @Override

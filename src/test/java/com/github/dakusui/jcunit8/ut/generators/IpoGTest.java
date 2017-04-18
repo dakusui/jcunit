@@ -94,17 +94,10 @@ public class IpoGTest {
             add(Factor.create("c", asList(1, 2, 3).toArray()));
           }},
           new LinkedList<Constraint>() {{
-            add(new Constraint() {
-              @Override
-              public boolean test(Tuple tuple) {
-                return ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4;
-              }
-
-              @Override
-              public List<String> involvedKeys() {
-                return asList("a", "b", "c");
-              }
-            });
+            add(Constraint.create(
+                (Tuple tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
+                "a", "b", "c"
+            ));
           }}
       );
       static final Fixture twoFreeFactors                 = new Fixture(
@@ -115,17 +108,10 @@ public class IpoGTest {
             add(Factor.create("c", asList(1, 2, 3).toArray()));
           }},
           new LinkedList<Constraint>() {{
-            add(new Constraint() {
-              @Override
-              public boolean test(Tuple tuple) {
-                return ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4;
-              }
-
-              @Override
-              public List<String> involvedKeys() {
-                return asList("a", "b", "c");
-              }
-            });
+            add(Constraint.create(
+                (Tuple tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
+                "a", "b", "c"
+            ));
           }}
       );
       static final Fixture violatesFullyCoveredConstraint = new Fixture(
@@ -136,17 +122,7 @@ public class IpoGTest {
             add(Factor.create("c", asList(1, 2, 3).toArray()));
           }},
           new LinkedList<Constraint>() {{
-            add(new Constraint() {
-              @Override
-              public boolean test(Tuple tuple) {
-                return ((int) tuple.get("a")) != ((int) tuple.get("b"));
-              }
-
-              @Override
-              public List<String> involvedKeys() {
-                return asList("a", "b");
-              }
-            });
+            add(Constraint.create((Tuple tuple) -> ((int) tuple.get("a")) != ((int) tuple.get("b")), "a", "b"));
           }}
       );
 

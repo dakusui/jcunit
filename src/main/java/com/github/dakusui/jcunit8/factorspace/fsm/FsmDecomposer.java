@@ -1,27 +1,23 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.Action;
-import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
-import com.github.dakusui.jcunit.fsm.Parameters;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
+import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.unique;
+import static com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer.VOID;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 
 public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
-  public static final Object VOID = new Object();
   private final List<Factor>     factors;
   private final List<Constraint> constraints;
   private final int              maxActionParams;
@@ -32,8 +28,8 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
         .mapToInt(value -> value.parameters().size())
         .max()
         .orElse(0);
-    this.constraints = generateConstraints();
-    this.factors = decompose();
+    this.constraints = buildConstraints();
+    this.factors = buildFactors();
   }
 
   public List<Factor> getFactors() {
@@ -44,7 +40,7 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
     return this.constraints;
   }
 
-  private List<Factor> decompose() {
+  private List<Factor> buildFactors() {
     return range(0, this.scenarioLength).mapToObj(
         (int i) -> Stream.concat(Stream.of(
             createFactorForState(name, i),
@@ -74,31 +70,34 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
     for (int j = 0; j < this.maxActionParams; j++) {
       ret.add(Factor.create(
           composeActionParamFactorName(name, i, j),
-          union(
+          new ArrayList<Object>(union(
               model.actions().stream()
                   .map(Action::parameters)
                   .collect(Collectors.toList()),
-              j)
+              j)) {{
+            add(VOID);
+          }}.toArray()
       ));
     }
     return ret;
   }
 
-  private Object[] union(List<Parameters> parametersList, int j) {
+  private List<Object> union(List<Parameters> parametersList, int j) {
     return unique(
         parametersList.stream()
             .filter((Parameters factors) -> factors.size() > j)
             .flatMap((Parameters factors) -> factors.get(j).getLevels().stream())
             .collect(toList())
-    ).toArray();
+    );
   }
 
-  private List<Constraint> generateConstraints() {
+  private List<Constraint> buildConstraints() {
     return IntStream.range(0, this.scenarioLength)
         .mapToObj(i -> asList(
             createConstraintForStateActionValidity(i),
             createConstraintForActionArgs(i),
-            createConstraintForActionStateValidity(i)
+            createConstraintForActionStateValidity(i),
+            createConstraintForNormality(i)
         ))
         .flatMap(Collection::stream)
         .collect(toList());
@@ -107,17 +106,19 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
   private Constraint createConstraintForActionArgs(int i) {
     return new Constraint() {
       @Override
-      public boolean test(Tuple testObject) {
-        Action action = getActionFromTuple(testObject, i);
-        for (int j = 0; j < maxActionParams; j++) {
-          if (j < action.numParameterFactors()) {
-            if (!action.parameters().get(j).getLevels().contains(getActionArgFromTuple(testObject, i, j))) {
-              return false;
-            }
-          } else {
-            if (getActionArgFromTuple(testObject, i, j) != VOID)
-              return false;
+      public boolean test(Tuple tuple) {
+        Action action = getActionFromTuple(tuple, i);
+        for (int j = 0; j < action.numParameterFactors(); j++) {
+          Object level = getActionArgFromTuple(tuple, i, j);
+          if (Objects.equals(level, VOID))
+            return false;
+          if (!action.parameters().get(j).getLevels().contains(level)) {
+            return false;
           }
+        }
+        for (int j = action.numParameterFactors(); j < maxActionParams; j++) {
+          if (getActionArgFromTuple(tuple, i, j) != VOID)
+            return false;
         }
         return true;
       }
@@ -128,6 +129,11 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
             Stream.of(composeActionFactorName(name, i)),
             IntStream.range(0, maxActionParams).mapToObj((int j) -> composeActionParamFactorName(name, i, j))
         ).collect(toList());
+      }
+
+      @Override
+      public String toString() {
+        return TestPredicate.toString(this);
       }
     };
   }
@@ -150,19 +156,57 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
             composeActionFactorName(name, i)
         );
       }
+
+      @Override
+      public String toString() {
+        return TestPredicate.toString(this);
+      }
+    };
+  }
+
+  private Constraint createConstraintForNormality(int i) {
+    return new Constraint() {
+      @Override
+      public boolean test(Tuple tuple) {
+        State<SUT> state = getStateFromTuple(tuple, i);
+        Action<SUT> action = getActionFromTuple(tuple, i);
+        Args args = getActionArgsFromTuple(tuple, i);
+        // TODO: Should VOID be used in args from the first place?
+        for (Object each : args.values()) {
+          if (Objects.equals(each, VOID))
+            return false;
+        }
+        return state.expectation(action, args).getType() == Output.Type.VALUE_RETURNED;
+      }
+
+      @Override
+      public List<String> involvedKeys() {
+        return Stream.concat(
+            Stream.of(
+                composeStateFactorName(name, i),
+                composeActionFactorName(name, i)
+            ),
+            IntStream.range(0, maxActionParams).mapToObj((int j) -> composeActionParamFactorName(name, i, j))
+        ).collect(toList());
+      }
+
+      @Override
+      public String toString() {
+        return TestPredicate.toString(this);
+      }
     };
   }
 
   private Constraint createConstraintForActionStateValidity(int i) {
     return new Constraint() {
       @Override
-      public boolean test(Tuple testObject) {
+      public boolean test(Tuple tuple) {
         //noinspection SimplifiableConditionalExpression
         return allPossibleEdges(
             sutState -> true,
-            sutAction -> sutAction.equals(getActionFromTuple(testObject, i)),
+            sutAction -> sutAction.equals(getActionFromTuple(tuple, i)),
             sutState -> i + 1 < scenarioLength ?
-                sutState.equals(getStateFromTuple(testObject, i + 1)) :
+                sutState.equals(getStateFromTuple(tuple, i + 1)) :
                 true
         ).findFirst().isPresent();
       }
@@ -172,6 +216,11 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
         return i + 1 < scenarioLength ?
             asList(composeActionFactorName(name, i), composeStateFactorName(name, i + 1)) :
             Collections.singletonList(composeActionFactorName(name, i));
+      }
+
+      @Override
+      public String toString() {
+        return TestPredicate.toString(this);
       }
     };
   }

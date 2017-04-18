@@ -45,7 +45,10 @@ public interface Parameters extends Iterable<Factor> {
     }
 
     public Builder add(Object... levels) {
-      parameters.add(Factor.create(String.format("%s-p%d", this.name, parameters.size()), levels));
+      parameters.add(Factor.create(
+          String.format("%s-p%d", this.name, parameters.size()),
+          levels
+      ));
       return this;
     }
 

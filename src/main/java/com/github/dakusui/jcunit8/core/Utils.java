@@ -27,6 +27,17 @@ public enum Utils {
     }
   };
 
+  public static <T> Function<T, T> printer() {
+    return printer(Object::toString);
+  }
+
+  public static <T> Function<T, T> printer(Function<T, String> formatter) {
+    return t -> {
+      System.out.println(formatter.apply(t));
+      return t;
+    };
+  }
+
   public static <T> List<T> unique(List<T> in) {
     return new ArrayList<>(new LinkedHashSet<>(in));
   }
@@ -87,12 +98,14 @@ public enum Utils {
     return getMethod(klass, "toString");
   }
 
-  public static <T> T debug(T value) {
-    return debug(value, t -> t);
+  public static String className(Class klass) {
+    return className(klass, "");
   }
 
-  public static <T> T debug(T value, Function<T, Object> formatter) {
-    System.out.println(formatter.apply(value));
-    return value;
+  private static String className(Class klass, String work) {
+    String canonicalName = klass.getCanonicalName();
+    if (canonicalName != null)
+      return canonicalName;
+    return className(klass.getEnclosingClass(), work + "$");
   }
 }

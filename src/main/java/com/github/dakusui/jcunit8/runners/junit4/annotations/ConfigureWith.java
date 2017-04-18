@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoG;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
@@ -70,7 +69,7 @@ public @interface ConfigureWith {
 
       @Override
       protected Generator.Factory generatorFactory() {
-        return IpoG::new;
+        return new Generator.Factory.Standard();
       }
     }
   }

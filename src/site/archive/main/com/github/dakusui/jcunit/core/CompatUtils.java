@@ -536,4 +536,13 @@ public class CompatUtils {
     }
     return ret;
   }
+
+  public static <T> T debug(T value) {
+    return debug(value, t -> t);
+  }
+
+  public static <T> T debug(T value, Function<T, Object> formatter) {
+    System.out.println(formatter.apply(value));
+    return value;
+  }
 }

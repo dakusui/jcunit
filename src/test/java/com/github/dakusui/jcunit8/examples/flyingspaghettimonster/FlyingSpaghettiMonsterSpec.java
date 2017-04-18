@@ -9,23 +9,27 @@ import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 
 public enum FlyingSpaghettiMonsterSpec implements FsmSpec<FlyingSpaghettiMonster> {
   @StateSpec I {
+    @ActionSpec
     @Override
     public Expectation<FlyingSpaghettiMonster> cook(Expectation.Builder<FlyingSpaghettiMonster> builder, String pasta) {
       return builder.valid(COOKING).build();
     }
 
+    @ActionSpec
     @Override
     public Expectation<FlyingSpaghettiMonster> takeOff(Expectation.Builder<FlyingSpaghettiMonster> builder) {
       return builder.valid(FLYING).build();
     }
   },
   @StateSpec COOKING {
+    @ActionSpec
     @Override
     public Expectation<FlyingSpaghettiMonster> serve(Expectation.Builder<FlyingSpaghettiMonster> builder) {
       return builder.valid(COOKED).build();
     }
   },
   @StateSpec COOKED {
+    @ActionSpec
     @Override
     public Expectation<FlyingSpaghettiMonster> eat(Expectation.Builder<FlyingSpaghettiMonster> builder) {
       return builder.valid(I).build();
@@ -33,6 +37,7 @@ public enum FlyingSpaghettiMonsterSpec implements FsmSpec<FlyingSpaghettiMonster
   },
 
   @StateSpec FLYING {
+    @ActionSpec
     @Override
     public Expectation<FlyingSpaghettiMonster> perch(Expectation.Builder<FlyingSpaghettiMonster> builder) {
       return builder.valid(I).build();

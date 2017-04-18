@@ -11,20 +11,22 @@ import org.junit.Test;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-public class RegexTest extends PipelineTestBase {
+public class CustomPipelineTest extends PipelineTestBase {
+
   @Test
   public void whenBuildFactorSpace() {
-    FactorSpace factorSpace = Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace();
+    FactorSpace factorSpace = customParameterFactory().create("custom1").toFactorSpace();
     factorSpace.getFactors().forEach(System.out::println);
     factorSpace.getConstraints().forEach(System.out::println);
   }
 
   @Test
   public void whenGenerateSchemafulTupleSet() {
-    Parameter parameter = Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1");
+    Parameter parameter = customParameterFactory().create("custom1");
     FactorSpace factorSpace = parameter.toFactorSpace();
     Requirement requirement = new Requirement.Builder().build();
 
@@ -35,16 +37,35 @@ public class RegexTest extends PipelineTestBase {
       @Override
       public void accept(Tuple tuple) {
         System.out.println(i++ + ":" + parameter.composeValueFrom(tuple) + ":" + tuple);
-
       }
     });
   }
 
-
   @Test
   public void whenBuildTestSuite() {
     for (TestCase<Tuple> each : generateTestSuite(
-        Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")
+        customParameterFactory().create("custom1")
+    )) {
+      System.out.println(each.get());
+    }
+  }
+
+  @Test
+  public void whenBuildTestSuite2() {
+    for (TestCase<Tuple> each : generateTestSuite(
+        customParameterFactory().create("custom1"),
+        simpleParameterFactoryWithDefaultValues().create("simple1")
+    )) {
+      System.out.println(each.get());
+    }
+  }
+
+  @Test
+  public void whenBuildTestSuite3() {
+    for (TestCase<Tuple> each : generateTestSuite(
+        simpleParameterFactoryWithDefaultValues().create("simple1"),
+        simpleParameterFactoryWithDefaultValues().create("simple2"),
+        simpleParameterFactoryWithDefaultValues().create("simple3")
     )) {
       System.out.println(each.get());
     }
@@ -52,7 +73,7 @@ public class RegexTest extends PipelineTestBase {
 
   @Test
   public void whenPreprocess$thenNonSimpleParameterInvolvedInConstraintWillBeRemoved() {
-    ParameterSpace parameterSpace = preprocess(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1"));
+    ParameterSpace parameterSpace = preprocess(customParameterFactory().create("custom1"));
     parameterSpace.getParameterNames().forEach(
         parameterName -> System.out.println(parameterSpace.getParameter(parameterName))
     );
@@ -64,7 +85,7 @@ public class RegexTest extends PipelineTestBase {
   @Test
   public void whenPreprocessWithConstraints$thenNonSimpleParameterInvolvedInConstraintWillBeRemoved() {
     ParameterSpace parameterSpace = preprocess(
-        singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
+        singletonList(customParameterFactory().create("custom1")),
         singletonList(new Constraint() {
           @Override
           public boolean test(Tuple tuple) {
@@ -73,7 +94,7 @@ public class RegexTest extends PipelineTestBase {
 
           @Override
           public List<String> involvedKeys() {
-            return singletonList("regex1");
+            return singletonList("custom1");
           }
         }));
     parameterSpace.getParameterNames().forEach(
@@ -87,24 +108,17 @@ public class RegexTest extends PipelineTestBase {
   @Test
   public void whenEngine$thenSchemafulTupleSetGenerated() {
     engine(
-        singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
+        singletonList(customParameterFactory().create("custom1")),
         emptyList()
-        ).forEach(System.out::println);
+    ).forEach(System.out::println);
   }
 
+
   @Test
-  public void whenEncode$thenFactorSpaceCreated() {
-    FactorSpace factorSpace = encode(
-        singletonList(Parameter.Regex.Factory.of("A((B|C)D){0,3}").create("regex1")),
+  public void whenEngine2$thenSchemafulTupleSetGenerated() {
+    engine(
+        asList(customParameterFactory().create("custom1"), simpleParameterFactoryWithDefaultValues().create("simple1")),
         emptyList()
-    );
-    System.out.println("factors");
-    factorSpace.getFactors().forEach(
-        System.out::println
-    );
-    System.out.println("constraints");
-    factorSpace.getConstraints().forEach(
-        System.out::println
-    );
+    ).forEach(System.out::println);
   }
 }

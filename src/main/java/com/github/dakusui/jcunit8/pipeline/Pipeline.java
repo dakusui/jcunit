@@ -29,7 +29,7 @@ public interface Pipeline<T> {
       return generateTestSuite(config, preprocess(config, parameterSpace));
     }
 
-    TestSuite<T> generateTestSuite(Config<T> config, ParameterSpace parameterSpace) {
+    public TestSuite<T> generateTestSuite(Config<T> config, ParameterSpace parameterSpace) {
       List<Tuple> regularTestTuples = engine(config, parameterSpace);
       return new TestSuite.Builder<>(parameterSpace, config.concretizer())
           .addAll(regularTestTuples)
@@ -44,7 +44,7 @@ public interface Pipeline<T> {
           .build();
     }
 
-    ParameterSpace preprocess(Config<T> config, ParameterSpace parameterSpace) {
+    public ParameterSpace preprocess(Config<T> config, ParameterSpace parameterSpace) {
       return new ParameterSpace.Builder()
           .addAllParameters(
               parameterSpace.getParameterNames().stream()
@@ -58,9 +58,14 @@ public interface Pipeline<T> {
           .build();
     }
 
-    SchemafulTupleSet engine(Config<T> config, ParameterSpace parameterSpace) {
-      return config.partitioner()
-          .apply(config.encoder().apply(parameterSpace)).stream()
+    public SchemafulTupleSet engine(Config<T> config, ParameterSpace parameterSpace) {
+      return config
+          .partitioner().apply(
+              config.encoder().apply(
+                  parameterSpace
+              )
+          ).stream()
+          .map(Utils.printer())
           .map(config.optimizer())
           .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
           .map(config.generator(config.getRequirement()))

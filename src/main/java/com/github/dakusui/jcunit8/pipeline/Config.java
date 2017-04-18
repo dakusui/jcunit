@@ -1,7 +1,11 @@
 package com.github.dakusui.jcunit8.pipeline;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.factorspace.Factor;
+import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.pipeline.stages.Encoder;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
@@ -83,10 +87,12 @@ public interface Config<T> {
     private final Joiner             joiner;
     private final Partitioner        partitioner;
     private final Requirement        requirement;
+    private final Encoder            encoder;
 
     public Impl(Requirement requirement, Generator.Factory generatorFactory, Function<Tuple, T> concretizer, Joiner joiner, Partitioner partitioner) {
       this.generatorFactory = requireNonNull(generatorFactory);
       this.concretizer = requireNonNull(concretizer);
+      this.encoder = new Encoder.Standard();
       this.joiner = requireNonNull(joiner);
       this.partitioner = requireNonNull(partitioner);
       this.requirement = requireNonNull(requirement);
@@ -94,12 +100,7 @@ public interface Config<T> {
 
     @Override
     public Function<ParameterSpace, FactorSpace> encoder() {
-      return (ParameterSpace parameterSpace) -> FactorSpace.create(parameterSpace.getParameterNames().stream()
-              .map((Function<String, Parameter>) parameterSpace::getParameter)
-              .map(Parameter::toFactorSpace)
-              .flatMap(factorSpace -> factorSpace.getFactors().stream())
-              .collect(toList()),
-          parameterSpace.getConstraints());
+      return this.encoder;
     }
 
     @Override
