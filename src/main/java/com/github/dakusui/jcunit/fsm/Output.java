@@ -12,17 +12,6 @@ import java.util.function.Predicate;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class Output {
-  public final Object value;
-  public final Type   type;
-
-  public Output(Type type, Object value) {
-    this.type = Checks.checknotnull(type);
-    this.value =
-        this.type == Type.VALUE_RETURNED
-            ? value
-            : Checks.checknotnull(value);
-  }
-
   /**
    * Types of an expectation. Each element represents an expectation of its
    * relevant method.
@@ -116,20 +105,6 @@ public class Output {
           this.name,
           this.entityType(),
           matcher
-      );
-    }
-
-    public String describeMismatch(Output output) {
-      return StringUtils.format(
-          ////
-          // MISMATCH:
-          // "returned" / "thrown"
-          // "value"    / "exception"
-          // was
-          "%s %s was \"%s\"",
-          Checks.checknotnull(output).type.name,
-          output.type.entityType(),
-          output.value
       );
     }
   }

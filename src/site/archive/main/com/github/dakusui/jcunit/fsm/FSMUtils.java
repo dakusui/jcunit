@@ -48,7 +48,7 @@ public enum FSMUtils {
   }
 
   /**
-   * Invokes {@code FSMUtils#performStory(Object, String, Object, Story.Observer.Factory)}
+   * Invokes {@code FSMUtils#performStory(Object, String, Object)}
    * with a new {@code Story.Observer.Factory.ForSimple} object.
    *
    * @see FSMUtils#performStory(Object, String, Object, ScenarioSequence.Observer.Factory)

@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.exceptions.BaseException;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -376,7 +375,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
             .reduce(Predicate::or)
             .orElse((T t) -> true);
       } catch (Exception e) {
-        e.printStackTrace();
         throw unexpectedByDesign(e);
       }
     }
@@ -386,7 +384,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         return new FrameworkMethod(JCUnit8.class.getMethod("noMatchingTestMethodIsFoundForThisTestCase")) {
           @Override
           public String getName() {
-            return String.format("%s:%s", super.getName(), TupleUtils.toString(tupleTestCase.get()));
+
+            return String.format("%s:%s", super.getName(), Objects.toString(tupleTestCase));
           }
         };
       } catch (NoSuchMethodException e) {

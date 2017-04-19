@@ -12,9 +12,8 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
  * external libraries as less as possible in order not to prevent users from using
  * any version of any libraries,
  */
-public class Checks {
-  private Checks() {
-  }
+public enum Checks {
+  ;
 
   /**
    * Checks if the given {@code obj} is {@code null} or not.
@@ -75,32 +74,6 @@ public class Checks {
   }
 
   /**
-   * Checks if the parameters satisfy a certain condition which should be {@code true}
-   * unless there is a framework bug.
-   * <p/>
-   * This method has the same effect as the call of {@code checkparam(b, null)}.
-   */
-  public static void checkparam(boolean b) {
-    checkparam(b, null);
-  }
-
-  /**
-   * Checks if the parameters satisfy a certain condition which should be {@code true}
-   * unless there is a framework bug.
-   * <p/>
-   * If {@code b} becomes {@code false}, an {@code IllegalArgumentException} will be thrown.
-   * <p/>
-   * A message set to the exception will be composed in the same manner as {@code checknotnull} method.
-   *
-   * @see Checks#checknotnull(Object, String, Object...)
-   */
-  public static void checkparam(@SuppressWarnings("SameParameterValue") boolean b, String msgOrFmt, Object... args) {
-    if (!b) {
-      throw new IllegalArgumentException(composeMessage(msgOrFmt, args));
-    }
-  }
-
-  /**
    * @see com.github.dakusui.jcunit.exceptions.InvalidTestException
    */
   public static void checktest(boolean cond, String msg, Object... args) {
@@ -144,12 +117,5 @@ public class Checks {
 
   public static IllegalStateException fail() {
     throw new IllegalStateException();
-  }
-
-  public static Throwable getRootCauseOf(Throwable t) {
-    //noinspection ThrowableResultOfMethodCallIgnored
-    return checknotnull(t).getCause() == null
-        ? t
-        : getRootCauseOf(t.getCause());
   }
 }

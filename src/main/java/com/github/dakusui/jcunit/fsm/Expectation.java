@@ -118,7 +118,7 @@ public class Expectation<SUT> {
     }
 
     public Expectation<SUT> build() {
-      return new Expectation<SUT>(
+      return new Expectation<>(
           this.fsmName,
           this.type,
           this.state,

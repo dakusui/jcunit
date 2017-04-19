@@ -136,7 +136,7 @@ public class IpoG extends Generator.Base {
          *            to cover σ and remove it from π
          * 17.      }
          */
-        if (ts.stream().anyMatch((Tuple each) -> TupleUtils.isSubtupleOf(σ, each))) {
+        if (ts.stream().anyMatch(σ::isSubtupleOf)) {
           π.remove(σ);
         } else {
           List<Tuple> work = ts;

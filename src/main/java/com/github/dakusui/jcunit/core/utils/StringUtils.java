@@ -4,7 +4,10 @@ import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public enum StringUtils {
   ;
@@ -22,7 +25,7 @@ public enum StringUtils {
    */
   public static String format(String format, Object... args) {
     return String.format(
-        Checks.checknotnull(format),
+        checknotnull(format),
         Stream.of(args).map(in -> {
           if (in == null)
             return null;
@@ -47,7 +50,7 @@ public enum StringUtils {
   }
 
   public static String getSimpleName(Class c) {
-    return join("$", composeSimpleName(new LinkedList<String>(), Checks.checknotnull(c)).toArray());
+    return join("$", composeSimpleName(new LinkedList<String>(), checknotnull(c)).toArray());
   }
 
   private static List<String> composeSimpleName(List<String> classNest, Class c) {
@@ -67,19 +70,12 @@ public enum StringUtils {
    * @param elems     Elements to be joined.
    * @return A joined {@code String}
    */
+  @SafeVarargs
   public static <T> String join(String sep, Formatter<T> formatter,
       T... elems) {
-    Checks.checknotnull(sep);
-    StringBuilder b = new StringBuilder();
-    boolean firstOne = true;
-    for (T s : elems) {
-      if (!firstOne) {
-        b.append(sep);
-      }
-      b.append(formatter.format(s));
-      firstOne = false;
-    }
-    return b.toString();
+    return Stream.of(elems)
+        .map(formatter::format)
+        .collect(Collectors.joining(checknotnull(sep)));
   }
 
   /**
@@ -92,24 +88,21 @@ public enum StringUtils {
    * @return A joined {@code String}
    */
   public static String join(String sep, Object... elems) {
+    //noinspection unchecked
     return join(sep, Formatter.INSTANCE, elems);
   }
 
   public static String join(String sep, List<?> elems) {
-    return join(sep, Formatter.INSTANCE, Checks.checknotnull(elems).toArray());
+    //noinspection unchecked
+    return join(sep, Formatter.INSTANCE, checknotnull(elems).toArray());
   }
 
 
   public interface Formatter<T> {
-    Formatter INSTANCE = new Formatter<Object>() {
-      @Override
-      public String format(Object elem) {
-        if (elem == null) {
-          return null;
-        }
-        return elem.toString();
-      }
-    };
+    Formatter INSTANCE = (Formatter<Object>) elem ->
+        elem == null ?
+            null :
+            elem.toString();
 
     String format(T elem);
   }
