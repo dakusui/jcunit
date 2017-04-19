@@ -26,6 +26,13 @@ public enum Utils {
       return "D/C";
     }
   };
+  // TODO: Move somewhere else more appropriate
+  public static final Object VOID     = new Object() {
+    @Override
+    public String toString() {
+      return "(VOID)";
+    }
+  };
 
   public static <T> Function<T, T> printer() {
     return printer(Object::toString);

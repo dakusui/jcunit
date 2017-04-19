@@ -45,7 +45,8 @@ public interface Player<SUT> {
     }
 
     public void play(Scenario<SUT> scenario) {
-      scenario.setUp().get(0).from.check(sut);
+      if (!scenario.setUp().isEmpty())
+        scenario.setUp().get(0).from.check(sut);
       visit(scenario);
     }
 

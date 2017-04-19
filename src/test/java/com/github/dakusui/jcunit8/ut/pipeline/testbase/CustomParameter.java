@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.ut.parameters;
+package com.github.dakusui.jcunit8.ut.pipeline.testbase;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -14,10 +14,10 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
-class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
+public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   private final ArrayList<String> values;
 
-  CustomParameter(String name, List<String> values) {
+  public CustomParameter(String name, List<String> values) {
     super(name, emptyList(), valuePair -> true);
     this.values = new ArrayList<>(values);
   }
@@ -68,7 +68,7 @@ class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
     return String.format("CUSTOM:%s:%s", name, values);
   }
 
-  static class ValuePair {
+  public static class ValuePair {
     private final String a;
     private final String b;
 

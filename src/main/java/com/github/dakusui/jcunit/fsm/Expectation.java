@@ -6,10 +6,6 @@ import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.util.*;
-
 /**
  * This class represents what a model of SUT expects for FSM.
  *
@@ -43,53 +39,6 @@ public class Expectation<SUT> {
     this.state = state;
     this.checker = checker;
   }
-
-  public <T> Expectation.Result checkThrownException(Context<SUT, T> context, Throwable thrownException, Observer observer) {
-    Checks.checknotnull(context);
-    //noinspection ThrowableResultOfMethodCallIgnored
-    Checks.checknotnull(thrownException);
-    Expectation.Result.Builder b = new Expectation.Result.Builder("Expectation was not satisfied");
-    OutputChecker.Result r = this.checker.check(
-        context,
-        new Output(
-            Output.Type.EXCEPTION_THROWN,
-            thrownException),
-        observer);
-    if (!r.isSuccessful()) {
-      b.addFailedReason(r.getDescription());
-    }
-    if (!this.state.check(context.sut)) {
-      b.addFailedReason(
-          StringUtils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, context.sut)
-      );
-    }
-    return b.build();
-  }
-
-  public <T> Expectation.Result checkReturnedValue(Context<SUT, T> context, Object returnedValue, Stage stage, Observer observer) {
-    Checks.checknotnull(context);
-    Expectation.Result.Builder b = new Expectation.Result.Builder("Expectation was not satisfied");
-    ////
-    // Only when type is 'MAIN', returned FSM value will be checked.
-    if (checker.shouldBeCheckedFor(stage)) {
-      OutputChecker.Result r = this.checker.check(
-          context,
-          new Output(
-              Output.Type.VALUE_RETURNED,
-              returnedValue),
-          observer);
-      if (!r.isSuccessful()) {
-        b.addFailedReason(r.getDescription());
-      }
-    }
-    if (!this.state.check(context.sut)) {
-      b.addFailedReason(
-          StringUtils.format("FSM '%s' is expected to be in '%s' state but not.(fsm='%s')", this.fsmName, this.state, context.sut)
-      );
-    }
-    return b.build();
-  }
-
 
   public Output.Type getType() {
     return this.checker.getType();
@@ -177,98 +126,4 @@ public class Expectation<SUT> {
       );
     }
   }
-
-  /**
-   * A class that represents a result of verification.
-   */
-  public static class Result extends AssertionError {
-    private final List<FailedReason> failedFailedReasons;
-
-    public Result(String message, List<FailedReason> failedFailedReasons) {
-      super(message);
-      this.failedFailedReasons = Collections.unmodifiableList(failedFailedReasons);
-    }
-
-    public boolean isSuccessful() {
-      return this.failedFailedReasons.isEmpty();
-    }
-
-    public void throwIfFailed() {
-      if (!this.isSuccessful()) {
-        this.fillInStackTrace();
-        throw this;
-      }
-    }
-
-    @Override
-    public String getMessage() {
-      String ret = super.getMessage();
-      if (!failedFailedReasons.isEmpty()) {
-        ret += String.format(": [%s]", StringUtils.join(",", this.failedFailedReasons.toArray()));
-      }
-      return ret != null
-          ? ret.replaceAll("\\s+", " ")
-          : null;
-    }
-
-    @Override
-    public void printStackTrace(PrintStream ps) {
-      Checks.checknotnull(ps);
-      for (FailedReason each : this.failedFailedReasons) {
-        ps.println(each.message);
-        if (each.t != null) {
-          each.t.printStackTrace(ps);
-        }
-      }
-    }
-
-    @Override
-    public void printStackTrace(PrintWriter pw) {
-      Checks.checknotnull(pw);
-      for (FailedReason each : this.failedFailedReasons) {
-        pw.println(each.message);
-        if (each.t != null) {
-          each.t.printStackTrace(pw);
-        }
-      }
-    }
-
-    static class Builder {
-      private List<FailedReason> failures = new LinkedList<FailedReason>();
-      private String message;
-
-      Builder(String message) {
-        this.message = message;
-      }
-
-      Builder addFailedReason(String message) {
-        Checks.checknotnull(message);
-        return this.addFailedReason(message, null);
-      }
-
-      Builder addFailedReason(String message, Throwable t) {
-        this.failures.add(new FailedReason(message, t));
-        return this;
-      }
-
-      Result build() {
-        return new Result(message, failures);
-      }
-    }
-
-    static class FailedReason {
-      private final String    message;
-      private final Throwable t;
-
-      FailedReason(String message, Throwable t) {
-        this.message = message;
-        this.t = t;
-      }
-
-      public String toString() {
-        return this.message;
-      }
-    }
-  }
-
 }

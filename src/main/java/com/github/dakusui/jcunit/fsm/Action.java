@@ -3,8 +3,8 @@ package com.github.dakusui.jcunit.fsm;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.runners.standard.annotations.As;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
-import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -41,13 +41,6 @@ public interface Action<SUT> extends Serializable {
   Parameters parameters();
 
   /**
-   * Returns {@code i}th factor's levels.
-   *
-   * @param i a factor's index.
-   */
-  Object[] parameterFactorLevels(int i);
-
-  /**
    * Returns a number of parameters that this action takes.
    */
   int numParameterFactors();
@@ -79,17 +72,12 @@ public interface Action<SUT> extends Serializable {
     private static Void INSTANCE = new Void() {
       @Override
       public Object perform(Object o, Args args) throws Throwable {
-        return RegexDecomposer.VOID;
+        return Utils.VOID;
       }
 
       @Override
       public Parameters parameters() {
         return Parameters.EMPTY;
-      }
-
-      @Override
-      public Object[] parameterFactorLevels(int i) {
-        return new Object[0];
       }
 
       @Override
@@ -169,13 +157,6 @@ public interface Action<SUT> extends Serializable {
     @Override
     public Parameters parameters() {
       return this.parameters;
-    }
-
-    @Override
-    public Object[] parameterFactorLevels(int i) {
-      List<List> paramFactors = this.parameters.values();
-      Checks.checkcond(0 <= i && i < paramFactors.size(), "i must be less than %d and greater than or equal to 0 but %d", paramFactors.size(), i);
-      return paramFactors.get(i).toArray();
     }
 
     @Override

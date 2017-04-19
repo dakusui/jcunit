@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.tests.features.fsm.outputchecking;
 
 import com.github.dakusui.jcunit.fsm.FSMLevelsProvider;
 import com.github.dakusui.jcunit.fsm.FSMUtils;
-import com.github.dakusui.jcunit.fsm.SUTFactory;
 import com.github.dakusui.jcunit.fsm.Story;
 import com.github.dakusui.jcunit.runners.standard.JCUnit;
 import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;

@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
+import com.github.dakusui.jcunit8.core.Utils;
 
 import java.util.*;
 
@@ -91,7 +91,7 @@ public class RegexComposer {
     public void visit(Expr.Alt expr) {
       //noinspection ConstantConditions
       Object values = tuple.get(composeKey(expr));
-      if (RegexDecomposer.VOID.equals(values))
+      if (Utils.VOID.equals(values))
         return;
       for (Object each : (List) values) {
         if (each instanceof Reference) {

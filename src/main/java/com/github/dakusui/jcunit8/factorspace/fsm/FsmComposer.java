@@ -4,10 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
 import com.github.dakusui.jcunit.fsm.State;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.fsmDoesNotHaveRouteToSpecifiedState;
@@ -28,6 +25,9 @@ public class FsmComposer<SUT> extends FsmTupleAccessor<SUT> {
   }
 
   private Sequence<SUT> composeScenarioToBringUpFsmTo(State<SUT> destination) {
+    if (Objects.equals(this.model.initialState(), destination)) {
+      return new Sequence.Builder<SUT>().build();
+    }
     return new Sequence.Builder<SUT>().addAll(
         findRoute(
             this.model.initialState(),

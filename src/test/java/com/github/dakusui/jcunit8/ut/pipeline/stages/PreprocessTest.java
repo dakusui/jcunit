@@ -1,22 +1,19 @@
-package com.github.dakusui.jcunit8.ut.parameters;
+package com.github.dakusui.jcunit8.ut.pipeline.stages;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
-import org.hamcrest.Matcher;
+import com.github.dakusui.jcunit8.ut.pipeline.testbase.CustomParameter;
+import com.github.dakusui.jcunit8.ut.pipeline.testbase.PipelineTestBase;
 import org.junit.Test;
 
-import java.util.Objects;
-import java.util.function.Predicate;
-
+import static com.github.dakusui.jcunit8.ut.pipeline.testbase.ParameterSpaceUtils.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertThat;
 
 public class PreprocessTest extends PipelineTestBase {
   @Test
-  public void whenPreprocessSimpleParameter$thenCorrectParameterSpaceIsPrepared() {
+  public void givenOneSimpleParameter$whenPreprocess$thenParameterSpaceWithOneSimpleParameterIsReturned() {
     validateParameterSpace(
         preprocess(simpleParameterFactory("default", "value").create("simple1")),
         matcher(
@@ -28,7 +25,7 @@ public class PreprocessTest extends PipelineTestBase {
   }
 
   @Test
-  public void whenPreprocessTwoSimpleParameters$thenCorrectParameterSpaceIsPrepared() {
+  public void givenTwoSimpleParameters$whenPreprocess$thenParameterSpaceWithTwoSimpleParametersIsReturned() {
     validateParameterSpace(
         preprocess(
             simpleParameterFactory("default", "value1").create("simple1"),
@@ -45,7 +42,7 @@ public class PreprocessTest extends PipelineTestBase {
   }
 
   @Test
-  public void whenPreprocessSingleSimpleParameterUnderOneConstraint$thenCorrectParameterSpaceIsPrepared() {
+  public void givenSingleSimpleParameterUnderOneConstraint$whenPreprocess$thenParameterAndConstraintAreKept() {
     validateParameterSpace(
         preprocess(
             singletonList(simpleParameterFactory("default", "value1").create("simple1")),
@@ -60,7 +57,7 @@ public class PreprocessTest extends PipelineTestBase {
   }
 
   @Test
-  public void whenPreprocessTwoSimpleParameterUnderOneConstraint$thenCorrectParameterSpaceIsPrepared() {
+  public void givenTwoSimpleParameterUnderOneConstraint$whenPreprocess$thenParametersAndConstraintAreKept() {
     validateParameterSpace(
         preprocess(
             asList(
@@ -80,7 +77,7 @@ public class PreprocessTest extends PipelineTestBase {
   }
 
   @Test
-  public void whenPreprocessCustomParameter$thenDone() {
+  public void givenCustomParameterWithNoConstraint$whenPreprocess$thenCustomParameterKept() {
     validateParameterSpace(
         preprocess(customParameterFactory().create("custom1")),
         matcher(
@@ -91,7 +88,7 @@ public class PreprocessTest extends PipelineTestBase {
   }
 
   @Test
-  public void whenPreprocessSingleCustomParameterUnderOneConstraint$thenCorrectParameterSpaceIsPrepared() {
+  public void givenSingleCustomParameterUnderOneConstraint$whenPreprocess$thenConvertedToSimpleParameter() {
     validateParameterSpace(
         preprocess(
             singletonList(customParameterFactory().create("custom1")),
@@ -105,12 +102,12 @@ public class PreprocessTest extends PipelineTestBase {
             parametersAreAllInstancesOf(Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
-                tag(">0",
+                name(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom1",
-                tag(
+                name(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
@@ -119,7 +116,7 @@ public class PreprocessTest extends PipelineTestBase {
   }
 
   @Test
-  public void whenPreprocessTwoCustomParameterUnderOneConstraintInvolvingOneParameter$thenCorrectParameterSpaceIsPrepared() {
+  public void givenTwoCustomParameterUnderOneConstraintInvolvingOneParameter$whenPreprocess$thenInvolvedOneConvertedInToSimpleWhileTheOtherKept() {
     validateParameterSpace(
         preprocess(
             asList(
@@ -137,19 +134,19 @@ public class PreprocessTest extends PipelineTestBase {
             parameterIsInstanceOf("custom1", Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
-                tag(">0",
+                name(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom1",
-                tag(
+                name(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
             parameterIsInstanceOf("custom2", CustomParameter.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom2",
-                tag("==0",
+                name("==0",
                     (Integer size) -> size == 0
                 )),
             hasConstraints(1)
@@ -157,7 +154,7 @@ public class PreprocessTest extends PipelineTestBase {
   }
 
   @Test
-  public void whenPreprocessTwoCustomParameterUnderOneConstraintInvolvingBoth$thenDone() {
+  public void givenTwoCustomParametersUnderOneConstraintInvolvingBoth$whenPreprocess$thenBothConvertedIntoSimpleParameters() {
     validateParameterSpace(
         preprocess(
             asList(
@@ -174,91 +171,28 @@ public class PreprocessTest extends PipelineTestBase {
             parameterIsInstanceOf("custom1", Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
-                tag(">0",
+                name(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom1",
-                tag(
+                name(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
             parameterIsInstanceOf("custom2", Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom2",
-                tag(">0",
+                name(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom2",
-                tag(
+                name(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
             hasConstraints(1)
         ));
-  }
-
-  private static void validateParameterSpace(ParameterSpace parameterSpace, Matcher<ParameterSpace> matcher) {
-    System.out.println("parameters");
-    parameterSpace.getParameterNames().forEach(
-        parameterName -> System.out.println("  " + parameterSpace.getParameter(parameterName))
-    );
-    System.out.println("constraints");
-    parameterSpace.getConstraints().forEach(
-        o -> System.out.println("  " + o)
-    );
-    assertThat(parameterSpace, matcher);
-  }
-
-  private static Predicate<ParameterSpace> allKnownValuesOfParameterSatisfy(String parameterName, Predicate<Object> predicate) {
-    return tag(
-        String.format("All values of parameter '%s'  should satisfy '%s'", parameterName, predicate),
-        (ParameterSpace target) ->
-            target.getParameter(parameterName).getKnownValues().stream()
-                .allMatch(predicate)
-    );
-  }
-
-  private static Predicate<ParameterSpace> sizeOfParameterKnownValuesSatisfies(String parameterName, Predicate<Integer> predicate) {
-    return tag(
-        String.format("Size of known values (%s) should be %s", parameterName, predicate),
-        (ParameterSpace target) ->
-            predicate.test(target.getParameter(parameterName).getKnownValues().size())
-    );
-  }
-
-  private static Predicate<ParameterSpace> knownValuesOfParameterAre(String parameterName, Object... values) {
-    return tag(
-        String.format("Values of parameter '%s'  are %s", parameterName, asList(values)),
-        (ParameterSpace target) -> Objects.equals(
-            target.getParameter(parameterName).getKnownValues(),
-            asList(values)));
-  }
-
-  private static Predicate<ParameterSpace> hasConstraints(int numConstraints) {
-    return tag(
-        String.format("Has %s constraint(s)", numConstraints),
-        (ParameterSpace target) -> target.getConstraints().size() == numConstraints);
-  }
-
-  private static Predicate<ParameterSpace> hasParameters(int numParameters) {
-    return tag(String.format("Has %s parameter(s)", numParameters),
-        (ParameterSpace target) -> target.getParameterNames().size() == numParameters);
-  }
-
-  private static Predicate<ParameterSpace> parametersAreAllInstancesOf(Class<? extends Parameter> parameterClass) {
-    return tag(String.format("Parameters are all %s", parameterClass.getSimpleName()),
-        (ParameterSpace target) -> target.getParameterNames().stream()
-            .map(target::getParameter)
-            .allMatch(o -> parameterClass.isAssignableFrom(o.getClass()))
-    );
-  }
-
-  private static Predicate<ParameterSpace> parameterIsInstanceOf(String parameterName, Class<? extends Parameter> parameterClass) {
-    return tag(
-        String.format("Parameter '%s' is instance of '%s'", parameterName, parameterClass.getSimpleName()),
-        parameterSpace -> parameterClass.isAssignableFrom(parameterSpace.getParameter(parameterName).getClass())
-    );
   }
 }

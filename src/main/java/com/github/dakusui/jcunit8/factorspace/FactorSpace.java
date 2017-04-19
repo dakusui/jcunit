@@ -1,8 +1,6 @@
 package com.github.dakusui.jcunit8.factorspace;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalDouble;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -10,10 +8,19 @@ public interface FactorSpace {
   static FactorSpace create(List<? extends Factor> factors, List<Constraint> constraints) {
     List<Constraint> work = new ArrayList<>(constraints);
     return new FactorSpace() {
+      Map<String, Factor> factorMap = new LinkedHashMap<String, Factor>() {{
+        factors.forEach(each -> put(each.getName(), each));
+      }};
+
       @Override
       public List<Factor> getFactors() {
         //noinspection unchecked
         return (List<Factor>) factors;
+      }
+
+      @Override
+      public Factor getFactor(String name) {
+        return factorMap.get(name);
       }
 
       @Override
@@ -36,6 +43,8 @@ public interface FactorSpace {
   List<Constraint> getConstraints();
 
   List<Factor> getFactors();
+
+  Factor getFactor(String name);
 
   Characteristics getCharacteristics();
 

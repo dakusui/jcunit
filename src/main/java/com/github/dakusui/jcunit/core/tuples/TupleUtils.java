@@ -45,20 +45,6 @@ public enum TupleUtils {
     return t.isSubtupleOf(u);
   }
 
-  public static String toString(Collection<Tuple> tuples) {
-    StringBuilder b = new StringBuilder();
-    b.append('[');
-    boolean firstTime = true;
-    for (Tuple t : tuples) {
-      if (!firstTime)
-        b.append(",");
-      b.append(toString(t));
-      firstTime = false;
-    }
-    b.append(']');
-    return b.toString();
-  }
-
   public static String toString(Tuple tuple) {
     Checks.checknotnull(tuple);
     return tupleToString(tuple);

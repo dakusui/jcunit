@@ -26,7 +26,7 @@ public class BankAccountExample {
 
   @ParameterSource
   public static Regex.Factory<String> scenario() {
-    return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,3}getBalance");
+    return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
   }
 
   @ParameterSource

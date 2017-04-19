@@ -20,7 +20,7 @@ public class FlyingSpaghettiMonsterExample {
   }
   @ParameterSource
   public static Parameter.Factory flyingSpaghettiMonster() {
-    return Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 3);
+    return Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1);
   }
 
   @Test

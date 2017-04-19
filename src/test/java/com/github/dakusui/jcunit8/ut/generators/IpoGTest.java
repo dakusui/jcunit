@@ -521,12 +521,4 @@ public class IpoGTest {
       );
     }
   }
-
-  private static Tuple project(Tuple in, String... factorNames) {
-    Tuple.Builder builder = new Tuple.Builder();
-    for (String each : factorNames) {
-      builder.put(each, in.get(each));
-    }
-    return builder.build();
-  }
 }

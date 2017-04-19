@@ -23,12 +23,6 @@ public interface Generator {
       this.seeds = seeds;
       this.factorSpace = factorSpace;
       this.requirement = requirement;
-      System.out.println(this.getClass().getCanonicalName());
-      System.out.println("factors");
-      factorSpace.getFactors().forEach(factor -> System.out.println("  " + factor));
-      System.out.println("constraints");
-      factorSpace.getConstraints().forEach(constraint -> System.out.println("  " + constraint));
-      System.out.println("--");
     }
 
     public final List<Tuple> generate() {

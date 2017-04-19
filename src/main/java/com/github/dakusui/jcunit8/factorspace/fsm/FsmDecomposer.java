@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.unique;
-import static com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer.VOID;
+import static com.github.dakusui.jcunit8.core.Utils.VOID;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
@@ -171,11 +171,9 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
         State<SUT> state = getStateFromTuple(tuple, i);
         Action<SUT> action = getActionFromTuple(tuple, i);
         Args args = getActionArgsFromTuple(tuple, i);
-        // TODO: Should VOID be used in args from the first place?
-        for (Object each : args.values()) {
-          if (Objects.equals(each, VOID))
-            return false;
-        }
+        //noinspection SimplifiableIfStatement
+        if (args.containsVoid())
+          return false;
         return state.expectation(action, args).getType() == Output.Type.VALUE_RETURNED;
       }
 

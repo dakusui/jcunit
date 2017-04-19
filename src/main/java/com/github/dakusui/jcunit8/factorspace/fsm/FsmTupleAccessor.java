@@ -1,10 +1,7 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.Action;
-import com.github.dakusui.jcunit.fsm.Args;
-import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
-import com.github.dakusui.jcunit.fsm.State;
+import com.github.dakusui.jcunit.fsm.*;
 import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 
 import java.util.AbstractList;
@@ -69,13 +66,21 @@ class FsmTupleAccessor<SUT> {
         model.states().stream().filter(from).collect(toList()),
         model.actions().stream().filter(action).collect(toList()),
         model.states().stream().filter(to).collect(toList())
-    ).stream().flatMap(
-        objects -> allPossibleEdges(
-            (State<SUT>) objects.get(0),
-            (Action<SUT>) objects.get(1),
-            (State<SUT>) objects.get(2)
+    ).stream()
+        .flatMap(
+            objects ->
+                allPossibleEdges(
+                    (State<SUT>) objects.get(0),
+                    (Action<SUT>) objects.get(1),
+                    (State<SUT>) objects.get(2)
+                )
         )
-    );
+        .filter(
+            edge ->
+                edge.from.expectation(edge.action, edge.args).getType()
+                    ==
+                    Output.Type.VALUE_RETURNED
+        );
   }
 
   private Stream<Edge<SUT>> allPossibleEdges(State<SUT> from, Action<SUT> action, State<SUT> to) {

@@ -25,6 +25,11 @@ public interface TestCase<T> {
         public List<Constraint> violatedConstraints() {
           return violatedConstraints;
         }
+
+        @Override
+        public String toString() {
+          return String.format("%s:%s:%s", this.getCategory(), this.get(), violatedConstraints);
+        }
       };
     }
 
