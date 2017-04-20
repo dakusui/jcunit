@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.ut.pipeline.testbase;
+package com.github.dakusui.jcunit8.tests.features.pipeline.testbase;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
-import com.github.dakusui.jcunit8.ut.UTBase;
+import com.github.dakusui.jcunit8.tests.features.UTBase;
 
 import java.util.List;
 

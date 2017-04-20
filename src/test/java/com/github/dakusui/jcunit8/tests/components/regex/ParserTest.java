@@ -1,49 +1,32 @@
-package com.github.dakusui.jcunit.irregex.expressions;
+package com.github.dakusui.jcunit8.tests.components.regex;
 
-import com.github.dakusui.jcunit.core.factor.Factor;
-import com.github.dakusui.jcunit.core.factor.FactorDef;
-import com.github.dakusui.jcunit.core.factor.FactorSpace;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.framework.TestCase;
-import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
-import com.github.dakusui.jcunit.regex.RegexTestSuiteBuilder;
-import com.github.dakusui.jcunit.runners.standard.JCUnit;
-import com.github.dakusui.jcunit.runners.standard.annotations.FactorField;
-import com.github.dakusui.jcunit.testutils.UTUtils;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.UTUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
-@RunWith(JCUnit.class)
+@RunWith(Parameterized.class)
 public class ParserTest {
-  private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter NAME_FORMATTER = new RegexTestUtils.ExprTreePrinter.InternalNodeFormatter() {
-    @Override
-    public String format(Expr.Composite expr) {
-      return expr.name();
-    }
-  };
-  private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter ID_FORMATTER   = new RegexTestUtils.ExprTreePrinter.InternalNodeFormatter() {
-    @Override
-    public String format(Expr.Composite expr) {
-      return expr.id();
-    }
-  };
+  private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter NAME_FORMATTER = Expr.Composite::name;
+  private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter ID_FORMATTER   = Expr.Base::id;
+
   //String input = "git ((clone URL (dir){0,1})|(pull( origin BRANCH_PULLED_FROM){0,1})|(push origin BRANCH(_BRAHCH){0,1}))";
-  @SuppressWarnings("WeakerAccess")
-  @FactorField(stringLevels = {
+//  @SuppressWarnings("WeakerAccess")
+  @Parameterized.Parameters
+  public static String[] data() {
+    return new String[] {
       /* 0*/ "(A){0,1}abc(B){0,1};abc,Aabc,abcB,AabcB;(*(*A){0,1}abc(*B){0,1})",    // 0: OK - 4; abc,A abc, abc B, A abc B
       /* 1*/ "(A){0,1}abc(B){1,2};abcB,AabcB,abcBB,AabcBB;(*(*A){0,1}abc(*B){1,2})", // 1: OK - 4; abc, A abc B, abc BB, A abc BB
       /* 2*/ "A(B|C);AB,AC;(*A(+BC))",                               // 2: OK - 2; AB, AC
@@ -76,8 +59,14 @@ public class ParserTest {
       /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*git clone  URL(*dir){0,1})",
       /*30*/ "(A|B){0,2};,AA,BB,AB,A,B,BA;(*(+AB){0,2})",
       /*31*/ "(A|B){1,3};ABA,AA,BBA,BB,A,AAA,ABB,AB,AAB,B,BAA,BAB,BBB,BA;(*(+AB){1,3})",
-  })
-  public String _input;
+    };
+  }
+
+  private String _input;
+
+  public ParserTest(String input) {
+    this._input = input;
+  }
 
   @Before
   public void before() {
@@ -87,7 +76,9 @@ public class ParserTest {
   @Test
   public void parseTreePrintingWithId() {
     System.out.println("input expression:" + input());
-    new Parser().parse(input()).accept(new RegexTestUtils.ExprTreePrinter(ID_FORMATTER));
+    new Parser().parse(input()).accept(
+        new RegexTestUtils.ExprTreePrinter(ID_FORMATTER)
+    );
   }
 
   @Test
@@ -97,23 +88,17 @@ public class ParserTest {
   }
 
   @Test
-  public void printTestSuite() {
-    RegexTestSuiteBuilder regexTestSuiteBuilder = getRegexTestSuiteBuilder();
-    RegexTestUtils.printTestSuite(regexTestSuiteBuilder.buildTestSuite());
-  }
-
-  @Test
   public void printGeneratedList() {
-    FactorDef factorDef = new FactorDef.Regex("input", input());
-    RegexTestSuiteBuilder regexTestSuiteBuilder = getRegexTestSuiteBuilder();
+    /*
+    Parameter.Regex<String> factorDef = Parameter.Regex.Factory.of(input()).create("input");
+//    RegexTestSuiteBuilder regexTestSuiteBuilder = getRegexTestSuiteBuilder();
 
-    FactorSpace factorSpace = new FactorSpace.Builder()
-        .addFactorDefs(singletonList(factorDef))
-        .build();
 
-    TestSuite builtTestSuite = regexTestSuiteBuilder.buildTestSuite();
-    for (TestCase each : builtTestSuite) {
-      System.out.println(factorSpace.convert(each.getTuple()));
+    FactorSpace factorSpace = FactorSpace.create(singletonList(factorDef)), emptyList());
+
+    TestSuite<Tuple> builtTestSuite = regexTestSuiteBuilder.buildTestSuite();
+    for (TestCase<Tuple> each : builtTestSuite) {
+      System.out.println(factorSpace.convert(each.get()));
     }
 
     Set<String> generatedStringsFromRegex = new HashSet<String>();
@@ -121,12 +106,13 @@ public class ParserTest {
       generatedStringsFromRegex.add(
           StringUtils.join(
               "",
-              (List) factorSpace.convert(each.getTuple())
+              (List) factorSpace.convert(each.get())
                   .get("input")
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());
     assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
+    */
   }
 
   @Test
@@ -135,22 +121,12 @@ public class ParserTest {
     assertEquals(expectationForTokenizedStrings(), StringUtils.join("", Parser.preprocess(this.input())));
   }
 
-  @Test
-  public void printFactorSpace() {
-    FactorDef factorDef = new FactorDef.Regex("input", input());
-    FactorSpace factorSpace = new FactorSpace.Builder()
-        .addFactorDefs(singletonList(factorDef))
-        .build();
-
-    for (Factor each : factorSpace.factors) {
-      System.out.println(each.name + ":" + each.levels);
-    }
-  }
-
+  /*
   private RegexTestSuiteBuilder getRegexTestSuiteBuilder() {
     //    new Parser().parse(input()).accept(regexTestSuiteBuilder);
     return new RegexTestSuiteBuilder("input", new Parser().parse(input()));
   }
+  */
 
 
   private String input() {

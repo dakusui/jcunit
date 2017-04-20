@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.ut.examples;
+package com.github.dakusui.jcunit8.tests.examples;
 
 import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
 import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterExample;

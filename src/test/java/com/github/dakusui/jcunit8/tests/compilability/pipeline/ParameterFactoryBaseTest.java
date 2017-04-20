@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.compilability.pipeline;
+package com.github.dakusui.jcunit8.tests.compilability.pipeline;
 
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.factorspace.Parameter;

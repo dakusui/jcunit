@@ -1,9 +1,9 @@
-package com.github.dakusui.jcunit8.ut.pipeline.stages;
+package com.github.dakusui.jcunit8.tests.features.pipeline.stages;
 
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.ut.pipeline.testbase.SchemafulTupleSetUtils;
-import com.github.dakusui.jcunit8.ut.pipeline.testbase.PipelineTestBase;
-import com.github.dakusui.jcunit8.ut.pipeline.testbase.UTUtils;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.SchemafulTupleSetUtils;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.PipelineTestBase;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.UTUtils;
 import org.junit.Test;
 
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.ut.generators;
+package com.github.dakusui.jcunit8.tests.features.generators;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.Utils;

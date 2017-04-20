@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.ut.pipeline.testbase;
+package com.github.dakusui.jcunit8.tests.features.pipeline.testbase;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;

@@ -1,21 +1,9 @@
-package com.github.dakusui.jcunit.irregex.expressions;
+package com.github.dakusui.jcunit8.tests.components.regex;
 
-import com.github.dakusui.jcunit.framework.TestCase;
-import com.github.dakusui.jcunit.framework.TestSuite;
 import com.github.dakusui.jcunit.regex.Expr;
 
-import java.io.PrintStream;
-
-public enum RegexTestUtils {
+enum RegexTestUtils {
   ;
-
-  static void printTestSuite(TestSuite testSuite) {
-    PrintStream ps = System.out;
-    int i = 0;
-    for (TestCase each : testSuite) {
-      ps.println(String.format("%4d:%s:%s", i++, each.getCategory(), each.getTuple()));
-    }
-  }
 
   static class ExprTreePrinter implements Expr.Visitor {
     private final InternalNodeFormatter formatter;

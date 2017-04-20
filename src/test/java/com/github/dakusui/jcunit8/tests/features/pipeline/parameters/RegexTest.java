@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.ut.pipeline.parameters;
+package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -6,14 +6,14 @@ import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoG;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
-import com.github.dakusui.jcunit8.ut.pipeline.testbase.*;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.*;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.github.dakusui.jcunit8.ut.pipeline.testbase.UTUtils.allSatisfy;
-import static com.github.dakusui.jcunit8.ut.pipeline.testbase.UTUtils.sizeIs;
+import static com.github.dakusui.jcunit8.tests.features.pipeline.testbase.UTUtils.allSatisfy;
+import static com.github.dakusui.jcunit8.tests.features.pipeline.testbase.UTUtils.sizeIs;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 

@@ -1,13 +1,13 @@
-package com.github.dakusui.jcunit8.ut.pipeline.parameters;
+package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
-import com.github.dakusui.jcunit8.ut.pipeline.testbase.PipelineTestBase;
-import com.github.dakusui.jcunit8.ut.pipeline.testbase.TestSuiteUtils;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.PipelineTestBase;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.TestSuiteUtils;
 import org.junit.Test;
 
-import static com.github.dakusui.jcunit8.ut.pipeline.testbase.UTUtils.sizeIs;
+import static com.github.dakusui.jcunit8.tests.features.pipeline.testbase.UTUtils.sizeIs;
 import static java.util.Arrays.asList;
 
 public class SimpleTest extends PipelineTestBase {

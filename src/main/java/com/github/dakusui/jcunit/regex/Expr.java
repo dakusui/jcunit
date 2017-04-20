@@ -53,6 +53,11 @@ public interface Expr {
     public void accept(Visitor visitor) {
       visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+      return "";
+    }
   }
 
   class Leaf extends Base implements Expr {
@@ -119,12 +124,12 @@ public interface Expr {
     }
 
     private static List<Expr> createChildren(AtomicInteger counter, Expr child, int min, int max) {
-      List<Expr> ret = new LinkedList<Expr>();
+      List<Expr> ret = new LinkedList<>();
       for (int i = min; i <= max; i++) {
         if (i == 0) {
           ret.add(EMPTY);
         } else {
-          List<Expr> work = new LinkedList<Expr>();
+          List<Expr> work = new LinkedList<>();
           for (int j = 0; j < min; j++) {
             work.add(child);
           }
@@ -187,11 +192,11 @@ public interface Expr {
       this.counter = new AtomicInteger(1);
     }
 
-    public Expr leaf(Object value) {
+    Expr leaf(Object value) {
       return new Leaf(counter, value);
     }
 
-    public Expr cat(List exps) {
+    Expr cat(List exps) {
       //noinspection unchecked
       return new Cat(this.counter, (List<Expr>) exps.stream().map(in -> {
         if (in instanceof Expr) {
@@ -201,7 +206,7 @@ public interface Expr {
       }).collect(toList()));
     }
 
-    public Expr alt(List exps) {
+    Expr alt(List exps) {
       //noinspection unchecked
       return new Alt(counter, (List<Expr>) exps.stream().map(in -> {
         if (in instanceof Expr) {
@@ -211,7 +216,7 @@ public interface Expr {
       }).collect(toList()));
     }
 
-    public Expr rep(Object exp, int min, int max) {
+    Expr rep(Object exp, int min, int max) {
       return new Rep(counter, exp instanceof Expr ? (Expr) exp : new Leaf(counter, exp), min, max);
     }
   }
