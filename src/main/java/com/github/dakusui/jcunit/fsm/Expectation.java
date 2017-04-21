@@ -28,7 +28,7 @@ public class Expectation<SUT> {
 
   protected Expectation(
       String fsmName,
-      Output.Type type,
+      OutputType type,
       State<SUT> state,
       OutputChecker checker
   ) {
@@ -40,7 +40,7 @@ public class Expectation<SUT> {
     this.checker = checker;
   }
 
-  public Output.Type getType() {
+  public OutputType getType() {
     return this.checker.getType();
   }
 
@@ -52,7 +52,7 @@ public class Expectation<SUT> {
   public static class Builder<SUT> {
     private final FiniteStateMachine<SUT> fsm;
     private final String                  fsmName;
-    private       Output.Type             type;
+    private       OutputType              type;
     private       OutputChecker           checker;
     private       State<SUT>              state;
 
@@ -70,9 +70,9 @@ public class Expectation<SUT> {
 
     public Builder<SUT> invalid(FsmSpec<SUT> state, Class<? extends Throwable> klass) {
       Checks.checknotnull(state);
-      this.type = Output.Type.EXCEPTION_THROWN;
+      this.type = OutputType.EXCEPTION_THROWN;
       this.state = chooseState(state);
-      this.checker = new OutputChecker.MatcherBased(Output.Type.EXCEPTION_THROWN, CoreMatchers.instanceOf(klass));
+      this.checker = new OutputChecker.MatcherBased(OutputType.EXCEPTION_THROWN, CoreMatchers.instanceOf(klass));
       return this;
     }
 
@@ -86,13 +86,13 @@ public class Expectation<SUT> {
 
     public Builder<SUT> valid(FsmSpec<SUT> state, Matcher matcher) {
       Checks.checknotnull(matcher);
-      return valid(state, new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, matcher));
+      return valid(state, new OutputChecker.MatcherBased(OutputType.VALUE_RETURNED, matcher));
     }
 
     public Builder<SUT> valid(FsmSpec<SUT> state, OutputChecker checker) {
       Checks.checknotnull(state);
       Checks.checknotnull(checker);
-      this.type = Output.Type.VALUE_RETURNED;
+      this.type = OutputType.VALUE_RETURNED;
       this.state = chooseState(state);
       this.checker = checker;
       return this;

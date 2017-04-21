@@ -1,9 +1,6 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
-import com.github.dakusui.jcunit.fsm.Action;
-import com.github.dakusui.jcunit.fsm.Args;
-import com.github.dakusui.jcunit.fsm.Output;
-import com.github.dakusui.jcunit.fsm.State;
+import com.github.dakusui.jcunit.fsm.*;
 
 public class Edge<SUT> implements Stimulus<SUT> {
   public final State<SUT>  from;
@@ -24,7 +21,7 @@ public class Edge<SUT> implements Stimulus<SUT> {
   }
 
   public boolean isValid() {
-    return from.expectation(action, args).getType() == Output.Type.VALUE_RETURNED;
+    return from.expectation(action, args).getType() == OutputType.VALUE_RETURNED;
   }
 
   @Override

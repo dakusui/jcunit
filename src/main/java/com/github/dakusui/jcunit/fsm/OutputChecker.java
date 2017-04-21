@@ -8,17 +8,17 @@ import org.hamcrest.Matcher;
  * (a returned value/thrown exception).
  */
 public interface OutputChecker {
-  Output.Type getType();
+  OutputType getType();
 
   abstract class Base implements OutputChecker {
-    public final Output.Type type;
+    public final OutputType type;
 
-    public Base(Output.Type type) {
+    public Base(OutputType type) {
       this.type = Checks.checknotnull(type);
     }
 
     @Override
-    public Output.Type getType() {
+    public OutputType getType() {
       return this.type;
     }
   }
@@ -32,7 +32,7 @@ public interface OutputChecker {
      * @param type    expected output type.
      * @param matcher expectation for output.
      */
-    public MatcherBased(Output.Type type, Matcher matcher) {
+    public MatcherBased(OutputType type, Matcher matcher) {
       super(type);
       this.matcher = Checks.checknotnull(matcher);
     }

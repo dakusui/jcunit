@@ -79,7 +79,7 @@ class FsmTupleAccessor<SUT> {
             edge ->
                 edge.from.expectation(edge.action, edge.args).getType()
                     ==
-                    Output.Type.VALUE_RETURNED
+                    OutputType.VALUE_RETURNED
         );
   }
 

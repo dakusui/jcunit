@@ -174,7 +174,7 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
         //noinspection SimplifiableIfStatement
         if (args.containsVoid())
           return false;
-        return state.expectation(action, args).getType() == Output.Type.VALUE_RETURNED;
+        return state.expectation(action, args).getType() == OutputType.VALUE_RETURNED;
       }
 
       @Override
