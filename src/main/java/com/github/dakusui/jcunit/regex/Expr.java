@@ -72,7 +72,7 @@ public interface Expr {
       visitor.visit(this);
     }
 
-    Object value() {
+    public Object value() {
       return this.value;
     }
 

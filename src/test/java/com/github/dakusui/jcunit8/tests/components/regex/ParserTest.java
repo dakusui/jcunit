@@ -1,9 +1,14 @@
 package com.github.dakusui.jcunit8.tests.components.regex;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
+import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.PipelineTestBase;
 import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.UTUtils;
+import com.github.dakusui.jcunit8.testsuite.TestCase;
+import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -12,18 +17,20 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 @RunWith(Parameterized.class)
-public class ParserTest {
+public class ParserTest extends PipelineTestBase {
   private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter NAME_FORMATTER = Expr.Composite::name;
   private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter ID_FORMATTER   = Expr.Base::id;
 
   //String input = "git ((clone URL (dir){0,1})|(pull( origin BRANCH_PULLED_FROM){0,1})|(push origin BRANCH(_BRAHCH){0,1}))";
-//  @SuppressWarnings("WeakerAccess")
+  //  @SuppressWarnings("WeakerAccess")
   @Parameterized.Parameters
   public static String[] data() {
     return new String[] {
@@ -52,13 +59,13 @@ public class ParserTest {
       /*22*/ "(A|B);A,B;(*(+AB))",
       /*23*/ "(A|B|C);A,B,C;(*(+ABC))",
       /*24*/ "(A|B|(C(D{0,1})));A,B,CD,C;(*(+AB(*C(*D{0,1}))))",
-      /*25*/ "((A{0,1})|B|(C{0,1}));,,A,B,C;(*(+(*A{0,1})B(*C{0,1})))", // limitation; where multiple component can result in the same result can produce the same test cases.
-      /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))", // limitation. see above
+      /*25*/ "((A{0,1})|B|(C{0,1}));,A,B,C;(*(+(*A{0,1})B(*C{0,1})))", // limitation; where multiple component can result in the same result can produce the same test cases.
+      /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))", // limitation. see above
       /*27*/ "A|B|C;A,B,C;(+ABC)",
       /*28*/ "(A)|(B)|(C);A,B,C;(+(*A)(*B)(*C))",
       /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*git clone  URL(*dir){0,1})",
       /*30*/ "(A|B){0,2};,AA,BB,AB,A,B,BA;(*(+AB){0,2})",
-      /*31*/ "(A|B){1,3};ABA,AA,BBA,BB,A,AAA,ABB,AB,AAB,B,BAA,BAB,BBB,BA;(*(+AB){1,3})",
+      /*31*/ "(A|B){1,3};ABA,AA,BB,A,AAA,AB,AAB,B,BAA,BBB,BA;(*(+AB){1,3})",
     };
   }
 
@@ -89,40 +96,29 @@ public class ParserTest {
 
   @Test
   public void printGeneratedList() {
-    /*
-    Parameter.Regex<String> factorDef = Parameter.Regex.Factory.of(input()).create("input");
-//    RegexTestSuiteBuilder regexTestSuiteBuilder = getRegexTestSuiteBuilder();
+    Parameter.Regex<String> parameter = Parameter.Regex.Factory.of(input()).create("input");
 
-
-    FactorSpace factorSpace = FactorSpace.create(singletonList(factorDef)), emptyList());
-
-    TestSuite<Tuple> builtTestSuite = regexTestSuiteBuilder.buildTestSuite();
+    TestSuite<Tuple> builtTestSuite = generateTestSuite(parameter);
+    Set<String> generatedStringsFromRegex = new HashSet<>();
     for (TestCase<Tuple> each : builtTestSuite) {
-      System.out.println(factorSpace.convert(each.get()));
-    }
-
-    Set<String> generatedStringsFromRegex = new HashSet<String>();
-    for (TestCase each : builtTestSuite) {
       generatedStringsFromRegex.add(
           StringUtils.join(
               "",
-              (List) factorSpace.convert(each.get())
-                  .get("input")
+              (List) each.get().get("input")
           ));
     }
+    //noinspection unchecked
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());
     assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
-    */
   }
 
   @Test
   public void testInterpret() {
-    //    System.out.println(this.input() + ":" + StringUtils.join(" ", Parser.preprocess(this.input())));
     assertEquals(expectationForTokenizedStrings(), StringUtils.join("", Parser.preprocess(this.input())));
   }
 
   /*
-  private RegexTestSuiteBuilder getRegexTestSuiteBuilder() {
+  private RegexTestSuiteBuilder getRegexTestSuiteBuilder() {ZZ
     //    new Parser().parse(input()).accept(regexTestSuiteBuilder);
     return new RegexTestSuiteBuilder("input", new Parser().parse(input()));
   }
@@ -134,13 +130,14 @@ public class ParserTest {
   }
 
   private Matcher generatedStringsMatcher() {
+    //noinspection unchecked
     return CoreMatchers.allOf(
         CoreMatchers.is(possibleStrings(expectationForGeneratedStrings()))
     );
   }
 
   private Set<String> possibleStrings(String expectation) {
-    Set<String> ret = new HashSet<String>();
+    Set<String> ret = new HashSet<>();
     ret.addAll(asList(expectation.split(",")));
     return ret;
   }
