@@ -20,11 +20,11 @@ public class Expectation<SUT> {
   /**
    * Expected state after an action is performed.
    */
-  public final  State<SUT>                         state;
+  public final  State<SUT>    state;
   /**
    * A checker which verifies a returned value or a thrown exception.
    */
-  private final OutputChecker                      checker;
+  private final OutputChecker checker;
 
   protected Expectation(
       String fsmName,
@@ -64,13 +64,8 @@ public class Expectation<SUT> {
       this.fsmName = fsmName;
     }
 
-    public Builder<SUT> invalid() {
-      return this.invalid(IllegalStateException.class);
-    }
-
-    public Builder<SUT> invalid(Class<? extends Throwable> klass) {
-      Checks.checknotnull(klass);
-      return this.invalid(FsmSpec.Void.getInstance(), klass);
+    public Builder<SUT> invalid(FsmSpec<SUT> state) {
+      return invalid(state, Throwable.class);
     }
 
     public Builder<SUT> invalid(FsmSpec<SUT> state, Class<? extends Throwable> klass) {

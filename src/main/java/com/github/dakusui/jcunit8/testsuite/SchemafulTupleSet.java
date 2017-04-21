@@ -39,9 +39,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
     ////
     // Make sure all the tuples in this suite object have the same set of attribute
     // names.
-    tuples.forEach(tuple -> {
-      FrameworkException.checkCondition(new HashSet<>(attributeNames).equals(tuple.keySet()));
-    });
+    tuples.forEach(tuple -> FrameworkException.checkCondition(new HashSet<>(attributeNames).equals(tuple.keySet())));
 
     class Impl extends AbstractList<Tuple> implements SchemafulTupleSet {
       @Override
