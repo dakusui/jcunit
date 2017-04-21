@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.tests.features.pipeline.testbase;
+package com.github.dakusui.jcunit8.testutils;
 
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import org.hamcrest.Matcher;

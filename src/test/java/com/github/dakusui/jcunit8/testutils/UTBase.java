@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.tests.features;
+package com.github.dakusui.jcunit8.testutils;
 
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;

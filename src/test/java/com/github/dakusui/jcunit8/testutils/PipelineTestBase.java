@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.tests.features.pipeline.testbase;
+package com.github.dakusui.jcunit8.testutils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -10,7 +10,6 @@ import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
-import com.github.dakusui.jcunit8.tests.features.UTBase;
 
 import java.util.List;
 
@@ -70,14 +69,14 @@ public abstract class PipelineTestBase extends UTBase {
 
   private Config<Tuple> buildConfig() {
     return Config.Builder.forTuple(
-        new Requirement.Builder()
-            .withNegativeTestGeneration(false)
-            .build())
-        .build();
+        requirement()
+    ).build();
   }
 
 
   protected Requirement requirement() {
-    return new Requirement.Builder().build();
+    return new Requirement.Builder()
+        .withNegativeTestGeneration(false)
+        .build();
   }
 }

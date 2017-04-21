@@ -31,17 +31,18 @@ public interface Pipeline<T> {
 
     public TestSuite<T> generateTestSuite(Config<T> config, ParameterSpace parameterSpace) {
       List<Tuple> regularTestTuples = engine(config, parameterSpace);
-      return new TestSuite.Builder<>(parameterSpace, config.concretizer())
-          .addAll(regularTestTuples)
-          .addAll(
-              negativeTestGenerator(
-                  config.getRequirement().generateNegativeTests(),
-                  toFactorSpaceForNegativeTestGeneration(parameterSpace),
-                  regularTestTuples,
-                  config.getRequirement()
-              ).generate()
-          )
-          .build();
+      TestSuite.Builder<T> builder = new TestSuite.Builder<>(parameterSpace, config.concretizer());
+      builder.addAllToRegularTuples(regularTestTuples);
+      if (config.getRequirement().generateNegativeTests())
+        builder.addAllToNegativeTuples(
+            negativeTestGenerator(
+                config.getRequirement().generateNegativeTests(),
+                toFactorSpaceForNegativeTestGeneration(parameterSpace),
+                regularTestTuples,
+                config.getRequirement()
+            ).generate()
+        );
+      return builder.build();
     }
 
     public ParameterSpace preprocess(Config<T> config, ParameterSpace parameterSpace) {

@@ -1,0 +1,76 @@
+package com.github.dakusui.jcunit8.tests.features.pipeline.negative;
+
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.pipeline.Requirement;
+import com.github.dakusui.jcunit8.testsuite.TestCase;
+import com.github.dakusui.jcunit8.testsuite.TestSuite;
+import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
+import com.github.dakusui.jcunit8.testutils.TestSuiteUtils;
+import org.junit.Test;
+
+import java.util.Objects;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+
+public class NegativeGenerationTest extends PipelineTestBase {
+  @Test
+  public void test() {
+    Constraint constraint = Constraint.create(
+        tuple -> !Objects.equals(tuple.get("simple1"), tuple.get("simple2")),
+        "simple1",
+        "simple2"
+    );
+    TestSuiteUtils.validateTestSuite(
+        generateTestSuite(
+            asList(
+                simpleParameterFactory("Hello", "world", "everyone").create("simple1"),
+                simpleParameterFactory("Hello", "world", "everyone").create("simple2")
+            ),
+            singletonList(constraint)
+        ),
+        matcher(
+            name("More than 1 test cases",
+                (TestSuite<Tuple> testCases) -> testCases.size() > 1),
+            name("Only last one is negative.",
+                (TestSuite<Tuple> testCases) -> {
+                  for (int i = 0; i < testCases.size(); i++) {
+                    if (i == testCases.size() - 1) {
+                      if (testCases.get(i).getCategory() != TestCase.Category.NEGATIVE) {
+                        return false;
+                      }
+                    } else {
+                      if (testCases.get(i).getCategory() != TestCase.Category.REGULAR) {
+                        return false;
+                      }
+                    }
+                  }
+                  return true;
+                }),
+            name("Last one holds given constraint as an element of violated ones",
+                (TestSuite<Tuple> testSuite) ->
+                    Objects.equals(
+                        testSuite.get(testSuite.size() - 1).violatedConstraints(),
+                        singletonList(constraint)
+                    )),
+            name("Constraint violations happen as specified by category",
+                (TestSuite<Tuple> testCases) ->
+                    testCases.stream()
+                        .allMatch(tupleTestCase -> tupleTestCase.getCategory() == TestCase.Category.REGULAR ?
+                            constraint.test(tupleTestCase.get()) :
+                            tupleTestCase.getCategory() == TestCase.Category.NEGATIVE &&
+                                tupleTestCase.violatedConstraints().stream()
+                                    .noneMatch(constraint1 -> constraint1.test(tupleTestCase.get()))
+                        ))
+        ));
+  }
+
+
+  @Override
+  public Requirement requirement() {
+    return new Requirement.Builder()
+        .withNegativeTestGeneration(true)
+        .build();
+  }
+}

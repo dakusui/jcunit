@@ -370,7 +370,7 @@ constraints, [IPO-G+](main/java/com/github/dakusui/jcunit8/pipeline/stages/gener
 
 Idea of the algorithm is simple. In conventional IPO-G algorithm, which is
 shown below, new values are assigned at some points annotated with (*1) - (*4).
-The IPO-G+ algorithm only searches only for assignments which can become
+The IPO-G+ algorithm only searches for assignments which can become
 valid at these points.
 
 ```

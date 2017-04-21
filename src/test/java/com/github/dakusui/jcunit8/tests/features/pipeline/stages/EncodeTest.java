@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.stages;
 
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.PipelineTestBase;
+import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
 import org.junit.Test;
 
 import java.util.Objects;
 
-import static com.github.dakusui.jcunit8.tests.features.pipeline.testbase.FactorSpaceUtils.*;
+import static com.github.dakusui.jcunit8.testutils.FactorSpaceUtils.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 

@@ -9,12 +9,12 @@ import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Cartesian;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
-import com.github.dakusui.jcunit8.tests.features.pipeline.testbase.*;
+import com.github.dakusui.jcunit8.testutils.*;
 import org.junit.Test;
 
 import java.util.function.Function;
 
-import static com.github.dakusui.jcunit8.tests.features.pipeline.testbase.UTUtils.sizeIs;
+import static com.github.dakusui.jcunit8.testutils.UTUtils.sizeIs;
 import static java.util.Collections.*;
 
 public class FsmTest extends PipelineTestBase {

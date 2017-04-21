@@ -1,8 +1,8 @@
-package com.github.dakusui.jcunit8.tests.features.pipeline.testbase;
+package com.github.dakusui.jcunit8.testutils;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.tests.features.UTBase;
+import com.github.dakusui.jcunit8.testutils.UTBase;
 import org.hamcrest.Matcher;
 
 import java.util.function.Predicate;

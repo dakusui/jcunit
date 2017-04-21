@@ -1,6 +1,4 @@
-package com.github.dakusui.jcunit8.tests.features.pipeline.testbase;
-
-import com.github.dakusui.jcunit8.tests.features.UTBase;
+package com.github.dakusui.jcunit8.testutils;
 
 import java.io.IOException;
 import java.io.OutputStream;

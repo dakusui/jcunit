@@ -50,8 +50,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       this.testSuite = buildTestSuite(
           configFactory.create(),
           buildParameterSpace(
-              buildParameterMap(parameterSpaceDefinition).values().stream()
-                  .collect(toList()),
+              new ArrayList<>(buildParameterMap(parameterSpaceDefinition).values()),
               this.predicates.values().stream()
                   .filter(each -> each instanceof Constraint)
                   .map(Constraint.class::cast)
