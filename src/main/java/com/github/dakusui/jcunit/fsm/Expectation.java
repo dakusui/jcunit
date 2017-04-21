@@ -106,9 +106,6 @@ public class Expectation<SUT> {
     private State<SUT> chooseState(StateChecker<SUT> stateChecker) {
       Checks.checknotnull(fsm);
       Checks.checknotnull(stateChecker);
-      if (stateChecker == FsmSpec.Void.getInstance()) {
-        return State.Void.getInstance();
-      }
       for (State<SUT> each : fsm.states()) {
         if (((State.Base) each).stateSpec == stateChecker)
           return each;

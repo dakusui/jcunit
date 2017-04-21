@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 
 import java.io.Serializable;
@@ -47,35 +46,6 @@ public interface Action<SUT> extends Serializable {
    * Returns an identifier of this object.
    */
   String id();
-
-  abstract class Void implements Action {
-    public static <SUT> Action<SUT> getInstance() {
-      //noinspection unchecked
-      return (Action<SUT>) INSTANCE;
-    }
-
-    private static Void INSTANCE = new Void() {
-      @Override
-      public Object perform(Object o, Args args) throws Throwable {
-        return Utils.VOID;
-      }
-
-      @Override
-      public Parameters parameters() {
-        return Parameters.EMPTY;
-      }
-
-      @Override
-      public int numParameterFactors() {
-        return 0;
-      }
-
-      @Override
-      public String id() {
-        return "(VOID)";
-      }
-    };
-  }
 
   class Base<SUT> implements Action<SUT> {
     final         Method     method;

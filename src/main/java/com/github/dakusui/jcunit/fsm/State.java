@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit.core.utils.Utils;
 import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import com.github.dakusui.jcunit.fsm.spec.StateSpec;
-import org.hamcrest.CoreMatchers;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -17,50 +16,6 @@ import java.util.Map;
  * @param <SUT> A class of software under test.
  */
 public interface State<SUT> extends StateChecker<SUT>, Serializable {
-  abstract class Void<SUT> implements State<SUT> {
-    @SuppressWarnings("unchecked")
-    public static <SUT> State<SUT> getInstance() {
-      return (State<SUT>) INSTANCE;
-    }
-
-    private static Void INSTANCE = new Void() {
-      public Expectation expectation(Action action, Args args) {
-        /////
-        // Since no action should be performed on VOID state, which represents  a state after
-        // invalid operation is performed, only VOID action, which represents 'no action',
-        // is only possible action.
-        //
-        // As of now, Action.VOID isn't introduced to design non-deterministic FSM.
-        // non-deterministic FSM is not supported by JCUnit yet...
-        if (action == Action.Void.getInstance() && args.size() == 0) {
-          //noinspection unchecked
-          return new Expectation(
-              "(VOID)",
-              Output.Type.VALUE_RETURNED,
-              this,
-              new OutputChecker.MatcherBased(Output.Type.VALUE_RETURNED, CoreMatchers.anything())
-          );
-        }
-        return null;
-      }
-
-      @Override
-      public boolean check(Object o) {
-        ////
-        // Once the FSM is given an invalid input (action and args), nothing
-        // can be guaranteed.
-        // Whatever happens on SUT, it's possible in terms of software specification and
-        // since anything is possible, this method always return true regardless of SUT state.
-        return true;
-      }
-
-      @Override
-      public String toString() {
-        return "(VOID)";
-      }
-    };
-  }
-
   /**
    * Returns an {@code Expectation} when an {@code action} is performed with specified {@code args}
    * on an SUT in given state defined by this object.
