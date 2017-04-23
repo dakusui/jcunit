@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit8.runners.junit4.annotations;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
@@ -47,7 +46,7 @@ public @interface ConfigureWith {
   Class<?> parameterSpace() default Object.class;
 
   interface ConfigFactory {
-    Config<Tuple> create();
+    Config create();
 
     abstract class Base implements ConfigFactory {
       abstract protected Requirement requirement();
@@ -55,7 +54,7 @@ public @interface ConfigureWith {
       abstract protected Generator.Factory generatorFactory();
 
       @Override
-      public Config<Tuple> create() {
+      public Config create() {
         return Config.Builder.forTuple(requirement()).withGeneratorFactory(generatorFactory()).build();
       }
     }

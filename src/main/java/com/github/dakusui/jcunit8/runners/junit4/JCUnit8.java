@@ -42,8 +42,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 public class JCUnit8 extends org.junit.runners.Parameterized {
-  private final TestSuite<Tuple> testSuite;
-  private final List<Runner>     runners;
+  private final TestSuite    testSuite;
+  private final List<Runner> runners;
 
   public JCUnit8(Class<?> klass) throws Throwable {
     super(klass);
@@ -159,7 +159,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   private List<Runner> createRunners() {
     AtomicInteger i = new AtomicInteger(0);
     return this.testSuite.stream()
-        .map((Function<TestCase<Tuple>, Runner>) tupleTestCase -> {
+        .map((Function<TestCase, Runner>) tupleTestCase -> {
           try {
             return new MyBlockJUnit4ClassRunner(i.getAndIncrement(), tupleTestCase);
           } catch (InitializationError initializationError) {
@@ -182,7 +182,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static TestSuite<Tuple> buildTestSuite(Config<Tuple> config, ParameterSpace parameterSpace) {
+  private static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace) {
     return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace);
   }
 
@@ -221,10 +221,10 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
 
   private class MyBlockJUnit4ClassRunner extends BlockJUnit4ClassRunner {
-    private final TestCase<Tuple> tupleTestCase;
+    private final TestCase tupleTestCase;
     int id;
 
-    MyBlockJUnit4ClassRunner(int id, TestCase<Tuple> tupleTestCase) throws InitializationError {
+    MyBlockJUnit4ClassRunner(int id, TestCase tupleTestCase) throws InitializationError {
       super(JCUnit8.this.getTestClass().getJavaClass());
       this.tupleTestCase = tupleTestCase;
       this.id = id;

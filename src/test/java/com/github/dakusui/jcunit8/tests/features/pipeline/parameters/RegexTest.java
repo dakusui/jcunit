@@ -66,16 +66,16 @@ public class RegexTest extends PipelineTestBase {
             )),
             allSatisfy(name(
                 "Non empty",
-                (TestCase<Tuple> t) -> !t.get().isEmpty()
+                (TestCase t) -> !t.get().isEmpty()
             )),
             allSatisfy(name(
                 "'regex1' attribute holds a non-empty list",
-                (TestCase<Tuple> t) ->
+                (TestCase t) ->
                     t.get().get("regex1") instanceof List && !((List) t.get().get("regex1")).isEmpty()
             )),
             allSatisfy(name(
                 "First element of 'regex1' attribute is 'A'",
-                (TestCase<Tuple> t) -> Objects.equals(((List) t.get().get("regex1")).get(0), "A")
+                (TestCase t) -> Objects.equals(((List) t.get().get("regex1")).get(0), "A")
             ))));
   }
 

@@ -1,18 +1,19 @@
 package com.github.dakusui.jcunit8.testsuite;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.List;
 
-public interface TestCase<T> {
+public interface TestCase {
   enum Category {
     REGULAR,
     NEGATIVE;
 
-    <T> TestCase<T> createTestCase(T test, List<Constraint> violatedConstraints) {
-      return new TestCase<T>() {
+    TestCase createTestCase(Tuple test, List<Constraint> violatedConstraints) {
+      return new TestCase() {
         @Override
-        public T get() {
+        public Tuple get() {
           return test;
         }
 
@@ -35,7 +36,7 @@ public interface TestCase<T> {
 
   }
 
-  T get();
+  Tuple get();
 
   Category getCategory();
 

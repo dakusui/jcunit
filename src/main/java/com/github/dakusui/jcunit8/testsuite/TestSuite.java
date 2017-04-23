@@ -15,7 +15,7 @@ import static java.util.Objects.requireNonNull;
  * <p>
  * This class eliminates those tuples on its construction.
  */
-public interface TestSuite<T> extends List<TestCase<T>> {
+public interface TestSuite extends List<TestCase> {
 
   class Builder<T> {
     private final ParameterSpace     parameterSpace;
@@ -48,18 +48,18 @@ public interface TestSuite<T> extends List<TestCase<T>> {
     }
 
 
-    public TestSuite<T> build() {
+    public TestSuite build() {
       List<Tuple> tuples = new ArrayList<Tuple>() {{
         this.addAll(regularTuples);
         this.addAll(negativeTuples);
       }};
-      class Impl<U> extends AbstractList<TestCase<U>> implements TestSuite<U> {
+      class Impl extends AbstractList<TestCase> implements TestSuite {
         private Impl() {
         }
 
         @Override
-        public TestCase<U> get(int index) {
-          U object = (U) tuples.get(index);
+        public TestCase get(int index) {
+          Tuple object = tuples.get(index);
           if (index < regularTuples.size()) {
             return TestCase.Category.REGULAR.createTestCase(
                 object,
@@ -78,7 +78,7 @@ public interface TestSuite<T> extends List<TestCase<T>> {
           return tuples.size();
         }
       }
-      return new Impl<>();
+      return new Impl();
     }
   }
 }

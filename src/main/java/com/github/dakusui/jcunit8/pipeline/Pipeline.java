@@ -20,18 +20,18 @@ import static java.util.stream.Stream.concat;
 /**
  * A pipeline object.
  */
-public interface Pipeline<T> {
-  TestSuite<T> execute(Config<T> config, ParameterSpace parameterSpace);
+public interface Pipeline {
+  TestSuite execute(Config config, ParameterSpace parameterSpace);
 
-  class Standard<T> implements Pipeline<T> {
+  class Standard implements Pipeline {
     @Override
-    public TestSuite<T> execute(Config<T> config, ParameterSpace parameterSpace) {
+    public TestSuite execute(Config config, ParameterSpace parameterSpace) {
       return generateTestSuite(config, preprocess(config, parameterSpace));
     }
 
-    public TestSuite<T> generateTestSuite(Config<T> config, ParameterSpace parameterSpace) {
+    public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace) {
       List<Tuple> regularTestTuples = engine(config, parameterSpace);
-      TestSuite.Builder<T> builder = new TestSuite.Builder<>(parameterSpace);
+      TestSuite.Builder builder = new TestSuite.Builder(parameterSpace);
       builder.addAllToRegularTuples(regularTestTuples);
       if (config.getRequirement().generateNegativeTests())
         builder.addAllToNegativeTuples(
@@ -45,7 +45,7 @@ public interface Pipeline<T> {
       return builder.build();
     }
 
-    public ParameterSpace preprocess(Config<T> config, ParameterSpace parameterSpace) {
+    public ParameterSpace preprocess(Config config, ParameterSpace parameterSpace) {
       return new ParameterSpace.Builder()
           .addAllParameters(
               parameterSpace.getParameterNames().stream()
@@ -59,7 +59,7 @@ public interface Pipeline<T> {
           .build();
     }
 
-    public SchemafulTupleSet engine(Config<T> config, ParameterSpace parameterSpace) {
+    public SchemafulTupleSet engine(Config config, ParameterSpace parameterSpace) {
       return config
           .partitioner().apply(
               config.encoder().apply(
@@ -120,7 +120,7 @@ public interface Pipeline<T> {
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
-    private Parameter toSimpleParameterIfNecessary(Config<T> config, Parameter parameter, List<Constraint> constraints) {
+    private Parameter toSimpleParameterIfNecessary(Config config, Parameter parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         //noinspection unchecked,RedundantTypeArguments
         return Parameter.Simple.Factory.of(
@@ -161,8 +161,8 @@ public interface Pipeline<T> {
       return constraints.stream().anyMatch(each -> each.involvedKeys().contains(parameter.getName()));
     }
 
-    public static <T> Pipeline<T> create() {
-      return new Standard<>();
+    public static Pipeline create() {
+      return new Standard();
     }
   }
 }

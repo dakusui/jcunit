@@ -37,5 +37,4 @@ public class InvalidParameterSourceMethods extends InvalidTestClass {
       @From("c") int c
   ) {
   }
-
 }

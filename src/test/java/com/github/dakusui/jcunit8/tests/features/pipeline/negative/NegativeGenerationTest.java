@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.negative;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
@@ -32,9 +31,9 @@ public class NegativeGenerationTest extends PipelineTestBase {
         ),
         matcher(
             name("More than 1 test cases",
-                (TestSuite<Tuple> testCases) -> testCases.size() > 1),
+                (TestSuite testCases) -> testCases.size() > 1),
             name("Only last one is negative.",
-                (TestSuite<Tuple> testCases) -> {
+                (TestSuite testCases) -> {
                   for (int i = 0; i < testCases.size(); i++) {
                     if (i == testCases.size() - 1) {
                       if (testCases.get(i).getCategory() != TestCase.Category.NEGATIVE) {
@@ -49,13 +48,13 @@ public class NegativeGenerationTest extends PipelineTestBase {
                   return true;
                 }),
             name("Last one holds given constraint as an element of violated ones",
-                (TestSuite<Tuple> testSuite) ->
+                (TestSuite testSuite) ->
                     Objects.equals(
                         testSuite.get(testSuite.size() - 1).violatedConstraints(),
                         singletonList(constraint)
                     )),
             name("Constraint violations happen as specified by category",
-                (TestSuite<Tuple> testCases) ->
+                (TestSuite testCases) ->
                     testCases.stream()
                         .allMatch(tupleTestCase -> tupleTestCase.getCategory() == TestCase.Category.REGULAR ?
                             constraint.test(tupleTestCase.get()) :

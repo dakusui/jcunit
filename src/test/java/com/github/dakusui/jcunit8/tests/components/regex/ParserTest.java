@@ -1,14 +1,13 @@
 package com.github.dakusui.jcunit8.tests.components.regex;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
-import com.github.dakusui.jcunit8.testutils.UTUtils;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
+import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -98,9 +97,9 @@ public class ParserTest extends PipelineTestBase {
   public void printGeneratedList() {
     Parameter.Regex<String> parameter = Parameter.Regex.Factory.of(input()).create("input");
 
-    TestSuite<Tuple> builtTestSuite = generateTestSuite(parameter);
+    TestSuite builtTestSuite = generateTestSuite(parameter);
     Set<String> generatedStringsFromRegex = new HashSet<>();
-    for (TestCase<Tuple> each : builtTestSuite) {
+    for (TestCase each : builtTestSuite) {
       generatedStringsFromRegex.add(
           StringUtils.join(
               "",

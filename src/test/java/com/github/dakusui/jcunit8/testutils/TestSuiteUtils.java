@@ -8,7 +8,7 @@ import static org.junit.Assert.assertThat;
 public enum TestSuiteUtils {
   ;
 
-  public static <T> void validateTestSuite(TestSuite<T> testSuite, Matcher<TestSuite<T>> matcher) {
+  public static void validateTestSuite(TestSuite testSuite, Matcher<TestSuite> matcher) {
     testSuite.forEach(
         System.out::println
     );

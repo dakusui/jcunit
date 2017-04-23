@@ -20,7 +20,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface Config<T> {
+public interface Config {
   Requirement getRequirement();
 
   /**
@@ -44,7 +44,7 @@ public interface Config<T> {
     private       Partitioner        partitioner;
 
     public static Builder<Tuple> forTuple(Requirement requirement) {
-      return new Builder<Tuple>(requirement).withConcretizer(tuple -> tuple);
+      return new Builder<>(requirement);
     }
 
     public Builder(Requirement requirement) {
@@ -59,11 +59,6 @@ public interface Config<T> {
       return this;
     }
 
-    public Builder<T> withConcretizer(Function<Tuple, T> concretizer) {
-      this.concretizer = concretizer;
-      return this;
-    }
-
     public Builder<T> withJoiner(Joiner joiner) {
       this.joiner = joiner;
       return this;
@@ -74,22 +69,20 @@ public interface Config<T> {
       return this;
     }
 
-    public Config<T> build() {
-      return new Impl<>(requirement, generatorFactory, concretizer, joiner, partitioner);
+    public Config build() {
+      return new Impl(requirement, generatorFactory, joiner, partitioner);
     }
   }
 
-  class Impl<T> implements Config<T> {
+  class Impl implements Config {
     private final Generator.Factory  generatorFactory;
-    private final Function<Tuple, T> concretizer;
     private final Joiner             joiner;
     private final Partitioner        partitioner;
     private final Requirement        requirement;
     private final Encoder            encoder;
 
-    public Impl(Requirement requirement, Generator.Factory generatorFactory, Function<Tuple, T> concretizer, Joiner joiner, Partitioner partitioner) {
+    public Impl(Requirement requirement, Generator.Factory generatorFactory, Joiner joiner, Partitioner partitioner) {
       this.generatorFactory = requireNonNull(generatorFactory);
-      this.concretizer = requireNonNull(concretizer);
       this.encoder = new Encoder.Standard();
       this.joiner = requireNonNull(joiner);
       this.partitioner = requireNonNull(partitioner);
