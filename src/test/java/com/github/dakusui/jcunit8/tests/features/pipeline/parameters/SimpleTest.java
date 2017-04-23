@@ -33,6 +33,4 @@ public class SimpleTest extends PipelineTestBase {
         )
     );
   }
-
-
 }

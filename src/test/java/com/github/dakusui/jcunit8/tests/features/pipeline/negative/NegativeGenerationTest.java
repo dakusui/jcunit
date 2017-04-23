@@ -65,7 +65,6 @@ public class NegativeGenerationTest extends PipelineTestBase {
         ));
   }
 
-
   @Override
   public Requirement requirement() {
     return new Requirement.Builder()
