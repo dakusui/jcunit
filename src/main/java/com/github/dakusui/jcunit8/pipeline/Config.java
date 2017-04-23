@@ -34,8 +34,6 @@ public interface Config<T> {
 
   BinaryOperator<SchemafulTupleSet> joiner();
 
-  Function<Tuple, T> concretizer();
-
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
   class Builder<T> {
@@ -116,11 +114,6 @@ public interface Config<T> {
     @Override
     public BinaryOperator<SchemafulTupleSet> joiner() {
       return joiner;
-    }
-
-    @Override
-    public Function<Tuple, T> concretizer() {
-      return concretizer;
     }
 
     @Override

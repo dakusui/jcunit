@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -20,13 +19,11 @@ public interface TestSuite<T> extends List<TestCase<T>> {
 
   class Builder<T> {
     private final ParameterSpace     parameterSpace;
-    private final Function<Tuple, T> concretizer;
     private LinkedHashSet<Tuple> regularTuples  = new LinkedHashSet<>();
     private LinkedHashSet<Tuple> negativeTuples = new LinkedHashSet<>();
 
-    public Builder(ParameterSpace parameterSpace, Function<Tuple, T> concretizer) {
+    public Builder(ParameterSpace parameterSpace) {
       this.parameterSpace = requireNonNull(parameterSpace);
-      this.concretizer = requireNonNull(concretizer);
     }
 
     Builder<T> addToRegularTuples(Tuple in) {
@@ -57,15 +54,12 @@ public interface TestSuite<T> extends List<TestCase<T>> {
         this.addAll(negativeTuples);
       }};
       class Impl<U> extends AbstractList<TestCase<U>> implements TestSuite<U> {
-        private final Function<Tuple, U> concretizer;
-
-        private Impl(Function<Tuple, U> concretizer) {
-          this.concretizer = concretizer;
+        private Impl() {
         }
 
         @Override
         public TestCase<U> get(int index) {
-          U object = concretizer.apply(tuples.get(index));
+          U object = (U) tuples.get(index);
           if (index < regularTuples.size()) {
             return TestCase.Category.REGULAR.createTestCase(
                 object,
@@ -84,7 +78,7 @@ public interface TestSuite<T> extends List<TestCase<T>> {
           return tuples.size();
         }
       }
-      return new Impl<>(this.concretizer);
+      return new Impl<>();
     }
   }
 }

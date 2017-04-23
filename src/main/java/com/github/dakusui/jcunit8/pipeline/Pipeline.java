@@ -31,7 +31,7 @@ public interface Pipeline<T> {
 
     public TestSuite<T> generateTestSuite(Config<T> config, ParameterSpace parameterSpace) {
       List<Tuple> regularTestTuples = engine(config, parameterSpace);
-      TestSuite.Builder<T> builder = new TestSuite.Builder<>(parameterSpace, config.concretizer());
+      TestSuite.Builder<T> builder = new TestSuite.Builder<>(parameterSpace);
       builder.addAllToRegularTuples(regularTestTuples);
       if (config.getRequirement().generateNegativeTests())
         builder.addAllToNegativeTuples(
@@ -99,7 +99,7 @@ public interface Pipeline<T> {
                 Parameter<Object> parameter = parameterSpace.getParameter(s);
                 return Factor.create(
                     s,
-                    parameter.getKnownValues().stream().toArray()
+                    parameter.getKnownValues().toArray()
                 );
               })
               .collect(toList()),
