@@ -1,10 +1,7 @@
 package com.github.dakusui.jcunit8.tests.validation;
 
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
-import com.github.dakusui.jcunit8.tests.validation.testclassesundertest.InvalidParameterSourceMethods;
-import com.github.dakusui.jcunit8.tests.validation.testclassesundertest.ParameterSourceOverloaded;
-import com.github.dakusui.jcunit8.tests.validation.testclassesundertest.UndefinedConstraint;
-import com.github.dakusui.jcunit8.tests.validation.testclassesundertest.UndefinedParameterReferenced;
+import com.github.dakusui.jcunit8.tests.validation.testclassesundertest.*;
 import com.github.dakusui.jcunit8.testutils.ResultUtils;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -67,6 +64,21 @@ public class ValidationTest {
             name("2 failures", result -> result.getFailureCount() == 2),
             name("1st failure", result -> result.getFailures().get(0).getMessage().contains("'undefinedConstraint' was not found")),
             name("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'malformedConstraint!' is not a valid condition name"))
+        )
+    );
+  }
+
+  @Test
+  public void givenInvalidConditions$whenRunTestClass$thenAppropriateExceptionThrown() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(InvalidConditionMethods.class),
+        matcher(
+            name("not successful", result -> !result.wasSuccessful()),
+            name("3 runs", result -> result.getRunCount() == 3),
+            name("3 failures", result -> result.getFailureCount() == 3),
+            name("1st failure", result -> result.getFailures().get(0).getMessage().contains("'nonPublic' must be public")),
+            name("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'staticMethod' must not be static")),
+            name("3rd failure", result -> result.getFailures().get(2).getMessage().contains("'wrongType' must return"))
         )
     );
   }
