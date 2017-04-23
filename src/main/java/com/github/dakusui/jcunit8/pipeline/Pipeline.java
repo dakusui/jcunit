@@ -66,7 +66,6 @@ public interface Pipeline<T> {
                   parameterSpace
               )
           ).stream()
-          .map(Utils.printer())
           .map(config.optimizer())
           .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
           .map(config.generator(config.getRequirement()))

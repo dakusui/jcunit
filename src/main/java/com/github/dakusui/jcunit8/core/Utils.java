@@ -47,6 +47,11 @@ public enum Utils {
     };
   }
 
+  public static <T> T print(T data) {
+    //noinspection unchecked
+    return (T) printer().apply(data);
+  }
+
   public static <T> List<T> unique(List<T> in) {
     return new ArrayList<>(new LinkedHashSet<>(in));
   }
@@ -119,7 +124,6 @@ public enum Utils {
   }
 
   /**
-   *
    * @param testClass Must be validated beforehand.
    */
   public static Object createInstanceOf(TestClass testClass) {
