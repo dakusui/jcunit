@@ -13,9 +13,10 @@ import static java.util.Arrays.asList;
 public class UTBase {
   /**
    * Names a predicate and returns it.
-   * @param name Name of a predicate
+   *
+   * @param name      Name of a predicate
    * @param predicate Predicate to be named.
-   * @param <T> A type of value given to {@code predicate}.
+   * @param <T>       A type of value given to {@code predicate}.
    */
   public static <T> Predicate<T> name(String name, Predicate<T> predicate) {
     return new Predicate<T>() {
@@ -32,7 +33,7 @@ public class UTBase {
   }
 
   @SafeVarargs
-  protected static <T> Matcher<T> matcher(Predicate<T>... predicates) {
+  public static <T> Matcher<T> matcher(Predicate<T>... predicates) {
     return matcher(asList(predicates));
   }
 

@@ -54,6 +54,11 @@ public enum UTUtils {
     }
   });
 
-  private static      PrintStream out               = System.out;
+  public static <T> T print(T value) {
+    out.println(value);
+    return value;
+  }
+
+  private static PrintStream out = System.out;
 
 }

@@ -7,6 +7,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
+import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
 import static java.util.Collections.singletonList;
 
 public enum Utils {
@@ -114,5 +116,17 @@ public enum Utils {
     if (canonicalName != null)
       return canonicalName;
     return className(klass.getEnclosingClass(), work + "$");
+  }
+
+  /**
+   *
+   * @param testClass Must be validated beforehand.
+   */
+  public static Object createInstanceOf(TestClass testClass) {
+    try {
+      return testClass.getOnlyConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      throw unexpectedByDesign(e);
+    }
   }
 }

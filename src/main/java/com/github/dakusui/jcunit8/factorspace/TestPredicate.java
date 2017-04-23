@@ -11,11 +11,6 @@ public interface TestPredicate extends Predicate<Tuple> {
 
   List<String> involvedKeys();
 
-  default String asString() {
-    return toString(this);
-  }
-
-
   static String toString(TestPredicate predicate) {
     return String.format(
         "%s:%s",

@@ -1,18 +1,22 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.exceptions.BaseException;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
-import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
+import com.github.dakusui.jcunit8.runners.core.NodeUtils;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith.ConfigFactory;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -21,61 +25,53 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
+import org.junit.validator.AnnotationsValidator;
+import org.junit.validator.PublicClassValidator;
+import org.junit.validator.TestClassValidator;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
 import static com.github.dakusui.jcunit8.factorspace.Parameter.Factory;
-import static java.util.Arrays.asList;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 public class JCUnit8 extends org.junit.runners.Parameterized {
-  private final SortedMap<String, TestPredicate> predicates;
-  private final TestSuite<Tuple>                 testSuite;
-  private final List<Runner>                     runners;
+  private final TestSuite<Tuple> testSuite;
+  private final List<Runner>     runners;
 
   public JCUnit8(Class<?> klass) throws Throwable {
     super(klass);
-    try {
-      ConfigFactory configFactory = getConfigFactory();
-      Object parameterSpaceDefinition = createParameterSpaceDefinition();
-      this.predicates = buildTestConstraintMap(parameterSpaceDefinition);
-      this.testSuite = buildTestSuite(
-          configFactory.create(),
-          buildParameterSpace(
-              new ArrayList<>(buildParameterMap(parameterSpaceDefinition).values()),
-              this.predicates.values().stream()
-                  .filter(each -> each instanceof Constraint)
-                  .map(Constraint.class::cast)
-                  .collect(toList())
-          ));
-      this.runners = createRunners();
-    } catch (BaseException e) {
-      if (e.getCause() instanceof InitializationError) {
-        throw TestDefinitionException.wrap(e.getCause());
-      }
-      throw e;
-    } catch (Throwable throwable) {
-      throw TestDefinitionException.wrap(throwable);
-    }
+    ConfigFactory configFactory = getConfigFactory();
+    TestClass parameterSpaceDefinition = createParameterSpaceDefinitionTestClass();
+    this.testSuite = buildTestSuite(
+        configFactory.create(),
+        buildParameterSpace(
+            new ArrayList<>(buildParameterMap(parameterSpaceDefinition).values()),
+            NodeUtils.allTestPredicates(createParameterSpaceDefinitionTestClass()).values().stream()
+                .filter(each -> each instanceof Constraint)
+                .map(Constraint.class::cast)
+                .collect(toList())
+        ));
+    this.runners = createRunners();
   }
 
   @Override
   protected void collectInitializationErrors(List<Throwable> errors) {
-    // TODO
-    //    super.collectInitializationErrors(errors);
-    this.validateParameterSourceMethods(errors);
+    this.applyValidators(errors);
   }
 
-  private void validateParameterSourceMethods(List<Throwable> errors) {
-    // TODO
+  private void applyValidators(List<Throwable> errors) {
+    if (getTestClass().getJavaClass() != null) {
+      for (TestClassValidator each : createValidatorsFor(createParameterSpaceDefinitionTestClass())) {
+        errors.addAll(each.validateTestClass(getTestClass()));
+      }
+    }
   }
 
 
@@ -92,25 +88,58 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return createTestClassMock(super.createTestClass(testClass));
   }
 
+  private TestClassValidator[] createValidatorsFor(TestClass parameterSpaceDefinitionClass) {
+    return new TestClassValidator[] {
+        new AnnotationsValidator(),
+        new PublicClassValidator(),
+        new TestClassValidator() {
+          @Override
+          public List<Exception> validateTestClass(TestClass testClass) {
+            return new LinkedList<Exception>() {{
+              validateFromAnnotationsAreReferencingExistingParameterSourceMethods(testClass, this);
+            }};
+          }
+
+          private void validateFromAnnotationsAreReferencingExistingParameterSourceMethods(TestClass testClass, List<Exception> errors) {
+            testClass.getAnnotatedMethods(Test.class)
+                .forEach(
+                    frameworkMethod -> Stream.of(frameworkMethod.getMethod().getParameterAnnotations())
+                        .forEach((Annotation[] annotations) -> Stream.of(annotations)
+                            .filter((Annotation annotation) -> annotation instanceof From)
+                            .forEach((Annotation annotation) -> {
+                              List<FrameworkMethod> methods = parameterSpaceDefinitionClass.getAnnotatedMethods(ParameterSource.class).stream()
+                                  .filter(
+                                      (FrameworkMethod each) ->
+                                          Objects.equals(each.getName(), From.class.cast(annotation).value()))
+                                  .collect(toList());
+                              if (methods.isEmpty())
+                                errors.add(new Exception(
+                                    format(
+                                        "A method '%s' annotated with '%s' is not defined in '%s'",
+                                        From.class.cast(annotation).value(),
+                                        ParameterSource.class.getSimpleName(),
+                                        parameterSpaceDefinitionClass.getJavaClass().getCanonicalName()
+                                    )));
+                            })));
+          }
+        }
+    };
+  }
+
   private ConfigFactory getConfigFactory() {
     try {
       //noinspection unchecked
       return getConfigureWithAnnotation().value().newInstance();
     } catch (InstantiationException | IllegalAccessException e) {
-      throw unexpectedByDesign(e);
+      throw TestDefinitionException.wrap(e);
     }
   }
 
-  private Object createParameterSpaceDefinition() {
-    ConfigureWith configureWith = getConfigureWithAnnotation();
-    Class parameterSpaceDefinitionClass = configureWith.parameterSpace();
-    try {
-      if (Objects.equals(parameterSpaceDefinitionClass, Object.class))
-        parameterSpaceDefinitionClass = this.getTestClass().getJavaClass();
-      return parameterSpaceDefinitionClass.newInstance();
-    } catch (IllegalAccessException | InstantiationException e) {
-      throw TestDefinitionException.testClassIsInvalid(parameterSpaceDefinitionClass);
-    }
+  private TestClass createParameterSpaceDefinitionTestClass() {
+    Class parameterSpaceClass = getConfigureWithAnnotation().parameterSpace();
+    return Objects.equals(parameterSpaceClass, ConfigureWith.DEFAULT_INSTANCE.parameterSpace()) ?
+        this.getTestClass() :
+        new TestClass(parameterSpaceClass);
   }
 
   private ConfigureWith getConfigureWithAnnotation() {
@@ -140,73 +169,21 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         .collect(toList());
   }
 
-  private Optional<TestPredicate> lookupTestPredicate(String name) {
-    return this.predicates.containsKey(name) ?
-        Optional.of(this.predicates.get(name)) :
-        Optional.empty();
-  }
-
-  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(Object parameterSpaceDefinition) {
-    return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter>() {{
-      new TestClass(parameterSpaceDefinition.getClass()).getAnnotatedMethods(ParameterSource.class).forEach(
-          frameworkMethod -> put(frameworkMethod.getName(),
-              buildParameterFactoryCreatorFrom(frameworkMethod)
-                  .apply(parameterSpaceDefinition)
-                  .create(frameworkMethod.getName())
-          ));
-    }};
-  }
-
-  private static SortedMap<String, TestPredicate> buildTestConstraintMap(Object parameterSpaceDefinition) {
-    return new TreeMap<String, TestPredicate>() {
+  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
+    return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter>() {
       {
-        new TestClass(parameterSpaceDefinition.getClass()).getAnnotatedMethods(Condition.class).stream()
-            .filter((FrameworkMethod frameworkMethod) -> frameworkMethod.getAnnotation(Condition.class).constraint())
-            .forEach((FrameworkMethod frameworkMethod) -> put(
-                frameworkMethod.getName(),
-                frameworkMethod.getAnnotation(Condition.class).constraint() ?
-                    buildConstraintCreatorFrom(frameworkMethod).apply(parameterSpaceDefinition) :
-                    buildTestPredicateCreatorFrom(frameworkMethod).apply(parameterSpaceDefinition)
+        parameterSpaceDefinitionTestClass.getAnnotatedMethods(ParameterSource.class).forEach(
+            frameworkMethod -> put(frameworkMethod.getName(),
+                buildParameterFactoryCreatorFrom(frameworkMethod)
+                    .apply(Utils.createInstanceOf(parameterSpaceDefinitionTestClass))
+                    .create(frameworkMethod.getName())
             ));
-      }
-    };
-  }
-
-  private static Function<Object, TestPredicate> buildTestPredicateCreatorFrom(FrameworkMethod method) {
-    return o -> new TestPredicate() {
-      @Override
-      public boolean test(Tuple tuple) {
-        try {
-          return (boolean) method.invokeExplosively(
-              o,
-              involvedKeys().stream()
-                  .map(tuple::get)
-                  .toArray());
-        } catch (Throwable e) {
-          throw unexpectedByDesign(e);
-        }
-      }
-
-      @Override
-      public List<String> involvedKeys() {
-        return getParameterAnnotationsFrom(method, From.class).stream()
-            .map(From::value)
-            .collect(toList());
-      }
-
-      @Override
-      public String toString() {
-        return method.getMethod().getName();
       }
     };
   }
 
   private static TestSuite<Tuple> buildTestSuite(Config<Tuple> config, ParameterSpace parameterSpace) {
     return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace);
-  }
-
-  private static Function<Object, Constraint> buildConstraintCreatorFrom(FrameworkMethod method) {
-    return o -> Constraint.fromCondition(buildTestPredicateCreatorFrom(method).apply(o));
   }
 
   private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
@@ -227,7 +204,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
           return (A) annotations.stream()
               .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
               .findFirst().orElseThrow(RuntimeException::new);
-        }).collect(toList());
+        })
+        .collect(toList());
   }
 
   /**
@@ -254,12 +232,12 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
     @Override
     protected String getName() {
-      return String.format("[%d]", this.id);
+      return format("[%d]", this.id);
     }
 
     @Override
     protected String testName(final FrameworkMethod method) {
-      return String.format("%s[%d]", method.getName(), this.id);
+      return format("%s[%d]", method.getName(), this.id);
     }
 
     @Override
@@ -269,7 +247,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
     @Override
     protected void validateTestMethods(List<Throwable> errors) {
-      // TODO
     }
 
     @Override
@@ -317,11 +294,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
     @Override
     public Object createTest() {
-      try {
-        return getTestClass().getOnlyConstructor().newInstance();
-      } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-        throw unexpectedByDesign(e);
-      }
+      return Utils.createInstanceOf(getTestClass());
     }
 
     @Override
@@ -330,52 +303,13 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     }
 
     private boolean shouldInvoke(FrameworkMethod each, Tuple tuple) {
-      ////
-      // TODO: Should be memoized.
       //noinspection SimplifiableIfStatement
       if (each.getAnnotation(Given.class) == null)
         return true;
-      return buildPredicate(each.getAnnotation(Given.class).value()).test(tuple);
-    }
-
-    private <T> Predicate<T> buildPredicate(String[] definition) {
-      try {
-        return Arrays.stream(definition)
-            .map((String s) -> asList(s.split("&&")))
-            .map(
-                (List<String> terms) -> terms.stream()
-                    .map((String s) -> {
-                      if (Given.ALL_CONSTRAINTS.equals(s)) {
-                        StringJoiner joiner = new StringJoiner("&&");
-                        predicates.keySet().stream()
-                            .filter(k -> predicates.get(k) instanceof Constraint)
-                            .forEach(joiner::add);
-                        return joiner.toString();
-                      }
-                      return s;
-                    })
-                    .map((String s) -> {
-                      String name = s;
-                      boolean negate = false;
-                      if (s.startsWith("!")) {
-                        negate = true;
-                        name = s.substring(1);
-                      }
-                      TestPredicate predicate = lookupTestPredicate(name).orElseThrow(() -> unexpectedByDesign(s));
-                      //noinspection unchecked
-                      return !negate ?
-                          (Predicate<T>) predicate :
-                          (Predicate<T>) predicate.negate();
-
-                    })
-                    .reduce(Predicate::and)
-                    .orElse((T t) -> false)
-            )
-            .reduce(Predicate::or)
-            .orElse((T t) -> true);
-      } catch (Exception e) {
-        throw unexpectedByDesign(e);
-      }
+      return NodeUtils.buildPredicate(
+          each.getAnnotation(Given.class).value(),
+          createParameterSpaceDefinitionTestClass()
+      ).test(tuple);
     }
 
     private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
@@ -384,7 +318,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
           @Override
           public String getName() {
 
-            return String.format("%s:%s", super.getName(), Objects.toString(tupleTestCase));
+            return format("%s:%s", super.getName(), Objects.toString(tupleTestCase));
           }
         };
       } catch (NoSuchMethodException e) {

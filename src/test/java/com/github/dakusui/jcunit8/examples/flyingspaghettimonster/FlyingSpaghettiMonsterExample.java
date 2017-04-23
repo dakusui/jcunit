@@ -19,7 +19,7 @@ public class FlyingSpaghettiMonsterExample {
     return true;
   }
   @ParameterSource
-  public static Parameter.Factory flyingSpaghettiMonster() {
+  public Parameter.Factory flyingSpaghettiMonster() {
     return Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1);
   }
 

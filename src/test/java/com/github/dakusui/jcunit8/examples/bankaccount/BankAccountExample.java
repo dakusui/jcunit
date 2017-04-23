@@ -25,22 +25,22 @@ public class BankAccountExample {
   private BankAccount anotherAccount = BankAccount.open();
 
   @ParameterSource
-  public static Regex.Factory<String> scenario() {
+  public Regex.Factory<String> scenario() {
     return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
   }
 
   @ParameterSource
-  public static Simple.Factory<Integer> depositAmount() {
+  public Simple.Factory<Integer> depositAmount() {
     return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @ParameterSource
-  public static Simple.Factory<Integer> withdrawAmount() {
+  public Simple.Factory<Integer> withdrawAmount() {
     return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @ParameterSource
-  public static Simple.Factory<Integer> transferAmount() {
+  public Simple.Factory<Integer> transferAmount() {
     return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
