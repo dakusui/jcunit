@@ -21,14 +21,26 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.DontCare;
 import static java.util.Collections.disjoint;
+import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
-public class IpoG extends Generator.Base {
+public class IpoGplus extends Generator.Base {
   private final TupleSet precovered;
 
-  public IpoG(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
+  public IpoGplus(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
     super(seeds, factorSpace, requirement);
+    ////
+    // If any constraint is violated it should be handled by 'Negative' generator
+    // and pipeline mechanism should not dispatch such a seed to this class.
+    FrameworkException.check(seeds,
+        tuples -> tuples.stream()
+            .allMatch(
+                tuple -> factorSpace.getConstraints().stream()
+                    .allMatch(
+                        constraint -> constraint.test(tuple)
+                    )));
     this.precovered = new TupleSet.Builder().addAll(seeds.stream()
         .flatMap(tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream())
         .collect(toList())).build();
@@ -41,15 +53,15 @@ public class IpoG extends Generator.Base {
    *     2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
    *         and Pn
    *     3.  add into test set ts a test for each combination of values of the first
-   *         t parameters
+   *         t parameters (*1)
    *     4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
-   *     5.     let π be the set of t -way combinations of values involving parameter
-   *            Pi and t -1 parameters among the first i – 1 parameters
+   *     5.     let π be the set of t-way combinations of values involving parameter
+   *            Pi and t -1 parameters among the first i – 1 parameters (*2)
    *     6.     // horizontal extension for parameter Pi
    *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
    *     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
    *                ..., vi-1 , vi ) so that τ’ covers the most number of
-   *                combinations of values in π
+   *                combinations of values in π (*3)
    *     9.         remove from π the combinations of values covered by τ’
    *     10.    }
    *     11.    // vertical extension for parameter P i
@@ -58,13 +70,21 @@ public class IpoG extends Generator.Base {
    *     14.          remove σ from π
    *     15.      } else {
    *     16.          change an existing test, if possible, or otherwise add a new test
-   *                  to cover σ and remove it from π
+   *                  to cover σ and remove it from π (*4) (*a)
    *     17.      }
    *     18.    }
    *     19.  }
    *     20.  return ts;
    *    }
    *   See http://barbie.uta.edu/~fduan/ACTS/IPOG_%20A%20General%20Strategy%20for%20T-Way%20Software%20Testing.pdf
+   *
+   *   Constraint handling consideration (if an impossible constraint is given)
+   *   (*1)  If one or more impossible constraints are involved in first t parameters,
+   *         ts can become empty. This method should return an empty set immediately.
+   *   (*2)  If one or more impossible constraints are involved in first i-1 parameters,
+   *         π will become empty.
+   *   (*3)
+   *   (*4)
    * </pre>
    */
   @Override
@@ -81,7 +101,7 @@ public class IpoG extends Generator.Base {
      *     2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
      *         and Pn
      *     3.  add into test set ts a test for each combination of values of the first
-     *         t parameters
+     *         t parameters (*1)
      */
     int t = this.requirement.strength();
     List<Factor> allFactors = this.factorSpace.getFactors().stream()
@@ -89,8 +109,10 @@ public class IpoG extends Generator.Base {
         .collect(toList());
     List<Constraint> allConstraints = this.factorSpace.getConstraints();
     List<Tuple> ts = streamAllPossibleTuples(allFactors.subList(0, t), t)
-        .filter(isAllowedTuple(allFactors, allConstraints))
+        .filter(isAllowedTuple(allFactors, allConstraints)) // (*1)
         .collect(toList());
+    if (ts.isEmpty())
+      return emptyList();
     List<Factor> processedFactors = new LinkedList<>(allFactors.subList(0, t));
     int n = allFactors.size();
     /*
@@ -101,9 +123,10 @@ public class IpoG extends Generator.Base {
     TupleSet π;
     for (int i = t + 1; i <= n; i++) {
       /*     5.    let π be the set of t -way combinations of values involving parameter
-       *            Pi and t -1 parameters among the first i – 1 parameters
+       *            Pi and t -1 parameters among the first i – 1 parameters (*2)
        */
       Factor Pi = allFactors.get(i - 1);
+      processedFactors.add(Pi);
       π = prepare_π(processedFactors, Pi, allFactors, allConstraints, t);
       /*     6.     // horizontal extension for parameter Pi
        *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
@@ -111,13 +134,17 @@ public class IpoG extends Generator.Base {
       for (Tuple τ : ts) {
         /*     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
          *                ..., vi-1 , vi ) so that τ’ covers the most number of
-         *                combinations of values in π
+         *                combinations of values in π (*3)
          */
         Object vi = chooseLevelThatCoversMostTuples(
             τ, Pi, π, t,
             allFactors,
             allConstraints
-        ).orElseThrow(() -> TestDefinitionException.failedToCover(Pi.getName(), Pi.getLevels(), τ));
+        ).orElseThrow(
+            ////
+            // (*3) This cannot happen
+            () -> TestDefinitionException.failedToCover(Pi.getName(), Pi.getLevels(), τ)
+        );
         τ.put(Pi.getName(), vi);
         /*  9.         remove from π the combinations of values covered by τ’
          */
@@ -133,7 +160,7 @@ public class IpoG extends Generator.Base {
          * 14.          remove σ from π
          * 15.      } else {
          * 16.        change an existing test, if possible, or otherwise add a new test
-         *            to cover σ and remove it from π
+         *            to cover σ and remove it from π (*4)
          * 17.      }
          */
         if (ts.stream().anyMatch(σ::isSubtupleOf)) {
@@ -142,7 +169,7 @@ public class IpoG extends Generator.Base {
           List<Tuple> work = ts;
           Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(ts, σ)
               .map(tuple -> new Tuple.Builder().putAll(removeDontCares(tuple)).putAll(σ).build())
-              .filter(isAllowedTuple(allFactors, allConstraints))
+              .filter(isAllowedTuple(allFactors, allConstraints)) // (*4)
               .findFirst()
               .orElseGet(() -> {
                 Tuple ret = createTupleFrom(
@@ -155,7 +182,7 @@ public class IpoG extends Generator.Base {
           /*
            * <pre>
            * 16. change an existing test, if possible, or otherwise add a new test
-           *     to cover σ
+           *     to cover σ (*a)
            * </pre>
            */
           chosenTest.putAll(σ);
@@ -190,9 +217,9 @@ public class IpoG extends Generator.Base {
 
   private TupleSet prepare_π(List<Factor> alreadyProcessedFactors, Factor factor, List<Factor> allFactors, List<Constraint> allConstraints, int strength) {
     /*     5.     let π be the set of t -way combinations of values involving parameter
-     *            Pi and t -1 parameters among the first i – 1 parameters
+     *            Pi and t -1 parameters among the first i – 1 parameters (*2)
+     *
      */
-    alreadyProcessedFactors.add(factor);
     return new TupleSet.Builder().addAll(
         new StreamableCombinator<>(
             alreadyProcessedFactors,
@@ -200,7 +227,7 @@ public class IpoG extends Generator.Base {
         ).stream()
             .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
             .filter((Tuple tuple) -> !precovered.contains(tuple))
-            .filter(isAllowedTuple(allFactors, allConstraints))
+            .filter(isAllowedTuple(allFactors, allConstraints)) // (*2)
             .collect(toList()))
         .build();
   }
@@ -208,12 +235,12 @@ public class IpoG extends Generator.Base {
   /*
    *  8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
    *             ..., vi-1 , vi ) so that τ’ covers the most number of
-   *             combinations of values in π
+   *             combinations of values in π (*3)
    */
   private static Optional<Object> chooseLevelThatCoversMostTuples(Tuple τ, Factor fi, TupleSet π, int t, List<Factor> allFactors, List<Constraint> allConstraints) {
     return fi.getLevels().stream()
         .map((Object eachLevel) -> modifyTupleWith(τ, fi.getName(), eachLevel))
-        .filter(isAllowedTuple(allFactors, allConstraints))
+        .filter(isAllowedTuple(allFactors, allConstraints)) // (*3)
         .max(
             (Tuple t1, Tuple t2) ->
                 (int) (countCoveredTuplesBy(t1, π, t) - countCoveredTuplesBy(t2, π, t))
@@ -275,9 +302,9 @@ public class IpoG extends Generator.Base {
                         in,
                         allFactors,
                         allConstraints
-                    ),
+                    ), // (*a)
                     i++
-                ).orElseThrow(FrameworkException::unexpectedByDesign)
+                ).orElseThrow(() -> TestDefinitionException.impossibleConstraint(allConstraints))
             ).build();
       }
 
@@ -360,6 +387,43 @@ public class IpoG extends Generator.Base {
             allFactors,
             allConstraints
         ));
+  }
+
+
+  public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
+      Tuple assignedValues,
+      List<String> unassignedFactors,
+      List<Factor> allFactors,
+      List<Constraint> allConstraints
+  ) {
+    Set<String> allFactorNames = allFactors.stream().map(Factor::getName).collect(toSet());
+    FrameworkException.check(
+        unassignedFactors,
+        factors -> factors.stream().allMatch(allFactorNames::contains)
+    );
+    FrameworkException.check(
+        allConstraints,
+        constraints -> constraints.stream()
+            .allMatch(constraint -> constraint.involvedKeys().stream()
+                .allMatch(allFactorNames::contains))
+    );
+    FrameworkException.check(
+        assignedValues,
+        tuple -> tuple.keySet().stream()
+            .allMatch(allFactorNames::contains)
+    );
+
+    return new StreamableTupleCartesianator(
+        allFactors.stream()
+            .filter(factor -> unassignedFactors.contains(factor.getName()))
+            .collect(toList())
+    ).stream()
+        .filter(
+            tuple -> isAllowedTuple(
+                allFactors,
+                allConstraints
+            ).test(tuple)
+        );
   }
 
   public static Stream<Tuple> streamAssignmentsAllowedByConstraints(

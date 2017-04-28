@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoG;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testutils.*;
@@ -23,32 +23,30 @@ public class RegexTest extends PipelineTestBase {
     //noinspection PointlessArithmeticExpression
     FactorSpaceUtils.validateFactorSpace(
         Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
-        matcher(
+        UTUtils.matcher(
             FactorSpaceUtils.sizeOfFactorsIs(
-                name(
-                    "==10[(3times + 1) + (2times + 1) + (1time + 1) + (0time + 1)]",
-                    (Integer size) -> size == (3 + 1) + (2 + 1) + (1 + 1) + (0 + 1)
-                )),
+                "==10[(3times + 1) + (2times + 1) + (1time + 1) + (0time + 1)]",
+                (Integer size) -> size == (3 + 1) + (2 + 1) + (1 + 1) + (0 + 1)
+            ),
             FactorSpaceUtils.sizeOfConstraintsIs(
-                name(
-                    ">0",
-                    (Integer size) -> size > 0
-                ))));
+                ">0",
+                (Integer size) -> size > 0
+            )));
   }
 
   @Test
   public void givenRegex$whenGenerateWithIpoG$thenNonEmptyTupleSetGenerated() {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         SchemafulTupleSet.fromTuples(
-            new IpoG(
+            new IpoGplus(
                 emptyList(),
                 Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
                 requirement()
             ).generate()),
-        matcher(
-            sizeIs(name(">0", value -> value > 0)),
-            allSatisfy(name("not empty", tuple -> !tuple.isEmpty())),
-            allSatisfy(name("starts with REGEX:regex1", tuple -> tuple.keySet().stream().allMatch(key -> key.startsWith("REGEX:regex1:"))))
+        UTUtils.matcherFromPredicates(
+            sizeIs(">0", value -> value > 0),
+            allSatisfy(UTUtils.oracle("not empty", tuple -> !tuple.isEmpty())),
+            allSatisfy(UTUtils.oracle("starts with REGEX:regex1", tuple -> tuple.keySet().stream().allMatch(key -> key.startsWith("REGEX:regex1:"))))
         ));
   }
 
@@ -59,21 +57,21 @@ public class RegexTest extends PipelineTestBase {
         generateTestSuite(
             Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")
         ),
-        matcher(
-            sizeIs(name(
+        UTUtils.matcherFromPredicates(
+            sizeIs(
                 "1+2+4+4(possible smallest)<=size<1+2+4+8(acceptable largest)",
                 value -> value >= 1 + 2 + 4 + 4 && value < 1 + 2 + 4 + 8
-            )),
-            allSatisfy(name(
+            ),
+            allSatisfy(UTUtils.oracle(
                 "Non empty",
                 (TestCase t) -> !t.get().isEmpty()
             )),
-            allSatisfy(name(
+            allSatisfy(UTUtils.oracle(
                 "'regex1' attribute holds a non-empty list",
                 (TestCase t) ->
                     t.get().get("regex1") instanceof List && !((List) t.get().get("regex1")).isEmpty()
             )),
-            allSatisfy(name(
+            allSatisfy(UTUtils.oracle(
                 "First element of 'regex1' attribute is 'A'",
                 (TestCase t) -> Objects.equals(((List) t.get().get("regex1")).get(0), "A")
             ))));
@@ -83,7 +81,7 @@ public class RegexTest extends PipelineTestBase {
   public void whenPreprocess$thenNonSimpleParameterInvolvedInConstraintWillBeRemoved() {
     ParameterSpaceUtils.validateParameterSpace(
         preprocess(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
-        matcher(
+        UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),
             ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Regex.class),
             ParameterSpaceUtils.hasConstraints(0)
@@ -99,7 +97,7 @@ public class RegexTest extends PipelineTestBase {
                 tuple -> true,
                 "regex1"
             ))),
-        matcher(
+        UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),
             ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Simple.class),
             ParameterSpaceUtils.hasConstraints(1)
@@ -112,11 +110,11 @@ public class RegexTest extends PipelineTestBase {
         engine(
             singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
             emptyList()),
-        matcher(
-            sizeIs(name(
+        UTUtils.matcherFromPredicates(
+            sizeIs(
                 "1+2+4+4(possible smallest)<=size<1+2+4+8(acceptable largest)",
                 (Integer value) -> value >= 1 + 2 + 4 + 4 && value < 1 + 2 + 4 + 8
-            )),
+            ),
             allSatisfy(
                 (Tuple tuple) -> {
                   Object value = tuple.get("regex1");
@@ -138,14 +136,14 @@ public class RegexTest extends PipelineTestBase {
             singletonList(Parameter.Regex.Factory.of("A((B|C)D){0,3}").create("regex1")),
             emptyList()
         ),
-        matcher(
-            FactorSpaceUtils.sizeOfFactorsIs(name(
+        UTUtils.matcher(
+            FactorSpaceUtils.sizeOfFactorsIs(
                 "==1(choice)+3(each repetition)+1(choice for repetition)+1(top level)",
                 value -> value == 1 + 3 + 1 + 1
-            )),
-            FactorSpaceUtils.sizeOfConstraintsIs(name(
+            ),
+            FactorSpaceUtils.sizeOfConstraintsIs(
                 "==5",
                 value -> value == 5
-            ))));
+            )));
   }
 }

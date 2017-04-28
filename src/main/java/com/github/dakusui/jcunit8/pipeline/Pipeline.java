@@ -15,7 +15,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Stream.concat;
 
 /**
  * A pipeline object.
@@ -69,9 +68,9 @@ public interface Pipeline {
           .map(config.optimizer())
           .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
           .map(config.generator(config.getRequirement()))
-          .reduce(config.joiner())
+          .reduce(config.<SchemafulTupleSet>joiner())
           .map(
-              (SchemafulTupleSet tuples) -> SchemafulTupleSet.fromTuples(
+              (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
                   tuples.stream()
                       .map((Tuple tuple) -> {
                         Tuple.Builder builder = new Tuple.Builder();
@@ -81,7 +80,7 @@ public interface Pipeline {
                         return builder.build();
                       })
                       .collect(toList())
-              )
+              ).build()
           )
           .orElseThrow(FrameworkException::unexpectedByDesign);
     }
@@ -103,14 +102,7 @@ public interface Pipeline {
                 );
               })
               .collect(toList()),
-          concat(
-              parameterSpace.getConstraints().stream(),
-              parameterSpace.getParameterNames().stream()
-                  .map((String name) ->
-                      Parameter.Simple.createConstraintFrom(parameterSpace.getParameter(name))
-                  )
-                  .collect(toList()).stream()
-          ).collect(toList())
+          parameterSpace.getConstraints().stream().collect(toList())
       );
     }
 
@@ -131,7 +123,6 @@ public interface Pipeline {
                         .map(tuple -> tuple.get(parameter.getName())) // Extraction
                 ).collect(toList())
             ))
-            .<Parameter.Factory<Object>>setCheck(parameter::check)
             .create(parameter.getName());
       }
       return parameter;

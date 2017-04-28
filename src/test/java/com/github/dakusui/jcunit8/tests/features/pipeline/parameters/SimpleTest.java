@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
 import com.github.dakusui.jcunit8.testutils.TestSuiteUtils;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.sizeIs;
@@ -28,8 +29,8 @@ public class SimpleTest extends PipelineTestBase {
             simpleParameterFactoryWithDefaultValues().create("simple2"),
             simpleParameterFactoryWithDefaultValues().create("simple3")
         ),
-        matcher(
-            sizeIs(name("==4", value -> value == 4))
+        UTUtils.matcher(
+            sizeIs("==4", value -> value == 4)
         )
     );
   }

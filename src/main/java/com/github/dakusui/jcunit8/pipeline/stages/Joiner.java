@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
 import java.util.function.BinaryOperator;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
 import static java.util.Arrays.asList;
@@ -57,7 +58,13 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
           break;
         work.add(tuple);
       }
-      return SchemafulTupleSet.fromTuples(work);
+      return new SchemafulTupleSet.Builder(
+          Stream.concat(
+              lhs.getAttributeNames().stream(),
+              rhs.getAttributeNames().stream()
+          ).collect(toList()))
+          .addAll(work)
+          .build();
     }
 
     private Tuple connect(Tuple tuple1, Tuple tuple2) {
@@ -117,3 +124,5 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
   }
 }
+
+

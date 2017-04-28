@@ -37,11 +37,10 @@ public interface Config {
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
   class Builder<T> {
-    private final Requirement        requirement;
-    private       Generator.Factory  generatorFactory;
-    private       Function<Tuple, T> concretizer;
-    private       Joiner             joiner;
-    private       Partitioner        partitioner;
+    private final Requirement       requirement;
+    private       Generator.Factory generatorFactory;
+    private       Joiner            joiner;
+    private       Partitioner       partitioner;
 
     public static Builder<Tuple> forTuple(Requirement requirement) {
       return new Builder<>(requirement);
@@ -75,11 +74,11 @@ public interface Config {
   }
 
   class Impl implements Config {
-    private final Generator.Factory  generatorFactory;
-    private final Joiner             joiner;
-    private final Partitioner        partitioner;
-    private final Requirement        requirement;
-    private final Encoder            encoder;
+    private final Generator.Factory generatorFactory;
+    private final Joiner            joiner;
+    private final Partitioner       partitioner;
+    private final Requirement       requirement;
+    private final Encoder           encoder;
 
     public Impl(Requirement requirement, Generator.Factory generatorFactory, Joiner joiner, Partitioner partitioner) {
       this.generatorFactory = requireNonNull(generatorFactory);
@@ -101,7 +100,10 @@ public interface Config {
 
     @Override
     public Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement) {
-      return (FactorSpace factorSpace) -> SchemafulTupleSet.fromTuples(generatorFactory.create(emptyList(), factorSpace, requirement).generate());
+      return (FactorSpace factorSpace) ->
+          new SchemafulTupleSet.Builder(factorSpace.getFactors().stream().map(Factor::getName).collect(toList()))
+              .addAll(generatorFactory.create(emptyList(), factorSpace, requirement).generate())
+              .build();
     }
 
     @Override

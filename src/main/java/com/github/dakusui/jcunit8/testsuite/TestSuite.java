@@ -18,7 +18,7 @@ import static java.util.Objects.requireNonNull;
 public interface TestSuite extends List<TestCase> {
 
   class Builder<T> {
-    private final ParameterSpace     parameterSpace;
+    private final ParameterSpace parameterSpace;
     private LinkedHashSet<Tuple> regularTuples  = new LinkedHashSet<>();
     private LinkedHashSet<Tuple> negativeTuples = new LinkedHashSet<>();
 

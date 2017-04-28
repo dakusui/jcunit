@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
 import com.github.dakusui.jcunit8.testutils.TestSuiteUtils;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
 import java.util.Objects;
@@ -29,10 +30,10 @@ public class NegativeGenerationTest extends PipelineTestBase {
             ),
             singletonList(constraint)
         ),
-        matcher(
-            name("More than 1 test cases",
+        UTUtils.matcher(
+            UTUtils.oracle("More than 1 test cases",
                 (TestSuite testCases) -> testCases.size() > 1),
-            name("Only last one is negative.",
+            UTUtils.oracle("Only last one is negative.",
                 (TestSuite testCases) -> {
                   for (int i = 0; i < testCases.size(); i++) {
                     if (i == testCases.size() - 1) {
@@ -47,13 +48,13 @@ public class NegativeGenerationTest extends PipelineTestBase {
                   }
                   return true;
                 }),
-            name("Last one holds given constraint as an element of violated ones",
+            UTUtils.oracle("Last one holds given constraint as an element of violated ones",
                 (TestSuite testSuite) ->
                     Objects.equals(
                         testSuite.get(testSuite.size() - 1).violatedConstraints(),
                         singletonList(constraint)
                     )),
-            name("Constraint violations happen as specified by category",
+            UTUtils.oracle("Constraint violations happen as specified by category",
                 (TestSuite testCases) ->
                     testCases.stream()
                         .allMatch(tupleTestCase -> tupleTestCase.getCategory() == TestCase.Category.REGULAR ?

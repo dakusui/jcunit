@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoG;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -21,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
-public class IpoGTest {
+public class IpoGplusTest {
   public static class InvolvedConstraints {
     private static final Constraint constraint_a   = new Constraint() {
       @Override
@@ -61,7 +61,7 @@ public class IpoGTest {
     public void givenFullyInvolvedConstraints$whenGetFullyInvolvedConstraints$thenReturned() {
       assertEquals(
           asList(constraint_a, constraint_ab),
-          IpoG.getFullyInvolvedConstraints(
+          IpoGplus.getFullyInvolvedConstraints(
               asList("a", "b"),
               asList(
                   constraint_a,
@@ -75,7 +75,7 @@ public class IpoGTest {
     public void givenPartiallyInvolvedConstraints$whenGetFullyInvolvedConstraints$thenReturned() {
       assertEquals(
           singletonList(constraint_abc),
-          IpoG.getPartiallyInvolvedConstraints(
+          IpoGplus.getPartiallyInvolvedConstraints(
               asList("a", "b"),
               singletonList(
                   constraint_abc
@@ -140,7 +140,7 @@ public class IpoGTest {
     @Test
     public void givenSimpleExample$whenAssignmentsAllowedByAllPartiallyInvolvedConstraints() {
       Fixture fixture = Fixture.simple;
-      List<Tuple> assignments = IpoG.streamAssignmentsAllowedByConstraints(
+      List<Tuple> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
           fixture.constraints
@@ -158,7 +158,7 @@ public class IpoGTest {
     @Test
     public void givenTwoFreeFactors$whenAssignmentsAllowedByAllPartiallyInvolvedConstraints() {
       Fixture fixture = Fixture.twoFreeFactors;
-      List<Tuple> assignments = IpoG.streamAssignmentsAllowedByConstraints(
+      List<Tuple> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
           fixture.constraints
@@ -177,7 +177,7 @@ public class IpoGTest {
     @Test
     public void givenTupleViolatingFullyCoveredConstraint$whenAssignmentsAllowedByAllPartiallyInvolvedConstraints() {
       Fixture fixture = Fixture.violatesFullyCoveredConstraint;
-      List<Tuple> assignments = IpoG.streamAssignmentsAllowedByConstraints(
+      List<Tuple> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
           fixture.constraints
@@ -193,12 +193,12 @@ public class IpoGTest {
   public static class SatisfiesAllOf {
     @Test
     public void givenEmptyConstraintList$whenSatisfiesAllOf$thenTrue() {
-      assertTrue(IpoG.satisfiesAllOf(emptyList()).test(new Tuple.Builder().build()));
+      assertTrue(IpoGplus.satisfiesAllOf(emptyList()).test(new Tuple.Builder().build()));
     }
 
     @Test
     public void givenConstraintsAllReturningTrue$whenSatisfiesAllOf$thenTrue() {
-      assertTrue(IpoG.satisfiesAllOf(asList(
+      assertTrue(IpoGplus.satisfiesAllOf(asList(
           new Constraint() {
             @Override
             public boolean test(Tuple tuple) {
@@ -226,7 +226,7 @@ public class IpoGTest {
 
     @Test
     public void givenConstraintsOneReturningFalse$whenSatisfiesAllOf$thenFalse() {
-      assertFalse(IpoG.satisfiesAllOf(asList(
+      assertFalse(IpoGplus.satisfiesAllOf(asList(
           new Constraint() {
             @Override
             public boolean test(Tuple tuple) {
@@ -275,7 +275,7 @@ public class IpoGTest {
           }
         }
     );
-    Function<Tuple, Tuple> func        = IpoG.replaceDontCareValuesWithActualLevels(
+    Function<Tuple, Tuple> func        = IpoGplus.replaceDontCareValuesWithActualLevels(
         factors,
         constraints
     );
@@ -357,7 +357,7 @@ public class IpoGTest {
               new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
               new Tuple.Builder().put("a", 1).put("b", 1).put("c", 3).build()
           ),
-          IpoG.streamAssignmentsForDontCaresUnderConstraints(
+          IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
               factors,
               constraints
@@ -381,7 +381,7 @@ public class IpoGTest {
               new Tuple.Builder().put("a", 1).put("b", 2).put("c", 2).build(),
               new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build()
           ),
-          IpoG.streamAssignmentsForDontCaresUnderConstraints(
+          IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
               /*
               factors.stream()
@@ -423,7 +423,7 @@ public class IpoGTest {
           .put("b", DontCare)
           .put("c", 4)
           .build();
-      List<Tuple> result = IpoG.streamAssignmentsForDontCaresUnderConstraints(
+      List<Tuple> result = IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
           tuple,
           factors,
           constraints
@@ -446,45 +446,45 @@ public class IpoGTest {
     public void given3FactorsWithStrength1$whenAllPossibleTuples$thenAllCovered() {
       assertEquals(
           9,
-          IpoG.streamAllPossibleTuples(factors, 1).collect(toList()).size()
+          IpoGplus.streamAllPossibleTuples(factors, 1).collect(toList()).size()
       );
       ////
       //Make sure no duplication
       assertEquals(
           9,
-          Utils.unique(IpoG.streamAllPossibleTuples(factors, 1).collect(toList())).size()
+          Utils.unique(IpoGplus.streamAllPossibleTuples(factors, 1).collect(toList())).size()
       );
-      IpoG.streamAllPossibleTuples(factors, 1).forEach(tuple -> assertEquals(1, tuple.size()));
+      IpoGplus.streamAllPossibleTuples(factors, 1).forEach(tuple -> assertEquals(1, tuple.size()));
     }
 
     @Test
     public void given3FactorsWithStrength2$whenAllPossibleTuples$thenAllCovered() {
       assertEquals(
           27,
-          IpoG.streamAllPossibleTuples(factors, 2).collect(toList()).size()
+          IpoGplus.streamAllPossibleTuples(factors, 2).collect(toList()).size()
       );
       ////
       //Make sure no duplication
       assertEquals(
           27,
-          Utils.unique(IpoG.streamAllPossibleTuples(factors, 3).collect(toList())).size()
+          Utils.unique(IpoGplus.streamAllPossibleTuples(factors, 3).collect(toList())).size()
       );
-      IpoG.streamAllPossibleTuples(factors, 2).forEach(tuple -> assertEquals(2, tuple.size()));
+      IpoGplus.streamAllPossibleTuples(factors, 2).forEach(tuple -> assertEquals(2, tuple.size()));
     }
 
     @Test
     public void given3FactorsAndStrength3$whenAllPossibleTuples$thenAllCovered() {
       assertEquals(
           27,
-          IpoG.streamAllPossibleTuples(factors, 3).collect(toList()).size()
+          IpoGplus.streamAllPossibleTuples(factors, 3).collect(toList()).size()
       );
       ////
       //Make sure no duplication
       assertEquals(
           27,
-          Utils.unique(IpoG.streamAllPossibleTuples(factors, 3).collect(toList())).size()
+          Utils.unique(IpoGplus.streamAllPossibleTuples(factors, 3).collect(toList())).size()
       );
-      IpoG.streamAllPossibleTuples(factors, 3).forEach(tuple -> assertEquals(3, tuple.size()));
+      IpoGplus.streamAllPossibleTuples(factors, 3).forEach(tuple -> assertEquals(3, tuple.size()));
     }
   }
 
@@ -499,7 +499,7 @@ public class IpoGTest {
       Tuple σ = new Tuple.Builder().put("b", 1).put("c", 1).build();
       assertEquals(
           singletonList(ts.get(0)),
-          IpoG.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
+          IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
       );
     }
 
@@ -508,7 +508,7 @@ public class IpoGTest {
       Tuple σ = new Tuple.Builder().put("b", 2).put("c", 1).build();
       assertEquals(
           singletonList(ts.get(1)),
-          IpoG.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
+          IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
       );
     }
 
@@ -517,7 +517,7 @@ public class IpoGTest {
       Tuple σ = new Tuple.Builder().put("b", 3).build();
       assertEquals(
           emptyList(),
-          IpoG.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
+          IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
       );
     }
   }

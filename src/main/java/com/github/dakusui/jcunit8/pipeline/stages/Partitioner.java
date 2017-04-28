@@ -26,7 +26,7 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
       }
 
       List<FactorSpace> ret = new LinkedList<>();
-      List<Factor> factors = factorSpace.getFactors();
+      List<Factor> factors = new ArrayList<>(factorSpace.getFactors());
       for (List<Constraint> eachConstraintGroup : groupedConstraints) {
         List<String> involvedKeys = Utils.unique(eachConstraintGroup.stream().flatMap(constraint -> constraint.involvedKeys().stream()).collect(toList()));
         List<Factor> involvedFactors = factors.stream().filter(factor -> involvedKeys.contains(factor.getName())).collect(toList());
@@ -83,7 +83,9 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
     }
 
     private List<Constraint> find(Constraint constraint) {
-      return Standard.findConnectedConstraints(constraint, new ArrayList<Constraint>(this.allConstraints) {{ remove(constraint);}});
+      return Standard.findConnectedConstraints(constraint, new ArrayList<Constraint>(this.allConstraints) {{
+        remove(constraint);
+      }});
     }
 
     public List<Constraint> findAll(List<Constraint> constraints) {

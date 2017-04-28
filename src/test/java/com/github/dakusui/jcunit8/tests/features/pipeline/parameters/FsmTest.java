@@ -22,9 +22,9 @@ public class FsmTest extends PipelineTestBase {
   public void givenFlyingSpaghttiMonster$whenBuildFactorSpace$thenBuilt() {
     FactorSpaceUtils.validateFactorSpace(
         Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 2).create("fsm1").toFactorSpace(),
-        matcher(
-            FactorSpaceUtils.sizeOfFactorsIs(name("==6", value -> value == 6)),
-            FactorSpaceUtils.sizeOfConstraintsIs(name("==8", value -> value == 8))
+        UTUtils.matcher(
+            FactorSpaceUtils.sizeOfFactorsIs("==6", value -> value == 6),
+            FactorSpaceUtils.sizeOfConstraintsIs("==8", value -> value == 8)
         )
     );
   }
@@ -41,8 +41,8 @@ public class FsmTest extends PipelineTestBase {
                 requirement()
             ).generate()
         ),
-        matcher(
-            sizeIs(name(">=number of states, at least", size -> size >= FlyingSpaghettiMonsterSpec.values().length))
+        UTUtils.matcher(
+            sizeIs(">=number of states, at least", size -> size >= FlyingSpaghettiMonsterSpec.values().length)
         )
     );
   }
@@ -53,8 +53,8 @@ public class FsmTest extends PipelineTestBase {
         generateTestSuite(
             Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1).create("fsm1")
         ),
-        matcher(
-            sizeIs(name(">=number of states, at least", size -> size >= FlyingSpaghettiMonsterSpec.values().length))
+        UTUtils.matcher(
+            sizeIs(">=number of states, at least", size -> size >= FlyingSpaghettiMonsterSpec.values().length)
         )
     );
   }
@@ -66,8 +66,8 @@ public class FsmTest extends PipelineTestBase {
             singletonList(Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1).create("fsm1")),
             singletonList(Constraint.create(tuple -> true, "fsm1"))
         ),
-        matcher(
-            sizeIs(name(">=number of states, at least", size -> size >= FlyingSpaghettiMonsterSpec.values().length))
+        UTUtils.matcher(
+            sizeIs(">=number of states, at least", size -> size >= FlyingSpaghettiMonsterSpec.values().length)
         )
     );
   }
@@ -81,9 +81,9 @@ public class FsmTest extends PipelineTestBase {
                 .addAllParameters(singleton(Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1).create("fsm1")))
                 .build()
         ),
-        matcher(
-            FactorSpaceUtils.sizeOfFactorsIs(name("==6", value -> value == 3)),
-            FactorSpaceUtils.sizeOfConstraintsIs(name("==8", value -> value == 4))
+        UTUtils.matcher(
+            FactorSpaceUtils.sizeOfFactorsIs("==6", value -> value == 3),
+            FactorSpaceUtils.sizeOfConstraintsIs("==8", value -> value == 4)
         )
     );
   }
@@ -96,7 +96,7 @@ public class FsmTest extends PipelineTestBase {
                 Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1).create("fsm1")),
             emptyList()
         ),
-        matcher(
+        UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),
             ParameterSpaceUtils.parameterIsInstanceOf("fsm1", Parameter.Fsm.class),
             ParameterSpaceUtils.hasConstraints(0)
@@ -111,12 +111,12 @@ public class FsmTest extends PipelineTestBase {
             singletonList(Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1).create("fsm1")),
             singletonList(Constraint.create(tuple -> true, "fsm1"))
         ),
-        matcher(
+        UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),
             ParameterSpaceUtils.parameterIsInstanceOf("fsm1", Parameter.Simple.class),
             ParameterSpaceUtils.sizeOfParameterKnownValuesSatisfies(
                 "fsm1",
-                name(">0",
+                UTUtils.oracle(">0",
                     size -> size > 0)
             ),
             ParameterSpaceUtils.hasConstraints(1)

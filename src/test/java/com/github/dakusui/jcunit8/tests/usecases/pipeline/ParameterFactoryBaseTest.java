@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 public class ParameterFactoryBaseTest extends Parameter.Factory.Base<String> {
   @Override
   public Parameter<String> create(String name) {
-    return new Parameter.Simple.Impl<>(name, this.knownValues, o -> !"VOID".equals(o));
+    return new Parameter.Simple.Impl<>(name, this.knownValues);
   }
 
   @Test
@@ -41,7 +41,7 @@ public class ParameterFactoryBaseTest extends Parameter.Factory.Base<String> {
 
     assertEquals(1, factorSpace.getFactors().size());
     assertEquals("hello", factorSpace.getFactors().get(0).getName());
-    assertEquals(asList("Hello", "World"), factorSpace.getFactors().get(0).getLevels());
+    assertEquals(asList("Hello", "World", "VOID"), factorSpace.getFactors().get(0).getLevels());
     assertEquals(asList("Hello", "World", "VOID"), parameter.getKnownValues());
   }
 }

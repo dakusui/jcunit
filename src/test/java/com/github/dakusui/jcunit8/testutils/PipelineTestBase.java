@@ -1,20 +1,19 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
 
-public abstract class PipelineTestBase extends UTBase {
+public abstract class PipelineTestBase {
 
   protected TestSuite generateTestSuite(Parameter... parameters) {
     ParameterSpace parameterSpace = new ParameterSpace.Builder()
@@ -49,6 +48,10 @@ public abstract class PipelineTestBase extends UTBase {
         );
   }
 
+  protected List<FactorSpace> partition(FactorSpace input) {
+    return buildConfig().partitioner().apply(input);
+  }
+
   protected Parameter.Factory<CustomParameter.ValuePair> customParameterFactory() {
     return new Parameter.Factory.Base<CustomParameter.ValuePair>() {
       @Override
@@ -77,5 +80,30 @@ public abstract class PipelineTestBase extends UTBase {
     return new Requirement.Builder()
         .withNegativeTestGeneration(false)
         .build();
+  }
+
+  protected FactorSpace buildSimpleFactorSpaceWithImpossibleConstraint() {
+    return FactorSpace.create(
+        asList(
+            Factor.create("simple1", new Object[] { "default", "value" }),
+            Factor.create("simple2", new Object[] { "default", "value" }),
+            Factor.create("simple3", new Object[] { "default", "value" })
+        ),
+        Collections.singletonList(
+            Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
+        )
+    );
+  }
+
+  protected FactorSpace buildSimpleFactorSpaceWithoutConstraint() {
+    return FactorSpace.create(
+        asList(
+            Factor.create("simple1", new Object[] { "default", "value" }),
+            Factor.create("simple2", new Object[] { "default", "value" }),
+            Factor.create("simple3", new Object[] { "default", "value" })
+        ),
+        Collections.emptyList(
+        )
+    );
   }
 }

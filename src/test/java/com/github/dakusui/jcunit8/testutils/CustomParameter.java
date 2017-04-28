@@ -18,7 +18,7 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   private final ArrayList<String> values;
 
   public CustomParameter(String name, List<String> values) {
-    super(name, emptyList(), valuePair -> true);
+    super(name, emptyList());
     this.values = new ArrayList<>(values);
   }
 

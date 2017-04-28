@@ -35,27 +35,18 @@ public interface Parameter<T> {
 
   List<T> getKnownValues();
 
-  boolean check(T value);
-
   abstract class Base<T> implements Parameter<T> {
-    protected final String       name;
-    protected final Predicate<T> check;
-    private final   List<T>      knownValues;
+    protected final String  name;
+    private final   List<T> knownValues;
 
-    protected Base(String name, List<T> knownValues, Predicate<T> check) {
+    protected Base(String name, List<T> knownValues) {
       this.name = requireNonNull(name);
-      this.check = requireNonNull(check);
       this.knownValues = unmodifiableList(requireNonNull(knownValues));
     }
 
     @Override
     public String getName() {
       return this.name;
-    }
-
-    @Override
-    public boolean check(T value) {
-      return check.test(value);
     }
 
     @Override
@@ -79,8 +70,6 @@ public interface Parameter<T> {
 
     <F extends Factory<T>> F addActualValues(List<T> actualValues);
 
-    <F extends Factory<T>> F setCheck(Predicate<T> check);
-
     Parameter<T> create(String name);
 
     abstract class Base<T> implements Factory<T> {
@@ -101,30 +90,16 @@ public interface Parameter<T> {
         //noinspection unchecked
         return (F) this;
       }
-
-      @Override
-      public <F extends Factory<T>> F setCheck(Predicate<T> check) {
-        this.check = requireNonNull(check);
-        //noinspection unchecked
-        return (F) this;
-      }
     }
   }
 
   interface Simple<T> extends Parameter<T> {
-    static <T> Constraint createConstraintFrom(Parameter<T> parameter) {
-      return Constraint.create(
-          tuple -> parameter.check(parameter.composeValueFrom(tuple)),
-          singletonList(parameter.getName())
-      );
-    }
-
     class Impl<T> extends Base<T> implements Simple<T> {
       final Factor factor;
 
-      public Impl(String name, List<T> allLevels, Predicate<T> check) {
-        super(name, allLevels, check);
-        this.factor = Factor.create(name, allLevels.stream().filter(Impl.this::check).collect(toList()).toArray());
+      public Impl(String name, List<T> allLevels) {
+        super(name, allLevels);
+        this.factor = Factor.create(name, allLevels.toArray());
       }
 
       @Override
@@ -134,6 +109,7 @@ public interface Parameter<T> {
 
       @Override
       protected List<Constraint> generateConstraints() {
+        //noinspection unchecked
         return emptyList();
       }
 
@@ -141,11 +117,6 @@ public interface Parameter<T> {
       public T composeValueFrom(Tuple tuple) {
         //noinspection unchecked
         return (T) tuple.get(getName());
-      }
-
-      @Override
-      public boolean check(T value) {
-        return check.test(value);
       }
 
       @Override
@@ -165,7 +136,7 @@ public interface Parameter<T> {
 
       @Override
       public Parameter<T> create(String name) {
-        return new Impl<>(name, this.knownValues, this.check);
+        return new Impl<>(name, this.knownValues);
       }
     }
   }
@@ -178,7 +149,7 @@ public interface Parameter<T> {
       private final Function<String, U> func;
 
       public Impl(String name, String regex, List<List<U>> knownValues, Function<String, U> func, Predicate<List<U>> check) {
-        super(name, knownValues, check);
+        super(name, knownValues);
         Expr expr = new Parser().parse(regex);
         RegexDecomposer translator = new RegexDecomposer(name, expr);
         this.func = func;
@@ -190,11 +161,6 @@ public interface Parameter<T> {
       @Override
       public List<U> composeValueFrom(Tuple tuple) {
         return composeStringValueFrom(tuple).stream().map(func).collect(toList());
-      }
-
-      @Override
-      public boolean check(List<U> value) {
-        return this.check.test(value);
       }
 
       @Override
@@ -245,8 +211,8 @@ public interface Parameter<T> {
       private final FsmComposer<SUT> composer;
       private final FactorSpace      factorSpace;
 
-      Impl(String name, FiniteStateMachine<SUT> model, List<Scenario<SUT>> knownValues, int scenarioLength, Predicate<Scenario<SUT>> check) {
-        super(name, knownValues, check);
+      Impl(String name, FiniteStateMachine<SUT> model, List<Scenario<SUT>> knownValues, int scenarioLength) {
+        super(name, knownValues);
         FsmDecomposer<SUT> decomposer = new FsmDecomposer<>(name, model, scenarioLength);
         this.composer = new FsmComposer<>(name, model, scenarioLength);
         this.factorSpace = FactorSpace.create(decomposer.getFactors(), decomposer.getConstraints());
@@ -278,8 +244,7 @@ public interface Parameter<T> {
             name,
             new FiniteStateMachine.Impl<>(name, this.fsmSpecClass),
             knownValues,
-            scenarioLength,
-            check
+            scenarioLength
         );
       }
 

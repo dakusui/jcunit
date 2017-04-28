@@ -31,9 +31,9 @@ public interface Encoder extends Function<ParameterSpace, FactorSpace> {
           .flatMap(factorSpace -> factorSpace.getFactors().stream())
           .collect(toList());
       List<Constraint> constraints = Stream.concat(
+          parameterSpace.getConstraints().stream(),
           factorSpaces.stream()
-              .flatMap(factorSpace -> factorSpace.getConstraints().stream()),
-          parameterSpace.getConstraints().stream()
+              .flatMap(factorSpace -> factorSpace.getConstraints().stream())
       ).collect(toList());
       return FactorSpace.create(
           factors,

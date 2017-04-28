@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.testutils.CustomParameter;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
 import static com.github.dakusui.jcunit8.testutils.ParameterSpaceUtils.*;
@@ -16,7 +17,7 @@ public class PreprocessTest extends PipelineTestBase {
   public void givenOneSimpleParameter$whenPreprocess$thenParameterSpaceWithOneSimpleParameterIsReturned() {
     validateParameterSpace(
         preprocess(simpleParameterFactory("default", "value").create("simple1")),
-        matcher(
+        UTUtils.matcherFromPredicates(
             hasParameters(1),
             parametersAreAllInstancesOf(Parameter.Simple.class),
             knownValuesOfParameterAre("simple1", "default", "value"),
@@ -31,7 +32,7 @@ public class PreprocessTest extends PipelineTestBase {
             simpleParameterFactory("default", "value1").create("simple1"),
             simpleParameterFactory("default", "value2").create("simple2")
         ),
-        matcher(
+        UTUtils.matcherFromPredicates(
             hasParameters(2),
             parametersAreAllInstancesOf(Parameter.Simple.class),
             knownValuesOfParameterAre("simple1", "default", "value1"),
@@ -48,7 +49,7 @@ public class PreprocessTest extends PipelineTestBase {
             singletonList(simpleParameterFactory("default", "value1").create("simple1")),
             singletonList(Constraint.create(tuple -> true, "simple1"))
         ),
-        matcher(
+        UTUtils.matcherFromPredicates(
             hasParameters(1),
             parametersAreAllInstancesOf(Parameter.Simple.class),
             knownValuesOfParameterAre("simple1", "default", "value1"),
@@ -66,7 +67,7 @@ public class PreprocessTest extends PipelineTestBase {
             ),
             singletonList(Constraint.create((Tuple tuple) -> true, "simple1"))
         ),
-        matcher(
+        UTUtils.matcherFromPredicates(
             hasParameters(2),
             parametersAreAllInstancesOf(Parameter.Simple.class),
             knownValuesOfParameterAre("simple1", "default", "value1"),
@@ -80,7 +81,7 @@ public class PreprocessTest extends PipelineTestBase {
   public void givenCustomParameterWithNoConstraint$whenPreprocess$thenCustomParameterKept() {
     validateParameterSpace(
         preprocess(customParameterFactory().create("custom1")),
-        matcher(
+        UTUtils.matcher(
             hasParameters(1),
             parametersAreAllInstancesOf(CustomParameter.class),
             hasConstraints(0)
@@ -94,7 +95,7 @@ public class PreprocessTest extends PipelineTestBase {
             singletonList(customParameterFactory().create("custom1")),
             singletonList(Constraint.create(tuple -> true, "custom1"))
         ),
-        matcher(
+        UTUtils.matcher(
             ////
             // Non simple parameter involved in a constraint should be converted
             // into simple parameter
@@ -102,12 +103,12 @@ public class PreprocessTest extends PipelineTestBase {
             parametersAreAllInstancesOf(Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
-                name(">0",
+                UTUtils.oracle(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom1",
-                name(
+                UTUtils.oracle(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
@@ -125,7 +126,7 @@ public class PreprocessTest extends PipelineTestBase {
             ),
             singletonList(Constraint.create((Tuple tuple) -> true, "custom1"))
         ),
-        matcher(
+        UTUtils.matcher(
             ////
             // Non simple parameter involved in a constraint should be converted
             // into simple parameter, while parameter(s) not involved in any constraints
@@ -134,19 +135,19 @@ public class PreprocessTest extends PipelineTestBase {
             parameterIsInstanceOf("custom1", Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
-                name(">0",
+                UTUtils.oracle(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom1",
-                name(
+                UTUtils.oracle(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
             parameterIsInstanceOf("custom2", CustomParameter.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom2",
-                name("==0",
+                UTUtils.oracle("==0",
                     (Integer size) -> size == 0
                 )),
             hasConstraints(1)
@@ -163,7 +164,7 @@ public class PreprocessTest extends PipelineTestBase {
             ),
             singletonList(Constraint.create((Tuple tuple) -> true, "custom1", "custom2"))
         ),
-        matcher(
+        UTUtils.matcher(
             ////
             // Non simple parameter involved in a constraint should be converted
             // into simple parameter
@@ -171,24 +172,24 @@ public class PreprocessTest extends PipelineTestBase {
             parameterIsInstanceOf("custom1", Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
-                name(">0",
+                UTUtils.oracle(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom1",
-                name(
+                UTUtils.oracle(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
             parameterIsInstanceOf("custom2", Parameter.Simple.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom2",
-                name(">0",
+                UTUtils.oracle(">0",
                     (Integer size) -> size > 0
                 )),
             allKnownValuesOfParameterSatisfy(
                 "custom2",
-                name(
+                UTUtils.oracle(
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
