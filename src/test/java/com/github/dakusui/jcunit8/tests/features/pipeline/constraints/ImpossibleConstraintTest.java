@@ -4,16 +4,22 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Cartesian;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
-import com.github.dakusui.jcunit8.testutils.*;
+import com.github.dakusui.jcunit8.testutils.ParameterSpaceUtils;
+import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
+import com.github.dakusui.jcunit8.testutils.SchemafulTupleSetUtils;
+import com.github.dakusui.jcunit8.testutils.TestSuiteUtils;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
+import static com.github.dakusui.jcunit8.testutils.UTUtils.oracle;
 import static java.util.Arrays.asList;
 
 public class ImpossibleConstraintTest extends PipelineTestBase {
@@ -30,8 +36,8 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
             )
         ),
-        UTUtils.matcher(
-            UTUtils.oracle("size of ", List::size, "==0", value -> value == 0)
+        matcher(
+            oracle("size of ", List::size, "==0", value -> value == 0)
         )
     );
   }
@@ -49,7 +55,9 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
             )
         ),
-        UTUtils.matcher()
+        matcher(
+            oracle("{x}.isEmpty()", List::isEmpty)
+        )
     );
   }
 
@@ -66,8 +74,18 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
             )
         ),
-        UTUtils.matcher(
-
+        matcher(
+            oracle(
+                "{x}.getParameterNames()",
+                ParameterSpace::getParameterNames,
+                "==[simple1,simple2,simple3]",
+                v -> v.equals(asList("simple1", "simple2", "simple3"))
+            ),
+            oracle(
+                "{x}.getConstraints().size()",
+                parameterSpace -> parameterSpace.getConstraints().size(),
+                "==1",
+                v -> v == 1)
         )
     );
   }
@@ -84,8 +102,8 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 factorSpace,
                 requirement()).generate()
         ).build(),
-        UTUtils.matcher(
-            UTUtils.oracle("Generated tupleSet is empty", List::isEmpty)
+        matcher(
+            oracle("Generated tupleSet is empty", List::isEmpty)
         )
     );
   }
@@ -102,8 +120,8 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 factorSpace,
                 requirement()).generate()
         ).build(),
-        UTUtils.matcher(
-            UTUtils.oracle("Generated tupleSet is empty", List::isEmpty)
+        matcher(
+            oracle("Generated tupleSet is empty", List::isEmpty)
         )
     );
   }

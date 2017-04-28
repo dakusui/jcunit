@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
 import static com.github.dakusui.jcunit8.factorspace.Parameter.Factory;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -203,7 +204,14 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
           //noinspection unchecked
           return (A) annotations.stream()
               .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
-              .findFirst().orElseThrow(RuntimeException::new);
+              .findFirst()
+              .orElseThrow(
+                  () -> parameterWithoutAnnotation(
+                      format(
+                          "%s.%s",
+                          method.getDeclaringClass().getCanonicalName(),
+                          method.getName()
+                      )));
         })
         .collect(toList());
   }

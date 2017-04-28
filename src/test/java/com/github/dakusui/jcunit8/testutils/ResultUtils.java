@@ -22,11 +22,10 @@ public enum ResultUtils {
 
   private static String toString(Result result) {
     return format(
-        "result=(%s; runs=%s, failures=%s:%s, ignores=%s)",
+        "result=(%s; runs=%s, failures=%s, ignores=%s)",
         result.wasSuccessful(),
         result.getRunCount(),
         result.getFailureCount(),
-        result.getFailures(),
         result.getIgnoreCount()
     );
   }

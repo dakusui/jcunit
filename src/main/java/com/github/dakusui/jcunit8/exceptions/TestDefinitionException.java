@@ -53,11 +53,16 @@ public class TestDefinitionException extends BaseException {
   }
 
   public static Supplier<TestDefinitionException> sutDoesNotHaveSpecifiedMethod(Class<?> klass, String name, List args) {
-    return new Supplier<TestDefinitionException>() {
-      @Override
-      public TestDefinitionException get() {
-        throw new TestDefinitionException(format("SUT '%s' does not have a method %s/%d (%s)", klass.getCanonicalName(), name, args.size(), args));
-      }
+    return () -> {
+      throw new TestDefinitionException(format("SUT '%s' does not have a method %s/%d (%s)", klass.getCanonicalName(), name, args.size(), args));
     };
+  }
+
+  public static TestDefinitionException parameterWithoutAnnotation(String methodName) {
+    throw new TestDefinitionException(String.format("Method parameter not annotated with @From is found at '%s'", methodName));
+  }
+
+  public static  TestDefinitionException noParameterFound() {
+    throw new TestDefinitionException("No parameter is found.");
   }
 }

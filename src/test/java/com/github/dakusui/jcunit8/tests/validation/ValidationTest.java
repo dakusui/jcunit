@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.tests.validation;
 
+import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import com.github.dakusui.jcunit8.tests.validation.testclassesundertest.*;
 import com.github.dakusui.jcunit8.testutils.ResultUtils;
@@ -9,14 +10,17 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
+import static com.github.dakusui.jcunit8.testutils.UTUtils.oracle;
+
 public class ValidationTest {
   @Test
   public void givenUndefinedParameterReferenced$whenRunTestClass$thenAppropriateExceptionThrown() {
     ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(UndefinedParameterReferenced.class),
         UTUtils.matcherFromPredicates(
-            UTUtils.oracle("was not successful", result -> !result.wasSuccessful()),
-            UTUtils.oracle(
+            oracle("was not successful", result -> !result.wasSuccessful()),
+            oracle(
                 "message explains the failure",
                 result -> result.getFailures().stream().allMatch(failure -> failure.getMessage().contains("'a'") &&
                     failure.getMessage().contains(ParameterSource.class.getSimpleName()) &&
@@ -30,9 +34,9 @@ public class ValidationTest {
     ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(ParameterSourceOverloaded.class),
         UTUtils.matcherFromPredicates(
-            UTUtils.oracle("was not successful", result -> !result.wasSuccessful()),
-            UTUtils.oracle("size of failures == 1", result -> result.getFailures().size() == 1),
-            UTUtils.oracle("error contains intended message", result -> result.getFailures().stream()
+            oracle("was not successful", result -> !result.wasSuccessful()),
+            oracle("size of failures == 1", result -> result.getFailures().size() == 1),
+            oracle("error contains intended message", result -> result.getFailures().stream()
                 .findFirst()
                 .map(Failure::getMessage)
                 .filter(s -> s.contains("'a'"))
@@ -48,11 +52,11 @@ public class ValidationTest {
     ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(InvalidParameterSourceMethods.class),
         UTUtils.matcherFromPredicates(
-            UTUtils.oracle("not successful", result -> !result.wasSuccessful()),
-            UTUtils.oracle("3 failures", result -> result.getFailureCount() == 3),
-            UTUtils.oracle("1st failure", result -> result.getFailures().get(0).getMessage().contains("'a' must not have any parameter")),
-            UTUtils.oracle("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'b' must be public")),
-            UTUtils.oracle("3rd failure", result -> result.getFailures().get(2).getMessage().contains("'c' must not be static "))
+            oracle("not successful", result -> !result.wasSuccessful()),
+            oracle("3 failures", result -> result.getFailureCount() == 3),
+            oracle("1st failure", result -> result.getFailures().get(0).getMessage().contains("'a' must not have any parameter")),
+            oracle("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'b' must be public")),
+            oracle("3rd failure", result -> result.getFailures().get(2).getMessage().contains("'c' must not be static "))
         )
     );
   }
@@ -61,22 +65,22 @@ public class ValidationTest {
   public void givenInvalidReferencesToConstraints$whenRunTestClass$thenAppropriateExceptionThrown() {
     ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(UndefinedConstraint.class),
-        UTUtils.matcher(
-            UTUtils.oracle(
+        matcher(
+            oracle(
                 "Result::wasSuccessful",
                 Result::wasSuccessful,
                 "==false", v -> !v
             ),
-            UTUtils.oracle(
+            oracle(
                 "Result::getFailureCount",
                 Result::getFailureCount,
                 "==2",
                 v -> v == 2
             ),
-            UTUtils.oracle(
+            oracle(
                 ".getFailures().get(0).getMessage()", result -> result.getFailures().get(0).getMessage(), ".contains('undefinedConstraint' was not found)",
                 v -> v.contains("'undefinedConstraint' was not found")),
-            UTUtils.oracle(
+            oracle(
                 ".getFailures().get(1).getMessage()",
                 result -> result.getFailures().get(1).getMessage(),
                 "contains \"'malformedConstraint!' is not a valid condition oracle\"",
@@ -90,12 +94,53 @@ public class ValidationTest {
     ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(InvalidConditionMethods.class),
         UTUtils.matcherFromPredicates(
-            UTUtils.oracle("not successful", result -> !result.wasSuccessful()),
-            UTUtils.oracle("3 runs", result -> result.getRunCount() == 3),
-            UTUtils.oracle("3 failures", result -> result.getFailureCount() == 3),
-            UTUtils.oracle("1st failure", result -> result.getFailures().get(0).getMessage().contains("'nonPublic' must be public")),
-            UTUtils.oracle("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'staticMethod' must not be static")),
-            UTUtils.oracle("3rd failure", result -> result.getFailures().get(2).getMessage().contains("'wrongType' must return"))
+            oracle("not successful", result -> !result.wasSuccessful()),
+            oracle("3 runs", result -> result.getRunCount() == 3),
+            oracle("3 failures", result -> result.getFailureCount() == 3),
+            oracle("1st failure", result -> result.getFailures().get(0).getMessage().contains("'nonPublic' must be public")),
+            oracle("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'staticMethod' must not be static")),
+            oracle("3rd failure", result -> result.getFailures().get(2).getMessage().contains("'wrongType' must return"))
+        )
+    );
+  }
+
+  @Test
+  public void givenNonAnnotatedParameterInTestMethod$whenRunTest$thenAppropriateExceptionIsThrown() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(ParameterWithoutFromAnnotation.class),
+        matcher(
+            oracle(
+                "{x} is not successful", result -> !result.wasSuccessful()),
+            oracle(
+                "{x}.getFailures().size()",
+                result -> result.getFailures().size(),
+                "==2",
+                v -> v == 2
+            ),
+            oracle(
+                "{x}.getFailures().get(0).getException()",
+                result -> result.getFailures().get(0).getException(),
+                "",
+                throwable -> throwable instanceof TestDefinitionException
+            ),
+            oracle(
+                "{x}.getFailures().get(0).getMessage()",
+                result -> result.getFailures().get(0).getMessage(),
+                "containing '@From' and 'testMethod'",
+                v -> v.contains("@From") && v.contains("testMethod")
+            )
+        )
+    );
+  }
+
+  @Test
+  public void givenNoParameterTestClass$whenRunTest$thenTestDefinitionExceptionThrown() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(NoParameter.class),
+        matcher(
+            oracle("!{x}.wasSuccessful()", result -> !result.wasSuccessful()),
+            oracle("{x}.getFailures().get(0).getMessage()", result -> result.getFailures().get(0).getMessage(),
+                "containing 'No parameter'", message -> message.contains("No parameter is found"))
         )
     );
   }

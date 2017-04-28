@@ -13,7 +13,7 @@ public abstract class RegexTranslator implements Expr.Visitor {
    * A mapping from factor names to terms held by composite (alt/cat) expressions.
    */
   public final    Map<String, List<Value>> terms;
-  protected final String                   prefix;
+  private final   String                   prefix;
   protected final Expr                     topLevelExpression;
   protected       Context                  context;
 
@@ -142,7 +142,7 @@ public abstract class RegexTranslator implements Expr.Visitor {
       Impl(String prefix, String name) {
         this.prefix = prefix;
         this.name = name;
-        this.seq = new LinkedList<Value>();
+        this.seq = new LinkedList<>();
       }
 
       Value toValue(Expr expr) {
