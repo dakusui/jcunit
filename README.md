@@ -24,7 +24,6 @@ called "JCUnit 8" named after both Java 8 and the next major version of JCUnit,
 JCUnit8.
 
 ## About 0.7.x
-[![Build Status](https://travis-ci.org/dakusui/jcunit.svg?branch=0.7.x-develop)](https://travis-ci.org/dakusui/jcunit)[![codecov.io](https://codecov.io/github/dakusui/jcunit/coverage.svg?branch=0.7.x-develop)](https://codecov.io/github/dakusui/jcunit?branch=0.7.x-develop)
 0.7.x of JCUnit will remain available and you can keep using it but all
 new features will be introduced to JCUnit8 (0.8.x or later), not to 0.7.x or
 older.
@@ -59,6 +58,8 @@ That's it. Let's go.
 * **NOTE:** Source code is found here:[0.7.x-develop branch](https://github.com/dakusui/jcunit/tree/0.7.x-develop)
 * **NOTE:** Documentation is found here:[Wiki (0.7.x)](https://github.com/dakusui/jcunit/wiki/0.7.x)
 ## About 0.8.x
+[![Build Status](https://travis-ci.org/dakusui/jcunit.svg?branch=0.8.x-develop)](https://travis-ci.org/dakusui/jcunit)[![codecov.io](https://codecov.io/github/dakusui/jcunit/coverage.svg?branch=0.8.x-develop)](https://codecov.io/github/dakusui/jcunit?branch=0.8.x-develop)
+
 
 0.8.x and later is actively being developed right now and will be called **JCUnit8**.
 It will require Java SE8 or later.
