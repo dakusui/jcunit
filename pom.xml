@@ -1,9 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.dakusui</groupId>
     <artifactId>jcunit</artifactId>
-    <version>0.8.0</version>
+    <version>0.8.0-SNAPSHOT</version>
     <description>Automated combinatorial testing framework on top of JUnit
     </description>
     <packaging>jar</packaging>
@@ -24,7 +26,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/jcunit.git
         </developerConnection>
         <url>http://dakusui.github.io/jcunit</url>
-        <tag>jcunit-0.8.0</tag>
+        <tag>jcunit-0.8.x</tag>
     </scm>
 
     <developers>
@@ -103,7 +105,7 @@
                         <format>html</format>
                         <format>xml</format>
                     </formats>
-                    <check />
+                    <check/>
                 </configuration>
             </plugin>
             <plugin>
