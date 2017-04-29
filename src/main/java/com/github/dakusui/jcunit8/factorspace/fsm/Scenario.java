@@ -28,5 +28,10 @@ public interface Scenario<SUT> extends Stimulus<SUT> {
     public void accept(Player<SUT> player) {
       player.visit(this);
     }
+
+    @Override
+    public String toString() {
+      return String.format("setUp:%s; main:%s", setUp, main);
+    }
   }
 }

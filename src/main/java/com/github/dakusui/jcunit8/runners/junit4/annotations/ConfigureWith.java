@@ -1,17 +1,17 @@
 package com.github.dakusui.jcunit8.runners.junit4.annotations;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoG;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
+@Inherited
 public @interface ConfigureWith {
   ConfigureWith DEFAULT_INSTANCE = new ConfigureWith() {
 
@@ -41,12 +41,12 @@ public @interface ConfigureWith {
    *
    * @see com.github.dakusui.jcunit8.factorspace.ParameterSpace
    * @see ParameterSource
-   * @see com.github.dakusui.jcunit.runners.standard.annotations.Condition
+   * @see Condition
    */
   Class<?> parameterSpace() default Object.class;
 
   interface ConfigFactory {
-    Config<Tuple> create();
+    Config create();
 
     abstract class Base implements ConfigFactory {
       abstract protected Requirement requirement();
@@ -54,7 +54,7 @@ public @interface ConfigureWith {
       abstract protected Generator.Factory generatorFactory();
 
       @Override
-      public Config<Tuple> create() {
+      public Config create() {
         return Config.Builder.forTuple(requirement()).withGeneratorFactory(generatorFactory()).build();
       }
     }
@@ -70,7 +70,7 @@ public @interface ConfigureWith {
 
       @Override
       protected Generator.Factory generatorFactory() {
-        return IpoG::new;
+        return new Generator.Factory.Standard();
       }
     }
   }

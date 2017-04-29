@@ -1,7 +1,11 @@
 package com.github.dakusui.jcunit8.pipeline;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.factorspace.Factor;
+import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.pipeline.stages.Encoder;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
@@ -16,7 +20,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface Config<T> {
+public interface Config {
   Requirement getRequirement();
 
   /**
@@ -30,19 +34,16 @@ public interface Config<T> {
 
   BinaryOperator<SchemafulTupleSet> joiner();
 
-  Function<Tuple, T> concretizer();
-
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
   class Builder<T> {
-    private final Requirement        requirement;
-    private       Generator.Factory  generatorFactory;
-    private       Function<Tuple, T> concretizer;
-    private       Joiner             joiner;
-    private       Partitioner        partitioner;
+    private final Requirement       requirement;
+    private       Generator.Factory generatorFactory;
+    private       Joiner            joiner;
+    private       Partitioner       partitioner;
 
     public static Builder<Tuple> forTuple(Requirement requirement) {
-      return new Builder<Tuple>(requirement).withConcretizer(tuple -> tuple);
+      return new Builder<>(requirement);
     }
 
     public Builder(Requirement requirement) {
@@ -57,11 +58,6 @@ public interface Config<T> {
       return this;
     }
 
-    public Builder<T> withConcretizer(Function<Tuple, T> concretizer) {
-      this.concretizer = concretizer;
-      return this;
-    }
-
     public Builder<T> withJoiner(Joiner joiner) {
       this.joiner = joiner;
       return this;
@@ -72,21 +68,21 @@ public interface Config<T> {
       return this;
     }
 
-    public Config<T> build() {
-      return new Impl<>(requirement, generatorFactory, concretizer, joiner, partitioner);
+    public Config build() {
+      return new Impl(requirement, generatorFactory, joiner, partitioner);
     }
   }
 
-  class Impl<T> implements Config<T> {
-    private final Generator.Factory  generatorFactory;
-    private final Function<Tuple, T> concretizer;
-    private final Joiner             joiner;
-    private final Partitioner        partitioner;
-    private final Requirement        requirement;
+  class Impl implements Config {
+    private final Generator.Factory generatorFactory;
+    private final Joiner            joiner;
+    private final Partitioner       partitioner;
+    private final Requirement       requirement;
+    private final Encoder           encoder;
 
-    public Impl(Requirement requirement, Generator.Factory generatorFactory, Function<Tuple, T> concretizer, Joiner joiner, Partitioner partitioner) {
+    public Impl(Requirement requirement, Generator.Factory generatorFactory, Joiner joiner, Partitioner partitioner) {
       this.generatorFactory = requireNonNull(generatorFactory);
-      this.concretizer = requireNonNull(concretizer);
+      this.encoder = new Encoder.Standard();
       this.joiner = requireNonNull(joiner);
       this.partitioner = requireNonNull(partitioner);
       this.requirement = requireNonNull(requirement);
@@ -94,12 +90,7 @@ public interface Config<T> {
 
     @Override
     public Function<ParameterSpace, FactorSpace> encoder() {
-      return (ParameterSpace parameterSpace) -> FactorSpace.create(parameterSpace.getParameterNames().stream()
-              .map((Function<String, Parameter>) parameterSpace::getParameter)
-              .map(Parameter::toFactorSpace)
-              .flatMap(factorSpace -> factorSpace.getFactors().stream())
-              .collect(toList()),
-          parameterSpace.getConstraints());
+      return this.encoder;
     }
 
     @Override
@@ -109,17 +100,15 @@ public interface Config<T> {
 
     @Override
     public Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement) {
-      return (FactorSpace factorSpace) -> SchemafulTupleSet.fromTuples(generatorFactory.create(emptyList(), factorSpace, requirement).generate());
+      return (FactorSpace factorSpace) ->
+          new SchemafulTupleSet.Builder(factorSpace.getFactors().stream().map(Factor::getName).collect(toList()))
+              .addAll(generatorFactory.create(emptyList(), factorSpace, requirement).generate())
+              .build();
     }
 
     @Override
     public BinaryOperator<SchemafulTupleSet> joiner() {
       return joiner;
-    }
-
-    @Override
-    public Function<Tuple, T> concretizer() {
-      return concretizer;
     }
 
     @Override

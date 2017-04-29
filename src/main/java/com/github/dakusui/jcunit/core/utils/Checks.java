@@ -1,11 +1,8 @@
 package com.github.dakusui.jcunit.core.utils;
 
-import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.*;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 
-import java.util.LinkedList;
-import java.util.List;
+import static java.lang.String.format;
 
 /**
  * This class provides static methods each of which tests a given object/condition
@@ -17,9 +14,8 @@ import java.util.List;
  * external libraries as less as possible in order not to prevent users from using
  * any version of any libraries,
  */
-public class Checks {
-  private Checks() {
-  }
+public enum Checks {
+  ;
 
   /**
    * Checks if the given {@code obj} is {@code null} or not.
@@ -80,69 +76,11 @@ public class Checks {
   }
 
   /**
-   * Checks if the parameters satisfy a certain condition which should be {@code true}
-   * unless there is a framework bug.
-   * <p/>
-   * This method has the same effect as the call of {@code checkparam(b, null)}.
-   */
-  public static void checkparam(boolean b) {
-    checkparam(b, null);
-  }
-
-  /**
-   * Checks if the parameters satisfy a certain condition which should be {@code true}
-   * unless there is a framework bug.
-   * <p/>
-   * If {@code b} becomes {@code false}, an {@code IllegalArgumentException} will be thrown.
-   * <p/>
-   * A message set to the exception will be composed in the same manner as {@code checknotnull} method.
-   *
-   * @see Checks#checknotnull(Object, String, Object...)
-   */
-  public static void checkparam(@SuppressWarnings("SameParameterValue") boolean b, String msgOrFmt, Object... args) {
-    if (!b) {
-      throw new IllegalArgumentException(composeMessage(msgOrFmt, args));
-    }
-  }
-
-  /**
-   * @see com.github.dakusui.jcunit.exceptions.InvalidPluginException
-   */
-  public static void checkplugin(boolean cond, String msg, Object... args) {
-    if (!cond) {
-      throw new InvalidPluginException(composeMessage(msg, args));
-    }
-  }
-
-  /**
-   * A message set to the exception will be composed in the same manner as {@code checknotnull} method.
-   *
-   * @see Checks#checknotnull(Object, String, Object...)
-   */
-  public static void checkenv(boolean cond, String msg, Object... args) {
-    if (!cond) {
-      throw new JCUnitEnvironmentException(composeMessage(msg, args), null);
-    }
-  }
-
-  /**
    * @see com.github.dakusui.jcunit.exceptions.InvalidTestException
    */
   public static void checktest(boolean cond, String msg, Object... args) {
     if (!cond) {
       throw new InvalidTestException(composeMessage(msg, args));
-    }
-  }
-
-  public static void checksymbols(Tuple tuple, String... factorNames) throws UndefinedSymbol {
-    List<String> missings = new LinkedList<String>();
-    for (String each : factorNames) {
-      if (!Checks.checknotnull(tuple).containsKey(each)) {
-        missings.add(each);
-      }
-    }
-    if (!missings.isEmpty()) {
-      throw new UndefinedSymbol(missings.toArray(new String[missings.size()]));
     }
   }
 
@@ -168,40 +106,18 @@ public class Checks {
     throw wrap(e, e.getMessage());
   }
 
-  public static RuntimeException wrappluginerror(Throwable throwable, String msgOrFmt, Object... args) {
-    throw new InvalidPluginException(composeMessage(msgOrFmt, args), throwable);
-  }
-
   public static RuntimeException wraptesterror(Throwable throwable, String msgOrFmt, Object... args) {
     throw new InvalidTestException(composeMessage(msgOrFmt, args), throwable);
   }
 
 
-  private static String composeMessage(String msgOrFmt, Object... args) {
+  public static String composeMessage(String msgOrFmt, Object... args) {
     if (msgOrFmt != null)
-      return StringUtils.format(msgOrFmt, args);
-    return StringUtils.format("Message:'%s'", StringUtils.join(",", args));
+      return format(msgOrFmt, args);
+    return format("Message:'%s'", StringUtils.join(",", args));
   }
 
   public static IllegalStateException fail() {
     throw new IllegalStateException();
-  }
-
-  public static <T> T cast(Class<T> clazz, Object parameter) {
-    Checks.checkcond(
-        ReflectionUtils.isAssignable(Checks.checknotnull(clazz), parameter),
-        "Type mismatch. Required:%s Found:%s",
-        clazz,
-        parameter
-    );
-    //noinspection unchecked
-    return (T) parameter;
-  }
-
-  public static Throwable getRootCauseOf(Throwable t) {
-    //noinspection ThrowableResultOfMethodCallIgnored
-    return checknotnull(t).getCause() == null
-        ? t
-        : getRootCauseOf(t.getCause());
   }
 }

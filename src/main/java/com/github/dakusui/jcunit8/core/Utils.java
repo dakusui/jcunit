@@ -7,6 +7,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -14,10 +15,42 @@ import java.util.List;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
+import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
 import static java.util.Collections.singletonList;
 
 public enum Utils {
   ;
+
+  // TODO: Move somewhere else more appropriate
+  public static final Object DontCare = new Object() {
+    @Override
+    public String toString() {
+      return "D/C";
+    }
+  };
+  // TODO: Move somewhere else more appropriate
+  public static final Object VOID     = new Object() {
+    @Override
+    public String toString() {
+      return "(VOID)";
+    }
+  };
+
+  public static <T> Function<T, T> printer() {
+    return printer(Object::toString);
+  }
+
+  public static <T> Function<T, T> printer(Function<T, String> formatter) {
+    return t -> {
+      System.out.println(formatter.apply(t));
+      return t;
+    };
+  }
+
+  public static <T> T print(T data) {
+    //noinspection unchecked
+    return (T) printer().apply(data);
+  }
 
   public static <T> List<T> unique(List<T> in) {
     return new ArrayList<>(new LinkedHashSet<>(in));
@@ -79,12 +112,25 @@ public enum Utils {
     return getMethod(klass, "toString");
   }
 
-  public static <T> T debug(T value) {
-    return debug(value, t -> t);
+  public static String className(Class klass) {
+    return className(klass, "");
   }
 
-  public static <T> T debug(T value, Function<T, Object> formatter) {
-    System.out.println(formatter.apply(value));
-    return value;
+  private static String className(Class klass, String work) {
+    String canonicalName = klass.getCanonicalName();
+    if (canonicalName != null)
+      return canonicalName;
+    return className(klass.getEnclosingClass(), work + "$");
+  }
+
+  /**
+   * @param testClass Must be validated beforehand.
+   */
+  public static Object createInstanceOf(TestClass testClass) {
+    try {
+      return testClass.getOnlyConstructor().newInstance();
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      throw unexpectedByDesign(e);
+    }
   }
 }

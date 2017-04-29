@@ -1,12 +1,13 @@
 package com.github.dakusui.jcunit8.exceptions;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
  * An exception that indicates a bug in JCUnit's framework.
  */
-public abstract class FrameworkException extends BaseException {
+public class FrameworkException extends BaseException {
   protected FrameworkException(String format) {
     super(format);
   }
@@ -21,6 +22,18 @@ public abstract class FrameworkException extends BaseException {
       throw exceptionFactory.apply(messageSupplier.get());
   }
 
+  public static <T> T check(T value, Predicate<T> check) {
+    if (check.test(value))
+      return value;
+    throw new FrameworkException("Unexpected by design");
+  }
+
+  public static <T> T check(T value, Predicate<T> check, Supplier<String> messageSupplier) {
+    if (check.test(value))
+      return value;
+    throw new FrameworkException(messageSupplier.get());
+  }
+
   public static void checkCondition(boolean b, Function<String, ? extends FrameworkException> exceptionFactory) {
     checkCondition(b, exceptionFactory, () -> "Unexpected by design");
   }
@@ -30,8 +43,7 @@ public abstract class FrameworkException extends BaseException {
   }
 
   public static FrameworkException unexpectedByDesign() {
-    throw new FrameworkException("Unexpected by design") {
-    };
+    throw new FrameworkException("Unexpected by design");
   }
 
   public static FrameworkException unexpectedByDesign(Throwable t) {
@@ -39,12 +51,10 @@ public abstract class FrameworkException extends BaseException {
       throw (Error) t;
     if (t instanceof RuntimeException)
       throw (RuntimeException) t;
-    throw new FrameworkException("Unexpected by design", t) {
-    };
+    throw new FrameworkException("Unexpected by design", t);
   }
 
   public static FrameworkException unexpectedByDesign(String message) {
-    throw new FrameworkException(String.format("Unexpected by design:%s", message)) {
-    };
+    throw new FrameworkException(String.format("Unexpected by design:%s", message));
   }
 }

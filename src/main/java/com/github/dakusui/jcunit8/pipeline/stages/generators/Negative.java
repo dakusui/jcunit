@@ -22,10 +22,22 @@ public class Negative extends Generator.Base {
     return generateNegativeTests(seeds, factorSpace);
   }
 
-  public static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace) {
-    List<Tuple> ret = new LinkedList<>();
-    factorSpace.getConstraints().forEach(each -> createNegativeTestForConstraint(each, exclude(each, factorSpace.getConstraints()), composeFactorMap(factorSpace), tuples));
-    return ret;
+  private static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace) {
+    return new LinkedList<Tuple>() {{
+      factorSpace.getConstraints()
+          .forEach(
+              (Constraint each) ->
+                  createNegativeTestForConstraint(
+                      each,
+                      exclude(
+                          each,
+                          factorSpace.getConstraints()
+                      ),
+                      composeFactorMap(factorSpace),
+                      tuples
+                  ).ifPresent(this::add)
+          );
+    }};
   }
 
   private static List<Constraint> exclude(Constraint target, List<Constraint> all) {

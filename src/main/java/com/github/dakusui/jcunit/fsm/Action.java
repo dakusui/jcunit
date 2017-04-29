@@ -1,16 +1,17 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit.core.utils.Utils;
-import com.github.dakusui.jcunit.runners.standard.annotations.As;
+import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 /**
  * An interface that represents an action that can be performed on {@code SUT}.
@@ -37,13 +38,6 @@ public interface Action<SUT> extends Serializable {
   Parameters parameters();
 
   /**
-   * Returns {@code i}th factor's levels.
-   *
-   * @param i a factor's index.
-   */
-  Object[] parameterFactorLevels(int i);
-
-  /**
    * Returns a number of parameters that this action takes.
    */
   int numParameterFactors();
@@ -53,64 +47,6 @@ public interface Action<SUT> extends Serializable {
    */
   String id();
 
-  /**
-   * Returns an alias of this action.
-   * {@code null} will be returned if an underlying method does not have {@code As} annotation.
-   */
-  String getAlias();
-
-  /**
-   * Returns an alias of a parameter of this action specified by an argument {@code i}.
-   * {@code null} will be returned if {@code i}th parameter of an underlying method does not
-   * have {@code As} annotation.
-   */
-  String getAliasForParameter(int i);
-
-  abstract class Void implements Action {
-    public static <SUT> Action<SUT> getInstance() {
-      //noinspection unchecked
-      return (Action<SUT>) INSTANCE;
-    }
-
-    private static Void INSTANCE = new Void() {
-      @Override
-      public Object perform(Object o, Args args) throws Throwable {
-        return FSMFactors.VOID;
-
-      }
-
-      @Override
-      public Parameters parameters() {
-        return Parameters.EMPTY;
-      }
-
-      @Override
-      public Object[] parameterFactorLevels(int i) {
-        return new Object[0];
-      }
-
-      @Override
-      public int numParameterFactors() {
-        return 0;
-      }
-
-      @Override
-      public String id() {
-        return "(VOID)";
-      }
-
-      @Override
-      public String getAlias() {
-        return null;
-      }
-
-      @Override
-      public String getAliasForParameter(int i) {
-        return null;
-      }
-    };
-  }
-
   class Base<SUT> implements Action<SUT> {
     final         Method     method;
     final         String     name;
@@ -119,8 +55,8 @@ public interface Action<SUT> extends Serializable {
     /**
      * Creates an object of this class.
      *
-     * @param method     An {@code ActionSpec}  annotated method in {@code FSMSpec}.
-     * @param parameters A {@code ParametersSpec} annotated field's value in {@code FSMSpec}.
+     * @param method     An {@code ActionSpec}  annotated method in {@code FsmSpec}.
+     * @param parameters A {@code ParametersSpec} annotated field's value in {@code FsmSpec}.
      */
     public Base(Method method, Parameters parameters) {
       this.method = method;
@@ -137,7 +73,7 @@ public interface Action<SUT> extends Serializable {
         try {
           ret = m.invoke(o, args.values());
         } catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException(StringUtils.format("Method '%s/%d' in '%s' expects %s, but %s are given.",
+          throw new IllegalArgumentException(format("Method '%s/%d' in '%s' expects %s, but %s are given.",
               name, args.size(),
               o.getClass().getCanonicalName(),
               Arrays.toString(m.getParameterTypes()),
@@ -169,44 +105,15 @@ public interface Action<SUT> extends Serializable {
     }
 
     @Override
-    public Object[] parameterFactorLevels(int i) {
-      Object[][] paramFactors = this.parameters.values();
-      Checks.checkcond(0 <= i && i < paramFactors.length, "i must be less than %d and greater than or equal to 0 but %d", paramFactors.length, i);
-      return paramFactors[i];
-    }
-
-    @Override
     public int numParameterFactors() {
-      Object[][] paramFactors = this.parameters.values();
+      List<List> paramFactors = this.parameters.values();
       // It's safe to access the first parameter because it's already validated.
-      return paramFactors.length;
+      return paramFactors.size();
     }
 
     @Override
     public String id() {
       return FiniteStateMachine.Impl.generateMethodId(this.method);
-    }
-
-    @Override
-    public String getAlias() {
-      As aliasAnn = this.method.getAnnotation(As.class);
-      return aliasAnn == null
-          ? null
-          : aliasAnn.value();
-    }
-
-    @Override
-    public String getAliasForParameter(int i) {
-      Checks.checkparam(i >= 0);
-      Checks.checkparam(i < this.numParameterFactors());
-      Annotation[] annArray = this.method.getParameterAnnotations()[i + 1];
-      String ret = null;
-      for (Annotation each : annArray) {
-        if (each instanceof As) {
-          ret = ((As) each).value();
-        }
-      }
-      return ret;
     }
 
     @Override
@@ -230,15 +137,13 @@ public interface Action<SUT> extends Serializable {
     }
 
     private Method chooseMethod(Class<?> klass, String name) {
-      Method ret = null;
-      for (Method each : klass.getMethods()) {
-        if (each.getName().equals(name) && this.getParameterTypes().equals(Utils.asList(each.getParameterTypes()))) {
-          ret = each;
-          break;
-        }
-      }
-      Checks.checktest(ret != null, "No method '%s' is found in '%s'", name, klass.getCanonicalName());
-      return ret;
+      return Stream.of(klass.getMethods())
+          .filter((Method eachMethod) -> eachMethod.getName().equals(name))
+          .filter((Method eachMethod) -> getParameterTypes().equals(asList(eachMethod.getParameterTypes())))
+          .findFirst()
+          .orElseThrow(
+              TestDefinitionException.sutDoesNotHaveSpecifiedMethod(klass, name, getParameterTypes())
+          );
     }
 
     /**
@@ -246,7 +151,7 @@ public interface Action<SUT> extends Serializable {
      */
     private List<Class<?>> getParameterTypes() {
       Class<?>[] parameterTypes = this.method.getParameterTypes();
-      return Utils.asList(parameterTypes).subList(1, parameterTypes.length);
+      return asList(parameterTypes).subList(1, parameterTypes.length);
     }
   }
 }

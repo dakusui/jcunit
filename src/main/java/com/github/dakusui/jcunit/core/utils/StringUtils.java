@@ -1,65 +1,13 @@
 package com.github.dakusui.jcunit.core.utils;
 
-import com.github.dakusui.jcunit.core.reflect.ReflectionUtils;
-
-import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 
 public enum StringUtils {
   ;
-
-  /**
-   * Returns a user friendly string using given format and arguments.
-   *
-   * Should only be used for messages directly shown to users because this method
-   * does relatively heavy conversions to keep the returned string concise and
-   * informative.
-   * Also note that unlike {@code String#format}, only '%s' specifier is supported.
-   *
-   * @param format A format string.
-   * @param args Arguments referenced by the format specifier in the format string.
-   */
-  public static String format(String format, Object... args) {
-    Utils.Form<Object, String> formatter = new Utils.Form<Object, String>() {
-      @Override
-      public String apply(Object in) {
-        if (in == null)
-          return null;
-        //noinspection ConstantConditions (it's already checked)
-        Class<?> toStringDeclaringClass = ReflectionUtils.getMethod(in.getClass(), "toString").getDeclaringClass();
-        if (Object.class.equals(toStringDeclaringClass)) {
-          return StringUtils.toString(in);
-        } else if (in instanceof Class) {
-          return getSimpleName((Class) in);
-        }
-        return in.toString();
-      }
-
-    };
-    return String.format(
-        Checks.checknotnull(format),
-        Utils.transform(args, formatter).toArray());
-  }
-
-  public static String toString(Object o) {
-    if (o == null)
-      return null;
-    if (o instanceof Class) {
-      return getSimpleName((Class) o);
-    }
-    return getSimpleName(o.getClass()) + "@" + System.identityHashCode(o);
-  }
-
-  public static String getSimpleName(Class c) {
-    return join("$", composeSimpleName(new LinkedList<String>(), Checks.checknotnull(c)).toArray());
-  }
-
-  private static List<String> composeSimpleName(List<String> classNest, Class c) {
-    if (c == null)
-      return classNest;
-    classNest.add(0, c.getSimpleName());
-    return composeSimpleName(classNest, c.getEnclosingClass());
-  }
 
   /**
    * Joins given string objects with {@code sep} using {@code formatter}.
@@ -71,19 +19,12 @@ public enum StringUtils {
    * @param elems     Elements to be joined.
    * @return A joined {@code String}
    */
+  @SafeVarargs
   public static <T> String join(String sep, Formatter<T> formatter,
       T... elems) {
-    Checks.checknotnull(sep);
-    StringBuilder b = new StringBuilder();
-    boolean firstOne = true;
-    for (T s : elems) {
-      if (!firstOne) {
-        b.append(sep);
-      }
-      b.append(formatter.format(s));
-      firstOne = false;
-    }
-    return b.toString();
+    return Stream.of(elems)
+        .map(formatter::format)
+        .collect(Collectors.joining(checknotnull(sep)));
   }
 
   /**
@@ -96,24 +37,21 @@ public enum StringUtils {
    * @return A joined {@code String}
    */
   public static String join(String sep, Object... elems) {
+    //noinspection unchecked
     return join(sep, Formatter.INSTANCE, elems);
   }
 
   public static String join(String sep, List<?> elems) {
-    return join(sep, Formatter.INSTANCE, Checks.checknotnull(elems).toArray());
+    //noinspection unchecked
+    return join(sep, Formatter.INSTANCE, checknotnull(elems).toArray());
   }
 
 
   public interface Formatter<T> {
-    Formatter INSTANCE = new Formatter<Object>() {
-      @Override
-      public String format(Object elem) {
-        if (elem == null) {
-          return null;
-        }
-        return elem.toString();
-      }
-    };
+    Formatter INSTANCE = (Formatter<Object>) elem ->
+        elem == null ?
+            null :
+            elem.toString();
 
     String format(T elem);
   }

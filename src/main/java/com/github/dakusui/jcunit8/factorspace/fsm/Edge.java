@@ -1,8 +1,6 @@
 package com.github.dakusui.jcunit8.factorspace.fsm;
 
-import com.github.dakusui.jcunit.fsm.Action;
-import com.github.dakusui.jcunit.fsm.Args;
-import com.github.dakusui.jcunit.fsm.State;
+import com.github.dakusui.jcunit.fsm.*;
 
 public class Edge<SUT> implements Stimulus<SUT> {
   public final State<SUT>  from;
@@ -17,14 +15,23 @@ public class Edge<SUT> implements Stimulus<SUT> {
     this.to = to;
   }
 
-  public boolean isValid() {
+  public boolean isPossible() {
     return action.parameters().size() == args.size() &&
         from.expectation(action, args).state.equals(to);
+  }
+
+  public boolean isValid() {
+    return from.expectation(action, args).getType() == OutputType.VALUE_RETURNED;
   }
 
   @Override
   public void accept(Player<SUT> player) {
     player.visit(this);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s.%s(%s)->%s", this.from, this.action, this.args, this.to);
   }
 
   public static class Builder<SUT> {
@@ -54,7 +61,9 @@ public class Edge<SUT> implements Stimulus<SUT> {
 
     public Edge<SUT> build() {
       assert action.numParameterFactors() == args.size();
-      assert to.equals(from.expectation(action, args));
+      if (!to.equals(from.expectation(action, args).state)) {
+        throw new RuntimeException();
+      }
       return new Edge<>(from, action, args, to);
     }
   }

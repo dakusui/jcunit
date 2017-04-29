@@ -2,18 +2,12 @@ package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStrengthIsInRange;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toList;
 
 /**
  * A list of tuples all of whose entries have the same attribute names. An implementation
@@ -29,52 +23,78 @@ public interface SchemafulTupleSet extends List<Tuple> {
    */
   TupleSet subtuplesOf(int strength);
 
-  SchemafulTupleSet project(List<String> keys);
-
   static SchemafulTupleSet fromTuples(List<Tuple> tuples_) {
-    List<Tuple> tuples = unmodifiableList(Utils.unique(tuples_));
-    final List<String> attributeNames = tuples.isEmpty() ?
-        emptyList() :
-        unmodifiableList(new ArrayList<>(tuples.get(0).keySet()));
-    ////
-    // Make sure all the tuples in this suite object have the same set of attribute
-    // names.
-    tuples.forEach(tuple -> {
-      FrameworkException.checkCondition(attributeNames.stream().collect(toSet()).equals(tuple.keySet()));
-    });
+    Objects.requireNonNull(tuples_);
+    FrameworkException.check(tuples_, tuples -> !tuples.isEmpty());
+    return new Builder(tuples_.get(0).keySet().stream().collect(toList()))
+        .addAll(tuples_)
+        .build();
+  }
 
-    class Impl extends AbstractList<Tuple> implements SchemafulTupleSet {
-      @Override
-      public Tuple get(int index) {
-        return tuples.get(index);
-      }
+  class Builder {
+    private final LinkedHashSet<String> attributeNames;
+    private final List<Tuple>           tuples;
 
-      @Override
-      public int size() {
-        return tuples.size();
-      }
-
-      @Override
-      public List<String> getAttributeNames() {
-        return attributeNames;
-      }
-
-      @Override
-      public TupleSet subtuplesOf(int strength) {
-        checkIfStrengthIsInRange(strength, attributeNames);
-        TupleSet.Builder builder = new TupleSet.Builder();
-        for (Tuple each : this) {
-          builder.addAll(TupleUtils.subtuplesOf(each, strength));
-        }
-        return builder.build();
-      }
-
-      @Override
-      public SchemafulTupleSet project(List<String> keys) {
-        return fromTuples(this.stream().map(tuple -> Utils.project(keys, tuple)).collect(Collectors.toList()));
-      }
+    public Builder(List<String> attributeNames) {
+      this.attributeNames = new LinkedHashSet<String>() {{
+        addAll(attributeNames);
+      }};
+      this.tuples = new LinkedList<>();
     }
-    return new Impl();
+
+    public Builder add(Tuple tuple) {
+      ////
+      // Make sure all the tuples in this suite object have the same set of attribute
+      // names.
+      FrameworkException.check(tuple, (Tuple t) -> attributeNames.equals(tuple.keySet()));
+      this.tuples.add(tuple);
+      return this;
+    }
+
+    public Builder addAll(List<Tuple> tuples) {
+      tuples.forEach(this::add);
+      return this;
+    }
+
+    public SchemafulTupleSet build() {
+      class Impl extends AbstractList<Tuple> implements SchemafulTupleSet {
+        private final List<Tuple>  tuples;
+        private final List<String> attributeNames;
+
+        private Impl(List<String> attributeNames, List<Tuple> tuples) {
+          this.tuples = tuples;
+          this.attributeNames = Collections.unmodifiableList(attributeNames);
+        }
+
+        @Override
+        public Tuple get(int index) {
+          return tuples.get(index);
+        }
+
+        @Override
+        public int size() {
+          return tuples.size();
+        }
+
+        @Override
+        public List<String> getAttributeNames() {
+          return attributeNames;
+        }
+
+        @Override
+        public TupleSet subtuplesOf(int strength) {
+          checkIfStrengthIsInRange(strength, attributeNames);
+          TupleSet.Builder builder = new TupleSet.Builder();
+          for (Tuple each : this) {
+            builder.addAll(TupleUtils.subtuplesOf(each, strength));
+          }
+          return builder.build();
+        }
+      }
+      return new Impl(
+          this.attributeNames.stream().collect(toList()),
+          this.tuples);
+    }
   }
 
 }
