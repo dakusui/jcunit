@@ -2,6 +2,8 @@ package com.github.dakusui.jcunit.core.utils;
 
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 
+import static java.lang.String.format;
+
 /**
  * This class provides static methods each of which tests a given object/condition
  * and throws an appropriate exception in case it is {@code null} or {@code false}.
@@ -111,8 +113,8 @@ public enum Checks {
 
   public static String composeMessage(String msgOrFmt, Object... args) {
     if (msgOrFmt != null)
-      return StringUtils.format(msgOrFmt, args);
-    return StringUtils.format("Message:'%s'", StringUtils.join(",", args));
+      return format(msgOrFmt, args);
+    return format("Message:'%s'", StringUtils.join(",", args));
   }
 
   public static IllegalStateException fail() {

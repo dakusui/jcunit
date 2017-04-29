@@ -40,9 +40,22 @@ import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpecte
 import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
 import static com.github.dakusui.jcunit8.factorspace.Parameter.Factory;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class JCUnit8 extends org.junit.runners.Parameterized {
+  private static Map<Class, Class> PRIMITIVE_TO_WRAPPER = new HashMap<Class, Class>() {{
+    put(boolean.class, Boolean.class);
+    put(byte.class, Byte.class);
+    put(char.class, Character.class);
+    put(double.class, Double.class);
+    put(float.class, Float.class);
+    put(int.class, Integer.class);
+    put(long.class, Long.class);
+    put(short.class, Short.class);
+    put(void.class, Void.class);
+  }};
+
   private final TestSuite    testSuite;
   private final List<Runner> runners;
 
@@ -290,14 +303,47 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       return new InvokeMethod(method, test) {
         @Override
         public void evaluate() throws Throwable {
-          Object[] args = getParameterAnnotationsFrom(method, From.class).stream()
-              .map(From::value)
-              .map(s -> tupleTestCase.get().get(s))
-              .collect(toList())
-              .toArray();
+          Object[] args = validateArguments(
+              method,
+              method.getMethod().getParameterTypes(),
+              getParameterAnnotationsFrom(method, From.class).stream()
+                  .map(From::value)
+                  .map(s -> tupleTestCase.get().get(s))
+                  .collect(toList())
+                  .toArray()
+          );
           method.invokeExplosively(test, args);
         }
       };
+    }
+
+    private Object[] validateArguments(FrameworkMethod method, Class[] parameterClasses, Object[] argumentValues) {
+      // we can assume parameterClasses.length == argumentValues.length
+      for (int i = 0; i < argumentValues.length; i++) {
+        if (parameterClasses[i].isPrimitive()) {
+          //noinspection unchecked
+          if (argumentValues[i] == null || !PRIMITIVE_TO_WRAPPER.get(parameterClasses[i]).isAssignableFrom(argumentValues[i].getClass())) {
+            throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));
+          }
+        } else {
+          //noinspection unchecked
+          if (argumentValues[i] != null && !parameterClasses[i].isAssignableFrom(argumentValues[i].getClass())) {
+            throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));
+          }
+        }
+      }
+      return argumentValues;
+    }
+
+    String composeErrorMessageForTypeMismatch(Object argumentValue, FrameworkMethod method, int parameterIndex) {
+      return String.format("'%s' is not compatible with parameter %s of '%s(%s)'",
+          argumentValue,
+          parameterIndex,
+          method.getName(),
+          Arrays.stream(method.getMethod().getParameterTypes())
+              .map(Class::getSimpleName)
+              .collect(joining(","))
+      );
     }
 
     @Override

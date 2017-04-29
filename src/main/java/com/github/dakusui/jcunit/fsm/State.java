@@ -109,6 +109,10 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
 
     @Override
     public boolean equals(Object another) {
+      //noinspection SimplifiableIfStatement
+      if (!(another instanceof State)) {
+        return false;
+      }
       return this.toString().equals(another.toString());
     }
 

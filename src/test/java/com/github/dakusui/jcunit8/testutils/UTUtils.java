@@ -89,7 +89,7 @@ public enum UTUtils {
    * @param <T>               A type of value given to {@code predicate}.
    */
   public static <T> TestOracle<T, T> oracle(String descriptionOfTest, Predicate<T> predicate) {
-    return oracle("f(x)->x", t -> t, descriptionOfTest, predicate);
+    return oracle("{x}", t -> t, descriptionOfTest, predicate);
   }
 
   public static <T, U> TestOracle<T, U> oracle(String descriptionOfTransform, Function<T, U> transform, String descriptionOfTest, Predicate<U> tester) {

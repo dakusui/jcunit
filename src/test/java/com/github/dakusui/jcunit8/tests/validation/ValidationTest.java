@@ -144,4 +144,67 @@ public class ValidationTest {
         )
     );
   }
+
+
+  @Test
+  public void typeCompatibilityTest1() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(IncompatibleParameters.IncompatibleType.class),
+        matcher(
+            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
+            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
+            oracle(
+                "{x}.getFailures().get(0).getMessage()",
+                result -> result.getFailures().get(0).getMessage(),
+                "'100' is not compatible with parameter 0 of 'testMethod(String)'",
+                v -> v.equals("'100' is not compatible with parameter 0 of 'testMethod(String)'")
+            )
+        )
+    );
+  }
+
+  @Test
+  public void typeCompatibilityTest2() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(IncompatibleParameters.CompatibleNullValue.class),
+        matcher(
+            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==true", v -> v),
+            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1)
+        )
+    );
+  }
+
+  @Test
+  public void typeCompatibilityTest3() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(IncompatibleParameters.IncompatiblePrimitiveType.class),
+        matcher(
+            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
+            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
+            oracle(
+                "{x}.getFailures().get(0).getMessage()",
+                result -> result.getFailures().get(0).getMessage(),
+                "'1' is not compatible with parameter 0 of 'testMethod(boolean)'",
+                v -> v.equals("'1' is not compatible with parameter 0 of 'testMethod(boolean)'")
+            )
+        )
+    );
+  }
+
+  @Test
+  public void typeCompatibilityTest4() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(IncompatibleParameters.IncompatibleNullValue.class),
+        matcher(
+            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
+            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
+            oracle(
+                "{x}.getFailures().get(0).getMessage()",
+                result -> result.getFailures().get(0).getMessage(),
+                "'null' is not compatible with parameter 0 of 'testMethod(int)'",
+                v -> v.equals("'null' is not compatible with parameter 0 of 'testMethod(int)'")
+            )
+        )
+    );
+  }
 }

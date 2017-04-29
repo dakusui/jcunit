@@ -1,10 +1,11 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
+
+import static java.lang.String.format;
 
 /**
  * This class represents what a model of SUT expects for FSM.
@@ -46,7 +47,7 @@ public class Expectation<SUT> {
 
   @Override
   public String toString() {
-    return StringUtils.format("state of '%s' is '%s' and %s %s %s", this.fsmName, this.state, this.checker.getType().name, this.checker.getType().entityType(), this.checker.toString());
+    return format("state of '%s' is '%s' and %s %s %s", this.fsmName, this.state, this.checker.getType().name, this.checker.getType().entityType(), this.checker.toString());
   }
 
   public static class Builder<SUT> {

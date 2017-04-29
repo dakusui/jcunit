@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 
 import java.io.Serializable;
@@ -11,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 /**
@@ -73,7 +73,7 @@ public interface Action<SUT> extends Serializable {
         try {
           ret = m.invoke(o, args.values());
         } catch (IllegalArgumentException e) {
-          throw new IllegalArgumentException(StringUtils.format("Method '%s/%d' in '%s' expects %s, but %s are given.",
+          throw new IllegalArgumentException(format("Method '%s/%d' in '%s' expects %s, but %s are given.",
               name, args.size(),
               o.getClass().getCanonicalName(),
               Arrays.toString(m.getParameterTypes()),

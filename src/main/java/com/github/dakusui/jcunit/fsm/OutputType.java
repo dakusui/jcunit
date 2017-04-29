@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.fsm;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.StringUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
@@ -9,6 +8,7 @@ import org.hamcrest.Matcher;
 
 import java.util.function.Predicate;
 
+import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
@@ -94,7 +94,7 @@ public enum OutputType {
 
 
   public String describeExpectation(Object matcher) {
-    return StringUtils.format(
+    return format(
         ////
         // EXPECTATION:
         // "returned" / "thrown"

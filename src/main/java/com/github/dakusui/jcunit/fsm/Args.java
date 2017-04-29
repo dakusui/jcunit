@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.VOID;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 public class Args implements Serializable {
@@ -42,6 +43,6 @@ public class Args implements Serializable {
 
   @Override
   public String toString() {
-    return StringUtils.format("[%s]", StringUtils.join(",", values));
+    return format("[%s]", StringUtils.join(",", values));
   }
 }
