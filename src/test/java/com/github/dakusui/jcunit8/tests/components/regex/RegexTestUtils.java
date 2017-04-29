@@ -9,7 +9,7 @@ enum RegexTestUtils {
     private final InternalNodeFormatter formatter;
     int indent = 0;
 
-    public ExprTreePrinter(InternalNodeFormatter formatter) {
+    ExprTreePrinter(InternalNodeFormatter formatter) {
       this.formatter = formatter;
     }
 
@@ -50,11 +50,11 @@ enum RegexTestUtils {
     }
 
     String indentString() {
-      String ret = "";
+      StringBuilder ret = new StringBuilder();
       for (int i = 0; i < indent; i++) {
-        ret += "  ";
+        ret.append("  ");
       }
-      return ret;
+      return ret.toString();
     }
 
     interface InternalNodeFormatter {
