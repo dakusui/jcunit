@@ -5,7 +5,7 @@ The last month (Mar/2017) I attended and made a presentation about JCUnit
 at [ICST 2017](http://aster.or.jp/conference/icst2017/)(IEEE Conference on Software Testing 2017)
 and got a lot of new findings and feedbacks from it. It was an exciting
 experience for me and I realized that it's time to re-design JCUnit now
-based on new those ideas.
+based on new ideas.
 
 Followings are new features that will be introduced to JCUnit in the next
 major release, 0.8.x.
@@ -55,9 +55,9 @@ Please add it to your project's pom.xml
 That's it. Let's go.
 
 
-**NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
-**NOTE:** Source code is found here:[0.7.x-develop branch](https://github.com/dakusui/jcunit/tree/0.7.x-develop)
-**NOTE:** Documentation is found here:[Wiki (0.7.x)](https://github.com/dakusui/jcunit/wiki/0.7.x)
+* **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
+* **NOTE:** Source code is found here:[0.7.x-develop branch](https://github.com/dakusui/jcunit/tree/0.7.x-develop)
+* **NOTE:** Documentation is found here:[Wiki (0.7.x)](https://github.com/dakusui/jcunit/wiki/0.7.x)
 ## About 0.8.x
 
 0.8.x and later is actively being developed right now and will be called **JCUnit8**.
@@ -72,8 +72,8 @@ be walked through one by one in this document.
 ### Installation and how to use it.
 This version is under development and no release has been made yet.
 
-**NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
-**NOTE:** Source code is found here:[0.8.x-develop branch](https://github.com/dakusui/jcunit/tree/0.8.x-develop)
+* **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
+* **NOTE:** Source code is found here:[0.8.x-develop branch](https://github.com/dakusui/jcunit/tree/0.8.x-develop)
 
 ### Annotation Renewal
 
@@ -148,7 +148,7 @@ actual argument values of the parameter should be supplied.
 values should be generated. Those methods must be defined in a class specified by
 ```@ConfigureWith#parameterSpace```.
 
-**NOTE:** Unlike previous versions, you will not need to use ```@Uses```
+* **NOTE:** Unlike previous versions, you will not need to use ```@Uses```
 annotations anymore because the factors used in your test method are already
 declared by parameter definitions.
 
@@ -287,7 +287,7 @@ attribute ```constraint``` or explicitly set the value to ```false```.
         public static boolean overdraftNotHappens(
 ```
 
-**NOTE:** Unlike previous versions, you will not need to use ```@Uses```
+* **NOTE:** Unlike previous versions, you will not need to use ```@Uses```
 annotations anymore because the factors used in your test method are already
 declared by parameter definitions.
 
@@ -421,7 +421,7 @@ are done by following method.
 This method streams assignments of factors, involved and allowed by given
 constraints, not given by ```tuple```.
 
-**NOTE:** Right now performance of this algorithm is being optimized and
+* **NOTE:** Right now performance of this algorithm is being optimized and
 validated. And it might be re-desinged based on findings from the optimization
 and validation.
 
