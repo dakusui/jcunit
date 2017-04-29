@@ -92,7 +92,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
                 <configuration>
-                    <subpackages>com.github.dakusui.jcunit.framework
+                    <subpackages>com.github.dakusui.jcunit8
                     </subpackages>
                 </configuration>
             </plugin>
