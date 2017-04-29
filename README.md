@@ -70,7 +70,23 @@ Implementation of the features have almost finished already and they will
 be walked through one by one in this document.
 
 ### Installation and how to use it.
-This version is under development and no release has been made yet.
+Please use following dependencies to use **JCUnit8**.
+
+```xml
+
+    <dependency>
+      <groupId>com.github.dakusui</groupId>
+      <artifactId>jcunit</artifactId>
+      <version>[0.8.1,)</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+```
 
 * **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
 * **NOTE:** Source code is found here:[0.8.x-develop branch](https://github.com/dakusui/jcunit/tree/0.8.x-develop)
