@@ -111,7 +111,16 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
           public List<Exception> validateTestClass(TestClass testClass) {
             return new LinkedList<Exception>() {{
               validateFromAnnotationsAreReferencingExistingParameterSourceMethods(testClass, this);
-            }};
+              validateAtLeastOneTestMethod(testClass, this);
+            }
+
+            };
+          }
+
+          private void validateAtLeastOneTestMethod(TestClass testClass, LinkedList<Exception> errors) {
+            if (testClass.getAnnotatedMethods(Test.class).isEmpty()) {
+              errors.add(new Exception("No runnable methods"));
+            }
           }
 
           private void validateFromAnnotationsAreReferencingExistingParameterSourceMethods(TestClass testClass, List<Exception> errors) {
