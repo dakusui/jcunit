@@ -111,9 +111,10 @@ public interface Pipeline {
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
+    @SuppressWarnings("unchecked")
     private Parameter toSimpleParameterIfNecessary(Config config, Parameter parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
-        //noinspection unchecked,RedundantTypeArguments
+        //noinspection RedundantTypeArguments
         return Parameter.Simple.Factory.of(
             Utils.unique(
                 Stream.<Object>concat(

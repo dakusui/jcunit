@@ -70,12 +70,12 @@ public class QuadraticEquationExample {
 
 
   private double sut1(int a, int b, int c) {
-    System.out.printf("a=%d, b=%d, c=%d%n", a, b, c);
+    com.github.dakusui.jcunit8.core.Utils.out().printf("a=%d, b=%d, c=%d%n", a, b, c);
     return (-b + Math.sqrt(b * b - 4 * c * a)) / (2 * a);
   }
 
   private double sut2(int a, int b, int c) {
-    System.out.printf("a=%d, b=%d, c=%d%n", a, b, c);
+    com.github.dakusui.jcunit8.core.Utils.out().printf("a=%d, b=%d, c=%d%n", a, b, c);
     return (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a);
   }
 }

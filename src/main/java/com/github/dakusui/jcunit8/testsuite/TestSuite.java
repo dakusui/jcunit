@@ -17,7 +17,7 @@ import static java.util.Objects.requireNonNull;
  */
 public interface TestSuite extends List<TestCase> {
 
-  class Builder<T> {
+  class Builder {
     private final ParameterSpace parameterSpace;
     private LinkedHashSet<Tuple> regularTuples  = new LinkedHashSet<>();
     private LinkedHashSet<Tuple> negativeTuples = new LinkedHashSet<>();
@@ -26,27 +26,25 @@ public interface TestSuite extends List<TestCase> {
       this.parameterSpace = requireNonNull(parameterSpace);
     }
 
-    Builder<T> addToRegularTuples(Tuple in) {
+    Builder addToRegularTuples(Tuple in) {
       regularTuples.add(new Tuple.Builder().putAll(requireNonNull(in)).build());
       return this;
     }
 
-    public Builder<T> addAllToRegularTuples(Collection<? extends Tuple> collection) {
+    public Builder addAllToRegularTuples(Collection<? extends Tuple> collection) {
       collection.forEach(Builder.this::addToRegularTuples);
       return this;
     }
 
-    Builder<T> addToNegativeTuples(Tuple in) {
+    Builder addToNegativeTuples(Tuple in) {
       negativeTuples.add(new Tuple.Builder().putAll(requireNonNull(in)).build());
       return this;
     }
 
-
-    public Builder<T> addAllToNegativeTuples(Collection<? extends Tuple> collection) {
+    public Builder addAllToNegativeTuples(Collection<? extends Tuple> collection) {
       collection.forEach(Builder.this::addToNegativeTuples);
       return this;
     }
-
 
     public TestSuite build() {
       List<Tuple> tuples = new ArrayList<Tuple>() {{

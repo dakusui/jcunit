@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.jcunit.core.utils.BaseBuilder;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.Serializable;
@@ -10,7 +9,7 @@ import java.util.Objects;
 import java.util.TreeMap;
 
 public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
-  class Builder implements BaseBuilder<Tuple> {
+  class Builder {
     LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
     private boolean dictionaryOrder = true;
 
@@ -29,8 +28,6 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       return this;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
     public Tuple build() {
       Tuple ret = new Impl();
       for (String k : this.attrs.keySet()) {

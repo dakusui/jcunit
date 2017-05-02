@@ -6,6 +6,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,20 +24,12 @@ import static java.util.Collections.singletonList;
 public enum Utils {
   ;
 
-  // TODO: Move somewhere else more appropriate
-  public static final Object DontCare = new Object() {
+  public static final PrintStream DUMMY_PRINTSTREAM = new PrintStream(new OutputStream() {
     @Override
-    public String toString() {
-      return "D/C";
+    public void write(int b) throws IOException {
     }
-  };
-  // TODO: Move somewhere else more appropriate
-  public static final Object VOID     = new Object() {
-    @Override
-    public String toString() {
-      return "(VOID)";
-    }
-  };
+  });
+  public static       PrintStream out               = System.out;
 
   public static <T> Function<T, T> printer() {
     return printer(Object::toString);
@@ -42,13 +37,13 @@ public enum Utils {
 
   public static <T> Function<T, T> printer(Function<T, String> formatter) {
     return t -> {
-      System.out.println(formatter.apply(t));
+      Utils.out().println(formatter.apply(t));
       return t;
     };
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> T print(T data) {
-    //noinspection unchecked
     return (T) printer().apply(data);
   }
 
@@ -83,10 +78,10 @@ public enum Utils {
             return new Object[] {};
           }
 
+          @SuppressWarnings("unchecked")
           @Override
           public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
             FrameworkException.checkCondition(Parameterized.Parameters.class.equals(annotationType));
-            //noinspection unchecked
             return (T) new Parameterized.Parameters() {
               @Override
               public Class<? extends Annotation> annotationType() {
@@ -132,5 +127,31 @@ public enum Utils {
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw unexpectedByDesign(e);
     }
+  }
+
+  public static boolean isRunByMaven() {
+    final String s = System.getProperty("sun.java.command");
+    return s != null && s.contains("surefire");
+  }
+
+  public synchronized static void configureStdIOs() {
+    if (isRunByMaven()) {
+      setSilent();
+    } else {
+      setVerbose();
+    }
+  }
+
+  public synchronized static void setSilent() {
+    out = DUMMY_PRINTSTREAM;
+  }
+
+  public synchronized static void setVerbose() {
+    out = System.out;
+  }
+
+  public static PrintStream out() {
+    configureStdIOs();
+    return out;
   }
 }

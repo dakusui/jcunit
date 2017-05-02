@@ -14,6 +14,6 @@ public class SeparatedParameterSpaceExample {
   public void test(
       @From("a") int a
   ) {
-    System.out.println(a);
+    com.github.dakusui.jcunit8.core.Utils.out().println(a);
   }
 }

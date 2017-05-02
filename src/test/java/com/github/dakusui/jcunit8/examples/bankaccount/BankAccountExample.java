@@ -1,14 +1,10 @@
 package com.github.dakusui.jcunit8.examples.bankaccount;
 
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith.ConfigFactory;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -136,7 +132,7 @@ public class BankAccountExample {
       @From("withdrawAmount") int amountOfWithdraw,
       @From("transferAmount") int amountOfTransfer
   ) {
-    System.out.println(scenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer);
+    com.github.dakusui.jcunit8.core.Utils.out().println(scenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer);
   }
 
   private int perform(

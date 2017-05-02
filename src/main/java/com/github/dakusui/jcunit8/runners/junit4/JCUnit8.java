@@ -109,10 +109,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         new TestClassValidator() {
           @Override
           public List<Exception> validateTestClass(TestClass testClass) {
-            return new LinkedList<Exception>() {{
-              validateFromAnnotationsAreReferencingExistingParameterSourceMethods(testClass, this);
-              validateAtLeastOneTestMethod(testClass, this);
-            }
+            return new LinkedList<Exception>() {
+              {
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(testClass, this);
+                validateAtLeastOneTestMethod(testClass, this);
+              }
 
             };
           }
@@ -219,22 +220,20 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
+  @SuppressWarnings("unchecked")
   private static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
     return Stream.of(method.getMethod().getParameterAnnotations())
         .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
-        .map((List<? extends Annotation> annotations) -> {
-          //noinspection unchecked
-          return (A) annotations.stream()
-              .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
-              .findFirst()
-              .orElseThrow(
-                  () -> parameterWithoutAnnotation(
-                      format(
-                          "%s.%s",
-                          method.getDeclaringClass().getCanonicalName(),
-                          method.getName()
-                      )));
-        })
+        .map((List<? extends Annotation> annotations) -> (A) annotations.stream()
+            .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
+            .findFirst()
+            .orElseThrow(
+                () -> parameterWithoutAnnotation(
+                    format(
+                        "%s.%s",
+                        method.getDeclaringClass().getCanonicalName(),
+                        method.getName()
+                    ))))
         .collect(toList());
   }
 
@@ -326,16 +325,15 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       };
     }
 
+    @SuppressWarnings("unchecked")
     private Object[] validateArguments(FrameworkMethod method, Class[] parameterClasses, Object[] argumentValues) {
       // we can assume parameterClasses.length == argumentValues.length
       for (int i = 0; i < argumentValues.length; i++) {
         if (parameterClasses[i].isPrimitive()) {
-          //noinspection unchecked
           if (argumentValues[i] == null || !PRIMITIVE_TO_WRAPPER.get(parameterClasses[i]).isAssignableFrom(argumentValues[i].getClass())) {
             throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));
           }
         } else {
-          //noinspection unchecked
           if (argumentValues[i] != null && !parameterClasses[i].isAssignableFrom(argumentValues[i].getClass())) {
             throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));
           }
