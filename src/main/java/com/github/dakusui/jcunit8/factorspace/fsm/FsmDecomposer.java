@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.unique;
-import static com.github.dakusui.jcunit8.core.Utils.VOID;
+import static com.github.dakusui.jcunit8.pipeline.stages.Generator.VOID;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;

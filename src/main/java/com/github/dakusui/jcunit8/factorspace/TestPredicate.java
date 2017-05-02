@@ -17,4 +17,18 @@ public interface TestPredicate extends Predicate<Tuple> {
         Utils.className(predicate.getClass()), predicate.involvedKeys()
     );
   }
+
+  static TestPredicate of(List<String> involvedKeys, Predicate<Tuple> predicate) {
+    return new TestPredicate() {
+      @Override
+      public boolean test(Tuple tuple) {
+        return predicate.test(tuple);
+      }
+
+      @Override
+      public List<String> involvedKeys() {
+        return involvedKeys;
+      }
+    };
+  }
 }

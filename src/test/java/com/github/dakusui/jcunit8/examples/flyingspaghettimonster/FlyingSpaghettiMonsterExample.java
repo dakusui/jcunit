@@ -27,12 +27,12 @@ public class FlyingSpaghettiMonsterExample {
   public void performScenario(
       @From("flyingSpaghettiMonster") Scenario<FlyingSpaghettiMonster> scenario
   ) {
-    System.out.println("setup:" + scenario.setUp());
-    System.out.println("main:" + scenario.main());
+    com.github.dakusui.jcunit8.core.Utils.out().println("setup:" + scenario.setUp());
+    com.github.dakusui.jcunit8.core.Utils.out().println("main:" + scenario.main());
     new Player.Simple<FlyingSpaghettiMonster>(new FlyingSpaghettiMonster()) {
       @Override
       public void visit(Edge<FlyingSpaghettiMonster> edge) {
-        System.out.printf("%s %s %s -%s %s%n", edge.from, edge.action, edge.args, edge.isValid() ? ">" : "X", edge.to);
+        com.github.dakusui.jcunit8.core.Utils.out().printf("%s %s %s -%s %s%n", edge.from, edge.action, edge.args, edge.isValid() ? ">" : "X", edge.to);
         super.visit(edge);
       }
 

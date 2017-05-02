@@ -207,4 +207,18 @@ public class ValidationTest {
         )
     );
   }
+
+
+  @Test
+  public void givenNoTestMethod$whenRunTestClass$thenNoRunnableMethods() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(NoTestMethod.class),
+        matcher(
+            oracle("not successful", result -> !result.wasSuccessful()),
+            oracle("{x}.getFailures().size()", result -> result.getFailures().size(), "==1", v -> v == 1),
+            oracle("{x}.getFailures().get(1).getMessage()", result -> result.getFailures().get(0).getMessage(), "=='No runnable merhods'", v -> v.equals("No runnable methods"))
+        )
+    );
+  }
+
 }

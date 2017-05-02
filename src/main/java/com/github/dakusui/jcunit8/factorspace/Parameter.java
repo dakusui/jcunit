@@ -77,17 +77,17 @@ public interface Parameter<T> {
       protected final List<T>      knownValues = new LinkedList<>();
       protected       Predicate<T> check       = t -> true;
 
+      @SuppressWarnings("unchecked")
       @Override
       public <F extends Factory<T>> F addActualValue(T actualValue) {
         knownValues.add(actualValue);
-        //noinspection unchecked
         return (F) this;
       }
 
+      @SuppressWarnings("unchecked")
       @Override
       public <F extends Factory<T>> F addActualValues(List<T> actualValues) {
         actualValues.forEach(this::addActualValue);
-        //noinspection unchecked
         return (F) this;
       }
     }
@@ -109,13 +109,12 @@ public interface Parameter<T> {
 
       @Override
       protected List<Constraint> generateConstraints() {
-        //noinspection unchecked
         return emptyList();
       }
 
+      @SuppressWarnings("unchecked")
       @Override
       public T composeValueFrom(Tuple tuple) {
-        //noinspection unchecked
         return (T) tuple.get(getName());
       }
 
@@ -148,7 +147,7 @@ public interface Parameter<T> {
       private final RegexComposer       regexComposer;
       private final Function<String, U> func;
 
-      public Impl(String name, String regex, List<List<U>> knownValues, Function<String, U> func, Predicate<List<U>> check) {
+      public Impl(String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
         super(name, knownValues);
         Expr expr = new Parser().parse(regex);
         RegexDecomposer translator = new RegexDecomposer(name, expr);
@@ -201,7 +200,7 @@ public interface Parameter<T> {
       }
 
       private static <U> Regex<U> create(String name, String regex, List<List<U>> knownValues, Function<String, U> func, Predicate<List<U>> check) {
-        return new Impl<>(name, regex, knownValues, func, check);
+        return new Impl<>(name, regex, knownValues, func);
       }
     }
   }

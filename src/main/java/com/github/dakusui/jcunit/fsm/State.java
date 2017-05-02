@@ -62,7 +62,6 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
 
     @Override
     public Expectation<SUT> expectation(Action<SUT> action, Args args) {
-      Expectation<SUT> ret;
       Method m = Checks.checknotnull(actionMethods.get(action.id()), "Unknown action '%s' was given.", action);
       Checks.checktest(
           Expectation.class.isAssignableFrom(m.getReturnType()),
@@ -73,13 +72,17 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
           Expectation.class.getCanonicalName(),
           m.getReturnType().getCanonicalName()
       );
+      return buildExpectation(m, args);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Expectation<SUT> buildExpectation(Method m, Args args) {
       Object[] argsToMethod = Utils.concatenate(
           new Object[] { new Expectation.Builder<>(this.fsmName, fsm) },
           args.values()
       );
       try {
-        //noinspection unchecked
-        ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
+        return (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
       } catch (IllegalArgumentException e) {
         throw Checks.wraptesterror(
             e,
@@ -99,7 +102,6 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
             m.getName(), args.values().length, stateSpec.getClass().getCanonicalName(), Expectation.class.getCanonicalName()
         );
       }
-      return ret;
     }
 
     @Override

@@ -32,6 +32,7 @@ public enum Utils {
     return c;
   }
 
+  @SafeVarargs
   public static <T> List<T> concatenate(List<T> a, T... b) {
     List<T> ret = new LinkedList<T>(a);
     ret.addAll(Arrays.asList(b));
@@ -39,7 +40,7 @@ public enum Utils {
   }
 
   public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
-    Collections.sort(list, by);
+    list.sort(by);
     return list;
   }
 
@@ -56,4 +57,5 @@ public enum Utils {
     }
     return ret;
   }
+
 }

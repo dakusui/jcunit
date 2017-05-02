@@ -19,7 +19,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit8.core.Utils.DontCare;
 import static java.util.Collections.disjoint;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;

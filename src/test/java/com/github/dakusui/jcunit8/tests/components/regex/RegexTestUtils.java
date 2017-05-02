@@ -15,7 +15,7 @@ enum RegexTestUtils {
 
     @Override
     public void visit(Expr.Alt exp) {
-      System.out.println(indentString() + formatter.format(exp));
+      com.github.dakusui.jcunit8.core.Utils.out().println(indentString() + formatter.format(exp));
       indent++;
       try {
         for (Expr eachChild : exp.getChildren()) {
@@ -28,7 +28,7 @@ enum RegexTestUtils {
 
     @Override
     public void visit(Expr.Cat exp) {
-      System.out.println(indentString() + formatter.format(exp));
+      com.github.dakusui.jcunit8.core.Utils.out().println(indentString() + formatter.format(exp));
       indent++;
       try {
         for (Expr eachChild : exp.getChildren()) {
@@ -41,12 +41,12 @@ enum RegexTestUtils {
 
     @Override
     public void visit(Expr.Leaf leaf) {
-      System.out.println(indentString() + "leaf:'" + leaf + "'");
+      com.github.dakusui.jcunit8.core.Utils.out().println(indentString() + "leaf:'" + leaf + "'");
     }
 
     @Override
     public void visit(Expr.Empty empty) {
-      System.out.println(indentString() + "empty");
+      com.github.dakusui.jcunit8.core.Utils.out().println(indentString() + "empty");
     }
 
     String indentString() {

@@ -12,9 +12,9 @@ public interface FactorSpace {
         factors.forEach(each -> put(each.getName(), each));
       }};
 
+      @SuppressWarnings("unchecked")
       @Override
       public List<Factor> getFactors() {
-        //noinspection unchecked
         return (List<Factor>) factors;
       }
 

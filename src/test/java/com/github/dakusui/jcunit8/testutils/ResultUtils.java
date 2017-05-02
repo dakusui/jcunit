@@ -13,7 +13,7 @@ public enum ResultUtils {
   ;
 
   public static void validateJUnitResult(Result result, Matcher<Result> matcher) {
-    System.out.println(toString(result));
+    com.github.dakusui.jcunit8.core.Utils.out().println(toString(result));
     assertThat(
         makePrintable(result),
         matcher

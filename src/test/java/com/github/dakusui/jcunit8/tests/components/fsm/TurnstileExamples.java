@@ -25,7 +25,7 @@ public class TurnstileExamples {
       new Player.Simple<Turnstile>(new Turnstile()) {
         @Override
         public void visit(Edge<Turnstile> edge) {
-          System.out.printf("%s %s %s -%s %s%n", edge.from, edge.action, edge.args, edge.isValid() ? ">" : "X", edge.to);
+          com.github.dakusui.jcunit8.core.Utils.out().printf("%s %s %s -%s %s%n", edge.from, edge.action, edge.args, edge.isValid() ? ">" : "X", edge.to);
           super.visit(edge);
         }
       }.play(scenario);
@@ -46,7 +46,7 @@ public class TurnstileExamples {
       new Player.Simple<Turnstile>(new Turnstile.Broken()) {
         @Override
         public void visit(Edge<Turnstile> edge) {
-          System.out.printf("%s %s %s -%s %s%n", edge.from, edge.action, edge.args, edge.isValid() ? ">" : "X", edge.to);
+          com.github.dakusui.jcunit8.core.Utils.out().printf("%s %s %s -%s %s%n", edge.from, edge.action, edge.args, edge.isValid() ? ">" : "X", edge.to);
           super.visit(edge);
         }
       }.play(scenario);

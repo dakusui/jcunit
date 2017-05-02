@@ -36,13 +36,13 @@ public enum StringUtils {
    * @param elems Elements to be joined.
    * @return A joined {@code String}
    */
+  @SuppressWarnings("unchecked")
   public static String join(String sep, Object... elems) {
-    //noinspection unchecked
     return join(sep, Formatter.INSTANCE, elems);
   }
 
+  @SuppressWarnings("unchecked")
   public static String join(String sep, List<?> elems) {
-    //noinspection unchecked
     return join(sep, Formatter.INSTANCE, checknotnull(elems).toArray());
   }
 

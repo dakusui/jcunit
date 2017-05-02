@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.jcunit8.core.Utils.DontCare;
+import static com.github.dakusui.jcunit8.pipeline.stages.Generator.DontCare;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
