@@ -93,7 +93,7 @@ public class BankAccountExample {
     return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
   }
 
-  static int calculateBalance(List<String> scenario,
+  private static int calculateBalance(List<String> scenario,
       int amountOfDeposit,
       int amountOfWithdraw,
       int amountOfTransfer) {
