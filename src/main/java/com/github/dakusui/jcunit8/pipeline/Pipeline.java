@@ -20,6 +20,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * A pipeline object.
  */
+@SuppressWarnings("unchecked")
 public interface Pipeline {
   TestSuite execute(Config config, ParameterSpace parameterSpace);
 
@@ -112,7 +113,6 @@ public interface Pipeline {
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
-    @SuppressWarnings("unchecked")
     private Parameter toSimpleParameterIfNecessary(Config config, Parameter parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         return Parameter.Simple.Factory.of(
@@ -146,7 +146,6 @@ public interface Pipeline {
     private boolean isInvolvedByAnyConstraint(Parameter<?> parameter, List<Constraint> constraints) {
       return isReferencedBy(parameter, constraints) || !parameter.getKnownValues().isEmpty();
     }
-
 
     private boolean isReferencedBy(Parameter parameter, List<Constraint> constraints) {
       return constraints.stream().anyMatch(each -> each.involvedKeys().contains(parameter.getName()));

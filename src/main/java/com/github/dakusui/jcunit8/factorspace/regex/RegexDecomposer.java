@@ -86,8 +86,8 @@ public class RegexDecomposer extends RegexTranslator {
           return tag;
         }
 
+        @SuppressWarnings("unchecked")
         boolean isReferencedBy(Object referrerValue) {
-          //noinspection unchecked
           return ((List<Object>) referrerValue).stream()
               .anyMatch(
                   (Object each) ->
