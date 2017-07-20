@@ -10,6 +10,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -101,7 +102,7 @@ public interface Pipeline {
                 );
               })
               .collect(toList()),
-          parameterSpace.getConstraints().stream().collect(toList())
+          new ArrayList<>(parameterSpace.getConstraints())
       );
     }
 
@@ -111,9 +112,9 @@ public interface Pipeline {
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
+    @SuppressWarnings("unchecked")
     private Parameter toSimpleParameterIfNecessary(Config config, Parameter parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
-        //noinspection unchecked,RedundantTypeArguments
         return Parameter.Simple.Factory.of(
             Utils.unique(
                 Stream.<Object>concat(

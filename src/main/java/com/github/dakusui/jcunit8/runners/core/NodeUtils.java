@@ -26,9 +26,9 @@ public enum NodeUtils {
       private final SortedMap<String, TestPredicate> predicates = allTestPredicates(parameterSpaceDefinitionClass);
       private Predicate<T> result;
 
+      @SuppressWarnings("unchecked")
       @Override
       public void visitLeaf(Node.Leaf leaf) {
-        //noinspection unchecked
         result = (Predicate<T>) lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
       }
 
