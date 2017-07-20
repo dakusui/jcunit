@@ -31,9 +31,9 @@ public interface Pipeline {
     public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace) {
       List<Tuple> regularTestTuples = engine(config, parameterSpace);
       TestSuite.Builder builder = new TestSuite.Builder(parameterSpace);
-      builder.addAllToRegularTuples(regularTestTuples);
+      builder = builder.addAllToRegularTuples(regularTestTuples);
       if (config.getRequirement().generateNegativeTests())
-        builder.addAllToNegativeTuples(
+        builder = builder.addAllToNegativeTuples(
             negativeTestGenerator(
                 config.getRequirement().generateNegativeTests(),
                 toFactorSpaceForNegativeTestGeneration(parameterSpace),

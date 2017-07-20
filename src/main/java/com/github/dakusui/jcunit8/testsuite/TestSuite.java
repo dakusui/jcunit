@@ -41,7 +41,6 @@ public interface TestSuite extends List<TestCase> {
       return this;
     }
 
-
     public Builder<T> addAllToNegativeTuples(Collection<? extends Tuple> collection) {
       collection.forEach(Builder.this::addToNegativeTuples);
       return this;

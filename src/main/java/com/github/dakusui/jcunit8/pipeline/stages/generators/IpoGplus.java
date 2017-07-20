@@ -41,9 +41,14 @@ public class IpoGplus extends Generator.Base {
                     .allMatch(
                         constraint -> constraint.test(tuple)
                     )));
-    this.precovered = new TupleSet.Builder().addAll(seeds.stream()
-        .flatMap(tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream())
-        .collect(toList())).build();
+    this.precovered = new TupleSet.Builder().addAll(
+        seeds.stream(
+        ).flatMap(
+            tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream()
+        ).collect(
+            toList()
+        )
+    ).build();
   }
 
   /**
