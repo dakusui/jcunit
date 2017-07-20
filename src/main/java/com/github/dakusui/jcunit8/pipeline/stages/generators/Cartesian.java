@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Cartesian extends Generator.Base {
-  public Cartesian(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-    super(seeds, factorSpace, requirement);
+  public Cartesian(FactorSpace factorSpace, Requirement requirement) {
+    super(factorSpace, requirement);
   }
 
   @Override

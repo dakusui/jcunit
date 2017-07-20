@@ -98,7 +98,6 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
         ).addAll(
             new IpoGplus(
-                Collections.emptyList(),
                 factorSpace,
                 requirement()).generate()
         ).build(),
@@ -116,7 +115,6 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
         ).addAll(
             new Cartesian(
-                Collections.emptyList(),
                 factorSpace,
                 requirement()).generate()
         ).build(),

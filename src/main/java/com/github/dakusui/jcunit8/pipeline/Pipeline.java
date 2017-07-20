@@ -107,7 +107,7 @@ public interface Pipeline {
       );
     }
 
-    private Generator.Base negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, Requirement requirement) {
+    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, Requirement requirement) {
       return generateNegativeTests ?
           new Negative(tuplesForRegularTests, factorSpace, requirement) :
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);

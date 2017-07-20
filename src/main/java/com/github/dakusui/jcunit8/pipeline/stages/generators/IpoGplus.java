@@ -28,8 +28,9 @@ import static java.util.stream.Collectors.toList;
 public class IpoGplus extends Generator.Base {
   private final TupleSet precovered;
 
-  public IpoGplus(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-    super(seeds, factorSpace, requirement);
+  public IpoGplus(FactorSpace factorSpace, Requirement requirement) {
+    super(factorSpace, requirement);
+    List<Tuple> seeds = requirement.seeds();
     ////
     // If any constraint is violated it should be handled by 'Negative' generator
     // and pipeline mechanism should not dispatch such a seed to this class.
@@ -200,7 +201,7 @@ public class IpoGplus extends Generator.Base {
                   allConstraints)
           ).collect(toList());
     }
-    ts.addAll(0, seeds);
+    ts.addAll(0, requirement.seeds());
     return ts;
   }
 

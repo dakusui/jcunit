@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -102,7 +101,7 @@ public interface Config {
     public Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement) {
       return (FactorSpace factorSpace) ->
           new SchemafulTupleSet.Builder(factorSpace.getFactors().stream().map(Factor::getName).collect(toList()))
-              .addAll(generatorFactory.create(emptyList(), factorSpace, requirement).generate())
+              .addAll(generatorFactory.create(factorSpace, requirement).generate())
               .build();
     }
 

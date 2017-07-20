@@ -13,13 +13,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class Negative extends Generator.Base {
-  public Negative(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-    super(seeds, factorSpace, requirement);
+  private final List<Tuple> regularTestCases;
+
+  public Negative(List<Tuple> regularTestCases, FactorSpace factorSpace, Requirement requirement) {
+    super(factorSpace, requirement);
+    this.regularTestCases = regularTestCases;
   }
 
   @Override
   public List<Tuple> generateCore() {
-    return generateNegativeTests(seeds, factorSpace);
+    return generateNegativeTests(this.regularTestCases, factorSpace);
   }
 
   private static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace) {
