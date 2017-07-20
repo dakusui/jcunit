@@ -47,8 +47,8 @@ public enum Utils {
     };
   }
 
+  @SuppressWarnings("unchecked")
   public static <T> T print(T data) {
-    //noinspection unchecked
     return (T) printer().apply(data);
   }
 
@@ -83,10 +83,10 @@ public enum Utils {
             return new Object[] {};
           }
 
+          @SuppressWarnings("unchecked")
           @Override
           public <T extends Annotation> T getAnnotation(Class<T> annotationType) {
             FrameworkException.checkCondition(Parameterized.Parameters.class.equals(annotationType));
-            //noinspection unchecked
             return (T) new Parameterized.Parameters() {
               @Override
               public Class<? extends Annotation> annotationType() {

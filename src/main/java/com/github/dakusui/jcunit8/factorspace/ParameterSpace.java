@@ -44,13 +44,17 @@ public interface ParameterSpace {
           return parameters.stream().map(Parameter::getName).collect(Collectors.toList());
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public <P> Parameter<P> getParameter(String name) {
-          //noinspection unchecked,OptionalGetWithoutIsPresent
-          return (Parameter<P>) (parameters
-              .stream()
-              .filter(parameter -> parameter.getName().equals(name))
-              .findFirst().<Parameter<P>>get());
+          return (Parameter<P>) (parameters.stream(
+
+          ).filter(
+              parameter -> parameter.getName().equals(name)
+          ).findFirst(
+          ).orElseThrow(
+              RuntimeException::new
+          ));
         }
 
         @Override

@@ -24,7 +24,6 @@ import static java.util.Collections.disjoint;
 import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 
 public class IpoGplus extends Generator.Base {
   private final TupleSet precovered;
@@ -132,7 +131,7 @@ public class IpoGplus extends Generator.Base {
        */
       Factor Pi = allFactors.get(i - 1);
       processedFactors.add(Pi);
-      π = prepare_π(processedFactors, Pi, allFactors, allConstraints, t);
+      π = prepare_π(processedFactors, allFactors, allConstraints, t);
       /*     6.     // horizontal extension for parameter Pi
        *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
        */
@@ -220,7 +219,7 @@ public class IpoGplus extends Generator.Base {
   }
 
 
-  private TupleSet prepare_π(List<Factor> alreadyProcessedFactors, Factor factor, List<Factor> allFactors, List<Constraint> allConstraints, int strength) {
+  private TupleSet prepare_π(List<Factor> alreadyProcessedFactors, List<Factor> allFactors, List<Constraint> allConstraints, int strength) {
     /*     5.     let π be the set of t -way combinations of values involving parameter
      *            Pi and t -1 parameters among the first i – 1 parameters (*2)
      *
@@ -392,43 +391,6 @@ public class IpoGplus extends Generator.Base {
             allFactors,
             allConstraints
         ));
-  }
-
-
-  public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
-      Tuple assignedValues,
-      List<String> unassignedFactors,
-      List<Factor> allFactors,
-      List<Constraint> allConstraints
-  ) {
-    Set<String> allFactorNames = allFactors.stream().map(Factor::getName).collect(toSet());
-    FrameworkException.check(
-        unassignedFactors,
-        factors -> factors.stream().allMatch(allFactorNames::contains)
-    );
-    FrameworkException.check(
-        allConstraints,
-        constraints -> constraints.stream()
-            .allMatch(constraint -> constraint.involvedKeys().stream()
-                .allMatch(allFactorNames::contains))
-    );
-    FrameworkException.check(
-        assignedValues,
-        tuple -> tuple.keySet().stream()
-            .allMatch(allFactorNames::contains)
-    );
-
-    return new StreamableTupleCartesianator(
-        allFactors.stream()
-            .filter(factor -> unassignedFactors.contains(factor.getName()))
-            .collect(toList())
-    ).stream()
-        .filter(
-            tuple -> isAllowedTuple(
-                allFactors,
-                allConstraints
-            ).test(tuple)
-        );
   }
 
   public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
