@@ -32,6 +32,7 @@ public enum Utils {
     return c;
   }
 
+  @SafeVarargs
   public static <T> List<T> concatenate(List<T> a, T... b) {
     List<T> ret = new LinkedList<T>(a);
     ret.addAll(Arrays.asList(b));
@@ -39,7 +40,7 @@ public enum Utils {
   }
 
   public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
-    Collections.sort(list, by);
+    list.sort(by);
     return list;
   }
 
@@ -50,7 +51,7 @@ public enum Utils {
     // In most cases, it's better to use LinkedHashMap in JCUnit because
     // it needs to guarantee the test case generation generatedTuples the same always.
     // So this method returns LinkedHashMap instead of HashMap.
-    Map<K, V> ret = new LinkedHashMap<K, V>();
+    Map<K, V> ret = new LinkedHashMap<>();
     for (V each : in) {
       ret.put(form.apply(each), each);
     }

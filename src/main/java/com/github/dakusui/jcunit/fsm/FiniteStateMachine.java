@@ -40,7 +40,7 @@ public interface FiniteStateMachine<SUT> {
       // Build 'actions'.
       Map<String, Method> actionMethods = Utils.toMap(getActionMethods(specClass), Impl::generateMethodId);
       Map<String, Field> paramsFields = Utils.toMap(getParamsFields(specClass), Field::getName);
-      List<Action<SUT>> actions = new LinkedList<Action<SUT>>();
+      List<Action<SUT>> actions = new LinkedList<>();
       for (Map.Entry<String, Method> each : actionMethods.entrySet()) {
         Method m = each.getValue();
         Field f = null;
@@ -66,7 +66,7 @@ public interface FiniteStateMachine<SUT> {
       ////
       // Build states and initialState.
       Map<String, Field> stateFields = Utils.toMap(getStateFields(specClass), Field::getName);
-      List<State<SUT>> states = new LinkedList<State<SUT>>();
+      List<State<SUT>> states = new LinkedList<>();
       State<SUT> initialState = null;
       for (Map.Entry<String, Field> each : stateFields.entrySet()) {
         states.add(createState(fsmName, this, each.getValue(), actionMethods));
@@ -98,7 +98,7 @@ public interface FiniteStateMachine<SUT> {
     }
 
     private List<Field> getStateFields(Class<? extends FsmSpec<SUT>> specClass) {
-      List<Field> ret = new LinkedList<Field>();
+      List<Field> ret = new LinkedList<>();
       for (Field each : ReflectionUtils.getFields(specClass)) {
         if (each.isAnnotationPresent(StateSpec.class) && !isAlreadyAddedIn(each, ret)) {
           ret.add(each);
@@ -108,7 +108,7 @@ public interface FiniteStateMachine<SUT> {
     }
 
     private List<Field> getParamsFields(Class<? extends FsmSpec<SUT>> specClass) {
-      List<Field> ret = new LinkedList<Field>();
+      List<Field> ret = new LinkedList<>();
       for (final Field each : ReflectionUtils.getFields(specClass)) {
         if (each.isAnnotationPresent(ParametersSpec.class) && !isAlreadyAddedIn(each, ret))
           ret.add(each);
@@ -121,7 +121,7 @@ public interface FiniteStateMachine<SUT> {
     }
 
     private List<Method> getActionMethods(Class<? extends FsmSpec<SUT>> specClass) {
-      List<Method> ret = new LinkedList<Method>();
+      List<Method> ret = new LinkedList<>();
       for (Method each : ReflectionUtils.getMethods(specClass)) {
         if (each.isAnnotationPresent(ActionSpec.class)) {
           ret.add(each);
@@ -133,6 +133,7 @@ public interface FiniteStateMachine<SUT> {
     /**
      * {@code paramsField} can be numm if {@code actionMethod} doesn't have any parameter.
      */
+    @SuppressWarnings("unchecked")
     private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
       final Parameters parameters;
       if (paramsField == null) {
@@ -140,7 +141,6 @@ public interface FiniteStateMachine<SUT> {
       } else {
         parameters = getParamsFactors(validateParamsField(paramsField));
       }
-      //noinspection unchecked
       return (Action<SUT>) new Action.Base(actionMethod, parameters);
     }
 
@@ -175,15 +175,15 @@ public interface FiniteStateMachine<SUT> {
 
     private State<SUT> createState(String fsmName, FiniteStateMachine<SUT> fsm, final Field stateSpecField, final Map<String, Method> actionMethods) {
       final FsmSpec<SUT> stateSpec = getStateSpecValue(validateStateSpecField(stateSpecField));
-      return new State.Base<SUT>(fsmName, fsm, stateSpec, actionMethods, stateSpecField);
+      return new State.Base<>(fsmName, fsm, stateSpec, actionMethods, stateSpecField);
     }
 
+    @SuppressWarnings("unchecked")
     private FsmSpec<SUT> getStateSpecValue(Field field) {
       Object ret = ReflectionUtils.getFieldValue(null, field);
       Checks.checktest(ret != null, "The field '%s' of '%s' must be assigned a non-null value.", field.getName(), field.getType().getCanonicalName());
       ////
       // Casting to (FsmSpec<SUT>) is safe because validateParamsField checks it already.
-      //noinspection unchecked
       return (FsmSpec<SUT>) ret;
     }
 

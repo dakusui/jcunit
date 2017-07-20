@@ -196,8 +196,8 @@ public interface Expr {
       return new Leaf(counter, value);
     }
 
+    @SuppressWarnings("unchecked")
     Expr cat(List exps) {
-      //noinspection unchecked
       return new Cat(this.counter, (List<Expr>) exps.stream().map(in -> {
         if (in instanceof Expr) {
           return in;
@@ -206,8 +206,8 @@ public interface Expr {
       }).collect(toList()));
     }
 
+    @SuppressWarnings("unchecked")
     Expr alt(List exps) {
-      //noinspection unchecked
       return new Alt(counter, (List<Expr>) exps.stream().map(in -> {
         if (in instanceof Expr) {
           return in;

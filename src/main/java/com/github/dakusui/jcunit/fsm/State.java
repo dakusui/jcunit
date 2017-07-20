@@ -60,6 +60,7 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
       return stateSpec.check(sut);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Expectation<SUT> expectation(Action<SUT> action, Args args) {
       Expectation<SUT> ret;
@@ -78,7 +79,6 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
           args.values()
       );
       try {
-        //noinspection unchecked
         ret = (Expectation<SUT>) m.invoke(stateSpec, argsToMethod);
       } catch (IllegalArgumentException e) {
         throw Checks.wraptesterror(
