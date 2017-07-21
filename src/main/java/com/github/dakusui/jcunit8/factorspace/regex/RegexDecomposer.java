@@ -1,7 +1,10 @@
 package com.github.dakusui.jcunit8.factorspace.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.regex.*;
+import com.github.dakusui.jcunit.regex.Expr;
+import com.github.dakusui.jcunit.regex.Reference;
+import com.github.dakusui.jcunit.regex.RegexTranslator;
+import com.github.dakusui.jcunit.regex.Value;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
@@ -13,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
+import static java.util.Objects.requireNonNull;
 
 public class RegexDecomposer extends RegexTranslator {
 
@@ -88,7 +92,7 @@ public class RegexDecomposer extends RegexTranslator {
 
         @SuppressWarnings("unchecked")
         boolean isReferencedBy(Object referrerValue) {
-          return ((List<Object>) referrerValue).stream()
+          return ((List<Object>) requireNonNull(referrerValue)).stream()
               .anyMatch(
                   (Object each) ->
                       each instanceof Reference &&

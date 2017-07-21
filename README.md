@@ -254,7 +254,7 @@ When you can list actual values of a parameter and it's sufficient, you can
 ```java
 
         @ParameterSource
-        public static Simple.Factory<Integer> depositAmount() {
+        public Simple.Factory<Integer> depositAmount() {
           return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
         }
 ```
@@ -284,7 +284,7 @@ To define a constraint, you can do following.
 
 ```java
         @Condition(constraint = true)
-        public static boolean overdraftNotHappens(
+        public boolean overdraftNotHappens(
             @From("scenario") List<String> scenario,
             @From("depositAmount") int amountOfDeposit,
             @From("withdrawAmount") int amountOfWithdraw,
@@ -301,7 +301,7 @@ attribute ```constraint``` or explicitly set the value to ```false```.
 
 ```java
         @Condition(constraint = false)
-        public static boolean overdraftNotHappens(
+        public boolean overdraftNotHappens(
 ```
 
 * **NOTE:** Unlike previous versions, you will not need to use ```@Uses```

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
@@ -132,5 +133,13 @@ public enum Utils {
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw unexpectedByDesign(e);
     }
+  }
+
+  public static <T extends Predicate<E>, E> Predicate<E> conjunct(Iterable<T> predicates) {
+    Predicate<E> ret = tuple -> true;
+    for (Predicate<E> each : predicates) {
+      ret = ret.and(each);
+    }
+    return ret;
   }
 }

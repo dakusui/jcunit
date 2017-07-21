@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit.regex.RegexComposer;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmComposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
@@ -13,7 +14,11 @@ import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.checkValue;
 import static java.util.Collections.*;
@@ -30,7 +35,9 @@ public interface Parameter<T> {
 
   FactorSpace toFactorSpace();
 
-  T composeValueFrom(Tuple tuple);
+  T composeValue(Tuple tuple);
+
+  Tuple decomposeValue(T value);
 
   List<T> getKnownValues();
 
@@ -62,6 +69,24 @@ public interface Parameter<T> {
 
     protected abstract List<Constraint> generateConstraints();
 
+    static <V> Tuple _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
+      AtomicReference<Optional<Tuple>> fallback = new AtomicReference<>(Optional.empty());
+      return tuples.filter(
+          tuple -> value.equals(valueComposer.apply(tuple))
+      ).peek(
+          tuple -> {
+            if (!fallback.get().isPresent())
+              fallback.set(Optional.of(tuple));
+          }
+      ).filter(
+          constraints
+      ).findFirst(
+      ).orElse(
+          fallback.get().orElseThrow(
+              RuntimeException::new
+          )
+      );
+    }
   }
 
   interface Factory<T> {
@@ -73,7 +98,7 @@ public interface Parameter<T> {
 
     abstract class Base<T> implements Factory<T> {
 
-      protected final List<T>      knownValues = new LinkedList<>();
+      protected final List<T> knownValues = new LinkedList<>();
 
       @SuppressWarnings("unchecked")
       @Override
@@ -112,8 +137,13 @@ public interface Parameter<T> {
 
       @SuppressWarnings("unchecked")
       @Override
-      public T composeValueFrom(Tuple tuple) {
+      public T composeValue(Tuple tuple) {
         return (T) tuple.get(getName());
+      }
+
+      @Override
+      public Tuple decomposeValue(T value) {
+        return new Tuple.Builder().put(name, value).build();
       }
 
       @Override
@@ -154,9 +184,17 @@ public interface Parameter<T> {
         this.factorSpace = translator.decompose();
       }
 
+      public Tuple decomposeValue(List<U> value) {
+        return _decomposeValue(
+            value,
+            this.factorSpace.stream(),
+            this.regexComposer::compose,
+            Utils.conjunct(this.factorSpace.getConstraints())
+        );
+      }
 
       @Override
-      public List<U> composeValueFrom(Tuple tuple) {
+      public List<U> composeValue(Tuple tuple) {
         return composeStringValueFrom(tuple).stream().map(func).collect(toList());
       }
 
@@ -216,7 +254,17 @@ public interface Parameter<T> {
       }
 
       @Override
-      public Scenario<SUT> composeValueFrom(Tuple tuple) {
+      public Tuple decomposeValue(Scenario<SUT> value) {
+        return _decomposeValue(
+            value,
+            this.factorSpace.stream(),
+            this.composer::composeValueFrom,
+            Utils.conjunct(this.factorSpace.getConstraints())
+        );
+      }
+
+      @Override
+      public Scenario<SUT> composeValue(Tuple tuple) {
         return composer.composeValueFrom(tuple);
       }
 

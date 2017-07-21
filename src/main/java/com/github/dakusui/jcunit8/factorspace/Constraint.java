@@ -10,25 +10,6 @@ import static com.github.dakusui.jcunit8.core.Utils.project;
 import static java.util.Arrays.asList;
 
 public interface Constraint extends TestPredicate {
-  static Constraint fromCondition(TestPredicate testPredicate) {
-    return new Constraint() {
-      @Override
-      public boolean test(Tuple tuple) {
-        return testPredicate.test(tuple);
-      }
-
-      @Override
-      public List<String> involvedKeys() {
-        return testPredicate.involvedKeys();
-      }
-
-      @Override
-      public String toString() {
-        return testPredicate.toString();
-      }
-    };
-  }
-
   static Constraint create(Predicate<Tuple> predicate, List<String> args) {
     return new Constraint() {
       @Override

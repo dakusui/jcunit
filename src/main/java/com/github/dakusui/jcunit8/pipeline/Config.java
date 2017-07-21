@@ -99,10 +99,16 @@ public interface Config {
 
     @Override
     public Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement) {
-      return (FactorSpace factorSpace) ->
-          new SchemafulTupleSet.Builder(factorSpace.getFactors().stream().map(Factor::getName).collect(toList()))
-              .addAll(generatorFactory.create(factorSpace, requirement).generate())
-              .build();
+      return (FactorSpace factorSpace) -> new SchemafulTupleSet.Builder(
+          factorSpace.getFactors().stream(
+          ).map(
+              Factor::getName
+          ).collect(
+              toList()
+          )
+      ).addAll(
+          generatorFactory.create(factorSpace, requirement).generate()
+      ).build();
     }
 
     @Override

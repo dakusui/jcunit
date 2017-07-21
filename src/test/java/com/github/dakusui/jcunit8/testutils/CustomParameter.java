@@ -23,7 +23,7 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   }
 
   @Override
-  public ValuePair composeValueFrom(Tuple tuple) {
+  public ValuePair composeValue(Tuple tuple) {
     return new ValuePair(getValue(tuple, "a"), getValue(tuple, "b"));
   }
 

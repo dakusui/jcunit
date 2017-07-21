@@ -31,18 +31,16 @@ public class IpoGplus extends Generator.Base {
   public IpoGplus(FactorSpace factorSpace, Requirement requirement) {
     super(factorSpace, requirement);
     List<Tuple> seeds = requirement.seeds();
-    ////
-    // If any constraint is violated it should be handled by 'Negative' generator
-    // and pipeline mechanism should not dispatch such a seed to this class.
-    FrameworkException.check(seeds,
-        tuples -> tuples.stream()
-            .allMatch(
-                tuple -> factorSpace.getConstraints().stream()
-                    .allMatch(
-                        constraint -> constraint.test(tuple)
-                    )));
     this.precovered = new TupleSet.Builder().addAll(
         seeds.stream(
+        ).filter(
+            ////
+            // tuples covered by negative tests should not be considered
+            // covered.
+            tuple -> factorSpace.getConstraints().stream()
+                .allMatch(
+                    constraint -> constraint.test(tuple)
+                )
         ).flatMap(
             tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream()
         ).collect(
