@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Objects.requireNonNull;
+
 public enum TupleUtils {
   ;
 
@@ -36,5 +38,15 @@ public enum TupleUtils {
       ret.addAll(subtuplesOf(tuple, sz - i));
     }
     return ret;
+  }
+
+  public static Tuple project(Tuple tuple, List<String> factorNames) {
+    Tuple.Builder builder = new Tuple.Builder();
+    factorNames.forEach(each -> builder.put(each, tuple.get(each)));
+    return builder.build();
+  }
+
+  public static Tuple copy(Tuple tuple) {
+    return new Tuple.Builder().putAll(requireNonNull(tuple)).build();
   }
 }

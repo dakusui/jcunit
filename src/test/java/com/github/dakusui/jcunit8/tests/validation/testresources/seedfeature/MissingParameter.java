@@ -1,29 +1,21 @@
-package com.github.dakusui.jcunit8.examples.seed;
+package com.github.dakusui.jcunit8.tests.validation.testresources.seedfeature;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 
-import static java.util.Arrays.asList;
-
-@ConfigureWith(BankAccountExampleWithSeeds.Config.class)
-public class BankAccountExampleWithSeeds extends BankAccountExample {
+@ConfigureWith(MissingParameter.Config.class)
+public class MissingParameter extends SeedBase {
   public static class Config extends ConfigFactory.Base {
     @Override
     protected Requirement defineRequirement(Requirement.Builder defaultValues) {
       return defaultValues.withNegativeTestGeneration(
           false
       ).addSeed(
-          new Tuple.Builder().put(
-              "scenario", asList("open", "deposit", "withdraw", "getBalance")
+          Tuple.builder(
           ).put(
-              "depositAmount", 300
-          ).put(
-              "withdrawAmount", 200
-          ).put(
-              "transferAmount", -1
+              "parameter1", "hello"
           ).build()
       ).build();
     }

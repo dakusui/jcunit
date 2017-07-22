@@ -108,6 +108,7 @@ public class ParserTest extends PipelineTestBase {
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());
+    builtTestSuite.forEach(System.out::println);
     assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
   }
 

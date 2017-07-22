@@ -33,6 +33,7 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
@@ -176,10 +177,14 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
           try {
             return new MyBlockJUnit4ClassRunner(i.getAndIncrement(), tupleTestCase);
           } catch (InitializationError initializationError) {
-            throw unexpectedByDesign(initializationError);
+            throw unexpectedByDesign(formatInitializationErrorMessage(initializationError));
           }
         })
         .collect(toList());
+  }
+
+  private static String formatInitializationErrorMessage(InitializationError e) {
+    return e.getCauses().stream().map(Throwable::getMessage).collect(Collectors.joining());
   }
 
   private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {

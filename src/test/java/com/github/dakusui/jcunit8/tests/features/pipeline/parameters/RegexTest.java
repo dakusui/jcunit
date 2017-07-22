@@ -40,7 +40,8 @@ public class RegexTest extends PipelineTestBase {
         SchemafulTupleSet.fromTuples(
             new IpoGplus(
                 Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
-                requirement()
+                requirement(),
+                emptyList()
             ).generate()),
         UTUtils.matcherFromPredicates(
             sizeIs(">0", value -> value > 0),

@@ -51,7 +51,7 @@ public class FrameworkException extends BaseException {
       throw (Error) t;
     if (t instanceof RuntimeException)
       throw (RuntimeException) t;
-    throw new FrameworkException("Unexpected by design", t);
+    throw new FrameworkException(String.format("Unexpected by design:%s", t.getMessage()), t);
   }
 
   public static FrameworkException unexpectedByDesign(String message) {

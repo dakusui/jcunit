@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.tests.validation.testclassesundertest;
+package com.github.dakusui.jcunit8.tests.validation.testresources;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;

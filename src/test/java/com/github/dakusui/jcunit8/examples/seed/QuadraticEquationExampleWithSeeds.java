@@ -10,8 +10,8 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 public class QuadraticEquationExampleWithSeeds extends QuadraticEquationExample {
   public static class Config extends ConfigFactory.Base {
     @Override
-    protected Requirement.Builder defineRequirement(Requirement.Builder builder) {
-      return builder.withNegativeTestGeneration(
+    protected Requirement defineRequirement(Requirement.Builder defaultValues) {
+      return defaultValues.withNegativeTestGeneration(
           true
       ).addSeed(
           // Positive test
@@ -33,7 +33,7 @@ public class QuadraticEquationExampleWithSeeds extends QuadraticEquationExample 
           ).put(
               "c", 1
           ).build()
-      );
+      ).build();
     }
   }
 }

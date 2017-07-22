@@ -31,7 +31,8 @@ public class CustomParameterTest extends PipelineTestBase {
         SchemafulTupleSet.fromTuples(
             new IpoGplus(
                 customParameterFactory().create("custom1").toFactorSpace(),
-                requirement()
+                requirement(),
+                emptyList()
             ).generate()),
         UTUtils.matcher(
             UTUtils.oracle(

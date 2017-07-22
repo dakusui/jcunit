@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.oracle;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 public class ImpossibleConstraintTest extends PipelineTestBase {
   @Test
@@ -99,7 +100,9 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
         ).addAll(
             new IpoGplus(
                 factorSpace,
-                requirement()).generate()
+                requirement(),
+                emptyList()
+            ).generate()
         ).build(),
         matcher(
             oracle("Generated tupleSet is empty", List::isEmpty)

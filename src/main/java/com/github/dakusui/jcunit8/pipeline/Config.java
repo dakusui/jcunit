@@ -29,7 +29,7 @@ public interface Config {
 
   Function<FactorSpace, List<FactorSpace>> partitioner();
 
-  Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement);
+  Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement);
 
   BinaryOperator<SchemafulTupleSet> joiner();
 
@@ -47,9 +47,9 @@ public interface Config {
 
     public Builder(Requirement requirement) {
       this.requirement = requirement;
-      this.generatorFactory = new Generator.Factory.Standard();
-      this.joiner = new Joiner.Standard(requirement);
-      this.partitioner = new Partitioner.Standard();
+      this.withGeneratorFactory(new Generator.Factory.Standard());
+      this.withJoiner(new Joiner.Standard(requirement));
+      this.withPartitioner(new Partitioner.Standard());
     }
 
     public Builder<T> withGeneratorFactory(Generator.Factory generatorFactory) {
@@ -98,7 +98,7 @@ public interface Config {
     }
 
     @Override
-    public Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement) {
+    public Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement) {
       return (FactorSpace factorSpace) -> new SchemafulTupleSet.Builder(
           factorSpace.getFactors().stream(
           ).map(
@@ -107,7 +107,11 @@ public interface Config {
               toList()
           )
       ).addAll(
-          generatorFactory.create(factorSpace, requirement).generate()
+          generatorFactory.create(
+              factorSpace,
+              requirement,
+              ParameterSpace.encodeSeedTuples(parameterSpace, requirement.seeds())
+          ).generate()
       ).build();
     }
 

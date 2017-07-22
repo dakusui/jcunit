@@ -40,6 +40,10 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
 
   boolean isSubtupleOf(Tuple another);
 
+  static Builder builder() {
+    return new Builder();
+  }
+
   enum Utils {
     ;
 
@@ -72,5 +76,4 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       return Utils.isSubtupleOf(this, another);
     }
   }
-
 }

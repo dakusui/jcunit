@@ -18,7 +18,7 @@ public class FsmComposer<SUT> extends FsmTupleAccessor<SUT> {
 
   public Scenario<SUT> composeValueFrom(Tuple tuple) {
     Sequence<SUT> main = composeScenarioFromTuple(tuple);
-    return new Scenario.Impl<SUT>(
+    return new Scenario.Impl<>(
         composeScenarioToBringUpFsmTo(main.get(0).from),
         main
     );

@@ -15,15 +15,17 @@ import static java.util.stream.Collectors.toList;
 
 public class Negative extends Generator.Base {
   private final List<Tuple> regularTestCases;
+  private final List<Tuple> seeds;
 
-  public Negative(List<Tuple> regularTestCases, FactorSpace factorSpace, Requirement requirement) {
+  public Negative(List<Tuple> regularTestCases, List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
     super(factorSpace, requirement);
     this.regularTestCases = regularTestCases;
+    this.seeds = seeds;
   }
 
   @Override
   public List<Tuple> generateCore() {
-    return generateNegativeTests(this.regularTestCases, factorSpace, requirement.seeds());
+    return generateNegativeTests(this.regularTestCases, factorSpace, seeds);
   }
 
   private static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace, List<Tuple> seeds) {

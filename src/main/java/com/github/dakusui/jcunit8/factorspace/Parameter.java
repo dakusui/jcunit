@@ -37,7 +37,7 @@ public interface Parameter<T> {
 
   T composeValue(Tuple tuple);
 
-  Tuple decomposeValue(T value);
+  Optional<Tuple> decomposeValue(T value);
 
   List<T> getKnownValues();
 
@@ -69,22 +69,13 @@ public interface Parameter<T> {
 
     protected abstract List<Constraint> generateConstraints();
 
-    static <V> Tuple _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
+    static <V> Optional<Tuple> _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
       AtomicReference<Optional<Tuple>> fallback = new AtomicReference<>(Optional.empty());
       return tuples.filter(
           tuple -> value.equals(valueComposer.apply(tuple))
-      ).peek(
-          tuple -> {
-            if (!fallback.get().isPresent())
-              fallback.set(Optional.of(tuple));
-          }
       ).filter(
           constraints
       ).findFirst(
-      ).orElse(
-          fallback.get().orElseThrow(
-              RuntimeException::new
-          )
       );
     }
   }
@@ -142,8 +133,8 @@ public interface Parameter<T> {
       }
 
       @Override
-      public Tuple decomposeValue(T value) {
-        return new Tuple.Builder().put(name, value).build();
+      public Optional<Tuple> decomposeValue(T value) {
+        return Optional.of(Tuple.builder().put(name, value).build());
       }
 
       @Override
@@ -184,7 +175,7 @@ public interface Parameter<T> {
         this.factorSpace = translator.decompose();
       }
 
-      public Tuple decomposeValue(List<U> value) {
+      public Optional<Tuple> decomposeValue(List<U> value) {
         return _decomposeValue(
             value,
             this.factorSpace.stream(),
@@ -254,7 +245,7 @@ public interface Parameter<T> {
       }
 
       @Override
-      public Tuple decomposeValue(Scenario<SUT> value) {
+      public Optional<Tuple> decomposeValue(Scenario<SUT> value) {
         return _decomposeValue(
             value,
             this.factorSpace.stream(),

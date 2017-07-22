@@ -51,4 +51,8 @@ public interface FactorSpace {
   default Stream<Tuple> stream() {
     return new StreamableTupleCartesianator(getFactors()).stream();
   }
+
+  default List<String> getFactorNames() {
+    return FactorUtils.toFactorNames(this.getFactors());
+  }
 }

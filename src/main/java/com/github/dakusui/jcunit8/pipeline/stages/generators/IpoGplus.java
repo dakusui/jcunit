@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.factorspace.FactorUtils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
@@ -28,9 +29,8 @@ import static java.util.stream.Collectors.toList;
 public class IpoGplus extends Generator.Base {
   private final TupleSet precovered;
 
-  public IpoGplus(FactorSpace factorSpace, Requirement requirement) {
+  public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
     super(factorSpace, requirement);
-    List<Tuple> seeds = requirement.seeds();
     this.precovered = new TupleSet.Builder().addAll(
         seeds.stream(
         ).filter(
@@ -41,6 +41,8 @@ public class IpoGplus extends Generator.Base {
                 .allMatch(
                     constraint -> constraint.test(tuple)
                 )
+        ).map(
+            tuple -> TupleUtils.project(tuple, factorSpace.getFactorNames())
         ).flatMap(
             tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream()
         ).collect(
@@ -176,7 +178,7 @@ public class IpoGplus extends Generator.Base {
               .findFirst()
               .orElseGet(() -> {
                 Tuple ret = createTupleFrom(
-                    processedFactors.stream().map(Factor::getName).collect(toList()),
+                    FactorUtils.toFactorNames(processedFactors),
                     σ
                 );
                 work.add(ret);
@@ -199,7 +201,6 @@ public class IpoGplus extends Generator.Base {
                   allConstraints)
           ).collect(toList());
     }
-    ts.addAll(0, requirement.seeds());
     return ts;
   }
 
@@ -210,9 +211,9 @@ public class IpoGplus extends Generator.Base {
         FrameworkException::unexpectedByDesign,
         () -> String.format(
             "Required strength (%d) > Only %d factors are given: %s",
-            requirement.strength(),
+            this.requirement.strength(),
             this.factorSpace.getFactors().size(),
-            this.factorSpace.getFactors().stream().map(Factor::getName).collect(toList())
+            this.factorSpace.getFactorNames()
         )
     );
   }
@@ -347,10 +348,9 @@ public class IpoGplus extends Generator.Base {
     }};
     //noinspection RedundantTypeArguments
     return new StreamableCombinator<>(
-        factors.stream()
-            .map(Factor::getName)
-            .collect(toList()), strength)
-        .stream()
+        FactorUtils.toFactorNames(factors),
+        strength
+    ).stream()
         .flatMap((List<String> chosenFactorNames) -> new StreamableTupleCartesianator(
                 chosenFactorNames.stream()
                     .map(factorValues::get)

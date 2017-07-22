@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.pipeline;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.*;
@@ -11,10 +12,14 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -31,8 +36,10 @@ public interface Pipeline {
     }
 
     public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace) {
-      List<Tuple> regularTestTuples = engine(config, parameterSpace);
+      validateSeeds(config.getRequirement().seeds(), parameterSpace);
       TestSuite.Builder builder = new TestSuite.Builder(parameterSpace);
+      builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
+      List<Tuple> regularTestTuples = engine(config, parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestTuples);
       if (config.getRequirement().generateNegativeTests())
         builder = builder.addAllToNegativeTuples(
@@ -40,10 +47,47 @@ public interface Pipeline {
                 config.getRequirement().generateNegativeTests(),
                 toFactorSpaceForNegativeTestGeneration(parameterSpace),
                 regularTestTuples,
+                ParameterSpace.encodeSeedTuples(parameterSpace, config.getRequirement().seeds()),
                 config.getRequirement()
             ).generate()
         );
       return builder.build();
+    }
+
+    private void validateSeeds(List<Tuple> seeds, ParameterSpace parameterSpace) {
+      List<Function<Tuple, String>> checks = asList(
+          (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
+              String.format("Unknown parameter(s) were found: %s in tuple: %s",
+                  new LinkedList<String>() {{
+                    addAll(tuple.keySet());
+                    removeAll(parameterSpace.getParameterNames());
+                  }},
+                  tuple
+              ) :
+              null,
+          (Tuple tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
+              String.format("Parameter(s) were not found: %s in tuple: %s",
+                  new LinkedList<String>() {{
+                    addAll(parameterSpace.getParameterNames());
+                    removeAll(tuple.keySet());
+                  }},
+                  tuple
+              ) :
+              null
+      );
+      List<String> errors = seeds.stream(
+      ).flatMap(
+          seed -> checks.stream(
+          ).map(each -> each.apply(seed))
+      ).filter(
+          Objects::nonNull
+      ).collect(toList());
+      if (!errors.isEmpty())
+        throw new InvalidTestException(
+            String.format(
+                "Error(s) are found in seeds: %s",
+                errors
+            ));
     }
 
     public ParameterSpace preprocess(Config config, ParameterSpace parameterSpace) {
@@ -68,7 +112,7 @@ public interface Pipeline {
       ).stream()
           .map(config.optimizer())
           .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
-          .map(config.generator(config.getRequirement()))
+          .map(config.generator(parameterSpace, config.getRequirement()))
           .reduce(config.<SchemafulTupleSet>joiner())
           .map(
               (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
@@ -107,9 +151,9 @@ public interface Pipeline {
       );
     }
 
-    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, Requirement requirement) {
+    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, List<Tuple> encodedSeeds, Requirement requirement) {
       return generateNegativeTests ?
-          new Negative(tuplesForRegularTests, factorSpace, requirement) :
+          new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, requirement) :
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
