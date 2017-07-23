@@ -12,7 +12,10 @@ import com.github.dakusui.jcunit.fsm.spec.StateSpec;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 
@@ -145,7 +148,7 @@ public interface FiniteStateMachine<SUT> {
       } else {
         parameters = getParamsFactors(validateParamsField(paramsField));
       }
-      return (Action<SUT>) new Action.Base(actionMethod, parameters);
+      return new Action.Base<>(actionMethod, parameters);
     }
 
     /**
@@ -157,10 +160,18 @@ public interface FiniteStateMachine<SUT> {
       ////
       // The field should be static.
       Object ret = ReflectionUtils.getFieldValue(null, Checks.checknotnull(field));
-      Checks.checktest(ret instanceof Parameters, "The field '%s' in %s must be typed %s", field.getName(), field.getDeclaringClass().getCanonicalName(), Parameters.class.getSimpleName());
-      Checks.checktest((((Parameters) ret).values()).size() > 0,
+      Checks.checktest(
+          ret instanceof Parameters,
+          "The field '%s' in %s must be typed %s",
+          field.getName(),
+          field.getDeclaringClass().getCanonicalName(),
+          Parameters.class.getSimpleName()
+      );
+      Checks.checktest(
+          (((Parameters) ret).values()).size() > 0,
           "The field '%s' of '%s' must be assigned Object[][] value whose length is larget than 0.",
-          field.getName(), field.getType().getCanonicalName());
+          field.getName(),
+          field.getType().getCanonicalName());
       ////
       // Casting to Object[][] is safe because validateParamsField checks it.
       return ((Parameters) ret);
@@ -188,7 +199,7 @@ public interface FiniteStateMachine<SUT> {
       Checks.checktest(ret != null, "The field '%s' of '%s' must be assigned a non-null value.", field.getName(), field.getType().getCanonicalName());
       ////
       // Casting to (FsmSpec<SUT>) is safe because validateParamsField checks it already.
-      return (FsmSpec<SUT>) ret;
+      return FsmSpec.class.<SUT>cast(ret);
     }
 
     private Field validateStateSpecField(Field fsmField) {

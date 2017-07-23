@@ -13,6 +13,19 @@ import java.util.List;
 /**
  */
 public interface Generator {
+  Object DontCare = new Object() {
+    @Override
+    public final String toString() {
+      return "D/C";
+    }
+  };
+  Object VOID     = new Object() {
+    @Override
+    public final String toString() {
+      return "(VOID)";
+    }
+  };
+
   List<Tuple> generate();
 
   abstract class Base implements Generator {

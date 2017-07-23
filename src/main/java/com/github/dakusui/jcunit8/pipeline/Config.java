@@ -35,14 +35,14 @@ public interface Config {
 
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
-  class Builder<T> {
+  class Builder {
     private final Requirement       requirement;
     private       Generator.Factory generatorFactory;
     private       Joiner            joiner;
     private       Partitioner       partitioner;
 
-    public static Builder<Tuple> forTuple(Requirement requirement) {
-      return new Builder<>(requirement);
+    public static Builder forTuple(Requirement requirement) {
+      return new Builder(requirement);
     }
 
     public Builder(Requirement requirement) {
@@ -52,17 +52,17 @@ public interface Config {
       this.withPartitioner(new Partitioner.Standard());
     }
 
-    public Builder<T> withGeneratorFactory(Generator.Factory generatorFactory) {
+    public Builder withGeneratorFactory(Generator.Factory generatorFactory) {
       this.generatorFactory = generatorFactory;
       return this;
     }
 
-    public Builder<T> withJoiner(Joiner joiner) {
+    public Builder withJoiner(Joiner joiner) {
       this.joiner = joiner;
       return this;
     }
 
-    public Builder<T> withPartitioner(Partitioner partitioner) {
+    public Builder withPartitioner(Partitioner partitioner) {
       this.partitioner = partitioner;
       return this;
     }

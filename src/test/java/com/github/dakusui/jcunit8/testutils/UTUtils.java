@@ -76,7 +76,7 @@ public enum UTUtils {
   });
 
   public static <T> T print(T value) {
-    out.println(value);
+    System.out.println(value);
     return value;
   }
 

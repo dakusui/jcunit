@@ -14,13 +14,8 @@ public class UtilsTest {
   }
 
   @Test
-  public void givenString$whenApplyPrinter$thenNotBroken() {
-    assertEquals("Hello", Utils.printer().apply("Hello"));
-  }
-
-  @Test
   public void givenString$whenPrint$thenNotBroken() {
     assertEquals("Hello", Utils.print("Hello"));
+    assertEquals("Hello2", Utils.print("Hello2"));
   }
-
 }

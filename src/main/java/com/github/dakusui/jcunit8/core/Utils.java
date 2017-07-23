@@ -6,6 +6,9 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,20 +25,12 @@ import static java.util.Collections.singletonList;
 public enum Utils {
   ;
 
-  // TODO: Move somewhere else more appropriate
-  public static final Object DontCare = new Object() {
+  public static final PrintStream DUMMY_PRINTSTREAM = new PrintStream(new OutputStream() {
     @Override
-    public String toString() {
-      return "D/C";
+    public void write(int b) throws IOException {
     }
-  };
-  // TODO: Move somewhere else more appropriate
-  public static final Object VOID     = new Object() {
-    @Override
-    public String toString() {
-      return "(VOID)";
-    }
-  };
+  });
+  public static       PrintStream out               = System.out;
 
   public static <T> Function<T, T> printer() {
     return printer(Object::toString);

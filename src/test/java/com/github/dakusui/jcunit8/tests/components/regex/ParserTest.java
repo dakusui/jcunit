@@ -131,6 +131,7 @@ public class ParserTest extends PipelineTestBase {
 
   @SuppressWarnings("unchecked")
   private Matcher generatedStringsMatcher() {
+
     return CoreMatchers.allOf(
         CoreMatchers.is(possibleStrings(expectationForGeneratedStrings()))
     );

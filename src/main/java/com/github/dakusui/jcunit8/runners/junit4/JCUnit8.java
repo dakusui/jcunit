@@ -7,9 +7,9 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
+import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
-import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
@@ -110,9 +110,19 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         new TestClassValidator() {
           @Override
           public List<Exception> validateTestClass(TestClass testClass) {
-            return new LinkedList<Exception>() {{
-              validateFromAnnotationsAreReferencingExistingParameterSourceMethods(testClass, this);
-            }};
+            return new LinkedList<Exception>() {
+              {
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(testClass, this);
+                validateAtLeastOneTestMethod(testClass, this);
+              }
+
+            };
+          }
+
+          private void validateAtLeastOneTestMethod(TestClass testClass, LinkedList<Exception> errors) {
+            if (testClass.getAnnotatedMethods(Test.class).isEmpty()) {
+              errors.add(new Exception("No runnable methods"));
+            }
           }
 
           private void validateFromAnnotationsAreReferencingExistingParameterSourceMethods(TestClass testClass, List<Exception> errors) {
@@ -218,19 +228,22 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   private static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
     return Stream.of(method.getMethod().getParameterAnnotations())
         .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
-        .map((List<? extends Annotation> annotations) ->
-            (A) annotations.stream()
-                .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
-                .findFirst()
-                .orElseThrow(
+        .map(
+            (List<? extends Annotation> annotations) ->
+                (A) annotations.stream(
+
+                ).filter(
+                    (Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass())
+                ).findFirst(
+
+                ).orElseThrow(
                     () -> parameterWithoutAnnotation(
                         format(
                             "%s.%s",
                             method.getDeclaringClass().getCanonicalName(),
                             method.getName()
                         )))
-        )
-        .collect(toList());
+        ).collect(toList());
   }
 
   /**
