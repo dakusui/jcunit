@@ -24,6 +24,7 @@ public interface Config {
 
   /**
    * Returns a function that encodes a parameter space into internal factor spaces.
+   * @return A function that encodes a parameter space.
    */
   Function<ParameterSpace, FactorSpace> encoder();
 

@@ -20,6 +20,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
    * Returns all t-way tuples in this {@code SchemafulTupleSet} where t is {@code strength}.
    *
    * @param strength Strength of t-way tuples to be returned.
+   * @return A set of sub-tuples of this.
    */
   TupleSet subtuplesOf(int strength);
 
