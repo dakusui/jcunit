@@ -21,22 +21,25 @@ import static java.util.stream.Collectors.toMap;
 public enum NodeUtils {
   ;
 
-  public static <T> Predicate<T> buildPredicate(String[] values, TestClass parameterSpaceDefinitionClass) {
+  public static TestPredicate buildPredicate(String[] values, TestClass parameterSpaceDefinitionClass) {
     class Builder implements Node.Visitor {
       private final SortedMap<String, TestPredicate> predicates = allTestPredicates(parameterSpaceDefinitionClass);
-      private Predicate<T> result;
+      private Predicate<Tuple> result;
+      private final SortedSet<String> involvedKeys = new TreeSet<>();
 
+      @SuppressWarnings("unchecked")
       @Override
       public void visitLeaf(Node.Leaf leaf) {
-        //noinspection unchecked
-        result = (Predicate<T>) lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
+        TestPredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
+        involvedKeys.addAll(predicate.involvedKeys());
+        result = predicate;
       }
 
       @Override
       public void visitAnd(Node.And and) {
         and.children().forEach(
             node -> {
-              Predicate<T> previous = result;
+              Predicate<Tuple> previous = result;
               node.accept(this);
               if (previous != null) {
                 result = previous.and(result);
@@ -48,7 +51,7 @@ public enum NodeUtils {
       public void visitOr(Node.Or or) {
         or.children().forEach(
             node -> {
-              Predicate<T> previous = result;
+              Predicate<Tuple> previous = result;
               node.accept(this);
               if (previous != null) {
                 result = previous.or(result);
@@ -70,7 +73,10 @@ public enum NodeUtils {
     }
     Builder builder = new Builder();
     parse(values).accept(builder);
-    return builder.result;
+    return TestPredicate.of(
+        builder.involvedKeys.stream().collect(toList()),
+        builder.result
+    );
   }
 
   public static List<String> allLeaves(String[] values) {
@@ -118,7 +124,7 @@ public enum NodeUtils {
       }
     };
     return method.getAnnotation(Condition.class).constraint() ?
-        Constraint.create(predicate, involvedKeys):
+        Constraint.create(predicate, involvedKeys) :
         new TestPredicate() {
           @Override
           public boolean test(Tuple tuple) {

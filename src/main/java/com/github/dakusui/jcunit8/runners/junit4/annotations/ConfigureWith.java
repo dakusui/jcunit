@@ -1,8 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4.annotations;
 
-import com.github.dakusui.jcunit8.pipeline.Config;
-import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Generator;
+import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
@@ -44,34 +42,4 @@ public @interface ConfigureWith {
    * @see Condition
    */
   Class<?> parameterSpace() default Object.class;
-
-  interface ConfigFactory {
-    Config create();
-
-    abstract class Base implements ConfigFactory {
-      abstract protected Requirement requirement();
-
-      abstract protected Generator.Factory generatorFactory();
-
-      @Override
-      public Config create() {
-        return Config.Builder.forTuple(requirement()).withGeneratorFactory(generatorFactory()).build();
-      }
-    }
-
-    class Default extends Base {
-      @SuppressWarnings("WeakerAccess")
-      protected Requirement requirement() {
-        return new Requirement.Builder()
-            .withStrength(2)
-            .withNegativeTestGeneration(false)
-            .build();
-      }
-
-      @Override
-      protected Generator.Factory generatorFactory() {
-        return new Generator.Factory.Standard();
-      }
-    }
-  }
 }

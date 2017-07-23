@@ -2,9 +2,13 @@ package com.github.dakusui.jcunit8.tests.validation;
 
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
-import com.github.dakusui.jcunit8.tests.validation.testclassesundertest.*;
+import com.github.dakusui.jcunit8.tests.validation.testresources.*;
+import com.github.dakusui.jcunit8.tests.validation.testresources.seedfeature.MissingParameter;
+import com.github.dakusui.jcunit8.tests.validation.testresources.seedfeature.TypeMismatch;
+import com.github.dakusui.jcunit8.tests.validation.testresources.seedfeature.UnknownParameter;
 import com.github.dakusui.jcunit8.testutils.ResultUtils;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -12,6 +16,7 @@ import org.junit.runner.notification.Failure;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.oracle;
+import static org.junit.Assert.assertThat;
 
 public class ValidationTest {
   @Test
@@ -203,6 +208,74 @@ public class ValidationTest {
                 result -> result.getFailures().get(0).getMessage(),
                 "'null' is not compatible with parameter 0 of 'testMethod(int)'",
                 v -> v.equals("'null' is not compatible with parameter 0 of 'testMethod(int)'")
+            )
+        )
+    );
+  }
+
+  @Test
+  public void noTest() {
+    Result result = JUnitCore.runClasses(NoTestMethod.class);
+    assertThat(
+        result.getFailures().get(0).getMessage(),
+        CoreMatchers.containsString("No runnable methods")
+    );
+  }
+
+  @Test
+  public void missingParameterInSeed() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(
+            MissingParameter.class
+        ),
+        matcher(
+            oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
+            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
+            oracle(
+                "{x}.getFailures().get(0).getMessage()",
+                result -> result.getFailures().get(0).getMessage(),
+                "contains'Parameter(s) were not found: [parameter2] in tuple: {parameter1=hello}'",
+                v -> v.contains("Parameter(s) were not found: [parameter2] in tuple: {parameter1=hello}")
+            )
+        )
+    );
+  }
+
+
+  @Test
+  public void unknownParameterInSeed() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(
+            UnknownParameter.class
+        ),
+        matcher(
+            oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
+            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
+            oracle(
+                "{x}.getFailures().get(0).getMessage()",
+                result -> result.getFailures().get(0).getMessage(),
+                "contains'[unknownParameter] in tuple: {parameter1=hello, parameter2=hello, unknownParameter=hello}'",
+                v -> v.contains("[unknownParameter] in tuple: {parameter1=hello, parameter2=hello, unknownParameter=hello}")
+            )
+        )
+    );
+
+  }
+
+  @Test
+  public void typeMismatchInSeed() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(
+            TypeMismatch.class
+        ),
+        matcher(
+            oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
+            oracle("{x}.getRunCount()", Result::getRunCount, "==5", v -> v == 5),
+            oracle(
+                "{x}.getFailures().get(0).getMessage()",
+                result -> result.getFailures().get(0).getMessage(),
+                "contains'is not compatible with parameter 1 of 'test(String,String)''",
+                v -> v.contains("is not compatible with parameter 1 of 'test(String,String)'")
             )
         )
     );

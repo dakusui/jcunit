@@ -37,13 +37,13 @@ class FsmTupleAccessor<SUT> {
     return format("%s:ACTION_PARAM:%d-%d", name, i, j);
   }
 
+  @SuppressWarnings("unchecked")
   State<SUT> getStateFromTuple(Tuple tuple, int i) {
-    //noinspection unchecked
     return (State<SUT>) tuple.get(composeStateFactorName(name, i));
   }
 
+  @SuppressWarnings("unchecked")
   Action<SUT> getActionFromTuple(Tuple tuple, int i) {
-    //noinspection unchecked
     return (Action<SUT>) tuple.get(composeActionFactorName(name, i));
   }
 
@@ -56,12 +56,12 @@ class FsmTupleAccessor<SUT> {
   }
 
   Object getActionArgFromTuple(Tuple tuple, int i, int j) {
-    //noinspection unchecked
     return tuple.get(composeActionParamFactorName(name, i, j));
   }
 
+
+  @SuppressWarnings("unchecked")
   Stream<Edge<SUT>> allPossibleEdges(Predicate<State<SUT>> from, Predicate<Action<SUT>> action, Predicate<State<SUT>> to) {
-    //noinspection unchecked
     return new StreamableCartesianator<Object>(
         model.states().stream().filter(from).collect(toList()),
         model.actions().stream().filter(action).collect(toList()),
@@ -83,8 +83,8 @@ class FsmTupleAccessor<SUT> {
         );
   }
 
+  @SuppressWarnings("unchecked")
   private Stream<Edge<SUT>> allPossibleEdges(State<SUT> from, Action<SUT> action, State<SUT> to) {
-    //noinspection uncheckedew,unchecked
     return this.model.actions().stream()
         .filter(action::equals)
         .flatMap((Action<SUT> eachAction)

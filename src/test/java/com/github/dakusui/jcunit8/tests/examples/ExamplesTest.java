@@ -3,6 +3,8 @@ package com.github.dakusui.jcunit8.tests.examples;
 import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
 import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterExample;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
+import com.github.dakusui.jcunit8.examples.seed.BankAccountExampleWithSeeds;
+import com.github.dakusui.jcunit8.examples.seed.QuadraticEquationExampleWithSeeds;
 import com.github.dakusui.jcunit8.testutils.ResultUtils;
 import com.github.dakusui.jcunit8.testutils.TestOracle;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
@@ -18,7 +20,7 @@ public class ExamplesTest {
     ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(QuadraticEquationExample.class),
         matcher(
-            UTUtils.oracle("failed", Result::wasSuccessful)
+            UTUtils.oracle("successful", Result::wasSuccessful)
         )
     );
   }
@@ -45,4 +47,36 @@ public class ExamplesTest {
         )
     );
   }
+
+  @Test
+  public void quadraticEquationSolverWithSeeds() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(QuadraticEquationExampleWithSeeds.class),
+        matcher(
+            UTUtils.oracle("failed", result -> !result.wasSuccessful()),
+            UTUtils.oracle(
+                "{x}.getFailureCount", Result::getFailureCount,
+                "==2", v -> v == 2
+            ),
+            UTUtils.oracle(
+                "{x}.getIgnoreCount", Result::getIgnoreCount,
+                "==1", v -> v == 1
+            )
+        )
+    );
+  }
+
+  @Test
+  public void bankAccountWithSeeds() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(BankAccountExampleWithSeeds.class),
+        matcher(
+            new TestOracle.Builder<Result, Result>()
+                .withTransformer("f({x})->{x}", v -> v)
+                .withTester("{x}.wasSuccessful()", Result::wasSuccessful)
+                .build()
+        )
+    );
+  }
+
 }

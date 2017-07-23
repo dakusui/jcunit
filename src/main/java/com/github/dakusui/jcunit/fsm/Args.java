@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit8.core.Utils.VOID;
+import static com.github.dakusui.jcunit8.pipeline.stages.Generator.VOID;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 

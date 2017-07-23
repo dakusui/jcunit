@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -30,40 +29,40 @@ public interface Config {
 
   Function<FactorSpace, List<FactorSpace>> partitioner();
 
-  Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement);
+  Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement);
 
   BinaryOperator<SchemafulTupleSet> joiner();
 
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
-  class Builder<T> {
+  class Builder {
     private final Requirement       requirement;
     private       Generator.Factory generatorFactory;
     private       Joiner            joiner;
     private       Partitioner       partitioner;
 
-    public static Builder<Tuple> forTuple(Requirement requirement) {
-      return new Builder<>(requirement);
+    public static Builder forTuple(Requirement requirement) {
+      return new Builder(requirement);
     }
 
     public Builder(Requirement requirement) {
       this.requirement = requirement;
-      this.generatorFactory = new Generator.Factory.Standard();
-      this.joiner = new Joiner.Standard(requirement);
-      this.partitioner = new Partitioner.Standard();
+      this.withGeneratorFactory(new Generator.Factory.Standard());
+      this.withJoiner(new Joiner.Standard(requirement));
+      this.withPartitioner(new Partitioner.Standard());
     }
 
-    public Builder<T> withGeneratorFactory(Generator.Factory generatorFactory) {
+    public Builder withGeneratorFactory(Generator.Factory generatorFactory) {
       this.generatorFactory = generatorFactory;
       return this;
     }
 
-    public Builder<T> withJoiner(Joiner joiner) {
+    public Builder withJoiner(Joiner joiner) {
       this.joiner = joiner;
       return this;
     }
 
-    public Builder<T> withPartitioner(Partitioner partitioner) {
+    public Builder withPartitioner(Partitioner partitioner) {
       this.partitioner = partitioner;
       return this;
     }
@@ -99,11 +98,21 @@ public interface Config {
     }
 
     @Override
-    public Function<FactorSpace, SchemafulTupleSet> generator(Requirement requirement) {
-      return (FactorSpace factorSpace) ->
-          new SchemafulTupleSet.Builder(factorSpace.getFactors().stream().map(Factor::getName).collect(toList()))
-              .addAll(generatorFactory.create(emptyList(), factorSpace, requirement).generate())
-              .build();
+    public Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement) {
+      return (FactorSpace factorSpace) -> new SchemafulTupleSet.Builder(
+          factorSpace.getFactors().stream(
+          ).map(
+              Factor::getName
+          ).collect(
+              toList()
+          )
+      ).addAll(
+          generatorFactory.create(
+              factorSpace,
+              requirement,
+              ParameterSpace.encodeSeedTuples(parameterSpace, requirement.seeds())
+          ).generate()
+      ).build();
     }
 
     @Override

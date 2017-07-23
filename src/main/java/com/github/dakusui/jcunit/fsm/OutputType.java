@@ -26,7 +26,7 @@ public enum OutputType {
 
     @Override
     public Matcher<Object> returnedValueMatcher(Predicate<Object> test) {
-      throw new AssertionError("An exception is expected to be thrown, but a value was returned");
+      throw new AssertionError("An exception is expected to be thrown, but it returned normally");
     }
 
     @Override

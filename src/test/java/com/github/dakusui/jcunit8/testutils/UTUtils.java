@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toList;
 public enum UTUtils {
   ;
 
+  @SuppressWarnings("unchecked")
   public static boolean isToStringOverridden(Class klass) {
     try {
       return !Objects.equals(klass.getMethod("toString"), Object.class.getMethod("toString"));
@@ -75,7 +76,7 @@ public enum UTUtils {
   });
 
   public static <T> T print(T value) {
-    out.println(value);
+    System.out.println(value);
     return value;
   }
 

@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
 import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testutils.*;
@@ -8,6 +9,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.github.dakusui.jcunit8.testutils.UTUtils.sizeIs;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -30,9 +32,9 @@ public class CustomParameterTest extends PipelineTestBase {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         SchemafulTupleSet.fromTuples(
             new IpoGplus(
-                emptyList(),
                 customParameterFactory().create("custom1").toFactorSpace(),
-                requirement()
+                requirement(),
+                emptyList()
             ).generate()),
         UTUtils.matcher(
             UTUtils.oracle(
@@ -85,11 +87,9 @@ public class CustomParameterTest extends PipelineTestBase {
             )
         ),
         UTUtils.matcher(
-            /* TODO
             ParameterSpaceUtils.hasParameters(2),
             ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Simple.class),
             ParameterSpaceUtils.hasConstraints(1)
-            */
         )
     );
   }
@@ -106,12 +106,10 @@ public class CustomParameterTest extends PipelineTestBase {
                 )
             )),
         UTUtils.matcher(
-            /*
             ParameterSpaceUtils.hasParameters(1),
             ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Simple.class),
             ParameterSpaceUtils.sizeOfParameterKnownValuesSatisfies("custom1", value -> value > 0),
             ParameterSpaceUtils.hasConstraints(1)
-            */
         )
     );
   }
@@ -124,12 +122,8 @@ public class CustomParameterTest extends PipelineTestBase {
             emptyList()
         ),
         UTUtils.matcher(
-            /* TODO
-            sizeIs(
-                // Custom parameter should generate more than 3 tests
-                oracle(">3", value -> value > 3)
-            )
-            */
+            // Custom parameter should generate more than 3 tests
+            sizeIs(">3", value -> value > 3)
         )
     );
   }

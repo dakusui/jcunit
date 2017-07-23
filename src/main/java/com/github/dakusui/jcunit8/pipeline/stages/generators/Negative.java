@@ -10,33 +10,63 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class Negative extends Generator.Base {
-  public Negative(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-    super(seeds, factorSpace, requirement);
+  private final List<Tuple> regularTestCases;
+  private final List<Tuple> seeds;
+
+  public Negative(List<Tuple> regularTestCases, List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
+    super(factorSpace, requirement);
+    this.regularTestCases = regularTestCases;
+    this.seeds = seeds;
   }
 
   @Override
   public List<Tuple> generateCore() {
-    return generateNegativeTests(seeds, factorSpace);
+    return generateNegativeTests(this.regularTestCases, factorSpace, seeds);
   }
 
-  private static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace) {
+  private static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace, List<Tuple> seeds) {
     return new LinkedList<Tuple>() {{
-      factorSpace.getConstraints()
-          .forEach(
-              (Constraint each) ->
-                  createNegativeTestForConstraint(
+      //noinspection SimplifiableConditionalExpression
+      factorSpace.getConstraints(
+      ).stream(
+      ).peek(
+          System.out::println
+      ).filter(
+          (Constraint each) -> seeds.stream(
+          ).filter(
+              ////
+              //   If there exists any seed which violates one and only one constraint,
+              // a (negative) test case to violate the constraint doesn't need to be generated.
+              //   Such a constraint is filtered out here.
+              (Tuple seed) -> factorSpace.getConstraints(
+              ).stream(
+              ).peek(
+                  System.err::println
+              ).allMatch(
+                  (Constraint constraint) ->
+                      each == constraint ?
+                          !constraint.test(seed) : // Violates each constraint
+                          constraint.test(seed)    // But not violate any others
+              )
+          ).collect(toList()).size() != 1
+      ).forEach(
+          (Constraint each) ->
+              createNegativeTestForConstraint(
+                  each,
+                  exclude(
                       each,
-                      exclude(
-                          each,
-                          factorSpace.getConstraints()
-                      ),
-                      composeFactorMap(factorSpace),
-                      tuples
-                  ).ifPresent(this::add)
-          );
+                      factorSpace.getConstraints()
+                  ),
+                  composeFactorMap(factorSpace),
+                  tuples
+              ).ifPresent(
+                  this::add
+              )
+      );
     }};
   }
 
@@ -93,7 +123,7 @@ public class Negative extends Generator.Base {
   }
 
   private static Cartesianator<Object> createCartesianator(final Constraint target, final Map<String, List<Object>> parameters) {
-    return new Cartesianator<Object>(target.involvedKeys().stream().map(parameters::get).collect(Collectors.toList())) {
+    return new Cartesianator<Object>(target.involvedKeys().stream().map(parameters::get).collect(toList())) {
     };
   }
 

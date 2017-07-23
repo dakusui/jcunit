@@ -93,6 +93,7 @@ public class ParserTest extends PipelineTestBase {
     new Parser().parse(input()).accept(new RegexTestUtils.ExprTreePrinter(NAME_FORMATTER));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void printGeneratedList() {
     Parameter.Regex<String> parameter = Parameter.Regex.Factory.of(input()).create("input");
@@ -106,8 +107,8 @@ public class ParserTest extends PipelineTestBase {
               (List) each.get().get("input")
           ));
     }
-    //noinspection unchecked
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());
+    builtTestSuite.forEach(System.out::println);
     assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
   }
 
@@ -128,8 +129,9 @@ public class ParserTest extends PipelineTestBase {
     return this._input.split("\\;")[0];
   }
 
+  @SuppressWarnings("unchecked")
   private Matcher generatedStringsMatcher() {
-    //noinspection unchecked
+
     return CoreMatchers.allOf(
         CoreMatchers.is(possibleStrings(expectationForGeneratedStrings()))
     );

@@ -1,6 +1,13 @@
 package com.github.dakusui.jcunit8.factorspace;
 
-import java.util.*;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 
@@ -12,9 +19,9 @@ public interface FactorSpace {
         factors.forEach(each -> put(each.getName(), each));
       }};
 
+      @SuppressWarnings("unchecked")
       @Override
       public List<Factor> getFactors() {
-        //noinspection unchecked
         return (List<Factor>) factors;
       }
 
@@ -40,4 +47,12 @@ public interface FactorSpace {
   List<Factor> getFactors();
 
   Factor getFactor(String name);
+
+  default Stream<Tuple> stream() {
+    return new StreamableTupleCartesianator(getFactors()).stream();
+  }
+
+  default List<String> getFactorNames() {
+    return FactorUtils.toFactorNames(this.getFactors());
+  }
 }

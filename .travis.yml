@@ -4,7 +4,12 @@ jdk:
   - oraclejdk8
 
 #script: "mvn cobertura:cobertura"
+<<<<<<< HEAD
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
+=======
+>>>>>>> 3ae8af4f31e63696868881d4691d50e065e2f460
 
+#after_success:
+#- bash <(curl -s https://codecov.io/bash)

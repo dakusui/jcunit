@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -23,8 +24,13 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   }
 
   @Override
-  public ValuePair composeValueFrom(Tuple tuple) {
+  public ValuePair composeValue(Tuple tuple) {
     return new ValuePair(getValue(tuple, "a"), getValue(tuple, "b"));
+  }
+
+  @Override
+  public Optional<Tuple> decomposeValue(ValuePair value) {
+    throw new UnsupportedOperationException();
   }
 
   @Override

@@ -75,9 +75,9 @@ public interface TestOracle<T, U> extends Predicate<T> {
         @Override
         public Matcher<T> toMatcher() {
           return new BaseMatcher<T>() {
+            @SuppressWarnings("unchecked")
             @Override
             public boolean matches(Object item) {
-              //noinspection unchecked
               return test((T) item);
             }
 
@@ -92,9 +92,9 @@ public interface TestOracle<T, U> extends Predicate<T> {
               );
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public void describeMismatch(Object item, Description description) {
-              //noinspection unchecked
               description
                   .appendText("but {x} was ")
                   .appendValue(Objects.toString(item))

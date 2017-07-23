@@ -1,10 +1,14 @@
 package com.github.dakusui.jcunit8.factorspace;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public interface ParameterSpace {
   List<String> getParameterNames();
@@ -12,6 +16,23 @@ public interface ParameterSpace {
   <P> Parameter<P> getParameter(String name);
 
   List<Constraint> getConstraints();
+
+  default Tuple encodeTuple(Tuple tuple) {
+    Tuple.Builder builder = Tuple.builder();
+    getParameterNames().forEach(
+        each -> getParameter(each).decomposeValue(tuple.get(each)).ifPresent(builder::putAll)
+    );
+    return builder.build();
+  }
+
+  static List<Tuple> encodeSeedTuples(ParameterSpace parameterSpace, List<Tuple> seeds) {
+    return seeds.stream(
+    ).map(
+        parameterSpace::encodeTuple
+    ).collect(
+        toList()
+    );
+  }
 
   class Builder {
     List<Parameter>  parameters  = new LinkedList<>();
@@ -41,16 +62,24 @@ public interface ParameterSpace {
       return new ParameterSpace() {
         @Override
         public List<String> getParameterNames() {
-          return parameters.stream().map(Parameter::getName).collect(Collectors.toList());
+          return parameters.stream().map(Parameter::getName).collect(toList());
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public <P> Parameter<P> getParameter(String name) {
-          //noinspection unchecked,OptionalGetWithoutIsPresent
-          return (Parameter<P>) (parameters
-              .stream()
-              .filter(parameter -> parameter.getName().equals(name))
-              .findFirst().<Parameter<P>>get());
+          return (Parameter<P>) (parameters.stream(
+
+          ).filter(
+              parameter -> parameter.getName().equals(name)
+          ).findFirst(
+          ).orElseThrow(
+              () -> new RuntimeException(format(
+                  "Parameter '%s' was requested but not found. Existing parameters are %s",
+                  name,
+                  getParameterNames()
+              ))
+          ));
         }
 
         @Override
@@ -60,7 +89,7 @@ public interface ParameterSpace {
 
         @Override
         public String toString() {
-          return String.format("parameters:%s,constraints:%s", parameters, constraints);
+          return format("parameters:%s,constraints:%s", parameters, constraints);
         }
       };
     }

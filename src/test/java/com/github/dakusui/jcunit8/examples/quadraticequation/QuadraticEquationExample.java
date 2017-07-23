@@ -2,10 +2,7 @@ package com.github.dakusui.jcunit8.examples.quadraticequation;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
@@ -22,7 +19,7 @@ public class QuadraticEquationExample {
 
   @ParameterSource
   public Simple.Factory<Integer> b() {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, 4, 8));
+    return Simple.Factory.of(asList(-2, -1, 0, 1, 2, 4, 8));
   }
 
   @ParameterSource

@@ -1,11 +1,14 @@
 package com.github.dakusui.jcunit8.factorspace.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.regex.*;
-import com.github.dakusui.jcunit8.core.Utils;
+import com.github.dakusui.jcunit.regex.Expr;
+import com.github.dakusui.jcunit.regex.Reference;
+import com.github.dakusui.jcunit.regex.RegexTranslator;
+import com.github.dakusui.jcunit.regex.Value;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -13,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.github.dakusui.jcunit.core.utils.Utils.concatenate;
+import static java.util.Objects.requireNonNull;
 
 public class RegexDecomposer extends RegexTranslator {
 
@@ -32,7 +36,7 @@ public class RegexDecomposer extends RegexTranslator {
       List<Object> b = new LinkedList<>();
       if (!isTopLevel(eachKey)) {
         if (isReferencedByAltDirectlyOrIndirectly(eachKey) || isAlt(eachKey)) {
-          b.add(Utils.VOID);
+          b.add(Generator.VOID);
         }
       }
       if (isAlt(eachKey)) {
@@ -69,11 +73,11 @@ public class RegexDecomposer extends RegexTranslator {
         public boolean test(Tuple in) {
           for (String eachReferrer : referrers) {
             Object referrerValue = in.get(eachReferrer);
-            if (!Utils.VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {
-              return !Utils.VOID.equals(in.get(referee));
+            if (!Generator.VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {
+              return !Generator.VOID.equals(in.get(referee));
             }
           }
-          return Utils.VOID.equals(in.get(referee));
+          return Generator.VOID.equals(in.get(referee));
         }
 
         @Override
@@ -86,9 +90,9 @@ public class RegexDecomposer extends RegexTranslator {
           return tag;
         }
 
+        @SuppressWarnings("unchecked")
         boolean isReferencedBy(Object referrerValue) {
-          //noinspection unchecked
-          return ((List<Object>) referrerValue).stream()
+          return ((List<Object>) requireNonNull(referrerValue)).stream()
               .anyMatch(
                   (Object each) ->
                       each instanceof Reference &&

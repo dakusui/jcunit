@@ -30,9 +30,9 @@ public enum ReflectionUtils {
    * @param f   A field of which value is retrieved.
    * @param <T> Category of the returned value.
    */
+  @SuppressWarnings("unchecked")
   public static <T> T getFieldValue(Object obj, Field f) {
     try {
-      //noinspection unchecked
       return (T) Checks.checknotnull(f).get(obj);
     } catch (IllegalAccessException e) {
       throw Checks.wrap(e);

@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface TestCase {
   enum Category {
+    SEED,
     REGULAR,
     NEGATIVE;
 
