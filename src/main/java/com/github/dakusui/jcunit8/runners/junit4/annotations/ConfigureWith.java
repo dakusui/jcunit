@@ -37,6 +37,7 @@ public @interface ConfigureWith {
    * is specified, ) the same class to which {@code CondigureWith} annotation is
    * attached is used to create a parameter space Object.
    *
+   * @return A class that defines parameter space or {@code Object.class}.
    * @see com.github.dakusui.jcunit8.factorspace.ParameterSpace
    * @see ParameterSource
    * @see Condition

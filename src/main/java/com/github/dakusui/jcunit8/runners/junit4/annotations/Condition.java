@@ -24,7 +24,7 @@ public @interface Condition {
      * Validates a precondition method.
      * A precondition method is a method annotated with {@literal @}{@code Precondition} or referred to by an annotation {@literal @}Given.
      * It is mainly used to determine if a test method (or methods) should be executed in advance.
-     * <p/>
+     * <p>
      * It must be public, non-static, returning a boolean value, and must have no parameter.
      * In case it is not valid, this method add a string message which describes the failure to {@code errors} list.
      */
@@ -79,9 +79,9 @@ public @interface Condition {
   }
 
   /**
-   * This attribute is currently only used by SmartConstraintChecker. And unless the checker is present,
-   * the method this annotation is attached to will not be treated as a constraint even if this value
-   * is set to {@code true}.
+   * Returns if this condition is a constraint or not
+   *
+   * @return tells if this condition is a constraint or not.
    */
   boolean constraint() default false;
 }

@@ -120,7 +120,9 @@ public enum Utils {
   }
 
   /**
+   * Creates and returns an instance of a class represented by {@code TestClass}.
    * @param testClass Must be validated beforehand.
+   * @return created instance.
    */
   public static Object createInstanceOf(TestClass testClass) {
     try {
