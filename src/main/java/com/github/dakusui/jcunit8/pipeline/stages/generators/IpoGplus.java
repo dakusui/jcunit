@@ -371,6 +371,10 @@ public class IpoGplus extends Generator.Base {
    * ts is a list of partial test cases,  each of which has same keys.
    * We already know that ts doesn't contain any test that covers σ.
    * This method chooses tests from ts by
+   *
+   * @param ts A set of (incomplete) tests.
+   * @param  σ A tuple to be covered.
+   * @return A stream of possible incomplete tests that cover σ.
    */
   public static Stream<Tuple> streamIncompleteTestsToCoverGivenTuple(List<Tuple> ts, final Tuple σ) {
     return ts.stream()
