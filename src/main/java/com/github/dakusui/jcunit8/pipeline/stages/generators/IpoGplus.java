@@ -116,6 +116,7 @@ public class IpoGplus extends Generator.Base {
     List<Constraint> allConstraints = this.factorSpace.getConstraints();
     List<Tuple> ts = streamAllPossibleTuples(allFactors.subList(0, t), t)
         .filter(isAllowedTuple(allFactors, allConstraints)) // (*1)
+        .filter(tuple -> !this.precovered.contains(tuple))
         .collect(toList());
     if (ts.isEmpty())
       return emptyList();
@@ -373,7 +374,7 @@ public class IpoGplus extends Generator.Base {
    * This method chooses tests from ts by
    *
    * @param ts A set of (incomplete) tests.
-   * @param  σ A tuple to be covered.
+   * @param σ  A tuple to be covered.
    * @return A stream of possible incomplete tests that cover σ.
    */
   public static Stream<Tuple> streamIncompleteTestsToCoverGivenTuple(List<Tuple> ts, final Tuple σ) {
