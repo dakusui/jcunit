@@ -34,6 +34,8 @@ public class IpoGplus extends Generator.Base {
     this.precovered = new TupleSet.Builder().addAll(
         seeds.stream(
         ).filter(
+            tuple -> tuple.keySet().containsAll(factorSpace.getFactorNames())
+        ).filter(
             ////
             // tuples covered by negative tests should not be considered
             // covered.

@@ -40,6 +40,8 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
    */
   Expectation<SUT> expectation(Action<SUT> action, Args args);
 
+  <SPEC extends FsmSpec<SUT>> SPEC spec();
+
   class Base<SUT> implements State<SUT> {
     final         FsmSpec<SUT>            stateSpec;
     private final Map<String, Method>     actionMethods;
@@ -100,6 +102,12 @@ public interface State<SUT> extends StateChecker<SUT>, Serializable {
         );
       }
       return ret;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <SPEC extends FsmSpec<SUT>> SPEC spec() {
+      return (SPEC) this.stateSpec;
     }
 
     @Override

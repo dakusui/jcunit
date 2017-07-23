@@ -1,12 +1,15 @@
 package com.github.dakusui.jcunit.core.tuples;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+
+import static java.util.Arrays.asList;
 
 public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
   @SuppressWarnings("unchecked")
@@ -21,6 +24,22 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
 
     public Builder putAll(Map<String, Object> map) {
       this.attrs.putAll(map);
+      return this;
+    }
+
+    public Builder putRegex(String k, String... elements) {
+      this.attrs.put(
+          k,
+          asList(elements)
+      );
+      return this;
+    }
+
+    public <SUT> Builder putFsm(Scenario<SUT> fsmScenario) {
+      this.attrs.put(
+          fsmScenario.name(),
+          fsmScenario
+      );
       return this;
     }
 

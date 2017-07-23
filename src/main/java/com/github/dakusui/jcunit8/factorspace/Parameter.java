@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
 import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import com.github.dakusui.jcunit.regex.Expr;
@@ -72,7 +73,9 @@ public interface Parameter<T> {
     static <V> Optional<Tuple> _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
       AtomicReference<Optional<Tuple>> fallback = new AtomicReference<>(Optional.empty());
       return tuples.filter(
-          tuple -> value.equals(valueComposer.apply(tuple))
+          (Tuple tuple) -> {
+            return value.equals(valueComposer.apply(tuple));
+          }
       ).filter(
           constraints
       ).findFirst(
@@ -249,7 +252,13 @@ public interface Parameter<T> {
         return _decomposeValue(
             value,
             this.factorSpace.stream(),
-            this.composer::composeValueFrom,
+            tuple -> {
+              try {
+                return this.composer.composeValueFrom(tuple);
+              } catch (InvalidTestException e) {
+                return false;
+              }
+            },
             Utils.conjunct(this.factorSpace.getConstraints())
         );
       }

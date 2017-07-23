@@ -22,6 +22,7 @@ public class Expectation<SUT> {
    * Expected state after an action is performed.
    */
   public final  State<SUT>    state;
+
   /**
    * A checker which verifies a returned value or a thrown exception.
    */

@@ -47,7 +47,7 @@ public interface Pipeline {
                 config.getRequirement().generateNegativeTests(),
                 toFactorSpaceForNegativeTestGeneration(parameterSpace),
                 regularTestTuples,
-                ParameterSpace.encodeSeedTuples(parameterSpace, config.getRequirement().seeds()),
+                config.getRequirement().seeds(),
                 config.getRequirement()
             ).generate()
         );

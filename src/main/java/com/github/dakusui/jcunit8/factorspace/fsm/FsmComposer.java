@@ -19,12 +19,13 @@ public class FsmComposer<SUT> extends FsmTupleAccessor<SUT> {
   public Scenario<SUT> composeValueFrom(Tuple tuple) {
     Sequence<SUT> main = composeScenarioFromTuple(tuple);
     return new Scenario.Impl<>(
+        this.name,
         composeScenarioToBringUpFsmTo(main.get(0).from),
         main
     );
   }
 
-  private Sequence<SUT> composeScenarioToBringUpFsmTo(State<SUT> destination) {
+  Sequence<SUT> composeScenarioToBringUpFsmTo(State<SUT> destination) {
     if (Objects.equals(this.model.initialState(), destination)) {
       return new Sequence.Builder<SUT>().build();
     }

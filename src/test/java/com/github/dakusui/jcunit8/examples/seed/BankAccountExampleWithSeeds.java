@@ -6,8 +6,6 @@ import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 
-import static java.util.Arrays.asList;
-
 @ConfigureWith(BankAccountExampleWithSeeds.Config.class)
 public class BankAccountExampleWithSeeds extends BankAccountExample {
   public static class Config extends ConfigFactory.Base {
@@ -16,8 +14,8 @@ public class BankAccountExampleWithSeeds extends BankAccountExample {
       return defaultValues.withNegativeTestGeneration(
           false
       ).addSeed(
-          new Tuple.Builder().put(
-              "scenario", asList("open", "deposit", "withdraw", "getBalance")
+         Tuple.builder().putRegex(
+              "scenario", "open", "deposit", "withdraw", "getBalance"
           ).put(
               "depositAmount", 300
           ).put(

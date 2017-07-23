@@ -29,7 +29,7 @@ public interface Sequence<SUT> extends List<Edge<SUT>>, Stimulus<SUT> {
   }
 
   class Builder<SUT> {
-    private final LinkedList<Edge<SUT>> edges;
+    protected final LinkedList<Edge<SUT>> edges;
 
     public Builder() {
       this.edges = new LinkedList<>();

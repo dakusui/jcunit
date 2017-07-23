@@ -28,6 +28,10 @@ public interface FiniteStateMachine<SUT> {
 
   List<Action<SUT>> actions();
 
+  static <SUT> FiniteStateMachine<SUT> create(String fsmName, Class<? extends FsmSpec<SUT>> specClass) {
+    return new Impl<>(fsmName, specClass);
+  }
+
   class Impl<SUT> implements FiniteStateMachine<SUT> {
     private List<State<SUT>>  states;
     private List<Action<SUT>> actions;
