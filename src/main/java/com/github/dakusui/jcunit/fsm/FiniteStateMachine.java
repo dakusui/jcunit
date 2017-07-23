@@ -31,6 +31,10 @@ public interface FiniteStateMachine<SUT> {
 
   List<Action<SUT>> actions();
 
+  static <SUT> FiniteStateMachine<SUT> create(String fsmName, Class<? extends FsmSpec<SUT>> specClass) {
+    return new Impl<>(fsmName, specClass);
+  }
+
   class Impl<SUT> implements FiniteStateMachine<SUT> {
     private List<State<SUT>>  states;
     private List<Action<SUT>> actions;
@@ -136,6 +140,7 @@ public interface FiniteStateMachine<SUT> {
     /**
      * {@code paramsField} can be numm if {@code actionMethod} doesn't have any parameter.
      */
+    @SuppressWarnings("unchecked")
     private Action<SUT> createAction(final Method actionMethod, final Field paramsField) {
       final Parameters parameters;
       if (paramsField == null) {

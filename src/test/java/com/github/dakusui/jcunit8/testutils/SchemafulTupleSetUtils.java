@@ -8,8 +8,8 @@ import static org.junit.Assert.assertThat;
 public enum SchemafulTupleSetUtils {
   ;
   public static void validateSchemafulTupleSet(SchemafulTupleSet tupleSet, Matcher<SchemafulTupleSet> matcher) {
-    com.github.dakusui.jcunit8.core.Utils.out().println("tupleSet:" + tupleSet.size());
-    tupleSet.forEach(t -> com.github.dakusui.jcunit8.core.Utils.out().println(t));
+    System.out.println("tupleSet:" + tupleSet.size());
+    tupleSet.forEach(System.out::println);
     assertThat(tupleSet, matcher);
   }
 }

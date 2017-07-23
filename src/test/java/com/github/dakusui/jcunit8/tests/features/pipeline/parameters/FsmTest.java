@@ -34,7 +34,6 @@ public class FsmTest extends PipelineTestBase {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         SchemafulTupleSet.fromTuples(
             new Cartesian(
-                emptyList(),
                 Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1)
                     .create("fsm1")
                     .toFactorSpace(),

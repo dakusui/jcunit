@@ -59,6 +59,7 @@ class FsmTupleAccessor<SUT> {
     return tuple.get(composeActionParamFactorName(name, i, j));
   }
 
+
   @SuppressWarnings("unchecked")
   Stream<Edge<SUT>> allPossibleEdges(Predicate<State<SUT>> from, Predicate<Action<SUT>> action, Predicate<State<SUT>> to) {
     return new StreamableCartesianator<Object>(

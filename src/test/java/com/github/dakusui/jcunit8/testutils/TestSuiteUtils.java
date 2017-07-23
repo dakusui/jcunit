@@ -10,7 +10,7 @@ public enum TestSuiteUtils {
 
   public static void validateTestSuite(TestSuite testSuite, Matcher<TestSuite> matcher) {
     testSuite.forEach(
-        each -> com.github.dakusui.jcunit8.core.Utils.out().println(each)
+        System.out::println
     );
     assertThat(testSuite, matcher);
   }

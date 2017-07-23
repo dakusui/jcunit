@@ -1,11 +1,13 @@
 package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
 import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit.regex.RegexComposer;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmComposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
 import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
@@ -13,8 +15,11 @@ import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.checkValue;
 import static java.util.Collections.*;
@@ -31,7 +36,9 @@ public interface Parameter<T> {
 
   FactorSpace toFactorSpace();
 
-  T composeValueFrom(Tuple tuple);
+  T composeValue(Tuple tuple);
+
+  Optional<Tuple> decomposeValue(T value);
 
   List<T> getKnownValues();
 
@@ -63,6 +70,17 @@ public interface Parameter<T> {
 
     protected abstract List<Constraint> generateConstraints();
 
+    static <V> Optional<Tuple> _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
+      AtomicReference<Optional<Tuple>> fallback = new AtomicReference<>(Optional.empty());
+      return tuples.filter(
+          (Tuple tuple) -> {
+            return value.equals(valueComposer.apply(tuple));
+          }
+      ).filter(
+          constraints
+      ).findFirst(
+      );
+    }
   }
 
   interface Factory<T> {
@@ -74,8 +92,7 @@ public interface Parameter<T> {
 
     abstract class Base<T> implements Factory<T> {
 
-      protected final List<T>      knownValues = new LinkedList<>();
-      protected       Predicate<T> check       = t -> true;
+      protected final List<T> knownValues = new LinkedList<>();
 
       @SuppressWarnings("unchecked")
       @Override
@@ -114,8 +131,13 @@ public interface Parameter<T> {
 
       @SuppressWarnings("unchecked")
       @Override
-      public T composeValueFrom(Tuple tuple) {
+      public T composeValue(Tuple tuple) {
         return (T) tuple.get(getName());
+      }
+
+      @Override
+      public Optional<Tuple> decomposeValue(T value) {
+        return Optional.of(Tuple.builder().put(name, value).build());
       }
 
       @Override
@@ -156,9 +178,17 @@ public interface Parameter<T> {
         this.factorSpace = translator.decompose();
       }
 
+      public Optional<Tuple> decomposeValue(List<U> value) {
+        return _decomposeValue(
+            value,
+            this.factorSpace.stream(),
+            this.regexComposer::compose,
+            Utils.conjunct(this.factorSpace.getConstraints())
+        );
+      }
 
       @Override
-      public List<U> composeValueFrom(Tuple tuple) {
+      public List<U> composeValue(Tuple tuple) {
         return composeStringValueFrom(tuple).stream().map(func).collect(toList());
       }
 
@@ -183,7 +213,7 @@ public interface Parameter<T> {
 
       @Override
       public Regex<T> create(String name) {
-        return create(name, regex, knownValues, func, check);
+        return create(name, regex, knownValues, func);
       }
 
       public static <T> Factory<T> of(String regex, Function<String, T> func) {
@@ -199,7 +229,7 @@ public interface Parameter<T> {
         this.func = requireNonNull(func);
       }
 
-      private static <U> Regex<U> create(String name, String regex, List<List<U>> knownValues, Function<String, U> func, Predicate<List<U>> check) {
+      private static <U> Regex<U> create(String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
         return new Impl<>(name, regex, knownValues, func);
       }
     }
@@ -218,7 +248,23 @@ public interface Parameter<T> {
       }
 
       @Override
-      public Scenario<SUT> composeValueFrom(Tuple tuple) {
+      public Optional<Tuple> decomposeValue(Scenario<SUT> value) {
+        return _decomposeValue(
+            value,
+            this.factorSpace.stream(),
+            tuple -> {
+              try {
+                return this.composer.composeValueFrom(tuple);
+              } catch (InvalidTestException e) {
+                return false;
+              }
+            },
+            Utils.conjunct(this.factorSpace.getConstraints())
+        );
+      }
+
+      @Override
+      public Scenario<SUT> composeValue(Tuple tuple) {
         return composer.composeValueFrom(tuple);
       }
 

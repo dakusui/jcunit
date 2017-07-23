@@ -8,12 +8,15 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import java.util.List;
 
 public class Passthrough extends Generator.Base {
-  public Passthrough(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-    super(seeds, factorSpace, requirement);
+  private final List<Tuple> testCases;
+
+  public Passthrough(List<Tuple> testCases, FactorSpace factorSpace, Requirement requirement) {
+    super(factorSpace, requirement);
+    this.testCases = testCases;
   }
 
   @Override
   public List<Tuple> generateCore() {
-    return this.seeds;
+    return testCases;
   }
 }

@@ -4,6 +4,9 @@ import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +21,8 @@ import static java.util.stream.Collectors.toList;
 public enum UTUtils {
   ;
 
-  public static boolean isToStringOverridden(Class<?> klass) {
+  @SuppressWarnings("unchecked")
+  public static boolean isToStringOverridden(Class klass) {
     try {
       return !Objects.equals(klass.getMethod("toString"), Object.class.getMethod("toString"));
     } catch (NoSuchMethodException e) {
@@ -42,10 +46,41 @@ public enum UTUtils {
     );
   }
 
+  public static boolean isRunByMaven() {
+    final String s = System.getProperty("sun.java.command");
+    return s != null && s.contains("surefire");
+  }
+
+  public synchronized static void configureStdIOs() {
+    if (UTUtils.isRunByMaven()) {
+      setSilent();
+      System.setOut(DUMMY_PRINTSTREAM);
+      System.setErr(DUMMY_PRINTSTREAM);
+    } else {
+      setVerbose();
+    }
+  }
+
+  public synchronized static void setSilent() {
+    out = DUMMY_PRINTSTREAM;
+  }
+
+  public synchronized static void setVerbose() {
+    out = System.out;
+  }
+
+  public static final PrintStream DUMMY_PRINTSTREAM = new PrintStream(new OutputStream() {
+    @Override
+    public void write(int b) throws IOException {
+    }
+  });
+
   public static <T> T print(T value) {
-    com.github.dakusui.jcunit8.core.Utils.out().println(value);
+    System.out.println(value);
     return value;
   }
+
+  private static PrintStream out = System.out;
 
   /**
    * Names a predicate and returns it.

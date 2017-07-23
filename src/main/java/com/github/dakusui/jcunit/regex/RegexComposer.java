@@ -25,7 +25,6 @@ public class RegexComposer {
     return splitOnWhiteSpaces(visitor.out);
   }
 
-
   private List<String> splitOnWhiteSpaces(List<Object> in) {
     List<String> ret = new LinkedList<>();
     for (Object each : in) {

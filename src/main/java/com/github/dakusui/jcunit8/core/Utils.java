@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
@@ -37,7 +38,7 @@ public enum Utils {
 
   public static <T> Function<T, T> printer(Function<T, String> formatter) {
     return t -> {
-      Utils.out().println(formatter.apply(t));
+      System.out.println(formatter.apply(t));
       return t;
     };
   }
@@ -129,29 +130,11 @@ public enum Utils {
     }
   }
 
-  public static boolean isRunByMaven() {
-    final String s = System.getProperty("sun.java.command");
-    return s != null && s.contains("surefire");
-  }
-
-  public synchronized static void configureStdIOs() {
-    if (isRunByMaven()) {
-      setSilent();
-    } else {
-      setVerbose();
+  public static <T extends Predicate<E>, E> Predicate<E> conjunct(Iterable<T> predicates) {
+    Predicate<E> ret = tuple -> true;
+    for (Predicate<E> each : predicates) {
+      ret = ret.and(each);
     }
-  }
-
-  public synchronized static void setSilent() {
-    out = DUMMY_PRINTSTREAM;
-  }
-
-  public synchronized static void setVerbose() {
-    out = System.out;
-  }
-
-  public static PrintStream out() {
-    configureStdIOs();
-    return out;
+    return ret;
   }
 }

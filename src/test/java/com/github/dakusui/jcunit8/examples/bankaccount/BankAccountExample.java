@@ -2,9 +2,9 @@ package com.github.dakusui.jcunit8.examples.bankaccount;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
+import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith.ConfigFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -89,7 +89,7 @@ public class BankAccountExample {
     return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
   }
 
-  static int calculateBalance(List<String> scenario,
+  private static int calculateBalance(List<String> scenario,
       int amountOfDeposit,
       int amountOfWithdraw,
       int amountOfTransfer) {
@@ -132,7 +132,7 @@ public class BankAccountExample {
       @From("withdrawAmount") int amountOfWithdraw,
       @From("transferAmount") int amountOfTransfer
   ) {
-    com.github.dakusui.jcunit8.core.Utils.out().println(scenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer);
+    System.out.println(scenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer);
   }
 
   private int perform(

@@ -51,7 +51,7 @@ public enum Utils {
     // In most cases, it's better to use LinkedHashMap in JCUnit because
     // it needs to guarantee the test case generation generatedTuples the same always.
     // So this method returns LinkedHashMap instead of HashMap.
-    Map<K, V> ret = new LinkedHashMap<K, V>();
+    Map<K, V> ret = new LinkedHashMap<>();
     for (V each : in) {
       ret.put(form.apply(each), each);
     }

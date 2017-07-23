@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 public class PartitionerTest extends PipelineTestBase {
@@ -34,8 +33,8 @@ public class PartitionerTest extends PipelineTestBase {
         UTUtils.matcher()
     );
 
-    com.github.dakusui.jcunit8.core.Utils.out().println(
-        new Cartesian(Collections.emptyList(), factorSpaces.get(0), requirement()).generate().size()
+    System.out.println(
+        new Cartesian(factorSpaces.get(0), requirement()).generate().size()
     );
   }
 }

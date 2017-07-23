@@ -27,6 +27,7 @@ public enum NodeUtils {
       private Predicate<Tuple> result;
       private final SortedSet<String> involvedKeys = new TreeSet<>();
 
+      @SuppressWarnings("unchecked")
       @Override
       public void visitLeaf(Node.Leaf leaf) {
         TestPredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);

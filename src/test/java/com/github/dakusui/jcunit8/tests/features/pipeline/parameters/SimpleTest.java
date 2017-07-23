@@ -17,7 +17,7 @@ public class SimpleTest extends PipelineTestBase {
         Parameter.Simple.Factory.of(asList("A1", "A2", "A3")).create("A"),
         Parameter.Simple.Factory.of(asList("B1", "B2", "B3")).create("B")
     )) {
-      com.github.dakusui.jcunit8.core.Utils.out().println(each.get());
+      System.out.println(each.get());
     }
   }
 

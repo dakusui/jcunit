@@ -39,9 +39,9 @@ public class RegexTest extends PipelineTestBase {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         SchemafulTupleSet.fromTuples(
             new IpoGplus(
-                emptyList(),
                 Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
-                requirement()
+                requirement(),
+                emptyList()
             ).generate()),
         UTUtils.matcherFromPredicates(
             sizeIs(">0", value -> value > 0),

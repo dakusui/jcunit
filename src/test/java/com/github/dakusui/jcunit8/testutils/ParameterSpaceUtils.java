@@ -81,14 +81,14 @@ public enum ParameterSpaceUtils {
   }
 
   public static void validateParameterSpace(ParameterSpace parameterSpace, Matcher<ParameterSpace> matcher) {
-    com.github.dakusui.jcunit8.core.Utils.out().println("parameters");
+    System.out.println("parameters");
     parameterSpace.getParameterNames()
         .forEach(
-            parameterName -> com.github.dakusui.jcunit8.core.Utils.out().println("  " + parameterSpace.getParameter(parameterName))
+            parameterName -> System.out.println("  " + parameterSpace.getParameter(parameterName))
         );
-    com.github.dakusui.jcunit8.core.Utils.out().println("constraints");
+    System.out.println("constraints");
     parameterSpace.getConstraints().forEach(
-        o -> com.github.dakusui.jcunit8.core.Utils.out().println("  " + o)
+        o -> System.out.println("  " + o)
     );
     assertThat(parameterSpace, matcher);
   }

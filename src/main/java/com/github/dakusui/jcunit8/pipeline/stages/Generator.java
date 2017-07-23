@@ -29,12 +29,10 @@ public interface Generator {
   List<Tuple> generate();
 
   abstract class Base implements Generator {
-    protected final List<Tuple> seeds;
     protected final FactorSpace factorSpace;
     protected final Requirement requirement;
 
-    protected Base(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-      this.seeds = seeds;
+    protected Base(FactorSpace factorSpace, Requirement requirement) {
       this.factorSpace = factorSpace;
       this.requirement = requirement;
     }
@@ -53,15 +51,15 @@ public interface Generator {
   }
 
   interface Factory {
-    Generator create(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement);
+    Generator create(FactorSpace factorSpace, Requirement requirement, List<Tuple> encodedSeeds);
 
     class Standard implements Factory {
       @Override
-      public Generator create(List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
+      public Generator create(FactorSpace factorSpace, Requirement requirement, List<Tuple> encodedSeeds) {
         if (requirement.strength() < factorSpace.getFactors().size()) {
-          return new IpoGplus(seeds, factorSpace, requirement);
+          return new IpoGplus(factorSpace, requirement, encodedSeeds);
         }
-        return new Cartesian(seeds, factorSpace, requirement);
+        return new Cartesian(factorSpace, requirement);
       }
     }
   }

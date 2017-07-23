@@ -48,16 +48,16 @@ public enum FactorSpaceUtils {
   }
 
   public static void validateFactorSpace(FactorSpace factorSpace, Matcher<FactorSpace> matcher) {
-    com.github.dakusui.jcunit8.core.Utils.out().println("factors");
+    System.out.println("factors");
     factorSpace.getFactors().stream()
         .map(Object::toString)
         .map(s -> "  " + s)
-        .forEach(t -> com.github.dakusui.jcunit8.core.Utils.out().println(t));
-    com.github.dakusui.jcunit8.core.Utils.out().println("constraints");
+        .forEach(System.out::println);
+    System.out.println("constraints");
     factorSpace.getConstraints().stream()
         .map(Object::toString)
         .map(s -> "  " + s)
-        .forEach(t -> com.github.dakusui.jcunit8.core.Utils.out().println(t));
+        .forEach(System.out::println);
     assertThat(factorSpace, matcher);
   }
 }

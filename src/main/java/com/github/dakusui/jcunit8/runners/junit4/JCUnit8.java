@@ -7,9 +7,9 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
+import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
@@ -33,6 +33,7 @@ import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
@@ -152,7 +153,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
   private ConfigFactory getConfigFactory() {
     try {
-      //noinspection unchecked
       return getConfigureWithAnnotation().value().newInstance();
     } catch (InstantiationException | IllegalAccessException e) {
       throw TestDefinitionException.wrap(e);
@@ -187,10 +187,14 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
           try {
             return new MyBlockJUnit4ClassRunner(i.getAndIncrement(), tupleTestCase);
           } catch (InitializationError initializationError) {
-            throw unexpectedByDesign(initializationError);
+            throw unexpectedByDesign(formatInitializationErrorMessage(initializationError));
           }
         })
         .collect(toList());
+  }
+
+  private static String formatInitializationErrorMessage(InitializationError e) {
+    return e.getCauses().stream().map(Throwable::getMessage).collect(Collectors.joining());
   }
 
   private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
@@ -224,17 +228,22 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   private static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
     return Stream.of(method.getMethod().getParameterAnnotations())
         .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
-        .map((List<? extends Annotation> annotations) -> (A) annotations.stream()
-            .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
-            .findFirst()
-            .orElseThrow(
-                () -> parameterWithoutAnnotation(
-                    format(
-                        "%s.%s",
-                        method.getDeclaringClass().getCanonicalName(),
-                        method.getName()
-                    ))))
-        .collect(toList());
+        .map(
+            (List<? extends Annotation> annotations) ->
+                (A) annotations.stream(
+
+                ).filter(
+                    (Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass())
+                ).findFirst(
+
+                ).orElseThrow(
+                    () -> parameterWithoutAnnotation(
+                        format(
+                            "%s.%s",
+                            method.getDeclaringClass().getCanonicalName(),
+                            method.getName()
+                        )))
+        ).collect(toList());
   }
 
   /**

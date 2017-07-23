@@ -29,7 +29,7 @@ public interface Sequence<SUT> extends List<Edge<SUT>>, Stimulus<SUT> {
   }
 
   class Builder<SUT> {
-    private final LinkedList<Edge<SUT>> edges;
+    protected final LinkedList<Edge<SUT>> edges;
 
     public Builder() {
       this.edges = new LinkedList<>();
@@ -41,7 +41,7 @@ public interface Sequence<SUT> extends List<Edge<SUT>>, Stimulus<SUT> {
     }
 
     public Builder<SUT> addAll(List<Edge<SUT>> edges) {
-      edges.forEach(Builder.this.edges::add);
+      Builder.this.edges.addAll(edges);
       return this;
     }
 

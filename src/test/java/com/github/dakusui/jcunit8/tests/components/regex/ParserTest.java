@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -75,12 +76,12 @@ public class ParserTest extends PipelineTestBase {
 
   @Before
   public void before() {
-    com.github.dakusui.jcunit8.core.Utils.configureStdIOs();
+    UTUtils.configureStdIOs();
   }
 
   @Test
   public void parseTreePrintingWithId() {
-    com.github.dakusui.jcunit8.core.Utils.out().println("input expression:" + input());
+    System.out.println("input expression:" + input());
     new Parser().parse(input()).accept(
         new RegexTestUtils.ExprTreePrinter(ID_FORMATTER)
     );
@@ -88,10 +89,11 @@ public class ParserTest extends PipelineTestBase {
 
   @Test
   public void parseTreePrintingWithName() {
-    com.github.dakusui.jcunit8.core.Utils.out().println("input expression:" + input());
+    System.out.println("input expression:" + input());
     new Parser().parse(input()).accept(new RegexTestUtils.ExprTreePrinter(NAME_FORMATTER));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void printGeneratedList() {
     Parameter.Regex<String> parameter = Parameter.Regex.Factory.of(input()).create("input");
@@ -106,6 +108,7 @@ public class ParserTest extends PipelineTestBase {
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());
+    builtTestSuite.forEach(System.out::println);
     assertEquals(expectationForGeneratedStrings().split(",").length, builtTestSuite.size());
   }
 
@@ -127,7 +130,8 @@ public class ParserTest extends PipelineTestBase {
   }
 
   @SuppressWarnings("unchecked")
-  private Matcher<Set<String>> generatedStringsMatcher() {
+  private Matcher generatedStringsMatcher() {
+
     return CoreMatchers.allOf(
         CoreMatchers.is(possibleStrings(expectationForGeneratedStrings()))
     );

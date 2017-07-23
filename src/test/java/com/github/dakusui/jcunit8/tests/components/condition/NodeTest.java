@@ -3,6 +3,8 @@ package com.github.dakusui.jcunit8.tests.components.condition;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runners.model.TestClass;
 
@@ -12,6 +14,11 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 public class NodeTest {
+  @Before
+  public void before() {
+    UTUtils.configureStdIOs();
+  }
+
   @Test
   public void givenTokens$whenAllLeaves$thenCorrectlyTokenized() {
     assertThat(
