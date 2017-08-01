@@ -20,6 +20,7 @@ import org.junit.Test;
 import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
@@ -310,6 +311,10 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       } catch (Throwable t) {
         throw unexpectedByDesign(t);
       }
+    }
+
+    protected Statement classBlock(final RunNotifier notifier) {
+      return childrenInvoker(notifier);
     }
 
     /**
