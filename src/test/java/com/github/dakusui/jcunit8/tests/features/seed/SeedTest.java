@@ -1,14 +1,17 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
-import com.github.dakusui.crest.core.Printable;
+import com.github.dakusui.crest.functions.CrestFunctions;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
-import java.util.function.Function;
+import java.util.LinkedList;
+import java.util.List;
 
-import static com.github.dakusui.crest.matcherbuilders.Crest.*;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asInteger;
+import static com.github.dakusui.crest.core.Assertion.assertThat;
 
 /*
  * Seed feature test.
@@ -43,83 +46,86 @@ import static com.github.dakusui.crest.matcherbuilders.Crest.*;
  * - T04: Seeds:[Sa,Sb], Constraints:[Cb], Negative:enabled;
  *        1. Sa is at 0.
  *        2. Sb is at 1.
- *        3. No test case that violates Cb is generated except for Sa.
- *
+ *        3. No test case that violates Cb is generated except for Sa and Sb.
+ * - T05: Seeds:[Sb], Constraints:[Cb], Negative:enabled;
+
  * Check points
  * - tuple covered by seeds shouldn't be placed in generated regular test cases
  * - all the possible tuples should be covered by regular test cases
  * - constraint violated by a seed without violating any others shouldn't be covered
  *   by generated negative test cases if negative test generation is enabled.
  * - all the constraints should be violated by negative test cases.
+ * - Test suite
+ *   t-way coverage
+ *   Constraint coverage (when negative test generation enabled)
+ *   no redundant test cases
  */
 public class SeedTest {
   @Test
-  public void simpleSeeds() {
+  public void runT00() {
     assertThat(
-        JUnitCore.runClasses(SeedFeatureTestBase.SeedsForSimpleParameters.class),
+        generateTestCasesByRunningTestClass(SeedFeatureTestBase.T00.class),
         allOf(
-            asBoolean("wasSuccessful").isFalse().$(),
-            asInteger("getRunCount").eq(5).$(),
-            asInteger("getFailureCount").eq(5).$(),
-            asString(messageOfFailureAt(0)).containsString("a=0,b=0,c=0").$(),
-            asString(messageOfFailureAt(1)).containsString("a=1,b=1,c=1").$()
+            asInteger(CrestFunctions.size()).equalTo(4).$()
         )
     );
   }
 
   @Test
-  public void simpleSeedsWithConstraint() {
+  public void runT01() {
     assertThat(
-        JUnitCore.runClasses(SeedFeatureTestBase.SeedsForSimpleParametersWithConstraint.class),
+        generateTestCasesByRunningTestClass(SeedFeatureTestBase.T01.class),
         allOf(
-            asBoolean("wasSuccessful").isFalse().$(),
-            asInteger("getRunCount").eq(6).$(),
-            asInteger("getFailureCount").eq(6).$(),
-            asString(messageOfFailureAt(0)).containsString("a=0,b=0,c=0").$(),
-            asListOf(
-                Failure.class,
-                Printable.function(
-                    "getFailures", Result::getFailures
-                ).andThen(Printable.function(
-                    "subList", list -> list.subList(1, list.size())
-                ))).noneMatch(
-                Printable.predicate(
-                    "b=0,c=0", (Failure f) -> f.getMessage().contains("b=0,c=0")
-                )
-            ).$()
+            asInteger(CrestFunctions.size()).equalTo(4).$()
         )
     );
   }
 
   @Test
-  public void simpleSeedWithConstraint() {
-    ////
-    // This test makes sure once constraint violation b != c is violated by a seed,
-    // JCUnit doesn't try to cover it again even if negative test generation is
-    // enabled.
+  public void runT02() {
     assertThat(
-        JUnitCore.runClasses(SeedFeatureTestBase.SeedForSimpleParametersWithConstraint.class),
+        generateTestCasesByRunningTestClass(SeedFeatureTestBase.T02.class),
         allOf(
-            asBoolean("wasSuccessful").isFalse().$(),
-            asInteger("getRunCount").eq(6).$(),
-            asInteger("getFailureCount").eq(6).$(),
-            asString(messageOfFailureAt(0)).containsString("a=0,b=0,c=0").$(),
-            asListOf(
-                Failure.class,
-                Printable.function(
-                    "getFailures", Result::getFailures
-                ).andThen(Printable.function(
-                    "subList", list -> list.subList(1, list.size())
-                ))).noneMatch(
-                Printable.predicate(
-                    "b=0,c=0", (Failure f) -> f.getMessage().contains("b=0,c=0")
-                )
-            ).$()
+            asInteger(CrestFunctions.size()).equalTo(5).$()
         )
     );
   }
 
-  private Function<Result, String> messageOfFailureAt(int i) {
-    return Printable.function("messageOfFailureAt[" + i + "]", (Result r) -> r.getFailures().get(i).getMessage());
+  @Test
+  public void runT03() {
+    assertThat(
+        generateTestCasesByRunningTestClass(SeedFeatureTestBase.T03.class),
+        allOf(
+            asInteger(CrestFunctions.size()).equalTo(5).$()
+        )
+    );
+  }
+
+  @Test
+  public void runT04() {
+    assertThat(
+        generateTestCasesByRunningTestClass(SeedFeatureTestBase.T04.class),
+        allOf(
+            asInteger(CrestFunctions.size()).equalTo(5).$()
+        )
+    );
+  }
+
+  @Test
+  public void runT05() {
+    assertThat(
+        generateTestCasesByRunningTestClass(SeedFeatureTestBase.T05.class),
+        allOf(
+            asInteger(CrestFunctions.size()).equalTo(5).$()
+        )
+    );
+  }
+
+  private List<Tuple> generateTestCasesByRunningTestClass(Class klass) {
+    synchronized (SeedFeatureTestBase.testCases) {
+      SeedFeatureTestBase.testCases.clear();
+      Assert.assertTrue(JUnitCore.runClasses(klass).wasSuccessful());
+      return new LinkedList<>(SeedFeatureTestBase.testCases);
+    }
   }
 }

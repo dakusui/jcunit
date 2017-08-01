@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
@@ -9,30 +10,15 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import static java.util.Arrays.asList;
-import static org.junit.Assert.fail;
 
 @RunWith(JCUnit8.class)
 public class SeedFeatureTestBase {
-  interface Ca {
-    @Condition(constraint = true)
-    default boolean aIsNotEqualToB(
-        @From("a") int a,
-        @From("b") int b
-    ) {
-      return a != b;
-    }
-  }
-
-  interface Cb {
-    @Condition(constraint = true)
-    default boolean bIsNotEqualToC(
-        @From("b") int b,
-        @From("c") int c
-    ) {
-      return b != c;
-    }
-  }
+  static final List<Tuple> testCases = Collections.synchronizedList(new LinkedList<>());
 
   @ParameterSource
   public Parameter.Simple.Factory<Integer> a() {
@@ -49,8 +35,33 @@ public class SeedFeatureTestBase {
     return Parameter.Simple.Factory.of(asList(0, 1));
   }
 
-  @ConfigureWith(TestConfig.ConfigWithSa.class)
-  public static class SeedForSimpleParametersWithConstraint extends SeedFeatureTestBase {
+  @Test
+  public void test(
+      @From("a") int a,
+      @From("b") int b,
+      @From("c") int c
+  ) {
+    String msg = String.format("a=%d,b=%d,c=%d%n", a, b, c);
+    System.out.print(msg);
+    testCases.add(Tuple.builder()
+        .put("a", a)
+        .put("b", b)
+        .put("c", c)
+        .build());
+  }
+
+  @ConfigureWith(TestConfig.SeedNone$NegativeTestEnabled.class)
+  public static class T00 extends SeedFeatureTestBase {
+    // Ca
+    @Condition(constraint = true)
+    public boolean aIsEqualToB(
+        @From("a") int a,
+        @From("b") int b
+    ) {
+      return a == b;
+    }
+
+    // Cb
     @Condition(constraint = true)
     public boolean bIsNotEqualToC(
         @From("b") int b,
@@ -58,42 +69,75 @@ public class SeedFeatureTestBase {
     ) {
       return b != c;
     }
-
-
-    @Test
-    public void test(
-        @From("a") int a,
-        @From("b") int b,
-        @From("c") int c
-    ) {
-      String msg = String.format("a=%d,b=%d,c=%d%n", a, b, c);
-      System.out.print(msg);
-      fail(msg);
-    }
   }
 
-  @ConfigureWith(TestConfig.ConfigWithSaAndSb.class)
-  public static class SeedsForSimpleParameters extends SeedFeatureTestBase {
-
-    @Test
-    public void test(
-        @From("a") int a,
-        @From("b") int b,
-        @From("c") int c
-    ) {
-      String msg = String.format("a=%d,b=%d,c=%d%n", a, b, c);
-      System.out.print(msg);
-      fail(msg);
-    }
-  }
-
-  public static class SeedsForSimpleParametersWithConstraint extends SeedsForSimpleParameters {
+  @ConfigureWith(TestConfig.SeedSa$NegativeTestDisabled.class)
+  public static class T01 extends SeedFeatureTestBase {
+    // Ca
     @Condition(constraint = true)
-    public boolean ifBIs0ThenBIsNotEqualToC(
+    public boolean aIsEqualToB(
+        @From("a") int a,
+        @From("b") int b
+    ) {
+      return a == b;
+    }
+
+  }
+
+  @ConfigureWith(TestConfig.SeedSa$NegativeTestEnabled.class)
+  public static class T02 extends SeedFeatureTestBase {
+    // Ca
+    @Condition(constraint = true)
+    public boolean aIsEqualToB(
+        @From("a") int a,
+        @From("b") int b
+    ) {
+      return a == b;
+    }
+  }
+
+  @ConfigureWith(TestConfig.SeedSa$NegativeTestEnabled.class)
+  public static class T03 extends SeedFeatureTestBase {
+    // Cb
+    @Condition(constraint = true)
+    public boolean bIsNotEqualToC(
         @From("b") int b,
         @From("c") int c
     ) {
-      return b != 0 || b != c;
+      return b != c;
+    }
+  }
+
+  @ConfigureWith(TestConfig.SeedSaAndSb$NegativeEnabled.class)
+  public static class T04 extends SeedFeatureTestBase {
+    // Ca
+    @Condition(constraint = true)
+    public boolean aIsEqualToB(
+        @From("a") int a,
+        @From("b") int b
+    ) {
+      return a == b;
+    }
+
+    // Cb
+    @Condition(constraint = true)
+    public boolean bIsNotEqualToC(
+        @From("b") int b,
+        @From("c") int c
+    ) {
+      return b != c;
+    }
+  }
+
+  @ConfigureWith(TestConfig.SeedSb$NegativeEnabled.class)
+  public static class T05 extends SeedFeatureTestBase {
+    // Cb
+    @Condition(constraint = true)
+    public boolean bIsNotEqualToC(
+        @From("b") int b,
+        @From("c") int c
+    ) {
+      return b != c;
     }
   }
 }

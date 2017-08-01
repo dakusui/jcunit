@@ -6,7 +6,7 @@ import org.junit.runner.JUnitCore;
 
 import java.util.List;
 
-import static com.github.dakusui.crest.matcherbuilders.Crest.*;
+import static com.github.dakusui.crest.Crest.*;
 
 public class BeforeAfterTest {
   @Test
