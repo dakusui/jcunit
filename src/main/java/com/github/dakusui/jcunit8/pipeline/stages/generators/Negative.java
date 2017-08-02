@@ -33,8 +33,6 @@ public class Negative extends Generator.Base {
       //noinspection SimplifiableConditionalExpression
       factorSpace.getConstraints(
       ).stream(
-      ).peek(
-          System.out::println
       ).filter(
           (Constraint each) -> seeds.stream(
           ).filter(
@@ -44,8 +42,6 @@ public class Negative extends Generator.Base {
               //   Such a constraint is filtered out here.
               (Tuple seed) -> factorSpace.getConstraints(
               ).stream(
-              ).peek(
-                  System.err::println
               ).allMatch(
                   (Constraint constraint) ->
                       each == constraint ?
