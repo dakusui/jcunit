@@ -17,6 +17,13 @@ import static java.util.Objects.requireNonNull;
  * This class eliminates those tuples on its construction.
  */
 public interface TestSuite extends List<TestCase> {
+  /**
+   * Returns a parameter space from which this instance is created.
+   *
+   * @return parameter space
+   */
+  ParameterSpace getParameterSpace();
+
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
@@ -74,6 +81,11 @@ public interface TestSuite extends List<TestCase> {
         @Override
         public int size() {
           return this.testCases.size();
+        }
+
+        @Override
+        public ParameterSpace getParameterSpace() {
+          return parameterSpace;
         }
       }
       return new Impl();

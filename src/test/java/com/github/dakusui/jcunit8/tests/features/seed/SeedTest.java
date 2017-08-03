@@ -11,7 +11,7 @@ import java.util.List;
 
 import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.core.Assertion.assertThat;
+import static com.github.dakusui.crest.Crest.assertThat;
 
 /*
  * Seed feature test.
