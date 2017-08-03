@@ -27,9 +27,13 @@ public interface SchemafulTupleSet extends List<Tuple> {
   static SchemafulTupleSet fromTuples(List<Tuple> tuples_) {
     Objects.requireNonNull(tuples_);
     FrameworkException.check(tuples_, tuples -> !tuples.isEmpty());
-    return new Builder(tuples_.get(0).keySet().stream().collect(toList()))
+    return new Builder(new ArrayList<>(tuples_.get(0).keySet()))
         .addAll(tuples_)
         .build();
+  }
+
+  static SchemafulTupleSet empty(List<String> attributeNames) {
+    return new Builder(attributeNames).build();
   }
 
   class Builder {

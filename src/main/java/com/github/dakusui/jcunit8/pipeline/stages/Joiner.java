@@ -21,7 +21,14 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     @Override
     public SchemafulTupleSet apply(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       FrameworkException.checkCondition(Collections.disjoint(lhs.getAttributeNames(), rhs.getAttributeNames()));
-      return outerJoin(lhs, rhs);
+      if (lhs.size() > rhs.size())
+        return outerJoin(lhs, rhs);
+      if (lhs.isEmpty())
+        return SchemafulTupleSet.empty(new LinkedList<String>() {{
+          addAll(lhs.getAttributeNames());
+          addAll(rhs.getAttributeNames());
+        }});
+      return outerJoin(rhs, lhs);
     }
 
     protected abstract SchemafulTupleSet outerJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs);

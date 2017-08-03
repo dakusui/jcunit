@@ -9,6 +9,7 @@ import java.util.List;
 import static com.github.dakusui.crest.Crest.*;
 
 public class BeforeAfterTest {
+  @SuppressWarnings("unchecked")
   @Test
   public void testBeforeAfter() {
     synchronized (BeforeAfter.log) {
