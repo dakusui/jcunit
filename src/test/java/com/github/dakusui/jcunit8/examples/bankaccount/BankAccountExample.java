@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit8.examples.bankaccount;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
-import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import org.junit.Test;
@@ -14,7 +13,6 @@ import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JCUnit8.class)
-@ConfigureWith(ConfigFactory.Default.class)
 public class BankAccountExample {
 
   private BankAccount myAccount;
