@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.tests.examples;
 
 import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
 import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterExample;
+import com.github.dakusui.jcunit8.examples.parameterhelper.ParameterHelperExample;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
 import com.github.dakusui.jcunit8.examples.seed.BankAccountExampleWithSeeds;
 import com.github.dakusui.jcunit8.examples.seed.QuadraticEquationExampleWithSeeds;
@@ -79,4 +80,17 @@ public class ExamplesTest {
     );
   }
 
+
+  @Test
+  public void helper() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(ParameterHelperExample.class),
+        matcher(
+            new TestOracle.Builder<Result, Result>()
+                .withTransformer("f({x})->{x}", v -> v)
+                .withTester("{x}.wasSuccessful()", Result::wasSuccessful)
+                .build()
+        )
+    );
+  }
 }
