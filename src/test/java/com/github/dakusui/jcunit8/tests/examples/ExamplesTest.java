@@ -1,6 +1,8 @@
 package com.github.dakusui.jcunit8.tests.examples;
 
 import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
+import com.github.dakusui.jcunit8.examples.beforesandafters.BeforeAfter;
+import com.github.dakusui.jcunit8.examples.beforesandafters.UnusedParameter;
 import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterExample;
 import com.github.dakusui.jcunit8.examples.parameterhelper.ParameterHelperExample;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
@@ -90,6 +92,34 @@ public class ExamplesTest {
                 .withTransformer("f({x})->{x}", v -> v)
                 .withTester("{x}.wasSuccessful()", Result::wasSuccessful)
                 .build()
+        )
+    );
+  }
+
+  @Test
+  public void beforeAfterTest() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(BeforeAfter.class),
+        matcher(
+            UTUtils.oracle("success", Result::wasSuccessful),
+            UTUtils.oracle(
+                "{x}.getRunCount", Result::getRunCount,
+                "==14", v -> v == 14
+            )
+        )
+    );
+  }
+
+  @Test
+  public void unusedParameterTest() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(UnusedParameter.class),
+        matcher(
+            UTUtils.oracle("success", Result::wasSuccessful),
+            UTUtils.oracle(
+                "{x}.getRunCount", Result::getRunCount,
+                "==2", v -> v == 2
+            )
         )
     );
   }
