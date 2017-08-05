@@ -2,8 +2,11 @@ package com.github.dakusui.jcunit8.examples.quadraticequation;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
-import org.junit.Test;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.LessThan;
 
@@ -41,6 +44,16 @@ public class QuadraticEquationExample {
     return a != 0;
   }
 
+  @BeforeClass
+  public static void beforeClass() {
+    System.out.println("beforeClass");
+  }
+
+  @Before
+  public void before() {
+    System.out.println("before");
+  }
+
   @SuppressWarnings("unused")
   @Test
   @Given("discriminantIsNonNegative")
@@ -65,6 +78,16 @@ public class QuadraticEquationExample {
     assertThat(Math.abs(a * x2 * x2 + b * x2 + c), new LessThan<>(0.01));
   }
 
+
+  @After
+  public void after() {
+    System.out.println("after");
+  }
+
+  @AfterClass
+  public static void afterClass() {
+    System.out.println("afterClass");
+  }
 
   private double sut1(int a, int b, int c) {
     System.out.printf("a=%d, b=%d, c=%d%n", a, b, c);

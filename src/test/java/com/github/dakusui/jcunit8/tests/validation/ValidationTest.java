@@ -119,8 +119,8 @@ public class ValidationTest {
             oracle(
                 "{x}.getFailures().size()",
                 result -> result.getFailures().size(),
-                "==2",
-                v -> v == 2
+                "==1",
+                v -> v == 1
             ),
             oracle(
                 "{x}.getFailures().get(0).getException()",

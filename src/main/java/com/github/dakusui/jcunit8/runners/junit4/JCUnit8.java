@@ -9,19 +9,19 @@ import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
+import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.internal.runners.statements.InvokeMethod;
+import org.junit.*;
+import org.junit.internal.runners.rules.RuleMemberValidator;
+import org.junit.internal.runners.statements.RunAfters;
+import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.ParentRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
@@ -31,6 +31,8 @@ import org.junit.validator.PublicClassValidator;
 import org.junit.validator.TestClassValidator;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -42,21 +44,9 @@ import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpecte
 import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
 import static com.github.dakusui.jcunit8.factorspace.Parameter.Factory;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class JCUnit8 extends org.junit.runners.Parameterized {
-  private static Map<Class, Class> PRIMITIVE_TO_WRAPPER = new HashMap<Class, Class>() {{
-    put(boolean.class, Boolean.class);
-    put(byte.class, Byte.class);
-    put(char.class, Character.class);
-    put(double.class, Double.class);
-    put(float.class, Float.class);
-    put(int.class, Integer.class);
-    put(long.class, Long.class);
-    put(short.class, Short.class);
-    put(void.class, Void.class);
-  }};
 
   private final TestSuite    testSuite;
   private final List<Runner> runners;
@@ -65,10 +55,18 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     super(klass);
     ConfigFactory configFactory = getConfigFactory();
     TestClass parameterSpaceDefinition = createParameterSpaceDefinitionTestClass();
+    Collection<String> involvedParameterNames = InternalUtils.involvedParameters(new TestClass(klass));
     this.testSuite = buildTestSuite(
         configFactory.create(),
         buildParameterSpace(
-            new ArrayList<>(buildParameterMap(parameterSpaceDefinition).values()),
+            new ArrayList<>(
+                buildParameterMap(parameterSpaceDefinition).values()
+            ).stream(
+            ).filter(
+                parameter -> involvedParameterNames.contains(parameter.getName())
+            ).collect(
+                toList()
+            ),
             NodeUtils.allTestPredicates(createParameterSpaceDefinitionTestClass()).values().stream()
                 .filter(each -> each instanceof Constraint)
                 .map(Constraint.class::cast)
@@ -113,7 +111,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
           public List<Exception> validateTestClass(TestClass testClass) {
             return new LinkedList<Exception>() {
               {
-                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(BeforeTestCase.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Before.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Test.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(After.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(AfterTestCase.class, testClass, this);
                 validateAtLeastOneTestMethod(testClass, this);
               }
 
@@ -126,8 +128,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
             }
           }
 
-          private void validateFromAnnotationsAreReferencingExistingParameterSourceMethods(TestClass testClass, List<Exception> errors) {
-            testClass.getAnnotatedMethods(Test.class)
+          private void validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Class<? extends Annotation> ann, TestClass testClass, List<Exception> errors) {
+            testClass.getAnnotatedMethods(ann)
                 .forEach(
                     frameworkMethod -> Stream.of(frameworkMethod.getMethod().getParameterAnnotations())
                         .forEach((Annotation[] annotations) -> Stream.of(annotations)
@@ -186,7 +188,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return this.testSuite.stream()
         .map((Function<TestCase, Runner>) tupleTestCase -> {
           try {
-            return new MyBlockJUnit4ClassRunner(i.getAndIncrement(), tupleTestCase);
+            return new TestCaseRunner(i.getAndIncrement(), tupleTestCase);
           } catch (InitializationError initializationError) {
             throw unexpectedByDesign(formatInitializationErrorMessage(initializationError));
           }
@@ -226,7 +228,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
   @SuppressWarnings("unchecked")
-  private static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
+  public static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
     return Stream.of(method.getMethod().getParameterAnnotations())
         .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
         .map(
@@ -251,7 +253,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
    * This method is only used through reflection to let JUnit know the test case is ignored since
    * no matching test method is defined for it.
    *
-   * @see JCUnit8.MyBlockJUnit4ClassRunner#getDummyMethodForNoMatchingMethodFound()
+   * @see TestCaseRunner#getDummyMethodForNoMatchingMethodFound()
    */
   @Ignore
   @SuppressWarnings({ "unused", "WeakerAccess" })
@@ -259,11 +261,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
 
-  private class MyBlockJUnit4ClassRunner extends BlockJUnit4ClassRunner {
+  public class TestCaseRunner extends BlockJUnit4ClassRunner {
     private final TestCase tupleTestCase;
     int id;
 
-    MyBlockJUnit4ClassRunner(int id, TestCase tupleTestCase) throws InitializationError {
+    TestCaseRunner(int id, TestCase tupleTestCase) throws InitializationError {
       super(JCUnit8.this.getTestClass().getJavaClass());
       this.tupleTestCase = tupleTestCase;
       this.id = id;
@@ -313,8 +315,55 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       }
     }
 
+    public TestCase getTestCase() {
+      return tupleTestCase;
+    }
+
+    @Override
+    protected void collectInitializationErrors(List<Throwable> errors) {
+      validatePublicVoidNoArgMethods(BeforeClass.class, true, errors);
+      validatePublicVoidNoArgMethods(AfterClass.class, true, errors);
+      RuleMemberValidator.CLASS_RULE_VALIDATOR.validate(getTestClass(), errors);
+      RuleMemberValidator.CLASS_RULE_METHOD_VALIDATOR.validate(getTestClass(), errors);
+      applyValidators(errors);
+    }
+
+    @Override
     protected Statement classBlock(final RunNotifier notifier) {
-      return childrenInvoker(notifier);
+      Statement statement = childrenInvoker(notifier);
+      if (!checkIfAllChildrenAreIgnored()) {
+        statement = withBeforeTestCases(statement);
+        statement = withAfterTestCases(statement);
+      }
+      return statement;
+    }
+
+    @Override
+    protected Statement withBefores(FrameworkMethod method, Object target,
+        Statement statement) {
+      List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(Before.class).stream(
+      ).map(
+          InternalUtils.frameworkMethodInvokingArgumentsFromTestCase(this, target)
+      ).collect(
+          toList()
+      );
+      return befores.isEmpty() ?
+          statement :
+          new RunBefores(statement, befores, target);
+    }
+
+    @Override
+    protected Statement withAfters(FrameworkMethod method, Object target,
+        Statement statement) {
+      List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(After.class).stream(
+      ).map(
+          InternalUtils.frameworkMethodInvokingArgumentsFromTestCase(this, target)
+      ).collect(
+          toList()
+      );
+      return afters.isEmpty() ?
+          statement :
+          new RunAfters(statement, afters, target);
     }
 
     /**
@@ -322,49 +371,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
      */
     @Override
     protected Statement methodInvoker(final FrameworkMethod method, final Object test) {
-      return new InvokeMethod(method, test) {
-        @Override
-        public void evaluate() throws Throwable {
-          Object[] args = validateArguments(
-              method,
-              method.getMethod().getParameterTypes(),
-              getParameterAnnotationsFrom(method, From.class).stream()
-                  .map(From::value)
-                  .map(s -> tupleTestCase.get().get(s))
-                  .collect(toList())
-                  .toArray()
-          );
-          method.invokeExplosively(test, args);
-        }
-      };
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object[] validateArguments(FrameworkMethod method, Class[] parameterClasses, Object[] argumentValues) {
-      // we can assume parameterClasses.length == argumentValues.length
-      for (int i = 0; i < argumentValues.length; i++) {
-        if (parameterClasses[i].isPrimitive()) {
-          if (argumentValues[i] == null || !PRIMITIVE_TO_WRAPPER.get(parameterClasses[i]).isAssignableFrom(argumentValues[i].getClass())) {
-            throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));
-          }
-        } else {
-          if (argumentValues[i] != null && !parameterClasses[i].isAssignableFrom(argumentValues[i].getClass())) {
-            throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));
-          }
-        }
+      try {
+        return InternalUtils.createMethodInvoker(method, test, this);
+      } catch (Throwable throwable) {
+        throw new Error(throwable);
       }
-      return argumentValues;
-    }
-
-    String composeErrorMessageForTypeMismatch(Object argumentValue, FrameworkMethod method, int parameterIndex) {
-      return String.format("'%s' is not compatible with parameter %s of '%s(%s)'",
-          argumentValue,
-          parameterIndex,
-          method.getName(),
-          Arrays.stream(method.getMethod().getParameterTypes())
-              .map(Class::getSimpleName)
-              .collect(joining(","))
-      );
     }
 
     @Override
@@ -400,5 +411,33 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         throw unexpectedByDesign(e);
       }
     }
+
+    private Statement withBeforeTestCases(Statement statement) {
+      List<FrameworkMethod> befores = JCUnit8.this.getTestClass().getAnnotatedMethods(BeforeTestCase.class);
+      return befores.isEmpty() ? statement :
+          InternalUtils.createRunBeforesForTestCase(statement, befores, this);
+    }
+
+    private Statement withAfterTestCases(Statement statement) {
+      List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterTestCase.class);
+      return afters.isEmpty() ? statement :
+          InternalUtils.createRunAftersForTestCase(statement, afters, this);
+    }
+
+    private boolean checkIfAllChildrenAreIgnored() {
+      try {
+        Method m = ParentRunner.class.getDeclaredMethod("areAllChildrenIgnored");
+        boolean wasAccessible = m.isAccessible();
+        m.setAccessible(true);
+        try {
+          return (boolean) m.invoke(this);
+        } finally {
+          m.setAccessible(wasAccessible);
+        }
+      } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        throw new Error(e);
+      }
+    }
   }
+
 }
