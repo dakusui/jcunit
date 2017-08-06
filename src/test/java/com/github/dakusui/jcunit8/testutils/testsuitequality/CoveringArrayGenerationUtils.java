@@ -41,7 +41,7 @@ public enum CoveringArrayGenerationUtils {
     );
   }
 
-  public static FactorSpace createFactorSpace(String prefix, int numFactors, int numLevels) {
+  public static FactorSpace createFactorSpace(String prefix, int numLevels, int numFactors) {
     return toFactorSpace(
         parameterSpace(
             IntStream.range(0, numFactors).mapToObj(
