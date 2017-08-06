@@ -12,20 +12,20 @@ import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.crest.functions.CrestPredicates.isEmpty;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CombinatorialCoverageTestUtils.failsIf;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.*;
 import static java.util.stream.Collectors.toList;
 
 public class CombinatorialCoverageTest {
   @Test
   public void given3ParametersWith1ConstraintStrength2$whenBuildTestSuite$thenValidTestSuiteBuilt() {
     givenParameterSpaceAndStrength$whenBuildTestSuite$thenCombinatorialCoverageFineAndNoConstraintIsViolated(
-        CombinatorialCoverageTestUtils.parameters(
-            CombinatorialCoverageTestUtils.p("a", 0, 1),
-            CombinatorialCoverageTestUtils.p("b", 0, 1),
-            CombinatorialCoverageTestUtils.p("c", 0, 1)
+        parameters(
+            p("a", 0, 1),
+            p("b", 0, 1),
+            p("c", 0, 1)
         ),
-        CombinatorialCoverageTestUtils.constraints(
-            CombinatorialCoverageTestUtils.c(tuple -> tuple.get("a").equals(tuple.get("b")), "a", "b")
+        constraints(
+            c(tuple -> tuple.get("a").equals(tuple.get("b")), "a", "b")
         ),
         2
     );
@@ -34,14 +34,14 @@ public class CombinatorialCoverageTest {
   @Test
   public void given4ParametersWith1ConstraintStrength2$whenBuildTestSuite$thenValidTestSuiteBuilt() {
     givenParameterSpaceAndStrength$whenBuildTestSuite$thenCombinatorialCoverageFineAndNoConstraintIsViolated(
-        CombinatorialCoverageTestUtils.parameters(
-            CombinatorialCoverageTestUtils.p("a", 0, 1),
-            CombinatorialCoverageTestUtils.p("b", 0, 1),
-            CombinatorialCoverageTestUtils.p("c", 0, 1),
-            CombinatorialCoverageTestUtils.p("d", 0, 1)
+        parameters(
+            p("a", 0, 1),
+            p("b", 0, 1),
+            p("c", 0, 1),
+            p("d", 0, 1)
         ),
-        CombinatorialCoverageTestUtils.constraints(
-            CombinatorialCoverageTestUtils.c(tuple -> tuple.get("a").equals(tuple.get("b")), "a", "b")
+        constraints(
+            c(tuple -> tuple.get("a").equals(tuple.get("b")), "a", "b")
         ),
         2
     );
@@ -51,13 +51,13 @@ public class CombinatorialCoverageTest {
   @Test
   public void given4ParametersWithNoConstraintStrength3$whenBuildTestSuite$thenValidTestSuiteBuilt() {
     givenParameterSpaceAndStrength$whenBuildTestSuite$thenCombinatorialCoverageFineAndNoConstraintIsViolated(
-        CombinatorialCoverageTestUtils.parameters(
-            CombinatorialCoverageTestUtils.p("a", 0, 1),
-            CombinatorialCoverageTestUtils.p("b", 0, 1),
-            CombinatorialCoverageTestUtils.p("c", 0, 1),
-            CombinatorialCoverageTestUtils.p("d", 0, 1)
+        parameters(
+            p("a", 0, 1),
+            p("b", 0, 1),
+            p("c", 0, 1),
+            p("d", 0, 1)
         ),
-        CombinatorialCoverageTestUtils.constraints(
+        constraints(
         ),
         3
     );
@@ -66,14 +66,14 @@ public class CombinatorialCoverageTest {
   @Test
   public void given3ParametersWith2ConstraintThatMake1LevelInvalidStrength2$whenBuildTestSuite$thenValidTestSuiteBuilt() {
     givenParameterSpaceAndStrength$whenBuildTestSuite$thenCombinatorialCoverageFineAndNoConstraintIsViolated(
-        CombinatorialCoverageTestUtils.parameters(
-            CombinatorialCoverageTestUtils.p("a", 0, 1),
-            CombinatorialCoverageTestUtils.p("b", 0, 1),
-            CombinatorialCoverageTestUtils.p("c", 0, 1)
+        parameters(
+            p("a", 0, 1),
+            p("b", 0, 1),
+            p("c", 0, 1)
         ),
-        CombinatorialCoverageTestUtils.constraints(
-            CombinatorialCoverageTestUtils.c(tuple -> !(tuple.get("a").equals(0) && tuple.get("b").equals(0)), "a", "b"),
-            CombinatorialCoverageTestUtils.c(tuple -> !(tuple.get("a").equals(0) && tuple.get("b").equals(1)), "a", "b")
+        constraints(
+            c(tuple -> !(tuple.get("a").equals(0) && tuple.get("b").equals(0)), "a", "b"),
+            c(tuple -> !(tuple.get("a").equals(0) && tuple.get("b").equals(1)), "a", "b")
         ),
         2
     );
@@ -83,10 +83,10 @@ public class CombinatorialCoverageTest {
       List<Parameter> parameters, List<Constraint> constraints, int strength
   ) {
     System.out.println(
-        CombinatorialCoverageTestUtils.allPossibleTuples(strength, parameters)
+        CoveringArrayGenerationUtils.allPossibleTuples(strength, parameters)
     );
     assertTestSuite(
-        CombinatorialCoverageTestUtils.buildTestSuite(
+        CoveringArrayGenerationUtils.buildTestSuite(
             strength,
             parameters,
             constraints
@@ -106,7 +106,7 @@ public class CombinatorialCoverageTest {
             asListOf(Tuple.class,
                 Printable.function(
                     "coveredTuples",
-                    (TestSuite suite) -> CombinatorialCoverageTestUtils.coveredTuples(
+                    (TestSuite suite) -> CoveringArrayGenerationUtils.coveredTuples(
                         strength,
                         suite.stream().map(
                             TestCase::get
@@ -115,16 +115,16 @@ public class CombinatorialCoverageTest {
                         )
                     ))
             ).containsAll(
-                CombinatorialCoverageTestUtils.allPossibleTuples(strength, parameters)
+                CoveringArrayGenerationUtils.allPossibleTuples(strength, parameters)
             ).check(
                 Printable.function(
                     "tuplesNotCoveredByTestSuite",
-                    (List<Tuple> coveredTuples) -> CombinatorialCoverageTestUtils.subtract(CombinatorialCoverageTestUtils.allPossibleTuples(strength, parameters), coveredTuples)
+                    (List<Tuple> coveredTuples) -> CoveringArrayGenerationUtils.subtract(CoveringArrayGenerationUtils.allPossibleTuples(strength, parameters), coveredTuples)
                 ),
                 Printable.predicate(
                     "areAllViolation",
                     (List<Tuple> missingTuples) -> missingTuples.stream().noneMatch(
-                        tuple -> CombinatorialCoverageTestUtils.findAllowedSuperTupleFor(tuple, testSuite.getParameterSpace()).isPresent()
+                        tuple -> CoveringArrayGenerationUtils.findAllowedSuperTupleFor(tuple, testSuite.getParameterSpace()).isPresent()
                     )
                 )
             ).any(),

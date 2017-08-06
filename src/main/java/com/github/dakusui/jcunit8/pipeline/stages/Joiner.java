@@ -65,6 +65,20 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
           break;
         work.add(tuple);
       }
+      ////
+      // If there are tuples in lhs not used in work, they should be added to the
+      // list. Otherwise t-way tuples covered by them will not be covered by the
+      // final result. Same thing can be said in rhs.
+      lhs.stream().filter(
+          each -> !isUsed(each, work)
+      ).forEach(
+          each -> work.add(connect(each, rhs.get(lhs.indexOf(each) % rhs.size())))
+      );
+      rhs.stream().filter(
+          each -> !isUsed(each, work)
+      ).forEach(
+          each -> work.add(connect(lhs.get(rhs.indexOf(each)), each))
+      );
       return new SchemafulTupleSet.Builder(
           Stream.concat(
               lhs.getAttributeNames().stream(),
@@ -72,6 +86,10 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
           ).collect(toList()))
           .addAll(work)
           .build();
+    }
+
+    private boolean isUsed(Tuple tuple, List<Tuple> work) {
+      return work.stream().anyMatch(tuple::isSubtupleOf);
     }
 
     private Tuple connect(Tuple tuple1, Tuple tuple2) {

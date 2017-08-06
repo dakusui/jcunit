@@ -6,20 +6,20 @@ import com.github.dakusui.crest.matcherbuilders.primitives.AsBoolean;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;
-import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.crest.Crest.asBoolean;
@@ -27,8 +27,74 @@ import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
-public enum CombinatorialCoverageTestUtils {
+public enum CoveringArrayGenerationUtils {
   ;
+
+  public static FactorSpace mergeFactorSpaces(FactorSpace lhsFactorSpace, FactorSpace rhsFactorSpace) {
+    return FactorSpace.create(
+        Stream.concat(
+            lhsFactorSpace.getFactors().stream(), rhsFactorSpace.getFactors().stream()
+        ).collect(toList()),
+        Stream.concat(
+            lhsFactorSpace.getConstraints().stream(), rhsFactorSpace.getConstraints().stream()
+        ).collect(toList())
+    );
+  }
+
+  public static FactorSpace createFactorSpace(String prefix, int numFactors, int numLevels) {
+    return toFactorSpace(
+        parameterSpace(
+            IntStream.range(0, numFactors).mapToObj(
+                i -> String.format("%s-%02d", prefix, i)
+            ).map(
+                name -> p(name, IntStream.range(0, numLevels).mapToObj(i -> i).collect(toList()).toArray())
+            ).collect(toList()),
+            Collections.emptyList()
+        )
+    );
+  }
+
+  public static ParameterSpace parameterSpace(List<Parameter> parameters, List<Constraint> constraints) {
+    return new ParameterSpace.Builder()
+        .addAllParameters(parameters)
+        .addAllConstraints(constraints)
+        .build();
+  }
+
+  public static FactorSpace factorSpace(List<Parameter> parameters, List<Constraint> constraints) {
+    return toFactorSpace(parameterSpace(parameters, constraints));
+  }
+
+  public static FactorSpace toFactorSpace(ParameterSpace parameterSpace) {
+    return FactorSpace.create(
+        parameterSpace.getParameterNames().stream(
+        ).map(
+            parameterSpace::getParameter
+        ).map(
+            parameter -> Factor.create(parameter.getName(), parameter.getKnownValues().toArray())
+        ).collect(
+            toList()
+        ),
+        parameterSpace.getConstraints()
+    );
+  }
+
+  public static List<Tuple> generateWithIpoGplus(FactorSpace factorSpace, int strength) {
+    return new IpoGplus(
+        factorSpace,
+        new Requirement.Builder().withStrength(strength).build(),
+        Collections.emptyList()
+    ).generate();
+  }
+
+  public static List<Tuple> join(List<Tuple> lhs, List<Tuple> rhs, int strength) {
+    return new Joiner.Standard(
+        new Requirement.Builder().withStrength(strength).build()
+    ).apply(
+        SchemafulTupleSet.fromTuples(lhs),
+        SchemafulTupleSet.fromTuples(rhs)
+    );
+  }
 
   public static List<Tuple> coveredTuples(int strength, Collection<Tuple> in) {
     return Utils.unique(
@@ -90,6 +156,16 @@ public enum CombinatorialCoverageTestUtils {
     return Parameter.Simple.Factory.of(asList(levels)).create(name);
   }
 
+  public static List<Tuple> allPossibleTuplesInFactors(int strength, List<Factor> factors) {
+    return allPossibleTuples(
+        strength,
+        factors.stream().map(
+            f -> p(f.getName(), f.getLevels().toArray())
+        ).collect(
+            toList()
+        ));
+  }
+
   public static List<Tuple> allPossibleTuples(int strength, List<Parameter> parameters) {
     return allPossibleTuples(strength, parameters.toArray(new Parameter[parameters.size()]));
   }
@@ -132,15 +208,15 @@ public enum CombinatorialCoverageTestUtils {
     ).buildTestSuite();
   }
 
-  static List<Constraint> constraints(Constraint... constraints) {
+  public static List<Constraint> constraints(Constraint... constraints) {
     return asList(constraints);
   }
 
-  static Constraint c(Predicate<Tuple> constraint, String... involvedKeys) {
+  public static Constraint c(Predicate<Tuple> constraint, String... involvedKeys) {
     return Constraint.create(constraint, involvedKeys);
   }
 
-  static List<Parameter> parameters(Parameter... parameters) {
+  public static List<Parameter> parameters(Parameter... parameters) {
     return asList(parameters);
   }
 
@@ -192,12 +268,7 @@ public enum CombinatorialCoverageTestUtils {
                   this.strength
               ).build()
           ).build(),
-          new ParameterSpace.Builder(
-          ).addAllConstraints(
-              constraints
-          ).addAllParameters(
-              parameters
-          ).build()
+          parameterSpace(parameters, constraints)
       );
     }
   }
