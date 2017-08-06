@@ -15,6 +15,118 @@ import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArra
 import static java.util.stream.Collectors.toList;
 
 public class JoinExperiment {
+  static class StopWatch {
+    long last = System.currentTimeMillis();
+
+    long get() {
+      return -last + (last = System.currentTimeMillis());
+    }
+
+    public static void main(String... args) throws InterruptedException {
+      StopWatch stopWatch = new StopWatch();
+      Thread.sleep(100);
+      System.out.println(stopWatch.get());
+    }
+  }
+
+  static class Report {
+    final long timeLhsGeneration;
+    final long timeRhsGeneration;
+    final long timeMergedGeneration;
+    final long timeJoining;
+    final int  sizeLhs;
+    final int  sizeRhs;
+    final int  sizeMerged;
+    final int  sizeJoined;
+
+    Report(long timeLhsGeneration, long timeRhsGeneration, long timeMergedGeneration, long timeJoining, int sizeLhs, int sizeRhs, int sizeMerged, int sizeJoined) {
+      this.timeLhsGeneration = timeLhsGeneration;
+      this.timeRhsGeneration = timeRhsGeneration;
+      this.timeMergedGeneration = timeMergedGeneration;
+      this.timeJoining = timeJoining;
+      this.sizeLhs = sizeLhs;
+      this.sizeRhs = sizeRhs;
+      this.sizeMerged = sizeMerged;
+      this.sizeJoined = sizeJoined;
+    }
+
+    @Override
+    public String toString() {
+      return String.format(
+          "lhs:[size=%d,time=%d],rhs:[size=%d,time=%d],merged:[size=%d,time%d],joined:[size=%d,time=%d]",
+          this.sizeLhs, this.timeLhsGeneration,
+          this.sizeRhs, this.timeRhsGeneration,
+          this.sizeMerged, this.timeMergedGeneration,
+          this.sizeJoined, this.timeJoining
+      );
+    }
+
+    static class Builder {
+      private long timeLhs;
+      private long timeRhs;
+      private long timeMerged;
+      private long timeJoining;
+      private int  sizeLhs;
+      private int  sizeRhs;
+      private int  sizeMerged;
+      private int  sizeJoining;
+
+      public Builder timeLhs(long time) {
+        this.timeLhs = time;
+        return this;
+      }
+
+      public Builder timeRhs(long time) {
+        this.timeRhs = time;
+        return this;
+      }
+
+      public Builder timeMerged(long time) {
+        this.timeMerged = time;
+        return this;
+      }
+
+      public Builder timeJoining(long time) {
+        this.timeJoining = time;
+        return this;
+      }
+
+      public Builder sizeLhs(int size) {
+        this.sizeLhs = size;
+        return this;
+      }
+
+      public Builder sizeRhs(int size) {
+        this.sizeRhs = size;
+        return this;
+      }
+
+      public Builder sizeMerged(int size) {
+        this.sizeMerged = size;
+        return this;
+      }
+
+      public Builder sizeJoining(int size) {
+        this.sizeJoining = size;
+        return this;
+      }
+
+      Report build() {
+        return new Report(
+            this.timeLhs,
+            this.timeRhs,
+            this.timeMerged,
+            this.timeJoining,
+            this.sizeLhs,
+            this.sizeRhs,
+            this.sizeMerged,
+            this.sizeJoining
+        );
+      }
+    }
+
+  }
+
   @Test
   public void smallAndSmall() {
     List<Tuple> lhs = generateWithIpoGplus(
@@ -175,51 +287,87 @@ public class JoinExperiment {
   public void test() {
     FactorSpace lhsFactorSpace;
     List<Tuple> lhs = generateWithIpoGplus(
-        lhsFactorSpace = createFactorSpace("F", 6, 2),
+        lhsFactorSpace = createFactorSpace("F", 2, 6),
         2
     );
 
     assertCoveringArray(lhs, lhsFactorSpace);
   }
 
+  @Test
+  public void test2$2$30() {
+    System.out.println(report(2, 2, 50));
+  }
 
   @Test
-  public void testJoin() {
-    int strength = 2;
-    System.out.println("lhsGeneration started:" + System.currentTimeMillis());
-    FactorSpace lhsFactorSpace = createFactorSpace("F", 50, 2);
+  public void test2$2$25() {
+    System.out.println(report(2, 2, 25));
+  }
+
+  @Test
+  public void test2$2$20() {
+    System.out.println(report(2, 2, 20));
+  }
+
+  @Test
+  public void test2$2$15() {
+    System.out.println(report(2, 2, 15));
+  }
+
+  @Test
+  public void test2$2$10() {
+    System.out.println(report(2, 2, 10));
+  }
+
+  @Test
+  public void test2$2$5() {
+    System.out.println(report(2, 2, 5));
+  }
+
+  @Test
+  public void test2$2$2() {
+    System.out.println(report(2, 2, 2));
+  }
+
+
+  private Report report(int strength, int numLevels, int numFactors) {
+    Report.Builder reportBuilder = new Report.Builder();
+    StopWatch stopWatch = new StopWatch();
+
+    FactorSpace lhsFactorSpace = createFactorSpace("F", numLevels, numFactors);
     List<Tuple> lhs = generateWithIpoGplus(
         lhsFactorSpace,
         strength
     );
-    System.out.println("lhsGeneration finished:" + System.currentTimeMillis());
+    reportBuilder.timeLhs(stopWatch.get()).sizeLhs(lhs.size());
 
-    System.out.println("lhsGeneration started:" + System.currentTimeMillis());
-    FactorSpace rhsFactorSpace = createFactorSpace("G", 50, 2);
+    FactorSpace rhsFactorSpace = createFactorSpace("G", numLevels, numFactors);
     List<Tuple> rhs = generateWithIpoGplus(
         rhsFactorSpace,
         strength
     );
-    System.out.println("rhsGeneration finished:" + System.currentTimeMillis());
+    reportBuilder.timeRhs(stopWatch.get()).sizeRhs(rhs.size());
 
     FactorSpace mergedFactorSpace = mergeFactorSpaces(lhsFactorSpace, rhsFactorSpace);
-    //    List<Tuple> merged = generateWithIpoGplus(
-    //        mergedFactorSpace,
-    //        strength
-    //    );
-    System.out.println("joinOperation started:" + System.currentTimeMillis());
+    List<Tuple> merged = generateWithIpoGplus(
+        mergedFactorSpace,
+        strength
+    );
+    reportBuilder.timeMerged(stopWatch.get()).sizeMerged(merged.size());
     List<Tuple> joined = join(lhs, rhs, strength);
-    System.out.println("joinOperation finished:" + System.currentTimeMillis());
+    reportBuilder.timeJoining(stopWatch.get()).sizeJoining(joined.size());
 
     assertCoveringArray(lhs, lhsFactorSpace);
     assertCoveringArray(rhs, rhsFactorSpace);
-    //    assertCoveringArray(merged, mergedFactorSpace);
+    assertCoveringArray(merged, mergedFactorSpace);
     assertCoveringArray(joined, mergedFactorSpace);
+
+    return reportBuilder.build();
   }
 
   private void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace) {
-    System.out.println("== " + coveringArray.size() + " ==");
-    coveringArray.forEach(System.out::println);
+//    System.out.println("== " + coveringArray.size() + " ==");
+//    coveringArray.forEach(System.out::println);
 
     assertThat(
         coveringArray,
