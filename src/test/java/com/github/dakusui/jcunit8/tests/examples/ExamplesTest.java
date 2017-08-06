@@ -104,7 +104,7 @@ public class ExamplesTest {
             UTUtils.oracle("success", Result::wasSuccessful),
             UTUtils.oracle(
                 "{x}.getRunCount", Result::getRunCount,
-                "==14", v -> v == 14
+                "==16", v -> v == 16
             )
         )
     );

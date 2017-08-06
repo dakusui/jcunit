@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunit8.pipeline.stages.Generator.DontCare;
@@ -277,7 +278,8 @@ public class IpoGplusTest {
     );
     Function<Tuple, Tuple> func        = IpoGplus.replaceDontCareValuesWithActualLevels(
         factors,
-        constraints
+        constraints,
+        new AtomicInteger(0)
     );
 
     @Test
@@ -360,7 +362,8 @@ public class IpoGplusTest {
           IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
               factors,
-              constraints
+              constraints,
+              new AtomicInteger(0)
           ).collect(toList())
       );
     }
@@ -390,7 +393,8 @@ public class IpoGplusTest {
               constraints
               */
               factors,
-              constraints
+              constraints,
+              new AtomicInteger(0)
           ).collect(toList())
       );
     }
@@ -426,7 +430,8 @@ public class IpoGplusTest {
       List<Tuple> result = IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
           tuple,
           factors,
-          constraints
+          constraints,
+          new AtomicInteger(0)
       ).collect(toList());
       assertEquals(
           singletonList(new Tuple.Builder().put("a", 4).put("c", 4).put("b", 8).build()),

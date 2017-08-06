@@ -325,23 +325,41 @@ public class JoinExperiment {
   }
 
   @Test
+  public void test2$2$4() {
+    System.out.println(report(2, 2, 4));
+  }
+
+  @Test
+  public void test2$2$3() {
+    System.out.println(report(2, 2, 3));
+  }
+
+  @Test
   public void test2$2$2() {
     System.out.println(report(2, 2, 2));
   }
 
+  @Test
+  public void uneven() {
+    System.out.println(report(2, 2, 75, 25));
+  }
 
   private Report report(int strength, int numLevels, int numFactors) {
+    return report(strength, numLevels, numFactors, numFactors);
+  }
+
+  private Report report(int strength, int numLevels, int numFactorsLhs, int numFactorsRhs) {
     Report.Builder reportBuilder = new Report.Builder();
     StopWatch stopWatch = new StopWatch();
 
-    FactorSpace lhsFactorSpace = createFactorSpace("F", numLevels, numFactors);
+    FactorSpace lhsFactorSpace = createFactorSpace("F", numLevels, numFactorsLhs);
     List<Tuple> lhs = generateWithIpoGplus(
         lhsFactorSpace,
         strength
     );
     reportBuilder.timeLhs(stopWatch.get()).sizeLhs(lhs.size());
 
-    FactorSpace rhsFactorSpace = createFactorSpace("G", numLevels, numFactors);
+    FactorSpace rhsFactorSpace = createFactorSpace("G", numLevels, numFactorsRhs);
     List<Tuple> rhs = generateWithIpoGplus(
         rhsFactorSpace,
         strength

@@ -16,6 +16,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -26,7 +27,8 @@ import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
 public class IpoGplus extends Generator.Base {
-  private final TupleSet precovered;
+  private final TupleSet      precovered;
+  private final AtomicInteger randomizer;
 
   public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
     super(factorSpace, requirement);
@@ -50,6 +52,7 @@ public class IpoGplus extends Generator.Base {
             toList()
         )
     ).build();
+    randomizer = new AtomicInteger(0);
   }
 
   /**
@@ -200,7 +203,9 @@ public class IpoGplus extends Generator.Base {
           .map(
               replaceDontCareValuesWithActualLevels(
                   allFactors,
-                  allConstraints)
+                  allConstraints,
+                  randomizer
+              )
           ).collect(toList());
     }
     return ts;
@@ -286,7 +291,7 @@ public class IpoGplus extends Generator.Base {
     return builder.build();
   }
 
-  public static Function<Tuple, Tuple> replaceDontCareValuesWithActualLevels(final List<Factor> allFactors, List<Constraint> allConstraints) {
+  public static Function<Tuple, Tuple> replaceDontCareValuesWithActualLevels(final List<Factor> allFactors, List<Constraint> allConstraints, AtomicInteger randomizer) {
     return new Function<Tuple, Tuple>() {
       int i = 0;
       int maxReadAheadSize = allFactors.stream()
@@ -307,7 +312,8 @@ public class IpoGplus extends Generator.Base {
                     streamAssignmentsForDontCaresUnderConstraints(
                         in,
                         allFactors,
-                        allConstraints
+                        allConstraints,
+                        randomizer
                     ), // (*a)
                     i++
                 ).orElseThrow(() -> TestDefinitionException.impossibleConstraint(allConstraints))
@@ -388,14 +394,22 @@ public class IpoGplus extends Generator.Base {
             }));
   }
 
-  public static Stream<Tuple> streamAssignmentsForDontCaresUnderConstraints(Tuple in, List<Factor> allFactors, List<Constraint> allConstraints) {
+  public static Stream<Tuple> streamAssignmentsForDontCaresUnderConstraints(Tuple in, List<Factor> allFactors, List<Constraint> allConstraints, AtomicInteger randomizer) {
     List<Factor> dontCareFactors = dontCareFactors(in, allFactors);
+    if (allConstraints.isEmpty())
+      return Stream.of(new Tuple.Builder().putAll(removeDontCares(in)).putAll(chooseAssignmentsFor(dontCareFactors, randomizer)).build());
     return new StreamableTupleCartesianator(dontCareFactors).stream()
         .flatMap(tuple -> streamAssignmentsAllowedByConstraints(
             new Tuple.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
             allFactors,
             allConstraints
         ));
+  }
+
+  private static Map<String, Object> chooseAssignmentsFor(List<Factor> dontCareFactors, AtomicInteger randomizer) {
+    return new HashMap<String, Object>() {{
+      dontCareFactors.forEach(factor -> put(factor.getName(), factor.getLevels().get(randomizer.getAndIncrement() % factor.getLevels().size())));
+    }};
   }
 
   public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
