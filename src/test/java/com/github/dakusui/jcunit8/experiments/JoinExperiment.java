@@ -30,16 +30,20 @@ public class JoinExperiment {
   }
 
   static class Report {
-    final long timeLhsGeneration;
-    final long timeRhsGeneration;
-    final long timeMergedGeneration;
-    final long timeJoining;
-    final int  sizeLhs;
-    final int  sizeRhs;
-    final int  sizeMerged;
-    final int  sizeJoined;
+    final         long timeLhsGeneration;
+    final         long timeRhsGeneration;
+    final         long timeMergedGeneration;
+    final         long timeJoining;
+    final         int  sizeLhs;
+    final         int  sizeRhs;
+    final         int  sizeMerged;
+    final         int  sizeJoined;
+    private final int  lhsNumFactors;
+    private final int  rhsNumFactors;
 
-    Report(long timeLhsGeneration, long timeRhsGeneration, long timeMergedGeneration, long timeJoining, int sizeLhs, int sizeRhs, int sizeMerged, int sizeJoined) {
+    Report(int lhsNumFactors, int rhsNumFactors, long timeLhsGeneration, long timeRhsGeneration, long timeMergedGeneration, long timeJoining, int sizeLhs, int sizeRhs, int sizeMerged, int sizeJoined) {
+      this.lhsNumFactors = lhsNumFactors;
+      this.rhsNumFactors = rhsNumFactors;
       this.timeLhsGeneration = timeLhsGeneration;
       this.timeRhsGeneration = timeRhsGeneration;
       this.timeMergedGeneration = timeMergedGeneration;
@@ -53,7 +57,8 @@ public class JoinExperiment {
     @Override
     public String toString() {
       return String.format(
-          "lhs:[size=%d,time=%d],rhs:[size=%d,time=%d],merged:[size=%d,time%d],joined:[size=%d,time=%d]",
+          "%d - %d: lhs:[size=%d,time=%d],rhs:[size=%d,time=%d],merged:[size=%d,time%d],joined:[size=%d,time=%d]",
+          this.lhsNumFactors, this.rhsNumFactors,
           this.sizeLhs, this.timeLhsGeneration,
           this.sizeRhs, this.timeRhsGeneration,
           this.sizeMerged, this.timeMergedGeneration,
@@ -62,14 +67,21 @@ public class JoinExperiment {
     }
 
     static class Builder {
-      private long timeLhs;
-      private long timeRhs;
-      private long timeMerged;
-      private long timeJoining;
-      private int  sizeLhs;
-      private int  sizeRhs;
-      private int  sizeMerged;
-      private int  sizeJoining;
+      private final int  lhsNumFactors;
+      private final int  rhsNumFactors;
+      private       long timeLhs;
+      private       long timeRhs;
+      private       long timeMerged;
+      private       long timeJoining;
+      private       int  sizeLhs;
+      private       int  sizeRhs;
+      private       int  sizeMerged;
+      private       int  sizeJoining;
+
+      public Builder(int lhsNumFactors, int rhsNumFactors) {
+        this.lhsNumFactors = lhsNumFactors;
+        this.rhsNumFactors = rhsNumFactors;
+      }
 
       public Builder timeLhs(long time) {
         this.timeLhs = time;
@@ -113,6 +125,8 @@ public class JoinExperiment {
 
       Report build() {
         return new Report(
+            this.lhsNumFactors,
+            this.rhsNumFactors,
             this.timeLhs,
             this.timeRhs,
             this.timeMerged,
@@ -125,6 +139,17 @@ public class JoinExperiment {
       }
     }
 
+  }
+
+  @Test
+  public void exerciseExperiment() {
+    // warm up
+    report(2, 2, 10);
+    for (int i = 5; i < 20; i += 5) {
+      for (int j = 0; j < 10; j ++) {
+        System.out.println(report(2, 2, i));
+      }
+    }
   }
 
   @Test
@@ -340,16 +365,64 @@ public class JoinExperiment {
   }
 
   @Test
-  public void uneven() {
+  public void uneven100a() {
+    System.out.println(report(2, 2, 90, 10));
+  }
+
+  @Test
+  public void uneven100b() {
+    System.out.println(report(2, 2, 80, 20));
+  }
+
+  @Test
+  public void uneven100c() {
     System.out.println(report(2, 2, 75, 25));
   }
+
+  @Test
+  public void uneven100d() {
+    System.out.println(report(2, 2, 70, 40));
+  }
+
+  @Test
+  public void uneven100e() {
+    System.out.println(report(2, 2, 60, 40));
+  }
+
+  @Test
+  public void uneven60a() {
+    System.out.println(report(2, 2, 40, 20));
+  }
+
+  @Test
+  public void even50() {
+    System.out.println(report(2, 2, 50, 50));
+  }
+
+  @Test
+  public void even25() {
+    System.out.println(report(2, 2, 25, 25));
+  }
+
+
+  @Test
+  public void even13() {
+    System.out.println(report(2, 2, 13, 13));
+  }
+
+
+  @Test
+  public void even10() {
+    System.out.println(report(2, 2, 10, 10));
+  }
+
 
   private Report report(int strength, int numLevels, int numFactors) {
     return report(strength, numLevels, numFactors, numFactors);
   }
 
   private Report report(int strength, int numLevels, int numFactorsLhs, int numFactorsRhs) {
-    Report.Builder reportBuilder = new Report.Builder();
+    Report.Builder reportBuilder = new Report.Builder(numFactorsLhs, numFactorsRhs);
     StopWatch stopWatch = new StopWatch();
 
     FactorSpace lhsFactorSpace = createFactorSpace("F", numLevels, numFactorsLhs);
@@ -384,8 +457,8 @@ public class JoinExperiment {
   }
 
   private void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace) {
-//    System.out.println("== " + coveringArray.size() + " ==");
-//    coveringArray.forEach(System.out::println);
+    //    System.out.println("== " + coveringArray.size() + " ==");
+    //    coveringArray.forEach(System.out::println);
 
     assertThat(
         coveringArray,
