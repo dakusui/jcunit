@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 
 public class IpoGplus extends Generator.Base {
   private final TupleSet      precovered;
-  private final AtomicInteger randomizer;
+  private final AtomicInteger optimizer;
 
   public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
     super(factorSpace, requirement);
@@ -52,7 +52,7 @@ public class IpoGplus extends Generator.Base {
             toList()
         )
     ).build();
-    randomizer = new AtomicInteger(0);
+    optimizer = new AtomicInteger(0);
   }
 
   /**
@@ -204,7 +204,7 @@ public class IpoGplus extends Generator.Base {
               replaceDontCareValuesWithActualLevels(
                   allFactors,
                   allConstraints,
-                  randomizer
+                  optimizer
               )
           ).collect(toList());
     }
