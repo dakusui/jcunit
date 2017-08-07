@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments;
+package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -15,7 +15,7 @@ public class FactorSpaceSpec {
   final SortedMap<Integer, Integer> factorSpecs = new TreeMap<>();
   private final String prefix;
 
-  FactorSpaceSpec(String prefix) {
+  public FactorSpaceSpec(String prefix) {
     this.prefix = prefix;
   }
 
@@ -24,7 +24,7 @@ public class FactorSpaceSpec {
     return this;
   }
 
-  FactorSpace build() {
+  public FactorSpace build() {
     AtomicInteger index = new AtomicInteger(0);
     return FactorSpace.create(
         new LinkedList<Factor>() {{

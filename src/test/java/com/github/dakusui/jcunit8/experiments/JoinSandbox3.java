@@ -1,15 +1,16 @@
 package com.github.dakusui.jcunit8.experiments;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.experiments.JoinExperimentUtils.StopWatch;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.StopWatch;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.*;
 
-import static com.github.dakusui.jcunit8.experiments.JoinExperimentUtils.assertCoveringArray;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
 
 public class JoinSandbox3 {
   class CoveringArrayGenerator implements Callable<List<Tuple>> {

@@ -158,7 +158,7 @@ public class IpoGplus extends Generator.Base {
         τ.put(Pi.getName(), vi);
         /*  9.         remove from π the combinations of values covered by τ’
          */
-        π.removeAll(TupleUtils.subtuplesOf(modifyTupleWith(τ, Pi.getName(), vi), t));
+        π.removeAll(TupleUtils.subtuplesOf(τ, t));
       }
 
       /* 10.
@@ -182,17 +182,12 @@ public class IpoGplus extends Generator.Base {
               (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints).test(
                   Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()
               ) // (*4)
-          ).peek(
-              (Tuple tt) -> System.out.println("allowed:" + tt)
           ).findFirst(
           ).orElseGet(
-              () -> {
-                Tuple ret = createTupleFrom(
-                    FactorUtils.toFactorNames(processedFactors),
-                    σ
-                );
-                return ret;
-              }
+              () -> createTupleFrom(
+                  FactorUtils.toFactorNames(processedFactors),
+                  σ
+              )
           );
           /*
            * <pre>
@@ -201,7 +196,8 @@ public class IpoGplus extends Generator.Base {
            * </pre>
            */
           chosenTest.putAll(σ);
-          ts.add(chosenTest);
+          if (!ts.contains(chosenTest))
+            ts.add(chosenTest);
           π.remove(σ);
         }
       }

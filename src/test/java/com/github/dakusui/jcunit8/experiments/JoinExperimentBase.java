@@ -3,13 +3,14 @@ package com.github.dakusui.jcunit8.experiments;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.dakusui.jcunit8.experiments.JoinExperimentUtils.assertCoveringArray;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
 
 public abstract class JoinExperimentBase {
@@ -130,7 +131,7 @@ public abstract class JoinExperimentBase {
         strength()
     );
     for (int i = 0; i < times; i++) {
-      JoinExperimentUtils.StopWatch stopWatch = new JoinExperimentUtils.StopWatch();
+      CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
       System.out.printf(
           "%s%n",
           new Report(

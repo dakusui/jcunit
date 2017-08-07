@@ -185,7 +185,7 @@ public class JoinSandbox1 {
         2
     );
 
-    JoinExperimentUtils.assertCoveringArray(lhs, lhsFactorSpace, 2);
+    assertCoveringArray(lhs, lhsFactorSpace, 2);
   }
 
   @Test

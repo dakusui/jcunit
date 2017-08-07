@@ -1,37 +1,14 @@
 package com.github.dakusui.jcunit8.experiments;
 
-import com.github.dakusui.crest.core.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 
 import java.util.List;
 
-import static com.github.dakusui.crest.Crest.asListOf;
-import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.*;
 
-enum JoinExperimentUtils {
+public enum JoinExperimentUtils {
   ;
-
-  static void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace, int strength) {
-    //    System.out.println("== " + coveringArray.size() + " ==");
-    //    coveringArray.forEach(System.out::println);
-
-    assertThat(
-        coveringArray,
-        asListOf(
-            Tuple.class,
-            Printable.function(
-                "coveredTuples",
-                (List<Tuple> ca) -> coveredTuples(strength, ca)
-            )
-        ).containsAll(
-            allPossibleTuplesInFactors(
-                strength,
-                factorSpace.getFactors())
-        ).$()
-    );
-  }
 
   static void exerciseStandardExperiment10Times(int numLhsFactors, int numRhsFactors) {
     // warm up
@@ -78,20 +55,6 @@ enum JoinExperimentUtils {
     assertCoveringArray(joined, mergedFactorSpace, strength);
 
     return reportBuilder.build();
-  }
-
-  static class StopWatch {
-    long last = System.currentTimeMillis();
-
-    long get() {
-      return -last + (last = System.currentTimeMillis());
-    }
-
-    public static void main(String... args) throws InterruptedException {
-      StopWatch stopWatch = new StopWatch();
-      Thread.sleep(100);
-      System.out.println(stopWatch.get());
-    }
   }
 
   static class Report {

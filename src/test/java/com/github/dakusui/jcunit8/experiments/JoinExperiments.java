@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit8.experiments;
 
+import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
 
 @RunWith(Enclosed.class)
 public class JoinExperiments {
@@ -112,15 +112,5 @@ public class JoinExperiments {
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
       return new FactorSpaceSpec("L").addFactor(2, 90);
     }
-  }
-
-  @RunWith(Suite.class)
-  @Suite.SuiteClasses(
-      value = {
-          Lhs70.class,
-          Lhs60.class
-      }
-  )
-  public static class ExperimentSuite {
   }
 }
