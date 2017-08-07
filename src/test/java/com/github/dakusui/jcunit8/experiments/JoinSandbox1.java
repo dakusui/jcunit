@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.*;
 import static java.util.stream.Collectors.toList;
 
-public class JoinTrialRuns {
+public class JoinSandbox1 {
 
   @Test
   public void exerciseExperimentsFrom5To50() {
@@ -185,7 +185,7 @@ public class JoinTrialRuns {
         2
     );
 
-    JoinExperimentUtils.assertCoveringArray(lhs, lhsFactorSpace);
+    JoinExperimentUtils.assertCoveringArray(lhs, lhsFactorSpace, 2);
   }
 
   @Test

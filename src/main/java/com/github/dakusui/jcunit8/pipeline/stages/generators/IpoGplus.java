@@ -176,19 +176,24 @@ public class IpoGplus extends Generator.Base {
         if (ts.stream().anyMatch(σ::isSubtupleOf)) {
           π.remove(σ);
         } else {
-          List<Tuple> work = ts;
-          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(ts, σ)
-              .map(tuple -> new Tuple.Builder().putAll(removeDontCares(tuple)).putAll(σ).build())
-              .filter(isAllowedTuple(allFactors, allConstraints)) // (*4)
-              .findFirst()
-              .orElseGet(() -> {
+          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(
+              ts, σ
+          ).filter(
+              (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints).test(
+                  Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()
+              ) // (*4)
+          ).peek(
+              (Tuple tt) -> System.out.println("allowed:" + tt)
+          ).findFirst(
+          ).orElseGet(
+              () -> {
                 Tuple ret = createTupleFrom(
                     FactorUtils.toFactorNames(processedFactors),
                     σ
                 );
-                work.add(ret);
                 return ret;
-              });
+              }
+          );
           /*
            * <pre>
            * 16. change an existing test, if possible, or otherwise add a new test
@@ -196,6 +201,7 @@ public class IpoGplus extends Generator.Base {
            * </pre>
            */
           chosenTest.putAll(σ);
+          ts.add(chosenTest);
           π.remove(σ);
         }
       }
@@ -383,6 +389,7 @@ public class IpoGplus extends Generator.Base {
    * @param σ  A tuple to be covered.
    * @return A stream of possible incomplete tests that cover σ.
    */
+  @SuppressWarnings("NonAsciiCharacters")
   public static Stream<Tuple> streamIncompleteTestsToCoverGivenTuple(List<Tuple> ts, final Tuple σ) {
     return ts.stream()
         .filter((Tuple each) -> σ.keySet().stream()

@@ -13,7 +13,7 @@ import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArra
 enum JoinExperimentUtils {
   ;
 
-  static void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace) {
+  static void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace, int strength) {
     //    System.out.println("== " + coveringArray.size() + " ==");
     //    coveringArray.forEach(System.out::println);
 
@@ -23,11 +23,11 @@ enum JoinExperimentUtils {
             Tuple.class,
             Printable.function(
                 "coveredTuples",
-                (List<Tuple> ca) -> coveredTuples(2, ca)
+                (List<Tuple> ca) -> coveredTuples(strength, ca)
             )
         ).containsAll(
             allPossibleTuplesInFactors(
-                2,
+                strength,
                 factorSpace.getFactors())
         ).$()
     );
@@ -72,10 +72,10 @@ enum JoinExperimentUtils {
     List<Tuple> joined = join(lhs, rhs, strength);
     reportBuilder = reportBuilder.timeJoining(stopWatch.get()).sizeJoining(joined.size());
 
-    assertCoveringArray(lhs, lhsFactorSpace);
-    assertCoveringArray(rhs, rhsFactorSpace);
-    assertCoveringArray(merged, mergedFactorSpace);
-    assertCoveringArray(joined, mergedFactorSpace);
+    assertCoveringArray(lhs, lhsFactorSpace, strength);
+    assertCoveringArray(rhs, rhsFactorSpace, strength);
+    assertCoveringArray(merged, mergedFactorSpace, strength);
+    assertCoveringArray(joined, mergedFactorSpace, strength);
 
     return reportBuilder.build();
   }
