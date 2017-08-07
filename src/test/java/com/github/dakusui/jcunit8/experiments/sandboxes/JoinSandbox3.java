@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments;
+package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.StopWatch;

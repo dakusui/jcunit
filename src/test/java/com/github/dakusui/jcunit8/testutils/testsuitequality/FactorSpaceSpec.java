@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class FactorSpaceSpec {
-  final SortedMap<Integer, Integer> factorSpecs = new TreeMap<>();
+  private final SortedMap<Integer, Integer> factorSpecs = new TreeMap<>();
   private final String prefix;
 
   public FactorSpaceSpec(String prefix) {
@@ -47,6 +47,16 @@ public class FactorSpaceSpec {
           );
         }},
         Collections.emptyList()
+    );
+  }
+
+  @Override
+  public String toString() {
+    return this.factorSpecs.keySet().stream(
+    ).map(
+        k -> String.format("%s^%s", k, this.factorSpecs.get(k))
+    ).collect(
+        Collectors.joining(" ", String.format("%s[", this.prefix), "]")
     );
   }
 }
