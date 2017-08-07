@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 
 public class IpoGplus extends Generator.Base {
   private final TupleSet      precovered;
-  private final AtomicInteger randomizer;
+  private final AtomicInteger optimizer;
 
   public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
     super(factorSpace, requirement);
@@ -52,7 +52,7 @@ public class IpoGplus extends Generator.Base {
             toList()
         )
     ).build();
-    randomizer = new AtomicInteger(0);
+    optimizer = new AtomicInteger(0);
   }
 
   /**
@@ -158,7 +158,7 @@ public class IpoGplus extends Generator.Base {
         τ.put(Pi.getName(), vi);
         /*  9.         remove from π the combinations of values covered by τ’
          */
-        π.removeAll(TupleUtils.subtuplesOf(modifyTupleWith(τ, Pi.getName(), vi), t));
+        π.removeAll(TupleUtils.subtuplesOf(τ, t));
       }
 
       /* 10.
@@ -176,19 +176,19 @@ public class IpoGplus extends Generator.Base {
         if (ts.stream().anyMatch(σ::isSubtupleOf)) {
           π.remove(σ);
         } else {
-          List<Tuple> work = ts;
-          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(ts, σ)
-              .map(tuple -> new Tuple.Builder().putAll(removeDontCares(tuple)).putAll(σ).build())
-              .filter(isAllowedTuple(allFactors, allConstraints)) // (*4)
-              .findFirst()
-              .orElseGet(() -> {
-                Tuple ret = createTupleFrom(
-                    FactorUtils.toFactorNames(processedFactors),
-                    σ
-                );
-                work.add(ret);
-                return ret;
-              });
+          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(
+              ts, σ
+          ).filter(
+              (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints).test(
+                  Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()
+              ) // (*4)
+          ).findFirst(
+          ).orElseGet(
+              () -> createTupleFrom(
+                  FactorUtils.toFactorNames(processedFactors),
+                  σ
+              )
+          );
           /*
            * <pre>
            * 16. change an existing test, if possible, or otherwise add a new test
@@ -196,6 +196,8 @@ public class IpoGplus extends Generator.Base {
            * </pre>
            */
           chosenTest.putAll(σ);
+          if (!ts.contains(chosenTest))
+            ts.add(chosenTest);
           π.remove(σ);
         }
       }
@@ -204,7 +206,7 @@ public class IpoGplus extends Generator.Base {
               replaceDontCareValuesWithActualLevels(
                   allFactors,
                   allConstraints,
-                  randomizer
+                  optimizer
               )
           ).collect(toList());
     }
@@ -383,6 +385,7 @@ public class IpoGplus extends Generator.Base {
    * @param σ  A tuple to be covered.
    * @return A stream of possible incomplete tests that cover σ.
    */
+  @SuppressWarnings("NonAsciiCharacters")
   public static Stream<Tuple> streamIncompleteTestsToCoverGivenTuple(List<Tuple> ts, final Tuple σ) {
     return ts.stream()
         .filter((Tuple each) -> σ.keySet().stream()

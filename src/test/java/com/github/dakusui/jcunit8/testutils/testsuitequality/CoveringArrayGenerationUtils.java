@@ -23,6 +23,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.crest.Crest.asBoolean;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -227,6 +229,26 @@ public enum CoveringArrayGenerationUtils {
     )).isTrue();
   }
 
+  public static void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace, int strength) {
+    //    System.out.println("== " + coveringArray.size() + " ==");
+    //    coveringArray.forEach(System.out::println);
+
+    assertThat(
+        coveringArray,
+        asListOf(
+            Tuple.class,
+            Printable.function(
+                "coveredTuples",
+                (List<Tuple> ca) -> coveredTuples(strength, ca)
+            )
+        ).containsAll(
+            allPossibleTuplesInFactors(
+                strength,
+                factorSpace.getFactors())
+        ).$()
+    );
+  }
+
   public static class TestSuiteBuilder {
     private final List<Tuple>      seeds       = new LinkedList<>();
     private final List<Parameter>  parameters  = new LinkedList<>();
@@ -270,6 +292,20 @@ public enum CoveringArrayGenerationUtils {
           ).build(),
           parameterSpace(parameters, constraints)
       );
+    }
+  }
+
+  public static class StopWatch {
+    long last = System.currentTimeMillis();
+
+    public long get() {
+      return -last + (last = System.currentTimeMillis());
+    }
+
+    public static void main(String... args) throws InterruptedException {
+      StopWatch stopWatch = new StopWatch();
+      Thread.sleep(100);
+      System.out.println(stopWatch.get());
     }
   }
 }
