@@ -24,22 +24,22 @@ public class StandardFactorSpaces extends GenerationTestBase {
   }
 
   @Test
-  public void generate4_15$3_17$2_20() {
+  public void generate4_15$3_17$2_29() {
     exerciseGeneration(
         new FactorSpaceSpec("F3")
             .addFactor(4, 15)
             .addFactor(3, 17)
-            .addFactor(2, 20),
+            .addFactor(2, 29),
         2,
         1);
   }
 
   @Test
-  public void generate4_1$3_30$2_35() {
+  public void generate4_1$3_39$2_35() {
     exerciseGeneration(
         new FactorSpaceSpec("F4")
             .addFactor(4, 1)
-            .addFactor(3, 30)
+            .addFactor(3, 39)
             .addFactor(2, 35),
         2,
         1);

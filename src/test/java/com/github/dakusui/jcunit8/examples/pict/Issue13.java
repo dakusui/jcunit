@@ -25,6 +25,10 @@ import static java.util.Arrays.asList;
  * Finanzinstrument: Aktie, Unstrukturierte_Anleihe, strukturierte_Anleihe, Inv.Fonds, OIF, Zertifikat, Optionsschein, Xetra_Gold_ETC, EMISID
  * Prod
  * </code>
+ *
+ * JCUnit is at least slightly better at handling constraints than pict.
+ * pict cannot finish generating test suite from the same model in 2.5 hours but
+ * JCUnit does in less than 2 hours.
  */
 @SuppressWarnings("SimplifiableIfStatement")
 @RunWith(JCUnit8.class)
@@ -319,6 +323,8 @@ public class Issue13 {
       @From("udalStatus") String udalStatus
   ) {
     if (eingangskanal.startsWith("Onlinebanking"))
+      // !dienstleistungsart.equals("n/a") is always true.
+      //noinspection ConstantConditions
       return dienstleistungsart.equals("beratungsfreies_Geschaeft") &&
           !produktzyklus.equals("n/a") &&
           !dienstleistungsart.equals("n/a") &&
