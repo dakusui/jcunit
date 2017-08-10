@@ -15,6 +15,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -437,23 +438,47 @@ public class IpoGplus extends Generator.Base {
       List<Factor> allFactors,
       List<Constraint> allConstraints
   ) {
-
     List<Factor> freeFactorsUnderConstraintsInRequest = factorsUnderConstrains(allFactors, allConstraints).stream(
     ).map(
         factor -> (!request.containsKey(factor.getName()) || request.get(factor.getName()) == DontCare) ?
             factor :
             Factor.create(factor.getName(), new Object[] { request.get(factor.getName()) })
-    ).sorted(
-        Comparator.comparing(Factor::getName)
     ).collect(toList());
-    return new StreamableTupleCartesianator(
+
+    Optional<Tuple> firstTuple = FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS.apply(allConstraints).apply(freeFactorsUnderConstraintsInRequest);
+    return firstTuple.isPresent() ?
+        new StreamableTupleCartesianator(
+            freeFactorsUnderConstraintsInRequest
+        ).cursor(
+            firstTuple.get()
+        ).stream(
+        ).filter(
+            satisfiesAllOf(allConstraints)
+        ).map(
+            tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
+        ) :
+        Stream.empty();
+  }
+
+  public static <T, R> Function<T, R> memoize(Function<T, R> function) {
+    Map<T, R> memo = new ConcurrentHashMap<>();
+    return t -> memo.computeIfAbsent(t, function);
+  }
+
+  private static final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
+      FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS = functionToFindFirstTupleUnderConstraints();
+
+  private static Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>> functionToFindFirstTupleUnderConstraints() {
+    return constraints -> memoize(firstTupleUnderConstraint(constraints));
+  }
+
+  private static Function<List<Factor>, Optional<Tuple>> firstTupleUnderConstraint(List<Constraint> allConstraints) {
+    return freeFactorsUnderConstraintsInRequest -> new StreamableTupleCartesianator(
         freeFactorsUnderConstraintsInRequest
     ).stream(
     ).filter(
         satisfies(allConstraints)
-    ).map(
-        tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
-    );
+    ).findFirst();
   }
 
   private static Predicate<Tuple> satisfies(List<Constraint> allConstraints) {

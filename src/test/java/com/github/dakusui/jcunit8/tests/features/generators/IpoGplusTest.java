@@ -148,12 +148,19 @@ public class IpoGplusTest {
       ).collect(toList());
 
       assertEquals(
-          assignments,
           asList(
               new Tuple.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
               new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build()
-          )
+          ),
+          assignments
       );
+    }
+
+    @Test
+    public void testMemoization() {
+      Function<Integer, Integer> acc = IpoGplus.memoize(integer -> integer + 1);
+      System.out.println(acc.apply(100));
+      assertEquals((int) 101, (int) acc.apply(100));
     }
 
     @Test
@@ -166,12 +173,12 @@ public class IpoGplusTest {
       ).collect(toList());
 
       assertEquals(
-          assignments,
           asList(
               new Tuple.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
               new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
               new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build()
-          )
+          ),
+          assignments
       );
     }
 
@@ -185,8 +192,8 @@ public class IpoGplusTest {
       ).collect(toList());
 
       assertEquals(
-          assignments,
-          emptyList()
+          emptyList(),
+          assignments
       );
     }
   }

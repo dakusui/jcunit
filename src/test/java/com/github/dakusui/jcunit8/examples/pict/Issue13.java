@@ -11,8 +11,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Objects;
 
-import static java.util.Arrays.asList;
-
 /**
  * <a href="https://github.com/Microsoft/pict/issues/11">Issue-11 of PICT</a>
  * <code>
@@ -25,7 +23,7 @@ import static java.util.Arrays.asList;
  * Finanzinstrument: Aktie, Unstrukturierte_Anleihe, strukturierte_Anleihe, Inv.Fonds, OIF, Zertifikat, Optionsschein, Xetra_Gold_ETC, EMISID
  * Prod
  * </code>
- *
+ * <p>
  * JCUnit is at least slightly better at handling constraints than pict.
  * pict cannot finish generating test suite from the same model in 2.5 hours but
  * JCUnit does in less than 2 hours.
@@ -205,6 +203,8 @@ public class Issue13 {
       );
     return true;
   }
+
+  /*/
 
   ////2
   //
@@ -444,6 +444,8 @@ public class Issue13 {
           !udalStatus.equals("Back_up-Betrieb");
     return true;
   }
+
+  /*/
 
   @Test
   public void test(
