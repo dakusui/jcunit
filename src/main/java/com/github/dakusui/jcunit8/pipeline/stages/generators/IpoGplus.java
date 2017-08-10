@@ -12,7 +12,6 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.factorspace.FactorUtils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
-import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
@@ -26,6 +25,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 
+@SuppressWarnings("NonAsciiCharacters")
 public class IpoGplus extends Generator.Base {
   private final TupleSet      precovered;
   private final AtomicInteger optimizer;
@@ -210,6 +210,23 @@ public class IpoGplus extends Generator.Base {
               )
           ).collect(toList());
     }
+    /*
+    System.out.println("======");
+    System.out.println(counts.size());
+    AtomicInteger sum = new AtomicInteger(0);
+    counts.entrySet().stream(
+    ).filter(
+        entry -> entry.getValue().get() > 1
+    ).peek(
+        (entry) -> sum.addAndGet(entry.getValue().get())
+    ).sorted(
+        Comparator.comparingInt(o -> o.getValue().get())
+    ).forEach(
+        (entry) -> System.out.printf("%s%s%n", entry.getValue().get(), entry.getKey())
+    );
+    System.out.println(sum.get());
+    System.out.println("------");
+    */
     return ts;
   }
 
@@ -416,63 +433,40 @@ public class IpoGplus extends Generator.Base {
   }
 
   public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
-      Tuple tuple,
+      Tuple request,
       List<Factor> allFactors,
       List<Constraint> allConstraints
   ) {
-    FrameworkException.checkCondition(!tuple.containsValue(DontCare));
-    List<Constraint> fullyInvolvedConstraints = getFullyInvolvedConstraints(
-        tuple.keySet(),
-        allConstraints
-    );
-    if (!satisfiesAllOf(fullyInvolvedConstraints).test(tuple)) {
-      return Stream.empty();
-    }
-    List<Constraint> directlyInvolvedConstraints = tuple.isEmpty() ?
-        allConstraints :
-        getPartiallyInvolvedConstraints(
-            tuple.keySet(),
-            allConstraints
-        );
-    List<Constraint> involvedConstraints = figureOutInvolvedConstraints(allConstraints, directlyInvolvedConstraints);
-    //noinspection RedundantTypeArguments
-    List<Factor> allUnassignedFactors = involvedConstraints.stream()
-        .flatMap(constraint -> constraint.involvedKeys().stream())
-        .sorted()
-        .distinct()
-        .filter(s -> !tuple.containsKey(s))
-        .map(
-            s -> allFactors.stream()
-                .filter(factor -> factor.getName().equals(s))
-                .findFirst().<FrameworkException>orElseThrow(FrameworkException::unexpectedByDesign)
-        )
-        .collect(toList());
-    return streamAssignmentsAllowedByAllPartiallyInvolvedConstraints(
-        tuple,
-        allUnassignedFactors,
-        involvedConstraints
+
+    List<Factor> freeFactorsUnderConstraintsInRequest = factorsUnderConstrains(allFactors, allConstraints).stream(
+    ).map(
+        factor -> (!request.containsKey(factor.getName()) || request.get(factor.getName()) == DontCare) ?
+            factor :
+            Factor.create(factor.getName(), new Object[] { request.get(factor.getName()) })
+    ).sorted(
+        Comparator.comparing(Factor::getName)
+    ).collect(toList());
+    return new StreamableTupleCartesianator(
+        freeFactorsUnderConstraintsInRequest
+    ).stream(
+    ).filter(
+        satisfies(allConstraints)
+    ).map(
+        tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
     );
   }
 
-  private static List<Constraint> figureOutInvolvedConstraints(List<Constraint> allConstraints, List<Constraint> directlyInvolvedConstraints) {
-    return new Partitioner.ConnectedConstraintFinder(allConstraints).findAll(directlyInvolvedConstraints);
+  private static Predicate<Tuple> satisfies(List<Constraint> allConstraints) {
+    return tuple -> allConstraints.stream().allMatch(constraint -> constraint.test(tuple));
   }
 
-  /**
-   * Tuples in returned stream will have values for {@code unassignedFactors}.
-   *
-   * @param baseTuple           A tuple that contains values already assigned.
-   * @param unassignedFactors   Factors one of whose values is not yet assigned to {@code baseTuple}.
-   * @param involvedConstraints Constraints involved with {@code baseTuple} directly or indirectly.
-   */
-  private static Stream<Tuple> streamAssignmentsAllowedByAllPartiallyInvolvedConstraints(
-      Tuple baseTuple,
-      List<Factor> unassignedFactors,
-      List<Constraint> involvedConstraints
-  ) {
-    return new StreamableTupleCartesianator(unassignedFactors).stream()
-        .map(assignments -> new Tuple.Builder().putAll(baseTuple).putAll(assignments).build())
-        .filter(satisfiesAllOf(involvedConstraints));
+  private static List<Factor> factorsUnderConstrains(List<Factor> allFactors, List<Constraint> allConstraints) {
+    return allFactors.stream(
+    ).filter(
+        factor -> allConstraints.stream().anyMatch(constraint -> constraint.involvedKeys().contains(factor.getName()))
+    ).collect(
+        toList()
+    );
   }
 
   private static Predicate<Tuple> isAllowedTuple(List<Factor> allFactors, List<Constraint> allConstraints) {
