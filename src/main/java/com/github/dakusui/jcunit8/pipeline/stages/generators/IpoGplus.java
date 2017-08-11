@@ -15,7 +15,6 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -30,8 +29,9 @@ import static java.util.stream.Collectors.toList;
 public class IpoGplus extends Generator.Base {
   private final TupleSet      precovered;
   private final AtomicInteger optimizer;
+
   private static class MemoizationContext {
-    
+
   }
 
   public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
@@ -437,36 +437,31 @@ public class IpoGplus extends Generator.Base {
       StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
           factorsUnderConstraintsInRequest
       );
-      return cartesianator.cursor(
-          firstTuple.get()
-      ).stream(
-      ).filter(
-          satisfiesAllOf(allConstraints)
-      ).peek(
-          tuple -> {
-            if (cartesianator.indexOf(tuple) > 0)
-              System.out.println(cartesianator.indexOf(tuple) + ":" + tuple);
-          }
-      ).map(
-          tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
-      );
+      return cartesianator
+          .cursor(firstTuple.get())
+          .stream(
+          ).filter(
+              satisfiesAllOf(allConstraints)
+          ).map(
+              tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
+          );
     }
     return Stream.empty();
   }
 
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
-    Map<T, R> memo = new ConcurrentHashMap<>();
+    Map<T, R> memo = new HashMap<>();
     return t -> memo.computeIfAbsent(t, function);
   }
 
   private static final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
-      FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS = functionToFindFirstTupleUnderConstraints();
+      FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS = memoize(functionToFindFirstTupleUnderConstraints());
 
   private static Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>> functionToFindFirstTupleUnderConstraints() {
-    return constraints -> memoize(firstTupleUnderConstraints(constraints));
+    return constraints -> memoize(findFirstTupleUnderConstraints(constraints));
   }
 
-  private static Function<List<Factor>, Optional<Tuple>> firstTupleUnderConstraints(List<Constraint> allConstraints) {
+  private static Function<List<Factor>, Optional<Tuple>> findFirstTupleUnderConstraints(List<Constraint> allConstraints) {
     return (List<Factor> factorsUnderConstrains) ->
         streamTuplesUnderConstraints(allConstraints).apply(factorsUnderConstrains).findFirst();
   }

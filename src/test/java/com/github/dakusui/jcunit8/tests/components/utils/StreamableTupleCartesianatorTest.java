@@ -5,6 +5,8 @@ import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import org.junit.Test;
 
+import java.util.List;
+
 import static java.util.Arrays.asList;
 
 public class StreamableTupleCartesianatorTest {
@@ -29,4 +31,24 @@ public class StreamableTupleCartesianatorTest {
         System.out::println
     );
   }
+
+  @Test
+  public void reproduce() {
+    List<Factor> factors = asList(
+        Factor.create("I", new Object[] { "i1", "i2", "i3" }),
+        Factor.create("F", new Object[] { "f1", "f2" }),
+        Factor.create("G", new Object[] { "g1", "g2" }),
+        Factor.create("H", new Object[] { "h1", "h2" }),
+        Factor.create("J", new Object[] { "j1", "j2" })
+    );
+
+    StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
+        factors
+    );
+    cartesianator.stream(
+    ).forEach(
+        tuple -> System.out.printf("%s%n%s%n--%n", tuple, cartesianator.get(cartesianator.indexOf(tuple)))
+    );
+  }
+
 }

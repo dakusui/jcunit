@@ -158,6 +158,49 @@ public class IpoGplusTest {
     }
 
     @Test
+    public void _givenSimpleExample$whenStreamTuplesUnderConstraints() {
+      List<Factor> factors = Arrays.asList(
+          Factor.create("a", new Object[] { 0, 1 }),
+          Factor.create("b", new Object[] { 0, 1 }),
+          Factor.create("c", new Object[] { 0, 1 })
+      );
+      List<Constraint> constraints = Arrays.asList(
+          Constraint.create(
+              tuple -> tuple.get("a").equals(tuple.get("b")),
+              "a", "b"),
+          Constraint.create(
+              tuple -> !tuple.get("b").equals(tuple.get("c")),
+              "b", "c"
+          )
+      );
+      Function<List<Factor>, Stream<Tuple>> func = IpoGplus.streamTuplesUnderConstraints(
+          constraints
+      );
+      Optional<Tuple> cursor = func.apply(
+          factors
+      ).findFirst();
+
+      assertTrue(cursor.isPresent());
+      assertEquals(
+          asList(
+              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
+              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 2).build()
+          ),
+          new StreamableTupleCartesianator(
+              factors
+          ).cursor(
+              cursor.get()
+          ).stream(
+          ).filter(
+              each -> constraints.stream().allMatch(constraint -> constraint.test(each))
+          ).collect(
+              toList()
+          )
+      );
+    }
+
+    @Test
     public void givenSimpleExample$whenStreamTuplesUnderConstraints() {
       List<Factor> factors = Arrays.asList(
           Factor.create("a", new Object[] { 1 }),
