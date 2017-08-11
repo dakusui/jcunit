@@ -15,7 +15,6 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -438,47 +437,63 @@ public class IpoGplus extends Generator.Base {
       List<Factor> allFactors,
       List<Constraint> allConstraints
   ) {
-    List<Factor> freeFactorsUnderConstraintsInRequest = factorsUnderConstrains(allFactors, allConstraints).stream(
+    List<Factor> factorsUnderConstraintsInRequest = factorsUnderConstrains(allFactors, allConstraints).stream(
     ).map(
         factor -> (!request.containsKey(factor.getName()) || request.get(factor.getName()) == DontCare) ?
             factor :
             Factor.create(factor.getName(), new Object[] { request.get(factor.getName()) })
     ).collect(toList());
 
-    Optional<Tuple> firstTuple = FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS.apply(allConstraints).apply(freeFactorsUnderConstraintsInRequest);
-    return firstTuple.isPresent() ?
-        new StreamableTupleCartesianator(
-            freeFactorsUnderConstraintsInRequest
-        ).cursor(
-            firstTuple.get()
-        ).stream(
-        ).filter(
-            satisfiesAllOf(allConstraints)
-        ).map(
-            tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
-        ) :
-        Stream.empty();
+    Optional<Tuple> firstTuple = //FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS
+        functionToFindFirstTupleUnderConstraints()
+            .apply(allConstraints)
+            .apply(factorsUnderConstraintsInRequest);
+    if (firstTuple.isPresent()) {
+      StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
+          factorsUnderConstraintsInRequest
+      );
+      return cartesianator.cursor(
+          firstTuple.get()
+      ).stream(
+      ).filter(
+          satisfiesAllOf(allConstraints)
+      ).peek(
+          tuple -> {
+            if (cartesianator.indexOf(tuple) > 0)
+              System.out.println(cartesianator.indexOf(tuple) + ":" + tuple);
+          }
+      ).map(
+          tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
+      );
+    }
+    return Stream.empty();
   }
 
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
-    Map<T, R> memo = new ConcurrentHashMap<>();
-    return t -> memo.computeIfAbsent(t, function);
+    //    Map<T, R> memo = new ConcurrentHashMap<>();
+    //    return t -> memo.computeIfAbsent(t, function);
+    return function;
   }
 
   private static final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
       FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS = functionToFindFirstTupleUnderConstraints();
 
   private static Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>> functionToFindFirstTupleUnderConstraints() {
-    return constraints -> memoize(firstTupleUnderConstraint(constraints));
+    return constraints -> memoize(firstTupleUnderConstraints(constraints));
   }
 
-  private static Function<List<Factor>, Optional<Tuple>> firstTupleUnderConstraint(List<Constraint> allConstraints) {
-    return freeFactorsUnderConstraintsInRequest -> new StreamableTupleCartesianator(
-        freeFactorsUnderConstraintsInRequest
+  private static Function<List<Factor>, Optional<Tuple>> firstTupleUnderConstraints(List<Constraint> allConstraints) {
+    return (List<Factor> factorsUnderConstrains) ->
+        streamTuplesUnderConstraints(allConstraints).apply(factorsUnderConstrains).findFirst();
+  }
+
+  public static Function<List<Factor>, Stream<Tuple>> streamTuplesUnderConstraints(List<Constraint> allConstraints) {
+    return factorsUnderConstraintsInRequest -> new StreamableTupleCartesianator(
+        factorsUnderConstraintsInRequest
     ).stream(
     ).filter(
         satisfies(allConstraints)
-    ).findFirst();
+    );
   }
 
   private static Predicate<Tuple> satisfies(List<Constraint> allConstraints) {

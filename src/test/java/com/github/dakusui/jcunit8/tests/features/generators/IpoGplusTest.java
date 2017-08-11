@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.tests.features.generators;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
@@ -9,8 +10,7 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -157,9 +157,49 @@ public class IpoGplusTest {
     }
 
     @Test
+    public void givenSimpleExample$whenStreamTuplesUnderConstraints() {
+      List<Factor> factors = Arrays.asList(
+          Factor.create("a", new Object[] { 1 }),
+          Factor.create("b", new Object[] { 1, 2, 3 }),
+          Factor.create("c", new Object[] { 1, 2, 3 })
+      );
+      Constraint constraint = Constraint.create(
+          tuple -> (Integer) tuple.get("b") > (Integer) tuple.get("c"),
+          "b", "c"
+      );
+      Optional<Tuple> assignments = IpoGplus.streamTuplesUnderConstraints(
+          Collections.singletonList(
+              constraint
+          )
+      ).apply(
+          factors
+      ).findFirst();
+
+      assertTrue(assignments.isPresent());
+      assertEquals(
+          asList(
+              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
+              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 2).build()
+          ),
+          new StreamableTupleCartesianator(
+              factors
+          ).cursor(
+              assignments.get()
+          ).stream(
+          ).filter(
+              constraint
+          ).collect(
+              toList()
+          )
+      );
+    }
+
+    @Test
     public void testMemoization() {
       Function<Integer, Integer> acc = IpoGplus.memoize(integer -> integer + 1);
       System.out.println(acc.apply(100));
+      //noinspection RedundantCast
       assertEquals((int) 101, (int) acc.apply(100));
     }
 
@@ -393,12 +433,6 @@ public class IpoGplusTest {
           ),
           IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
-              /*
-              factors.stream()
-                  .filter(factor -> tuple.get(factor.getName()) == DontCare)
-                  .collect(toList()),
-              constraints
-              */
               factors,
               constraints,
               new AtomicInteger(0)
@@ -500,6 +534,7 @@ public class IpoGplusTest {
     }
   }
 
+  @SuppressWarnings("NonAsciiCharacters")
   public static class TupleTest {
     List<Tuple> ts = new LinkedList<Tuple>() {{
       add(new Tuple.Builder().put("a", 1).put("b", 1).put("c", DontCare).build());
