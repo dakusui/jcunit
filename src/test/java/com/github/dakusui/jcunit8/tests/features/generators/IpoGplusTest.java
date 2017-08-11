@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.pipeline.stages.Generator.DontCare;
 import static java.util.Arrays.asList;
@@ -167,15 +168,16 @@ public class IpoGplusTest {
           tuple -> (Integer) tuple.get("b") > (Integer) tuple.get("c"),
           "b", "c"
       );
-      Optional<Tuple> assignments = IpoGplus.streamTuplesUnderConstraints(
+      Function<List<Factor>, Stream<Tuple>> func = IpoGplus.memoize(IpoGplus.streamTuplesUnderConstraints(
           Collections.singletonList(
               constraint
           )
-      ).apply(
+      ));
+      Optional<Tuple> cursor = func.apply(
           factors
       ).findFirst();
 
-      assertTrue(assignments.isPresent());
+      assertTrue(cursor.isPresent());
       assertEquals(
           asList(
               new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
@@ -185,7 +187,24 @@ public class IpoGplusTest {
           new StreamableTupleCartesianator(
               factors
           ).cursor(
-              assignments.get()
+              cursor.get()
+          ).stream(
+          ).filter(
+              constraint
+          ).collect(
+              toList()
+          )
+      );
+      assertEquals(
+          asList(
+              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
+              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 2).build()
+          ),
+          new StreamableTupleCartesianator(
+              factors
+          ).cursor(
+              cursor.get()
           ).stream(
           ).filter(
               constraint

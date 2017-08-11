@@ -18,7 +18,12 @@ public class StreamableTupleCartesianatorTest {
             Factor.create("I", new Object[] { "i1", "i2" })
         )
     ).cursor(
-        Tuple.builder().put("F", "f1").put("G", "g2").put("H", "h1").build()
+        Tuple.builder()
+            .put("F", "f1")
+            .put("G", "g2")
+            .put("H", "h1")
+            .put("I", "i2")
+            .build()
     ).stream(
     ).forEach(
         System.out::println

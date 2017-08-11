@@ -15,6 +15,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -29,6 +30,9 @@ import static java.util.stream.Collectors.toList;
 public class IpoGplus extends Generator.Base {
   private final TupleSet      precovered;
   private final AtomicInteger optimizer;
+  private static class MemoizationContext {
+    
+  }
 
   public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
     super(factorSpace, requirement);
@@ -210,23 +214,6 @@ public class IpoGplus extends Generator.Base {
               )
           ).collect(toList());
     }
-    /*
-    System.out.println("======");
-    System.out.println(counts.size());
-    AtomicInteger sum = new AtomicInteger(0);
-    counts.entrySet().stream(
-    ).filter(
-        entry -> entry.getValue().get() > 1
-    ).peek(
-        (entry) -> sum.addAndGet(entry.getValue().get())
-    ).sorted(
-        Comparator.comparingInt(o -> o.getValue().get())
-    ).forEach(
-        (entry) -> System.out.printf("%s%s%n", entry.getValue().get(), entry.getKey())
-    );
-    System.out.println(sum.get());
-    System.out.println("------");
-    */
     return ts;
   }
 
@@ -243,7 +230,6 @@ public class IpoGplus extends Generator.Base {
         )
     );
   }
-
 
   private TupleSet prepare_π(List<Factor> alreadyProcessedFactors, List<Factor> allFactors, List<Constraint> allConstraints, int strength) {
     /*     5.     let π be the set of t -way combinations of values involving parameter
@@ -444,10 +430,9 @@ public class IpoGplus extends Generator.Base {
             Factor.create(factor.getName(), new Object[] { request.get(factor.getName()) })
     ).collect(toList());
 
-    Optional<Tuple> firstTuple = //FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS
-        functionToFindFirstTupleUnderConstraints()
-            .apply(allConstraints)
-            .apply(factorsUnderConstraintsInRequest);
+    Optional<Tuple> firstTuple = FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS
+        .apply(allConstraints)
+        .apply(factorsUnderConstraintsInRequest);
     if (firstTuple.isPresent()) {
       StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
           factorsUnderConstraintsInRequest
@@ -470,9 +455,8 @@ public class IpoGplus extends Generator.Base {
   }
 
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
-    //    Map<T, R> memo = new ConcurrentHashMap<>();
-    //    return t -> memo.computeIfAbsent(t, function);
-    return function;
+    Map<T, R> memo = new ConcurrentHashMap<>();
+    return t -> memo.computeIfAbsent(t, function);
   }
 
   private static final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
