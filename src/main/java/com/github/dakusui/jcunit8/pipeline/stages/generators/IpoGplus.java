@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.core.StreamableCombinator;
 import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -27,15 +28,28 @@ import static java.util.stream.Collectors.toList;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class IpoGplus extends Generator.Base {
-  private final TupleSet      precovered;
-  private final AtomicInteger optimizer;
+  public static class Session {
+    private final AtomicInteger optimizer                      = new AtomicInteger(0);
+    /**
+     * A curried function to find first tuple under constraints, which is memoized.
+     */
+    private final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
+                                findFirstTupleUnderConstraints = Utils.memoize(functionToFindFirstTupleUnderConstraints());
 
-  public static class Memoizer {
-
+    private Map<String, Object> chooseAssignmentsFor(List<Factor> dontCareFactors) {
+      return new HashMap<String, Object>() {{
+        dontCareFactors.forEach(factor -> put(factor.getName(), factor.getLevels().get(optimizer.getAndIncrement() % factor.getLevels().size())));
+      }};
+    }
   }
+
+  private final Session session;
+
+  private final TupleSet precovered;
 
   public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
     super(factorSpace, requirement);
+    this.session = new Session();
     this.precovered = new TupleSet.Builder().addAll(
         seeds.stream(
         ).filter(
@@ -56,7 +70,6 @@ public class IpoGplus extends Generator.Base {
             toList()
         )
     ).build();
-    optimizer = new AtomicInteger(0);
   }
 
   /**
@@ -122,7 +135,7 @@ public class IpoGplus extends Generator.Base {
         .collect(toList());
     List<Constraint> allConstraints = this.factorSpace.getConstraints();
     List<Tuple> ts = streamAllPossibleTuples(allFactors.subList(0, t), t)
-        .filter(isAllowedTuple(allFactors, allConstraints)) // (*1)
+        .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*1)
         .filter(tuple -> !this.precovered.contains(tuple))
         .collect(toList());
     if (ts.isEmpty())
@@ -153,7 +166,8 @@ public class IpoGplus extends Generator.Base {
         Object vi = chooseLevelThatCoversMostTuples(
             τ, Pi, π, t,
             allFactors,
-            allConstraints
+            allConstraints,
+            session
         ).orElseThrow(
             ////
             // (*3) This cannot happen
@@ -183,7 +197,7 @@ public class IpoGplus extends Generator.Base {
           Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(
               ts, σ
           ).filter(
-              (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints).test(
+              (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints, this.session).test(
                   Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()
               ) // (*4)
           ).findFirst(
@@ -210,7 +224,7 @@ public class IpoGplus extends Generator.Base {
               replaceDontCareValuesWithActualLevels(
                   allFactors,
                   allConstraints,
-                  optimizer
+                  session
               )
           ).collect(toList());
     }
@@ -243,7 +257,7 @@ public class IpoGplus extends Generator.Base {
         ).stream()
             .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
             .filter((Tuple tuple) -> !precovered.contains(tuple))
-            .filter(isAllowedTuple(allFactors, allConstraints)) // (*2)
+            .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*2)
             .collect(toList()))
         .build();
   }
@@ -253,10 +267,10 @@ public class IpoGplus extends Generator.Base {
    *             ..., vi-1 , vi ) so that τ’ covers the most number of
    *             combinations of values in π (*3)
    */
-  private static Optional<Object> chooseLevelThatCoversMostTuples(Tuple τ, Factor fi, TupleSet π, int t, List<Factor> allFactors, List<Constraint> allConstraints) {
+  private static Optional<Object> chooseLevelThatCoversMostTuples(Tuple τ, Factor fi, TupleSet π, int t, List<Factor> allFactors, List<Constraint> allConstraints, Session session) {
     return fi.getLevels().stream()
         .map((Object eachLevel) -> modifyTupleWith(τ, fi.getName(), eachLevel))
-        .filter(isAllowedTuple(allFactors, allConstraints)) // (*3)
+        .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*3)
         .max(
             (Tuple t1, Tuple t2) ->
                 (int) (countCoveredTuplesBy(t1, π, t) - countCoveredTuplesBy(t2, π, t))
@@ -296,7 +310,7 @@ public class IpoGplus extends Generator.Base {
     return builder.build();
   }
 
-  public static Function<Tuple, Tuple> replaceDontCareValuesWithActualLevels(final List<Factor> allFactors, List<Constraint> allConstraints, AtomicInteger randomizer) {
+  public static Function<Tuple, Tuple> replaceDontCareValuesWithActualLevels(final List<Factor> allFactors, List<Constraint> allConstraints, Session session) {
     return new Function<Tuple, Tuple>() {
       int i = 0;
       int maxReadAheadSize = allFactors.stream()
@@ -318,7 +332,7 @@ public class IpoGplus extends Generator.Base {
                         in,
                         allFactors,
                         allConstraints,
-                        randomizer
+                        session
                     ), // (*a)
                     i++
                 ).orElseThrow(() -> TestDefinitionException.impossibleConstraint(allConstraints))
@@ -400,28 +414,29 @@ public class IpoGplus extends Generator.Base {
             }));
   }
 
-  public static Stream<Tuple> streamAssignmentsForDontCaresUnderConstraints(Tuple in, List<Factor> allFactors, List<Constraint> allConstraints, AtomicInteger randomizer) {
+  public static Stream<Tuple> streamAssignmentsForDontCaresUnderConstraints(
+      Tuple in,
+      List<Factor> allFactors,
+      List<Constraint> allConstraints,
+      Session session
+  ) {
     List<Factor> dontCareFactors = dontCareFactors(in, allFactors);
     if (allConstraints.isEmpty())
-      return Stream.of(new Tuple.Builder().putAll(removeDontCares(in)).putAll(chooseAssignmentsFor(dontCareFactors, randomizer)).build());
+      return Stream.of(new Tuple.Builder().putAll(removeDontCares(in)).putAll(session.chooseAssignmentsFor(dontCareFactors)).build());
     return new StreamableTupleCartesianator(dontCareFactors).stream()
         .flatMap(tuple -> streamAssignmentsAllowedByConstraints(
             new Tuple.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
             allFactors,
-            allConstraints
+            allConstraints,
+            session
         ));
-  }
-
-  private static Map<String, Object> chooseAssignmentsFor(List<Factor> dontCareFactors, AtomicInteger randomizer) {
-    return new HashMap<String, Object>() {{
-      dontCareFactors.forEach(factor -> put(factor.getName(), factor.getLevels().get(randomizer.getAndIncrement() % factor.getLevels().size())));
-    }};
   }
 
   public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
       Tuple request,
       List<Factor> allFactors,
-      List<Constraint> allConstraints
+      List<Constraint> allConstraints,
+      Session session
   ) {
     List<Factor> factorsUnderConstraintsInRequest = factorsUnderConstrains(allFactors, allConstraints).stream(
     ).map(
@@ -430,40 +445,7 @@ public class IpoGplus extends Generator.Base {
             Factor.create(factor.getName(), new Object[] { request.get(factor.getName()) })
     ).collect(toList());
 
-    Optional<Tuple> firstTuple = FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS
-        .apply(allConstraints)
-        .apply(factorsUnderConstraintsInRequest);
-    if (firstTuple.isPresent()) {
-      StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
-          factorsUnderConstraintsInRequest
-      );
-      return cartesianator
-          .cursor(firstTuple.get())
-          .stream(
-          ).filter(
-              satisfiesAllOf(allConstraints)
-          ).map(
-              tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
-          );
-    }
-    return Stream.empty();
-  }
-
-  public static <T, R> Function<T, R> memoize(Function<T, R> function) {
-    Map<T, R> memo = new HashMap<>();
-    return t -> memo.computeIfAbsent(t, function);
-  }
-
-  private static final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
-      FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS = memoize(functionToFindFirstTupleUnderConstraints());
-
-  private static Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>> functionToFindFirstTupleUnderConstraints() {
-    return memoize(IpoGplus::findFirstTupleUnderConstraints);
-  }
-
-  private static Function<List<Factor>, Optional<Tuple>> findFirstTupleUnderConstraints(List<Constraint> allConstraints) {
-    return (List<Factor> factorsUnderConstrains) ->
-        streamTuplesUnderConstraints(allConstraints).apply(factorsUnderConstrains).findFirst();
+    return _streamAssignmentsAllowedByConstraints(request, allConstraints, factorsUnderConstraintsInRequest, session);
   }
 
   public static Function<List<Factor>, Stream<Tuple>> streamTuplesUnderConstraints(List<Constraint> allConstraints) {
@@ -473,27 +455,6 @@ public class IpoGplus extends Generator.Base {
     ).filter(
         satisfies(allConstraints)
     );
-  }
-
-  private static Predicate<Tuple> satisfies(List<Constraint> allConstraints) {
-    return tuple -> allConstraints.stream().allMatch(constraint -> constraint.test(tuple));
-  }
-
-  private static List<Factor> factorsUnderConstrains(List<Factor> allFactors, List<Constraint> allConstraints) {
-    return allFactors.stream(
-    ).filter(
-        factor -> allConstraints.stream().anyMatch(constraint -> constraint.involvedKeys().contains(factor.getName()))
-    ).collect(
-        toList()
-    );
-  }
-
-  private static Predicate<Tuple> isAllowedTuple(List<Factor> allFactors, List<Constraint> allConstraints) {
-    return (Tuple tuple) -> streamAssignmentsAllowedByConstraints(
-        tuple,
-        allFactors,
-        allConstraints
-    ).findFirst().isPresent();
   }
 
   public static Predicate<Tuple> satisfiesAllOf(List<Constraint> predicates) {
@@ -515,5 +476,59 @@ public class IpoGplus extends Generator.Base {
         .filter((Constraint eachConstraint) -> !disjoint(eachConstraint.involvedKeys(), assignedFactorNames))
         .collect(toList());
 
+  }
+
+  private static Stream<Tuple> _streamAssignmentsAllowedByConstraints(
+      Tuple request,
+      List<Constraint> allConstraints,
+      List<Factor> factorsUnderConstraintsInRequest,
+      Session session
+  ) {
+    Optional<Tuple> firstTuple = session.findFirstTupleUnderConstraints.apply(allConstraints).apply(factorsUnderConstraintsInRequest);
+    if (firstTuple.isPresent()) {
+      StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
+          factorsUnderConstraintsInRequest
+      );
+      return cartesianator
+          .cursor(firstTuple.get())
+          .stream(
+          ).filter(
+              satisfiesAllOf(allConstraints)
+          ).map(
+              tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
+          );
+    }
+    return Stream.empty();
+  }
+
+  private static Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>> functionToFindFirstTupleUnderConstraints() {
+    return Utils.memoize(IpoGplus::findFirstTupleUnderConstraints);
+  }
+
+  private static Function<List<Factor>, Optional<Tuple>> findFirstTupleUnderConstraints(List<Constraint> allConstraints) {
+    return (List<Factor> factorsUnderConstrains) ->
+        streamTuplesUnderConstraints(allConstraints).apply(factorsUnderConstrains).findFirst();
+  }
+
+  private static Predicate<Tuple> satisfies(List<Constraint> allConstraints) {
+    return tuple -> allConstraints.stream().allMatch(constraint -> constraint.test(tuple));
+  }
+
+  private static List<Factor> factorsUnderConstrains(List<Factor> allFactors, List<Constraint> allConstraints) {
+    return allFactors.stream(
+    ).filter(
+        factor -> allConstraints.stream().anyMatch(constraint -> constraint.involvedKeys().contains(factor.getName()))
+    ).collect(
+        toList()
+    );
+  }
+
+  private static Predicate<Tuple> isAllowedTuple(List<Factor> allFactors, List<Constraint> allConstraints, Session session) {
+    return (Tuple tuple) -> streamAssignmentsAllowedByConstraints(
+        tuple,
+        allFactors,
+        allConstraints,
+        session
+    ).findFirst().isPresent();
   }
 }

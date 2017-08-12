@@ -12,8 +12,6 @@ import org.junit.runner.RunWith;
 
 import java.util.Objects;
 
-import static java.util.Arrays.asList;
-
 /**
  * <a href="https://github.com/Microsoft/pict/issues/11">Issue-11 of PICT</a>
  * <code>
@@ -207,6 +205,7 @@ public class Issue13 {
     return true;
   }
 
+  /*/
   ////2
   //
   //IF [Eingangskanal] in {"HOST_T19000", "HOST_T19001", "HOST_T19750", "HOST_T28900"}
@@ -445,6 +444,7 @@ public class Issue13 {
           !udalStatus.equals("Back_up-Betrieb");
     return true;
   }
+  /*/
 
   @Test
   public void test(

@@ -145,7 +145,8 @@ public class IpoGplusTest {
       List<Tuple> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
-          fixture.constraints
+          fixture.constraints,
+          new IpoGplus.Session()
       ).collect(toList());
 
       assertEquals(
@@ -211,7 +212,7 @@ public class IpoGplusTest {
           tuple -> (Integer) tuple.get("b") > (Integer) tuple.get("c"),
           "b", "c"
       );
-      Function<List<Factor>, Stream<Tuple>> func = IpoGplus.memoize(IpoGplus.streamTuplesUnderConstraints(
+      Function<List<Factor>, Stream<Tuple>> func = Utils.memoize(IpoGplus.streamTuplesUnderConstraints(
           Collections.singletonList(
               constraint
           )
@@ -259,7 +260,7 @@ public class IpoGplusTest {
 
     @Test
     public void testMemoization() {
-      Function<Integer, Integer> acc = IpoGplus.memoize(integer -> integer + 1);
+      Function<Integer, Integer> acc = Utils.memoize(integer -> integer + 1);
       System.out.println(acc.apply(100));
       //noinspection RedundantCast
       assertEquals((int) 101, (int) acc.apply(100));
@@ -271,7 +272,8 @@ public class IpoGplusTest {
       List<Tuple> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
-          fixture.constraints
+          fixture.constraints,
+          new IpoGplus.Session()
       ).collect(toList());
 
       assertEquals(
@@ -290,7 +292,8 @@ public class IpoGplusTest {
       List<Tuple> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
-          fixture.constraints
+          fixture.constraints,
+          new IpoGplus.Session()
       ).collect(toList());
 
       assertEquals(
@@ -388,7 +391,7 @@ public class IpoGplusTest {
     Function<Tuple, Tuple> func        = IpoGplus.replaceDontCareValuesWithActualLevels(
         factors,
         constraints,
-        new AtomicInteger(0)
+        new IpoGplus.Session()
     );
 
     @Test
@@ -472,7 +475,7 @@ public class IpoGplusTest {
               tuple,
               factors,
               constraints,
-              new AtomicInteger(0)
+              new IpoGplus.Session()
           ).collect(toList())
       );
     }
@@ -497,7 +500,7 @@ public class IpoGplusTest {
               tuple,
               factors,
               constraints,
-              new AtomicInteger(0)
+              new IpoGplus.Session()
           ).collect(toList())
       );
     }
@@ -534,7 +537,7 @@ public class IpoGplusTest {
           tuple,
           factors,
           constraints,
-          new AtomicInteger(0)
+          new IpoGplus.Session()
       ).collect(toList());
       assertEquals(
           singletonList(new Tuple.Builder().put("a", 4).put("c", 4).put("b", 8).build()),
