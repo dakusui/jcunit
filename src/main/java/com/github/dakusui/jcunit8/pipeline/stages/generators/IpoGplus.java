@@ -30,7 +30,7 @@ public class IpoGplus extends Generator.Base {
   private final TupleSet      precovered;
   private final AtomicInteger optimizer;
 
-  private static class MemoizationContext {
+  public static class Memoizer {
 
   }
 
@@ -458,7 +458,7 @@ public class IpoGplus extends Generator.Base {
       FUNCTION_TO_FIND_FIRST_TUPLE_UNDER_CONSTRAINTS = memoize(functionToFindFirstTupleUnderConstraints());
 
   private static Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>> functionToFindFirstTupleUnderConstraints() {
-    return constraints -> memoize(findFirstTupleUnderConstraints(constraints));
+    return memoize(IpoGplus::findFirstTupleUnderConstraints);
   }
 
   private static Function<List<Factor>, Optional<Tuple>> findFirstTupleUnderConstraints(List<Constraint> allConstraints) {

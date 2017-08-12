@@ -7,9 +7,12 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
+import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 
 import java.util.Objects;
+
+import static java.util.Arrays.asList;
 
 /**
  * <a href="https://github.com/Microsoft/pict/issues/11">Issue-11 of PICT</a>
@@ -203,8 +206,6 @@ public class Issue13 {
       );
     return true;
   }
-
-  /*/
 
   ////2
   //
@@ -445,8 +446,6 @@ public class Issue13 {
     return true;
   }
 
-  /*/
-
   @Test
   public void test(
       @From("eingangskanal") String eingangskanal,
@@ -472,5 +471,11 @@ public class Issue13 {
         udalStatus,
         abruf_Infoblaetter
     );
+  }
+
+  public static void main(String... args) {
+    long before = System.currentTimeMillis();
+    new JUnitCore().run(Issue13.class);
+    System.out.println(System.currentTimeMillis() - before);
   }
 }
