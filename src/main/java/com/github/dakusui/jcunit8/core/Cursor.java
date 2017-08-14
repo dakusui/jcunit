@@ -32,7 +32,6 @@ public interface Cursor<E> extends Iterable<E> {
       this.enumerator = enumerator;
     }
 
-
     @Override
     public java.util.Iterator<List<T>> iterator() {
       return new Enumerator.Iterator<>(startFrom, enumerator);
@@ -50,7 +49,23 @@ public interface Cursor<E> extends Iterable<E> {
     @Override
     public Iterator<Tuple> iterator() {
       // TODO avoid using 'int'
-      return this.enumerator.asList().subList((int) startFrom, (int) this.enumerator.size()).iterator();
-    }
+      // return this.enumerator.asList().subList((int) startFrom, (int) this.enumerator.size()).iterator();
+      return new Iterator<Tuple>() {
+        long i = startFrom;
+
+        @Override
+        public boolean hasNext() {
+          return i < enumerator.size();
+        }
+
+        @Override
+        public Tuple next() {
+          try {
+            return enumerator.get(i);
+          } finally {
+            i++;
+          }
+        }
+      };    }
   }
 }

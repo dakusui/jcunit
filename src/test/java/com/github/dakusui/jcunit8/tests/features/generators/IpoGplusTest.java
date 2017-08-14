@@ -11,7 +11,6 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -155,49 +154,6 @@ public class IpoGplusTest {
               new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build()
           ),
           assignments
-      );
-    }
-
-    @Test
-    public void _givenSimpleExample$whenStreamTuplesUnderConstraints() {
-      List<Factor> factors = Arrays.asList(
-          Factor.create("a", new Object[] { 0, 1 }),
-          Factor.create("b", new Object[] { 0, 1 }),
-          Factor.create("c", new Object[] { 0, 1 })
-      );
-      List<Constraint> constraints = Arrays.asList(
-          Constraint.create(
-              tuple -> tuple.get("a").equals(tuple.get("b")),
-              "a", "b"),
-          Constraint.create(
-              tuple -> !tuple.get("b").equals(tuple.get("c")),
-              "b", "c"
-          )
-      );
-      Function<List<Factor>, Stream<Tuple>> func = IpoGplus.streamTuplesUnderConstraints(
-          constraints
-      );
-      Optional<Tuple> cursor = func.apply(
-          factors
-      ).findFirst();
-
-      assertTrue(cursor.isPresent());
-      assertEquals(
-          asList(
-              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 2).build()
-          ),
-          new StreamableTupleCartesianator(
-              factors
-          ).cursor(
-              cursor.get()
-          ).stream(
-          ).filter(
-              each -> constraints.stream().allMatch(constraint -> constraint.test(each))
-          ).collect(
-              toList()
-          )
       );
     }
 
