@@ -10,9 +10,8 @@ import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -131,5 +130,10 @@ public enum Utils {
       ret = ret.and(each);
     }
     return ret;
+  }
+
+  public static <T, R> Function<T, R> memoize(Function<T, R> function) {
+    Map<T, R> memo = new ConcurrentHashMap<>();
+    return t -> memo.computeIfAbsent(t, function);
   }
 }

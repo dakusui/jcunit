@@ -10,7 +10,7 @@ import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArra
 public enum JoinExperimentUtils {
   ;
 
-  static void exerciseStandardExperiment10Times(int numLhsFactors, int numRhsFactors) {
+  public static void exerciseStandardExperiment10Times(int numLhsFactors, int numRhsFactors) {
     // warm up
     exercise(2, 2, numLhsFactors);
     for (int j = 0; j < 10; j++) {
@@ -18,11 +18,11 @@ public enum JoinExperimentUtils {
     }
   }
 
-  static Report exercise(int strength, int numLevels, int numFactors) {
+  public static Report exercise(int strength, int numLevels, int numFactors) {
     return exercise(strength, numLevels, numFactors, numFactors);
   }
 
-  static Report exercise(int strength, int numLevels, int numFactorsLhs, int numFactorsRhs) {
+  public static Report exercise(int strength, int numLevels, int numFactorsLhs, int numFactorsRhs) {
     Report.Builder reportBuilder = new Report.Builder(numFactorsLhs, numFactorsRhs);
     StopWatch stopWatch = new StopWatch();
 
@@ -57,7 +57,7 @@ public enum JoinExperimentUtils {
     return reportBuilder.build();
   }
 
-  static class Report {
+  public static class Report {
     final         long timeLhsGeneration;
     final         long timeRhsGeneration;
     final         long timeMergedGeneration;
@@ -82,7 +82,7 @@ public enum JoinExperimentUtils {
       this.sizeJoined = sizeJoined;
     }
 
-    static String header() {
+    public static String header() {
       return "lhsNumFactors,rhsNumFactors,sizeLhs,timeLhsGeneration,sizeRhs,timeRhsGeneration,sizeMerged,timeMergedGeneration,sizeJoined,timeJoining";
     }
 

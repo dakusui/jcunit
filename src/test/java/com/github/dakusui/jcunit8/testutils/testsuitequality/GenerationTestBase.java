@@ -30,7 +30,7 @@ public class GenerationTestBase {
     FactorSpace factorSpace = factorSpaceSpec.build();
     CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
     return new Report(
-        String.format("numFactors=%d", factorSpace.getFactors().size()),
+        String.format("%s", factorSpaceSpec),
         CoveringArrayGenerationUtils.generateWithIpoGplus(factorSpace, strength),
         stopWatch.get()
     );

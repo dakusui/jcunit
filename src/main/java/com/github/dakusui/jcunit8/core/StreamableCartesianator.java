@@ -9,6 +9,7 @@ import java.util.stream.StreamSupport;
 import static java.util.Arrays.asList;
 
 public class StreamableCartesianator<E> extends Cartesianator<E> {
+
   public StreamableCartesianator(List<? extends List<? extends E>> sets) {
     super(sets);
   }
@@ -16,6 +17,10 @@ public class StreamableCartesianator<E> extends Cartesianator<E> {
   @SuppressWarnings("unchecked")
   public StreamableCartesianator(List<? extends E>... sets) {
     this(asList(sets));
+  }
+
+  public Cursor<List<E>> cursor(List<E> at) {
+    return new Cursor.Impl<>(indexOf(at), this);
   }
 
   public Stream<List<E>> stream() {

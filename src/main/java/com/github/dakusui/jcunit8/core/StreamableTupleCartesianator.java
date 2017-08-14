@@ -15,15 +15,8 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tup
     super(buildDomains(factors));
   }
 
-  private static Domains<String, Object> buildDomains(List<Factor> factors) {
-    Domains.Builder<String, Object> builder = new Domains.Builder<>();
-    factors.forEach(factor -> builder.addDomain(factor.getName(), factor.getLevels().toArray()));
-    return builder.build();
-  }
-
-  @Override
-  protected Tuple createMap() {
-    return new Tuple.Builder().build();
+  public Cursor<Tuple> cursor(Tuple at) {
+    return new Cursor.ForTuple(indexOf(at), this);
   }
 
   public Stream<Tuple> stream() {
@@ -42,5 +35,16 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tup
         return (int) StreamableTupleCartesianator.this.size();
       }
     };
+  }
+
+  @Override
+  protected Tuple createMap() {
+    return new Tuple.Builder().build();
+  }
+
+  private static Domains<String, Object> buildDomains(List<Factor> factors) {
+    Domains.Builder<String, Object> builder = new Domains.Builder<>();
+    factors.forEach(factor -> builder.addDomain(factor.getName(), factor.getLevels().toArray()));
+    return builder.build();
   }
 }

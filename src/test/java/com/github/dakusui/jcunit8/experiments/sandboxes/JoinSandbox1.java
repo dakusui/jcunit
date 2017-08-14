@@ -1,6 +1,7 @@
-package com.github.dakusui.jcunit8.experiments;
+package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.experiments.JoinExperimentUtils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import org.junit.Test;

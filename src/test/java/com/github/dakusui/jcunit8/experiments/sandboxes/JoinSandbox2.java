@@ -1,5 +1,6 @@
-package com.github.dakusui.jcunit8.experiments;
+package com.github.dakusui.jcunit8.experiments.sandboxes;
 
+import com.github.dakusui.jcunit8.experiments.JoinExperimentUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

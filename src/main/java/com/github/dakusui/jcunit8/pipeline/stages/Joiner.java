@@ -22,16 +22,16 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     public SchemafulTupleSet apply(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       FrameworkException.checkCondition(Collections.disjoint(lhs.getAttributeNames(), rhs.getAttributeNames()));
       if (lhs.size() > rhs.size())
-        return outerJoin(lhs, rhs);
+        return doJoin(lhs, rhs);
       if (lhs.isEmpty())
         return SchemafulTupleSet.empty(new LinkedList<String>() {{
           addAll(lhs.getAttributeNames());
           addAll(rhs.getAttributeNames());
         }});
-      return outerJoin(rhs, lhs);
+      return doJoin(rhs, lhs);
     }
 
-    protected abstract SchemafulTupleSet outerJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs);
+    protected abstract SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs);
   }
 
   class Standard extends Base {
@@ -42,14 +42,14 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
 
     @Override
-    protected SchemafulTupleSet outerJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+    protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       TupleSet allTuplesToBeCovered = computeTuplesToBeCovered(lhs, rhs, this.requirement.strength());
       List<Tuple> work = new LinkedList<>();
       {
         ////
         // Modified HG (horizontal growth) procedure
         for (Tuple each : lhs) {
-          Tuple tuple = connect(chooseBestTupleFrom(rhs, each, allTuplesToBeCovered), each);
+          Tuple tuple = connect(chooseBestTupleFrom(each, rhs, allTuplesToBeCovered), each);
           if (!allTuplesToBeCovered.removeAll(subtuplesOf(tuple, this.requirement.strength())))
             break;
           work.add(tuple);
@@ -59,8 +59,18 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }
       ////
       // Modified VG (vertical growth) procedure
+      List<Tuple> allFullTuples = new LinkedList<>(
+          new TupleCartesianator(asList(
+              lhs, rhs
+          )).stream(
+          ).filter(
+              tuple -> !work.contains(tuple)
+          ).collect(
+              toList()
+          )
+      );
       while (!allTuplesToBeCovered.isEmpty()) {
-        Tuple tuple = chooseBestTupleFrom(new TupleCartesianator(asList(lhs, rhs)), allTuplesToBeCovered);
+        Tuple tuple = chooseBestTupleFrom(allFullTuples, allTuplesToBeCovered);
         if (!allTuplesToBeCovered.removeAll(subtuplesOf(tuple, this.requirement.strength())))
           break;
         work.add(tuple);
@@ -97,15 +107,26 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
 
     private Tuple chooseBestTupleFrom(List<Tuple> fromTupleSuite, TupleSet allTuplesToBeCovered) {
-      return fromTupleSuite.stream()
-          .max(Comparator.comparingLong((Tuple value) -> coveredBy(value, allTuplesToBeCovered)))
-          .orElseThrow(FrameworkException::unexpectedByDesign);
+      List<Tuple> coversNothing = new LinkedList<>();
+      try {
+        return fromTupleSuite.stream(
+        ).max(Comparator.comparingLong(
+            (Tuple value) -> {
+              long num = coveredBy(value, allTuplesToBeCovered);
+              if (num == 0)
+                coversNothing.add(value);
+              return num;
+            })
+        ).orElseThrow(FrameworkException::unexpectedByDesign);
+      } finally {
+        fromTupleSuite.removeAll(coversNothing);
+      }
     }
 
-    private Tuple chooseBestTupleFrom(List<Tuple> fromTupleSuite, Tuple forTuple, TupleSet allTuplesToBeCovered) {
+    private Tuple chooseBestTupleFrom(Tuple fromLhs, List<Tuple> rhs, TupleSet allTuplesToBeCovered) {
       return chooseBestTupleFrom(
-          fromTupleSuite.stream()
-              .map(tuple -> connect(tuple, forTuple))
+          rhs.stream()
+              .map(tuple -> connect(tuple, fromLhs))
               .collect(toList()),
           allTuplesToBeCovered
       );
