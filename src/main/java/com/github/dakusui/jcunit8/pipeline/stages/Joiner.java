@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.pipeline.stages;
 
 import com.github.dakusui.combinatoradix.Cartesianator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
@@ -9,6 +10,7 @@ import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
@@ -41,9 +43,69 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       this.requirement = requireNonNull(requirement);
     }
 
+    class StopWatch {
+      long before;
+
+      StopWatch() {
+        this.before = System.currentTimeMillis();
+      }
+
+      void print(String label) {
+        System.out.printf("%s:%d%n", label, System.currentTimeMillis() - before);
+        this.before = System.currentTimeMillis();
+      }
+    }
+
     @Override
     protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+      StopWatch stopWatch = new StopWatch();
       TupleSet allTuplesToBeCovered = computeTuplesToBeCovered(lhs, rhs, this.requirement.strength());
+      stopWatch.print("computeTuplesToBeCovered");
+      List<Tuple> work = new LinkedList<>();
+      ////
+      // If there are tuples in lhs not used in work, they should be added to the
+      // list. Otherwise t-way tuples covered by them will not be covered by the
+      // final result. Same thing can be said in rhs.
+      Checks.checkcond(lhs.size() >= rhs.size());
+      for (int i = 0; i < lhs.size(); i++) {
+        Tuple tuple = connect(lhs.get(i), rhs.get(i % rhs.size()));
+        work.add(tuple);
+        allTuplesToBeCovered.removeAll(subtuplesOf(tuple, this.requirement.strength()));
+      }
+      stopWatch.print("HG");
+      ////
+      // Modified VG (vertical growth) procedure
+      List<Tuple> allFullTuples = new LinkedList<>(
+          new TupleCartesianator(asList(
+              lhs, rhs
+          )).stream(
+          ).filter(
+              tuple -> !work.contains(tuple)
+          ).collect(
+              toList()
+          )
+      );
+      stopWatch.print("VG-1");
+      while (!allTuplesToBeCovered.isEmpty()) {
+        Tuple tuple = chooseBestTupleFrom(SchemafulTupleSet.fromTuples(allFullTuples), allTuplesToBeCovered, lhs.width(), rhs.width());
+        if (!allTuplesToBeCovered.removeAll(subtuplesOf(tuple, this.requirement.strength())))
+          break;
+        work.add(tuple);
+      }
+      stopWatch.print("VG-2");
+      return new SchemafulTupleSet.Builder(
+          Stream.concat(
+              lhs.getAttributeNames().stream(),
+              rhs.getAttributeNames().stream()
+          ).collect(toList()))
+          .addAll(work)
+          .build();
+    }
+
+    protected SchemafulTupleSet _doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+      StopWatch stopWatch = new StopWatch();
+      TupleSet allTuplesToBeCovered = computeTuplesToBeCovered(lhs, rhs, this.requirement.strength());
+      stopWatch.print("computeTuplesToBeCovered");
       List<Tuple> work = new LinkedList<>();
       {
         ////
@@ -57,6 +119,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             break;
         }
       }
+      stopWatch.print("HG");
       ////
       // Modified VG (vertical growth) procedure
       List<Tuple> allFullTuples = new LinkedList<>(
@@ -70,11 +133,17 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
           )
       );
       while (!allTuplesToBeCovered.isEmpty()) {
-        Tuple tuple = chooseBestTupleFrom(allFullTuples, allTuplesToBeCovered);
+        Tuple tuple = chooseBestTupleFrom(
+            SchemafulTupleSet.fromTuples(allFullTuples),
+            allTuplesToBeCovered,
+            lhs.getAttributeNames().size(),
+            rhs.getAttributeNames().size()
+        );
         if (!allTuplesToBeCovered.removeAll(subtuplesOf(tuple, this.requirement.strength())))
           break;
         work.add(tuple);
       }
+      stopWatch.print("VG");
       ////
       // If there are tuples in lhs not used in work, they should be added to the
       // list. Otherwise t-way tuples covered by them will not be covered by the
@@ -89,6 +158,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       ).forEach(
           each -> work.add(connect(lhs.get(rhs.indexOf(each)), each))
       );
+      stopWatch.print("FINISH");
       return new SchemafulTupleSet.Builder(
           Stream.concat(
               lhs.getAttributeNames().stream(),
@@ -106,10 +176,21 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       return new Tuple.Builder().putAll(tuple1).putAll(tuple2).build();
     }
 
-    private Tuple chooseBestTupleFrom(List<Tuple> fromTupleSuite, TupleSet allTuplesToBeCovered) {
+    private Tuple chooseBestTupleFrom(SchemafulTupleSet fromTupleSuite, TupleSet allTuplesToBeCovered, int lhsSize, int rhsSize) {
+      Function<Tuple, Long> counter = new Function<Tuple, Long>() {
+        @Override
+        public Long apply(Tuple value) {
+          return coveredBy(value, allTuplesToBeCovered);
+        }
+      };
       List<Tuple> coversNothing = new LinkedList<>();
       try {
         return fromTupleSuite.stream(
+        ).filter((Tuple value) -> {
+          long count = counter.apply(value);
+          return count >= Math.min(allTuplesToBeCovered.size(), lhsSize * rhsSize);
+        }).findFirst(
+        ).orElseGet(() -> fromTupleSuite.stream(
         ).max(Comparator.comparingLong(
             (Tuple value) -> {
               long num = coveredBy(value, allTuplesToBeCovered);
@@ -117,18 +198,22 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
                 coversNothing.add(value);
               return num;
             })
-        ).orElseThrow(FrameworkException::unexpectedByDesign);
+        ).orElseThrow(FrameworkException::unexpectedByDesign));
       } finally {
-        fromTupleSuite.removeAll(coversNothing);
+//        fromTupleSuite.removeAll(coversNothing);
       }
     }
 
-    private Tuple chooseBestTupleFrom(Tuple fromLhs, List<Tuple> rhs, TupleSet allTuplesToBeCovered) {
+    private Tuple chooseBestTupleFrom(Tuple fromLhs, SchemafulTupleSet rhs, TupleSet allTuplesToBeCovered) {
       return chooseBestTupleFrom(
-          rhs.stream()
-              .map(tuple -> connect(tuple, fromLhs))
-              .collect(toList()),
-          allTuplesToBeCovered
+          SchemafulTupleSet.fromTuples(
+              rhs.stream()
+                  .map(tuple -> connect(tuple, fromLhs))
+                  .collect(toList())
+          ),
+          allTuplesToBeCovered,
+          fromLhs.size(),
+          rhs.getAttributeNames().size()
       );
     }
 
