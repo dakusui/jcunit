@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import java.util.*;
 
 import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStrengthIsInRange;
-import static java.util.stream.Collectors.toList;
 
 /**
  * A list of tuples all of whose entries have the same attribute names. An implementation
@@ -15,6 +14,7 @@ import static java.util.stream.Collectors.toList;
  */
 public interface SchemafulTupleSet extends List<Tuple> {
   List<String> getAttributeNames();
+  int width();
 
   /**
    * Returns all t-way tuples in this {@code SchemafulTupleSet} where t is {@code strength}.
@@ -87,6 +87,11 @@ public interface SchemafulTupleSet extends List<Tuple> {
         }
 
         @Override
+        public int width() {
+          return getAttributeNames().size();
+        }
+
+        @Override
         public TupleSet subtuplesOf(int strength) {
           checkIfStrengthIsInRange(strength, attributeNames);
           TupleSet.Builder builder = new TupleSet.Builder();
@@ -97,7 +102,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
         }
       }
       return new Impl(
-          this.attributeNames.stream().collect(toList()),
+          new ArrayList<>(this.attributeNames),
           this.tuples);
     }
   }
