@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.github.dakusui.jcunit8.testutils.UTUtils.configureStdIOs;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
 
@@ -44,6 +45,7 @@ public abstract class JoinExperimentBase {
   public void before() {
     synchronized (JoinExperimentBase.class) {
       if (!initialized) {
+        configureStdIOs();
         lhsFactorSpace = lhsFactorSpaceSpec().build();
         lhs = generateWithIpoGplus(lhsFactorSpace, strength());
         assertCoveringArray(lhs, lhsFactorSpace, strength());

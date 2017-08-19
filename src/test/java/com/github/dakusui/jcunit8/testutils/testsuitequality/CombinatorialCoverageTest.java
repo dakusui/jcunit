@@ -6,6 +6,8 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -16,6 +18,11 @@ import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArra
 import static java.util.stream.Collectors.toList;
 
 public class CombinatorialCoverageTest {
+  @Before
+  public void before() {
+    UTUtils.configureStdIOs();
+  }
+
   @Test
   public void given3ParametersWith1ConstraintStrength2$whenBuildTestSuite$thenValidTestSuiteBuilt() {
     givenParameterSpaceAndStrength$whenBuildTestSuite$thenCombinatorialCoverageFineAndNoConstraintIsViolated(

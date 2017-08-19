@@ -44,19 +44,6 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       this.requirement = requireNonNull(requirement);
     }
 
-    class StopWatch {
-      long before;
-
-      StopWatch() {
-        this.before = System.currentTimeMillis();
-      }
-
-      void print(String label) {
-        //System.out.printf("%s:%d%n", label, System.currentTimeMillis() - before);
-        this.before = System.currentTimeMillis();
-      }
-    }
-
     @Override
     protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       class Session {
@@ -129,7 +116,6 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       //
       // Modified HG (horizontal growth) procedure
       checkcond(lhs.size() >= rhs.size());
-      StopWatch stopWatch = new StopWatch();
       for (int i = 0; i < lhs.size(); i++) {
         Tuple lhsTuple = lhs.get(i);
         Tuple rhsTuple = i < rhs.size() ?
@@ -141,7 +127,6 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
         work.add(tuple);
         remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(lhsTuple, rhsTuple, this.requirement.strength()));
       }
-      stopWatch.print("HG");
       ////
       // Modified VG (vertical growth) procedure
       while (!remainingTuplesToBeCovered.isEmpty()) {
@@ -162,7 +147,6 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             requirement.strength()
         ));
       }
-      stopWatch.print("VG");
       return new SchemafulTupleSet.Builder(
           Stream.concat(
               lhs.getAttributeNames().stream(),
