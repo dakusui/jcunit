@@ -22,7 +22,7 @@ import static java.util.Collections.singletonList;
 public enum Utils {
   ;
 
-  public static       PrintStream out               = System.out;
+  public static PrintStream out = System.out;
 
   public static <T> Function<T, T> printer() {
     return printer(Object::toString);
@@ -42,6 +42,24 @@ public enum Utils {
 
   public static <T> List<T> unique(List<T> in) {
     return new ArrayList<>(new LinkedHashSet<>(in));
+  }
+
+  public static <T> int sizeOfIntersection(Set<T> a, Set<T> b) {
+    Set<T> lhs;
+    Set<T> rhs;
+    if (a.size() > b.size()) {
+      lhs = b;
+      rhs = a;
+    } else {
+      lhs = a;
+      rhs = b;
+    }
+    int ret = 0;
+    for (T each : lhs) {
+      if (rhs.contains(each))
+        ret++;
+    }
+    return ret;
   }
 
   public static Tuple project(List<String> keys, Tuple from) {
@@ -113,6 +131,7 @@ public enum Utils {
 
   /**
    * Creates and returns an instance of a class represented by {@code TestClass}.
+   *
    * @param testClass Must be validated beforehand.
    * @return created instance.
    */
