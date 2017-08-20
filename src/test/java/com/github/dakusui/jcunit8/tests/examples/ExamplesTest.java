@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit8.tests.examples;
 import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
 import com.github.dakusui.jcunit8.examples.beforesandafters.BeforeAfter;
 import com.github.dakusui.jcunit8.examples.beforesandafters.UnusedParameter;
+import com.github.dakusui.jcunit8.examples.config.ConfigExample;
 import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterExample;
 import com.github.dakusui.jcunit8.examples.parameterhelper.ParameterHelperExample;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
@@ -11,6 +12,7 @@ import com.github.dakusui.jcunit8.examples.seed.QuadraticEquationExampleWithSeed
 import com.github.dakusui.jcunit8.testutils.ResultUtils;
 import com.github.dakusui.jcunit8.testutils.TestOracle;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -18,6 +20,11 @@ import org.junit.runner.Result;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 
 public class ExamplesTest {
+  @Before
+  public void before() {
+    UTUtils.configureStdIOs();
+  }
+  
   @Test
   public void quadraticEquationSolver() {
     ResultUtils.validateJUnitResult(
@@ -70,6 +77,20 @@ public class ExamplesTest {
   }
 
   @Test
+  public void config() {
+    ResultUtils.validateJUnitResult(
+        JUnitCore.runClasses(ConfigExample.class),
+        matcher(
+            UTUtils.oracle("success", Result::wasSuccessful),
+            UTUtils.oracle(
+                "{x}.getRunCount", Result::getRunCount,
+                "==14", v -> v == 14
+            )
+        )
+    );
+  }
+
+  @Test
   public void bankAccountWithSeeds() {
     ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(BankAccountExampleWithSeeds.class),
@@ -81,7 +102,6 @@ public class ExamplesTest {
         )
     );
   }
-
 
   @Test
   public void helper() {
