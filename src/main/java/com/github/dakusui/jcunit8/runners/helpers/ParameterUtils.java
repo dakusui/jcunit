@@ -2,7 +2,9 @@ package com.github.dakusui.jcunit8.runners.helpers;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
+import com.github.dakusui.jcunit8.factorspace.GroupedParameterFactoryBuilder;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.factorspace.SequenceParameterFactoryBuilder;
 
 import java.util.function.Function;
 

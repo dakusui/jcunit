@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.function.Predicate;
 
 import static com.github.dakusui.jcunit8.runners.helpers.ParameterUtils.*;
 
@@ -51,18 +50,22 @@ public class ParameterHelperExample {
   public Parameter.Factory group() {
     return grouped(
     ).factor(
-        "g1", "h", "i", "j"
+        "g1", "h", "i", "j", "A"
     ).factor(
         "g2", "k", "l", "m"
+    ).factor(
+        "g3", "n", "o", "p"
     ).constraint(
-        new Predicate<Tuple>() {
-          @Override
-          public boolean test(Tuple tuple) {
-            return true;
-          }
-        },
+        tuple -> !tuple.get("g1").equals("A"),
         "g1"
+    ).strength(
+        2
     ).build();
+  }
+
+  @ParameterSource
+  public Parameter.Factory seq() {
+    return sequence("gallia", "est", "omnis", "divisa").withRepetition().size(4).build();
   }
 
   @Test
@@ -72,8 +75,9 @@ public class ParameterHelperExample {
       @From("withdrawAmount") int amountOfWithdraw,
       @From("transferAmount") int amountOfTransfer,
       @From("flyingSpaghettiMonster") Scenario<FlyingSpaghettiMonster> fsmScenario,
+      @From("seq") List<String> seq,
       @From("group") Tuple groupedFactor
   ) {
-    System.out.println(bankAccountScenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer + ":" + fsmScenario + ":" + groupedFactor);
+    System.out.println(bankAccountScenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer + ":" + fsmScenario + ":" + seq + ":" + groupedFactor);
   }
 }

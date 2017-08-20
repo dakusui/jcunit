@@ -1,13 +1,10 @@
-package com.github.dakusui.jcunit8.runners.helpers;
+package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Factor;
-import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
@@ -23,7 +20,7 @@ public class GroupedParameterFactoryBuilder<T> {
   private List<Constraint>  constraints      = new LinkedList<>();
   private List<Factor>      factors          = new LinkedList<>();
   private Generator.Factory generatorFactory = new Generator.Factory.Standard();
-  private List<Tuple>       seeds            = new LinkedList<>();
+  private List<Tuple>       seeds            = Collections.emptyList();
 
   public GroupedParameterFactoryBuilder(Function<Tuple, T> translator) {
     this.translator = checknotnull(translator);
@@ -50,11 +47,6 @@ public class GroupedParameterFactoryBuilder<T> {
 
   public GroupedParameterFactoryBuilder<T> strength(int strength) {
     this.strength = strength;
-    return this;
-  }
-
-  public GroupedParameterFactoryBuilder<T> seed(Tuple seed) {
-    this.seeds.add(checknotnull(seed));
     return this;
   }
 

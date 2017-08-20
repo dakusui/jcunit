@@ -16,7 +16,6 @@ import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -71,11 +70,8 @@ public interface Parameter<T> {
     protected abstract List<Constraint> generateConstraints();
 
     static <V> Optional<Tuple> _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
-      AtomicReference<Optional<Tuple>> fallback = new AtomicReference<>(Optional.empty());
       return tuples.filter(
-          (Tuple tuple) -> {
-            return value.equals(valueComposer.apply(tuple));
-          }
+          (Tuple tuple) -> value.equals(valueComposer.apply(tuple))
       ).filter(
           constraints
       ).findFirst(

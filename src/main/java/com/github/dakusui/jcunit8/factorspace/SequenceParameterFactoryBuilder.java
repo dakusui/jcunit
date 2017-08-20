@@ -1,11 +1,8 @@
-package com.github.dakusui.jcunit8.runners.helpers;
+package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.Utils;
-import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Factor;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +34,7 @@ public class SequenceParameterFactoryBuilder<T> {
   }
 
   public SequenceParameterFactoryBuilder<T> size(int max) {
-    return this.size(max);
+    return this.size(0, max);
   }
 
   public SequenceParameterFactoryBuilder<T> withRepetition() {
