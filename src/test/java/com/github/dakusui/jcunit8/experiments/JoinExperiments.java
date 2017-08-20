@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
 public class JoinExperiments {
-  public static class Lhs10 extends JoinExperimentBase {
+  public static class Lhs10 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -18,7 +18,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs20 extends JoinExperimentBase {
+  public static class Lhs20 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -30,7 +30,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs30 extends JoinExperimentBase {
+  public static class Lhs30 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -42,7 +42,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs40 extends JoinExperimentBase {
+  public static class Lhs40 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -54,7 +54,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs50 extends JoinExperimentBase {
+  public static class Lhs50 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -66,7 +66,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs60 extends JoinExperimentBase {
+  public static class Lhs60 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -78,7 +78,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs70 extends JoinExperimentBase {
+  public static class Lhs70 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -90,7 +90,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs80 extends JoinExperimentBase {
+  public static class Lhs80 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -102,7 +102,7 @@ public class JoinExperiments {
     }
   }
 
-  public static class Lhs90 extends JoinExperimentBase {
+  public static class Lhs90 extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;

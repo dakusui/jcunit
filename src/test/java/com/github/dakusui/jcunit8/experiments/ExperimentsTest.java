@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
 public class ExperimentsTest {
-  public static class JoinExperimentTest extends JoinExperimentBase {
+  public static class JoinExperimentTest extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 2;
@@ -52,7 +52,7 @@ public class ExperimentsTest {
 
   }
 
-  public static class JoinExperimentWithStrength3Test extends JoinExperimentBase {
+  public static class JoinExperimentWithStrength3Test extends JoinExperimentRhs2_n {
     @Override
     protected int strength() {
       return 3;

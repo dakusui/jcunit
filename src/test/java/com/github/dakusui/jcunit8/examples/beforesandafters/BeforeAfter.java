@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.examples.beforesandafters;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.runners.helpers.Parameters;
+import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
@@ -14,32 +14,32 @@ import org.junit.runner.RunWith;
 public class BeforeAfter {
   @ParameterSource
   public Parameter.Factory a() {
-    return Parameters.simple("A1", "A2");
+    return ParameterUtils.simple("A1", "A2");
   }
 
   @ParameterSource
   public Parameter.Factory b() {
-    return Parameters.simple("B1", "B2");
+    return ParameterUtils.simple("B1", "B2");
   }
 
   @ParameterSource
   public Parameter.Factory c() {
-    return Parameters.simple("C1", "C2");
+    return ParameterUtils.simple("C1", "C2");
   }
 
   @ParameterSource
   public Parameter.Factory d() {
-    return Parameters.simple("D1", "D2");
+    return ParameterUtils.simple("D1", "D2");
   }
 
   @ParameterSource
   public Parameter.Factory e() {
-    return Parameters.simple("E1", "E2");
+    return ParameterUtils.simple("E1", "E2");
   }
 
   @ParameterSource
   public Parameter.Factory f() {
-    return Parameters.simple("F1", "F2");
+    return ParameterUtils.simple("F1", "F2");
   }
 
   @BeforeClass

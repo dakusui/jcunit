@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.examples.pict;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.runners.helpers.Parameters;
+import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -42,7 +42,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> eingangskanal() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "EVA_Anlageberatung", "EVA_Order", "EVA_Sonderweg", "EVA_Sparplan", "EVA_Neuemission",
         "EVA_Direkteinstieg", "HOST_T19000", "HOST_T19001", "HOST_T19901", "HOST_T19750",
         "HOST_T28900", "Onlinebanking_PC", "Onlinebanking_MSB", "Onlinebanking_Neuemission_PC",
@@ -58,7 +58,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> finanzinstrument() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "Aktie", "Unstrukturierte_Anleihe", "strukturierte_Anleihe", "Inv.Fonds", "OIF",
         "Zertifikat", "Optionsschein", "Xetra_Gold_ETC", "EMISID"
     );
@@ -72,7 +72,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> produktzyklus() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "Neuemission_Information", "Neuemission_offen", "Neuemission_geschlossen", "Neuemission_abgerechnet",
         "Sekundaermarkt", "n/a"
     );
@@ -83,7 +83,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> dienstleistungsart() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "Anlageberatung", "beratungsfreies_Geschaeft", "n/a"
     );
   }
@@ -95,7 +95,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> orderart() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "Kauf(Beratungsdatum_gueltig)", "Kauf_(ohne_Beratungsdatum)", "Verkauf",
         "aenderung", "Streichung", "Storno", "Berichtigungsauftrag", "n/a"
     );
@@ -106,7 +106,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> initiator() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "Kunde", "Bank", "n/a"
     );
   }
@@ -116,7 +116,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> auftragserteilung() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "telefonisch", "persoenlich", "schriftlich", "Haustuergeschaeft", "n/a"
     );
   }
@@ -129,7 +129,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> bereitstellungsdokumente() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "Beratungsprotokoll_Kunde", "Beratungsprotokoll_Interessent", "Beratungsprotokoll_Potenzial",
         "Nachtraeglicher_KID-Versand", "n/a"
     );
@@ -144,7 +144,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> udalStatus() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "Normalbetrieb", "Back_up-Betrieb", "PRIIP", "ohne_KID", "WKN_nicht_vorhanden",
         "WKN_inaktiv/geloescht", "defektes_Dokument", "Virus", "non-PRIIP_auf_Blackliste",
         "PRIIP_auf_Blackliste", "UDAL_nicht_verfuegbar", "n/a"
@@ -159,7 +159,7 @@ public class Issue13 {
    */
   @ParameterSource
   public Parameter.Factory<String> abruf_Infoblaetter() {
-    return Parameters.simple(
+    return ParameterUtils.simple(
         "WA_von_FWW", "PIB_von_DOTi", "PIB_von_C&M-FIC", "PIB_von_PC_PM",
         "KID_von_PC_PM", "KID_von_DOTi", "KID_von_externem_Hersteller"
     );
