@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.examples.pict;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.runners.helpers.Parameters;
+import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
@@ -48,37 +48,37 @@ import java.util.List;
 public class Issue11 {
   @ParameterSource
   public Parameter.Factory<String> platform() {
-    return Parameters.simple("x86", "ia16", "amd64");
+    return ParameterUtils.simple("x86", "ia16", "amd64");
   }
 
   @ParameterSource
   public Parameter.Factory<String> cpu() {
-    return Parameters.simple("single", "dual", "quad");
+    return ParameterUtils.simple("single", "dual", "quad");
   }
 
   @ParameterSource
   public Parameter.Factory<String> ram() {
-    return Parameters.simple("128MB", "1GB", "4GB", "64GB");
+    return ParameterUtils.simple("128MB", "1GB", "4GB", "64GB");
   }
 
   @ParameterSource
   public Parameter.Factory<String> hdd() {
-    return Parameters.simple("SCSI", "IDE");
+    return ParameterUtils.simple("SCSI", "IDE");
   }
 
   @ParameterSource
   public Parameter.Factory<String> os() {
-    return Parameters.simple("NT4", "Win2K", "WinXP", "Win2K3");
+    return ParameterUtils.simple("NT4", "Win2K", "WinXP", "Win2K3");
   }
 
   @ParameterSource
   public Parameter.Factory<String> ie() {
-    return Parameters.simple("4.0", "5.0", "5.5", "6.0");
+    return ParameterUtils.simple("4.0", "5.0", "5.5", "6.0");
   }
 
   @ParameterSource
   public Parameter.Factory<List<String>> apps() {
-    return Parameters.sequence("SQLServer", "Exchange", "Office").size(3, 4).withoutRepetition().build();
+    return ParameterUtils.sequence("SQLServer", "Exchange", "Office").size(3, 4).withoutRepetition().build();
   }
 
   @Test

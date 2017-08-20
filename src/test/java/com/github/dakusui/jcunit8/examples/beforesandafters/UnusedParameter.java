@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.examples.beforesandafters;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.runners.helpers.Parameters;
+import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
@@ -12,12 +12,12 @@ import org.junit.runner.RunWith;
 public class UnusedParameter {
   @ParameterSource
   public Parameter.Factory used() {
-    return Parameters.simple(true, false);
+    return ParameterUtils.simple(true, false);
   }
 
   @ParameterSource
   public Parameter.Factory notReferednced() {
-    return Parameters.simple("Z1", "Z2");
+    return ParameterUtils.simple("Z1", "Z2");
   }
 
   @Test
