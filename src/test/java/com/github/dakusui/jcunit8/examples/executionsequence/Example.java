@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 @ConfigureWith(parameterSpace = ExampleParameterSpace.class)
 public class Example {
   @Condition
-  public boolean aIsGreaterThanOrEqualToB(@From("a") int a, @From("b") int b) {
+  public boolean aIsGreaterThanOrEqualTo$b(@From("a") int a, @From("b") int b) {
     return a >= b;
   }
 
@@ -35,7 +35,7 @@ public class Example {
   }
 
   @Test
-  @Given("aIsGreaterThanOrEqualToB")
+  @Given("aIsGreaterThanOrEqualTo$b")
   public void whenRunTest2$thenLooksGood(@From("a") int a, @From("b") int b) {
     System.out.printf("      whenRunTest2$thenLooksGood(a=%d,b=%d)%n", a, b);
   }

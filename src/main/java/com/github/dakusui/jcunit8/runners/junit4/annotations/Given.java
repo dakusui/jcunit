@@ -41,7 +41,7 @@ public @interface Given {
       return new LinkedList<Exception>() {{
         NodeUtils.allLeaves(instance.value())
             .forEach((String s) -> {
-              if (!s.matches("[A-Za-z][A-Za-z0-9_]*"))
+              if (!s.matches("[A-Za-z_$][A-Za-z0-9_$]*"))
                 add(new Exception(format("'%s' is not a valid condition name", s)));
               else {
                 if (testClass.getAnnotatedMethods(Condition.class).stream()
