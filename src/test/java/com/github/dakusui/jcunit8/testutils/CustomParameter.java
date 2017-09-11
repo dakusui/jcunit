@@ -53,6 +53,11 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   protected List<Constraint> generateConstraints() {
     return singletonList(new Constraint() {
       @Override
+      public String getName() {
+        return CustomParameter.this.toString();
+      }
+
+      @Override
       public boolean test(Tuple tuple) {
         return !Objects.equals(getValue(tuple, "a"), getValue(tuple, "b"));
       }

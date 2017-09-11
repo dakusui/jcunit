@@ -67,7 +67,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
             ).collect(
                 toList()
             ),
-            NodeUtils.allTestPredicates(createParameterSpaceDefinitionTestClass()).values().stream()
+            NodeUtils.allTestPredicates(getTestClass()).values().stream()
                 .filter(each -> each instanceof Constraint)
                 .map(Constraint.class::cast)
                 .collect(toList())
@@ -394,7 +394,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         return true;
       return NodeUtils.buildPredicate(
           each.getAnnotation(Given.class).value(),
-          createParameterSpaceDefinitionTestClass()
+          getTestClass()
       ).test(tuple);
     }
 

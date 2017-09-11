@@ -18,6 +18,7 @@ public class NegativeGenerationTest extends PipelineTestBase {
   @Test
   public void test() {
     Constraint constraint = Constraint.create(
+        "simple1!=simple2",
         tuple -> !Objects.equals(tuple.get("simple1"), tuple.get("simple2")),
         "simple1",
         "simple2"

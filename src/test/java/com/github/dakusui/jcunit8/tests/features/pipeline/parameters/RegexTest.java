@@ -94,6 +94,7 @@ public class RegexTest extends PipelineTestBase {
         preprocess(
             singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
             singletonList(Constraint.create(
+                "alwaysTrue[regex1]",
                 tuple -> true,
                 "regex1"
             ))),

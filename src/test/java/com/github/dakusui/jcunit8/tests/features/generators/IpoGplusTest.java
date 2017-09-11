@@ -26,6 +26,10 @@ public class IpoGplusTest {
   public static class InvolvedConstraints {
     private static final Constraint constraint_a   = new Constraint() {
       @Override
+      public String getName() {
+        return String.format("alwaysFalse:%s", involvedKeys());
+      }
+      @Override
       public boolean test(Tuple testObject) {
         return false;
       }
@@ -37,6 +41,11 @@ public class IpoGplusTest {
     };
     private static final Constraint constraint_ab  = new Constraint() {
       @Override
+      public String getName() {
+        return String.format("alwaysFalse:%s", involvedKeys());
+      }
+
+      @Override
       public boolean test(Tuple testObject) {
         return false;
       }
@@ -47,6 +56,11 @@ public class IpoGplusTest {
       }
     };
     private static final Constraint constraint_abc = new Constraint() {
+      @Override
+      public String getName() {
+        return String.format("alwaysFalse:%s", involvedKeys());
+      }
+
       @Override
       public boolean test(Tuple testObject) {
         return false;
@@ -96,6 +110,7 @@ public class IpoGplusTest {
           }},
           new LinkedList<Constraint>() {{
             add(Constraint.create(
+                "a+b+c<=4[a,b,c]",
                 (Tuple tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
                 "a", "b", "c"
             ));
@@ -110,6 +125,7 @@ public class IpoGplusTest {
           }},
           new LinkedList<Constraint>() {{
             add(Constraint.create(
+                "a+b+c<=4[a,b,c]",
                 (Tuple tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
                 "a", "b", "c"
             ));
@@ -123,7 +139,11 @@ public class IpoGplusTest {
             add(Factor.create("c", asList(1, 2, 3).toArray()));
           }},
           new LinkedList<Constraint>() {{
-            add(Constraint.create((Tuple tuple) -> ((int) tuple.get("a")) != ((int) tuple.get("b")), "a", "b"));
+            add(Constraint.create(
+                "a!=b",
+                (Tuple tuple) -> ((int) tuple.get("a")) != ((int) tuple.get("b")),
+                "a", "b")
+            );
           }}
       );
 
@@ -165,6 +185,7 @@ public class IpoGplusTest {
           Factor.create("c", new Object[] { 1, 2, 3 })
       );
       Constraint constraint = Constraint.create(
+          "b>c",
           tuple -> (Integer) tuple.get("b") > (Integer) tuple.get("c"),
           "b", "c"
       );
@@ -270,6 +291,11 @@ public class IpoGplusTest {
       assertTrue(IpoGplus.satisfiesAllOf(asList(
           new Constraint() {
             @Override
+            public String getName() {
+              return String.format("alwaysTrue:%s", involvedKeys());
+            }
+
+            @Override
             public boolean test(Tuple tuple) {
               return true;
             }
@@ -280,6 +306,11 @@ public class IpoGplusTest {
             }
           },
           new Constraint() {
+            @Override
+            public String getName() {
+              return String.format("alwaysTrue:%s", involvedKeys());
+            }
+
             @Override
             public boolean test(Tuple tuple) {
               return true;
@@ -298,6 +329,11 @@ public class IpoGplusTest {
       assertFalse(IpoGplus.satisfiesAllOf(asList(
           new Constraint() {
             @Override
+            public String getName() {
+              return String.format("alwaysTrue:%s", involvedKeys());
+            }
+
+            @Override
             public boolean test(Tuple tuple) {
               return true;
             }
@@ -308,6 +344,11 @@ public class IpoGplusTest {
             }
           },
           new Constraint() {
+            @Override
+            public String getName() {
+              return String.format("alwaysTrue:%s", involvedKeys());
+            }
+
             @Override
             public boolean test(Tuple tuple) {
               return false;
@@ -330,6 +371,11 @@ public class IpoGplusTest {
     );
     List<Constraint>       constraints = singletonList(
         new Constraint() {
+          @Override
+          public String getName() {
+            return String.format("a+b+c<6:%s", involvedKeys());
+          }
+
           @Override
           public boolean test(Tuple tuple) {
             int a = (int) tuple.get("a");
@@ -470,6 +516,11 @@ public class IpoGplusTest {
       );
       this.constraints = singletonList(
           new Constraint() {
+            @Override
+            public String getName() {
+              return String.format("b*b-4*c*a>=0:%s", involvedKeys());
+            }
+
             @Override
             public boolean test(Tuple tuple) {
               int a = (int) tuple.get("a");

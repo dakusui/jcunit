@@ -204,7 +204,7 @@ public enum CoveringArrayGenerationUtils {
     return new TestSuiteBuilder(
     ) {{
       parameters.forEach(each -> addParameter(each.getName(), each.getKnownValues().toArray()));
-      constraints.forEach(each -> addConstraint(each, each.involvedKeys().toArray(new String[0])));
+      constraints.forEach(each -> addConstraint(each.getName(), each, each.involvedKeys().toArray(new String[0])));
     }}.setStrength(
         strength
     ).buildTestSuite();
@@ -215,7 +215,7 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static Constraint c(Predicate<Tuple> constraint, String... involvedKeys) {
-    return Constraint.create(constraint, involvedKeys);
+    return Constraint.create(String.format("c%s", involvedKeys), constraint, involvedKeys);
   }
 
   public static List<Parameter> parameters(Parameter... parameters) {
@@ -270,8 +270,8 @@ public enum CoveringArrayGenerationUtils {
       return this;
     }
 
-    public TestSuiteBuilder addConstraint(Predicate<Tuple> constraint, String... args) {
-      this.constraints.add(Constraint.create(constraint, args));
+    public TestSuiteBuilder addConstraint(String name, Predicate<Tuple> constraint, String... args) {
+      this.constraints.add(Constraint.create(name, constraint, args));
       return this;
     }
 

@@ -56,6 +56,7 @@ public class ParameterHelperExample {
     ).factor(
         "g3", "n", "o", "p"
     ).constraint(
+        "g1==A",
         tuple -> !tuple.get("g1").equals("A"),
         "g1"
     ).strength(

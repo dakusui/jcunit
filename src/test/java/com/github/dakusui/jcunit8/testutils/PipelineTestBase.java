@@ -90,7 +90,7 @@ public abstract class PipelineTestBase {
             Factor.create("simple3", new Object[] { "default", "value" })
         ),
         Collections.singletonList(
-            Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
+            Constraint.create("alwaysTrue[simple1]",(Tuple tuple) -> false, "simple1") // Never becomes true
         )
     );
   }

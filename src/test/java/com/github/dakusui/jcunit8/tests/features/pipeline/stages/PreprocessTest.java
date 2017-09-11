@@ -47,7 +47,7 @@ public class PreprocessTest extends PipelineTestBase {
     validateParameterSpace(
         preprocess(
             singletonList(simpleParameterFactory("default", "value1").create("simple1")),
-            singletonList(Constraint.create(tuple -> true, "simple1"))
+            singletonList(Constraint.create("alwaysTrue[simple1]", tuple -> true, "simple1"))
         ),
         UTUtils.matcherFromPredicates(
             hasParameters(1),
@@ -65,7 +65,7 @@ public class PreprocessTest extends PipelineTestBase {
                 simpleParameterFactory("default", "value1").create("simple1"),
                 simpleParameterFactory("default", "value2").create("simple2")
             ),
-            singletonList(Constraint.create((Tuple tuple) -> true, "simple1"))
+            singletonList(Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> true, "simple1"))
         ),
         UTUtils.matcherFromPredicates(
             hasParameters(2),
@@ -93,7 +93,7 @@ public class PreprocessTest extends PipelineTestBase {
     validateParameterSpace(
         preprocess(
             singletonList(customParameterFactory().create("custom1")),
-            singletonList(Constraint.create(tuple -> true, "custom1"))
+            singletonList(Constraint.create("alwaysTrue[custom1]", tuple -> true, "custom1"))
         ),
         UTUtils.matcher(
             ////
@@ -124,7 +124,7 @@ public class PreprocessTest extends PipelineTestBase {
                 customParameterFactory().create("custom1"),
                 customParameterFactory().create("custom2")
             ),
-            singletonList(Constraint.create((Tuple tuple) -> true, "custom1"))
+            singletonList(Constraint.create("alwaysTrue[custom1]", (Tuple tuple) -> true, "custom1"))
         ),
         UTUtils.matcher(
             ////
@@ -162,7 +162,7 @@ public class PreprocessTest extends PipelineTestBase {
                 customParameterFactory().create("custom1"),
                 customParameterFactory().create("custom2")
             ),
-            singletonList(Constraint.create((Tuple tuple) -> true, "custom1", "custom2"))
+            singletonList(Constraint.create("alwaysTrue[custom1,custom2]", (Tuple tuple) -> true, "custom1", "custom2"))
         ),
         UTUtils.matcher(
             ////

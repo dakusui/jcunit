@@ -83,7 +83,7 @@ public class CustomParameterTest extends PipelineTestBase {
                 simpleParameterFactory("V1", "V2").create("simple1")
             ),
             singletonList(
-                Constraint.create(tuple -> true, "custom1")
+                Constraint.create("alwaysTrue[custom1]", tuple -> true, "custom1")
             )
         ),
         UTUtils.matcher(
@@ -101,6 +101,7 @@ public class CustomParameterTest extends PipelineTestBase {
             singletonList(customParameterFactory().create("custom1")),
             singletonList(
                 Constraint.create(
+                    "alwaysTrue[custom1]",
                     tuple -> true,
                     "custom1"
                 )

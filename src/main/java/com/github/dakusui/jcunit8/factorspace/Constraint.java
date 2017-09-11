@@ -10,8 +10,13 @@ import static com.github.dakusui.jcunit8.core.Utils.project;
 import static java.util.Arrays.asList;
 
 public interface Constraint extends TestPredicate {
-  static Constraint create(Predicate<Tuple> predicate, List<String> args) {
+  static Constraint create(String name, Predicate<Tuple> predicate, List<String> args) {
     return new Constraint() {
+      @Override
+      public String getName() {
+        return name;
+      }
+
       @Override
       public boolean test(Tuple tuple) {
         return predicate.test(project(args, tuple));
@@ -29,7 +34,7 @@ public interface Constraint extends TestPredicate {
     };
   }
 
-  static Constraint create(Predicate<Tuple> predicate, String... args) {
-    return create(predicate, asList(args));
+  static Constraint create(String name, Predicate<Tuple> predicate, String... args) {
+    return create(name, predicate, asList(args));
   }
 }

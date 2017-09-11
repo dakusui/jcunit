@@ -87,6 +87,11 @@ public class SequenceParameterFactoryBuilder<T> {
             return new LinkedList<Constraint>() {{
               add(new Constraint() {
                 @Override
+                public String getName() {
+                  return String.format("excludeIllegalVoids:%s", involvedKeys());
+                }
+
+                @Override
                 public boolean test(Tuple tuple) {
                   int size = getSizeFromTuple(tuple);
                   for (int i = min; i < max; i++) {
@@ -106,6 +111,11 @@ public class SequenceParameterFactoryBuilder<T> {
               });
               if (!withRepetition) {
                 add(new Constraint() {
+                  @Override
+                  public String getName() {
+                    return String.format("forRepetition:%s", involvedKeys());
+                  }
+
                   @Override
                   public boolean test(Tuple tuple) {
                     List<Object> work = composeListFrom(tuple, getSizeFromTuple(tuple)).stream(

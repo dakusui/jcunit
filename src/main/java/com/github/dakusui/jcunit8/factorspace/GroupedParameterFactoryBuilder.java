@@ -37,8 +37,8 @@ public class GroupedParameterFactoryBuilder<T> {
     return this;
   }
 
-  public GroupedParameterFactoryBuilder<T> constraint(Predicate<Tuple> predicate, String firstInvolvedKey, String... restInvolvedKeys) {
-    constraints.add(Constraint.create(predicate, new LinkedList<String>() {{
+  public GroupedParameterFactoryBuilder<T> constraint(String name, Predicate<Tuple> predicate, String firstInvolvedKey, String... restInvolvedKeys) {
+    constraints.add(Constraint.create(name, predicate, new LinkedList<String>() {{
       add(firstInvolvedKey);
       addAll(asList(restInvolvedKeys));
     }}));

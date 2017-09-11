@@ -106,6 +106,11 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
   private Constraint createConstraintForActionArgs(int i) {
     return new Constraint() {
       @Override
+      public String getName() {
+        return toString();
+      }
+
+      @Override
       public boolean test(Tuple tuple) {
         Action action = getActionFromTuple(tuple, i);
         for (int j = 0; j < action.numParameterFactors(); j++) {
@@ -141,6 +146,11 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
   private Constraint createConstraintForStateActionValidity(int i) {
     return new Constraint() {
       @Override
+      public String getName() {
+        return toString();
+      }
+
+      @Override
       public boolean test(Tuple testObject) {
         return allPossibleEdges(
             sutState -> sutState.equals(getStateFromTuple(testObject, i)),
@@ -166,6 +176,11 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
 
   private Constraint createConstraintForNormality(int i) {
     return new Constraint() {
+      @Override
+      public String getName() {
+        return toString();
+      }
+
       @Override
       public boolean test(Tuple tuple) {
         State<SUT> state = getStateFromTuple(tuple, i);
@@ -197,6 +212,11 @@ public class FsmDecomposer<SUT> extends FsmTupleAccessor<SUT> {
 
   private Constraint createConstraintForActionStateValidity(int i) {
     return new Constraint() {
+      @Override
+      public String getName() {
+        return toString();
+      }
+
       @Override
       public boolean test(Tuple tuple) {
         //noinspection SimplifiableConditionalExpression

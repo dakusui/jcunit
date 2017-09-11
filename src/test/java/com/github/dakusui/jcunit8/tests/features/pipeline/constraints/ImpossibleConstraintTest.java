@@ -34,7 +34,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(
@@ -53,7 +53,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(
@@ -72,7 +72,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create((Tuple tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(

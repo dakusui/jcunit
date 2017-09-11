@@ -23,6 +23,7 @@ public class EncodeTest extends PipelineTestBase {
             ),
             singletonList(
                 Constraint.create(
+                    "alwaysTrue[a]",
                     tuple -> true,
                     "a"
                 )
@@ -51,6 +52,7 @@ public class EncodeTest extends PipelineTestBase {
             ),
             singletonList(
                 Constraint.create(
+                    "A3=a",
                     tuple -> Objects.equals(tuple.get("a"), "A3"),
                     "a"
                 )
@@ -79,6 +81,7 @@ public class EncodeTest extends PipelineTestBase {
             ),
             singletonList(
                 Constraint.create(
+                    "alwaysTrue[a]",
                     tuple -> true,
                     "a"
                 )
