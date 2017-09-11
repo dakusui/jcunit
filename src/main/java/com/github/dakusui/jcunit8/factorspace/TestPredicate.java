@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public interface TestPredicate extends Predicate<Tuple> {
+  String getName();
+
   boolean test(Tuple tuple);
 
   List<String> involvedKeys();
@@ -18,8 +20,13 @@ public interface TestPredicate extends Predicate<Tuple> {
     );
   }
 
-  static TestPredicate of(List<String> involvedKeys, Predicate<Tuple> predicate) {
+  static TestPredicate of(String name, List<String> involvedKeys, Predicate<Tuple> predicate) {
     return new TestPredicate() {
+      @Override
+      public String getName() {
+        return name;
+      }
+
       @Override
       public boolean test(Tuple tuple) {
         return predicate.test(tuple);
