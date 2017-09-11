@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -93,14 +94,54 @@ public enum NodeUtils {
     };
   }
 
-  public static SortedMap<String, TestPredicate> allTestPredicates(TestClass parameterSpaceDefinitionClass) {
-    Object testObject = createInstanceOf(parameterSpaceDefinitionClass);
-    return new TreeMap<>(parameterSpaceDefinitionClass.getAnnotatedMethods(Condition.class).stream()
-        .collect(
-            toMap(FrameworkMethod::getName,
-                frameworkMethod -> createTestPredicate(testObject, frameworkMethod)
-            )));
+  public static SortedMap<String, TestPredicate> allTestPredicates(TestClass testClass) {
+    ////
+    // TestClass <>--------------> parameterSpace class
+    //                               constraints
+    //   non-constraint-condition    non-constraint-condition?
+    // TestClass
+    //   constraints
+    //   non-constraint-condition
+    Stream<TestPredicate> predicateStream = Objects.equals(testClass.getJavaClass(), getParameterSpaceDefinitionClass(testClass)) ?
+        streamTestPredicatesIn(testClass.getJavaClass()) :
+        Stream.concat(
+            streamTestPredicatesIn(getParameterSpaceDefinitionClass(testClass)),
+            streamTestPredicatesIn(testClass.getJavaClass())
+        );
+    return null;
   }
+
+  private static Class getParameterSpaceDefinitionClass(TestClass testClass) {
+    ConfigureWith configureWith = testClass.getAnnotation(ConfigureWith.class);
+    configureWith = configureWith == null ?
+        ConfigureWith.DEFAULT_INSTANCE :
+        configureWith;
+    return Objects.equals(configureWith.parameterSpace(), Objects.class) ?
+        testClass.getJavaClass() :
+        configureWith.parameterSpace();
+  }
+
+  private static SortedMap<String, TestPredicate> allTestPredicatesFrom(Class parameterSpaceDefinitionClass) {
+    TestClass wrapper = new TestClass(parameterSpaceDefinitionClass);
+    Object testObject = createInstanceOf(wrapper);
+    return new TreeMap<>(wrapper.getAnnotatedMethods(Condition.class).stream(
+    ).collect(
+        toMap(
+            FrameworkMethod::getName,
+            frameworkMethod -> createTestPredicate(testObject, frameworkMethod)
+        ))
+    );
+  }
+
+  private static Stream<TestPredicate> streamTestPredicatesIn(Class parameterSpaceDefinitionClass) {
+    TestClass wrapper = new TestClass(parameterSpaceDefinitionClass);
+    Object testObject = createInstanceOf(wrapper);
+    return wrapper.getAnnotatedMethods(Condition.class).stream(
+    ).map(
+        frameworkMethod -> createTestPredicate(testObject, frameworkMethod)
+    );
+  }
+
 
   public static TestPredicate createTestPredicate(Object testObject, FrameworkMethod method) {
     //noinspection RedundantTypeArguments (to suppress a compilation error)
@@ -126,6 +167,11 @@ public enum NodeUtils {
     return method.getAnnotation(Condition.class).constraint() ?
         Constraint.create(predicate, involvedKeys) :
         new TestPredicate() {
+          @Override
+          public String getName() {
+            return method.getName();
+          }
+
           @Override
           public boolean test(Tuple tuple) {
             return predicate.test(tuple);
