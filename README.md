@@ -401,6 +401,10 @@ constraints, not given by ```tuple```.
 validated. And it might be re-desinged based on findings from the optimization
 and validation.
 
+### Limitations
+* If you have multiple test methods in your test class, you cannot run only one of them.
+ JCUnit has a helper class to work around the situation. Please refer to [Issue-125](https://github.com/dakusui/jcunit/issues/125).
+
 ### TODOs
 * Validations
 * Default value of '@ConfigureWith' annotation: If the test class is implementing
@@ -409,7 +413,6 @@ and validation.
 * IPO-G+ performance improvements.
 * FSM feature has already been implemented, but not yet tested in 0.8.x line.
 * Make the pipeline execute its internal processes where possible.
-
 
 # References
 
