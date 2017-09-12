@@ -49,7 +49,7 @@ public enum CoveringArrayGenerationUtils {
             IntStream.range(0, numFactors).mapToObj(
                 i -> String.format("%s-%02d", prefix, i)
             ).map(
-                name -> p(name, IntStream.range(0, numLevels).mapToObj(i -> i).collect(toList()).toArray())
+                name -> p(name, IntStream.range(0, numLevels).boxed().collect(toList()).toArray())
             ).collect(toList()),
             Collections.emptyList()
         )
@@ -215,7 +215,7 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static Constraint c(Predicate<Tuple> constraint, String... involvedKeys) {
-    return Constraint.create(String.format("c%s", involvedKeys), constraint, involvedKeys);
+    return Constraint.create(String.format("c%s", Arrays.toString(involvedKeys)), constraint, involvedKeys);
   }
 
   public static List<Parameter> parameters(Parameter... parameters) {
@@ -256,7 +256,7 @@ public enum CoveringArrayGenerationUtils {
 
     private int strength;
 
-    public TestSuiteBuilder() {
+    TestSuiteBuilder() {
       this.setStrength(2);
     }
 
@@ -265,22 +265,22 @@ public enum CoveringArrayGenerationUtils {
       return this;
     }
 
-    public TestSuiteBuilder addSeed(Tuple tuple) {
+    TestSuiteBuilder addSeed(Tuple tuple) {
       this.seeds.add(tuple);
       return this;
     }
 
-    public TestSuiteBuilder addConstraint(String name, Predicate<Tuple> constraint, String... args) {
+    TestSuiteBuilder addConstraint(String name, Predicate<Tuple> constraint, String... args) {
       this.constraints.add(Constraint.create(name, constraint, args));
       return this;
     }
 
-    public TestSuiteBuilder addParameter(String name, Object... levels) {
+    TestSuiteBuilder addParameter(String name, Object... levels) {
       this.parameters.add(p(name, levels));
       return this;
     }
 
-    public TestSuite buildTestSuite() {
+    TestSuite buildTestSuite() {
       return new Pipeline.Standard().execute(
           new Config.Builder(
               new Requirement.Builder(
