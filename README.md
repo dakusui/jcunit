@@ -402,7 +402,7 @@ validated. And it might be re-desinged based on findings from the optimization
 and validation.
 
 ### Limitations
-* If you have multiple test methods in your test class, you cannot run only one of them.
+* If you have multiple test methods in your test class from an IDE such as IntelliJ, you cannot run only one of them.
  JCUnit has a helper class to work around the situation. Please refer to [Issue-125](https://github.com/dakusui/jcunit/issues/125).
 
 ### TODOs
