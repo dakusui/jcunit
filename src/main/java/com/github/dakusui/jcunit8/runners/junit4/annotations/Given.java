@@ -42,7 +42,7 @@ public @interface Given {
         NodeUtils.allLeaves(instance.value())
             .forEach((String s) -> {
               // "matches(helloWorld)@[a]"
-              if (!s.matches("[A-Za-z_$][A-Za-z0-9_$]*( (@[A-Za-z_][A-Za-z0-9_]*|[^ ]+))*"))
+              if (!s.matches("[A-Za-z_$][A-Za-z0-9_$]*"))
                 add(new Exception(format("'%s' is not a valid condition name", s)));
               else {
                 if (testClass.getAnnotatedMethods(Condition.class).stream()
