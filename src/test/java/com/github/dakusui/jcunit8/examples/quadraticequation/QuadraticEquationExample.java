@@ -62,7 +62,6 @@ public class QuadraticEquationExample {
       @From("b") int b,
       @From("c") int c
   ) {
-    System.out.println("-------performScenario1");
     double x1 = sut1(a, b, c);
     assertThat(Math.abs(a * x1 * x1 + b * x1 + c), new LessThan<>(0.01));
   }
@@ -75,7 +74,6 @@ public class QuadraticEquationExample {
       @From("b") int b,
       @From("c") int c
   ) {
-    System.out.println("------performScenario2");
     double x2 = sut2(a, b, c);
     assertThat(Math.abs(a * x2 * x2 + b * x2 + c), new LessThan<>(0.01));
   }

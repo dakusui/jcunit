@@ -39,9 +39,11 @@ public interface Node {
 
     class Impl implements Leaf {
       private final String id;
+      private final String[] args;
 
-      Impl(String id) {
-        this.id = id;
+      Impl(String s) {
+        this.id = head(s);
+        this.args = tail(s);
       }
 
       @Override
@@ -52,6 +54,14 @@ public interface Node {
       @Override
       public void accept(Visitor visitor) {
         visitor.visitLeaf(this);
+      }
+
+      private static String head(String s) {
+        return s.substring(0, s.indexOf(' '));
+      }
+
+      private static String[] tail(String s) {
+        return s.substring(s.indexOf(' ') + 1).split(" ");
       }
     }
   }
