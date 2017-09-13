@@ -22,9 +22,9 @@ import static java.util.stream.Collectors.toList;
 public enum NodeUtils {
   ;
 
-  public static TestPredicate buildPredicate(String[] values, TestClass parameterSpaceDefinitionClass) {
+  public static TestPredicate buildPredicate(String[] values, SortedMap<String, TestPredicate> predicates_) {
     class Builder implements Node.Visitor {
-      private final SortedMap<String, TestPredicate> predicates = allTestPredicates(parameterSpaceDefinitionClass);
+      private final SortedMap<String, TestPredicate> predicates = predicates_;
       private Predicate<Tuple> result;
       private final SortedSet<String> involvedKeys = new TreeSet<>();
 
