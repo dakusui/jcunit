@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit8.class)
@@ -27,12 +28,13 @@ public class ParameterizedConstraintExample {
   }
 
   @Condition
-  public boolean greaterThan(int value, String strThreshold) {
+  public boolean greaterThan(@From("@arg") int value, @From("@arg") String strThreshold) {
     return value > Integer.parseInt(strThreshold);
   }
 
+  @Test
   @Given("greaterThan @a 2")
-  public void runTest(@From("a") int a, @From("b") int b, @From("c") int c) {
+  public void whenRunTest$thenWorks(@From("a") int a, @From("b") int b, @From("c") int c) {
     System.out.printf("runTest:(a,b,c)=(%s,%s,%s)", a, b, c);
   }
 }

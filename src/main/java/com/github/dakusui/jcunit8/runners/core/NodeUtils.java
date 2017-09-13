@@ -11,6 +11,8 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -147,12 +149,18 @@ public enum NodeUtils {
             .findFirst()
             .<FrameworkException>orElseThrow(FrameworkException::unexpectedByDesign))
         .collect(toList());
-    Predicate<Tuple> predicate = tuple -> {
+    Predicate<Tuple> predicate = (Tuple tuple) -> {
       try {
         return (boolean) method.invokeExplosively(
             testObject,
             involvedKeys.stream()
-                .map(tuple::get)
+                .map(new Function<String, Object>() {
+                  AtomicInteger cur = new AtomicInteger(0);
+                  @Override
+                  public Object apply(String key) {
+                    return tuple.get(key);
+                  }
+                })
                 .toArray());
       } catch (Throwable e) {
         throw unexpectedByDesign(e);
