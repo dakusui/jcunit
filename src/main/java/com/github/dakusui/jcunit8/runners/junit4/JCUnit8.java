@@ -398,7 +398,9 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       return NodeUtils.buildPredicate(
           each.getAnnotation(Given.class).value(),
           this.predicates
-      ).test(tuple);
+      ).test(
+          tuple
+      );
     }
 
     private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {

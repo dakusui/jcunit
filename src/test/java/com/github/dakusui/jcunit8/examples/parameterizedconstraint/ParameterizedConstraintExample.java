@@ -33,8 +33,12 @@ public class ParameterizedConstraintExample {
   }
 
   @Test
-  @Given("greaterThan @a 2")
-  public void whenRunTest$thenWorks(@From("a") int a, @From("b") int b, @From("c") int c) {
+  @Given(value = "greaterThan @a 2")
+  public void whenRunTest$thenWorks(
+      @From("a") int a,
+      @From("b") int b,
+      @From("c") int c
+  ) {
     System.out.printf("runTest:(a,b,c)=(%s,%s,%s)", a, b, c);
   }
 }

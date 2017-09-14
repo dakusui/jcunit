@@ -30,7 +30,6 @@ public @interface Given {
    */
   String[] value() default { ALL_CONSTRAINTS };
 
-
   class Validator extends AnnotationValidator {
     @Override
     public List<Exception> validateAnnotatedMethod(FrameworkMethod method) {

@@ -36,6 +36,7 @@ public interface Node {
 
   interface Leaf extends Node {
     String id();
+    String[] args();
 
     class Impl implements Leaf {
       private static final String[] NONE = new String[0];
@@ -50,6 +51,11 @@ public interface Node {
       @Override
       public String id() {
         return id;
+      }
+
+      @Override
+      public String[] args() {
+        return this.args;
       }
 
       @Override

@@ -35,7 +35,25 @@ public enum NodeUtils {
       public void visitLeaf(Node.Leaf leaf) {
         TestPredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
         involvedKeys.addAll(predicate.involvedKeys());
-        result = predicate;
+        if (leaf.args().length == 0)
+          result = predicate;
+        else
+          result = tuple -> predicate.test(appendArgs(tuple, leaf));
+      }
+
+      private Tuple appendArgs(Tuple tuple, Node.Leaf leaf) {
+        return new Tuple.Builder() {{
+          putAll(tuple);
+          for (int i = 0; i < leaf.args().length; i++) {
+            put(String.format("@arg[%s]", i), expandFactorValueIfNecessary(tuple, leaf.args()[i]));
+          }
+        }}.build();
+      }
+
+      private Object expandFactorValueIfNecessary(Tuple tuple, String arg) {
+        if (arg.startsWith("@"))
+          return tuple.get(arg.substring(1));
+        return arg;
       }
 
       @Override
@@ -138,7 +156,6 @@ public enum NodeUtils {
     );
   }
 
-
   public static TestPredicate createTestPredicate(Object testObject, FrameworkMethod method) {
     //noinspection RedundantTypeArguments (to suppress a compilation error)
     List<String> involvedKeys = Stream.of(method.getMethod().getParameterAnnotations())
@@ -156,8 +173,11 @@ public enum NodeUtils {
             involvedKeys.stream()
                 .map(new Function<String, Object>() {
                   AtomicInteger cur = new AtomicInteger(0);
+
                   @Override
                   public Object apply(String key) {
+                    if (key.equals("@arg"))
+                      return tuple.get(String.format("@arg[%d]", cur.getAndIncrement()));
                     return tuple.get(key);
                   }
                 })
