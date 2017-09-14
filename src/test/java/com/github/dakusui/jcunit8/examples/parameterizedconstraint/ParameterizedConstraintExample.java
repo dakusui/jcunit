@@ -33,7 +33,7 @@ public class ParameterizedConstraintExample {
   }
 
   @Test
-  @Given(value = "greaterThan @a 2")
+  @Given(value = "greaterThan @a 2&&greaterThan @b 1")
   public void whenRunTest$thenWorks(
       @From("a") int a,
       @From("b") int b,
