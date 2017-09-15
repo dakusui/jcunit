@@ -10,7 +10,10 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
 
+import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,9 +25,9 @@ import static java.util.stream.Collectors.toList;
 public enum NodeUtils {
   ;
 
-  public static TestPredicate buildPredicate(String[] values, TestClass parameterSpaceDefinitionClass) {
+  public static TestPredicate buildPredicate(String[] values, SortedMap<String, TestPredicate> predicates_) {
     class Builder implements Node.Visitor {
-      private final SortedMap<String, TestPredicate> predicates = allTestPredicates(parameterSpaceDefinitionClass);
+      private final SortedMap<String, TestPredicate> predicates = predicates_;
       private Predicate<Tuple> result;
       private final SortedSet<String> involvedKeys = new TreeSet<>();
 
@@ -33,7 +36,25 @@ public enum NodeUtils {
       public void visitLeaf(Node.Leaf leaf) {
         TestPredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
         involvedKeys.addAll(predicate.involvedKeys());
-        result = predicate;
+        if (leaf.args().length == 0)
+          result = predicate;
+        else
+          result = tuple -> predicate.test(appendArgs(tuple, leaf));
+      }
+
+      private Tuple appendArgs(Tuple tuple, Node.Leaf leaf) {
+        return new Tuple.Builder() {{
+          putAll(tuple);
+          for (int i = 0; i < leaf.args().length; i++) {
+            put(String.format("@arg[%s]", i), expandFactorValueIfNecessary(tuple, leaf.args()[i]));
+          }
+        }}.build();
+      }
+
+      private Object expandFactorValueIfNecessary(Tuple tuple, String arg) {
+        if (arg.startsWith("@"))
+          return tuple.get(arg.substring(1));
+        return arg;
       }
 
       @Override
@@ -136,10 +157,10 @@ public enum NodeUtils {
     );
   }
 
-
-  public static TestPredicate createTestPredicate(Object testObject, FrameworkMethod method) {
+  public static TestPredicate createTestPredicate(Object testObject, FrameworkMethod frameworkMethod) {
+    Method method = frameworkMethod.getMethod();
     //noinspection RedundantTypeArguments (to suppress a compilation error)
-    List<String> involvedKeys = Stream.of(method.getMethod().getParameterAnnotations())
+    List<String> involvedKeys = Stream.of(method.getParameterAnnotations())
         .map(annotations -> Stream.of(annotations)
             .filter(annotation -> annotation instanceof From)
             .map(From.class::cast)
@@ -147,23 +168,58 @@ public enum NodeUtils {
             .findFirst()
             .<FrameworkException>orElseThrow(FrameworkException::unexpectedByDesign))
         .collect(toList());
-    Predicate<Tuple> predicate = tuple -> {
+    int varargsIndex = method.isVarArgs() ?
+        frameworkMethod.getMethod().getParameterCount() - 1 :
+        -1;
+    Predicate<Tuple> predicate = (Tuple tuple) -> {
       try {
-        return (boolean) method.invokeExplosively(
+        return (boolean) frameworkMethod.invokeExplosively(
             testObject,
             involvedKeys.stream()
-                .map(tuple::get)
+                .map(new Function<String, Object>() {
+                  AtomicInteger cur = new AtomicInteger(0);
+
+                  @Override
+                  public Object apply(String key) {
+                    if (key.equals("@arg"))
+                      return isVarArgs(cur.get()) ?
+                          getVarArgs() :
+                          getArg();
+                    return tuple.get(key);
+                  }
+
+                  private Object getArg() {
+                    return tuple.get(key(cur.getAndIncrement()));
+                  }
+
+                  @SuppressWarnings("unchecked")
+                  private Object getVarArgs() {
+                    List work = new LinkedList();
+                    while (tuple.containsKey(key(cur.get()))) {
+                      work.add(getArg());
+                    }
+                    return work.toArray(new String[work.size()]);
+                  }
+
+                  private boolean isVarArgs(int argIndex) {
+                    return argIndex == varargsIndex;
+                  }
+
+                  private String key(int i) {
+                    return String.format("@arg[%d]", i);
+                  }
+                })
                 .toArray());
       } catch (Throwable e) {
         throw unexpectedByDesign(e);
       }
     };
-    return method.getAnnotation(Condition.class).constraint() ?
-        Constraint.create(method.getName(), predicate, involvedKeys) :
+    return frameworkMethod.getAnnotation(Condition.class).constraint() ?
+        Constraint.create(frameworkMethod.getName(), predicate, involvedKeys) :
         new TestPredicate() {
           @Override
           public String getName() {
-            return method.getName();
+            return frameworkMethod.getName();
           }
 
           @Override

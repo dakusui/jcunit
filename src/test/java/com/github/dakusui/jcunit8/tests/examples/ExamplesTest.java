@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit8.examples.beforesandafters.UnusedParameter;
 import com.github.dakusui.jcunit8.examples.config.ConfigExample;
 import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterExample;
 import com.github.dakusui.jcunit8.examples.parameterhelper.ParameterHelperExample;
+import com.github.dakusui.jcunit8.examples.parameterizedconstraint.ParameterizedConstraintExample;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
 import com.github.dakusui.jcunit8.examples.seed.BankAccountExampleWithSeeds;
 import com.github.dakusui.jcunit8.examples.seed.QuadraticEquationExampleWithSeeds;
@@ -17,6 +18,10 @@ import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
+import java.util.function.Function;
+
+import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.core.Printable.function;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 
 public class ExamplesTest {
@@ -24,7 +29,7 @@ public class ExamplesTest {
   public void before() {
     UTUtils.configureStdIOs();
   }
-  
+
   @Test
   public void quadraticEquationSolver() {
     ResultUtils.validateJUnitResult(
@@ -132,15 +137,41 @@ public class ExamplesTest {
 
   @Test
   public void unusedParameterTest() {
-    ResultUtils.validateJUnitResult(
+    assertThat(
         JUnitCore.runClasses(UnusedParameter.class),
-        matcher(
-            UTUtils.oracle("success", Result::wasSuccessful),
-            UTUtils.oracle(
-                "{x}.getRunCount", Result::getRunCount,
-                "==2", v -> v == 2
-            )
+        allOf(
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(2).$()
         )
     );
+  }
+
+  @Test
+  public void parameterizedConstraint() {
+    assertThat(
+        JUnitCore.runClasses(ParameterizedConstraintExample.class),
+        allOf(
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(2).$(),
+            asInteger(funcGetIgnoreCount()).eq(8).$(),
+            asInteger(funcGetFailureCount()).eq(0).$()
+        )
+    );
+  }
+
+  private static Function<Result, Integer> funcGetFailureCount() {
+    return function("getFailureCount", Result::getFailureCount);
+  }
+
+  private static Function<Result, Integer> funcGetIgnoreCount() {
+    return function("getIgnoreCount", Result::getIgnoreCount);
+  }
+
+  private static Function<Result, Integer> funcGetRunCount() {
+    return function("getRunCount", Result::getRunCount);
+  }
+
+  private static Function<Result, Boolean> funcWasSuccessful() {
+    return function("wasSuccessful", Result::wasSuccessful);
   }
 }
