@@ -8,7 +8,13 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 import org.junit.runner.RunWith;
+
+import java.util.Arrays;
+
+import static com.github.dakusui.crest.Crest.*;
 
 @RunWith(JCUnit8.class)
 public class ParameterizedConstraintExample {
@@ -28,12 +34,17 @@ public class ParameterizedConstraintExample {
   }
 
   @Condition
-  public boolean greaterThan(@From("@arg") int value, @From("@arg") String strThreshold) {
-    return value > Integer.parseInt(strThreshold);
+  public boolean isOneOf(@From("@arg") int value, @From("@arg") Object... strThreshold) {
+    return Arrays.asList(strThreshold).contains(Integer.toString(value));
+  }
+
+  @Condition
+  public boolean littleThan(@From("@arg") int value, @From("@arg") String strThreshold) {
+    return value < Integer.parseInt(strThreshold);
   }
 
   @Test
-  @Given(value = "greaterThan @a 2&&greaterThan @b 1")
+  @Given(value = "isOneOf @a 2 3&&littleThan @b 2")
   public void whenRunTest$thenWorks(
       @From("a") int a,
       @From("b") int b,
@@ -41,4 +52,5 @@ public class ParameterizedConstraintExample {
   ) {
     System.out.printf("runTest:(a,b,c)=(%s,%s,%s)", a, b, c);
   }
+
 }
