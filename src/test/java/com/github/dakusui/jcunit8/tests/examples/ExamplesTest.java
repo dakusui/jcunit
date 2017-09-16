@@ -18,10 +18,7 @@ import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
-import java.util.function.Function;
-
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.crest.core.Printable.function;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 
 public class ExamplesTest {
@@ -140,8 +137,8 @@ public class ExamplesTest {
     assertThat(
         JUnitCore.runClasses(UnusedParameter.class),
         allOf(
-            asBoolean(funcWasSuccessful()).isTrue().$(),
-            asInteger(funcGetRunCount()).eq(2).$()
+            asBoolean(ResultUtils.funcWasSuccessful()).isTrue().$(),
+            asInteger(ResultUtils.funcGetRunCount()).eq(2).$()
         )
     );
   }
@@ -151,27 +148,12 @@ public class ExamplesTest {
     assertThat(
         JUnitCore.runClasses(ParameterizedConstraintExample.class),
         allOf(
-            asBoolean(funcWasSuccessful()).isTrue().$(),
-            asInteger(funcGetRunCount()).eq(2).$(),
-            asInteger(funcGetIgnoreCount()).eq(8).$(),
-            asInteger(funcGetFailureCount()).eq(0).$()
+            asBoolean(ResultUtils.funcWasSuccessful()).isTrue().$(),
+            asInteger(ResultUtils.funcGetRunCount()).eq(2).$(),
+            asInteger(ResultUtils.funcGetIgnoreCount()).eq(8).$(),
+            asInteger(ResultUtils.funcGetFailureCount()).eq(0).$()
         )
     );
   }
 
-  private static Function<Result, Integer> funcGetFailureCount() {
-    return function("getFailureCount", Result::getFailureCount);
-  }
-
-  private static Function<Result, Integer> funcGetIgnoreCount() {
-    return function("getIgnoreCount", Result::getIgnoreCount);
-  }
-
-  private static Function<Result, Integer> funcGetRunCount() {
-    return function("getRunCount", Result::getRunCount);
-  }
-
-  private static Function<Result, Boolean> funcWasSuccessful() {
-    return function("wasSuccessful", Result::wasSuccessful);
-  }
 }
