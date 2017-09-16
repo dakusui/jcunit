@@ -1,15 +1,14 @@
 package com.github.dakusui.jcunit8.tests.components.utils;
 
-import com.github.dakusui.crest.Crest;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
 import com.github.dakusui.jcunit8.runners.junit4.JUnit4Runner;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.Result;
 
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.jcunit8.testutils.ResultUtils.funcGetRunCount;
+import static com.github.dakusui.jcunit8.testutils.ResultUtils.funcWasSuccessful;
 
 public class JUnit4RunnerTest {
   @BeforeClass
@@ -22,8 +21,8 @@ public class JUnit4RunnerTest {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).testCase(1).methodName("performScenario2").build().run(),
         allOf(
-            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
-            Crest.asInteger(Result::getRunCount).eq(1).$()
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(1).$()
         )
     );
   }
@@ -33,8 +32,8 @@ public class JUnit4RunnerTest {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).allTestCases().methodName("performScenario2").build().run(),
         allOf(
-            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
-            Crest.asInteger(Result::getRunCount).eq(46).$()
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(46).$()
         )
     );
   }
@@ -44,8 +43,8 @@ public class JUnit4RunnerTest {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).testCasesInRange(0, 10).methodName("performScenario2").build().run(),
         allOf(
-            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
-            Crest.asInteger(Result::getRunCount).eq(11).$()
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(10).$()
         )
     );
   }
@@ -55,8 +54,8 @@ public class JUnit4RunnerTest {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).testCasesFrom(10).methodName("performScenario2").build().run(),
         allOf(
-            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
-            Crest.asInteger(Result::getRunCount).eq(36).$()
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(36).$()
         )
     );
   }
@@ -66,8 +65,8 @@ public class JUnit4RunnerTest {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).testCasesUntil(10).methodName("performScenario2").build().run(),
         allOf(
-            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
-            Crest.asInteger(Result::getRunCount).eq(11).$()
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(10).$()
         )
     );
   }
@@ -77,8 +76,8 @@ public class JUnit4RunnerTest {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).testCase(1).allMethods().build().run(),
         allOf(
-            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
-            Crest.asInteger(Result::getRunCount).eq(2).$()
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(2).$()
         )
     );
   }
@@ -88,8 +87,8 @@ public class JUnit4RunnerTest {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).allTestCases().allTestCases().build().run(),
         allOf(
-            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
-            Crest.asInteger(Result::getRunCount).eq(92).$()
+            asBoolean(funcWasSuccessful()).isTrue().$(),
+            asInteger(funcGetRunCount()).eq(92).$()
         )
     );
   }
