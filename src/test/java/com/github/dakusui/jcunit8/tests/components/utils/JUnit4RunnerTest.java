@@ -40,6 +40,39 @@ public class JUnit4RunnerTest {
   }
 
   @Test
+  public void whenRunSpecificMethodForAnyTestCaseInRange$thenOnlyTheMethodIsExecutedForTheTestCasesInRange() {
+    assertThat(
+        new JUnit4Runner.Builder(QuadraticEquationExample.class).testCasesInRange(0, 10).methodName("performScenario2").build().run(),
+        allOf(
+            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
+            Crest.asInteger(Result::getRunCount).eq(11).$()
+        )
+    );
+  }
+
+  @Test
+  public void whenRunSpecificMethodForAnyTestCaseFrom$thenOnlyTheMethodIsExecutedForTheTestCasesFrom() {
+    assertThat(
+        new JUnit4Runner.Builder(QuadraticEquationExample.class).testCasesFrom(10).methodName("performScenario2").build().run(),
+        allOf(
+            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
+            Crest.asInteger(Result::getRunCount).eq(36).$()
+        )
+    );
+  }
+
+  @Test
+  public void whenRunSpecificMethodForAnyTestCaseUntil$thenOnlyTheMethodIsExecutedForTheTestCasesUntil() {
+    assertThat(
+        new JUnit4Runner.Builder(QuadraticEquationExample.class).testCasesUntil(10).methodName("performScenario2").build().run(),
+        allOf(
+            Crest.asBoolean(Result::wasSuccessful).isTrue().$(),
+            Crest.asInteger(Result::getRunCount).eq(11).$()
+        )
+    );
+  }
+
+  @Test
   public void whenRunAllMethodsForSpecificTestCase$thenAllMethodsAreExecutedForTheTestCase() {
     assertThat(
         new JUnit4Runner.Builder(QuadraticEquationExample.class).testCase(1).allMethods().build().run(),
