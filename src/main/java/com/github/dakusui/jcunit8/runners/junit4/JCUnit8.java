@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
@@ -264,11 +265,13 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   public class TestCaseRunner extends BlockJUnit4ClassRunner {
     private final TestCase tupleTestCase;
     int id;
+    private final SortedMap<String, TestPredicate> predicates;
 
     TestCaseRunner(int id, TestCase tupleTestCase) throws InitializationError {
       super(JCUnit8.this.getTestClass().getJavaClass());
       this.tupleTestCase = tupleTestCase;
       this.id = id;
+      this.predicates = NodeUtils.allTestPredicates(getTestClass());
     }
 
     @Override
@@ -394,8 +397,10 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         return true;
       return NodeUtils.buildPredicate(
           each.getAnnotation(Given.class).value(),
-          getTestClass()
-      ).test(tuple);
+          this.predicates
+      ).test(
+          tuple
+      );
     }
 
     private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
