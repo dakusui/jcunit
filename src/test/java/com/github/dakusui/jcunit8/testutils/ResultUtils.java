@@ -5,7 +5,9 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
 import java.util.List;
+import java.util.function.Function;
 
+import static com.github.dakusui.crest.core.Printable.function;
 import static java.lang.String.format;
 import static org.junit.Assert.assertThat;
 
@@ -68,5 +70,21 @@ public enum ResultUtils {
       }
 
     };
+  }
+
+  public static Function<Result, Integer> funcGetFailureCount() {
+    return function("getFailureCount", Result::getFailureCount);
+  }
+
+  public static Function<Result, Integer> funcGetIgnoreCount() {
+    return function("getIgnoreCount", Result::getIgnoreCount);
+  }
+
+  public static Function<Result, Integer> funcGetRunCount() {
+    return function("getRunCount", Result::getRunCount);
+  }
+
+  public static Function<Result, Boolean> funcWasSuccessful() {
+    return function("wasSuccessful", Result::wasSuccessful);
   }
 }

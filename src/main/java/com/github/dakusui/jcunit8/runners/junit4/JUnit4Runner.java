@@ -8,11 +8,14 @@ import org.junit.runner.Result;
 import org.junit.runner.manipulation.Filter;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JUnit4Runner {
-  static final int    ALL_TESTCASES = -1;
-  static final String ANY_METHOD    = null;
+  static final int ALL_TESTCASES = -1;
+  static final String ANY_METHOD = null;
   private final Request request;
 
   public Result run() {
@@ -23,17 +26,18 @@ public class JUnit4Runner {
     return this.request;
   }
 
-  private JUnit4Runner(Class clazz, String methodName, int testCaseId) {
-    this.request = Request.classes(clazz).filterWith(createFilter(methodName, testCaseId));
+  private JUnit4Runner(Class clazz, String methodName, int startInclusive, int endExclusive) {
+    this.request = Request.classes(clazz).filterWith(
+        createFilter(methodName, startInclusive, endExclusive)
+    );
   }
 
-  private Filter createFilter(String methodName, int testCaseId) {
-    Predicate<Description> predicate = createPredicate(methodName, testCaseId);
+  private Filter createFilter(String methodName, int startInclusive, int endExclusive) {
     return new Filter() {
       @Override
       public boolean shouldRun(Description description) {
         if (description.isTest()) {
-          return predicate.test(description);
+          return createPredicate(methodName, startInclusive, endExclusive).test(description);
         }
 
         // explicitly check if any children want to run
@@ -50,34 +54,36 @@ public class JUnit4Runner {
         return String.format(
             "Method %s[%s]",
             methodName,
-            testCaseId == ALL_TESTCASES ?
+            startInclusive == ALL_TESTCASES ?
                 "*" :
-                Integer.toString(testCaseId)
+                String.format("%s-%s", startInclusive, endExclusive)
         );
       }
     };
   }
 
-  private Predicate<Description> createPredicate(String methodName, int testCaseId) {
-    return description -> description.getMethodName().matches(
-        (methodName == ANY_METHOD ?
-            ".*" :
-            methodName) +
-            "\\[" +
-            (testCaseId == ALL_TESTCASES ?
-                "[0-9]+" :
-                Integer.toString(testCaseId)
-            ) +
-            "\\]"
+  private Predicate<Description> createPredicate(String methodName, int startInclusive, int endExclusive) {
+    return description -> {
+      Pattern pattern = Pattern.compile(
+          Optional.ofNullable(methodName).orElse(".*") + "\\[([0-9]+)\\]"
+      );
+      Matcher matcher = pattern.matcher(description.getMethodName());
 
-    );
+      if (!matcher.matches()) {
+        return false;
+      }
+
+      int id = Integer.valueOf(matcher.group(1));
+      return startInclusive == ALL_TESTCASES || id >= startInclusive && id < endExclusive;
+    };
   }
 
   public static class Builder {
 
     private final Class clazz;
-    private String methodName = ANY_METHOD;
-    private int    testCaseId = ALL_TESTCASES;
+    private String methodName     = ANY_METHOD;
+    private int    startInclusive = ALL_TESTCASES;
+    private int    endInclusive   = ALL_TESTCASES;
 
     public Builder(Class clazz) {
       this.clazz = Objects.requireNonNull(clazz);
@@ -95,12 +101,36 @@ public class JUnit4Runner {
 
     public Builder testCase(int testCaseId) {
       Checks.checkcond(testCaseId >= 0);
-      this.testCaseId = testCaseId;
+      this.startInclusive = testCaseId;
+      this.endInclusive = testCaseId + 1;
+      return this;
+    }
+
+    public Builder testCasesInRange(int startTestCaseId, int endTestCaseId) {
+      Checks.checkcond(startTestCaseId >= 0);
+      Checks.checkcond(endTestCaseId >= 0);
+      Checks.checkcond(startTestCaseId <= endTestCaseId);
+      this.startInclusive = startTestCaseId;
+      this.endInclusive = endTestCaseId;
+      return this;
+    }
+
+    public Builder testCasesFrom(int startInclusive) {
+      Checks.checkcond(startInclusive >= 0);
+      this.startInclusive = startInclusive;
+      this.endInclusive = Integer.MAX_VALUE;
+      return this;
+    }
+
+    public Builder testCasesUntil(int endInclusive) {
+      Checks.checkcond(endInclusive >= 0);
+      this.startInclusive = 0;
+      this.endInclusive = endInclusive;
       return this;
     }
 
     public Builder allTestCases() {
-      this.testCaseId = ALL_TESTCASES;
+      this.startInclusive = ALL_TESTCASES;
       return this;
     }
 
@@ -108,7 +138,8 @@ public class JUnit4Runner {
       return new JUnit4Runner(
           this.clazz,
           this.methodName,
-          this.testCaseId
+          this.startInclusive,
+          this.endInclusive
       );
     }
   }
