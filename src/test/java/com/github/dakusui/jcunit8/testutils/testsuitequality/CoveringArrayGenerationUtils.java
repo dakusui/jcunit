@@ -290,7 +290,8 @@ public enum CoveringArrayGenerationUtils {
                   this.strength
               ).build()
           ).build(),
-          parameterSpace(parameters, constraints)
+          parameterSpace(parameters, constraints),
+          Collections.emptyList()
       );
     }
   }

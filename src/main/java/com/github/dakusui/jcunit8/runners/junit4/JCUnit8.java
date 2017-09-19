@@ -13,6 +13,7 @@ import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
+import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.internal.runners.rules.RuleMemberValidator;
@@ -72,8 +73,14 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
                 .filter(each -> each instanceof Constraint)
                 .map(Constraint.class::cast)
                 .collect(toList())
-        ));
+        ),
+        createTestOracles(getTestClass())
+    );
     this.runners = createRunners();
+  }
+
+  private static List<TestOracle> createTestOracles(TestClass testClass) {
+    return Collections.emptyList();
   }
 
   @Override
@@ -189,7 +196,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return this.testSuite.stream()
         .map((Function<TestCase, Runner>) tupleTestCase -> {
           try {
-            return new TestCaseRunner(i.getAndIncrement(), tupleTestCase);
+            return new TestCaseRunner(i.getAndIncrement(), tupleTestCase, NodeUtils.allTestPredicates(getTestClass()));
           } catch (InitializationError initializationError) {
             throw unexpectedByDesign(formatInitializationErrorMessage(initializationError));
           }
@@ -214,8 +221,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace) {
-    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace);
+  private static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, List<TestOracle> testOracles) {
+    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testOracles);
   }
 
   private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
@@ -267,11 +274,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     int id;
     private final SortedMap<String, TestPredicate> predicates;
 
-    TestCaseRunner(int id, TestCase tupleTestCase) throws InitializationError {
+    TestCaseRunner(int id, TestCase tupleTestCase, SortedMap<String, TestPredicate> predicates) throws InitializationError {
       super(JCUnit8.this.getTestClass().getJavaClass());
       this.tupleTestCase = tupleTestCase;
       this.id = id;
-      this.predicates = NodeUtils.allTestPredicates(getTestClass());
+      this.predicates = predicates;
     }
 
     @Override

@@ -5,13 +5,15 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
+
 public interface TestCase {
   enum Category {
     SEED,
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple test, List<Constraint> violatedConstraints) {
+    TestCase createTestCase(Tuple test, List<TestOracle> testOracles, List<Constraint> violatedConstraints) {
       return new TestCase() {
         @Override
         public Tuple get() {
@@ -29,6 +31,15 @@ public interface TestCase {
         }
 
         @Override
+        public List<Runnable> oracles() {
+          return testOracles.stream().filter(
+              o -> o.shouldInvoke(test)
+          ).collect(
+              toList()
+          );
+        }
+
+        @Override
         public String toString() {
           return String.format("%s:%s:%s", this.getCategory(), this.get(), violatedConstraints);
         }
@@ -42,4 +53,6 @@ public interface TestCase {
   Category getCategory();
 
   List<Constraint> violatedConstraints();
+
+  List<Runnable> oracles();
 }

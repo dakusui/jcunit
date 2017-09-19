@@ -24,12 +24,21 @@ public interface TestSuite extends List<TestCase> {
    */
   ParameterSpace getParameterSpace();
 
+  /**
+   * Returns test oracles used in this test suite.
+   *
+   * @return a list of test oracles.
+   */
+  List<TestOracle> getTestOracles();
+
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
+    private final List<TestOracle> testOracles;
 
-    public Builder(ParameterSpace parameterSpace) {
+    public Builder(ParameterSpace parameterSpace, List<TestOracle> testOracles) {
       this.parameterSpace = requireNonNull(parameterSpace);
+      this.testOracles = testOracles;
     }
 
     public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
@@ -51,6 +60,7 @@ public interface TestSuite extends List<TestCase> {
       Tuple tuple = TupleUtils.copy(testCaseTuple);
       return category.createTestCase(
           tuple,
+          testOracles,
           this.parameterSpace.getConstraints().stream()
               .filter((Constraint constraint) -> !constraint.test(tuple))
               .collect(Collectors.toList()));
@@ -86,6 +96,11 @@ public interface TestSuite extends List<TestCase> {
         @Override
         public ParameterSpace getParameterSpace() {
           return parameterSpace;
+        }
+
+        @Override
+        public List<TestOracle> getTestOracles() {
+          return testOracles;
         }
       }
       return new Impl();
