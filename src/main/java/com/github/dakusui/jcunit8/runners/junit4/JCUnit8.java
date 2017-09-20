@@ -38,6 +38,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -79,8 +80,54 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     this.runners = createRunners();
   }
 
-  private static List<TestOracle> createTestOracles(TestClass testClass) {
-    return Collections.emptyList();
+  private List<TestOracle> createTestOracles(TestClass testClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    return testClass.getAnnotatedMethods(Test.class).stream().map(
+        m -> toTestOracle(null, null, null)
+    ).collect(
+        toList()
+    );
+  }
+
+  private static TestOracle toTestOracle(Runner runner, RunNotifier notifier, SortedMap<String, TestPredicate> predicates) {
+    return new TestOracle() {
+      @Override
+      public boolean shouldInvoke(Tuple tuple) {
+        return JCUnit8.shouldInvoke(null, predicates).test(tuple);
+      }
+
+      @Override
+      public void run() {
+        runner.run(notifier);
+      }
+    };
+  }
+
+  private static Runner toRunnable(TestOracle testOracle) {
+    return new Runner() {
+      @Override
+      public Description getDescription() {
+        return null;
+      }
+
+      @Override
+      public void run(RunNotifier notifier) {
+
+      }
+    };
+  }
+
+  private static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
+    return tuple -> {
+      //noinspection SimplifiableIfStatement
+      if (method.getAnnotation(Given.class) == null)
+        return true;
+      return NodeUtils.buildPredicate(
+          method.getAnnotation(Given.class).value(),
+          predicates
+      ).test(
+          tuple
+      );
+    };
   }
 
   @Override
@@ -398,16 +445,12 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       return new Annotation[0];
     }
 
-    private boolean shouldInvoke(FrameworkMethod each, Tuple tuple) {
-      //noinspection SimplifiableIfStatement
-      if (each.getAnnotation(Given.class) == null)
-        return true;
-      return NodeUtils.buildPredicate(
-          each.getAnnotation(Given.class).value(),
-          this.predicates
-      ).test(
-          tuple
-      );
+    private boolean shouldInvoke(FrameworkMethod method, Tuple tuple) {
+      return shouldInvoke(method).test(tuple);
+    }
+
+    private Predicate<Tuple> shouldInvoke(FrameworkMethod method) {
+      return tuple -> JCUnit8.shouldInvoke(method, predicates).test(tuple);
     }
 
     private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
