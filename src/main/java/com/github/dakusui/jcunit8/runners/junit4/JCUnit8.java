@@ -91,13 +91,18 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   private static TestOracle toTestOracle(Runner runner, RunNotifier notifier, SortedMap<String, TestPredicate> predicates) {
     return new TestOracle() {
       @Override
+      public void accept(Tuple tuple) {
+        // TODO
+      }
+
+      @Override
       public boolean shouldInvoke(Tuple tuple) {
         return JCUnit8.shouldInvoke(null, predicates).test(tuple);
       }
 
       @Override
-      public void run() {
-        runner.run(notifier);
+      public String getName() {
+        return null;
       }
     };
   }
@@ -157,7 +162,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return createTestClassMock(super.createTestClass(testClass));
   }
 
-  private TestClassValidator[] createValidatorsFor(TestClass parameterSpaceDefinitionClass) {
+  static TestClassValidator[] createValidatorsFor(TestClass parameterSpaceDefinitionClass) {
     return new TestClassValidator[] {
         new AnnotationsValidator(),
         new PublicClassValidator(),
@@ -231,7 +236,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return ret;
   }
 
-  private ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter> parameters, List<Constraint> constraints) {
+  static ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter> parameters, List<Constraint> constraints) {
     return new ParameterSpace.Builder()
         .addAllParameters(parameters)
         .addAllConstraints(constraints)
@@ -255,7 +260,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return e.getCauses().stream().map(Throwable::getMessage).collect(Collectors.joining());
   }
 
-  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
+  static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
     return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter>() {
       {
         parameterSpaceDefinitionTestClass.getAnnotatedMethods(ParameterSource.class).forEach(
@@ -268,7 +273,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, List<TestOracle> testOracles) {
+  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, List<TestOracle> testOracles) {
     return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testOracles);
   }
 

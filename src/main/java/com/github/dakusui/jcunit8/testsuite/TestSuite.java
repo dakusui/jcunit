@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
@@ -24,6 +25,12 @@ public interface TestSuite extends List<TestCase> {
    */
   ParameterSpace getParameterSpace();
 
+  List<Runnable> beforeAll();
+
+  List<Consumer<Tuple>> beforeTestCase();
+
+  List<Consumer<Tuple>> beforeTestOracle();
+
   /**
    * Returns test oracles used in this test suite.
    *
@@ -31,10 +38,22 @@ public interface TestSuite extends List<TestCase> {
    */
   List<TestOracle> getTestOracles();
 
+  List<Consumer<Tuple>> afterTestOracle();
+
+  List<Consumer<Tuple>> afterTestCase();
+
+  List<Runnable> afterAll();
+
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
     private final List<TestOracle> testOracles;
+    private List<Runnable>        beforeAll        = new LinkedList<>();
+    private List<Consumer<Tuple>> beforeTestCase   = new LinkedList<>();
+    private List<Consumer<Tuple>> afterTestOracle  = new LinkedList<>();
+    private List<Consumer<Tuple>> beforeTestOracle = new LinkedList<>();
+    private List<Consumer<Tuple>> afterTestCase    = new LinkedList<>();
+    private List<Runnable>        afterAll         = new LinkedList<>();
 
     public Builder(ParameterSpace parameterSpace, List<TestOracle> testOracles) {
       this.parameterSpace = requireNonNull(parameterSpace);
@@ -68,9 +87,28 @@ public interface TestSuite extends List<TestCase> {
 
     public TestSuite build() {
       class Impl extends AbstractList<TestCase> implements TestSuite {
-        private final List<TestCase> testCases;
+        private final List<TestCase>        testCases;
+        private final List<Runnable>        beforeAll;
+        private final List<Consumer<Tuple>> beforeTestCase;
+        private final List<Consumer<Tuple>> beforeTestOracle;
+        private final List<Consumer<Tuple>> afterTestOracle;
+        private final List<Consumer<Tuple>> afterTestCase;
+        private final List<Runnable>        afterAll;
 
-        private Impl() {
+        private Impl(
+            List<Runnable> beforeAll,
+            List<Consumer<Tuple>> beforeTestCase,
+            List<Consumer<Tuple>> beforeTestOracle,
+            List<Consumer<Tuple>> afterTestOracle,
+            List<Consumer<Tuple>> afterTestCase,
+            List<Runnable> afterAll
+        ) {
+          this.beforeAll = beforeAll;
+          this.beforeTestCase = beforeTestCase;
+          this.beforeTestOracle = beforeTestOracle;
+          this.afterTestOracle = afterTestOracle;
+          this.afterTestCase = afterTestCase;
+          this.afterAll = afterAll;
           this.testCases = new ArrayList<TestCase>(Builder.this.testCases.size()) {{
             Builder.this.testCases.stream(
             ).filter(
@@ -99,11 +137,48 @@ public interface TestSuite extends List<TestCase> {
         }
 
         @Override
+        public List<Runnable> beforeAll() {
+          return beforeAll;
+        }
+
+        @Override
+        public List<Consumer<Tuple>> beforeTestCase() {
+          return beforeTestCase;
+        }
+
+        @Override
+        public List<Consumer<Tuple>> beforeTestOracle() {
+          return beforeTestOracle;
+        }
+
+        @Override
         public List<TestOracle> getTestOracles() {
           return testOracles;
         }
+
+        @Override
+        public List<Consumer<Tuple>> afterTestOracle() {
+          return afterTestOracle;
+        }
+
+        @Override
+        public List<Consumer<Tuple>> afterTestCase() {
+          return afterTestCase;
+        }
+
+        @Override
+        public List<Runnable> afterAll() {
+          return afterAll;
+        }
       }
-      return new Impl();
+      return new Impl(
+          beforeAll,
+          beforeTestCase,
+          beforeTestOracle,
+          afterTestOracle,
+          afterTestCase,
+          afterAll
+      );
     }
   }
 }
