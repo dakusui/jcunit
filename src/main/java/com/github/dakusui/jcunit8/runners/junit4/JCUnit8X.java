@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
 
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
+import static org.junit.Assert.assertTrue;
 
 public class JCUnit8X extends org.junit.runners.Parameterized {
   private final List<Runner> runners;
@@ -87,8 +88,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
                 .filter(each -> each instanceof Constraint)
                 .map(Constraint.class::cast)
                 .collect(toList())
-        ),
-        createTestOracles()
+        )
     );
   }
 
@@ -186,7 +186,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
       return new Statement() {
         @Override
         public void evaluate() throws Throwable {
-          oracle.accept(testCaseTuple);
+          assertTrue(oracle.test(oracle.apply(testCaseTuple)));
         }
       };
     }

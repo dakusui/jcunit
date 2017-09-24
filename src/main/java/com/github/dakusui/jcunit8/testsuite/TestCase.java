@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static java.util.stream.Collectors.toList;
 
@@ -31,7 +32,7 @@ public interface TestCase {
         }
 
         @Override
-        public List<Runnable> oracles() {
+        public List<Function> oracles() {
           return testOracles.stream().filter(
               o -> o.shouldInvoke(test)
           ).collect(
@@ -54,5 +55,5 @@ public interface TestCase {
 
   List<Constraint> violatedConstraints();
 
-  List<Runnable> oracles();
+  List<Function> oracles();
 }
