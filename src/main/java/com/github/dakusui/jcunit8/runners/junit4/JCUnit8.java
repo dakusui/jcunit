@@ -13,7 +13,6 @@ import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
-import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.internal.runners.rules.RuleMemberValidator;
@@ -74,51 +73,9 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
                 .filter(each -> each instanceof Constraint)
                 .map(Constraint.class::cast)
                 .collect(toList())
-        ),
-        createTestOracles(getTestClass())
+        )
     );
     this.runners = createRunners();
-  }
-
-  private List<TestOracle> createTestOracles(TestClass testClass) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-    return testClass.getAnnotatedMethods(Test.class).stream().map(
-        m -> toTestOracle(null, null, null)
-    ).collect(
-        toList()
-    );
-  }
-
-  private static TestOracle toTestOracle(Runner runner, RunNotifier notifier, SortedMap<String, TestPredicate> predicates) {
-    return new TestOracle() {
-      @Override
-      public void accept(Tuple tuple) {
-        // TODO
-      }
-
-      @Override
-      public boolean shouldInvoke(Tuple tuple) {
-        return JCUnit8.shouldInvoke(null, predicates).test(tuple);
-      }
-
-      @Override
-      public String getName() {
-        return null;
-      }
-    };
-  }
-
-  private static Runner toRunnable(TestOracle testOracle) {
-    return new Runner() {
-      @Override
-      public Description getDescription() {
-        return null;
-      }
-
-      @Override
-      public void run(RunNotifier notifier) {
-
-      }
-    };
   }
 
   private static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
@@ -273,8 +230,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, List<TestOracle> testOracles) {
-    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testOracles);
+  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace) {
+    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace);
   }
 
   private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {

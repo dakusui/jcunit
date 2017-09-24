@@ -157,8 +157,8 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
       return Description.createTestDescription(
           getTestClass().getJavaClass(),
           child.getName(),
-          child instanceof TestOracle.ForJUnit4 ?
-              ((TestOracle.ForJUnit4) child).annotations() :
+          child instanceof TestOracleForJUnit4 ?
+              ((TestOracleForJUnit4) child).annotations() :
               new Annotation[0]
       );
     }
