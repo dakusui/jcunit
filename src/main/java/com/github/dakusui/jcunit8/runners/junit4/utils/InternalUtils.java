@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4.utils;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
@@ -71,12 +72,16 @@ public enum InternalUtils {
   }
 
   public static Object invokeExplosivelyWithArgumentsFromTestCase(FrameworkMethod method, JCUnit8.TestCaseRunner testCaseRunner, Object test) throws Throwable {
+    return invokeExplosivelyWithArgumentsFromTestCase(method, testCaseRunner.getTestCase().get(), test);
+  }
+
+  public static Object invokeExplosivelyWithArgumentsFromTestCase(FrameworkMethod method, Tuple testCaseTuple, Object test) throws Throwable {
     Object[] args = validateArguments(
         method,
         method.getMethod().getParameterTypes(),
         JCUnit8.getParameterAnnotationsFrom(method, From.class).stream()
             .map(From::value)
-            .map(name -> testCaseRunner.getTestCase().get().get(name))
+            .map(testCaseTuple::get)
             .collect(toList())
             .toArray()
     );

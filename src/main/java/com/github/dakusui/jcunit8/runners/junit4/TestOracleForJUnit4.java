@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import org.junit.Test;
 import org.junit.runners.model.FrameworkMethod;
@@ -16,6 +17,7 @@ public interface TestOracleForJUnit4 extends TestOracle {
   class Builder {
     private final Map<String, Predicate<Tuple>> predicates;
     private       FrameworkMethod               testOrcleMethod;
+    private Object testObject;
 
     public Builder(Map<String, Predicate<Tuple>> predicates) {
       this.predicates = Objects.requireNonNull(predicates);
@@ -23,6 +25,11 @@ public interface TestOracleForJUnit4 extends TestOracle {
 
     public Builder with(FrameworkMethod method) {
       this.testOrcleMethod = Objects.requireNonNull(method);
+      return this;
+    }
+
+    public Builder forTestObject(Object testObject) {
+      this.testObject = Objects.requireNonNull(testObject);
       return this;
     }
 
@@ -50,7 +57,15 @@ public interface TestOracleForJUnit4 extends TestOracle {
 
         @Override
         public Result apply(Tuple tuple) {
-           return null;// TODO Builder.this.testOrcleMethod.invokeExplosively();
+          try {
+            return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestCase(
+                testOrcleMethod,
+                tuple,
+                testObject
+            ));
+          } catch (Throwable throwable) {
+            return Result.thrown(throwable);
+          }
         }
 
         @Override
