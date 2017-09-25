@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
+import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertTrue;
@@ -37,11 +38,23 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
   /**
    * Only called reflectively. Do not use programmatically.
    *
-   * @param klass
+   * @param klass A test class
    */
   public JCUnit8X(Class<?> klass) throws Throwable {
     super(klass);
-    this.runners = createRunners(buildTestSuite());
+    this.runners = createRunners(buildTestSuite(
+        getTestClass(),
+        createParameterSpaceDefinitionTestClass(),
+        getConfigFactory()
+    ));
+  }
+
+  /**
+   * Mock {@code Parameterized} runner of JUnit 4.12.
+   */
+  @Override
+  protected TestClass createTestClass(Class<?> testClass) {
+    return createTestClassMock(super.createTestClass(testClass));
   }
 
   @Override
@@ -71,29 +84,29 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     );
   }
 
-  private TestSuite buildTestSuite() {
-    Collection<String> involvedParameterNames = InternalUtils.involvedParameters(getTestClass());
+  public static TestSuite buildTestSuite(
+      TestClass testClass,
+      TestClass parameterSpaceDefinitionTestClass,
+      ConfigFactory configFactory
+  ) {
+    Collection<String> involvedParameterNames = InternalUtils.involvedParameters(testClass);
     return JCUnit8.buildTestSuite(
-        getConfigFactory().create(),
+        configFactory.create(),
         JCUnit8.buildParameterSpace(
             new ArrayList<>(
-                JCUnit8.buildParameterMap(createParameterSpaceDefinitionTestClass()).values()
+                JCUnit8.buildParameterMap(parameterSpaceDefinitionTestClass).values()
             ).stream(
             ).filter(
                 parameter -> involvedParameterNames.contains(parameter.getName())
             ).collect(
                 toList()
             ),
-            NodeUtils.allTestPredicates(getTestClass()).values().stream()
+            NodeUtils.allTestPredicates(testClass).values().stream()
                 .filter(each -> each instanceof Constraint)
                 .map(Constraint.class::cast)
                 .collect(toList())
         )
     );
-  }
-
-  private List<TestOracle> createTestOracles() {
-    return null;
   }
 
   private void applyValidators(List<Throwable> errors) {
@@ -220,4 +233,3 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     }
   }
 }
-
