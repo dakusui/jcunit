@@ -4,9 +4,6 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.List;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.toList;
 
 public interface TestCase {
   enum Category {
@@ -14,7 +11,7 @@ public interface TestCase {
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple test, List<TestOracle> testOracles, List<Constraint> violatedConstraints) {
+    TestCase createTestCase(Tuple test, TestScenario testScenario, List<Constraint> violatedConstraints) {
       return new TestCase() {
         @Override
         public Tuple get() {
@@ -32,12 +29,8 @@ public interface TestCase {
         }
 
         @Override
-        public List<Function> oracles() {
-          return testOracles.stream().filter(
-              o -> o.shouldInvoke(test)
-          ).collect(
-              toList()
-          );
+        public TestScenario scenario() {
+          return testScenario;
         }
 
         @Override
@@ -55,5 +48,5 @@ public interface TestCase {
 
   List<Constraint> violatedConstraints();
 
-  List<Function> oracles();
+  TestScenario scenario();
 }

@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
+import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
@@ -105,7 +106,8 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
                 .filter(each -> each instanceof Constraint)
                 .map(Constraint.class::cast)
                 .collect(toList())
-        )
+        ),
+        new TestScenario.Builder().build()
     );
   }
 
@@ -162,7 +164,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
 
     @Override
     protected List<TestOracle> getChildren() {
-      return testSuite.getTestOracles();
+      return testSuite.getScenario().getTestOracles();
     }
 
     @Override
@@ -205,7 +207,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     }
 
     private Statement withBeforesForTestOracle(Tuple testCaseTuple, Statement statement) {
-      List<Consumer<Tuple>> befores = testSuite.beforeTestOracle();
+      List<Consumer<Tuple>> befores = testSuite.getScenario().beforeTestOracle();
       return befores.isEmpty() ?
           statement :
           new Statement() {
@@ -219,7 +221,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     }
 
     private Statement withAftersForTestOracle(Tuple testCaseTuple, Statement statement) {
-      List<Consumer<Tuple>> befores = testSuite.beforeTestOracle();
+      List<Consumer<Tuple>> befores = testSuite.getScenario().afterTestOracle();
       return befores.isEmpty() ?
           statement :
           new Statement() {

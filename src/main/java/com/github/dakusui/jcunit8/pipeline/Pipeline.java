@@ -9,9 +9,13 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -24,17 +28,17 @@ import static java.util.stream.Collectors.toList;
  */
 @SuppressWarnings("unchecked")
 public interface Pipeline {
-  TestSuite execute(Config config, ParameterSpace parameterSpace);
+  TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario);
 
   class Standard implements Pipeline {
     @Override
-    public TestSuite execute(Config config, ParameterSpace parameterSpace) {
-      return generateTestSuite(config, preprocess(config, parameterSpace));
+    public TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
+      return generateTestSuite(config, preprocess(config, parameterSpace), testScenario);
     }
 
-    public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace) {
+    public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
       validateSeeds(config.getRequirement().seeds(), parameterSpace);
-      TestSuite.Builder builder = new TestSuite.Builder(parameterSpace, Collections.emptyList());
+      TestSuite.Builder builder = new TestSuite.Builder(parameterSpace, testScenario);
       builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
       List<Tuple> regularTestTuples = engine(config, parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestTuples);

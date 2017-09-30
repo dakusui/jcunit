@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.Collections;
@@ -19,11 +20,11 @@ public abstract class PipelineTestBase {
     ParameterSpace parameterSpace = new ParameterSpace.Builder()
         .addAllParameters(asList(parameters))
         .build();
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace);
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace, new TestScenario.Builder().build());
   }
 
   protected TestSuite generateTestSuite(List<Parameter> parameters, List<Constraint> constraints) {
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints));
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints), new TestScenario.Builder().build());
   }
 
   protected ParameterSpace preprocess(Parameter... parameters) {
@@ -90,7 +91,7 @@ public abstract class PipelineTestBase {
             Factor.create("simple3", new Object[] { "default", "value" })
         ),
         Collections.singletonList(
-            Constraint.create("alwaysTrue[simple1]",(Tuple tuple) -> false, "simple1") // Never becomes true
+            Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
         )
     );
   }
