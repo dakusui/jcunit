@@ -5,6 +5,8 @@ import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
+import com.github.dakusui.jcunit8.testsuite.TestOracle;
+import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import org.junit.*;
 import org.junit.internal.runners.model.ReflectiveCallable;
 import org.junit.internal.runners.statements.InvokeMethod;
@@ -162,12 +164,76 @@ public enum InternalUtils {
     };
   }
 
-  static Runnable toRunnable(FrameworkMethod method) {
+  static Runnable toRunnable(FrameworkMethod method, Object object) {
     return new Runnable() {
       @Override
       public void run() {
 
       }
     };
+  }
+
+  static TestOracle toTestOracle(FrameworkMethod method) {
+    return new TestOracle() {
+      @Override
+      public boolean shouldInvoke(Tuple tuple) {
+        return false;
+      }
+
+      @Override
+      public String getName() {
+        return null;
+      }
+
+      @Override
+      public Result apply(Tuple tuple) {
+        return null;
+      }
+
+      @Override
+      public boolean test(Result result) {
+        return false;
+      }
+    };
+  }
+
+  public static TestScenario creteTestScenario(TestClass testClass) {
+    TestScenario.Builder builder = new TestScenario.Builder();
+    testClass.getAnnotatedMethods(BeforeClass.class).stream().map(
+        method -> toRunnable(method, null)
+    ).forEach(
+        builder::addPreTestSuiteProcedure
+    );
+    testClass.getAnnotatedMethods(BeforeTestCase.class).stream().map(
+        InternalUtils::toTupleConsumer
+    ).forEach(
+        builder::addPreTestCaseProcedure
+    );
+    testClass.getAnnotatedMethods(Before.class).stream().map(
+        InternalUtils::toTupleConsumer
+    ).forEach(
+        builder::addPreOracleProcedure
+    );
+    testClass.getAnnotatedMethods(Test.class).stream().map(
+        InternalUtils::toTestOracle
+    ).forEach(
+        builder::addTestOracle
+    );
+    testClass.getAnnotatedMethods(After.class).stream().map(
+        InternalUtils::toTupleConsumer
+    ).forEach(
+        builder::addPostOracleProcedure
+    );
+    testClass.getAnnotatedMethods(AfterTestCase.class).stream().map(
+        InternalUtils::toTupleConsumer
+    ).forEach(
+        builder::addPostTestCaseProcedure
+    );
+    testClass.getAnnotatedMethods(AfterClass.class).stream().map(
+        method -> toRunnable(method, null)
+    ).forEach(
+        builder::addPostTestSuiteProcedure
+    );
+    return builder.build();
   }
 }
