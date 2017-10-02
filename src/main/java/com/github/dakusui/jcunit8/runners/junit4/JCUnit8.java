@@ -397,7 +397,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     @Override
     protected Statement methodInvoker(final FrameworkMethod method, final Object test) {
       try {
-        return InternalUtils.createMethodInvoker(method, test, this);
+        return InternalUtils.createMethodInvoker(method, this, test);
       } catch (Throwable throwable) {
         throw new Error(throwable);
       }

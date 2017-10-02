@@ -65,30 +65,30 @@ public enum InternalUtils {
     );
   }
 
-  public static Statement createMethodInvoker(FrameworkMethod method, Object test, JCUnit8.TestCaseRunner testCaseRunner) throws Throwable {
+  public static Statement createMethodInvoker(FrameworkMethod method, JCUnit8.TestCaseRunner testCaseRunner, Object test) throws Throwable {
     return new InvokeMethod(method, test) {
       @Override
       public void evaluate() throws Throwable {
-        invokeExplosivelyWithArgumentsFromTestCase(method, testCaseRunner, test);
+        invokeExplosivelyWithArgumentsFromTestInput(method, testCaseRunner);
       }
     };
   }
 
-  public static Object invokeExplosivelyWithArgumentsFromTestCase(FrameworkMethod method, JCUnit8.TestCaseRunner testCaseRunner, Object test) throws Throwable {
-    return invokeExplosivelyWithArgumentsFromTestCase(method, testCaseRunner.getTestCase().get(), test);
+  public static Object invokeExplosivelyWithArgumentsFromTestInput(FrameworkMethod method, JCUnit8.TestCaseRunner testCaseRunner) throws Throwable {
+    return invokeExplosivelyWithArgumentsFromTestInput(method, testCaseRunner.getTestCase().get());
   }
 
-  public static Object invokeExplosivelyWithArgumentsFromTestCase(FrameworkMethod method, Tuple testCaseTuple, Object test) throws Throwable {
+  public static Object invokeExplosivelyWithArgumentsFromTestInput(FrameworkMethod method, Tuple testInput) throws Throwable {
     Object[] args = validateArguments(
         method,
         method.getMethod().getParameterTypes(),
         JCUnit8.getParameterAnnotationsFrom(method, From.class).stream()
             .map(From::value)
-            .map(testCaseTuple::get)
+            .map(testInput::get)
             .collect(toList())
             .toArray()
     );
-    return method.invokeExplosively(test, args);
+    return method.invokeExplosively(testInput.get("@ins"), args);
   }
 
   public static RunAfters createRunAftersForTestCase(Statement statement, List<FrameworkMethod> afters, JCUnit8.TestCaseRunner testCaseRunner) {
@@ -120,7 +120,7 @@ public enum InternalUtils {
         return new ReflectiveCallable() {
           @Override
           protected Object runReflectiveCall() throws Throwable {
-            return invokeExplosivelyWithArgumentsFromTestCase(each, testCaseRunner, test);
+            return invokeExplosivelyWithArgumentsFromTestInput(each, testCaseRunner);
           }
         }.run();
       }
