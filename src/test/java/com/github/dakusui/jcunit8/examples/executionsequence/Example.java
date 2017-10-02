@@ -9,6 +9,10 @@ import org.junit.runner.RunWith;
 @RunWith(JCUnit8.class)
 @ConfigureWith(parameterSpace = ExampleParameterSpace.class)
 public class Example {
+  public Example() {
+    System.out.println("<<init>>");
+  }
+
   @Condition
   public boolean aIsGreaterThanOrEqualTo$b(@From("a") int a, @From("b") int b) {
     return a >= b;
