@@ -28,15 +28,15 @@ import static java.util.stream.Collectors.toList;
  */
 @SuppressWarnings("unchecked")
 public interface Pipeline {
-  TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario);
+  TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario.Factory testScenarioFactory);
 
   class Standard implements Pipeline {
     @Override
-    public TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
+    public TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario.Factory testScenario) {
       return generateTestSuite(config, preprocess(config, parameterSpace), testScenario);
     }
 
-    public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
+    public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace, TestScenario .Factory testScenario) {
       validateSeeds(config.getRequirement().seeds(), parameterSpace);
       TestSuite.Builder builder = new TestSuite.Builder(parameterSpace, testScenario);
       builder = builder.addAllToSeedTuples(config.getRequirement().seeds());

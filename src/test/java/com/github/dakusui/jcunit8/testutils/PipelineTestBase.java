@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
-import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.Collections;
@@ -20,11 +19,11 @@ public abstract class PipelineTestBase {
     ParameterSpace parameterSpace = new ParameterSpace.Builder()
         .addAllParameters(asList(parameters))
         .build();
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace, new TestScenario.Builder().build());
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace, () -> null);
   }
 
   protected TestSuite generateTestSuite(List<Parameter> parameters, List<Constraint> constraints) {
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints), new TestScenario.Builder().build());
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints), () -> null);
   }
 
   protected ParameterSpace preprocess(Parameter... parameters) {

@@ -155,7 +155,7 @@ public enum InternalUtils {
     );
   }
 
-  static Consumer<Tuple> toTupleConsumer(FrameworkMethod method) {
+  static Consumer<Tuple> toTupleConsumer(FrameworkMethod method, Object testObject) {
     return new Consumer<Tuple>() {
       @Override
       public void accept(Tuple tuple) {
@@ -164,7 +164,7 @@ public enum InternalUtils {
     };
   }
 
-  static Runnable toRunnable(FrameworkMethod method, Object object) {
+  static Runnable toRunnable(FrameworkMethod method, Object testObject) {
     return new Runnable() {
       @Override
       public void run() {
@@ -173,7 +173,7 @@ public enum InternalUtils {
     };
   }
 
-  static TestOracle toTestOracle(FrameworkMethod method) {
+  static TestOracle toTestOracle(FrameworkMethod method, Object testObject) {
     return new TestOracle() {
       @Override
       public boolean shouldInvoke(Tuple tuple) {
@@ -197,7 +197,7 @@ public enum InternalUtils {
     };
   }
 
-  public static TestScenario creteTestScenario(TestClass testClass) {
+  public static TestScenario creteTestScenario(TestClass testClass, Object obj) {
     TestScenario.Builder builder = new TestScenario.Builder();
     testClass.getAnnotatedMethods(BeforeClass.class).stream().map(
         method -> toRunnable(method, null)
@@ -205,27 +205,27 @@ public enum InternalUtils {
         builder::addPreTestSuiteProcedure
     );
     testClass.getAnnotatedMethods(BeforeTestCase.class).stream().map(
-        InternalUtils::toTupleConsumer
+        (FrameworkMethod method) -> toTupleConsumer(method, null)
     ).forEach(
         builder::addPreTestCaseProcedure
     );
     testClass.getAnnotatedMethods(Before.class).stream().map(
-        InternalUtils::toTupleConsumer
+        (FrameworkMethod method) -> toTupleConsumer(method, obj)
     ).forEach(
         builder::addPreOracleProcedure
     );
     testClass.getAnnotatedMethods(Test.class).stream().map(
-        InternalUtils::toTestOracle
+        (FrameworkMethod method) -> toTestOracle(method, obj)
     ).forEach(
         builder::addTestOracle
     );
     testClass.getAnnotatedMethods(After.class).stream().map(
-        InternalUtils::toTupleConsumer
+        (FrameworkMethod method) -> toTupleConsumer(method, obj)
     ).forEach(
         builder::addPostOracleProcedure
     );
     testClass.getAnnotatedMethods(AfterTestCase.class).stream().map(
-        InternalUtils::toTupleConsumer
+        (FrameworkMethod method) -> toTupleConsumer(method, null)
     ).forEach(
         builder::addPostTestCaseProcedure
     );

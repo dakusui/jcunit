@@ -13,7 +13,6 @@ import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
-import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.*;
@@ -290,7 +289,7 @@ public enum CoveringArrayGenerationUtils {
               ).build()
           ).build(),
           parameterSpace(parameters, constraints),
-          new TestScenario.Builder().build()
+          () -> null
       );
     }
   }

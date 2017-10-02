@@ -75,14 +75,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
                 .map(Constraint.class::cast)
                 .collect(toList())
         ),
-        buildTestScenario(new TestClass(klass))
+        new TestScenarioFactoryForJUnit4(new TestClass(klass))
     );
     this.runners = createRunners();
   }
 
-  private TestScenario buildTestScenario(TestClass testClass) {
-    return new TestScenario.Builder().build();
-  }
 
   private static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
     return tuple -> {
@@ -236,8 +233,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
-    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenario);
+  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenario.Factory testScenarioFactory) {
+    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenarioFactory);
   }
 
   private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {

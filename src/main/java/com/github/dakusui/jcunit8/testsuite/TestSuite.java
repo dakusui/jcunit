@@ -29,29 +29,29 @@ public interface TestSuite extends List<TestCase> {
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
-    private final TestScenario testScenario;
+    private final TestScenario.Factory testScenarioFactory;
 
-    public Builder(ParameterSpace parameterSpace, TestScenario testScenario) {
+    public Builder(ParameterSpace parameterSpace, TestScenario.Factory testScenarioFactory) {
       this.parameterSpace = requireNonNull(parameterSpace);
-      this.testScenario = testScenario;
+      this.testScenarioFactory = testScenarioFactory;
     }
 
     public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.SEED, each, testScenario)).forEach(testCases::add);
+      collection.stream().map(each -> toTestCase(TestCase.Category.SEED, each, testScenarioFactory)).forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToRegularTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each, testScenario)).forEach(testCases::add);
+      collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each, testScenarioFactory)).forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToNegativeTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each, testScenario)).forEach(testCases::add);
+      collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each, testScenarioFactory)).forEach(testCases::add);
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple, TestScenario testScenario) {
+    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple, TestScenario.Factory testScenario) {
       Tuple tuple = TupleUtils.copy(testCaseTuple);
       return category.createTestCase(
           tuple,
@@ -96,7 +96,7 @@ public interface TestSuite extends List<TestCase> {
 
         @Override
         public TestScenario getScenario() {
-          return testScenario;
+          return testScenarioFactory.create();
         }
       }
       return new Impl();

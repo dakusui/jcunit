@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface TestScenario {
+  interface Factory {
+    TestScenario create();
+  }
   List<Runnable> preSuiteProcedures();
 
   List<Consumer<Tuple>> preTestCaseProcedures();

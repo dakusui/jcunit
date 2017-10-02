@@ -106,7 +106,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
                 .map(Constraint.class::cast)
                 .collect(toList())
         ),
-        InternalUtils.creteTestScenario(testClass)
+        new TestScenarioFactoryForJUnit4(testClass)
     );
   }
 

@@ -17,7 +17,7 @@ public interface TestOracleForJUnit4 extends TestOracle {
   class Builder {
     private final Map<String, Predicate<Tuple>> predicates;
     private       FrameworkMethod               testOrcleMethod;
-    private Object testObject;
+    private       Object                        testObject;
 
     public Builder(Map<String, Predicate<Tuple>> predicates) {
       this.predicates = Objects.requireNonNull(predicates);
@@ -60,8 +60,7 @@ public interface TestOracleForJUnit4 extends TestOracle {
           try {
             return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(
                 testOrcleMethod,
-                tuple,
-                testObject
+                tuple
             ));
           } catch (Throwable throwable) {
             return Result.thrown(throwable);
