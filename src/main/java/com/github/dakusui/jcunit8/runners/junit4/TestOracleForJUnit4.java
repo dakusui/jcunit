@@ -58,7 +58,7 @@ public interface TestOracleForJUnit4 extends TestOracle {
         @Override
         public Result apply(Tuple tuple) {
           try {
-            return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestCase(
+            return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(
                 testOrcleMethod,
                 tuple,
                 testObject
