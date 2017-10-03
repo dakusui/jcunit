@@ -24,14 +24,14 @@ public interface TestSuite extends List<TestCase> {
    */
   ParameterSpace getParameterSpace();
 
-  TestScenario getScenario();
+  TestScenarioBk.Factory getScenarioFactory();
 
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
-    private final TestScenario.Factory testScenarioFactory;
+    private final TestScenarioBk.Factory testScenarioFactory;
 
-    public Builder(ParameterSpace parameterSpace, TestScenario.Factory testScenarioFactory) {
+    public Builder(ParameterSpace parameterSpace, TestScenarioBk.Factory testScenarioFactory) {
       this.parameterSpace = requireNonNull(parameterSpace);
       this.testScenarioFactory = testScenarioFactory;
     }
@@ -51,7 +51,7 @@ public interface TestSuite extends List<TestCase> {
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple, TestScenario.Factory testScenario) {
+    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple, TestScenarioBk.Factory testScenario) {
       Tuple tuple = TupleUtils.copy(testCaseTuple);
       return category.createTestCase(
           tuple,
@@ -95,8 +95,8 @@ public interface TestSuite extends List<TestCase> {
         }
 
         @Override
-        public TestScenario getScenario() {
-          return testScenarioFactory.create();
+        public TestScenarioBk.Factory getScenarioFactory() {
+          return testScenarioFactory;
         }
       }
       return new Impl();

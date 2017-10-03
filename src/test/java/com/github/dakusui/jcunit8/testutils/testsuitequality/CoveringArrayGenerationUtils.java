@@ -289,7 +289,7 @@ public enum CoveringArrayGenerationUtils {
               ).build()
           ).build(),
           parameterSpace(parameters, constraints),
-          () -> null
+          null
       );
     }
   }

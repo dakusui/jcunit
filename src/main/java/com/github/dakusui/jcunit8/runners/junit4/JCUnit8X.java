@@ -163,7 +163,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
 
     @Override
     protected List<TestOracle> getChildren() {
-      return testSuite.getScenario().getTestOracles();
+      return testSuite.getScenarioFactory().create(null).getTestOracles();
     }
 
     @Override
@@ -196,38 +196,38 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
       return statement;
     }
 
-    private Statement oracleInvoker(TestOracle oracle, Tuple testCaseTuple) {
+    private Statement oracleInvoker(TestOracle oracle, Tuple testInput) {
       return new Statement() {
         @Override
         public void evaluate() throws Throwable {
-          assertTrue(oracle.test(oracle.apply(testCaseTuple)));
+          oracle.accept(testInput);
         }
       };
     }
 
-    private Statement withBeforesForTestOracle(Tuple testCaseTuple, Statement statement) {
-      List<Consumer<Tuple>> befores = testSuite.getScenario().preOracleProcedures();
+    private Statement withBeforesForTestOracle(Tuple testInput, Statement statement) {
+      List<Consumer<Tuple>> befores = testSuite.getScenarioFactory().create(testInput).preOracleProcedures();
       return befores.isEmpty() ?
           statement :
           new Statement() {
             @Override
             public void evaluate() throws Throwable {
               for (Consumer<Tuple> before : befores)
-                before.accept(testCaseTuple);
+                before.accept(testInput);
               statement.evaluate();
             }
           };
     }
 
-    private Statement withAftersForTestOracle(Tuple testCaseTuple, Statement statement) {
-      List<Consumer<Tuple>> befores = testSuite.getScenario().postTestOracleProcedures();
+    private Statement withAftersForTestOracle(Tuple testInput, Statement statement) {
+      List<Consumer<Tuple>> befores = testSuite.getScenarioFactory().create(testInput).postTestOracleProcedures();
       return befores.isEmpty() ?
           statement :
           new Statement() {
             @Override
             public void evaluate() throws Throwable {
               for (Consumer<Tuple> before : befores)
-                before.accept(testCaseTuple);
+                before.accept(testInput);
               statement.evaluate();
             }
           };

@@ -9,6 +9,7 @@ import org.junit.runners.model.FrameworkMethod;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface TestOracleForJUnit4 extends TestOracle {
@@ -51,26 +52,20 @@ public interface TestOracleForJUnit4 extends TestOracle {
         }
 
         @Override
+        public Function<Tuple, Result> when() {
+          return null;
+        }
+
+        @Override
+        public Predicate<Result> then() {
+          return null;
+        }
+
+        @Override
         public String getName() {
           return Builder.this.testOrcleMethod.getName();
         }
 
-        @Override
-        public Result apply(Tuple tuple) {
-          try {
-            return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(
-                testOrcleMethod,
-                tuple
-            ));
-          } catch (Throwable throwable) {
-            return Result.thrown(throwable);
-          }
-        }
-
-        @Override
-        public boolean test(Result result) {
-          return then.test(result);
-        }
       };
     }
 

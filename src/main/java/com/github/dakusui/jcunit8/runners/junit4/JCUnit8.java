@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
-import com.github.dakusui.jcunit8.testsuite.TestScenario;
+import com.github.dakusui.jcunit8.testsuite.TestScenarioBk;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.internal.runners.rules.RuleMemberValidator;
@@ -233,7 +233,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenario.Factory testScenarioFactory) {
+  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenarioBk.Factory testScenarioFactory) {
     return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenarioFactory);
   }
 

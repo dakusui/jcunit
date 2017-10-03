@@ -1,16 +1,101 @@
 package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
+
+import java.io.IOException;
+import java.util.Formattable;
+import java.util.Formatter;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface TestOracle extends
-    Function<Tuple, TestOracle.Result>,
-    Predicate<TestOracle.Result> {
-  interface Result {
+public interface TestOracle extends TupleConsumer {
+  class Builder {
+    private Predicate<Tuple> shouldInvoke = new Predicate<Tuple>() {
+      @Override
+      public boolean test(Tuple tuple) {
+        return true;
+      }
+
+      @Override
+      public String toString() {
+        return "always";
+      }
+    };
+    private Function<Tuple, Result> when;
+    private Predicate<Result> then      = new Predicate<Result>() {
+      @Override
+      public boolean test(Result result) {
+        return result.exitedWith().equals(Result.Exit.RETURNING_VALUE);
+      }
+
+      @Override
+      public String toString() {
+        return "valueReturned";
+      }
+    };
+    private Assertion         assertion = new Assertion() {
+    };
+
+    public Builder() {
+    }
+
+    public Builder shouldInvoke(Predicate<Tuple> shouldInvoke) {
+      this.shouldInvoke = Objects.requireNonNull(shouldInvoke);
+      return this;
+    }
+
+    public Builder when(Function<Tuple, Result> when) {
+      this.when = Objects.requireNonNull(when);
+      return this;
+    }
+
+    public Builder then(Predicate<Result> then) {
+      this.then = Objects.requireNonNull(then);
+      return this;
+    }
+
+    public Builder assertion(Assertion assertion) {
+      this.assertion = Objects.requireNonNull(assertion);
+      return this;
+    }
+
+    public TestOracle build() {
+      Objects.requireNonNull(when);
+      return new TestOracle() {
+        @Override
+        public Predicate<Tuple> shouldInvoke() {
+          return shouldInvoke;
+        }
+
+        @Override
+        public Function<Tuple, Result> when() {
+          return when;
+        }
+
+        @Override
+        public Predicate<Result> then() {
+          return then;
+        }
+      };
+    }
+  }
+
+  interface Result extends Formattable {
     enum Exit {
-      RETURNING_VALUE,
-      THROWING_EXCEPTION
+      RETURNING_VALUE {
+        @Override
+        public String toString() {
+          return "returned";
+        }
+      },
+      THROWING_EXCEPTION {
+        @Override
+        public String toString() {
+          return "thrown";
+        }
+      }
     }
 
     Exit exitedWith();
@@ -31,6 +116,7 @@ public interface TestOracle extends
         }
       };
     }
+
     static Result returned(Object value) {
       return new Result() {
         @Override
@@ -45,10 +131,41 @@ public interface TestOracle extends
         }
       };
     }
+
+    @Override
+    default void formatTo(Formatter formatter, int flags, int width, int precision) {
+      try {
+        formatter.out().append(String.format("%s was %s", value(), exitedWith()));
+      } catch (IOException e) {
+        throw Checks.wrap(e);
+      }
+    }
   }
 
-  boolean shouldInvoke(Tuple tuple);
+  interface Assertion {
+    default <V> void assertThat(V value, Predicate<V> check) {
+      if (!check.test(value))
+        throw new AssertionError(String.format("%s did not satisfy %s", value, check));
+    }
+  }
 
-  String getName();
+  Predicate<Tuple> shouldInvoke();
 
+  Function<Tuple, Result> when();
+
+  Predicate<Result> then();
+
+  default String getName() {
+    return String.format("%s(%s(s))==true", then(), when());
+  }
+
+  @Override
+  default void accept(Tuple testInput) {
+    assertion().assertThat(when().apply(testInput), then());
+  }
+
+  default Assertion assertion() {
+    return new Assertion() {
+    };
+  }
 }

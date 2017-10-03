@@ -11,11 +11,11 @@ public interface TestCase {
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple test, TestScenario.Factory testScenarioFactory, List<Constraint> violatedConstraints) {
+    TestCase createTestCase(Tuple testInput, TestScenarioBk.Factory testScenarioFactory, List<Constraint> violatedConstraints) {
       return new TestCase() {
         @Override
         public Tuple get() {
-          return test;
+          return testInput;
         }
 
         @Override
@@ -29,8 +29,8 @@ public interface TestCase {
         }
 
         @Override
-        public TestScenario scenario() {
-          return testScenarioFactory.create();
+        public TestScenarioBk scenario() {
+          return testScenarioFactory.create(testInput);
         }
 
         @Override
@@ -48,5 +48,5 @@ public interface TestCase {
 
   List<Constraint> violatedConstraints();
 
-  TestScenario scenario();
+  TestScenarioBk scenario();
 }
