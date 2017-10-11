@@ -11,10 +11,10 @@ public interface TestCase {
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple testInput, TestScenarioBk.Factory testScenarioFactory, List<Constraint> violatedConstraints) {
+    TestCase createTestCase(Tuple testInput, TestScenario testScenario, List<Constraint> violatedConstraints) {
       return new TestCase() {
         @Override
-        public Tuple get() {
+        public Tuple getTestInput() {
           return testInput;
         }
 
@@ -29,24 +29,24 @@ public interface TestCase {
         }
 
         @Override
-        public TestScenarioBk scenario() {
-          return testScenarioFactory.create(testInput);
+        public TestScenario scenario() {
+          return testScenario;
         }
 
         @Override
         public String toString() {
-          return String.format("%s:%s:%s", this.getCategory(), this.get(), violatedConstraints);
+          return String.format("%s:%s:%s", this.getCategory(), this.getTestInput(), violatedConstraints);
         }
       };
     }
 
   }
 
-  Tuple get();
+  Tuple getTestInput();
 
   Category getCategory();
 
   List<Constraint> violatedConstraints();
 
-  TestScenarioBk scenario();
+  TestScenario scenario();
 }

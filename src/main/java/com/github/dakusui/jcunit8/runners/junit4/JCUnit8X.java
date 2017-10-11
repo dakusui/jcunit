@@ -6,20 +6,26 @@ import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
+import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
+import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.ParentRunner;
+import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 import org.junit.validator.TestClassValidator;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,10 +36,10 @@ import java.util.stream.IntStream;
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertTrue;
 
 public class JCUnit8X extends org.junit.runners.Parameterized {
   private final List<Runner> runners;
+  private final TestSuite    testSuite;
 
   /**
    * Only called reflectively. Do not use programmatically.
@@ -42,7 +48,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
    */
   public JCUnit8X(Class<?> klass) throws Throwable {
     super(klass);
-    this.runners = createRunners(buildTestSuite(
+    this.runners = createRunners(this.testSuite = buildTestSuite(
         getTestClass(),
         createParameterSpaceDefinitionTestClass(),
         getConfigFactory()
@@ -67,22 +73,27 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     this.applyValidators(errors);
   }
 
-
-  private List<Runner> createRunners(TestSuite testSuite) {
-    return IntStream.range(
-        0, testSuite.size()
-    ).mapToObj(
-        i -> {
-          try {
-            return new TestCaseRunner(this.getTestClass().getJavaClass(), i, testSuite);
-          } catch (InitializationError initializationError) {
-            throw Checks.wrap(initializationError);
-          }
-        }
-    ).collect(
-        toList()
-    );
+  protected Statement withBeforeClasses(Statement statement) {
+    return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
+        statement :
+        InternalUtils.createRunBeforesForTestInput(
+            statement,
+            this.testSuite.getScenario().preSuiteProcedures(),
+            Tuple.builder().put("@suite", this.testSuite).build()
+        );
   }
+
+
+  protected Statement withAfterClasses(Statement statement) {
+    return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
+        statement :
+        InternalUtils.createRunAftersForTestInput(
+            statement,
+            this.testSuite.getScenario().postSuiteProcedures(),
+            Tuple.builder().put("@suite", this.testSuite).build()
+        );
+  }
+
 
   public static TestSuite buildTestSuite(
       TestClass testClass,
@@ -106,7 +117,23 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
                 .map(Constraint.class::cast)
                 .collect(toList())
         ),
-        new TestScenarioFactoryForJUnit4(testClass)
+        TestScenarioFactoryForJUnit4.create(testClass)
+    );
+  }
+
+  private List<Runner> createRunners(TestSuite testSuite) {
+    return IntStream.range(
+        0, testSuite.size()
+    ).mapToObj(
+        i -> {
+          try {
+            return new TestCaseRunner(this.getTestClass().getJavaClass(), i, testSuite);
+          } catch (InitializationError initializationError) {
+            throw Checks.wrap(initializationError);
+          }
+        }
+    ).collect(
+        toList()
     );
   }
 
@@ -140,7 +167,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     return ret;
   }
 
-  private static class TestCaseRunner extends ParentRunner<TestOracle> {
+  private static class TestCaseRunner extends ParentRunner<TestOracle> implements ITestCaseRunner {
 
     private final int       id;
     private final TestSuite testSuite;
@@ -163,7 +190,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
 
     @Override
     protected List<TestOracle> getChildren() {
-      return testSuite.getScenarioFactory().create(null).getTestOracles();
+      return testSuite.getScenario().oracles();
     }
 
     @Override
@@ -171,9 +198,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
       return Description.createTestDescription(
           getTestClass().getJavaClass(),
           child.getName(),
-          child instanceof TestOracleForJUnit4 ?
-              ((TestOracleForJUnit4) child).annotations() :
-              new Annotation[0]
+          new Annotation[0]
       );
     }
 
@@ -181,18 +206,71 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     protected void runChild(TestOracle child, RunNotifier notifier) {
       Description description = describeChild(child);
 
-      Tuple testCaseTuple = this.testSuite.get(this.id).get();
-      if (!child.shouldInvoke(testCaseTuple)) {
+      Tuple testInput = composeTestInput(this.testSuite.get(this.id).getTestInput());
+      if (!child.shouldInvoke().test(testInput)) {
         notifier.fireTestIgnored(description);
       } else {
-        runLeaf(oracleBlock(child, testCaseTuple), description, notifier);
+        runLeaf(oracleBlock(child, testInput), description, notifier);
       }
     }
 
-    private Statement oracleBlock(TestOracle testOracle, Tuple testCaseTuple) {
-      Statement statement = oracleInvoker(testOracle, testCaseTuple);
-      statement = withBeforesForTestOracle(testCaseTuple, statement);
-      statement = withAftersForTestOracle(testCaseTuple, statement);
+    @Override
+    protected void collectInitializationErrors(List<Throwable> errors) {
+    }
+
+    @Override
+    protected Statement classBlock(final RunNotifier notifier) {
+      Statement statement = childrenInvoker(notifier);
+      if (!checkIfAllChildrenAreIgnored()) {
+        statement = withBeforeTestCases(statement);
+        statement = withAfterTestCases(statement);
+      }
+      return statement;
+    }
+
+    private Statement withBeforeTestCases(Statement statement) {
+      return testSuite.getScenario().preTestInputProcedures().isEmpty() ?
+          statement :
+          InternalUtils.createRunBeforesForTestInput(statement, testSuite.getScenario().preTestInputProcedures(), this.getTestCase().getTestInput());
+    }
+
+    private Statement withAfterTestCases(Statement statement) {
+      List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterTestCase.class);
+      return afters.isEmpty() ? statement :
+          InternalUtils.createRunAftersForTestInput(statement, testSuite.getScenario().postTestInputProcedures(), this.getTestCase().getTestInput());
+    }
+
+    private boolean checkIfAllChildrenAreIgnored() {
+      try {
+        Method m = ParentRunner.class.getDeclaredMethod("areAllChildrenIgnored");
+        boolean wasAccessible = m.isAccessible();
+        m.setAccessible(true);
+        try {
+          return (boolean) m.invoke(this);
+        } finally {
+          m.setAccessible(wasAccessible);
+        }
+      } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        throw new Error(e);
+      }
+    }
+
+    private Tuple composeTestInput(Tuple tuple) {
+      try {
+        return Tuple.builder()
+            .putAll(tuple)
+            .put("@ins", getTestClass().getOnlyConstructor().newInstance())
+            .put("@suite", testSuite)
+            .build();
+      } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+        throw Checks.wrap(e);
+      }
+    }
+
+    private Statement oracleBlock(TestOracle testOracle, Tuple testInput) {
+      Statement statement = oracleInvoker(testOracle, testInput);
+      statement = withBeforesForTestOracle(testInput, statement);
+      statement = withAftersForTestOracle(testInput, statement);
       return statement;
     }
 
@@ -206,7 +284,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     }
 
     private Statement withBeforesForTestOracle(Tuple testInput, Statement statement) {
-      List<Consumer<Tuple>> befores = testSuite.getScenarioFactory().create(testInput).preOracleProcedures();
+      List<TupleConsumer> befores = testSuite.getScenario().preOracleProcedures();
       return befores.isEmpty() ?
           statement :
           new Statement() {
@@ -220,17 +298,22 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
     }
 
     private Statement withAftersForTestOracle(Tuple testInput, Statement statement) {
-      List<Consumer<Tuple>> befores = testSuite.getScenarioFactory().create(testInput).postTestOracleProcedures();
-      return befores.isEmpty() ?
+      List<TupleConsumer> afters = testSuite.getScenario().postOracleProcedures();
+      return afters.isEmpty() ?
           statement :
           new Statement() {
             @Override
             public void evaluate() throws Throwable {
-              for (Consumer<Tuple> before : befores)
-                before.accept(testInput);
               statement.evaluate();
+              for (Consumer<Tuple> after : afters)
+                after.accept(testInput);
             }
           };
+    }
+
+    @Override
+    public TestCase getTestCase() {
+      return this.testSuite.get(this.id);
     }
   }
 }

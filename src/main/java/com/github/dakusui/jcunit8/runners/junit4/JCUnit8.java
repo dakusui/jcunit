@@ -13,7 +13,7 @@ import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
-import com.github.dakusui.jcunit8.testsuite.TestScenarioBk;
+import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.internal.runners.rules.RuleMemberValidator;
@@ -75,25 +75,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
                 .map(Constraint.class::cast)
                 .collect(toList())
         ),
-        new TestScenarioFactoryForJUnit4(new TestClass(klass))
+        TestScenarioFactoryForJUnit4.create(new TestClass(klass))
     );
     this.runners = createRunners();
   }
 
-
-  private static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
-    return tuple -> {
-      //noinspection SimplifiableIfStatement
-      if (method.getAnnotation(Given.class) == null)
-        return true;
-      return NodeUtils.buildPredicate(
-          method.getAnnotation(Given.class).value(),
-          predicates
-      ).test(
-          tuple
-      );
-    };
-  }
 
   @Override
   protected void collectInitializationErrors(List<Throwable> errors) {
@@ -233,8 +219,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenarioBk.Factory testScenarioFactory) {
-    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenarioFactory);
+  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
+    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenario);
   }
 
   private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
@@ -281,7 +267,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
 
-  public class TestCaseRunner extends BlockJUnit4ClassRunner {
+  public class TestCaseRunner extends BlockJUnit4ClassRunner implements ITestCaseRunner {
     private final TestCase tupleTestCase;
     int id;
     private final SortedMap<String, TestPredicate> predicates;
@@ -326,7 +312,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       try {
         List<FrameworkMethod> ret = new LinkedList<>();
         for (FrameworkMethod each : computeTestMethods()) {
-          if (shouldInvoke(each, tupleTestCase.get()))
+          if (shouldInvoke(each, tupleTestCase.getTestInput()))
             ret.add(each);
         }
         if (ret.isEmpty())
@@ -365,7 +351,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         Statement statement) {
       List<FrameworkMethod> befores = getTestClass().getAnnotatedMethods(Before.class).stream(
       ).map(
-          InternalUtils.frameworkMethodInvokingArgumentsFromTestCase(this, target)
+          InternalUtils.frameworkMethodInvokingArgumentsFromTestCase_(this, target)
       ).collect(
           toList()
       );
@@ -379,7 +365,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         Statement statement) {
       List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(After.class).stream(
       ).map(
-          InternalUtils.frameworkMethodInvokingArgumentsFromTestCase(this, target)
+          InternalUtils.frameworkMethodInvokingArgumentsFromTestCase_(this, target)
       ).collect(
           toList()
       );
@@ -415,7 +401,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     }
 
     private Predicate<Tuple> shouldInvoke(FrameworkMethod method) {
-      return tuple -> JCUnit8.shouldInvoke(method, predicates).test(tuple);
+      return tuple -> InternalUtils.shouldInvoke(method, predicates).test(tuple);
     }
 
     private FrameworkMethod getDummyMethodForNoMatchingMethodFound() {
@@ -435,13 +421,13 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     private Statement withBeforeTestCases(Statement statement) {
       List<FrameworkMethod> befores = JCUnit8.this.getTestClass().getAnnotatedMethods(BeforeTestCase.class);
       return befores.isEmpty() ? statement :
-          InternalUtils.createRunBeforesForTestCase(statement, befores, this);
+          InternalUtils.createRunBeforesForTestCase_(statement, befores, this);
     }
 
     private Statement withAfterTestCases(Statement statement) {
       List<FrameworkMethod> afters = getTestClass().getAnnotatedMethods(AfterTestCase.class);
       return afters.isEmpty() ? statement :
-          InternalUtils.createRunAftersForTestCase(statement, afters, this);
+          InternalUtils.createRunAftersForTestCase_(statement, afters, this);
     }
 
     private boolean checkIfAllChildrenAreIgnored() {

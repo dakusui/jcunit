@@ -59,10 +59,10 @@ public class NegativeGenerationTest extends PipelineTestBase {
                 (TestSuite testCases) ->
                     testCases.stream()
                         .allMatch(tupleTestCase -> tupleTestCase.getCategory() == TestCase.Category.REGULAR ?
-                            constraint.test(tupleTestCase.get()) :
+                            constraint.test(tupleTestCase.getTestInput()) :
                             tupleTestCase.getCategory() == TestCase.Category.NEGATIVE &&
                                 tupleTestCase.violatedConstraints().stream()
-                                    .noneMatch(constraint1 -> constraint1.test(tupleTestCase.get()))
+                                    .noneMatch(constraint1 -> constraint1.test(tupleTestCase.getTestInput()))
                         ))
         ));
   }

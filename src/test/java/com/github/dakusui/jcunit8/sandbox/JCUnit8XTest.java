@@ -42,7 +42,7 @@ public class JCUnit8XTest {
             Consumer.class,
             Printable.function(
                 "toConsumerListWithBeforeTestOracleMethod",
-                toList((TestSuite suite) -> suite.getScenarioFactory().create(null).preOracleProcedures())
+                toList((TestSuite suite) -> suite.getScenario().preOracleProcedures())
             )
         ).check(
             size(),

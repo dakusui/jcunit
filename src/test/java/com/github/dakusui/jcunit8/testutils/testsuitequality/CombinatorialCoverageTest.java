@@ -116,7 +116,7 @@ public class CombinatorialCoverageTest {
                     (TestSuite suite) -> CoveringArrayGenerationUtils.coveredTuples(
                         strength,
                         suite.stream().map(
-                            TestCase::get
+                            TestCase::getTestInput
                         ).collect(
                             toList()
                         )
@@ -139,7 +139,7 @@ public class CombinatorialCoverageTest {
                 Printable.function(
                     "toTuple",
                     (TestSuite suite) -> suite.stream().map(
-                        TestCase::get
+                        TestCase::getTestInput
                     ).collect(
                         toList()
                     )

@@ -83,10 +83,10 @@ public class ValidationTest {
                 v -> v == 2
             ),
             oracle(
-                ".getFailures().get(0).getMessage()", result -> result.getFailures().get(0).getMessage(), ".contains('undefinedConstraint' was not found)",
+                ".getFailures().getTestInput(0).getMessage()", result -> result.getFailures().get(0).getMessage(), ".contains('undefinedConstraint' was not found)",
                 v -> v.contains("'undefinedConstraint' was not found")),
             oracle(
-                ".getFailures().get(1).getMessage()",
+                ".getFailures().getTestInput(1).getMessage()",
                 result -> result.getFailures().get(1).getMessage(),
                 "contains \"'malformedConstraint!' is not a valid condition oracle\"",
                 v -> v.contains("'malformedConstraint!' is not a valid condition name"))
@@ -123,13 +123,13 @@ public class ValidationTest {
                 v -> v == 1
             ),
             oracle(
-                "{x}.getFailures().get(0).getException()",
+                "{x}.getFailures().getTestInput(0).getException()",
                 result -> result.getFailures().get(0).getException(),
                 "",
                 throwable -> throwable instanceof TestDefinitionException
             ),
             oracle(
-                "{x}.getFailures().get(0).getMessage()",
+                "{x}.getFailures().getTestInput(0).getMessage()",
                 result -> result.getFailures().get(0).getMessage(),
                 "containing '@From' and 'testMethod'",
                 v -> v.contains("@From") && v.contains("testMethod")
@@ -144,7 +144,7 @@ public class ValidationTest {
         JUnitCore.runClasses(NoParameter.class),
         matcher(
             oracle("!{x}.wasSuccessful()", result -> !result.wasSuccessful()),
-            oracle("{x}.getFailures().get(0).getMessage()", result -> result.getFailures().get(0).getMessage(),
+            oracle("{x}.getFailures().getTestInput(0).getMessage()", result -> result.getFailures().get(0).getMessage(),
                 "containing 'No parameter'", message -> message.contains("No parameter is found"))
         )
     );
@@ -159,7 +159,7 @@ public class ValidationTest {
             oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
             oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
             oracle(
-                "{x}.getFailures().get(0).getMessage()",
+                "{x}.getFailures().getTestInput(0).getMessage()",
                 result -> result.getFailures().get(0).getMessage(),
                 "'100' is not compatible with parameter 0 of 'testMethod(String)'",
                 v -> v.equals("'100' is not compatible with parameter 0 of 'testMethod(String)'")
@@ -187,7 +187,7 @@ public class ValidationTest {
             oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
             oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
             oracle(
-                "{x}.getFailures().get(0).getMessage()",
+                "{x}.getFailures().getTestInput(0).getMessage()",
                 result -> result.getFailures().get(0).getMessage(),
                 "'1' is not compatible with parameter 0 of 'testMethod(boolean)'",
                 v -> v.equals("'1' is not compatible with parameter 0 of 'testMethod(boolean)'")
@@ -204,7 +204,7 @@ public class ValidationTest {
             oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
             oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
             oracle(
-                "{x}.getFailures().get(0).getMessage()",
+                "{x}.getFailures().getTestInput(0).getMessage()",
                 result -> result.getFailures().get(0).getMessage(),
                 "'null' is not compatible with parameter 0 of 'testMethod(int)'",
                 v -> v.equals("'null' is not compatible with parameter 0 of 'testMethod(int)'")
@@ -232,7 +232,7 @@ public class ValidationTest {
             oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
             oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
             oracle(
-                "{x}.getFailures().get(0).getMessage()",
+                "{x}.getFailures().getTestInput(0).getMessage()",
                 result -> result.getFailures().get(0).getMessage(),
                 "contains'Parameter(s) were not found: [parameter2] in tuple: {parameter1=hello}'",
                 v -> v.contains("Parameter(s) were not found: [parameter2] in tuple: {parameter1=hello}")
@@ -252,7 +252,7 @@ public class ValidationTest {
             oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
             oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
             oracle(
-                "{x}.getFailures().get(0).getMessage()",
+                "{x}.getFailures().getTestInput(0).getMessage()",
                 result -> result.getFailures().get(0).getMessage(),
                 "contains'[unknownParameter] in tuple: {parameter1=hello, parameter2=hello, unknownParameter=hello}'",
                 v -> v.contains("[unknownParameter] in tuple: {parameter1=hello, parameter2=hello, unknownParameter=hello}")
@@ -272,7 +272,7 @@ public class ValidationTest {
             oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
             oracle("{x}.getRunCount()", Result::getRunCount, "==5", v -> v == 5),
             oracle(
-                "{x}.getFailures().get(0).getMessage()",
+                "{x}.getFailures().getTestInput(0).getMessage()",
                 result -> result.getFailures().get(0).getMessage(),
                 "contains'is not compatible with parameter 1 of 'test(String,String)''",
                 v -> v.contains("is not compatible with parameter 1 of 'test(String,String)'")
