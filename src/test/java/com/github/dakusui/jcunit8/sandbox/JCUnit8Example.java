@@ -1,16 +1,16 @@
 package com.github.dakusui.jcunit8.sandbox;
 
 import com.github.dakusui.jcunit8.examples.executionsequence.ExampleParameterSpace;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 
-@RunWith(JCUnit8X.class)
+@RunWith(JCUnit8.class)
 @ConfigureWith(parameterSpace = ExampleParameterSpace.class)
-public class JCUnit8XExample {
+public class JCUnit8Example {
   @Condition
   public boolean aIsGreaterThanOrEqualTo$b(@From("a") int a, @From("b") int b) {
     return a >= b;
@@ -58,6 +58,6 @@ public class JCUnit8XExample {
   }
 
   public static void main(String... args) {
-    new JUnitCore().run(JCUnit8XExample.class);
+    new JUnitCore().run(JCUnit8Example.class);
   }
 }

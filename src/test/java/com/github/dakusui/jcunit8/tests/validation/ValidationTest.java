@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.tests.validation;
 
+import com.github.dakusui.crest.Crest;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import com.github.dakusui.jcunit8.tests.validation.testresources.*;
@@ -14,6 +15,8 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
+import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.core.Printable.function;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.oracle;
 import static org.junit.Assert.assertThat;
@@ -153,17 +156,23 @@ public class ValidationTest {
 
   @Test
   public void typeCompatibilityTest1() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(IncompatibleParameters.IncompatibleType.class),
-        matcher(
-            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
-            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getMessage()",
-                result -> result.getFailures().get(0).getMessage(),
-                "'100' is not compatible with parameter 0 of 'testMethod(String)'",
-                v -> v.equals("'100' is not compatible with parameter 0 of 'testMethod(String)'")
-            )
+        allOf(
+            asBoolean(
+                function("wasSuccessful", Result::wasSuccessful)
+            ).isFalse(
+            ).$(),
+            asInteger(
+                function("getRunCount", Result::getRunCount)
+            ).equalTo(
+                1
+            ).$(),
+            asString(
+                function("getFailures().getTestInput(0).getMessage()", (Result result) -> result.getFailures().get(0).getMessage())
+            ).equalTo(
+                "'100' is not compatible with parameter 0 of 'testMethod(String)'"
+            ).$()
         )
     );
   }

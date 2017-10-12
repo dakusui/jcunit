@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
-import com.github.dakusui.jcunit8.runners.junit4.ITestCaseRunner;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -82,18 +81,6 @@ public enum InternalUtils {
     );
   }
 
-  public static RunAfters createRunAftersForTestCase_(Statement statement, List<FrameworkMethod> afters, ITestCaseRunner testCaseRunner) {
-    return new RunAfters(
-        statement,
-        afters.stream().map(
-            frameworkMethodInvokingArgumentsFromTestCase_(testCaseRunner, null)
-        ).collect(toList())
-        , null) {
-
-    };
-  }
-
-
   public static RunAfters createRunAftersForTestInput(Statement statement, List<TupleConsumer> afters, Tuple testInput) {
     return new RunAfters(
         statement,
@@ -105,16 +92,6 @@ public enum InternalUtils {
     };
   }
 
-  public static RunBefores createRunBeforesForTestCase_(Statement statement, List<FrameworkMethod> befores, ITestCaseRunner testCaseRunner) {
-    return new RunBefores(
-        statement,
-        befores.stream().map(
-            frameworkMethodInvokingArgumentsFromTestCase_(testCaseRunner, null)
-        ).collect(toList()),
-        null
-    );
-  }
-
   public static RunBefores createRunBeforesForTestInput(Statement statement, List<TupleConsumer> tupleConsumers, Tuple testInput) {
     return new RunBefores(
         statement,
@@ -124,16 +101,6 @@ public enum InternalUtils {
         null
     );
   }
-
-  public static Function<FrameworkMethod, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase_(ITestCaseRunner testCaseRunner, Object test) {
-    return each -> new FrameworkMethod(each.getMethod()) {
-      public Object invokeExplosively(final Object target, final Object... params) throws Throwable {
-        return invokeExplosivelyWithArgumentsFromTestInput(each, testCaseRunner.getTestCase().getTestInput());
-      }
-
-    };
-  }
-
 
   public static Function<TupleConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(Tuple testInput) {
     return each -> {
@@ -199,6 +166,11 @@ public enum InternalUtils {
 
   public static TestOracle toTestOracle(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
     return new TestOracle() {
+      @Override
+      public String getName() {
+        return method.getName();
+      }
+
       @Override
       public Predicate<Tuple> shouldInvoke() {
         return InternalUtils.shouldInvoke(method, predicates);

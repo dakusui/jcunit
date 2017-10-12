@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.sandbox;
 import com.github.dakusui.crest.core.Printable;
 import com.github.dakusui.jcunit8.examples.executionsequence.ExampleParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.Test;
@@ -20,7 +20,7 @@ import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.functions.CrestFunctions.size;
 import static com.github.dakusui.crest.functions.CrestPredicates.equalTo;
 
-public class JCUnit8XTest {
+public class JCUnit8Test {
   @Test
   public void givenTestClass$whenBuildTestSuite$thenTestCasesBuilt() {
     assertThat(
@@ -59,11 +59,11 @@ public class JCUnit8XTest {
   }
 
   private TestSuite buildTestSuite() {
-    return buildTestSuite(JCUnit8XExample.class, ExampleParameterSpace.class);
+    return buildTestSuite(JCUnit8Example.class, ExampleParameterSpace.class);
   }
 
   private static TestSuite buildTestSuite(Class javaTestClass, Class javaParameterSpaceClass) {
-    return JCUnit8X.buildTestSuite(
+    return JCUnit8.buildTestSuite(
         new TestClass(javaTestClass),
         new TestClass(javaParameterSpaceClass),
         new ConfigFactory.Default()

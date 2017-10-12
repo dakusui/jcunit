@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghett
 import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterSpec;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
@@ -19,7 +19,7 @@ import static com.github.dakusui.jcunit8.runners.helpers.ParameterUtils.*;
  * By using {@code Parameters.simple}, {@code regex}, or {@code fsm} methods,
  * you can make your take class look a bit cleaner.
  */
-@RunWith(JCUnit8X.class)
+@RunWith(JCUnit8.class)
 public class ParameterHelperExample {
   @ParameterSource
   public Parameter.Regex.Factory<String> scenario() {

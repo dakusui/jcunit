@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.examples.bankaccount;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
@@ -15,7 +15,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
-@RunWith(JCUnit8X.class)
+@RunWith(JCUnit8.class)
 public class BankAccountExample {
 
   private BankAccount myAccount;

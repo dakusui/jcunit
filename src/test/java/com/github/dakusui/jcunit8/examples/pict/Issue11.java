@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.examples.pict;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
@@ -44,7 +44,7 @@ import java.util.List;
  * For a list the above example would not have [APPS_0] <> [APPS_1] and would have APPS (List) instead of APPS (Set) (or some similar grammar).
  * </code>
  */
-@RunWith(JCUnit8X.class)
+@RunWith(JCUnit8.class)
 public class Issue11 {
   @ParameterSource
   public Parameter.Factory<String> platform() {
