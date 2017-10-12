@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.tests.validation.testresources;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import static java.util.Collections.singletonList;
 
 public class IncompatibleParameters {
-  @RunWith(JCUnit8.class)
+  @RunWith(JCUnit8X.class)
   public static class IncompatibleType {
     @ParameterSource
     public Simple.Factory<Integer> a() {
@@ -23,7 +23,7 @@ public class IncompatibleParameters {
     }
   }
 
-  @RunWith(JCUnit8.class)
+  @RunWith(JCUnit8X.class)
   public static class CompatibleNullValue {
     @ParameterSource
     public Simple.Factory<Integer> a() {
@@ -36,7 +36,7 @@ public class IncompatibleParameters {
     }
   }
 
-  @RunWith(JCUnit8.class)
+  @RunWith(JCUnit8X.class)
   public static class IncompatiblePrimitiveType {
     @ParameterSource
     public Simple.Factory<Integer> a() {
@@ -50,7 +50,7 @@ public class IncompatibleParameters {
   }
 
 
-  @RunWith(JCUnit8.class)
+  @RunWith(JCUnit8X.class)
   public static class IncompatibleNullValue {
     @ParameterSource
     public Simple.Factory<Integer> a() {

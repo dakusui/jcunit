@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.tests.usecases.lifecycle;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.*;
@@ -13,7 +13,7 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
-@RunWith(JCUnit8.class)
+@RunWith(JCUnit8X.class)
 public class BeforeAfter {
   static final List<String> log = Collections.synchronizedList(new LinkedList<>());
 

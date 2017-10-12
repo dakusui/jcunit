@@ -4,19 +4,18 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.factorspace.TestPredicate;
-import com.github.dakusui.jcunit8.pipeline.Config;
-import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
-import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.internal.runners.rules.RuleMemberValidator;
+import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runner.Description;
@@ -28,8 +27,6 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
-import org.junit.validator.AnnotationsValidator;
-import org.junit.validator.PublicClassValidator;
 import org.junit.validator.TestClassValidator;
 
 import java.lang.annotation.Annotation;
@@ -40,12 +37,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
-import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
-import static com.github.dakusui.jcunit8.factorspace.Parameter.Factory;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
@@ -59,11 +53,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     ConfigFactory configFactory = getConfigFactory();
     TestClass parameterSpaceDefinition = createParameterSpaceDefinitionTestClass();
     Collection<String> involvedParameterNames = InternalUtils.involvedParameters(new TestClass(klass));
-    this.testSuite = buildTestSuite(
+    this.testSuite = JCUnit8X.buildTestSuite(
         configFactory.create(),
-        buildParameterSpace(
+        JCUnit8X.buildParameterSpace(
             new ArrayList<>(
-                buildParameterMap(parameterSpaceDefinition).values()
+                JCUnit8X.buildParameterMap(parameterSpaceDefinition).values()
             ).stream(
             ).filter(
                 parameter -> involvedParameterNames.contains(parameter.getName())
@@ -80,6 +74,15 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     this.runners = createRunners();
   }
 
+  public static Statement createMethodInvoker(FrameworkMethod method, TestCaseRunner testCaseRunner, Object test) throws Throwable {
+    return new InvokeMethod(method, test) {
+      @Override
+      public void evaluate() throws Throwable {
+        InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, testCaseRunner.getTestCase().getTestInput());
+      }
+    };
+  }
+
 
   @Override
   protected void collectInitializationErrors(List<Throwable> errors) {
@@ -88,7 +91,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
   private void applyValidators(List<Throwable> errors) {
     if (getTestClass().getJavaClass() != null) {
-      for (TestClassValidator each : createValidatorsFor(createParameterSpaceDefinitionTestClass())) {
+      for (TestClassValidator each : JCUnit8X.createValidatorsFor(createParameterSpaceDefinitionTestClass())) {
         errors.addAll(each.validateTestClass(getTestClass()));
       }
     }
@@ -106,58 +109,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   @Override
   protected TestClass createTestClass(Class<?> testClass) {
     return createTestClassMock(super.createTestClass(testClass));
-  }
-
-  static TestClassValidator[] createValidatorsFor(TestClass parameterSpaceDefinitionClass) {
-    return new TestClassValidator[] {
-        new AnnotationsValidator(),
-        new PublicClassValidator(),
-        new TestClassValidator() {
-          @Override
-          public List<Exception> validateTestClass(TestClass testClass) {
-            return new LinkedList<Exception>() {
-              {
-                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(BeforeTestCase.class, testClass, this);
-                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Before.class, testClass, this);
-                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Test.class, testClass, this);
-                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(After.class, testClass, this);
-                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(AfterTestCase.class, testClass, this);
-                validateAtLeastOneTestMethod(testClass, this);
-              }
-
-            };
-          }
-
-          private void validateAtLeastOneTestMethod(TestClass testClass, LinkedList<Exception> errors) {
-            if (testClass.getAnnotatedMethods(Test.class).isEmpty()) {
-              errors.add(new Exception("No runnable methods"));
-            }
-          }
-
-          private void validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Class<? extends Annotation> ann, TestClass testClass, List<Exception> errors) {
-            testClass.getAnnotatedMethods(ann)
-                .forEach(
-                    frameworkMethod -> Stream.of(frameworkMethod.getMethod().getParameterAnnotations())
-                        .forEach((Annotation[] annotations) -> Stream.of(annotations)
-                            .filter((Annotation annotation) -> annotation instanceof From)
-                            .forEach((Annotation annotation) -> {
-                              List<FrameworkMethod> methods = parameterSpaceDefinitionClass.getAnnotatedMethods(ParameterSource.class).stream()
-                                  .filter(
-                                      (FrameworkMethod each) ->
-                                          Objects.equals(each.getName(), From.class.cast(annotation).value()))
-                                  .collect(toList());
-                              if (methods.isEmpty())
-                                errors.add(new Exception(
-                                    format(
-                                        "A method '%s' annotated with '%s' is not defined in '%s'",
-                                        From.class.cast(annotation).value(),
-                                        ParameterSource.class.getSimpleName(),
-                                        parameterSpaceDefinitionClass.getJavaClass().getCanonicalName()
-                                    )));
-                            })));
-          }
-        }
-    };
   }
 
   private ConfigFactory getConfigFactory() {
@@ -182,13 +133,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return ret;
   }
 
-  static ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter> parameters, List<Constraint> constraints) {
-    return new ParameterSpace.Builder()
-        .addAllParameters(parameters)
-        .addAllConstraints(constraints)
-        .build();
-  }
-
   private List<Runner> createRunners() {
     AtomicInteger i = new AtomicInteger(0);
     return this.testSuite.stream()
@@ -204,55 +148,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
 
   private static String formatInitializationErrorMessage(InitializationError e) {
     return e.getCauses().stream().map(Throwable::getMessage).collect(Collectors.joining());
-  }
-
-  static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
-    return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter>() {
-      {
-        parameterSpaceDefinitionTestClass.getAnnotatedMethods(ParameterSource.class).forEach(
-            frameworkMethod -> put(frameworkMethod.getName(),
-                buildParameterFactoryCreatorFrom(frameworkMethod)
-                    .apply(Utils.createInstanceOf(parameterSpaceDefinitionTestClass))
-                    .create(frameworkMethod.getName())
-            ));
-      }
-    };
-  }
-
-  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
-    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenario);
-  }
-
-  private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
-    return (Object o) -> {
-      try {
-        return (Factory) method.invokeExplosively(o);
-      } catch (Throwable throwable) {
-        throw unexpectedByDesign(throwable);
-      }
-    };
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
-    return Stream.of(method.getMethod().getParameterAnnotations())
-        .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
-        .map(
-            (List<? extends Annotation> annotations) ->
-                (A) annotations.stream(
-
-                ).filter(
-                    (Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass())
-                ).findFirst(
-
-                ).orElseThrow(
-                    () -> parameterWithoutAnnotation(
-                        format(
-                            "%s.%s",
-                            method.getDeclaringClass().getCanonicalName(),
-                            method.getName()
-                        )))
-        ).collect(toList());
   }
 
   /**
@@ -380,7 +275,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     @Override
     protected Statement methodInvoker(final FrameworkMethod method, final Object test) {
       try {
-        return InternalUtils.createMethodInvoker(method, this, test);
+        return createMethodInvoker(method, this, test);
       } catch (Throwable throwable) {
         throw new Error(throwable);
       }

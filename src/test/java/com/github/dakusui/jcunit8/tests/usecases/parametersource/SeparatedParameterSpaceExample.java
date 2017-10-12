@@ -1,13 +1,13 @@
 package com.github.dakusui.jcunit8.tests.usecases.parametersource;
 
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
-@RunWith(JCUnit8.class)
+@RunWith(JCUnit8X.class)
 @ConfigureWith(parameterSpace = SeparatedParameterSource.class)
 public class SeparatedParameterSpaceExample {
   @Test

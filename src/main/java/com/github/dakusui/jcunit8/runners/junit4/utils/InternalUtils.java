@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.TestPredicate;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.ITestCaseRunner;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -13,18 +12,20 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
 import org.junit.*;
-import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
+import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -55,7 +56,7 @@ public enum InternalUtils {
     ).flatMap(
         annotationClass -> testClass.getAnnotatedMethods(annotationClass).stream()
     ).flatMap(
-        method -> JCUnit8.getParameterAnnotationsFrom(method, From.class).stream()
+        method -> getParameterAnnotationsFrom(method, From.class).stream()
     ).map(
         From.class::cast
     ).map(
@@ -66,22 +67,13 @@ public enum InternalUtils {
     );
   }
 
-  public static Statement createMethodInvoker(FrameworkMethod method, JCUnit8.TestCaseRunner testCaseRunner, Object test) throws Throwable {
-    return new InvokeMethod(method, test) {
-      @Override
-      public void evaluate() throws Throwable {
-        invokeExplosivelyWithArgumentsFromTestInput(method, testCaseRunner.getTestCase().getTestInput());
-      }
-    };
-  }
-
   public static Object invokeExplosivelyWithArgumentsFromTestInput(FrameworkMethod method, Tuple testInput) throws Throwable {
     return method.invokeExplosively(
         testInput.get("@ins"),
         validateArguments(
             method,
             method.getMethod().getParameterTypes(),
-            JCUnit8.getParameterAnnotationsFrom(method, From.class).stream()
+            getParameterAnnotationsFrom(method, From.class).stream()
                 .map(From::value)
                 .map(testInput::get)
                 .collect(toList())
@@ -244,7 +236,7 @@ public enum InternalUtils {
 
           @Override
           public String toString() {
-            return String.format("then%sThrown", method.getAnnotation(Test.class).expected().getSimpleName());
+            return String.format("thrown%s", method.getAnnotation(Test.class).expected().getSimpleName());
           }
         };
       }
@@ -263,5 +255,27 @@ public enum InternalUtils {
           tuple
       );
     };
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
+    return Stream.of(method.getMethod().getParameterAnnotations())
+        .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
+        .map(
+            (List<? extends Annotation> annotations) ->
+                (A) annotations.stream(
+
+                ).filter(
+                    (Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass())
+                ).findFirst(
+
+                ).orElseThrow(
+                    () -> parameterWithoutAnnotation(
+                        format(
+                            "%s.%s",
+                            method.getDeclaringClass().getCanonicalName(),
+                            method.getName()
+                        )))
+        ).collect(toList());
   }
 }

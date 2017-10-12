@@ -85,7 +85,7 @@ public class JUnit4RunnerTest {
   @Test
   public void whenRunAllMethodsForAnyTestCase$thenAllMethodsAreExecutedForAllTestCases() {
     assertThat(
-        new JUnit4Runner.Builder(QuadraticEquationExample.class).allTestCases().allTestCases().build().run(),
+        new JUnit4Runner.Builder(QuadraticEquationExample.class).allTestCases().build().run(),
         allOf(
             asBoolean(funcWasSuccessful()).isTrue().$(),
             asInteger(funcGetRunCount()).eq(92).$()

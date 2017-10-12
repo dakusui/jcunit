@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.examples.pict;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
@@ -30,7 +30,7 @@ import java.util.Objects;
  * JCUnit does in less than 2 hours.
  */
 @SuppressWarnings("SimplifiableIfStatement")
-@RunWith(JCUnit8.class)
+@RunWith(JCUnit8X.class)
 public class Issue13 {
   /**
    * Eingangskanal:

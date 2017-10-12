@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit8.examples.executionsequence;
 
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import org.junit.*;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 
-@RunWith(JCUnit8.class)
+@RunWith(JCUnit8X.class)
 @ConfigureWith(parameterSpace = ExampleParameterSpace.class)
 public class Example {
   public Example() {

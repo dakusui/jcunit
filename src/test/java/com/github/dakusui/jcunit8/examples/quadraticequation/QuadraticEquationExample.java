@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit8.examples.quadraticequation;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8X;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;

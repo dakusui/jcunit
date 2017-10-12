@@ -2,17 +2,20 @@ package com.github.dakusui.jcunit8.runners.junit4;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.pipeline.Config;
+import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
-import com.github.dakusui.jcunit8.testsuite.TestCase;
-import com.github.dakusui.jcunit8.testsuite.TestOracle;
-import com.github.dakusui.jcunit8.testsuite.TestSuite;
-import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
+import com.github.dakusui.jcunit8.testsuite.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
@@ -21,19 +24,21 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
+import org.junit.validator.AnnotationsValidator;
+import org.junit.validator.PublicClassValidator;
 import org.junit.validator.TestClassValidator;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
+import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
@@ -53,6 +58,92 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
         createParameterSpaceDefinitionTestClass(),
         getConfigFactory()
     ));
+  }
+
+  static TestClassValidator[] createValidatorsFor(TestClass parameterSpaceDefinitionClass) {
+    return new TestClassValidator[] {
+        new AnnotationsValidator(),
+        new PublicClassValidator(),
+        new TestClassValidator() {
+          @Override
+          public List<Exception> validateTestClass(TestClass testClass) {
+            return new LinkedList<Exception>() {
+              {
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(BeforeTestCase.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Before.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Test.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(After.class, testClass, this);
+                validateFromAnnotationsAreReferencingExistingParameterSourceMethods(AfterTestCase.class, testClass, this);
+                validateAtLeastOneTestMethod(testClass, this);
+              }
+
+            };
+          }
+
+          private void validateAtLeastOneTestMethod(TestClass testClass, LinkedList<Exception> errors) {
+            if (testClass.getAnnotatedMethods(Test.class).isEmpty()) {
+              errors.add(new Exception("No runnable methods"));
+            }
+          }
+
+          private void validateFromAnnotationsAreReferencingExistingParameterSourceMethods(Class<? extends Annotation> ann, TestClass testClass, List<Exception> errors) {
+            testClass.getAnnotatedMethods(ann)
+                .forEach(
+                    frameworkMethod -> Stream.of(frameworkMethod.getMethod().getParameterAnnotations())
+                        .forEach((Annotation[] annotations) -> Stream.of(annotations)
+                            .filter((Annotation annotation) -> annotation instanceof From)
+                            .forEach((Annotation annotation) -> {
+                              List<FrameworkMethod> methods = parameterSpaceDefinitionClass.getAnnotatedMethods(ParameterSource.class).stream()
+                                  .filter(
+                                      (FrameworkMethod each) ->
+                                          Objects.equals(each.getName(), From.class.cast(annotation).value()))
+                                  .collect(toList());
+                              if (methods.isEmpty())
+                                errors.add(new Exception(
+                                    format(
+                                        "A method '%s' annotated with '%s' is not defined in '%s'",
+                                        From.class.cast(annotation).value(),
+                                        ParameterSource.class.getSimpleName(),
+                                        parameterSpaceDefinitionClass.getJavaClass().getCanonicalName()
+                                    )));
+                            })));
+          }
+        }
+    };
+  }
+
+  static ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter> parameters, List<Constraint> constraints) {
+    return new ParameterSpace.Builder()
+        .addAllParameters(parameters)
+        .addAllConstraints(constraints)
+        .build();
+  }
+
+  static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
+    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenario);
+  }
+
+  static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
+    return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter>() {
+      {
+        parameterSpaceDefinitionTestClass.getAnnotatedMethods(ParameterSource.class).forEach(
+            frameworkMethod -> put(frameworkMethod.getName(),
+                buildParameterFactoryCreatorFrom(frameworkMethod)
+                    .apply(Utils.createInstanceOf(parameterSpaceDefinitionTestClass))
+                    .create(frameworkMethod.getName())
+            ));
+      }
+    };
+  }
+
+  private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
+    return (Object o) -> {
+      try {
+        return (com.github.dakusui.jcunit8.factorspace.Parameter.Factory) method.invokeExplosively(o);
+      } catch (Throwable throwable) {
+        throw unexpectedByDesign(throwable);
+      }
+    };
   }
 
   /**
@@ -101,11 +192,11 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
       ConfigFactory configFactory
   ) {
     Collection<String> involvedParameterNames = InternalUtils.involvedParameters(testClass);
-    return JCUnit8.buildTestSuite(
+    return buildTestSuite(
         configFactory.create(),
-        JCUnit8.buildParameterSpace(
+        buildParameterSpace(
             new ArrayList<>(
-                JCUnit8.buildParameterMap(parameterSpaceDefinitionTestClass).values()
+                buildParameterMap(parameterSpaceDefinitionTestClass).values()
             ).stream(
             ).filter(
                 parameter -> involvedParameterNames.contains(parameter.getName())
@@ -139,7 +230,7 @@ public class JCUnit8X extends org.junit.runners.Parameterized {
 
   private void applyValidators(List<Throwable> errors) {
     if (getTestClass().getJavaClass() != null) {
-      for (TestClassValidator each : JCUnit8.createValidatorsFor(createParameterSpaceDefinitionTestClass())) {
+      for (TestClassValidator each : createValidatorsFor(createParameterSpaceDefinitionTestClass())) {
         errors.addAll(each.validateTestClass(getTestClass()));
       }
     }
