@@ -179,45 +179,61 @@ public class ValidationTest {
 
   @Test
   public void typeCompatibilityTest2() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(IncompatibleParameters.CompatibleNullValue.class),
-        matcher(
-            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==true", v -> v),
-            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1)
+        allOf(
+            asBoolean(function(
+                "wasSuccessful", Result::wasSuccessful
+            )).isTrue().$(),
+            asInteger(function(
+                "getRunCount", Result::getRunCount
+            )).equalTo(1).$()
         )
     );
   }
 
   @Test
   public void typeCompatibilityTest3() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(IncompatibleParameters.IncompatiblePrimitiveType.class),
-        matcher(
-            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
-            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getMessage()",
-                result -> result.getFailures().get(0).getMessage(),
-                "'1' is not compatible with parameter 0 of 'testMethod(boolean)'",
-                v -> v.equals("'1' is not compatible with parameter 0 of 'testMethod(boolean)'")
-            )
+        allOf(
+            asBoolean(
+                function("wasSuccessful", Result::wasSuccessful)
+            ).isFalse(
+            ).$(),
+            asInteger(
+                function("getRunCount", Result::getRunCount)
+            ).equalTo(
+                1
+            ).$(),
+            asString(
+                function("getFailures().getTestInput(0).getMessage()", (Result result) -> result.getFailures().get(0).getMessage())
+            ).equalTo(
+                "'1' is not compatible with parameter 0 of 'testMethod(boolean)'"
+            ).$()
         )
     );
   }
 
   @Test
   public void typeCompatibilityTest4() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(IncompatibleParameters.IncompatibleNullValue.class),
-        matcher(
-            oracle("{x}.wasSuccessful()", Result::wasSuccessful, "==false", v -> !v),
-            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getMessage()",
-                result -> result.getFailures().get(0).getMessage(),
-                "'null' is not compatible with parameter 0 of 'testMethod(int)'",
-                v -> v.equals("'null' is not compatible with parameter 0 of 'testMethod(int)'")
-            )
+        allOf(
+            asBoolean(
+                function("wasSuccessful", Result::wasSuccessful)
+            ).isFalse(
+            ).$(),
+            asInteger(
+                function("getRunCount", Result::getRunCount)
+            ).equalTo(
+                1
+            ).$(),
+            asString(
+                function("getFailures().getTestInput(0).getMessage()", (Result result) -> result.getFailures().get(0).getMessage())
+            ).equalTo(
+                "'null' is not compatible with parameter 0 of 'testMethod(int)'"
+            ).$()
         )
     );
   }

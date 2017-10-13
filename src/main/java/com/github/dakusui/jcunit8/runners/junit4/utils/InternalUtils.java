@@ -201,9 +201,23 @@ public enum InternalUtils {
           @Override
           public boolean test(Result result) {
             Class<? extends Throwable> expectedExceptionClass = method.getAnnotation(Test.class).expected();
-            return expectedExceptionClass.equals(Test.None.class) ?
-                Objects.equals(result.exitedWith(), Result.Exit.RETURNING_VALUE) :
-                expectedExceptionClass.isAssignableFrom(result.value());
+            if (expectedExceptionClass.equals(Test.None.class)) {
+              if (Objects.equals(result.exitedWith(), Result.Exit.RETURNING_VALUE))
+                return true;
+              if (result.value() instanceof Error)
+                throw (Error) result.value();
+              if (result.value() instanceof RuntimeException)
+                throw (RuntimeException) result.value();
+              return false;
+            } else {
+              if (expectedExceptionClass.isAssignableFrom(result.value()))
+                return true;
+              if (result.value() instanceof Error)
+                throw (Error) result.value();
+              if (result.value() instanceof RuntimeException)
+                throw (RuntimeException) result.value();
+              return false;
+            }
           }
 
           @Override

@@ -73,7 +73,7 @@ public interface TestOracle extends TupleConsumer {
   interface Assertion {
     default <V> void assertThat(V value, Predicate<V> check) {
       if (!check.test(value))
-        throw new AssertionError(String.format("%s did not satisfy %s", value, check));
+        throw new AssertionError(String.format("%s did not satisfy '%s'", value, check));
     }
   }
 
