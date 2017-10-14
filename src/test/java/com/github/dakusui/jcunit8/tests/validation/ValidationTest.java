@@ -15,13 +15,29 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
-import static com.github.dakusui.crest.Crest.*;
+import java.util.function.Function;
+
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asBoolean;
+import static com.github.dakusui.crest.Crest.asInteger;
+import static com.github.dakusui.crest.Crest.asObject;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.core.Printable.function;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.oracle;
 import static org.junit.Assert.assertThat;
 
 public class ValidationTest {
+  private static Function<Result, String> exceptionMessage(int i) {
+    return function(
+        String.format("exceptionMessage[%d]", i),
+        (Result result) -> result.getFailures().get(i).getMessage()
+    );
+  }
+
+  private static final Function<Result, String> FIRST_EXCEPTION_MESSAGE = exceptionMessage(0);
+
   @Test
   public void givenUndefinedParameterReferenced$whenRunTestClass$thenAppropriateExceptionThrown() {
     ResultUtils.validateJUnitResult(
@@ -35,6 +51,11 @@ public class ValidationTest {
                     failure.getMessage().contains(UndefinedParameterReferenced.class.getSimpleName())))
         )
     );
+    assertThat(
+        JUnitCore.runClasses(UndefinedParameterReferenced.class),
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$()
+        ));
   }
 
   @Test
@@ -57,16 +78,15 @@ public class ValidationTest {
 
   @Test
   public void givenInvalidParameterSourceMethods$whenRunTestClass$thenAppropriateExceptionThrown() {
-    ResultUtils.validateJUnitResult(
+    assertThat(
         JUnitCore.runClasses(InvalidParameterSourceMethods.class),
-        UTUtils.matcherFromPredicates(
-            oracle("not successful", result -> !result.wasSuccessful()),
-            oracle("3 failures", result -> result.getFailureCount() == 3),
-            oracle("1st failure", result -> result.getFailures().get(0).getMessage().contains("'a' must not have any parameter")),
-            oracle("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'b' must be public")),
-            oracle("3rd failure", result -> result.getFailures().get(2).getMessage().contains("'c' must not be static "))
-        )
-    );
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$(),
+            asInteger("getFailureCount").equalTo(3).$(),
+            asString(exceptionMessage(0)).containsString("'a' must not have any parameter").$(),
+            asString(exceptionMessage(1)).containsString("'b' must be public").$(),
+            asString(exceptionMessage(2)).containsString("'c' must not be static ").$()
+        ));
   }
 
   @Test
@@ -99,58 +119,57 @@ public class ValidationTest {
 
   @Test
   public void givenInvalidConditions$whenRunTestClass$thenAppropriateExceptionThrown() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(InvalidConditionMethods.class),
-        UTUtils.matcherFromPredicates(
-            oracle("not successful", result -> !result.wasSuccessful()),
-            oracle("3 runs", result -> result.getRunCount() == 3),
-            oracle("3 failures", result -> result.getFailureCount() == 3),
-            oracle("1st failure", result -> result.getFailures().get(0).getMessage().contains("'nonPublic' must be public")),
-            oracle("2nd failure", result -> result.getFailures().get(1).getMessage().contains("'staticMethod' must not be static")),
-            oracle("3rd failure", result -> result.getFailures().get(2).getMessage().contains("'wrongType' must return"))
-        )
-    );
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$(),
+            asInteger("getRunCount").equalTo(3).$(),
+            asInteger("getFailureCount").equalTo(3).$(),
+            asString(function(
+                "1st failure", (Result result) -> result.getFailures().get(0).getMessage()
+            )).containsString("'nonPublic' must be public").$(),
+            asString(function(
+                "2nd failure", (Result result) -> result.getFailures().get(1).getMessage()
+            )).containsString("'staticMethod' must not be static").$(),
+            asString(function(
+                "3rd failure", (Result result) -> result.getFailures().get(2).getMessage()
+            )).containsString("'wrongType' must return").$()
+        ));
   }
 
   @Test
   public void givenNonAnnotatedParameterInTestMethod$whenRunTest$thenAppropriateExceptionIsThrown() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(ParameterWithoutFromAnnotation.class),
-        matcher(
-            oracle(
-                "{x} is not successful", result -> !result.wasSuccessful()),
-            oracle(
-                "{x}.getFailures().size()",
-                result -> result.getFailures().size(),
-                "==1",
-                v -> v == 1
-            ),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getException()",
-                result -> result.getFailures().get(0).getException(),
-                "",
-                throwable -> throwable instanceof TestDefinitionException
-            ),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getMessage()",
-                result -> result.getFailures().get(0).getMessage(),
-                "containing '@From' and 'testMethod'",
-                v -> v.contains("@From") && v.contains("testMethod")
-            )
-        )
-    );
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$(),
+            asInteger("getFailureCount").equalTo(1).$(),
+            asObject(function(
+                "firstException",
+                (Result result) -> result.getFailures().get(0).getException()
+            )).isInstanceOf(
+                TestDefinitionException.class
+            ).$(),
+            asString(FIRST_EXCEPTION_MESSAGE).containsString(
+                "@From"
+            ).$(),
+            asString(FIRST_EXCEPTION_MESSAGE).containsString(
+                "testMethod"
+            ).$()
+
+        ));
   }
 
   @Test
   public void givenNoParameterTestClass$whenRunTest$thenTestDefinitionExceptionThrown() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(NoParameter.class),
-        matcher(
-            oracle("!{x}.wasSuccessful()", result -> !result.wasSuccessful()),
-            oracle("{x}.getFailures().getTestInput(0).getMessage()", result -> result.getFailures().get(0).getMessage(),
-                "containing 'No parameter'", message -> message.contains("No parameter is found"))
-        )
-    );
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$(),
+            asString(function(
+                "firstExceptionMessage", (Result result) -> result.getFailures().get(0).getMessage()
+            )).containsString("No parameter is found").$()
+        ));
   }
 
 
@@ -206,9 +225,7 @@ public class ValidationTest {
             ).equalTo(
                 1
             ).$(),
-            asString(
-                function("getFailures().getTestInput(0).getMessage()", (Result result) -> result.getFailures().get(0).getMessage())
-            ).equalTo(
+            asString(FIRST_EXCEPTION_MESSAGE).equalTo(
                 "'1' is not compatible with parameter 0 of 'testMethod(boolean)'"
             ).$()
         )
@@ -249,59 +266,50 @@ public class ValidationTest {
 
   @Test
   public void missingParameterInSeed() {
-    ResultUtils.validateJUnitResult(
-        JUnitCore.runClasses(
-            MissingParameter.class
-        ),
-        matcher(
-            oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
-            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getMessage()",
-                result -> result.getFailures().get(0).getMessage(),
-                "contains'Parameter(s) were not found: [parameter2] in tuple: {parameter1=hello}'",
-                v -> v.contains("Parameter(s) were not found: [parameter2] in tuple: {parameter1=hello}")
-            )
-        )
-    );
+    Crest.assertThat(
+        JUnitCore.runClasses(MissingParameter.class),
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$(),
+            asInteger("getRunCount").equalTo(1).$(),
+            asString(
+                FIRST_EXCEPTION_MESSAGE
+            ).containsString(
+                "Parameter(s) were not found: [parameter2] in tuple: {parameter1=hello}"
+            ).$()
+        ));
   }
-
 
   @Test
   public void unknownParameterInSeed() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(
             UnknownParameter.class
         ),
-        matcher(
-            oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
-            oracle("{x}.getRunCount()", Result::getRunCount, "==1", v -> v == 1),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getMessage()",
-                result -> result.getFailures().get(0).getMessage(),
-                "contains'[unknownParameter] in tuple: {parameter1=hello, parameter2=hello, unknownParameter=hello}'",
-                v -> v.contains("[unknownParameter] in tuple: {parameter1=hello, parameter2=hello, unknownParameter=hello}")
-            )
-        )
-    );
-
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$(),
+            asInteger("getRunCount").equalTo(1).$(),
+            asString(
+                FIRST_EXCEPTION_MESSAGE
+            ).containsString(
+                "[unknownParameter] in tuple: {parameter1=hello, parameter2=hello, unknownParameter=hello}"
+            ).$()
+        ));
   }
 
   @Test
   public void typeMismatchInSeed() {
-    ResultUtils.validateJUnitResult(
+    Crest.assertThat(
         JUnitCore.runClasses(
             TypeMismatch.class
         ),
-        matcher(
-            oracle("{x}.wasSuccessful", Result::wasSuccessful, "==false", v -> !v),
-            oracle("{x}.getRunCount()", Result::getRunCount, "==5", v -> v == 5),
-            oracle(
-                "{x}.getFailures().getTestInput(0).getMessage()",
-                result -> result.getFailures().get(0).getMessage(),
-                "contains'is not compatible with parameter 1 of 'test(String,String)''",
-                v -> v.contains("is not compatible with parameter 1 of 'test(String,String)'")
-            )
+        allOf(
+            asBoolean("wasSuccessful").isFalse().$(),
+            asInteger("getRunCount").equalTo(5).$(),
+            asString(
+                FIRST_EXCEPTION_MESSAGE
+            ).containsString(
+                "is not compatible with parameter 1 of 'test(String,String)'"
+            ).$()
         )
     );
   }
