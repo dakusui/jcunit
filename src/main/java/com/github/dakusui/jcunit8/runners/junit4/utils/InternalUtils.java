@@ -210,13 +210,7 @@ public enum InternalUtils {
                 throw (RuntimeException) result.value();
               return false;
             } else {
-              if (expectedExceptionClass.isAssignableFrom(result.value()))
-                return true;
-              if (result.value() instanceof Error)
-                throw (Error) result.value();
-              if (result.value() instanceof RuntimeException)
-                throw (RuntimeException) result.value();
-              return false;
+              return expectedExceptionClass.isAssignableFrom(result.value());
             }
           }
 
