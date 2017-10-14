@@ -17,8 +17,8 @@ import java.util.function.Function;
 
 import static com.github.dakusui.crest.Crest.asListOf;
 import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.functions.CrestFunctions.size;
-import static com.github.dakusui.crest.functions.CrestPredicates.equalTo;
+import static com.github.dakusui.faultsource.printable.Functions.size;
+import static com.github.dakusui.faultsource.printable.Predicates.equalTo;
 
 public class JCUnit8Test {
   @Test

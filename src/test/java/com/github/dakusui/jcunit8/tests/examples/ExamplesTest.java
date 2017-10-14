@@ -10,7 +10,7 @@ import com.github.dakusui.jcunit8.examples.parameterizedconstraint.Parameterized
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
 import com.github.dakusui.jcunit8.examples.seed.BankAccountExampleWithSeeds;
 import com.github.dakusui.jcunit8.examples.seed.QuadraticEquationExampleWithSeeds;
-import com.github.dakusui.jcunit8.testutils.ResultUtils;
+import com.github.dakusui.jcunit8.testutils.JUnit4TestUtils;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -118,8 +118,8 @@ public class ExamplesTest {
     assertThat(
         JUnitCore.runClasses(UnusedParameter.class),
         allOf(
-            asBoolean(ResultUtils.funcWasSuccessful()).isTrue().$(),
-            asInteger(ResultUtils.funcGetRunCount()).eq(2).$()
+            asBoolean(JUnit4TestUtils.funcWasSuccessful()).isTrue().$(),
+            asInteger(JUnit4TestUtils.funcGetRunCount()).eq(2).$()
         )
     );
   }
@@ -129,10 +129,10 @@ public class ExamplesTest {
     assertThat(
         JUnitCore.runClasses(ParameterizedConstraintExample.class),
         allOf(
-            asBoolean(ResultUtils.funcWasSuccessful()).isTrue().$(),
-            asInteger(ResultUtils.funcGetRunCount()).eq(2).$(),
-            asInteger(ResultUtils.funcGetIgnoreCount()).eq(8).$(),
-            asInteger(ResultUtils.funcGetFailureCount()).eq(0).$()
+            asBoolean(JUnit4TestUtils.funcWasSuccessful()).isTrue().$(),
+            asInteger(JUnit4TestUtils.funcGetRunCount()).eq(2).$(),
+            asInteger(JUnit4TestUtils.funcGetIgnoreCount()).eq(8).$(),
+            asInteger(JUnit4TestUtils.funcGetFailureCount()).eq(0).$()
         )
     );
   }

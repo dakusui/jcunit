@@ -7,8 +7,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.jcunit8.testutils.ResultUtils.funcGetRunCount;
-import static com.github.dakusui.jcunit8.testutils.ResultUtils.funcWasSuccessful;
+import static com.github.dakusui.jcunit8.testutils.JUnit4TestUtils.funcGetRunCount;
+import static com.github.dakusui.jcunit8.testutils.JUnit4TestUtils.funcWasSuccessful;
 
 public class JUnit4RunnerTest {
   @BeforeClass
