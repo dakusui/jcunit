@@ -297,11 +297,12 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     protected void runChild(TestOracle child, RunNotifier notifier) {
       Description description = describeChild(child);
 
-      Tuple testInput = composeTestInput(this.testSuite.get(this.id).getTestInput());
-      if (!child.shouldInvoke().test(testInput)) {
-        notifier.fireTestIgnored(description);
-      } else {
+      TestCase testCase = this.testSuite.get(this.id);
+      Tuple testInput = composeTestInput(testCase.getTestInput());
+      if (child.shouldInvoke().test(testInput)) {
         runLeaf(oracleBlock(child, testInput), description, notifier);
+      } else {
+        notifier.fireTestIgnored(description);
       }
     }
 
