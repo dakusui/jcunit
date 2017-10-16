@@ -37,25 +37,24 @@ public interface TestSuite extends List<TestCase> {
     }
 
     public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.SEED, each, testScenario)).forEach(testCases::add);
+      collection.stream().map(each -> toTestCase(TestCase.Category.SEED, each)).forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToRegularTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each, testScenario)).forEach(testCases::add);
+      collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each)).forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToNegativeTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each, testScenario)).forEach(testCases::add);
+      collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each)).forEach(testCases::add);
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple, TestScenario testScenario) {
+    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple) {
       Tuple tuple = TupleUtils.copy(testCaseTuple);
       return category.createTestCase(
           tuple,
-          testScenario,
           this.parameterSpace.getConstraints().stream()
               .filter((Constraint constraint) -> !constraint.test(tuple))
               .collect(Collectors.toList()));

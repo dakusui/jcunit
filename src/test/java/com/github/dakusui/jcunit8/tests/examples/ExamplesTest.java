@@ -108,7 +108,7 @@ public class ExamplesTest {
         JUnitCore.runClasses(BeforeAfter.class),
         allOf(
             asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(16).$()
+            asInteger("getRunCount").equalTo(11).$()
         )
     );
   }

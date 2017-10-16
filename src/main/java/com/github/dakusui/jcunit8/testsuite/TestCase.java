@@ -11,7 +11,7 @@ public interface TestCase {
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple testInput, TestScenario testScenario, List<Constraint> violatedConstraints) {
+    TestCase createTestCase(Tuple testInput, List<Constraint> violatedConstraints) {
       return new TestCase() {
         @Override
         public Tuple getTestInput() {
@@ -29,11 +29,6 @@ public interface TestCase {
         }
 
         @Override
-        public TestScenario scenario() {
-          return testScenario;
-        }
-
-        @Override
         public String toString() {
           return String.format("%s:%s:%s", this.getCategory(), this.getTestInput(), violatedConstraints);
         }
@@ -47,6 +42,4 @@ public interface TestCase {
   Category getCategory();
 
   List<Constraint> violatedConstraints();
-
-  TestScenario scenario();
 }
