@@ -1,26 +1,24 @@
-package com.github.dakusui.jcunit8.examples.executionsequence;
+package com.github.dakusui.jcunit8.sandbox;
 
+import com.github.dakusui.jcunit8.examples.executionsequence.ExampleParameterSpace;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
+import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit8.class)
 @ConfigureWith(parameterSpace = ExampleParameterSpace.class)
-public class Example {
-  public Example() {
-    System.out.println("<<init>>");
-  }
-
+public class JCUnit8Example {
   @Condition
   public boolean aIsGreaterThanOrEqualTo$b(@From("a") int a, @From("b") int b) {
     return a >= b;
   }
 
   @BeforeClass
-  public static void beforeClass() {
-    System.out.println("beforeClass");
+  public static void beforeClass(@From("@suite") TestSuite testSuite) {
+    System.out.println("beforeClass:size=" + testSuite.size());
   }
 
   @BeforeTestCase
@@ -55,11 +53,11 @@ public class Example {
   }
 
   @AfterClass
-  public static void afterClass() {
-    System.out.println("afterClass");
+  public static void afterClass(@From("@suite") TestSuite suite) {
+    System.out.println("afterClass:suite=" + suite);
   }
 
   public static void main(String... args) {
-    new JUnitCore().run(Example.class);
+    new JUnitCore().run(JCUnit8Example.class);
   }
 }

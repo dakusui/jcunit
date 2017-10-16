@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
-import com.github.dakusui.crest.functions.CrestFunctions;
+import com.github.dakusui.faultsource.printable.Functions;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,9 +9,7 @@ import org.junit.runner.JUnitCore;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
 
 /*
  * Seed feature test.
@@ -66,7 +64,7 @@ public class SeedTest {
     assertThat(
         generateTestCasesByRunningTestClass(SeedFeatureTestBase.T00.class),
         allOf(
-            asInteger(CrestFunctions.size()).equalTo(4).$()
+            asInteger(Functions.size()).equalTo(4).$()
         )
     );
   }
@@ -76,7 +74,7 @@ public class SeedTest {
     assertThat(
         generateTestCasesByRunningTestClass(SeedFeatureTestBase.T01.class),
         allOf(
-            asInteger(CrestFunctions.size()).equalTo(4).$()
+            asInteger(Functions.size()).equalTo(4).$()
         )
     );
   }
@@ -86,7 +84,7 @@ public class SeedTest {
     assertThat(
         generateTestCasesByRunningTestClass(SeedFeatureTestBase.T02.class),
         allOf(
-            asInteger(CrestFunctions.size()).equalTo(5).$()
+            asInteger(Functions.size()).equalTo(5).$()
         )
     );
   }
@@ -96,7 +94,7 @@ public class SeedTest {
     assertThat(
         generateTestCasesByRunningTestClass(SeedFeatureTestBase.T03.class),
         allOf(
-            asInteger(CrestFunctions.size()).equalTo(5).$()
+            asInteger(Functions.size()).equalTo(5).$()
         )
     );
   }
@@ -106,7 +104,7 @@ public class SeedTest {
     assertThat(
         generateTestCasesByRunningTestClass(SeedFeatureTestBase.T04.class),
         allOf(
-            asInteger(CrestFunctions.size()).equalTo(5).$()
+            asInteger(Functions.size()).equalTo(5).$()
         )
     );
   }
@@ -116,7 +114,7 @@ public class SeedTest {
     assertThat(
         generateTestCasesByRunningTestClass(SeedFeatureTestBase.T05.class),
         allOf(
-            asInteger(CrestFunctions.size()).equalTo(5).$()
+            asInteger(Functions.size()).equalTo(5).$()
         )
     );
   }

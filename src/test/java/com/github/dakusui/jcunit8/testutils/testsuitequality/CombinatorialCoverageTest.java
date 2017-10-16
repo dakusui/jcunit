@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
 import com.github.dakusui.crest.core.Printable;
+import com.github.dakusui.faultsource.printable.Predicates;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
@@ -13,7 +14,6 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.crest.functions.CrestPredicates.isEmpty;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.*;
 import static java.util.stream.Collectors.toList;
 
@@ -116,7 +116,7 @@ public class CombinatorialCoverageTest {
                     (TestSuite suite) -> CoveringArrayGenerationUtils.coveredTuples(
                         strength,
                         suite.stream().map(
-                            TestCase::get
+                            TestCase::getTestInput
                         ).collect(
                             toList()
                         )
@@ -139,13 +139,13 @@ public class CombinatorialCoverageTest {
                 Printable.function(
                     "toTuple",
                     (TestSuite suite) -> suite.stream().map(
-                        TestCase::get
+                        TestCase::getTestInput
                     ).collect(
                         toList()
                     )
                 )
             ).check(
-                isEmpty().negate()
+                Predicates.isEmpty().negate()
             ).allMatch(
                 Printable.predicate(
                     "areAllValid",

@@ -3,10 +3,8 @@ package com.github.dakusui.jcunit8.examples.beforesandafters;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
+import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -42,6 +40,11 @@ public class BeforeAfter {
     return ParameterUtils.simple("F1", "F2");
   }
 
+  @Condition
+  public boolean aIsA2(@From(("a"))String a ) {
+    return "A2".equals(a);
+  }
+
   @BeforeClass
   public static void beforeClass() {
     System.out.println("beforeClass");
@@ -63,6 +66,7 @@ public class BeforeAfter {
   }
 
   @Test
+  @Given("aIsA2")
   public void test2(@From("d") String d) {
     System.out.println("      test2:" + d);
   }
@@ -78,7 +82,28 @@ public class BeforeAfter {
   }
 
   @AfterClass
-  public static void afterClass() {
-    System.out.println("afterClass");
+  public static void afterClass(@From("@suite") TestSuite suite) {
+    System.out.println("afterClass:[");
+    System.out.print("  ");
+    suite.getScenario().oracles().forEach(
+        testOracle -> System.out.printf(
+            "%-20s",
+            testOracle.getName()
+        )
+    );
+    System.out.println();
+    suite.forEach(
+        testCase -> {
+          System.out.print("  ");
+          suite.getScenario().oracles().forEach(
+              testOracle -> System.out.printf(
+                  "%-20s",
+                  testOracle.shouldInvoke().test(testCase.getTestInput())
+              )
+          );
+          System.out.println();
+        }
+    );
+    System.out.println("]");
   }
 }
