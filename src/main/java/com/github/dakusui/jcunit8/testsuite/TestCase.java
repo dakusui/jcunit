@@ -11,11 +11,11 @@ public interface TestCase {
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple testInput, List<Constraint> violatedConstraints) {
+    TestCase createTestCase(Tuple test, List<Constraint> violatedConstraints) {
       return new TestCase() {
         @Override
-        public Tuple getTestInput() {
-          return testInput;
+        public Tuple get() {
+          return test;
         }
 
         @Override
@@ -30,14 +30,14 @@ public interface TestCase {
 
         @Override
         public String toString() {
-          return String.format("%s:%s:%s", this.getCategory(), this.getTestInput(), violatedConstraints);
+          return String.format("%s:%s:%s", this.getCategory(), this.get(), violatedConstraints);
         }
       };
     }
 
   }
 
-  Tuple getTestInput();
+  Tuple get();
 
   Category getCategory();
 

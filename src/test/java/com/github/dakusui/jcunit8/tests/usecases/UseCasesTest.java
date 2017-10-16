@@ -2,20 +2,20 @@ package com.github.dakusui.jcunit8.tests.usecases;
 
 
 import com.github.dakusui.jcunit8.tests.usecases.parametersource.SeparatedParameterSpaceExample;
+import com.github.dakusui.jcunit8.testutils.ResultUtils;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
-
-import static com.github.dakusui.crest.Crest.*;
+import org.junit.runner.Result;
 
 public class UseCasesTest {
   @Test
   public void separatedParameterSpace() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(SeparatedParameterSpaceExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(3).$()
-        )
-    );
+        UTUtils.matcherFromPredicates(
+            Result::wasSuccessful,
+            result -> result.getRunCount() == 3
+        ));
   }
 }

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import org.junit.runner.JUnitCore;
+import org.hamcrest.Matcher;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
@@ -9,12 +9,17 @@ import java.util.function.Function;
 
 import static com.github.dakusui.crest.core.Printable.function;
 import static java.lang.String.format;
+import static org.junit.Assert.assertThat;
 
-public enum JUnit4TestUtils {
+public enum ResultUtils {
   ;
 
-  public static Result runClasses(Class<?>... classes) {
-    return makePrintable(JUnitCore.runClasses(classes));
+  public static void validateJUnitResult(Result result, Matcher<Result> matcher) {
+    System.out.println(toString(result));
+    assertThat(
+        makePrintable(result),
+        matcher
+    );
   }
 
   private static String toString(Result result) {
@@ -61,7 +66,7 @@ public enum JUnit4TestUtils {
 
       @Override
       public String toString() {
-        return JUnit4TestUtils.toString(this);
+        return ResultUtils.toString(this);
       }
 
     };

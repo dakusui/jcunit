@@ -24,16 +24,12 @@ public interface TestSuite extends List<TestCase> {
    */
   ParameterSpace getParameterSpace();
 
-  TestScenario getScenario();
-
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
-    private final TestScenario testScenario;
 
-    public Builder(ParameterSpace parameterSpace, TestScenario testScenario) {
+    public Builder(ParameterSpace parameterSpace) {
       this.parameterSpace = requireNonNull(parameterSpace);
-      this.testScenario = testScenario;
     }
 
     public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
@@ -64,13 +60,12 @@ public interface TestSuite extends List<TestCase> {
       class Impl extends AbstractList<TestCase> implements TestSuite {
         private final List<TestCase> testCases;
 
-        private Impl(
-        ) {
+        private Impl() {
           this.testCases = new ArrayList<TestCase>(Builder.this.testCases.size()) {{
             Builder.this.testCases.stream(
             ).filter(
                 testCase -> stream().noneMatch(
-                    registered -> registered.getTestInput().equals(testCase.getTestInput())
+                    registered -> registered.get().equals(testCase.get())
                 )
             ).forEach(
                 this::add
@@ -91,11 +86,6 @@ public interface TestSuite extends List<TestCase> {
         @Override
         public ParameterSpace getParameterSpace() {
           return parameterSpace;
-        }
-
-        @Override
-        public TestScenario getScenario() {
-          return testScenario;
         }
       }
       return new Impl();

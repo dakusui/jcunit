@@ -15,10 +15,24 @@ public class QuadraticEquationExampleWithSeeds extends QuadraticEquationExample 
           true
       ).addSeed(
           // Positive test
-          Tuple.builder().put("a", 1).put("b", -2).put("c", 1).build()
+          new Tuple.Builder(
+          ).put(
+              "a", 1
+          ).put(
+              "b", -2
+          ).put(
+              "c", 1
+          ).build()
       ).addSeed(
           // Negative test
-          Tuple.builder().put("a", 1).put("b", 1).put("c", 1).build()
+          new Tuple.Builder(
+          ).put(
+              "a", 1
+          ).put(
+              "b", 1
+          ).put(
+              "c", 1
+          ).build()
       ).build();
     }
   }

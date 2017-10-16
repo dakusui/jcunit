@@ -104,7 +104,7 @@ public class ParserTest extends PipelineTestBase {
       generatedStringsFromRegex.add(
           StringUtils.join(
               "",
-              (List) each.getTestInput().get("input")
+              (List) each.get().get("input")
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());

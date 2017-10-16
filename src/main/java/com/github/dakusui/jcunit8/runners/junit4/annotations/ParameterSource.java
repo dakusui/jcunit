@@ -1,5 +1,7 @@
 package com.github.dakusui.jcunit8.runners.junit4.annotations;
 
+import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.validator.AnnotationValidator;
 import org.junit.validator.ValidateWith;
@@ -12,6 +14,8 @@ import java.util.List;
 @Retention(RetentionPolicy.RUNTIME)
 @ValidateWith(ParameterSource.Validator.class)
 public @interface ParameterSource {
+  Class<? extends Parameter> by() default Simple.class;
+
   class Validator extends AnnotationValidator {
     public List<Exception> validateAnnotatedMethod(FrameworkMethod method) {
       return new LinkedList<Exception>() {{
