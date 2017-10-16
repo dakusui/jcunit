@@ -8,9 +8,13 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+
+import static com.github.dakusui.crest.Crest.*;
 
 @RunWith(JCUnit8.class)
 public class ParameterizedConstraintExample {

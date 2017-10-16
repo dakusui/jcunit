@@ -22,7 +22,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.Crest.asBoolean;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -288,8 +290,7 @@ public enum CoveringArrayGenerationUtils {
                   this.strength
               ).build()
           ).build(),
-          parameterSpace(parameters, constraints),
-          null
+          parameterSpace(parameters, constraints)
       );
     }
   }

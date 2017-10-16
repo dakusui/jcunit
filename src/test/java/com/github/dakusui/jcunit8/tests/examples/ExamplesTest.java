@@ -10,13 +10,16 @@ import com.github.dakusui.jcunit8.examples.parameterizedconstraint.Parameterized
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
 import com.github.dakusui.jcunit8.examples.seed.BankAccountExampleWithSeeds;
 import com.github.dakusui.jcunit8.examples.seed.QuadraticEquationExampleWithSeeds;
-import com.github.dakusui.jcunit8.testutils.JUnit4TestUtils;
+import com.github.dakusui.jcunit8.testutils.ResultUtils;
+import com.github.dakusui.jcunit8.testutils.TestOracle;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 
 import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.jcunit8.testutils.UTUtils.matcher;
 
 public class ExamplesTest {
   @Before
@@ -26,89 +29,105 @@ public class ExamplesTest {
 
   @Test
   public void quadraticEquationSolver() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(QuadraticEquationExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").gt(0).$()
-        ));
+        matcher(
+            UTUtils.oracle("successful", Result::wasSuccessful)
+        )
+    );
   }
 
   @Test
   public void flyingSpaghettiMonster() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(FlyingSpaghettiMonsterExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").gt(0).$()
-        ));
+        matcher(
+            UTUtils.oracle("successful", Result::wasSuccessful)
+        )
+    );
   }
 
   @Test
   public void bankAccount() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(BankAccountExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            ////
-            // This number is bigger than 184, which is a number of test cases generated WITH seeds.
-            // And this means JCUnit is not smart enough to generate a test suite from a regex.
-            // I'm leaving this as is for now.
-            asInteger("getRunCount").equalTo(196).$()
-        ));
+        matcher(
+            new TestOracle.Builder<Result, Result>()
+                .withTransformer("f({x})->{x}", v -> v)
+                .withTester("{x}.wasSuccessful()", Result::wasSuccessful)
+                .build()
+        )
+    );
   }
 
   @Test
   public void quadraticEquationSolverWithSeeds() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(QuadraticEquationExampleWithSeeds.class),
-        allOf(
-            asBoolean("wasSuccessful").isFalse().$(),
-            asInteger("getFailureCount").equalTo(2).$(),
-            asInteger("getIgnoreCount").equalTo(2).$()
-        ));
+        matcher(
+            UTUtils.oracle("failed", result -> !result.wasSuccessful()),
+            UTUtils.oracle(
+                "{x}.getFailureCount", Result::getFailureCount,
+                "==2", v -> v == 2
+            ),
+            UTUtils.oracle(
+                "{x}.getIgnoreCount", Result::getIgnoreCount,
+                "==1", v -> v == 1
+            )
+        )
+    );
   }
 
   @Test
   public void config() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(ConfigExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(14).$()
+        matcher(
+            UTUtils.oracle("success", Result::wasSuccessful),
+            UTUtils.oracle(
+                "{x}.getRunCount", Result::getRunCount,
+                "==14", v -> v == 14
+            )
         )
     );
   }
 
   @Test
   public void bankAccountWithSeeds() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(BankAccountExampleWithSeeds.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(184).$()
+        matcher(
+            new TestOracle.Builder<Result, Result>()
+                .withTransformer("f({x})->{x}", v -> v)
+                .withTester("{x}.wasSuccessful()", Result::wasSuccessful)
+                .build()
         )
     );
   }
 
   @Test
   public void helper() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(ParameterHelperExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(124).$()
+        matcher(
+            new TestOracle.Builder<Result, Result>()
+                .withTransformer("f({x})->{x}", v -> v)
+                .withTester("{x}.wasSuccessful()", Result::wasSuccessful)
+                .build()
         )
     );
   }
 
   @Test
   public void beforeAfterTest() {
-    assertThat(
+    ResultUtils.validateJUnitResult(
         JUnitCore.runClasses(BeforeAfter.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(11).$()
+        matcher(
+            UTUtils.oracle("success", Result::wasSuccessful),
+            UTUtils.oracle(
+                "{x}.getRunCount", Result::getRunCount,
+                "==16", v -> v == 16
+            )
         )
     );
   }
@@ -118,8 +137,8 @@ public class ExamplesTest {
     assertThat(
         JUnitCore.runClasses(UnusedParameter.class),
         allOf(
-            asBoolean(JUnit4TestUtils.funcWasSuccessful()).isTrue().$(),
-            asInteger(JUnit4TestUtils.funcGetRunCount()).eq(2).$()
+            asBoolean(ResultUtils.funcWasSuccessful()).isTrue().$(),
+            asInteger(ResultUtils.funcGetRunCount()).eq(2).$()
         )
     );
   }
@@ -129,10 +148,10 @@ public class ExamplesTest {
     assertThat(
         JUnitCore.runClasses(ParameterizedConstraintExample.class),
         allOf(
-            asBoolean(JUnit4TestUtils.funcWasSuccessful()).isTrue().$(),
-            asInteger(JUnit4TestUtils.funcGetRunCount()).eq(2).$(),
-            asInteger(JUnit4TestUtils.funcGetIgnoreCount()).eq(8).$(),
-            asInteger(JUnit4TestUtils.funcGetFailureCount()).eq(0).$()
+            asBoolean(ResultUtils.funcWasSuccessful()).isTrue().$(),
+            asInteger(ResultUtils.funcGetRunCount()).eq(2).$(),
+            asInteger(ResultUtils.funcGetIgnoreCount()).eq(8).$(),
+            asInteger(ResultUtils.funcGetFailureCount()).eq(0).$()
         )
     );
   }

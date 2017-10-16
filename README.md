@@ -77,7 +77,7 @@ Followings are the annotations used in the new style.
 These will be explained in this section.
 
 #### Defining a test class
-The new test runner is called **JCUnit8** (```com.github.dakusui.jcunit8.runners.junit4.JCUnit8X```).
+The new test runner is called **JCUnit8** (```com.github.dakusui.jcunit8.runners.junit4.JCUnit8```).
 When you use the runner, a configuration factory for the test class can
 be specified it with another annotation ```@ConfigureWith```. With it, you
 can control various features of **JCUnit** such as negative test generation,
