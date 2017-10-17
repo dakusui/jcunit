@@ -4,9 +4,14 @@ import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
+import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.runner.RunWith;
+
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @RunWith(JCUnit8.class)
 public class BeforeAfter {
@@ -41,7 +46,7 @@ public class BeforeAfter {
   }
 
   @Condition
-  public boolean aIsA2(@From(("a"))String a ) {
+  public boolean aIsA2(@From(("a")) String a) {
     return "A2".equals(a);
   }
 
@@ -84,22 +89,18 @@ public class BeforeAfter {
   @AfterClass
   public static void afterClass(@From("@suite") TestSuite suite) {
     System.out.println("afterClass:[");
-    System.out.print("  ");
-    suite.getScenario().oracles().forEach(
-        testOracle -> System.out.printf(
-            "%-20s",
-            testOracle.getName()
+    Stream.concat(
+        Stream.of(
+            suite.getScenario().oracles().stream().map(TestOracle::getName).map(s -> String.format("<%s>", s)).collect(toList())
+        ),
+        suite.stream().map(
+            testCase -> suite.getScenario().oracles().stream().map(oracle -> oracle.shouldInvoke().test(testCase.getTestInput())).collect(toList())
         )
-    );
-    System.out.println();
-    suite.forEach(
-        testCase -> {
+    ).forEach(
+        objects -> {
           System.out.print("  ");
-          suite.getScenario().oracles().forEach(
-              testOracle -> System.out.printf(
-                  "%-20s",
-                  testOracle.shouldInvoke().test(testCase.getTestInput())
-              )
+          objects.forEach(
+              e -> System.out.printf("%-20s", e)
           );
           System.out.println();
         }
