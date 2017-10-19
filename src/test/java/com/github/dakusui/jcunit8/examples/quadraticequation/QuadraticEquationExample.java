@@ -78,7 +78,6 @@ public class QuadraticEquationExample {
     assertThat(Math.abs(a * x2 * x2 + b * x2 + c), new LessThan<>(0.01));
   }
 
-
   @After
   public void after() {
     System.out.println("after");

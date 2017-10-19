@@ -1,25 +1,30 @@
 package com.github.dakusui.jcunit8.runners.junit4.utils;
 
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit8.factorspace.TestPredicate;
+import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
+import com.github.dakusui.jcunit8.testsuite.TestOracle;
+import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
 import org.junit.*;
-import org.junit.internal.runners.model.ReflectiveCallable;
-import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.junit.runners.model.TestClass;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.annotation.Annotation;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
+import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -50,7 +55,7 @@ public enum InternalUtils {
     ).flatMap(
         annotationClass -> testClass.getAnnotatedMethods(annotationClass).stream()
     ).flatMap(
-        method -> JCUnit8.getParameterAnnotationsFrom(method, From.class).stream()
+        method -> getParameterAnnotationsFrom(method, From.class).stream()
     ).map(
         From.class::cast
     ).map(
@@ -61,60 +66,54 @@ public enum InternalUtils {
     );
   }
 
-  public static Statement createMethodInvoker(FrameworkMethod method, Object test, JCUnit8.TestCaseRunner testCaseRunner) throws Throwable {
-    return new InvokeMethod(method, test) {
-      @Override
-      public void evaluate() throws Throwable {
-        invokeExplosivelyWithArgumentsFromTestCase(method, testCaseRunner, test);
-      }
-    };
-  }
-
-  public static Object invokeExplosivelyWithArgumentsFromTestCase(FrameworkMethod method, JCUnit8.TestCaseRunner testCaseRunner, Object test) throws Throwable {
-    Object[] args = validateArguments(
-        method,
-        method.getMethod().getParameterTypes(),
-        JCUnit8.getParameterAnnotationsFrom(method, From.class).stream()
-            .map(From::value)
-            .map(name -> testCaseRunner.getTestCase().get().get(name))
-            .collect(toList())
-            .toArray()
+  public static Object invokeExplosivelyWithArgumentsFromTestInput(FrameworkMethod method, Tuple testInput) throws Throwable {
+    return method.invokeExplosively(
+        testInput.get("@ins"),
+        validateArguments(
+            method,
+            method.getMethod().getParameterTypes(),
+            getParameterAnnotationsFrom(method, From.class).stream()
+                .map(From::value)
+                .map(testInput::get)
+                .collect(toList())
+                .toArray()
+        )
     );
-    return method.invokeExplosively(test, args);
   }
 
-  public static RunAfters createRunAftersForTestCase(Statement statement, List<FrameworkMethod> afters, JCUnit8.TestCaseRunner testCaseRunner) {
+  public static RunAfters createRunAftersForTestInput(Statement statement, List<TupleConsumer> afters, Tuple testInput) {
     return new RunAfters(
         statement,
         afters.stream().map(
-            frameworkMethodInvokingArgumentsFromTestCase(testCaseRunner, null)
+            frameworkMethodInvokingArgumentsFromTestCase(testInput)
         ).collect(toList())
         , null) {
 
     };
   }
 
-  public static RunBefores createRunBeforesForTestCase(Statement statement, List<FrameworkMethod> befores, JCUnit8.TestCaseRunner testCaseRunner) {
+  public static RunBefores createRunBeforesForTestInput(Statement statement, List<TupleConsumer> tupleConsumers, Tuple testInput) {
     return new RunBefores(
         statement,
-        befores.stream().map(
-            frameworkMethodInvokingArgumentsFromTestCase(testCaseRunner, null)
+        tupleConsumers.stream().map(
+            frameworkMethodInvokingArgumentsFromTestCase(testInput)
         ).collect(toList()),
         null
     );
   }
 
-
-  public static Function<FrameworkMethod, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(JCUnit8.TestCaseRunner testCaseRunner, Object test) {
-    return each -> new FrameworkMethod(each.getMethod()) {
-      public Object invokeExplosively(final Object target, final Object... params)
-          throws Throwable {
-        return new ReflectiveCallable() {
-          @Override
-          protected Object runReflectiveCall() throws Throwable {
-            return invokeExplosivelyWithArgumentsFromTestCase(each, testCaseRunner, test);
+  public static Function<TupleConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(Tuple testInput) {
+    return each -> {
+      try {
+        return new FrameworkMethod(InternalUtils.class.getMethod("frameworkMethodInvokingArgumentsFromTestCase", Tuple.class)) {
+          public Object invokeExplosively(final Object target, final Object... params)
+              throws Throwable {
+            each.accept(testInput);
+            return null;
           }
-        }.run();
+        };
+      } catch (NoSuchMethodException | SecurityException e) {
+        throw Checks.wrap(e);
       }
     };
   }
@@ -147,4 +146,116 @@ public enum InternalUtils {
     );
   }
 
+  public static TupleConsumer toTupleConsumer(FrameworkMethod method) {
+    return new TupleConsumer() {
+      @Override
+      public String getName() {
+        return method.getName();
+      }
+
+      @Override
+      public void accept(Tuple testInput) {
+        try {
+          InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, testInput);
+        } catch (Throwable throwable) {
+          throw Checks.wrap(throwable);
+        }
+      }
+    };
+  }
+
+  public static TestOracle toTestOracle(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
+    return new TestOracle() {
+      @Override
+      public String getName() {
+        return method.getName();
+      }
+
+      @Override
+      public Predicate<Tuple> shouldInvoke() {
+        return InternalUtils.shouldInvoke(method, predicates);
+      }
+
+      @Override
+      public Function<Tuple, Result> when() {
+        return new Function<Tuple, Result>() {
+          @Override
+          public Result apply(Tuple tuple) {
+            try {
+              return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, tuple));
+            } catch (Throwable throwable) {
+              return Result.thrown(throwable);
+            }
+          }
+
+          @Override
+          public String toString() {
+            return method.getName();
+          }
+        };
+      }
+
+      @Override
+      public Predicate<Result> then() {
+        return new Predicate<Result>() {
+          @Override
+          public boolean test(Result result) {
+            Class<? extends Throwable> expectedExceptionClass = method.getAnnotation(Test.class).expected();
+            if (expectedExceptionClass.equals(Test.None.class)) {
+              if (Objects.equals(result.exitedWith(), Result.Exit.RETURNING_VALUE))
+                return true;
+              if (result.value() instanceof Error)
+                throw (Error) result.value();
+              if (result.value() instanceof RuntimeException)
+                throw (RuntimeException) result.value();
+              return false;
+            } else {
+              return expectedExceptionClass.isAssignableFrom(result.value());
+            }
+          }
+
+          @Override
+          public String toString() {
+            return String.format("thrown%s", method.getAnnotation(Test.class).expected().getSimpleName());
+          }
+        };
+      }
+    };
+  }
+
+  public static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
+    return tuple -> {
+      //noinspection SimplifiableIfStatement
+      if (method.getAnnotation(Given.class) == null)
+        return true;
+      return NodeUtils.buildPredicate(
+          method.getAnnotation(Given.class).value(),
+          predicates
+      ).test(
+          tuple
+      );
+    };
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <A extends Annotation> List<A> getParameterAnnotationsFrom(FrameworkMethod method, Class<A> annotationClass) {
+    return Stream.of(method.getMethod().getParameterAnnotations())
+        .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
+        .map(
+            (List<? extends Annotation> annotations) ->
+                (A) annotations.stream(
+
+                ).filter(
+                    (Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass())
+                ).findFirst(
+
+                ).orElseThrow(
+                    () -> parameterWithoutAnnotation(
+                        format(
+                            "%s.%s",
+                            method.getDeclaringClass().getCanonicalName(),
+                            method.getName()
+                        )))
+        ).collect(toList());
+  }
 }

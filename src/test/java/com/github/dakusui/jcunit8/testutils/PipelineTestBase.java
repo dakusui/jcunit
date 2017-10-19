@@ -19,11 +19,11 @@ public abstract class PipelineTestBase {
     ParameterSpace parameterSpace = new ParameterSpace.Builder()
         .addAllParameters(asList(parameters))
         .build();
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace);
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace, null);
   }
 
   protected TestSuite generateTestSuite(List<Parameter> parameters, List<Constraint> constraints) {
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints));
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints), null);
   }
 
   protected ParameterSpace preprocess(Parameter... parameters) {
@@ -90,7 +90,7 @@ public abstract class PipelineTestBase {
             Factor.create("simple3", new Object[] { "default", "value" })
         ),
         Collections.singletonList(
-            Constraint.create("alwaysTrue[simple1]",(Tuple tuple) -> false, "simple1") // Never becomes true
+            Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
         )
     );
   }
