@@ -15,34 +15,34 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 5);
+      return new FactorSpaceSpec("L").addFactors(2, 5);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
       exerciseJoin(
-          new FactorSpaceSpec("R").addFactor(2, 10).build(),
+          new FactorSpaceSpec("R").addFactors(2, 10).build(),
           10);
     }
 
     @Test
     public void whenJoinWith2_20$thenLetsSee() {
       exerciseJoin(
-          new FactorSpaceSpec("R").addFactor(2, 20).build(),
+          new FactorSpaceSpec("R").addFactors(2, 20).build(),
           10);
     }
 
     @Test
     public void whenJoinWith2_30$thenLetsSee() {
       exerciseJoin(
-          new FactorSpaceSpec("R").addFactor(2, 30).build(),
+          new FactorSpaceSpec("R").addFactors(2, 30).build(),
           10);
     }
 
     @Test
     public void whenJoinWith2_40$thenLetsSee() {
       exerciseJoin(
-          new FactorSpaceSpec("R").addFactor(2, 40).build(),
+          new FactorSpaceSpec("R").addFactors(2, 40).build(),
           10);
     }
   }
@@ -56,13 +56,13 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 5);
+      return new FactorSpaceSpec("L").addFactors(2, 5);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
       exerciseJoin(
-          new FactorSpaceSpec("R").addFactor(2, 10).build(),
+          new FactorSpaceSpec("R").addFactors(2, 10).build(),
           10);
     }
   }

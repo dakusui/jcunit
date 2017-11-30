@@ -279,7 +279,7 @@ public class IpoGplus extends Generator.Base {
   }
 
   private static Tuple modifyTupleWith(Tuple τ, String factorName, Object o1) {
-    return new Tuple.Builder().putAll(τ).put(factorName, o1).build();
+    return Tuple.builder().putAll(τ).put(factorName, o1).build();
   }
 
   /**
@@ -302,7 +302,7 @@ public class IpoGplus extends Generator.Base {
    * </pre>
    */
   private static Tuple createTupleFrom(List<String> factorNames, Tuple σ) {
-    Tuple.Builder builder = new Tuple.Builder();
+    Tuple.Builder builder = Tuple.builder();
     for (String each : factorNames) {
       builder.put(each, DontCare);
     }
@@ -324,7 +324,7 @@ public class IpoGplus extends Generator.Base {
         if (dontCareFactors.isEmpty())
           return in;
         i = i % maxReadAheadSize;
-        return new Tuple.Builder()
+        return Tuple.builder()
             .putAll(in)
             .putAll(
                 chooseAssignment(
@@ -359,7 +359,7 @@ public class IpoGplus extends Generator.Base {
   }
 
   private static Tuple removeDontCares(Tuple in) {
-    Tuple.Builder builder = new Tuple.Builder();
+    Tuple.Builder builder = Tuple.builder();
     in.keySet().stream()
         .filter(s -> !DontCare.equals(in.get(s)))
         .forEach(s -> builder.put(s, in.get(s)));
@@ -422,10 +422,10 @@ public class IpoGplus extends Generator.Base {
   ) {
     List<Factor> dontCareFactors = dontCareFactors(in, allFactors);
     if (allConstraints.isEmpty())
-      return Stream.of(new Tuple.Builder().putAll(removeDontCares(in)).putAll(session.chooseAssignmentsFor(dontCareFactors)).build());
+      return Stream.of(Tuple.builder().putAll(removeDontCares(in)).putAll(session.chooseAssignmentsFor(dontCareFactors)).build());
     return new StreamableTupleCartesianator(dontCareFactors).stream()
         .flatMap(tuple -> streamAssignmentsAllowedByConstraints(
-            new Tuple.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
+            Tuple.builder().putAll(removeDontCares(in)).putAll(tuple).build(),
             allFactors,
             allConstraints,
             session

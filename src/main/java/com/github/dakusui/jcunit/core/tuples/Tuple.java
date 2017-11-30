@@ -17,6 +17,9 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
     LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
     private boolean dictionaryOrder = true;
 
+    protected Builder() {
+    }
+
     public Builder put(String k, Object v) {
       this.attrs.put(k, v);
       return this;

@@ -143,7 +143,7 @@ public interface Config {
                               (Object o) -> factorSpace.getConstraints()
                                   .stream()
                                   .filter((Constraint constraint) -> singletonList(factor.getName()).equals(constraint.involvedKeys()))
-                                  .allMatch((Constraint constraint) -> constraint.test(new Tuple.Builder().put(factor.getName(), o).build()))
+                                  .allMatch((Constraint constraint) -> constraint.test(Tuple.builder().put(factor.getName(), o).build()))
                           )
                           .collect(toList()).toArray()
                   ))

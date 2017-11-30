@@ -61,7 +61,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             memoize(
                 strength -> memoize(
                     (Function<Tuple, Function<Tuple, Set<Tuple>>>) lhsTuple -> memoize(
-                        rhsTuple -> connectingSubtuplesOf(lhsTuple, rhsTuple, strength)
+                        rhsTuple -> connectingSubtuplesOf(HashSet::new, lhsTuple, rhsTuple, strength)
                     )
                 )
             );
@@ -73,8 +73,9 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             for (Tuple rhsTuple : this.coveredByRhs.apply(tupleToCover)) {
               if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))
                 continue;
+              Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
               int numCovered = sizeOfIntersection(
-                  this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple),
+                  connectingSubtuples,
                   remainingTuplesToBeCovered);
               if (numCovered > most) {
                 most = numCovered;
@@ -110,54 +111,53 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }
 
       Session session = new Session();
+        TupleSet remainingTuplesToBeCovered = computeTuplesToBeCovered(lhs, rhs, this.requirement.strength());
+        List<Tuple> work = new LinkedList<>();
+        ////
+        // If there are tuples in lhs not used in work, they should be added to the
+        // list. Otherwise t-way tuples covered by them will not be covered by the
+        // final result. Same thing can be said in rhs.
+        //
+        // Modified HG (horizontal growth) procedure
+        checkcond(lhs.size() >= rhs.size());
+        for (int i = 0; i < lhs.size(); i++) {
+          Tuple lhsTuple = lhs.get(i);
+          Tuple rhsTuple = i < rhs.size() ?
+              rhs.get(i) :
+              session.findBestRhsFor(lhsTuple, rhs, work, remainingTuplesToBeCovered).orElse(
+                  rhs.get(i % rhs.size())
+              );
+          Tuple tuple = connect(lhsTuple, rhsTuple);
+          work.add(tuple);
+          remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(lhsTuple, rhsTuple, this.requirement.strength()));
+        }
+        ////
+        // Modified VG (vertical growth) procedure
+        while (!remainingTuplesToBeCovered.isEmpty()) {
+          Tuple bestTuple = session.findBestCombinationFor(
+              remainingTuplesToBeCovered.stream().findFirst().orElseThrow(
+                  IllegalStateException::new
+              ),
+              work,
+              remainingTuplesToBeCovered
+          ).orElseThrow(
+              IllegalStateException::new
+          );
 
-      TupleSet remainingTuplesToBeCovered = computeTuplesToBeCovered(lhs, rhs, this.requirement.strength());
-      List<Tuple> work = new LinkedList<>();
-      ////
-      // If there are tuples in lhs not used in work, they should be added to the
-      // list. Otherwise t-way tuples covered by them will not be covered by the
-      // final result. Same thing can be said in rhs.
-      //
-      // Modified HG (horizontal growth) procedure
-      checkcond(lhs.size() >= rhs.size());
-      for (int i = 0; i < lhs.size(); i++) {
-        Tuple lhsTuple = lhs.get(i);
-        Tuple rhsTuple = i < rhs.size() ?
-            rhs.get(i) :
-            session.findBestRhsFor(lhsTuple, rhs, work, remainingTuplesToBeCovered).orElse(
-                rhs.get(i % rhs.size())
-            );
-        Tuple tuple = connect(lhsTuple, rhsTuple);
-        work.add(tuple);
-        remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(lhsTuple, rhsTuple, this.requirement.strength()));
-      }
-      ////
-      // Modified VG (vertical growth) procedure
-      while (!remainingTuplesToBeCovered.isEmpty()) {
-        Tuple bestTuple = session.findBestCombinationFor(
-            remainingTuplesToBeCovered.stream().findFirst().orElseThrow(
-                IllegalStateException::new
-            ),
-            work,
-            remainingTuplesToBeCovered
-        ).orElseThrow(
-            IllegalStateException::new
-        );
-
-        work.add(bestTuple);
-        remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(
-            project(bestTuple, lhs.getAttributeNames()),
-            project(bestTuple, rhs.getAttributeNames()),
-            requirement.strength()
-        ));
-      }
-      return new SchemafulTupleSet.Builder(
-          Stream.concat(
-              lhs.getAttributeNames().stream(),
-              rhs.getAttributeNames().stream()
-          ).collect(toList()))
-          .addAll(work)
-          .build();
+          work.add(bestTuple);
+          remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(
+              project(bestTuple, lhs.getAttributeNames()),
+              project(bestTuple, rhs.getAttributeNames()),
+              requirement.strength()
+          ));
+        }
+        return new SchemafulTupleSet.Builder(
+            Stream.concat(
+                lhs.getAttributeNames().stream(),
+                rhs.getAttributeNames().stream()
+            ).collect(toList()))
+            .addAll(work)
+            .build();
     }
 
     private List<Tuple> findCoveringTuplesIn(Tuple aTuple, SchemafulTupleSet tuples) {
@@ -171,13 +171,18 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
 
     private Tuple connect(Tuple tuple1, Tuple tuple2) {
-      return new Tuple.Builder().putAll(tuple1).putAll(tuple2).build();
+      return Tuple.builder().putAll(tuple1).putAll(tuple2).build();
     }
 
     private static TupleSet computeTuplesToBeCovered(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength) {
       TupleSet.Builder builder = new TupleSet.Builder();
       for (int i = 1; i < strength; i++) {
-        TupleSet lhsTupleSet = lhs.subtuplesOf(strength - i);
+        int j = strength - i;
+        if (j > lhs.getAttributeNames().size())
+          continue;
+        TupleSet lhsTupleSet = lhs.subtuplesOf(j);
+        if (i > rhs.getAttributeNames().size())
+          break;
         TupleSet rhsTupleSet = rhs.subtuplesOf(i);
         builder.addAll(lhsTupleSet.cartesianProduct(rhsTupleSet));
       }

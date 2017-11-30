@@ -14,7 +14,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 10);
+      return new FactorSpaceSpec("L").addFactors(2, 10);
     }
   }
 
@@ -26,7 +26,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 20);
+      return new FactorSpaceSpec("L").addFactors(2, 20);
     }
   }
 
@@ -38,7 +38,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 30);
+      return new FactorSpaceSpec("L").addFactors(2, 30);
     }
   }
 
@@ -50,7 +50,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 40);
+      return new FactorSpaceSpec("L").addFactors(2, 40);
     }
   }
 
@@ -62,7 +62,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 50);
+      return new FactorSpaceSpec("L").addFactors(2, 50);
     }
   }
 
@@ -74,7 +74,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 60);
+      return new FactorSpaceSpec("L").addFactors(2, 60);
     }
   }
 
@@ -86,7 +86,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 70);
+      return new FactorSpaceSpec("L").addFactors(2, 70);
     }
   }
 
@@ -98,7 +98,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 80);
+      return new FactorSpaceSpec("L").addFactors(2, 80);
     }
   }
 
@@ -110,7 +110,7 @@ public class JoinExperiments {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 90);
+      return new FactorSpaceSpec("L").addFactors(2, 90);
     }
   }
 }

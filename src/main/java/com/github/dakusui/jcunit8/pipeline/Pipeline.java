@@ -118,7 +118,7 @@ public interface Pipeline {
               (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
                   tuples.stream()
                       .map((Tuple tuple) -> {
-                        Tuple.Builder builder = new Tuple.Builder();
+                        Tuple.Builder builder = Tuple.builder();
                         for (String parameterName : parameterSpace.getParameterNames()) {
                           builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));
                         }

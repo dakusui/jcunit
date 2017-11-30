@@ -63,7 +63,7 @@ public enum Utils {
   }
 
   public static Tuple project(List<String> keys, Tuple from) {
-    Tuple.Builder builder = new Tuple.Builder();
+    Tuple.Builder builder = Tuple.builder();
     keys.forEach((String key) -> builder.put(key, from.get(key)));
     return builder.build();
   }

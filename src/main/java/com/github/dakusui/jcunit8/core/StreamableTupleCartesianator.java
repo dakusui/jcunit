@@ -39,7 +39,7 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tup
 
   @Override
   protected Tuple createMap() {
-    return new Tuple.Builder().build();
+    return Tuple.builder().build();
   }
 
   private static Domains<String, Object> buildDomains(List<Factor> factors) {

@@ -110,7 +110,7 @@ public class Negative extends Generator.Base {
   }
 
   private static Tuple modifyTupleWithValues(Tuple in, Tuple values) {
-    return new Tuple.Builder()
+    return Tuple.builder()
         .putAll(in)
         .putAll(new HashMap<String, Object>() {{
           values.keySet().forEach(eachKey -> put(eachKey, values.get(eachKey)));

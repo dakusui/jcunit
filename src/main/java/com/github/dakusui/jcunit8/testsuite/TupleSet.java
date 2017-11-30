@@ -22,7 +22,7 @@ public interface TupleSet extends Set<Tuple> {
       TupleSet.Builder builder = new TupleSet.Builder();
       for (Tuple eachFromLhs : this) {
         for (Tuple eachFromRhs : rhs) {
-          builder.add(new Tuple.Builder().putAll(eachFromLhs).putAll(eachFromRhs).build());
+          builder.add(Tuple.builder().putAll(eachFromLhs).putAll(eachFromRhs).build());
         }
       }
       return builder.build();

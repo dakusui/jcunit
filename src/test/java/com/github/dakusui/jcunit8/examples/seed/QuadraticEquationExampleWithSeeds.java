@@ -15,7 +15,7 @@ public class QuadraticEquationExampleWithSeeds extends QuadraticEquationExample 
           true
       ).addSeed(
           // Positive test
-          new Tuple.Builder(
+          Tuple.builder(
           ).put(
               "a", 1
           ).put(
@@ -25,7 +25,7 @@ public class QuadraticEquationExampleWithSeeds extends QuadraticEquationExample 
           ).build()
       ).addSeed(
           // Negative test
-          new Tuple.Builder(
+          Tuple.builder(
           ).put(
               "a", 1
           ).put(

@@ -102,7 +102,7 @@ public class IpoGplusTest {
   public static class AssignmentsAllowedByPartiallyInvolvedConstraints {
     static class Fixture {
       static final Fixture simple                         = new Fixture(
-          new Tuple.Builder().put("a", 1).put("b", 1).build(),
+          Tuple.builder().put("a", 1).put("b", 1).build(),
           new LinkedList<Factor>() {{
             add(Factor.create("a", asList(1, 2, 3).toArray()));
             add(Factor.create("b", asList(1, 2, 3).toArray()));
@@ -117,7 +117,7 @@ public class IpoGplusTest {
           }}
       );
       static final Fixture twoFreeFactors                 = new Fixture(
-          new Tuple.Builder().put("a", 1).build(),
+          Tuple.builder().put("a", 1).build(),
           new LinkedList<Factor>() {{
             add(Factor.create("a", asList(1, 2, 3).toArray()));
             add(Factor.create("b", asList(1, 2, 3).toArray()));
@@ -132,7 +132,7 @@ public class IpoGplusTest {
           }}
       );
       static final Fixture violatesFullyCoveredConstraint = new Fixture(
-          new Tuple.Builder().put("a", 1).put("b", 1).build(),
+          Tuple.builder().put("a", 1).put("b", 1).build(),
           new LinkedList<Factor>() {{
             add(Factor.create("a", asList(1, 2, 3).toArray()));
             add(Factor.create("b", asList(1, 2, 3).toArray()));
@@ -170,8 +170,8 @@ public class IpoGplusTest {
 
       assertEquals(
           asList(
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build()
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 2).build()
           ),
           assignments
       );
@@ -201,9 +201,9 @@ public class IpoGplusTest {
       assertTrue(cursor.isPresent());
       assertEquals(
           asList(
-              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 2).build()
+              Tuple.builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 3).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 3).put("c", 2).build()
           ),
           new StreamableTupleCartesianator(
               factors
@@ -218,9 +218,9 @@ public class IpoGplusTest {
       );
       assertEquals(
           asList(
-              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 2).build()
+              Tuple.builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 3).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 3).put("c", 2).build()
           ),
           new StreamableTupleCartesianator(
               factors
@@ -255,9 +255,9 @@ public class IpoGplusTest {
 
       assertEquals(
           asList(
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
-              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build()
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 2).build(),
+              Tuple.builder().put("a", 1).put("b", 2).put("c", 1).build()
           ),
           assignments
       );
@@ -283,7 +283,7 @@ public class IpoGplusTest {
   public static class SatisfiesAllOf {
     @Test
     public void givenEmptyConstraintList$whenSatisfiesAllOf$thenTrue() {
-      assertTrue(IpoGplus.satisfiesAllOf(emptyList()).test(new Tuple.Builder().build()));
+      assertTrue(IpoGplus.satisfiesAllOf(emptyList()).test(Tuple.builder().build()));
     }
 
     @Test
@@ -321,7 +321,7 @@ public class IpoGplusTest {
               return emptyList();
             }
           }
-      )).test(new Tuple.Builder().build()));
+      )).test(Tuple.builder().build()));
     }
 
     @Test
@@ -359,7 +359,7 @@ public class IpoGplusTest {
               return emptyList();
             }
           }
-      )).test(new Tuple.Builder().build()));
+      )).test(Tuple.builder().build()));
     }
   }
 
@@ -399,12 +399,12 @@ public class IpoGplusTest {
     @Test
     public void given$whenReplaceDontCareValuesWithActualLevels$then() {
       assertEquals(
-          new Tuple.Builder()
+          Tuple.builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", 2)
               .build(),
-          func.apply(new Tuple.Builder()
+          func.apply(Tuple.builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", 2)
@@ -415,12 +415,12 @@ public class IpoGplusTest {
     @Test
     public void givenCisDontCare$whenReplaceDontCareValuesWithActualLevels$then() {
       assertEquals(
-          new Tuple.Builder()
+          Tuple.builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", 1)
               .build(),
-          func.apply(new Tuple.Builder()
+          func.apply(Tuple.builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", DontCare)
@@ -431,12 +431,12 @@ public class IpoGplusTest {
     @Test
     public void givenBandCareDontCare$whenReplaceDontCareValuesWithActualLevels$then() {
       assertEquals(
-          new Tuple.Builder()
+          Tuple.builder()
               .put("a", 1)
               .put("b", 1)
               .put("c", 1)
               .build(),
-          func.apply(new Tuple.Builder()
+          func.apply(Tuple.builder()
               .put("a", 1)
               .put("b", DontCare)
               .put("c", DontCare)
@@ -447,12 +447,12 @@ public class IpoGplusTest {
     @Test
     public void givenABandCareDontCare$whenReplaceDontCareValuesWithActualLevels$thenWorksFine() {
       assertEquals(
-          new Tuple.Builder()
+          Tuple.builder()
               .put("a", 1)
               .put("b", 1)
               .put("c", 1)
               .build(),
-          func.apply(new Tuple.Builder()
+          func.apply(Tuple.builder()
               .put("a", DontCare)
               .put("b", DontCare)
               .put("c", DontCare)
@@ -462,16 +462,16 @@ public class IpoGplusTest {
 
     @Test
     public void givenCisDontCareDontCare$whenAssignmentsForDontCaresUnderConstraints$thenWorksFine() {
-      Tuple tuple = new Tuple.Builder()
+      Tuple tuple = Tuple.builder()
           .put("a", 1)
           .put("b", 1)
           .put("c", DontCare)
           .build();
       assertEquals(
           asList(
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 3).build()
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 2).build(),
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 3).build()
           ),
           IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
@@ -484,19 +484,19 @@ public class IpoGplusTest {
 
     @Test
     public void givenBandCareDontCareDontCare$whenAssignmentsForDontCaresUnderConstraints$thenWorksFine() {
-      Tuple tuple = new Tuple.Builder()
+      Tuple tuple = Tuple.builder()
           .put("a", 1)
           .put("b", DontCare)
           .put("c", DontCare)
           .build();
       assertEquals(
           asList(
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
-              new Tuple.Builder().put("a", 1).put("b", 1).put("c", 3).build(),
-              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
-              new Tuple.Builder().put("a", 1).put("b", 2).put("c", 2).build(),
-              new Tuple.Builder().put("a", 1).put("b", 3).put("c", 1).build()
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 2).build(),
+              Tuple.builder().put("a", 1).put("b", 1).put("c", 3).build(),
+              Tuple.builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              Tuple.builder().put("a", 1).put("b", 2).put("c", 2).build(),
+              Tuple.builder().put("a", 1).put("b", 3).put("c", 1).build()
           ),
           IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
@@ -535,7 +535,7 @@ public class IpoGplusTest {
             }
           }
       );
-      Tuple tuple = new Tuple.Builder()
+      Tuple tuple = Tuple.builder()
           .put("a", 4)
           .put("b", DontCare)
           .put("c", 4)
@@ -547,7 +547,7 @@ public class IpoGplusTest {
           new IpoGplus.Session()
       ).collect(toList());
       assertEquals(
-          singletonList(new Tuple.Builder().put("a", 4).put("c", 4).put("b", 8).build()),
+          singletonList(Tuple.builder().put("a", 4).put("c", 4).put("b", 8).build()),
           result
       );
     }
@@ -609,13 +609,13 @@ public class IpoGplusTest {
   @SuppressWarnings("NonAsciiCharacters")
   public static class TupleTest {
     List<Tuple> ts = new LinkedList<Tuple>() {{
-      add(new Tuple.Builder().put("a", 1).put("b", 1).put("c", DontCare).build());
-      add(new Tuple.Builder().put("a", 1).put("b", 2).build());
+      add(Tuple.builder().put("a", 1).put("b", 1).put("c", DontCare).build());
+      add(Tuple.builder().put("a", 1).put("b", 2).build());
     }};
 
     @Test
     public void givenMatchingDontCareFactor$whenIncompleteTestsToCoverGivenTuple$thenChosen() {
-      Tuple σ = new Tuple.Builder().put("b", 1).put("c", 1).build();
+      Tuple σ = Tuple.builder().put("b", 1).put("c", 1).build();
       assertEquals(
           singletonList(ts.get(0)),
           IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
@@ -624,7 +624,7 @@ public class IpoGplusTest {
 
     @Test
     public void givenMatchingAbsentFactor$whenIncompleteTestsToCoverGivenTuple$thenChosen() {
-      Tuple σ = new Tuple.Builder().put("b", 2).put("c", 1).build();
+      Tuple σ = Tuple.builder().put("b", 2).put("c", 1).build();
       assertEquals(
           singletonList(ts.get(1)),
           IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
@@ -633,7 +633,7 @@ public class IpoGplusTest {
 
     @Test
     public void givenNoMatching$whenIncompleteTestsToCoverGivenTuple$thenNotChosen() {
-      Tuple σ = new Tuple.Builder().put("b", 3).build();
+      Tuple σ = Tuple.builder().put("b", 3).build();
       assertEquals(
           emptyList(),
           IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())

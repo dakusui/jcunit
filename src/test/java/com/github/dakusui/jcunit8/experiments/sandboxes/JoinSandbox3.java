@@ -30,9 +30,9 @@ public class JoinSandbox3 {
 
   @Test
   public void test() throws ExecutionException, InterruptedException {
-    FactorSpaceSpec spec1 = new FactorSpaceSpec("A").addFactor(2, 40);
-    FactorSpaceSpec spec2 = new FactorSpaceSpec("B").addFactor(2, 30);
-    FactorSpaceSpec spec3 = new FactorSpaceSpec("C").addFactor(2, 30);
+    FactorSpaceSpec spec1 = new FactorSpaceSpec("A").addFactors(2, 40);
+    FactorSpaceSpec spec2 = new FactorSpaceSpec("B").addFactors(2, 30);
+    FactorSpaceSpec spec3 = new FactorSpaceSpec("C").addFactors(2, 30);
 
     ExecutorService threadPool = ForkJoinPool.commonPool();
     try {

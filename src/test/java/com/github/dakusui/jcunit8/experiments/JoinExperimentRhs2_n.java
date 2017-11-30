@@ -8,56 +8,56 @@ public abstract class JoinExperimentRhs2_n extends JoinExperimentBase {
   @Test
   public void whenJoinWith2_10$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 10).build(),
+        new FactorSpaceSpec("R").addFactors(2, 10).build(),
         10);
   }
 
   @Test
   public void whenJoinWith2_20$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 20).build(),
+        new FactorSpaceSpec("R").addFactors(2, 20).build(),
         10);
   }
 
   @Test
   public void whenJoinWith2_30$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 30).build(),
+        new FactorSpaceSpec("R").addFactors(2, 30).build(),
         10);
   }
 
   @Test
   public void whenJoinWith2_40$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 40).build(),
+        new FactorSpaceSpec("R").addFactors(2, 40).build(),
         10);
   }
 
   @Test
   public void whenJoinWith2_50$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 50).build(),
+        new FactorSpaceSpec("R").addFactors(2, 50).build(),
         10);
   }
 
   @Test
   public void whenJoinWith2_60$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 60).build(),
+        new FactorSpaceSpec("R").addFactors(2, 60).build(),
         10);
   }
 
   @Test
   public void whenJoinWith2_70$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 70).build(),
+        new FactorSpaceSpec("R").addFactors(2, 70).build(),
         10);
   }
 
   @Test
   public void whenJoinWith2_80$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 80).build(),
+        new FactorSpaceSpec("R").addFactors(2, 80).build(),
         10);
   }
 
@@ -65,7 +65,7 @@ public abstract class JoinExperimentRhs2_n extends JoinExperimentBase {
   @Test
   public void whenJoinWith2_90$thenLetsSee() {
     exerciseJoin(
-        new FactorSpaceSpec("R").addFactor(2, 90).build(),
+        new FactorSpaceSpec("R").addFactors(2, 90).build(),
         10);
   }
 }

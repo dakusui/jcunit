@@ -4,6 +4,7 @@ import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
@@ -15,14 +16,8 @@ public enum TupleUtils {
     Checks.checknotnull(tuple);
     Checks.checkcond(strength >= 0 && strength <= tuple.size());
     Set<Tuple> ret = new LinkedHashSet<>();
-    Combinator<String> c = new Combinator<>(
-        new LinkedList<>(tuple.keySet()), strength);
-    for (List<String> keys : c) {
-      Tuple cur = new Tuple.Impl();
-      for (String k : keys) {
-        cur.put(k, tuple.get(k));
-      }
-      ret.add(cur);
+    for (List<String> keys : new Combinator<>(new ArrayList<>(tuple.keySet()), strength)) {
+      ret.add(TupleUtils.project(tuple, keys));
     }
     return ret;
   }
@@ -38,10 +33,14 @@ public enum TupleUtils {
   }
 
   public static Set<Tuple> connectingSubtuplesOf(Tuple lhs, Tuple rhs, int strength) {
+    return connectingSubtuplesOf(LinkedHashSet::new, lhs, rhs, strength);
+  }
+
+  public static Set<Tuple> connectingSubtuplesOf(Supplier<Set<Tuple>> setSupplier, Tuple lhs, Tuple rhs, int strength) {
     Checks.checkcond(strength >= 0);
     Checks.checkcond(strength <= lhs.size() + rhs.size());
     Checks.checkcond(Collections.disjoint(lhs.keySet(), rhs.keySet()));
-    Set<Tuple> ret = new LinkedHashSet<>();
+    Set<Tuple> ret = setSupplier.get();
     for (int i = 1; i < strength; i++) {
       if (i > lhs.size())
         break;
@@ -55,12 +54,12 @@ public enum TupleUtils {
   }
 
   public static Tuple project(Tuple tuple, List<String> factorNames) {
-    Tuple.Builder builder = new Tuple.Builder();
+    Tuple.Builder builder = Tuple.builder();
     factorNames.stream().filter(tuple::containsKey).forEach(each -> builder.put(each, tuple.get(each)));
     return builder.build();
   }
 
   public static Tuple copy(Tuple tuple) {
-    return new Tuple.Builder().putAll(requireNonNull(tuple)).build();
+    return Tuple.builder().putAll(requireNonNull(tuple)).build();
   }
 }
