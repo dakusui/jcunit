@@ -18,7 +18,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
 import static java.util.Arrays.asList;
@@ -108,16 +110,16 @@ public class CAgenerationUnderConstraints {
     TestSuite testSuite = Pipeline.Standard.create().execute(
         new Config.Builder(requirement).withJoiner(new CustomJoiner(requirement)).build(),
         new ParameterSpace.Builder()
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p0"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p1"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p2"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p3"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p4"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p5"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p6"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p7"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p8"))
-            .addParameter(ParameterUtils.simple(0, 1, 2, 3, 4, 5, 6, 7).create("p9"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p0"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p1"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p2"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p3"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p4"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p5"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p6"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p7"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p8"))
+            .addParameter(ParameterUtils.simple(0, 1, 2, 3).create("p9"))
             .addConstraint(constraint("p1", "p2"))
             .addConstraint(constraint("p3", "p4"))
             .addConstraint(constraint("p5", "p6"))
@@ -214,11 +216,11 @@ public class CAgenerationUnderConstraints {
 
   private static SchemafulTupleSet joinExperiment(int num, int strength) {
     SchemafulTupleSet lhs = buildSchemafulTupleSet("l", strength);
-    System.out.printf("*** initial: size=%d; %s%n", lhs.size(), lhs.getAttributeNames());
+    System.out.printf("*** initial: size=%d; %s%n", lhs.size(), lhs.getAttributeNames().size());
     for (SchemafulTupleSet rhs : prepareSchemafulTupleSets(num, strength)) {
       JoinSession session = new JoinSession.Builder(strength).lhs(lhs).rhs(rhs).build();
       session.execute();
-      System.out.printf("size=%d; time=%s[msec]; %s%n", session.result.size(), session.time(), session.result.getAttributeNames());
+      System.out.printf("size=%d; time=%s[msec]; %s%n", session.result.size(), session.time(), session.result.getAttributeNames().size());
       lhs = session.result;
     }
     return lhs;
@@ -231,6 +233,7 @@ public class CAgenerationUnderConstraints {
     }
     return ret;
   }
+
 
   private static SchemafulTupleSet join(int strength, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     return new Joiner.Standard(new Requirement.Builder().withStrength(strength).build()).apply(lhs, rhs);
@@ -294,6 +297,57 @@ public class CAgenerationUnderConstraints {
   }
 
   private static SchemafulTupleSet buildSchemafulTupleSet(String prefix, int strength) {
+    List<String> attrs = IntStream.range(0, 10).mapToObj(i -> String.format("%s%d", prefix, i)).collect(Collectors.toList());
+    return new SchemafulTupleSet.Builder(
+        attrs
+    ).add(toTuple(attrs, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1
+    )).add(toTuple(attrs, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2
+    )).add(toTuple(attrs, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3
+    )).add(toTuple(attrs, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0
+    )).add(toTuple(attrs, 1, 0, 2, 3, 0, 1, 2, 3, 0, 1
+    )).add(toTuple(attrs, 1, 1, 3, 0, 1, 2, 3, 0, 1, 2
+    )).add(toTuple(attrs, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3
+    )).add(toTuple(attrs, 1, 3, 1, 2, 3, 0, 1, 2, 3, 0
+    )).add(toTuple(attrs, 2, 0, 3, 2, 0, 3, 3, 2, 0, 1
+    )).add(toTuple(attrs, 2, 1, 0, 3, 1, 0, 0, 3, 1, 2
+    )).add(toTuple(attrs, 2, 2, 1, 0, 2, 1, 1, 0, 2, 3
+    )).add(toTuple(attrs, 2, 3, 2, 1, 3, 2, 2, 1, 3, 0
+    )).add(toTuple(attrs, 3, 0, 0, 2, 3, 1, 0, 2, 3, 1
+    )).add(toTuple(attrs, 3, 1, 1, 3, 0, 2, 1, 3, 0, 2
+    )).add(toTuple(attrs, 3, 2, 2, 0, 1, 3, 2, 0, 1, 3
+    )).add(toTuple(attrs, 3, 3, 3, 1, 2, 0, 3, 1, 2, 0
+    )).add(toTuple(attrs, 2, 0, 0, 0, 3, 2, 0, 0, 3, 1
+    )).add(toTuple(attrs, 3, 1, 1, 1, 0, 3, 1, 1, 0, 2
+    )).add(toTuple(attrs, 0, 2, 2, 2, 1, 0, 2, 2, 1, 3
+    )).add(toTuple(attrs, 2, 3, 3, 3, 2, 1, 3, 3, 2, 0
+    )).add(toTuple(attrs, 2, 2, 1, 1, 0, 2, 0, 0, 3, 2
+    )).add(toTuple(attrs, 1, 3, 2, 2, 1, 3, 0, 0, 0, 3
+    )).add(toTuple(attrs, 2, 0, 3, 3, 2, 0, 0, 0, 1, 0
+    )).add(toTuple(attrs, 0, 1, 0, 0, 3, 1, 1, 1, 2, 1
+    )).add(toTuple(attrs, 2, 2, 2, 2, 2, 0, 1, 1, 0, 1
+    )).add(toTuple(attrs, 3, 3, 3, 3, 3, 1, 1, 1, 0, 2
+    )).add(toTuple(attrs, 1, 3, 0, 0, 0, 2, 2, 2, 1, 3
+    )).add(toTuple(attrs, 1, 1, 1, 1, 3, 3, 2, 2, 1, 0
+    )).add(toTuple(attrs, 1, 0, 3, 3, 0, 2, 2, 2, 2, 2
+    )).add(toTuple(attrs, 3, 2, 0, 0, 1, 3, 3, 3, 2, 0
+    )).add(toTuple(attrs, 3, 1, 1, 1, 1, 0, 3, 3, 3, 3
+    )).add(toTuple(attrs, 3, 3, 2, 2, 2, 0, 3, 3, 3, 1
+    )).add(toTuple(attrs, 1, 0, 1, 0, 1, 0, 2, 0, 0, 3
+    )).build();
+  }
+
+  private static Tuple toTuple(List<String> attrs, int... values) {
+    checkcond(attrs.size() == values.length);
+    Tuple.Builder builder = Tuple.builder();
+    int i = 0;
+    for (String each : attrs) {
+      builder.put(each, values[i]);
+      i++;
+    }
+    return builder.build();
+  }
+
+  private static SchemafulTupleSet buildSchemafulTupleSet_(String prefix, int strength) {
     Requirement requirement = new Requirement.Builder().withStrength(strength).build();
     return toSchemafulTupleSet(Pipeline.Standard.create().execute(
         new Config.Builder(
@@ -359,10 +413,10 @@ public class CAgenerationUnderConstraints {
         return super.doJoin(lhs, rhs);
       } finally {
         System.out.println(
-            String.format("lhs=%s;%s", lhs.getAttributeNames(), lhs.size())
+            String.format("lhs=%s", lhs.size())
         );
         System.out.println(
-            String.format("rhs=%s;%s", rhs.getAttributeNames(), rhs.size())
+            String.format("rhs=%s", rhs.size())
         );
         System.out.println(
             System.currentTimeMillis() - before

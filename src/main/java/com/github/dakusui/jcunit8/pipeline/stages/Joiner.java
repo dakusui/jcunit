@@ -84,38 +84,44 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
                   tuple -> tupleToCover_.keySet().stream().allMatch(tuple::containsKey) && !tupleToCover_.equals(tuple)
               )
           ).collect(toList());
-          log("phase-2.1:" + tuplesToCover.size() + ":" + tuplesToCover);
-          tuplesToCover.forEach(
-              each -> {
-                log("phase-2.2.x:" + remainingTuplesToBeCovered.size() + ":" + alreadyUsed.size());
-                int most = 0;
-                Tuple bestLhs = null, bestRhs = null;
-                for (Tuple lhsTuple : this.coveredByLhs.apply(each)) {
-                  for (Tuple rhsTuple : this.coveredByRhs.apply(each)) {
-                    if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))
-                      continue;
-                    Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
-                    int numCovered = sizeOfIntersection(
-                        connectingSubtuples,
-                        remainingTuplesToBeCovered);
-                    if (numCovered > most) {
-                      most = numCovered;
-                      bestLhs = lhsTuple;
-                      bestRhs = rhsTuple;
-                    }
-                  }
-                }
-                if (bestLhs != null && bestRhs != null) {
-                  Tuple chosen = connect(bestLhs, bestRhs);
-                  alreadyUsed.add(chosen);
-                  remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(
-                      project(chosen, lhs.getAttributeNames()),
-                      project(chosen, rhs.getAttributeNames()),
-                      requirement.strength()
-                  ));
-                }
+          List<String> keys = new ArrayList<>(tupleToCover_.keySet());
+
+          log("phase-2.1:" + tuplesToCover.size() + ": lhs=" + lhs.size() + ": rhs=" + rhs.size());
+          Map<Tuple, Tuple> bestFor = new HashMap<>();
+          Map<Tuple, Integer> numCoveredByBestFor = new HashMap<>();
+          outer:
+          for (Tuple lhsTuple : lhs) {
+            for (Tuple rhsTuple : rhs) {
+              if (remainingTuplesToBeCovered.isEmpty())
+                break outer;
+              Tuple connected = connect(lhsTuple, rhsTuple);
+              if (alreadyUsed.contains(connected))
+                continue;
+              Set<Tuple> connectingSubtuples = connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
+              //Set<Tuple> connectingSubtuples = TupleUtils.connectingSubtuplesOf(HashSet::new, lhsTuple,rhsTuple, requirement.strength());
+              int numCovered = sizeOfIntersection(
+                  connectingSubtuples,
+                  remainingTuplesToBeCovered
+              );
+              if (numCovered == 0)
+                continue;
+              Tuple each = project(connected, keys);
+              if (!numCoveredByBestFor.containsKey(each) || numCovered > numCoveredByBestFor.get(each)) {
+                bestFor.put(each, connected);
+                numCoveredByBestFor.put(each, numCovered);
               }
-          );
+            }
+          }
+          log("phase-2.1.2:" + alreadyUsed.size() + ":" + remainingTuplesToBeCovered.size());
+
+          for (Tuple each : tuplesToCover) {
+            if (numCoveredByBestFor.containsKey(each)) {
+              Tuple connected = bestFor.get(each);
+              alreadyUsed.add(connected);
+              remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf.apply(requirement.strength()).apply(project(connected, lhs.getAttributeNames())).apply(project(connected, rhs.getAttributeNames())));
+            }
+          }
+          log("phase-2.1.3:" + alreadyUsed.size() + ":" + remainingTuplesToBeCovered.size());
         }
 
         private void findBestCombinationsFor(Tuple tupleToCover_, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
@@ -127,11 +133,13 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
               )
           ).collect(toList());
           log("phase-2.1:" + tuplesToCover.size() + ":" + tuplesToCover);
+          int[] last = new int[] { Integer.MAX_VALUE };
           tuplesToCover.forEach(
               each -> {
                 log("phase-2.2.x:" + remainingTuplesToBeCovered.size() + ":" + alreadyUsed.size());
                 int most = 0;
                 Tuple bestLhs = null, bestRhs = null;
+                outer:
                 for (Tuple lhsTuple : this.coveredByLhs.apply(each)) {
                   for (Tuple rhsTuple : this.coveredByRhs.apply(each)) {
                     if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))
@@ -139,22 +147,26 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
                     Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
                     int numCovered = sizeOfIntersection(
                         connectingSubtuples,
-                        remainingTuplesToBeCovered);
+                        remainingTuplesToBeCovered
+                    );
                     if (numCovered > most) {
                       most = numCovered;
                       bestLhs = lhsTuple;
                       bestRhs = rhsTuple;
+                      if (last[0] == most)
+                        break outer;
                     }
                   }
                 }
+                last[0] = most;
                 if (bestLhs != null && bestRhs != null) {
-                  Tuple chosen = connect(bestLhs, bestRhs);
-                  alreadyUsed.add(chosen);
-                  remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(
-                      project(chosen, lhs.getAttributeNames()),
-                      project(chosen, rhs.getAttributeNames()),
-                      requirement.strength()
-                  ));
+                  alreadyUsed.add(connect(bestLhs, bestRhs));
+                  remainingTuplesToBeCovered.removeAll(
+                      connectingSubtuplesOf
+                          .apply(requirement.strength())
+                          .apply(bestLhs)
+                          .apply(bestRhs)
+                  );
                 }
               }
           );
@@ -224,7 +236,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             );
         Tuple tuple = session.connect(lhsTuple, rhsTuple);
         work.add(tuple);
-        remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(lhsTuple, rhsTuple, this.requirement.strength()));
+        remainingTuplesToBeCovered.removeAll(session.connectingSubtuplesOf.apply(this.requirement.strength()).apply(lhsTuple).apply(rhsTuple));
       }
       log("phase-2:remainingTuples=" + remainingTuplesToBeCovered.size());
       ////

@@ -39,7 +39,7 @@ public enum TupleUtils {
   public static Set<Tuple> connectingSubtuplesOf(Supplier<Set<Tuple>> setSupplier, Tuple lhs, Tuple rhs, int strength) {
     Checks.checkcond(strength >= 0);
     Checks.checkcond(strength <= lhs.size() + rhs.size());
-    Checks.checkcond(Collections.disjoint(lhs.keySet(), rhs.keySet()));
+//    Checks.checkcond(Collections.disjoint(lhs.keySet(), rhs.keySet()));
     Set<Tuple> ret = setSupplier.get();
     for (int i = 1; i < strength; i++) {
       if (i > lhs.size())
