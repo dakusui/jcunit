@@ -214,6 +214,12 @@ public class CAgenerationUnderConstraints {
     }
   }
 
+  @Test
+  public void test3() {
+    for (Tuple each : joinExperiment(2, 3)) {
+      System.out.println(each);
+    }
+  }
   private static SchemafulTupleSet joinExperiment(int num, int strength) {
     SchemafulTupleSet lhs = buildSchemafulTupleSet("l", strength);
     System.out.printf("*** initial: size=%d; %s%n", lhs.size(), lhs.getAttributeNames().size());
