@@ -10,8 +10,8 @@ import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
+import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
@@ -90,7 +90,7 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static List<Tuple> join(List<Tuple> lhs, List<Tuple> rhs, int strength) {
-    return new Joiner.Standard(
+    return new StandardJoiner(
         new Requirement.Builder().withStrength(strength).build()
     ).apply(
         SchemafulTupleSet.fromTuples(lhs),

@@ -9,6 +9,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Encoder;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public interface Config {
     public Builder(Requirement requirement) {
       this.requirement = requirement;
       this.withGeneratorFactory(new Generator.Factory.Standard());
-      this.withJoiner(new Joiner.Standard(requirement));
+      this.withJoiner(new StandardJoiner(requirement));
       this.withPartitioner(new Partitioner.Standard());
     }
 

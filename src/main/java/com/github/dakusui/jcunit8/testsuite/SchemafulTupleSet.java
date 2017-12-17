@@ -5,8 +5,15 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static com.github.dakusui.jcunit8.exceptions.FrameworkException.check;
 import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStrengthIsInRange;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toList;
 
 /**
  * A list of tuples all of whose entries have the same attribute names. An implementation
@@ -14,7 +21,12 @@ import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStren
  */
 public interface SchemafulTupleSet extends List<Tuple> {
   List<String> getAttributeNames();
+
+  List<Object> getAttributeValuesOf(String attr);
+
   int width();
+
+  SchemafulTupleSet project(List<String> attributes);
 
   /**
    * Returns all t-way tuples in this {@code SchemafulTupleSet} where t is {@code strength}.
@@ -63,12 +75,17 @@ public interface SchemafulTupleSet extends List<Tuple> {
 
     public SchemafulTupleSet build() {
       class Impl extends AbstractList<Tuple> implements SchemafulTupleSet {
-        private final List<Tuple>  tuples;
-        private final List<String> attributeNames;
+        private final List<Tuple>               tuples;
+        private final List<String>              attributeNames;
+        private       Map<String, List<Object>> attributes;
 
         private Impl(List<String> attributeNames, List<Tuple> tuples) {
-          this.tuples = tuples;
-          this.attributeNames = Collections.unmodifiableList(attributeNames);
+          this.tuples = unmodifiableList(tuples);
+          this.attributes = unmodifiableMap(attributeNames.stream().collect(Collectors.toMap(
+              (String s) -> s,
+              (String s) -> tuples.stream().map(t -> t.get(s)).distinct().collect(toList())
+          )));
+          this.attributeNames = unmodifiableList(sortAttributeNames(attributeNames, this.attributes));
         }
 
         @Override
@@ -87,8 +104,34 @@ public interface SchemafulTupleSet extends List<Tuple> {
         }
 
         @Override
+        public List<Object> getAttributeValuesOf(String attr) {
+          return attributes.get(check(attr, attributes::containsKey, () -> String.format("Unknown attribute: '%s'", attr)));
+        }
+
+        @Override
         public int width() {
           return getAttributeNames().size();
+        }
+
+        @Override
+        public SchemafulTupleSet project(List<String> attributes) {
+          checknotnull(
+              attributes
+          );
+          check(
+              attributes,
+              this.attributeNames::containsAll,
+              () -> String.format(
+                  "Unknown attributes are found: %s",
+                  attributes.stream().filter(
+                      a -> !this.attributeNames.contains(a)
+                  ).collect(toList())
+              ));
+          return new SchemafulTupleSet.Builder(attributes).addAll(
+              this.tuples.stream().map(
+                  t -> TupleUtils.project(t, attributes)
+              ).collect(toList())
+          ).build();
         }
 
         @Override
@@ -100,10 +143,17 @@ public interface SchemafulTupleSet extends List<Tuple> {
           }
           return builder.build();
         }
+
       }
       return new Impl(
           new ArrayList<>(this.attributeNames),
           this.tuples);
+    }
+
+    private static List<String> sortAttributeNames(List<String> attributeNames, Map<String, List<Object>> values) {
+      return attributeNames.stream().sorted(
+          comparingInt(o -> values.get(o).size())
+      ).collect(toList());
     }
   }
 

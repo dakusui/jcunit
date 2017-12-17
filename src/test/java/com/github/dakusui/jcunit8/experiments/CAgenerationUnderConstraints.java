@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
@@ -242,7 +242,7 @@ public class CAgenerationUnderConstraints {
 
 
   private static SchemafulTupleSet join(int strength, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
-    return new Joiner.Standard(new Requirement.Builder().withStrength(strength).build()).apply(lhs, rhs);
+    return new StandardJoiner(new Requirement.Builder().withStrength(strength).build()).apply(lhs, rhs);
   }
 
   static class JoinSession {
@@ -358,7 +358,7 @@ public class CAgenerationUnderConstraints {
     return toSchemafulTupleSet(Pipeline.Standard.create().execute(
         new Config.Builder(
             requirement
-        ).withJoiner(new Joiner.Standard(requirement)).build(),
+        ).withJoiner(new StandardJoiner(requirement)).build(),
 
         new ParameterSpace.Builder()
             .addParameter(ParameterUtils.simple(0, 1, 2, 3).create(prefix + "0"))
@@ -407,7 +407,7 @@ public class CAgenerationUnderConstraints {
     ).build();
   }
 
-  public static class CustomJoiner extends Joiner.Standard {
+  public static class CustomJoiner extends StandardJoiner {
     public CustomJoiner(Requirement requirement) {
       super(requirement);
     }
