@@ -71,4 +71,8 @@ public enum TupleUtils {
   public static Tuple copy(Tuple tuple) {
     return Tuple.builder().putAll(requireNonNull(tuple)).build();
   }
+
+  public static Tuple connect(Tuple tuple1, Tuple tuple2) {
+    return Tuple.builder().putAll(tuple1).putAll(tuple2).build();
+  }
 }

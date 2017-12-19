@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.pipeline.stages.joiners;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
@@ -45,7 +46,7 @@ public class StandardJoiner extends Joiner.Base {
           );
       final private Function<Tuple, Function<Tuple, Tuple>>                         connect               = memoize(
           left -> memoize(
-              right -> _connect(left, right)
+              right -> TupleUtils.connect(left, right)
           )
       );
 
@@ -54,18 +55,15 @@ public class StandardJoiner extends Joiner.Base {
       }
 
       private void findBestCombinationsFor(Tuple tupleToCover_, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
-        log("phase-2.0:" + alreadyUsed.size() + "/" + tupleToCover_);
         List<Tuple> tuplesToCover = Stream.concat(
             Stream.of(tupleToCover_),
             remainingTuplesToBeCovered.stream().filter(
                 tuple -> tupleToCover_.keySet().stream().allMatch(tuple::containsKey) && !tupleToCover_.equals(tuple)
             )
         ).collect(toList());
-        log("phase-2.1:" + tuplesToCover.size() + ":" + tuplesToCover);
         int[] last = new int[] { Integer.MAX_VALUE };
         tuplesToCover.forEach(
             each -> {
-              log("phase-2.2.x:" + remainingTuplesToBeCovered.size() + ":" + alreadyUsed.size());
               int most = 0;
               Tuple bestLhs = null, bestRhs = null;
               outer:
@@ -101,36 +99,13 @@ public class StandardJoiner extends Joiner.Base {
         );
       }
 
-      private Optional<Tuple> findBestCombinationFor_(Tuple tupleToCover, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
-        int most = 0;
-        Tuple bestLhs = null, bestRhs = null;
-        for (Tuple lhsTuple : this.coveredByLhs.apply(tupleToCover)) {
-          for (Tuple rhsTuple : this.coveredByRhs.apply(tupleToCover)) {
-            if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))
-              continue;
-            Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
-            int numCovered = sizeOfIntersection(
-                connectingSubtuples,
-                remainingTuplesToBeCovered);
-            if (numCovered > most) {
-              most = numCovered;
-              bestLhs = lhsTuple;
-              bestRhs = rhsTuple;
-            }
-          }
-        }
-        return most == 0 ?
-            Optional.empty() :
-            Optional.of(connect(bestLhs, bestRhs));
-      }
-
-      private Optional<Tuple> findBestRhsFor(Tuple lhsTuple, List<Tuple> rhs, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
+      private Optional<Tuple> findBestTupleFor(Tuple tuple, List<Tuple> candidates, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
         int most = 0;
         Tuple bestRhs = null;
-        for (Tuple rhsTuple : rhs) {
-          if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))
+        for (Tuple rhsTuple : candidates) {
+          if (alreadyUsed.contains(connect(tuple, rhsTuple)))
             continue;
-          Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
+          Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(tuple).apply(rhsTuple);
           int numCovered = sizeOfIntersection(
               connectingSubtuples,
               remainingTuplesToBeCovered
@@ -163,7 +138,7 @@ public class StandardJoiner extends Joiner.Base {
       Tuple lhsTuple = lhs.get(i);
       Tuple rhsTuple = i < rhs.size() ?
           rhs.get(i) :
-          session.findBestRhsFor(lhsTuple, rhs, work, remainingTuplesToBeCovered).orElse(
+          session.findBestTupleFor(lhsTuple, rhs, work, remainingTuplesToBeCovered).orElse(
               rhs.get(i % rhs.size())
           );
       Tuple tuple = session.connect(lhsTuple, rhsTuple);
@@ -174,20 +149,6 @@ public class StandardJoiner extends Joiner.Base {
     ////
     // Modified VG (vertical growth) procedure
     while (!remainingTuplesToBeCovered.isEmpty()) {
-      // TODO: This is too much
-      /*
-      Tuple bestTuple = session.findBestCombinationFor(
-          remainingTuplesToBeCovered.stream().findFirst().orElseThrow(
-              IllegalStateException::new
-          ),
-          work,
-          remainingTuplesToBeCovered
-      ).orElseThrow(
-          IllegalStateException::new
-      );
-
-      */
-
       session.findBestCombinationsFor(remainingTuplesToBeCovered.stream().findFirst().orElseThrow(
           IllegalStateException::new
           ),
@@ -204,14 +165,15 @@ public class StandardJoiner extends Joiner.Base {
         .build();
   }
 
-  private static void log(String label) {
+  static void log(String label, Object... args) {
     long now = System.currentTimeMillis();
     long time = cur == 0 ? 0 : now - cur;
-    //System.out.println(label + ":" + time);
+    if ("yes".equals(System.getProperty("debug")))
+      System.out.println(String.format(label, args) + ":" + time);
     cur = now;
   }
 
-  private List<Tuple> findCoveringTuplesIn(Tuple aTuple, SchemafulTupleSet tuples) {
+  static List<Tuple> findCoveringTuplesIn(Tuple aTuple, SchemafulTupleSet tuples) {
     Tuple inConcern = project(aTuple, tuples.getAttributeNames());
     return tuples.stream(
     ).filter(
@@ -219,10 +181,6 @@ public class StandardJoiner extends Joiner.Base {
     ).collect(
         toList()
     );
-  }
-
-  private static Tuple _connect(Tuple tuple1, Tuple tuple2) {
-    return Tuple.builder().putAll(tuple1).putAll(tuple2).build();
   }
 
   private static TupleSet computeTuplesToBeCovered(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength) {
