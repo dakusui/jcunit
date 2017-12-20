@@ -12,6 +12,7 @@ import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
@@ -21,7 +22,6 @@ import static com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner.
 import static com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner.log;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
@@ -50,6 +50,9 @@ public class IncrementalJoiner extends Joiner.Base {
       log("phase-2.1: Pi=%s, ts.size=%s", Pi, ts.size());
       @SuppressWarnings("NonAsciiCharacters") TupleSet π = prepare_π(t, Pi, processedFactors, lhs, rhs);
       log("phase-2.2a: π=%s", π.size());
+      // hg
+      ts = session.hg(lhs, rhs, t, Pi, processedFactors, ts, π);
+      /*
       streamCoveredTuples(
           t,
           Pi,
@@ -59,6 +62,7 @@ public class IncrementalJoiner extends Joiner.Base {
       ).forEach(
           π::remove
       );
+      */
       log("phase-2.2b: π=%s", π.size());
       processedFactors.add(Pi);
       while (!π.isEmpty()) {
@@ -95,27 +99,11 @@ public class IncrementalJoiner extends Joiner.Base {
     ).build();
   }
 
-  private static List<Tuple> buildInitialTupleSet(Requirement requirement, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+  private static SchemafulTupleSet buildInitialTupleSet(Requirement requirement, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     List<String> lhsAttributeNamesInSeeds = lhs.getAttributeNames().subList(0, requirement.strength());
-    SchemafulTupleSet seeds = new StandardJoiner(requirement).apply(
+    return new StandardJoiner(requirement).apply(
         lhs.project(lhsAttributeNamesInSeeds), rhs
     );
-    Map<Tuple, Integer> numUsed = new HashMap<>();
-    return seeds.stream(
-    ).map(
-        tupleInSeeds -> {
-          Tuple chosen = lhs.stream(
-          ).filter(
-              project(tupleInSeeds, lhsAttributeNamesInSeeds)::isSubtupleOf
-          ).min(
-              comparingInt(o -> numUsed.getOrDefault(o, 0))
-          ).orElseThrow(
-              () -> noMatchingTupleFound(tupleInSeeds)
-          );
-          numUsed.put(chosen, numUsed.getOrDefault(chosen, 0) + 1);
-          return TupleUtils.connect(chosen, tupleInSeeds);
-        }
-    ).collect(toList());
   }
 
   @SuppressWarnings({ "unchecked", "NonAsciiCharacters" })
@@ -186,6 +174,15 @@ public class IncrementalJoiner extends Joiner.Base {
     final         SchemafulTupleSet                                               rhs;
     final private Function<Tuple, List<Tuple>>                                    coveredByLhs;
     final private Function<Tuple, List<Tuple>>                                    coveredByRhs;
+    /**
+     * in
+     * 0: strength
+     * 1: lhsTuple
+     * 2: rhsTuple
+     * out
+     * subtuples(tuplets) whose length is equal to strength that connect lhsTuple
+     * and rhsTuple
+     */
     final private Function<Integer, Function<Tuple, Function<Tuple, Set<Tuple>>>> connectingSubtuplesOf;
     final private Function<Tuple, Function<Tuple, Tuple>>                         connect;
     private final Requirement                                                     requirement;
@@ -262,10 +259,10 @@ public class IncrementalJoiner extends Joiner.Base {
       );
     }
 
-    private Optional<Tuple> findBestTupleFor(Tuple tuple, List<Tuple> candudates, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
+    private Optional<Tuple> findBestTupleFor(Tuple tuple, List<Tuple> candidates, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
       int most = 0;
       Tuple bestRhs = null;
-      for (Tuple rhsTuple : candudates) {
+      for (Tuple rhsTuple : candidates) {
         if (alreadyUsed.contains(connect(tuple, rhsTuple)))
           continue;
         Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(tuple).apply(rhsTuple);
@@ -283,6 +280,65 @@ public class IncrementalJoiner extends Joiner.Base {
       return most == 0 ?
           Optional.empty() :
           Optional.of(bestRhs);
+    }
+
+    public List<Tuple> hg(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength, String pi, List<String> processedFactors, List<Tuple> ts, TupleSet π) {
+      List<Tuple> ret = new ArrayList<>(ts.size());
+      for (Tuple each : ts) {
+        if (each.keySet().size() == lhs.size() + rhs.size())
+          continue;
+        ret.add(connectingSubtuplesOf.apply(strength).apply(project(
+            each,
+            processedFactors
+            )).apply(project(
+            each,
+            rhs.getAttributeNames()
+            )).stream().flatMap(
+            new Function<Tuple, Stream<Tuple>>() {
+              @Override
+              public Stream<Tuple> apply(Tuple tuple) {
+                return lhs.index().getAttributeValuesOf(pi).stream().map(
+                    new Function<Object, Tuple>() {
+                      @Override
+                      public Tuple apply(Object o) {
+                        return Tuple.builder().putAll(tuple).put(pi, o).build();
+                      }
+                    }
+                ).filter(
+                    new Predicate<Tuple>() {
+                      @Override
+                      public boolean test(Tuple tuple) {
+                        return !lhs.index().find(TupleUtils.project(tuple, lhs.getAttributeNames())).isEmpty();
+                      }
+                    }
+                );
+              }
+            }
+            ).max(
+            new Comparator<Tuple>() {
+              @Override
+              public int compare(Tuple t, Tuple u) {
+                return (int) (count(u) - count(t));
+              }
+
+              private long count(Tuple t) {
+                return connectingSubtuplesOf.apply(
+                    strength
+                ).apply(
+                    project(t, lhs.getAttributeNames())
+                ).apply(
+                    project(t, rhs.getAttributeNames())
+                ).stream(
+                ).filter(
+                    π::contains
+                ).count(
+                );
+              }
+            }
+            ).orElseThrow(() -> noCoveringTuple(null/*TODO*/))
+        );
+      }
+      return ret;
     }
   }
 }
