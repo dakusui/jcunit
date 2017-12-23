@@ -1,14 +1,12 @@
 package com.github.dakusui.jcunit8.experiments;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.pipeline.stages.joiners.IncrementalJoiner;
 import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
-import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
 import static java.util.Arrays.asList;
 
@@ -205,35 +202,35 @@ public class CAgenerationUnderConstraints {
 
   @Test
   public void test1() {
-    for (Tuple each : joinExperiment(9, 2, CAgenerationUnderConstraints::standard)) {
+    for (Tuple each : joinExperiment(9, 2, JoinSession::standard)) {
       System.out.println(each);
     }
   }
 
   @Test
   public void test2() {
-    for (Tuple each : joinExperiment(1, 3, CAgenerationUnderConstraints::standard)) {
+    for (Tuple each : joinExperiment(1, 3, JoinSession::standard)) {
       System.out.println(each);
     }
   }
 
   @Test
   public void test3() {
-    for (Tuple each : joinExperiment(2, 3, CAgenerationUnderConstraints::standard)) {
+    for (Tuple each : joinExperiment(2, 3, JoinSession::standard)) {
       System.out.println(each);
     }
   }
 
   @Test
   public void test4() {
-    for (Tuple each : joinExperiment(1, 3, CAgenerationUnderConstraints::incremental)) {
+    for (Tuple each : joinExperiment(1, 3, JoinSession::incremental)) {
       System.out.println(each);
     }
   }
 
   @Test
   public void test5() {
-    for (Tuple each : joinExperiment(9, 2, CAgenerationUnderConstraints::incremental)) {
+    for (Tuple each : joinExperiment(9, 2, JoinSession::incremental)) {
       System.out.println(each);
     }
   }
@@ -259,81 +256,8 @@ public class CAgenerationUnderConstraints {
   }
 
 
-  private static SchemafulTupleSet join(int strength, Function<Requirement, Joiner> joinerFactory, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+  static SchemafulTupleSet join(int strength, Function<Requirement, Joiner> joinerFactory, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     return joinerFactory.apply(new Requirement.Builder().withStrength(strength).build()).apply(lhs, rhs);
-  }
-
-  private static Joiner standard(Requirement requirement) {
-    return new StandardJoiner(requirement);
-  }
-
-  private static Joiner incremental(Requirement requirement) {
-    return new IncrementalJoiner(requirement);
-  }
-
-  static class JoinSession {
-    private final SchemafulTupleSet             lhs;
-    private final SchemafulTupleSet             rhs;
-    private final int                           strength;
-    private final Function<Requirement, Joiner> joinerFactory;
-    SchemafulTupleSet result;
-    boolean executed  = false;
-    boolean succeeded = false;
-    private long after;
-    private long before;
-
-    JoinSession(int strength, Function<Requirement, Joiner> joinerFactory, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
-      this.strength = strength;
-      this.lhs = checknotnull(lhs);
-      this.rhs = checknotnull(rhs);
-      this.joinerFactory = checknotnull(joinerFactory);
-    }
-
-    void execute() {
-      Checks.checkcond(!executed);
-      try {
-        this.before = System.currentTimeMillis();
-        this.result = join(strength, joinerFactory, lhs, rhs);
-        this.after = System.currentTimeMillis();
-        this.succeeded = true;
-      } finally {
-        this.executed = true;
-      }
-    }
-
-    long time() {
-      return this.after - this.before;
-    }
-
-    static class Builder {
-      private final int                           strength;
-      private       SchemafulTupleSet             lhs;
-      private       SchemafulTupleSet             rhs;
-      private       Function<Requirement, Joiner> joinerFactory;
-
-      Builder(int strength) {
-        this.strength = strength;
-      }
-
-      Builder with(Function<Requirement, Joiner> joinerFactory) {
-        this.joinerFactory = joinerFactory;
-        return this;
-      }
-
-      Builder lhs(SchemafulTupleSet lhs) {
-        this.lhs = lhs;
-        return this;
-      }
-
-      Builder rhs(SchemafulTupleSet rhs) {
-        this.rhs = rhs;
-        return this;
-      }
-
-      JoinSession build() {
-        return new JoinSession(this.strength, joinerFactory, lhs, rhs);
-      }
-    }
   }
 
   private static SchemafulTupleSet buildSchemafulTupleSet(String prefix, int strength) {

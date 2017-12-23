@@ -12,7 +12,6 @@ import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
@@ -165,7 +164,7 @@ public class IncrementalJoiner extends Joiner.Base {
   }
 
   private static FrameworkException noCoveringTuple(TupleSet tupleSet) {
-    throw new FrameworkException(String.format("No covering tuple can't be generated for: %s", tupleSet)) {
+    throw new FrameworkException(String.format("No covering tuple can be generated for: %s", tupleSet)) {
     };
   }
 
@@ -287,55 +286,43 @@ public class IncrementalJoiner extends Joiner.Base {
       for (Tuple each : ts) {
         if (each.keySet().size() == lhs.size() + rhs.size())
           continue;
-        ret.add(connectingSubtuplesOf.apply(strength).apply(project(
-            each,
-            processedFactors
-            )).apply(project(
-            each,
-            rhs.getAttributeNames()
-            )).stream().flatMap(
-            new Function<Tuple, Stream<Tuple>>() {
-              @Override
-              public Stream<Tuple> apply(Tuple tuple) {
-                return lhs.index().getAttributeValuesOf(pi).stream().map(
-                    new Function<Object, Tuple>() {
-                      @Override
-                      public Tuple apply(Object o) {
-                        return Tuple.builder().putAll(tuple).put(pi, o).build();
-                      }
-                    }
-                ).filter(
-                    new Predicate<Tuple>() {
-                      @Override
-                      public boolean test(Tuple tuple) {
-                        return !lhs.index().find(TupleUtils.project(tuple, lhs.getAttributeNames())).isEmpty();
-                      }
-                    }
-                );
-              }
-            }
+        ret.add(
+            connectingSubtuplesOf
+                .apply(strength)
+                .apply(project(each, processedFactors))
+                .apply(project(each, rhs.getAttributeNames())
+                ).stream().flatMap(
+                tuple ->
+                    lhs.index().getAttributeValuesOf(pi).stream().map(o ->
+                        Tuple.builder().putAll(tuple).put(pi, o).build()
+                    ).filter(
+                        eachTuple ->
+                            !lhs.index().find(TupleUtils.project(eachTuple, lhs.getAttributeNames())).isEmpty()
+                    )
             ).max(
-            new Comparator<Tuple>() {
-              @Override
-              public int compare(Tuple t, Tuple u) {
-                return (int) (count(u) - count(t));
-              }
+                new Comparator<Tuple>() {
+                  @Override
+                  public int compare(Tuple t, Tuple u) {
+                    return (int) (count(u) - count(t));
+                  }
 
-              private long count(Tuple t) {
-                return connectingSubtuplesOf.apply(
-                    strength
-                ).apply(
-                    project(t, lhs.getAttributeNames())
-                ).apply(
-                    project(t, rhs.getAttributeNames())
-                ).stream(
-                ).filter(
-                    π::contains
-                ).count(
-                );
-              }
-            }
-            ).orElseThrow(() -> noCoveringTuple(null/*TODO*/))
+                  private long count(Tuple t) {
+                    return connectingSubtuplesOf.apply(
+                        strength
+                    ).apply(
+                        project(t, lhs.getAttributeNames())
+                    ).apply(
+                        project(t, rhs.getAttributeNames())
+                    ).stream(
+                    ).filter(
+                        π::contains
+                    ).count(
+                    );
+                  }
+                }
+            ).orElseThrow(
+                () -> noCoveringTuple(null/*TODO*/)
+            )
         );
       }
       return ret;

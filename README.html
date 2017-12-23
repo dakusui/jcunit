@@ -1,0 +1,246 @@
+<p><img src="src/main/resources/JCunit-logo.png" alt="JCUnit" /> is a model based testing tool powered by combinatorial testing techniques.</p>
+<p>Current version of JCUnit (0.8.x) is not compatible with older versions anymore. Users who need to use older ones, please refer to <a href="https://github.com/dakusui/jcunit/wiki/0.7.x">JCUnit-0.7.x</a>.</p>
+<p>In this document, the new version is called &quot;JCUnit8&quot; to tell it from older ones when necessary.</p>
+<h2 id="about-0.8.x">About 0.8.x</h2>
+<p>0.8.x and later is actively being developed right now and called <strong>JCUnit8</strong>. It requires Java SE8.</p>
+<p>Major changes have been introduced in 0.8.x including move to Java 8, redesigning pipeline mechanism, renewed annotations, etc., most of which are incompatible with older versions.</p>
+<h3 id="installation-and-how-to-use-it.">Installation and how to use it.</h3>
+<p>Please use following dependencies to use <strong>JCUnit8</strong>.</p>
+<div class="sourceCode"><pre class="sourceCode xml"><code class="sourceCode xml">
+    <span class="kw">&lt;dependency&gt;</span>
+      <span class="kw">&lt;groupId&gt;</span>com.github.dakusui<span class="kw">&lt;/groupId&gt;</span>
+      <span class="kw">&lt;artifactId&gt;</span>jcunit<span class="kw">&lt;/artifactId&gt;</span>
+      <span class="kw">&lt;version&gt;</span>[0.8.12,)<span class="kw">&lt;/version&gt;</span>
+      <span class="kw">&lt;scope&gt;</span>test<span class="kw">&lt;/scope&gt;</span>
+    <span class="kw">&lt;/dependency&gt;</span>
+    <span class="kw">&lt;dependency&gt;</span>
+      <span class="kw">&lt;groupId&gt;</span>junit<span class="kw">&lt;/groupId&gt;</span>
+      <span class="kw">&lt;artifactId&gt;</span>junit<span class="kw">&lt;/artifactId&gt;</span>
+      <span class="kw">&lt;version&gt;</span>4.12<span class="kw">&lt;/version&gt;</span>
+      <span class="kw">&lt;scope&gt;</span>test<span class="kw">&lt;/scope&gt;</span>
+    <span class="kw">&lt;/dependency&gt;</span></code></pre></div>
+<ul>
+<li><strong>NOTE:</strong> Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.</li>
+<li><strong>NOTE:</strong> Source code is found here:<a href="https://github.com/dakusui/jcunit/tree/0.8.x-develop">0.8.x-develop branch</a></li>
+</ul>
+<h1 id="new-features">New features</h1>
+<p>Followings are major new features that have been introduced to JCUnit in 0.8.x.</p>
+<ul>
+<li>Annotation Renewal</li>
+<li>Pipeline Renewal
+<ul>
+<li>New pipeline design</li>
+<li>API</li>
+</ul></li>
+<li>New covering array engine
+<ul>
+<li>&quot;IPO-G+&quot;</li>
+</ul></li>
+</ul>
+<p>It will no longer be working with old Java SE6 and require Java 8. Neither it will not be compatible with older versions of JCUnit. The new version is called &quot;JCUnit 8&quot; named after both Java 8 and the version of JCUnit, 0.8.x. Not only that, some functionalities of older versions are removed from JCUnit8.</p>
+<h3 id="annotation-renewal">Annotation Renewal</h3>
+<p>In JCUnit8, its annotation system was completely renewed. You can find an example of the new annotation style <a href="/src/java/test/com/github/dakusui/jcunit8/examples/BankAccountExample.java">here</a>.</p>
+<p>These days, people more and more tend to prefer <span class="citation">['@Theories' style]</span>(http://junit.org/junit4/javadoc/4.12/org/junit/experimental/theories/Theories.html), where each test method takes parameters to each of whose actual value is assigned by a test runner, over conventional JUnit style. Newly introduced annotation system takes the approach.</p>
+<p>Followings are the annotations used in the new style.</p>
+<ul>
+<li>Defining a test class
+<ul>
+<li><code>@Runwith(JCUnit8.class)</code></li>
+<li><code>@ConfigureWith</code></li>
+</ul></li>
+<li>Defining a test method
+<ul>
+<li><code>@Test</code></li>
+<li><code>@Given</code></li>
+<li><code>@From</code></li>
+</ul></li>
+<li>Defining a test space
+<ul>
+<li><code>@ParameterSource</code></li>
+<li><code>@Condition</code></li>
+</ul></li>
+</ul>
+<p>These will be explained in this section.</p>
+<h4 id="defining-a-test-class">Defining a test class</h4>
+<p>The new test runner is called <strong>JCUnit8</strong> (<code>com.github.dakusui.jcunit8.runners.junit4.JCUnit8X</code>). When you use the runner, a configuration factory for the test class can be specified it with another annotation <code>@ConfigureWith</code>. With it, you can control various features of <strong>JCUnit</strong> such as negative test generation, test suite strength, etc.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+    <span class="fu">@RunWith</span>(JCUnit8.<span class="fu">class</span>)
+    <span class="fu">@ConfigureWith</span>(BankAccountExample.<span class="fu">BankAccountConfigFactory</span>.<span class="fu">class</span>)
+    <span class="kw">public</span> <span class="kw">class</span> BankAccountExample {
+        ...</code></pre></div>
+<p>You can also configure a class from which parameters, constraints, and non-constraint conditions are generated using <code>parameterSpace</code> attribute.</p>
+<h4 id="defining-a-test-method">Defining a test method</h4>
+<p>Methods annotated with <code>@Test</code> are considered to be test methods, but unlike conventional JUnit test methods, they can take parameters. But each of those parameters must be annotated with <code>@From</code>, which specifies how actual argument values of the parameter should be supplied.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+      <span class="fu">@Test</span>
+      <span class="fu">@Given</span>(<span class="st">&quot;overdraftNotHappens&quot;</span>)
+      <span class="kw">public</span> <span class="dt">void</span> whenPerformScenario$<span class="fu">thenBalanceIsCorrect</span>(
+          <span class="fu">@From</span>(<span class="st">&quot;scenario&quot;</span>) List&lt;String&gt; scenario,
+          <span class="fu">@From</span>(<span class="st">&quot;depositAmount&quot;</span>) <span class="dt">int</span> amountOfDeposit,
+          <span class="fu">@From</span>(<span class="st">&quot;withdrawAmount&quot;</span>) <span class="dt">int</span> amountOfWithdraw,
+          <span class="fu">@From</span>(<span class="st">&quot;transferAmount&quot;</span>) <span class="dt">int</span> amountOfTransfer
+      ) {
+          ...
+      }</code></pre></div>
+<p><code>@From</code> annotations specify a name of method defined from which actual parameter values should be generated. Those methods must be defined in a class specified by <code>@ConfigureWith#parameterSpace</code>.</p>
+<ul>
+<li><strong>NOTE:</strong> Unlike previous versions, you will not need to use <code>@Uses</code> annotations anymore because the factors used in your test method are already declared by parameter definitions.</li>
+</ul>
+<h5 id="associating-test-cases-and-test-oracles">Associating test cases and test oracles</h5>
+<p>Expected behaviours of test cases can be different depending on inputs of them. E.g., when a sequence of bank account operations is executed, the expected outcome will be different depending on whether an overdraft happens or not.</p>
+<p>In JCUnit8, this can be expressed by using <code>@Given</code> annotation.</p>
+<p>A <code>@Given</code> annotation specifies a condition on which this test method should be executed. In the example above, the test method <code>whenPerformScenario$thenBalanceIsCorrect</code> will be invoked when (and only when) a method <code>overdraftNotHappens</code>, defined in the class specified by <code>@ConfigureWith#parameterSpace</code> attribute, returns <code>true</code>.</p>
+<p>Currently JCUnit allows you to create composite conditions using three operators, AND, OR, and NOT from simple ones. With them, you should be able to express any boolean forms in theory (because you can transform any boolean form into <a href="https://en.wikipedia.org/wiki/Disjunctive_normal_form">DNF</a>)</p>
+<p>But parentheses cannot be used.</p>
+<p>If you want to express ANDed conditions, you can do it by following.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+      <span class="fu">@Test</span>
+      <span class="fu">@Given</span>(<span class="st">&quot;condition1&amp;&amp;condition2&quot;</span>)
+      <span class="kw">public</span> <span class="dt">void</span> <span class="fu">aTestMethod</span>(...) {
+          ...</code></pre></div>
+<p>To express ORed conditions,</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+      <span class="fu">@Test</span>
+      <span class="fu">@Given</span>({<span class="st">&quot;condition1&quot;</span>, <span class="st">&quot;condition2&quot;</span>})
+      <span class="kw">public</span> <span class="dt">void</span> <span class="fu">aTestMethod</span>(...) {
+          ...</code></pre></div>
+<p>And to negate a condition, you can do</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">      <span class="fu">@Test</span>
+      <span class="fu">@Given</span>({<span class="st">&quot;!condition1&quot;</span>, <span class="st">&quot;condition2&amp;&amp;!condition3&quot;</span>})
+      <span class="kw">public</span> <span class="dt">void</span> <span class="fu">aTestMethod</span>(...) {
+          ...</code></pre></div>
+<p>As mentioned already, parentheses are not supported and you cannot write a condition like this.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+   <span class="fu">@Given</span>(<span class="st">&quot;(condition1||!condition2)&amp;&amp;condition3&quot;</span>)</code></pre></div>
+<p>You will need to rewrite this to following.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+   <span class="fu">@Given</span>({<span class="st">&quot;condition1&amp;&amp;condition3&quot;</span>, <span class="st">&quot;!condition2&amp;&amp;condition3&quot;</span>})</code></pre></div>
+<h4 id="defining-a-test-space">Defining a test space</h4>
+<p>The model from which JCUnit generates test cases consists of three elements which are</p>
+<ul>
+<li>Parameters</li>
+<li>Constraints</li>
+<li>Test oracles</li>
+</ul>
+<p>Test oracles are defined as methods in a test class and associated with test cases using <code>@Given</code> annotations. In this section it will be discussed how to define parameters and constraints.</p>
+<h5 id="defining-a-parameter">Defining a parameter</h5>
+<p>When you can list actual values of a parameter and it's sufficient, you can (and should) use &quot;Simple&quot; parameter model. Following is an example.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+        <span class="fu">@ParameterSource</span>
+        <span class="kw">public</span> Simple.<span class="fu">Factory</span>&lt;Integer&gt; <span class="fu">depositAmount</span>() {
+          <span class="kw">return</span> Simple.<span class="fu">Factory</span>.<span class="fu">of</span>(<span class="fu">asList</span>(<span class="dv">100</span>, <span class="dv">200</span>, <span class="dv">300</span>, <span class="dv">400</span>, <span class="dv">500</span>, <span class="dv">600</span>, -<span class="dv">1</span>));
+        }</code></pre></div>
+<p>The annotation <code>@ParameterSource</code> tells JCUnit that it is a method that supplies actual values of parameter <code>depositAmount</code> (method name). <code>@From</code> annotations reference methods defined in a class that implements <code>Config.Factory</code> and is referred to by <code>@ConfiguredWith</code> annotation.</p>
+<p>A method annotated with <code>@ParameterSource</code> must return a factory of a parameter class. And the parameter object created by the returned factory should hold actual values to be used in the generated test suite.</p>
+<p>When you want to use a simple parameter, it can be done just by doing</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+          <span class="kw">return</span> Simple.<span class="fu">Factory</span>.<span class="fu">of</span>(<span class="fu">asList</span>(<span class="dv">100</span>, <span class="dv">200</span>, <span class="dv">300</span>, <span class="dv">400</span>, <span class="dv">500</span>, <span class="dv">600</span>, -<span class="dv">1</span>));</code></pre></div>
+<p>The values <code>100</code>, <code>200</code>, <code>300</code>, ..., passed to <code>(Arrays.)asList</code> are values that you can use the parameter <code>depositAmount</code>.</p>
+<h5 id="defining-a-constraint-and-a-condition">Defining a constraint and a condition</h5>
+<p>To define a constraint, you can do following.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">        <span class="fu">@Condition</span>(constraint = <span class="kw">true</span>)
+        <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">overdraftNotHappens</span>(
+            <span class="fu">@From</span>(<span class="st">&quot;scenario&quot;</span>) List&lt;String&gt; scenario,
+            <span class="fu">@From</span>(<span class="st">&quot;depositAmount&quot;</span>) <span class="dt">int</span> amountOfDeposit,
+            <span class="fu">@From</span>(<span class="st">&quot;withdrawAmount&quot;</span>) <span class="dt">int</span> amountOfWithdraw,
+            <span class="fu">@From</span>(<span class="st">&quot;transferAmount&quot;</span>) <span class="dt">int</span> amountOfTransfer
+        ) {
+          <span class="kw">return</span> <span class="fu">calculateBalance</span>(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) &gt;= <span class="dv">0</span>;
+        }</code></pre></div>
+<p>When you want to make it a non-constraint-condition, you can omit the attribute <code>constraint</code> or explicitly set the value to <code>false</code>.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">        <span class="fu">@Condition</span>(constraint = <span class="kw">false</span>)
+        <span class="kw">public</span> <span class="dt">boolean</span> <span class="fu">overdraftNotHappens</span>(</code></pre></div>
+<ul>
+<li><strong>NOTE:</strong> Unlike previous versions, you will not need to use <code>@Uses</code> annotations anymore because the factors used in your test method are already declared by parameter definitions.</li>
+</ul>
+<h3 id="pipeline-renewal">Pipeline Renewal</h3>
+<p>The test suite generation pipeline of JCUnit was completely redesigned.</p>
+<p>In the new JCUnit style, users will define &quot;parameters&quot; using models, such as FSM or Regex, and constraints over them first, and then they will be converted into factors and constraints.</p>
+<p>One parameter can be turned into multiple factors. For instance, from a regex <code>A(B|C){0,3}</code> parameter can be turned into 10 factors and 9 constraints that look like following.</p>
+<pre><code>    REGEX:regex1:alt-5:[(VOID), [B], [C]]
+    REGEX:regex1:alt-6:[(VOID), [B], [C]]
+    ...
+    REGEX:regex1:cat-14:[[[A], Reference:&lt;REGEX:regex1:rep-13&gt;]]
+
+    constraint([REGEX:regex1:rep-13]-&gt;REGEX:regex1:alt-5)
+    constraint([REGEX:regex1:cat-8]-&gt;REGEX:regex1:alt-6)
+    ...
+    constraint([REGEX:regex1:cat-14]-&gt;REGEX:regex1:rep-13)</code></pre>
+<p>After all the parameters and constraints are converted to factors and constraints, factors and constraints are grouped based on how constraints are referring to factors so that each group can be processed independently.</p>
+<h4 id="overview">Overview</h4>
+<p>Following is a diagram that illustrates the entire flow of JCUnit8 pipeline from user input, parameters and constraints, to the system output, the generated test suite. <img src="src/site/docs/ThePipeline/Slide1.jpg" alt="Overview" style="width: 640px;"/></p>
+<p>Users sometimes want to define constraints that involve non-simple parameters. For instance, if you define a parameter to describe a sequence of operations using a regular expression model, maybe you want to exclude test cases where overdrafts happen. To make it possible to generate tests from such a model, JCUnit first converts eah non-simple parameter which involves a constraint into a simple parameter. This conversion is done by a sub-pipeline called &quot;Engine&quot;.</p>
+<p>The box &quot;Engine&quot; will be discussed later in more detail.</p>
+<h4 id="engine">&quot;Engine&quot;</h4>
+<p>The &quot;Engine&quot; stage is a main component of the entire test suite generation pipeline. It takes 'preprocessed' parameters and constraints and generates a covering array of required strength any of whose element does not violate any of given constraints.</p>
+<p>This stage is not designed to handle parameters that are involved in any constraints. It is because that we speculated that, if such a parameter is included, the factors and constraints will not be partitioned efficiently and covering array generation will take impractically long time.</p>
+<p>To address this concerning, the pipeline designed to 'preprocess' the non-simple parameters referenced by constraints to convert into simple ones by applying &quot;Engine&quot; process for each parameter as if it is an independent parameter space beforehand. (see &quot;Overview&quot;)</p>
+<p><img src="src/site/docs/ThePipeline/Slide2.jpg" alt="Engine" style="width: 640px;"/></p>
+<p>After parameters and constraints are encoded into factors and constraints that can be handled by implementations of <code>com.github.dakusui.jcunit8.pipeline.stages.Generator</code>, they will then be 'partitioned'.</p>
+<p>In 'partition' step, factors will be grouped by constraints that involve them, so that each group can be processed independently.</p>
+<p>After all the groups are processed and therefore a small covering array is generated for each group, those groups will be joined. After all joining processes have finishes, you will have final covering array whose each tuple's values can be decoded to actual values of parameters.</p>
+<h4 id="new-covering-array-engine-ipo-g">New covering array engine: &quot;IPO-G+&quot;</h4>
+<p>In JCUnit8, a new covering array generator that can handle constraints, <a href="main/java/com/github/dakusui/jcunit8/pipeline/stages/generators/IpoG.java">IPO-G+</a>, was introduced.</p>
+<p>Idea of the algorithm is simple. In conventional IPO-G algorithm, which is shown below, new values are assigned at some points annotated with (<em>1) - (</em>4). The IPO-G+ algorithm only searches for assignments which can become valid at these points.</p>
+<pre><code>      Algorithm: IPOG-Test (int t , ParameterSet ps ) {
+        1.  initialize test set ts to be an empty set
+        2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
+            and Pn
+        3.  add into test set ts a test for each combination of values of the first
+            t parameters (*1)
+        4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
+        5.     let π be the set of t -way combinations of values involving parameter
+               Pi and t -1 parameters among the first i – 1 parameters (*2)
+        6.     // horizontal extension for parameter Pi
+        7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
+        8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+                   ..., vi-1 , vi ) so that τ’ covers the most number of
+                   combinations of values in π (*3)
+        9.         remove from π the combinations of values covered by τ’
+        10.    }
+        11.    // vertical extension for parameter P i
+        12.    for (each combination σ in set π ) {
+        13.      if (there exists a test that already covers σ ) {
+        14.          remove σ from π
+        15.      } else {
+        16.          change an existing test, if possible, or otherwise add a new test
+                     to cover σ and remove it from π (*4)
+        17.      }
+        18.    }
+        19.  }
+        20.  return ts;
+       }
+      See http://barbie.uta.edu/~fduan/ACTS/IPOG_%20A%20General%20Strategy%20for%20T-Way%20Software%20Testing.pdf</code></pre>
+<p>Checking if given assignments can become valid and iterating valid assignments are done by following method.</p>
+<div class="sourceCode"><pre class="sourceCode java"><code class="sourceCode java">
+  <span class="kw">public</span> <span class="dt">static</span> Stream&lt;Tuple&gt; <span class="fu">streamAssignmentsAllowedByConstraints</span>(
+      Tuple tuple,
+      List&lt;Factor&gt; allFactors,
+      List&lt;Constraint&gt; allConstraints
+  ) {</code></pre></div>
+<p>This method streams assignments of factors, involved and allowed by given constraints, not given by <code>tuple</code>.</p>
+<ul>
+<li><strong>NOTE:</strong> Right now performance of this algorithm is being optimized and validated. And it might be re-desinged based on findings from the optimization and validation.</li>
+</ul>
+<h3 id="limitations">Limitations</h3>
+<ul>
+<li>If you have multiple test methods in your test class from an IDE such as IntelliJ, you cannot run only one of them. JCUnit has a helper class to work around the situation. Please refer to <a href="https://github.com/dakusui/jcunit/issues/125">Issue-125</a>.</li>
+</ul>
+<h3 id="todos">TODOs</h3>
+<ul>
+<li>Validations</li>
+<li>Default value of '<span class="citation">@ConfigureWith</span>' annotation: If the test class is implementing <code>Config.Factory</code> interface, it might be good idea to use it as a value for '<span class="citation">@ConfigureWith</span>' annotation when it is absent.</li>
+<li>IPO-G+ performance improvements.</li>
+<li>FSM feature has already been implemented, but not yet tested in 0.8.x line.</li>
+<li>Make the pipeline execute its internal processes where possible.</li>
+</ul>
+<h1 id="references">References</h1>
+<ul>
+<li><a href="https://github.com/dakusui/jcunit/wiki">JCUnit wiki</a></li>
+<li><a href="http://jcunit.hatenablog.jp/">JCUnit blog; Japanese; 日本語</a></li>
+</ul>
+<h1 id="copyright-and-license">Copyright and license</h1>
+<p>Copyright 2013 Hiroshi Ukai.</p>
+<p>Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); you may not use this work except in compliance with the License. You may obtain a copy of the License in the LICENSE file, or at:</p>
+<p><a href="http://www.apache.org/licenses/LICENSE-2.0" class="uri">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+<p>Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
