@@ -42,7 +42,7 @@ public class IncrementalJoiner extends Joiner.Base {
     final int t = requirement.strength();
     final int n = lhs.width();
 
-    List<String> processedFactors = new LinkedList<>();
+    List<String> processedFactors = new ArrayList<>(lhs.getAttributeNames().size() - t);
     for (int i = t; i < n; i++) {
 
       String Pi = lhs.getAttributeNames().get(i);
@@ -281,48 +281,80 @@ public class IncrementalJoiner extends Joiner.Base {
           Optional.of(bestRhs);
     }
 
-    public List<Tuple> hg(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength, String pi, List<String> processedFactors, List<Tuple> ts, TupleSet π) {
+    List<Tuple> hg(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength, String pi, List<String> processedFactors, List<Tuple> ts, TupleSet π) {
+      class Util {
+        final @SuppressWarnings("NonAsciiCharacters")
+        Comparator<Tuple> compareByCoveredTuplesInπ = new Comparator<Tuple>() {
+          @Override
+          public int compare(Tuple t, Tuple u) {
+            return (int) (count(u) - count(t));
+          }
+
+          private long count(Tuple t) {
+            return connectingSubtuplesOf.apply(
+                strength
+            ).apply(
+                project(t, lhs.getAttributeNames())
+            ).apply(
+                project(t, rhs.getAttributeNames())
+            ).stream(
+            ).filter(
+                π::contains
+            ).count(
+            );
+          }
+        };
+        private final List<Object> valuesOfPi = lhs.index().getAttributeValuesOf(pi);
+
+        private Tuple projectLhs(Tuple eachTuple) {
+          return project(eachTuple, lhs.getAttributeNames());
+        }
+
+        private Tuple tupleWhosePiIs(Tuple tuple, Object o) {
+          return Tuple.builder().putAll(tuple).put(pi, o).build();
+        }
+
+        private Tuple projectRhs(Tuple tuple) {
+          return project(tuple, rhs.getAttributeNames());
+        }
+      }
+      Util util = new Util();
       List<Tuple> ret = new ArrayList<>(ts.size());
       for (Tuple each : ts) {
         if (each.keySet().size() == lhs.size() + rhs.size())
           continue;
+        /*
+        ret.add(
+            connectingSubtuplesOf
+                .apply(strength - 1)
+                .apply(project(each, processedFactors))
+                .apply(util.projectRhs(each)).stream()
+                .flatMap(
+                    tuple -> util.valuesOfPi.stream().map(
+                        o -> util.tupleWhosePiIs(tuple, o)
+                    ).filter(
+                        eachTuple -> !lhs.index().find(util.projectLhs(eachTuple)).isEmpty()
+                    ))
+                .max(util.compareByCoveredTuplesInπ)
+                .orElseThrow(
+                    () -> noCoveringTuple(null)
+                )
+        ); */
         ret.add(
             connectingSubtuplesOf
                 .apply(strength)
                 .apply(project(each, processedFactors))
-                .apply(project(each, rhs.getAttributeNames())
-                ).stream().flatMap(
-                tuple ->
-                    lhs.index().getAttributeValuesOf(pi).stream().map(o ->
-                        Tuple.builder().putAll(tuple).put(pi, o).build()
+                .apply(util.projectRhs(each)).stream()
+                .flatMap(
+                    tuple -> util.valuesOfPi.stream().map(
+                        o -> util.tupleWhosePiIs(each, o)
                     ).filter(
-                        eachTuple ->
-                            !lhs.index().find(TupleUtils.project(eachTuple, lhs.getAttributeNames())).isEmpty()
-                    )
-            ).max(
-                new Comparator<Tuple>() {
-                  @Override
-                  public int compare(Tuple t, Tuple u) {
-                    return (int) (count(u) - count(t));
-                  }
-
-                  private long count(Tuple t) {
-                    return connectingSubtuplesOf.apply(
-                        strength
-                    ).apply(
-                        project(t, lhs.getAttributeNames())
-                    ).apply(
-                        project(t, rhs.getAttributeNames())
-                    ).stream(
-                    ).filter(
-                        π::contains
-                    ).count(
-                    );
-                  }
-                }
-            ).orElseThrow(
-                () -> noCoveringTuple(null/*TODO*/)
-            )
+                        eachTuple -> !lhs.index().find(util.projectLhs(eachTuple)).isEmpty()
+                    ))
+                .max(util.compareByCoveredTuplesInπ)
+                .orElseThrow(
+                    () -> noCoveringTuple(null)
+                )
         );
       }
       return ret;
