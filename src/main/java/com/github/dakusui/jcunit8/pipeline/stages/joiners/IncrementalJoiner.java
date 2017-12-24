@@ -13,6 +13,7 @@ import com.github.dakusui.jcunit8.testsuite.TupleSet;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
@@ -34,7 +35,7 @@ public class IncrementalJoiner extends Joiner.Base {
   }
 
   @Override
-  protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+  protected SchemafulTupleSet doJoin(final SchemafulTupleSet lhs, final SchemafulTupleSet rhs) {
     Session session = new Session(requirement, lhs, rhs);
     log("Inc:phase-0: incremental-join started");
     List<Tuple> ts = buildInitialTupleSet(requirement, lhs, rhs);
@@ -105,16 +106,23 @@ public class IncrementalJoiner extends Joiner.Base {
   }
 
   private static void ensureAllTuplesAreUsed(List<Tuple> ts, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
-    List<Tuple> lhsNotUsed = ts.stream().filter(
-        each -> lhs.index().find(project(each, lhs.getAttributeNames())).isEmpty()
-    ).collect(toList());
-    List<Tuple> rhsNotUsed = ts.stream().filter(
-        each -> rhs.index().find(project(each, rhs.getAttributeNames())).isEmpty()
-    ).collect(toList());
+    List<Tuple> lhsNotUsed = notUsedIn(ts, lhs);
+    List<Tuple> rhsNotUsed = notUsedIn(ts, rhs);
     int min = min(lhsNotUsed.size(), rhsNotUsed.size());
+    if (min == 0)
+      return;
     for (int i = 0; i < max(lhsNotUsed.size(), rhsNotUsed.size()); i++) {
       ts.add(connect(lhsNotUsed.get(i % min), rhsNotUsed.get(i % min)));
     }
+  }
+
+  private static List<Tuple> notUsedIn(List<Tuple> ts, SchemafulTupleSet lhs) {
+    Set<Tuple> usedLhs = ts.stream()
+        .map(each -> project(each, lhs.getAttributeNames()))
+        .collect(Collectors.toSet());
+    return lhs.stream()
+        .filter(each -> !usedLhs.contains(each))
+        .collect(toList());
   }
 
   private static Stream<List<String>> streamInvolvedFactorNames(int strength, String pi, List<String> processedFactors, List<String> rhsFactorNames) {

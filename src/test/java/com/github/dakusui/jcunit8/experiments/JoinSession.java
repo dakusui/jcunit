@@ -58,16 +58,19 @@ class JoinSession {
   }
 
   void verify() {
-    List<Tuple> notUsedInLhs = lhs.stream().filter(
-        each -> result.index().find(project(each, lhs.getAttributeNames())).isEmpty()
-    ).collect(toList());
-    List<Tuple> notUsedInRhs = rhs.stream().filter(
-        each -> result.index().find(project(each, rhs.getAttributeNames())).isEmpty()
-    ).collect(toList());
+    List<Tuple> notUsedInLhs = notUsedTuplesIn(lhs, result);
+    List<Tuple> notUsedInRhs = notUsedTuplesIn(rhs, result);
     assert notUsedInLhs.isEmpty();
     assert notUsedInRhs.isEmpty();
     assert result.size() >= rhs.size();
     assert result.size() >= lhs.size();
+    assert result.size() == result.stream().distinct().collect(toList()).size();
+  }
+
+  private static List<Tuple> notUsedTuplesIn(SchemafulTupleSet lhs, SchemafulTupleSet result) {
+    return lhs.stream().filter(
+          each -> result.index().find(project(each, lhs.getAttributeNames())).isEmpty()
+      ).collect(toList());
   }
 
   static class Builder {

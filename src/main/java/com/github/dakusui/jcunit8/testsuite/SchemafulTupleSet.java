@@ -101,6 +101,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
         }
         return work.stream()
             .sorted(comparingInt(List::size))
+            .distinct()
             .reduce(this::intersect)
             .orElse(emptyList());
       }
