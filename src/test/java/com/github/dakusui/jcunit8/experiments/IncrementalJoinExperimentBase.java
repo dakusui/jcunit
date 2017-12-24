@@ -19,19 +19,13 @@ public abstract class IncrementalJoinExperimentBase {
 
   @BeforeClass
   public static void warmup() {
-    runJoin("(warmup)", doi(), 10, 10, JoinSession::standard);
-  }
-
-  private static int doi() {
-    return 2;
+    runJoin("(warmup)", 2, 10, 10, JoinSession::standard);
   }
 
   @Test
   public void joinLhs10_Rhs10() {
     runJoin(testName.getMethodName(), doi(), 10, 10, joinerFactory());
   }
-
-  abstract Function<Requirement, Joiner> joinerFactory();
 
   @Test
   public void joinLhs20_Rhs10() {
@@ -77,6 +71,9 @@ public abstract class IncrementalJoinExperimentBase {
   public void joinLhs100_Rhs10() {
     runJoin(testName.getMethodName(), doi(), 100, 10, joinerFactory());
   }
+
+  abstract Function<Requirement, Joiner> joinerFactory();
+  abstract int doi();
 
   private static void runJoin(String testName, int doi, int lhsNumFactors, int rhsNumFactors, Function<Requirement, Joiner> joinerFactory) {
     SchemafulTupleSet lhs = JoinDataSet.load(doi, lhsNumFactors);

@@ -9,16 +9,36 @@ import java.util.function.Function;
 
 @RunWith(Enclosed.class)
 public class IncrementalJoinExperiment {
-  public static class WithStandardJoiner extends IncrementalJoinExperimentBase {
+  public static class WithStandardJoiner_Doi2 extends IncrementalJoinExperimentBase {
     Function<Requirement, Joiner> joinerFactory() {
       return JoinSession::standard;
     }
+
+    @Override
+    int doi() {
+      return 2;
+    }
   }
-  public static class WithIncrementalJoiner extends IncrementalJoinExperimentBase {
+  public static class WithIncrementalJoiner_Doi2 extends IncrementalJoinExperimentBase {
     Function<Requirement, Joiner> joinerFactory() {
       return JoinSession::incremental;
     }
+
+    @Override
+    int doi() {
+      return 2;
+    }
   }
 
+  public static class WithIncrementalJoiner_Doi3 extends IncrementalJoinExperimentBase {
+    Function<Requirement, Joiner> joinerFactory() {
+      return JoinSession::incremental;
+    }
+
+    @Override
+    int doi() {
+      return 3;
+    }
+  }
 }
 

@@ -27,12 +27,12 @@ public interface JoinDataSet {
   }
 
   static SchemafulTupleSet load(int doi, int numFactors, Function<Integer, String> formatter) {
-    assert doi == 2;
+    assert doi == 2 || doi == 3;
     assert numFactors > 0;
     assert numFactors % 10 == 0;
     class Util {
       private List<List<Integer>> readData(int doi, int numFactors) {
-        assert doi == 2;
+        assert doi == 2 || doi == 3;
         assert numFactors > 0;
         assert numFactors % 10 == 0;
         assert numFactors <= 110;
@@ -41,8 +41,9 @@ public interface JoinDataSet {
             Integer.toString(numFactors / 10 - 1);
         URL url = ClassLoader.getSystemClassLoader().getResource(
             String.format(
-                "%s/L4-10xR4-10#%s.csv",
+                "%s/doi%s-L4-10xR4-10#%s.csv",
                 JoinDataSet.class.getCanonicalName(),
+                doi,
                 code
             )
         );

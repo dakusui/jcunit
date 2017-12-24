@@ -12,6 +12,7 @@ import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
@@ -42,7 +43,9 @@ public class IncrementalJoiner extends Joiner.Base {
     final int t = requirement.strength();
     final int n = lhs.width();
 
-    List<String> processedFactors = new ArrayList<>(lhs.getAttributeNames().size() - t);
+    List<String> processedFactors = new ArrayList<String>(lhs.getAttributeNames().size() - t) {{
+      addAll(lhsAttributeNamesInSeeds(requirement, lhs));
+    }};
     for (int i = t; i < n; i++) {
 
       String Pi = lhs.getAttributeNames().get(i);
@@ -99,10 +102,14 @@ public class IncrementalJoiner extends Joiner.Base {
   }
 
   private static SchemafulTupleSet buildInitialTupleSet(Requirement requirement, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
-    List<String> lhsAttributeNamesInSeeds = lhs.getAttributeNames().subList(0, requirement.strength());
+    List<String> lhsAttributeNamesInSeeds = lhsAttributeNamesInSeeds(requirement, lhs);
     return new StandardJoiner(requirement).apply(
         lhs.project(lhsAttributeNamesInSeeds), rhs
     );
+  }
+
+  private static List<String> lhsAttributeNamesInSeeds(Requirement requirement, SchemafulTupleSet lhs) {
+    return lhs.getAttributeNames().subList(0, requirement.strength());
   }
 
   @SuppressWarnings({ "unchecked", "NonAsciiCharacters" })
@@ -121,17 +128,6 @@ public class IncrementalJoiner extends Joiner.Base {
     ).build();
   }
 
-  private static Stream<Tuple> streamCoveredTuples(int strength, String pi, List<String> processedFactors, SchemafulTupleSet ts, List<String> rhsAttributeNames) {
-    return streamInvolvedFactorNames(strength, pi, processedFactors, rhsAttributeNames).flatMap(
-        involvedFactorNames -> ts.index().allPossibleTuples(involvedFactorNames).stream()
-    );
-  }
-
-  @SuppressWarnings("NonAsciiCharacters")
-  private static int countCoveredTuple(TupleSet π, Tuple tuple, int strength) {
-    return (int) TupleUtils.subtuplesOf(tuple, strength).stream().filter(π::contains).count();
-  }
-
   private static void ensureAllTuplesAreUsed(List<Tuple> ts, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     List<Tuple> lhsNotUsed = ts.stream().filter(each -> lhs.index().find(each).isEmpty()).collect(toList());
     List<Tuple> rhsNotUsed = ts.stream().filter(each -> rhs.index().find(each).isEmpty()).collect(toList());
@@ -142,29 +138,31 @@ public class IncrementalJoiner extends Joiner.Base {
   }
 
   private static Stream<List<String>> streamInvolvedFactorNames(int strength, String pi, List<String> processedFactors, List<String> rhsFactorNames) {
+    return involvedFactorNames(strength, pi, processedFactors, rhsFactorNames).stream();
+  }
+
+  private static List<List<String>> involvedFactorNames(int strength, String pi, List<String> processedFactors, List<String> rhsFactorNames) {
     List<List<String>> ret = new LinkedList<>();
     for (int i = 1; i < strength; i++) {
       int j = strength - i - 1;
       new Combinator<>(rhsFactorNames, i).forEach(
-          fromRhs -> new Combinator<>(processedFactors, j).forEach(fromProcessed -> {
-            List<String> cur = new ArrayList<>(strength);
-            cur.add(pi);
-            cur.addAll(fromProcessed);
-            cur.addAll(fromRhs);
-            ret.add(cur);
-          })
+          fromRhs -> new Combinator<>(processedFactors, j).forEach(
+              fromProcessed -> ret.add(
+                  new ArrayList<String>(strength) {
+                    {
+                      add(pi);
+                      addAll(fromProcessed);
+                      addAll(fromRhs);
+                    }
+                  }
+              ))
       );
     }
-    return ret.stream();
+    return ret;
   }
 
-  private static FrameworkException noMatchingTupleFound(Tuple tupleInSeeds) {
-    throw new FrameworkException(String.format("No matching tuple was found in lhs for: %s", tupleInSeeds)) {
-    };
-  }
-
-  private static FrameworkException noCoveringTuple(TupleSet tupleSet) {
-    throw new FrameworkException(String.format("No covering tuple can be generated for: %s", tupleSet)) {
+  private static FrameworkException noAvailableValueFor(String pi, Tuple tuple) {
+    throw new FrameworkException(String.format("No covering tuple can be generated for: [%s,?| %s]", pi, tuple)) {
     };
   }
 
@@ -283,7 +281,7 @@ public class IncrementalJoiner extends Joiner.Base {
 
     List<Tuple> hg(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength, String pi, List<String> processedFactors, List<Tuple> ts, TupleSet π) {
       class Util {
-        final @SuppressWarnings("NonAsciiCharacters")
+        private final @SuppressWarnings("NonAsciiCharacters")
         Comparator<Tuple> compareByCoveredTuplesInπ = new Comparator<Tuple>() {
           @Override
           public int compare(Tuple t, Tuple u) {
@@ -320,6 +318,9 @@ public class IncrementalJoiner extends Joiner.Base {
       }
       Util util = new Util();
       List<Tuple> ret = new ArrayList<>(ts.size());
+
+      List<List<String>> involvedFactorNames = involvedFactorNames(strength, pi, processedFactors, rhs.getAttributeNames());
+      Supplier<Stream<List<String>>> involvedFactorNamesStreamer = involvedFactorNames::stream;
       for (Tuple each : ts) {
         if (each.keySet().size() == lhs.size() + rhs.size())
           continue;
@@ -337,24 +338,27 @@ public class IncrementalJoiner extends Joiner.Base {
                     ))
                 .max(util.compareByCoveredTuplesInπ)
                 .orElseThrow(
-                    () -> noCoveringTuple(null)
+                    () -> noAvailableValueFor(null)
                 )
         ); */
-        ret.add(
-            connectingSubtuplesOf
-                .apply(strength)
-                .apply(project(each, processedFactors))
-                .apply(util.projectRhs(each)).stream()
-                .flatMap(
-                    tuple -> util.valuesOfPi.stream().map(
-                        o -> util.tupleWhosePiIs(each, o)
-                    ).filter(
-                        eachTuple -> !lhs.index().find(util.projectLhs(eachTuple)).isEmpty()
-                    ))
-                .max(util.compareByCoveredTuplesInπ)
-                .orElseThrow(
-                    () -> noCoveringTuple(null)
-                )
+        Object v = util.valuesOfPi.stream().max(
+            new Comparator<Object>() {
+              @Override
+              public int compare(Object v, Object w) {
+                return (int) (count(util.tupleWhosePiIs(each, w)) - count(util.tupleWhosePiIs(each, v)));
+              }
+
+              private long count(Tuple t) {
+                return involvedFactorNamesStreamer.get().map(
+                    factorNames -> project(each, factorNames)
+                ).filter(
+                    π::contains
+                ).count(
+                );
+              }
+            }
+        ).orElseThrow(
+            () -> noAvailableValueFor(pi, each)
         );
       }
       return ret;
