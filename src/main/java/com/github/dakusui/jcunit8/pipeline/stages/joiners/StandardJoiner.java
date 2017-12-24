@@ -168,9 +168,13 @@ public class StandardJoiner extends Joiner.Base {
   static void log(String label, Object... args) {
     long now = System.currentTimeMillis();
     long time = cur == 0 ? 0 : now - cur;
-    if ("yes".equals(System.getProperty("debug")))
+    if (isDebugEnabled())
       System.out.println(String.format(label, args) + ":" + time);
     cur = now;
+  }
+
+  public static boolean isDebugEnabled() {
+    return "yes".equals(System.getProperty("debug"));
   }
 
   static List<Tuple> findCoveringTuplesIn(Tuple aTuple, SchemafulTupleSet tuples) {

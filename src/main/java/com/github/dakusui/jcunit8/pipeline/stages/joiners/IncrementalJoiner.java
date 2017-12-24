@@ -36,9 +36,9 @@ public class IncrementalJoiner extends Joiner.Base {
   @Override
   protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     Session session = new Session(requirement, lhs, rhs);
-    log("phase-0: incremental-join started");
+    log("Inc:phase-0: incremental-join started");
     List<Tuple> ts = buildInitialTupleSet(requirement, lhs, rhs);
-    log("phase-1: ts(init)=%s%n", ts.size());
+    log("Inc:phase-1: ts(init)=%s%n", ts.size());
 
     final int t = requirement.strength();
     final int n = lhs.width();
@@ -49,26 +49,15 @@ public class IncrementalJoiner extends Joiner.Base {
     for (int i = t; i < n; i++) {
 
       String Pi = lhs.getAttributeNames().get(i);
-      log("phase-2.1: Pi=%s, ts.size=%s", Pi, ts.size());
+      log("Inc:phase-2.1: Pi=%s, ts.size=%s", Pi, ts.size());
       @SuppressWarnings("NonAsciiCharacters") TupleSet π = prepare_π(t, Pi, processedFactors, lhs, rhs);
-      log("phase-2.2a: π=%s", π.size());
+      log("Inc:phase-2.2a: π=%s", π.size());
       // hg
       ts = session.hg(lhs, rhs, t, Pi, processedFactors, ts, π);
-      /*
-      streamCoveredTuples(
-          t,
-          Pi,
-          processedFactors,
-          toSchemafulTupleSet(lhs.getAttributeNames(), rhs.getAttributeNames(), ts),
-          rhs.getAttributeNames()
-      ).forEach(
-          π::remove
-      );
-      */
-      log("phase-2.2b: π=%s", π.size());
+      log("Inc:phase-2.2b: ts.size=%s: π=%s", π.size(), ts.size());
       processedFactors.add(Pi);
       while (!π.isEmpty()) {
-        log("phase-2.2.1: π=%s", π.size());
+        log("Inc:phase-2.2.1: π=%s", π.size());
         session.findBestCombinationsFor(
             π.stream().findFirst().orElseThrow(
                 IllegalStateException::new
@@ -77,25 +66,12 @@ public class IncrementalJoiner extends Joiner.Base {
             π
         );
       }
-      log("phase-2.3: ts.size=%s", ts.size());
+      log("Inc:phase-2.3: ts.size=%s", ts.size());
     }
     ensureAllTuplesAreUsed(ts, lhs, rhs);
-    log("phase-3: ts.size=%s", ts.size());
+    log("Inc:phase-3: ts.size=%s", ts.size());
     return new SchemafulTupleSet.Builder(
         concat(lhs.getAttributeNames().stream(), rhs.getAttributeNames().stream()).collect(toList())
-    ).addAll(
-        ts
-    ).build();
-  }
-
-  private SchemafulTupleSet toSchemafulTupleSet(List<String> lhsAttributeNames, List<String> rhsAttributeNames, List<Tuple> ts) {
-    return new SchemafulTupleSet.Builder(
-        concat(
-            lhsAttributeNames.stream(),
-            rhsAttributeNames.stream()
-        ).collect(
-            toList()
-        )
     ).addAll(
         ts
     ).build();
@@ -129,8 +105,12 @@ public class IncrementalJoiner extends Joiner.Base {
   }
 
   private static void ensureAllTuplesAreUsed(List<Tuple> ts, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
-    List<Tuple> lhsNotUsed = ts.stream().filter(each -> lhs.index().find(each).isEmpty()).collect(toList());
-    List<Tuple> rhsNotUsed = ts.stream().filter(each -> rhs.index().find(each).isEmpty()).collect(toList());
+    List<Tuple> lhsNotUsed = ts.stream().filter(
+        each -> lhs.index().find(project(each, lhs.getAttributeNames())).isEmpty()
+    ).collect(toList());
+    List<Tuple> rhsNotUsed = ts.stream().filter(
+        each -> rhs.index().find(project(each, rhs.getAttributeNames())).isEmpty()
+    ).collect(toList());
     int min = min(lhsNotUsed.size(), rhsNotUsed.size());
     for (int i = 0; i < max(lhsNotUsed.size(), rhsNotUsed.size()); i++) {
       ts.add(connect(lhsNotUsed.get(i % min), rhsNotUsed.get(i % min)));
@@ -256,60 +236,18 @@ public class IncrementalJoiner extends Joiner.Base {
       );
     }
 
-    private Optional<Tuple> findBestTupleFor(Tuple tuple, List<Tuple> candidates, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
-      int most = 0;
-      Tuple bestRhs = null;
-      for (Tuple rhsTuple : candidates) {
-        if (alreadyUsed.contains(connect(tuple, rhsTuple)))
-          continue;
-        Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(tuple).apply(rhsTuple);
-        int numCovered = sizeOfIntersection(
-            connectingSubtuples,
-            remainingTuplesToBeCovered
-        );
-        if (numCovered > most) {
-          most = numCovered;
-          bestRhs = rhsTuple;
-          if (most == remainingTuplesToBeCovered.size() || most == connectingSubtuples.size())
-            break;
-        }
-      }
-      return most == 0 ?
-          Optional.empty() :
-          Optional.of(bestRhs);
-    }
-
-    List<Tuple> hg(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength, String pi, List<String> processedFactors, List<Tuple> ts, TupleSet π) {
+    List<Tuple> hg(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength, String pi, List<String> processedFactors, List<Tuple> ts, @SuppressWarnings("NonAsciiCharacters") TupleSet π) {
       class Util {
-        private final @SuppressWarnings("NonAsciiCharacters")
-        Comparator<Tuple> compareByCoveredTuplesInπ = new Comparator<Tuple>() {
-          @Override
-          public int compare(Tuple t, Tuple u) {
-            return (int) (count(u) - count(t));
-          }
-
-          private long count(Tuple t) {
-            return connectingSubtuplesOf.apply(
-                strength
-            ).apply(
-                project(t, lhs.getAttributeNames())
-            ).apply(
-                project(t, rhs.getAttributeNames())
-            ).stream(
-            ).filter(
-                π::contains
-            ).count(
-            );
-          }
-        };
-        private final List<Object> valuesOfPi = lhs.index().getAttributeValuesOf(pi);
-
-        private Tuple projectLhs(Tuple eachTuple) {
-          return project(eachTuple, lhs.getAttributeNames());
+        private List<Object> valuesOfPiFor(Tuple tuple) {
+          return lhs.index().find(projectLhs(tuple)).stream().map(each -> each.get(pi)).distinct().collect(toList());
         }
 
         private Tuple tupleWhosePiIs(Tuple tuple, Object o) {
           return Tuple.builder().putAll(tuple).put(pi, o).build();
+        }
+
+        private Tuple projectLhs(Tuple tuple) {
+          return project(tuple, lhs.getAttributeNames());
         }
 
         private Tuple projectRhs(Tuple tuple) {
@@ -324,42 +262,36 @@ public class IncrementalJoiner extends Joiner.Base {
       for (Tuple each : ts) {
         if (each.keySet().size() == lhs.size() + rhs.size())
           continue;
-        /*
-        ret.add(
-            connectingSubtuplesOf
-                .apply(strength - 1)
-                .apply(project(each, processedFactors))
-                .apply(util.projectRhs(each)).stream()
-                .flatMap(
-                    tuple -> util.valuesOfPi.stream().map(
-                        o -> util.tupleWhosePiIs(tuple, o)
-                    ).filter(
-                        eachTuple -> !lhs.index().find(util.projectLhs(eachTuple)).isEmpty()
-                    ))
-                .max(util.compareByCoveredTuplesInπ)
-                .orElseThrow(
-                    () -> noAvailableValueFor(null)
-                )
-        ); */
-        Object v = util.valuesOfPi.stream().max(
-            new Comparator<Object>() {
-              @Override
-              public int compare(Object v, Object w) {
-                return (int) (count(util.tupleWhosePiIs(each, w)) - count(util.tupleWhosePiIs(each, v)));
-              }
+        Tuple chosenTuple = util.tupleWhosePiIs(
+            each,
+            util.valuesOfPiFor(each).stream().max(
+                new Comparator<Object>() {
+                  @Override
+                  public int compare(Object v, Object w) {
+                    return (int) (count(util.tupleWhosePiIs(each, v)) - count(util.tupleWhosePiIs(each, w)));
+                  }
 
-              private long count(Tuple t) {
-                return involvedFactorNamesStreamer.get().map(
-                    factorNames -> project(each, factorNames)
-                ).filter(
-                    π::contains
-                ).count(
-                );
-              }
-            }
-        ).orElseThrow(
-            () -> noAvailableValueFor(pi, each)
+                  private long count(Tuple t) {
+                    return involvedFactorNamesStreamer.get().map(
+                        factorNames -> project(t, factorNames)
+                    ).map(
+                        π::contains
+                    ).count(
+                    );
+                  }
+                }
+            ).orElseThrow(
+                () -> noAvailableValueFor(pi, each)
+            )
         );
+        connectingSubtuplesOf
+            .apply(strength)
+            .apply(util.projectLhs(chosenTuple))
+            .apply(util.projectRhs(chosenTuple))
+            .forEach(
+                π::remove
+            );
+        ret.add(chosenTuple);
       }
       return ret;
     }

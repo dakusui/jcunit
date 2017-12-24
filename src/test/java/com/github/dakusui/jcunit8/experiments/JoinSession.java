@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.experiments;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
@@ -7,9 +8,12 @@ import com.github.dakusui.jcunit8.pipeline.stages.joiners.IncrementalJoiner;
 import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 
+import java.util.List;
 import java.util.function.Function;
 
+import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static java.util.stream.Collectors.toList;
 
 class JoinSession {
   private final SchemafulTupleSet             lhs;
@@ -51,6 +55,19 @@ class JoinSession {
 
   long time() {
     return this.after - this.before;
+  }
+
+  void verify() {
+    List<Tuple> notUsedInLhs = lhs.stream().filter(
+        each -> result.index().find(project(each, lhs.getAttributeNames())).isEmpty()
+    ).collect(toList());
+    List<Tuple> notUsedInRhs = rhs.stream().filter(
+        each -> result.index().find(project(each, rhs.getAttributeNames())).isEmpty()
+    ).collect(toList());
+    assert notUsedInLhs.isEmpty();
+    assert notUsedInRhs.isEmpty();
+    assert result.size() >= rhs.size();
+    assert result.size() >= lhs.size();
   }
 
   static class Builder {
