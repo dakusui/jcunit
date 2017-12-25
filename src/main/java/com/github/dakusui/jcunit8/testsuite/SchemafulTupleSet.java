@@ -247,6 +247,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
           return new SchemafulTupleSet.Builder(attributes).addAll(
               this.tuples.stream().map(
                   t -> TupleUtils.project(t, attributes)
+              ).distinct(
               ).collect(toList())
           ).build();
         }

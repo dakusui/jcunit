@@ -11,7 +11,6 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static java.util.stream.Collectors.toList;
 
@@ -60,17 +59,17 @@ class JoinSession {
   void verify() {
     List<Tuple> notUsedInLhs = notUsedTuplesIn(lhs, result);
     List<Tuple> notUsedInRhs = notUsedTuplesIn(rhs, result);
-    assert notUsedInLhs.isEmpty();
-    assert notUsedInRhs.isEmpty();
+    assert notUsedInLhs.isEmpty() : String.format("%d:%s%n%d:%s%n%d:%s%n", notUsedInLhs.size(), notUsedInLhs, lhs.size(), lhs, result.size(), result.project(lhs.getAttributeNames()));
+    assert notUsedInRhs.isEmpty() : String.format("%d:%s%n%d:%s%n%d:%s%n", notUsedInRhs.size(), notUsedInRhs, rhs.size(), rhs, result.size(), result.project(rhs.getAttributeNames()));
     assert result.size() >= rhs.size();
     assert result.size() >= lhs.size();
     assert result.size() == result.stream().distinct().collect(toList()).size();
   }
 
-  private static List<Tuple> notUsedTuplesIn(SchemafulTupleSet lhs, SchemafulTupleSet result) {
-    return lhs.stream().filter(
-          each -> result.index().find(project(each, lhs.getAttributeNames())).isEmpty()
-      ).collect(toList());
+  private static List<Tuple> notUsedTuplesIn(SchemafulTupleSet input, SchemafulTupleSet result) {
+    return input.stream().filter(
+        eachFromInput -> !result.project(input.getAttributeNames()).contains(eachFromInput)
+    ).collect(toList());
   }
 
   static class Builder {

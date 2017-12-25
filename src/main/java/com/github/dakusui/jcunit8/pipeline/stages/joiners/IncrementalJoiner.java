@@ -22,7 +22,6 @@ import static com.github.dakusui.jcunit8.core.Utils.sizeOfIntersection;
 import static com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner.findCoveringTuplesIn;
 import static com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner.log;
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
@@ -39,7 +38,7 @@ public class IncrementalJoiner extends Joiner.Base {
     Session session = new Session(requirement, lhs, rhs);
     log("Inc:phase-0: incremental-join started");
     List<Tuple> ts = buildInitialTupleSet(requirement, lhs, rhs);
-    log("Inc:phase-1: ts(init)=%s%n", ts.size());
+    log("Inc:phase-1: ts(init)=%s", ts.size());
 
     final int t = requirement.strength();
     final int n = lhs.width();
@@ -48,14 +47,15 @@ public class IncrementalJoiner extends Joiner.Base {
       addAll(lhsAttributeNamesInSeeds(requirement, lhs));
     }};
     for (int i = t; i < n; i++) {
-
       String Pi = lhs.getAttributeNames().get(i);
       log("Inc:phase-2.1: Pi=%s, ts.size=%s", Pi, ts.size());
       @SuppressWarnings("NonAsciiCharacters") TupleSet π = prepare_π(t, Pi, processedFactors, lhs, rhs);
+      removeTuplesCoveredByExtendedTuplesFrom_π(t, π, ts, Pi, processedFactors, rhs);
       log("Inc:phase-2.2a: π=%s", π.size());
       // hg
       ts = session.hg(lhs, rhs, t, Pi, processedFactors, ts, π);
       log("Inc:phase-2.2b: ts.size=%s: π=%s", π.size(), ts.size());
+      ts = extendByLhsWherePossible(ts, lhs);
       processedFactors.add(Pi);
       while (!π.isEmpty()) {
         log("Inc:phase-2.2.1: π=%s", π.size());
@@ -105,14 +105,44 @@ public class IncrementalJoiner extends Joiner.Base {
     ).build();
   }
 
+  private static List<Tuple> extendByLhsWherePossible(List<Tuple> ts, SchemafulTupleSet lhs) {
+    return ts.stream().map(
+        tuple -> {
+          List<Tuple> candidates = lhs.index().find(project(tuple, lhs.getAttributeNames()));
+          assert !candidates.isEmpty();
+          return candidates.size() == 1 ?
+              connect(candidates.get(0), tuple) :
+              tuple;
+        }
+    ).collect(toList());
+  }
+
+  private static void removeTuplesCoveredByExtendedTuplesFrom_π(int strength, TupleSet π, List<Tuple> ts, String Pi, List<String> processedFactors, SchemafulTupleSet rhs) {
+    List<List<String>> involvedFactors = involvedFactorNames(strength, Pi, processedFactors, rhs.getAttributeNames());
+    ts.stream().filter(
+        tuple -> tuple.size() > processedFactors.size() + rhs.width()
+    ).flatMap(
+        (Function<Tuple, Stream<Tuple>>) tuple -> involvedFactors.stream().map(
+            involved -> project(tuple, involved))
+    ).forEach(
+        π::remove
+    );
+  }
+
   private static void ensureAllTuplesAreUsed(List<Tuple> ts, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     List<Tuple> lhsNotUsed = notUsedIn(ts, lhs);
     List<Tuple> rhsNotUsed = notUsedIn(ts, rhs);
-    int min = min(lhsNotUsed.size(), rhsNotUsed.size());
-    if (min == 0)
+    if (lhsNotUsed.isEmpty() && rhsNotUsed.isEmpty())
       return;
+    if (lhsNotUsed.isEmpty())
+      lhsNotUsed.add(lhs.get(0));
+    if (rhsNotUsed.isEmpty())
+      rhsNotUsed.add(rhs.get(0));
     for (int i = 0; i < max(lhsNotUsed.size(), rhsNotUsed.size()); i++) {
-      ts.add(connect(lhsNotUsed.get(i % min), rhsNotUsed.get(i % min)));
+      ts.add(connect(
+          lhsNotUsed.get(i % lhsNotUsed.size()),
+          rhsNotUsed.get(i % rhsNotUsed.size())
+      ));
     }
   }
 
@@ -246,6 +276,9 @@ public class IncrementalJoiner extends Joiner.Base {
 
     List<Tuple> hg(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength, String pi, List<String> processedFactors, List<Tuple> ts, @SuppressWarnings("NonAsciiCharacters") TupleSet π) {
       class Util {
+        List<List<String>>             involvedFactorNames         = involvedFactorNames(strength, pi, processedFactors, rhs.getAttributeNames());
+        Supplier<Stream<List<String>>> involvedFactorNamesStreamer = involvedFactorNames::stream;
+
         private List<Object> valuesOfPiFor(Tuple tuple) {
           return lhs.index().find(projectLhs(tuple)).stream().map(each -> each.get(pi)).distinct().collect(toList());
         }
@@ -261,33 +294,26 @@ public class IncrementalJoiner extends Joiner.Base {
         private Tuple projectRhs(Tuple tuple) {
           return project(tuple, rhs.getAttributeNames());
         }
+
+        private long count(Tuple t) {
+          return involvedFactorNamesStreamer.get().map(
+              factorNames -> project(t, factorNames)
+          ).map(
+              π::contains
+          ).count(
+          );
+        }
       }
       Util util = new Util();
       List<Tuple> ret = new ArrayList<>(ts.size());
 
-      List<List<String>> involvedFactorNames = involvedFactorNames(strength, pi, processedFactors, rhs.getAttributeNames());
-      Supplier<Stream<List<String>>> involvedFactorNamesStreamer = involvedFactorNames::stream;
       for (Tuple each : ts) {
         if (each.keySet().size() == lhs.size() + rhs.size())
           continue;
         Tuple chosenTuple = util.tupleWhosePiIs(
             each,
             util.valuesOfPiFor(each).stream().max(
-                new Comparator<Object>() {
-                  @Override
-                  public int compare(Object v, Object w) {
-                    return (int) (count(util.tupleWhosePiIs(each, v)) - count(util.tupleWhosePiIs(each, w)));
-                  }
-
-                  private long count(Tuple t) {
-                    return involvedFactorNamesStreamer.get().map(
-                        factorNames -> project(t, factorNames)
-                    ).map(
-                        π::contains
-                    ).count(
-                    );
-                  }
-                }
+                (v, w) -> (int) (util.count(util.tupleWhosePiIs(each, w)) - util.count(util.tupleWhosePiIs(each, v)))
             ).orElseThrow(
                 () -> noAvailableValueFor(pi, each)
             )
@@ -303,5 +329,9 @@ public class IncrementalJoiner extends Joiner.Base {
       }
       return ret;
     }
+  }
+
+  public static void main(String... args) {
+    System.out.println(Arrays.stream(new Integer[]{1, 2, 3}).sorted((o1, o2) -> o1 - o2).collect(toList()));
   }
 }
