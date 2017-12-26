@@ -26,6 +26,15 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }});
     }
 
+    /**
+     * Returns a joined schemaful tuple set of {@code lhs} and {@code rhs}.
+     * Note that it is guaranteed that {@code lhs.size() >= rhs.size()} by the
+     * implementation of {@code apply(SchemafulTupleSet, SchemafulTupleSet)}.
+     *
+     * @param lhs Left Hand Side
+     * @param rhs Right Hand Side
+     * @return Joined schemaful tuple set
+     */
     protected abstract SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs);
   }
 

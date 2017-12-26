@@ -84,6 +84,32 @@ public class StandardJoiner2 extends Joiner.Base {
         return builder.build();
       }
 
+      private long timeToFindBestTupleFor = 0;
+
+      private Optional<Tuple> findBestTupleFor(Tuple tuple, List<Tuple> candidates, LinkedHashSet<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
+        long before = System.nanoTime();
+        int most = 0;
+        Tuple bestRhs = null;
+        for (Tuple rhsTuple : candidates) {
+          if (alreadyUsed.contains(connect(tuple, rhsTuple)))
+            continue;
+          Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(tuple).apply(rhsTuple);
+          int numCovered = sizeOfIntersection(
+              connectingSubtuples,
+              remainingTuplesToBeCovered
+          );
+          if (numCovered > most) {
+            most = numCovered;
+            bestRhs = rhsTuple;
+            if (most == remainingTuplesToBeCovered.size() || most == connectingSubtuples.size())
+              break;
+          }
+        }
+        timeToFindBestTupleFor += System.nanoTime() - before;
+        return most == 0 ?
+            Optional.empty() :
+            Optional.of(bestRhs);
+      }
 
       private void findBestCombinationsFor(Tuple tupleToCover_, LinkedHashSet<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
         List<Tuple> tuplesToCover = Stream.concat(
@@ -130,33 +156,6 @@ public class StandardJoiner2 extends Joiner.Base {
         );
       }
 
-      long timeToFindBestTupleFor = 0;
-
-      private Optional<Tuple> findBestTupleFor(Tuple tuple, List<Tuple> candidates, LinkedHashSet<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
-        long before = System.nanoTime();
-        int most = 0;
-        Tuple bestRhs = null;
-        for (Tuple rhsTuple : candidates) {
-          if (alreadyUsed.contains(connect(tuple, rhsTuple)))
-            continue;
-          Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(tuple).apply(rhsTuple);
-          int numCovered = sizeOfIntersection(
-              connectingSubtuples,
-              remainingTuplesToBeCovered
-          );
-          if (numCovered > most) {
-            most = numCovered;
-            bestRhs = rhsTuple;
-            if (most == remainingTuplesToBeCovered.size() || most == connectingSubtuples.size())
-              break;
-          }
-        }
-        timeToFindBestTupleFor += System.nanoTime() - before;
-        return most == 0 ?
-            Optional.empty() :
-            Optional.of(bestRhs);
-      }
-
       private Set<Tuple> connectingSubtuplesOf(Tuple lhs, Tuple rhs, int strength) {
         Set<Tuple> ret = new HashSet<>();
         for (int i = 1; i < strength; i++) {
@@ -170,8 +169,8 @@ public class StandardJoiner2 extends Joiner.Base {
         }
         return ret;
       }
-
     }
+
     log(String.format("Std2:phase-0:lhs[%s],rhs[%s],strength=%s", lhs.getAttributeNames().size(), rhs.getAttributeNames().size(), this.requirement.strength()));
     Session session = new Session();
     TupleSet remainingTuplesToBeCovered = session.computeTuplesToBeCovered(lhs, rhs, this.requirement.strength());
@@ -224,7 +223,7 @@ public class StandardJoiner2 extends Joiner.Base {
     cur = now;
   }
 
-  public static boolean isDebugEnabled() {
+  private static boolean isDebugEnabled() {
     return "yes".equals(System.getProperty("debug"));
   }
 
