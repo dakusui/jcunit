@@ -10,23 +10,18 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public interface JoinDataSet {
   static SchemafulTupleSet load(int doi, int numFactors) {
-    return load(doi, numFactors, new Function<Integer, String>() {
-      @Override
-      public String apply(Integer i) {
-        return i < 10 ?
-            String.format("l%03d", i) :
-            String.format("p%03d", i - 10);
-      }
-    });
+    return load(doi, numFactors, i -> i < 10 ?
+        String.format("l%03d", i) :
+        String.format("p%03d", i - 10));
   }
 
-  static SchemafulTupleSet load(int doi, int numFactors, Function<Integer, String> formatter) {
+  static SchemafulTupleSet load(int doi, int numFactors, IntFunction<String> formatter) {
     assert doi == 2 || doi == 3;
     assert numFactors > 0;
     assert numFactors % 10 == 0;

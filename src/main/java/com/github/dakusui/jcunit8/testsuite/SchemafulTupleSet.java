@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.check;
@@ -194,7 +195,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
       return this;
     }
 
-    public Builder addAll(List<Tuple> tuples) {
+    public Builder addAll(Collection<Tuple> tuples) {
       tuples.forEach(this::add);
       return this;
     }
