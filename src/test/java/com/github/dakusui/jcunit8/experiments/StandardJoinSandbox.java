@@ -24,116 +24,126 @@ public class StandardJoinSandbox {
   public void std2_lhs10_rhs1_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 10, 1);
+      runJoin(i, joinerFactory, 0, 10, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs20_rhs1_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 20, 1);
+      runJoin(i, joinerFactory, 0, 20, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs40_rhs1_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 40, 1);
+      runJoin(i, joinerFactory, 0, 40, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs50_rhs1_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 50, 1);
+      runJoin(i, joinerFactory, 0, 50, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs3_1() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
-    runJoin(joinerFactory, 0, 10, 3);
+    runJoin(3, joinerFactory, 0, 10, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs20_rhs3_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 20, 3);
+      runJoin(i, joinerFactory, 0, 20, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs30_rhs3_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 30, 3);
+      runJoin(i, joinerFactory, 0, 30, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs40_rhs3_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 40, 3);
+      runJoin(i, joinerFactory, 0, 40, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs50_rhs3_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 50, 3);
+      runJoin(i, joinerFactory, 0, 50, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs4_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 10, 4);
+      runJoin(i, joinerFactory, 0, 10, 4, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs5_4() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 10, 5);
+      runJoin(i, joinerFactory, 0, 10, 5, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs3() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 10, 3);
+      runJoin(i, joinerFactory, 0, 10, 3, testName.getMethodName());
   }
 
   @Test
   public void std1_lhs10_rhs3() {
     Function<Requirement, Joiner> joinerFactory = StandardJoiner::new;
     for (int i = 0; i < 4; i++)
-      runJoin(joinerFactory, 0, 10, 3);
+      runJoin(i, joinerFactory, 0, 10, 3, testName.getMethodName());
   }
 
-  private void runJoin(Function<Requirement, Joiner> joinerFactory, int offset, int lhsWidth, int rhsWidth) {
-    SchemafulTupleSet lhs = JoinDataSet.load(3, lhsWidth);
-    IntFunction<String> factorNameFormatter = i -> String.format("r%03d", i);
-    SchemafulTupleSet rhs = JoinDataSet
-        .load(3, 10, factorNameFormatter)
-        .project(IntStream.range(offset, offset + rhsWidth).mapToObj(factorNameFormatter).collect(toList()));
-    JoinSession session = new JoinSession.Builder(3)
+  static SchemafulTupleSet runJoin(int doi, Function<Requirement, Joiner> joinerFactory, int offset, int lhsWidth, int rhsWidth, String testName) {
+    SchemafulTupleSet lhs = JoinDataSet.load(doi, lhsWidth);
+    SchemafulTupleSet rhs = loadRhs(offset, rhsWidth);
+    JoinSession session = doJoin(lhs, rhs, doi, joinerFactory);
+    System.out.printf("%s: size=%d; width=%d; time=%s[msec]; %s (input=lhs=%s; rhs=%s)%n",
+        testName, session.result.size(), session.result.width(),
+        session.time(), session.result.getAttributeNames().size(),
+        lhs.size(),
+        rhs.size()
+    );
+    return session.result;
+  }
+
+  static JoinSession doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int doi, Function<Requirement, Joiner> joinerFactory) {
+    JoinSession session = new JoinSession.Builder(doi)
         .with(joinerFactory)
         .lhs(lhs)
         .rhs(rhs)
         .build();
     session.execute();
     session.verify();
-    System.out.printf("%s: size=%d; width=%d; time=%s[msec]; %s (input=lhs=%s; rhs=%s)%n",
-        testName.getMethodName(), session.result.size(), session.result.width(),
-        session.time(), session.result.getAttributeNames().size(),
-        lhs.size(),
-        rhs.size()
-    );
-    //session.result.forEach(System.out::println);
+    return session;
+  }
+
+  static SchemafulTupleSet loadRhs(int offset, int rhsWidth) {
+    IntFunction<String> factorNameFormatter = i -> String.format("r%03d", i);
+    return JoinDataSet
+        .load(3, 10, factorNameFormatter)
+        .project(IntStream.range(offset, offset + rhsWidth).mapToObj(factorNameFormatter).collect(toList()));
   }
 
   @After
   public void after() {
     System.setProperty("debug", "no");
   }
+
 }

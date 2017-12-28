@@ -1,16 +1,18 @@
 package com.github.dakusui.jcunit8.pipeline.stages.joiners;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -21,6 +23,9 @@ public class SimilarityBasedJoiner extends Joiner.Base {
     this.requirement = requireNonNull(requirement);
   }
 
+  /*
+   |lhs| >= |rhs|
+   */
   @Override
   protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     Session session = new Session(lhs, rhs);
@@ -30,6 +35,12 @@ public class SimilarityBasedJoiner extends Joiner.Base {
     ////
     // Prepare rhs sub-tuple set of specified strength
     TupleSet subtuplesFromRhs = rhs.subtuplesOf(d - 1);
+
+    List<SchemafulTupleSet> joined = lhs.getAttributeNames().stream()
+        .map(k -> hg(lhs.project(singletonList(k)), rhs, subtuplesFromRhs))
+        .collect(toList());
+
+    OryzaBunch oryzaBunch = session.bunchTuples(joined, lhs, rhs);
 
     return new SchemafulTupleSet.Builder(
         Stream.concat(
@@ -41,6 +52,88 @@ public class SimilarityBasedJoiner extends Joiner.Base {
     ).addAll(work).build();
   }
 
+  private SchemafulTupleSet hg(SchemafulTupleSet eachFromLhs, SchemafulTupleSet rhs, TupleSet subtuplesFromRhs) {
+    return null;
+  }
+
+
+  static class OryzaBunch {
+    final LinkedHashSet<Oryza> oryzae;
+
+    OryzaBunch(LinkedHashSet<Oryza> oryzae) {
+      assert oryzae.stream().map(o -> o.straw).count() == oryzae.size();
+      this.oryzae = checknotnull(oryzae);
+    }
+
+    Optional<Oryza> find(Tuple straw) {
+      return oryzae.stream()
+          .filter(oryza -> Objects.equals(oryza.straw, straw))
+          .findFirst();
+    }
+
+    static class Builder {
+      Map<Tuple, Oryza.Builder> work = new LinkedHashMap<>();
+
+      Builder add(Tuple eachFromLhs, Tuple rhs) {
+        checkcond(checknotnull(eachFromLhs).size() == 1);
+        if (!work.containsKey(rhs))
+          work.put(rhs, new Oryza.Builder(rhs));
+        work.get(rhs).add(eachFromLhs);
+        return this;
+      }
+
+      OryzaBunch build() {
+        return new OryzaBunch(new LinkedHashSet<>(
+            work.keySet().stream()
+                .map(tuple -> work.get(tuple).build())
+                .collect(toList())
+        ));
+      }
+    }
+  }
+
+  static class Oryza {
+    final Tuple                    straw;
+    final Map<String, Set<Object>> spike;
+
+    private Oryza(Tuple straw, Map<String, Set<Object>> spike) {
+      this.straw = straw;
+      this.spike = spike;
+    }
+
+    int countMatchesInSpike(Tuple tuple) {
+      return (int) this.spike.keySet().stream()
+          .filter(k -> Objects.equals(spike.get(k), tuple.get(k)))
+          .count();
+    }
+
+    static class Builder {
+      private final Map<String, Set<Object>> spike;
+      private final Tuple                    straw;
+
+      Builder(Tuple straw) {
+        this.straw = checknotnull(straw);
+        this.spike = new LinkedHashMap<>();
+      }
+
+      Builder add(Tuple tuple) {
+        checknotnull(tuple).keySet().stream()
+            .peek(k -> {
+              if (!spike.containsKey(k))
+                spike.put(k, new LinkedHashSet<>());
+            })
+            .forEach(
+                k -> spike.get(k).add(tuple.get(k))
+            );
+        return this;
+      }
+
+      Oryza build() {
+        return new Oryza(straw, spike);
+      }
+    }
+  }
+
   static class Session {
     final SchemafulTupleSet lhs;
     final SchemafulTupleSet rhs;
@@ -48,6 +141,20 @@ public class SimilarityBasedJoiner extends Joiner.Base {
     Session(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       this.lhs = lhs;
       this.rhs = rhs;
+    }
+
+    private OryzaBunch bunchTuples(List<SchemafulTupleSet> joined, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+      OryzaBunch.Builder b = new OryzaBunch.Builder();
+      joined.stream()
+          .flatMap(Collection::stream)
+          .forEach(tuple ->
+              b.add(this.project(tuple, lhs.getAttributeNames()), this.project(tuple, rhs.getAttributeNames()))
+          );
+      return b.build();
+    }
+
+    public Tuple project(Tuple tuple, List<String> attributeNames) {
+      return Utils.project(attributeNames, tuple);
     }
   }
 
