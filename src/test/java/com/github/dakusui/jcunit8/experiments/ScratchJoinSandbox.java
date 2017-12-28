@@ -79,25 +79,6 @@ public class ScratchJoinSandbox {
         doJoin(
             doJoin(
                 doJoin(
-                    lhs(),
-                    rhs(0)
-                ).result,
-                rhs(10)
-            ).result,
-            rhs(20)
-        ),
-        System.currentTimeMillis() - before
-    );
-  }
-
-  @Test
-  public void doi2_lhs10_rhs10$5() {
-    System.out.printf(
-        "%s: %s: totalTime=%s%n",
-        testName.getMethodName(),
-        doJoin(
-            doJoin(
-                doJoin(
                     doJoin(
                         lhs(),
                         rhs(0)
@@ -113,7 +94,7 @@ public class ScratchJoinSandbox {
   }
 
   @Test
-  public void doi2_lhs10_rhs10$6() {
+  public void doi2_lhs10_rhs10$5() {
     System.out.printf(
         "%s: %s: totalTime=%s%n",
         testName.getMethodName(),
@@ -138,7 +119,7 @@ public class ScratchJoinSandbox {
   }
 
   @Test
-  public void doi2_lhs10_rhs10$7() {
+  public void doi2_lhs10_rhs10$6() {
     System.out.printf(
         "%s: %s: totalTime=%s%n",
         testName.getMethodName(),
@@ -166,7 +147,7 @@ public class ScratchJoinSandbox {
   }
 
   @Test
-  public void doi2_lhs10_rhs10$8() {
+  public void doi2_lhs10_rhs10$7() {
     System.out.printf(
         "%s: %s: totalTime=%s%n",
         testName.getMethodName(),
@@ -197,7 +178,7 @@ public class ScratchJoinSandbox {
   }
 
   @Test
-  public void doi2_lhs10_rhs10$9() {
+  public void doi2_lhs10_rhs10$8() {
     System.out.printf(
         "%s: %s: totalTime=%s%n",
         testName.getMethodName(),
@@ -225,6 +206,83 @@ public class ScratchJoinSandbox {
                 rhs(60)
             ).result,
             rhs(70)
+        ),
+        System.currentTimeMillis() - before
+    );
+  }
+
+  @Test
+  public void doi2_lhs10_rhs10$9() {
+    System.out.printf(
+        "%s: %s: totalTime=%s%n",
+        testName.getMethodName(),
+        doJoin(
+            doJoin(
+                doJoin(
+                    doJoin(
+                        doJoin(
+                            doJoin(
+                                doJoin(
+                                    doJoin(
+                                        doJoin(
+                                            lhs(),
+                                            rhs(0)
+                                        ).result,
+                                        rhs(10)
+                                    ).result,
+                                    rhs(20)
+                                ).result,
+                                rhs(30)
+                            ).result,
+                            rhs(40)
+                        ).result,
+                        rhs(50)
+                    ).result,
+                    rhs(60)
+                ).result,
+                rhs(70)
+            ).result,
+            rhs(80)
+        ),
+        System.currentTimeMillis() - before
+    );
+  }
+
+  @Test
+  public void doi2_lhs10_rhs10$10() {
+    System.out.printf(
+        "%s: %s: totalTime=%s%n",
+        testName.getMethodName(),
+        doJoin(
+            doJoin(
+                doJoin(
+                    doJoin(
+                        doJoin(
+                            doJoin(
+                                doJoin(
+                                    doJoin(
+                                        doJoin(
+                                            doJoin(
+                                                lhs(),
+                                                rhs(0)
+                                            ).result,
+                                            rhs(10)
+                                        ).result,
+                                        rhs(20)
+                                    ).result,
+                                    rhs(30)
+                                ).result,
+                                rhs(40)
+                            ).result,
+                            rhs(50)
+                        ).result,
+                        rhs(60)
+                    ).result,
+                    rhs(70)
+                ).result,
+                rhs(80)
+            ).result,
+            rhs(90)
         ),
         System.currentTimeMillis() - before
     );
