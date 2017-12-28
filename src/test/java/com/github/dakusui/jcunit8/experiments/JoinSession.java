@@ -32,14 +32,6 @@ class JoinSession {
     this.joinerFactory = checknotnull(joinerFactory);
   }
 
-  static Joiner standard(Requirement requirement) {
-    return new StandardJoiner(requirement);
-  }
-
-  static Joiner incremental(Requirement requirement) {
-    return new IncrementalJoiner(requirement);
-  }
-
   void execute() {
     Checks.checkcond(!executed);
     try {
@@ -54,6 +46,25 @@ class JoinSession {
 
   long time() {
     return this.after - this.before;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "size=%d; width=%d; time=%s[msec]; %s (input=lhs=%s; rhs=%s)",
+        this.result.size(), this.result.width(),
+        this.time(), this.result.getAttributeNames().size(),
+        lhs.size(),
+        rhs.size()
+    );
+  }
+
+  static Joiner standard(Requirement requirement) {
+    return new StandardJoiner(requirement);
+  }
+
+  static Joiner incremental(Requirement requirement) {
+    return new IncrementalJoiner(requirement);
   }
 
   void verify() {

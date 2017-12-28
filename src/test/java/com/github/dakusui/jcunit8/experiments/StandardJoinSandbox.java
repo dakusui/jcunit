@@ -110,9 +110,9 @@ public class StandardJoinSandbox {
       runJoin(i, joinerFactory, 0, 10, 3, testName.getMethodName());
   }
 
-  static SchemafulTupleSet runJoin(int doi, Function<Requirement, Joiner> joinerFactory, int offset, int lhsWidth, int rhsWidth, String testName) {
+  static void runJoin(int doi, Function<Requirement, Joiner> joinerFactory, int offset, int lhsWidth, int rhsWidth, String testName) {
     SchemafulTupleSet lhs = JoinDataSet.load(doi, lhsWidth);
-    SchemafulTupleSet rhs = loadRhs(offset, rhsWidth);
+    SchemafulTupleSet rhs = loadRhs(offset, rhsWidth, 3);
     JoinSession session = doJoin(lhs, rhs, doi, joinerFactory);
     System.out.printf("%s: size=%d; width=%d; time=%s[msec]; %s (input=lhs=%s; rhs=%s)%n",
         testName, session.result.size(), session.result.width(),
@@ -120,7 +120,7 @@ public class StandardJoinSandbox {
         lhs.size(),
         rhs.size()
     );
-    return session.result;
+    // session.result.forEach(System.out::println);
   }
 
   static JoinSession doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int doi, Function<Requirement, Joiner> joinerFactory) {
@@ -134,10 +134,17 @@ public class StandardJoinSandbox {
     return session;
   }
 
-  static SchemafulTupleSet loadRhs(int offset, int rhsWidth) {
+  static SchemafulTupleSet loadRhs(int offset, int rhsWidth, int doi) {
     IntFunction<String> factorNameFormatter = i -> String.format("r%03d", i);
     return JoinDataSet
-        .load(3, 10, factorNameFormatter)
+        .load(doi, 100, factorNameFormatter)
+        .project(IntStream.range(offset, offset + rhsWidth).mapToObj(factorNameFormatter).collect(toList()));
+  }
+
+  static SchemafulTupleSet loadLhs(int offset, int rhsWidth, int doi) {
+    IntFunction<String> factorNameFormatter = i -> String.format("l%03d", i);
+    return JoinDataSet
+        .load(doi, 100, factorNameFormatter)
         .project(IntStream.range(offset, offset + rhsWidth).mapToObj(factorNameFormatter).collect(toList()));
   }
 
