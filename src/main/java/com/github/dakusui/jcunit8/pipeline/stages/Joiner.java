@@ -14,7 +14,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       FrameworkException.checkCondition(Collections.disjoint(lhs.getAttributeNames(), rhs.getAttributeNames()));
       if (lhs.isEmpty() || rhs.isEmpty())
         return emptyTupleSet(lhs, rhs);
-      if (lhs.size() > rhs.size())
+      if (sizeOf(lhs) > sizeOf(rhs))
         return doJoin(lhs, rhs);
       return doJoin(rhs, lhs);
     }
@@ -36,6 +36,10 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
      * @return Joined schemaful tuple set
      */
     protected abstract SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs);
+
+    protected long sizeOf(SchemafulTupleSet tupleSet) {
+      return tupleSet.size();
+    }
   }
 
 }

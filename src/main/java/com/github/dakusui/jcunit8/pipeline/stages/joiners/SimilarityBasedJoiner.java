@@ -36,12 +36,24 @@ public class SimilarityBasedJoiner extends Joiner.Base {
     // Prepare rhs sub-tuple set of specified strength
     TupleSet subtuplesFromRhs = rhs.subtuplesOf(d - 1);
 
+    ////
+    // hg
     List<SchemafulTupleSet> joined = lhs.getAttributeNames().stream()
         .map(k -> hg(lhs.project(singletonList(k)), rhs, subtuplesFromRhs))
         .collect(toList());
 
+    ////
+    // bunch
     OryzaBunch oryzaBunch = session.bunchTuples(joined, lhs, rhs);
 
+    ////
+    // thrash
+    lhs.forEach(
+        eachFromLhs -> oryzaBunch.find(eachFromLhs)
+    );
+
+    ////
+    // vg
     return new SchemafulTupleSet.Builder(
         Stream.concat(
             lhs.getAttributeNames().stream(),
@@ -50,6 +62,10 @@ public class SimilarityBasedJoiner extends Joiner.Base {
             toList()
         )
     ).addAll(work).build();
+  }
+
+  protected long sizeOf(SchemafulTupleSet tupleSet) {
+    return tupleSet.size() * tupleSet.width();
   }
 
   private SchemafulTupleSet hg(SchemafulTupleSet eachFromLhs, SchemafulTupleSet rhs, TupleSet subtuplesFromRhs) {
