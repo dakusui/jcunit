@@ -62,7 +62,7 @@ public class SimilarityBasedJoiner extends Joiner.Base {
         ).collect(
             toList()
         )
-    ).addAll(work).build();
+    ).addAllEntries(work).build();
   }
 
   protected long sizeOf(SchemafulTupleSet tupleSet) {

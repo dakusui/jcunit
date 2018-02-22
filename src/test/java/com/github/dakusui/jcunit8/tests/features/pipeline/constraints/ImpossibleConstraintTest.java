@@ -97,7 +97,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         new SchemafulTupleSet.Builder(
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
-        ).addAll(
+        ).addAllEntries(
             new IpoGplus(
                 factorSpace,
                 requirement(),
@@ -116,7 +116,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         new SchemafulTupleSet.Builder(
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
-        ).addAll(
+        ).addAllEntries(
             new Cartesian(
                 factorSpace,
                 requirement()).generate()

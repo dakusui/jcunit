@@ -5,7 +5,6 @@ import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.check;
@@ -167,7 +166,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
     Objects.requireNonNull(tuples_);
     FrameworkException.check(tuples_, tuples -> !tuples.isEmpty());
     return new Builder(new ArrayList<>(tuples_.get(0).keySet()))
-        .addAll(tuples_)
+        .addAllEntries(tuples_)
         .build();
   }
 
@@ -175,7 +174,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
     return new Builder(attributeNames).build();
   }
 
-  class Builder {
+  class Builder extends AbstractCollection<Tuple> {
     private final LinkedHashSet<String> attributeNames;
     private final List<Tuple>           tuples;
 
@@ -186,7 +185,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
       this.tuples = new LinkedList<>();
     }
 
-    public Builder add(Tuple tuple) {
+    public Builder addEntry(Tuple tuple) {
       ////
       // Make sure all the tuples in this suite object have the same set of attribute
       // names.
@@ -195,8 +194,8 @@ public interface SchemafulTupleSet extends List<Tuple> {
       return this;
     }
 
-    public Builder addAll(Collection<Tuple> tuples) {
-      tuples.forEach(this::add);
+    public Builder addAllEntries(Collection<Tuple> tuples) {
+      this.addAll(tuples);
       return this;
     }
 
@@ -245,7 +244,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
                       a -> !this.attributeNames.contains(a)
                   ).collect(toList())
               ));
-          return new SchemafulTupleSet.Builder(attributes).addAll(
+          return new SchemafulTupleSet.Builder(attributes).addAllEntries(
               this.tuples.stream().map(
                   t -> TupleUtils.project(t, attributes)
               ).distinct(
@@ -274,6 +273,16 @@ public interface SchemafulTupleSet extends List<Tuple> {
       return new Impl(
           new ArrayList<>(this.attributeNames),
           this.tuples);
+    }
+
+    @Override
+    public Iterator<Tuple> iterator() {
+      return this.tuples.iterator();
+    }
+
+    @Override
+    public int size() {
+      return this.tuples.size();
     }
   }
 }

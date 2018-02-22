@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 public enum Utils {
   ;
@@ -151,8 +152,12 @@ public enum Utils {
     return ret;
   }
 
-  public static <T, R> Function<T, R> memoize(Function<T, R> function) {
-    Map<T, R> memo = new ConcurrentHashMap<>();
+  public static <T, R> Function<T, R> memoize(Function<T, R> function, Map<T, R> memo) {
+    requireNonNull(memo);
     return t -> memo.computeIfAbsent(t, function);
+  }
+
+  public static <T, R> Function<T, R> memoize(Function<T, R> function) {
+    return memoize(function, new ConcurrentHashMap<>());
   }
 }

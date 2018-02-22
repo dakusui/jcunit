@@ -211,7 +211,7 @@ public class StandardJoiner2 extends Joiner.Base {
             lhs.getAttributeNames().stream(),
             rhs.getAttributeNames().stream()
         ).collect(toList()))
-        .addAll(work)
+        .addAllEntries(work)
         .build();
   }
 

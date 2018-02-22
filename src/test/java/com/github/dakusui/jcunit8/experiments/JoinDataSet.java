@@ -74,7 +74,7 @@ public interface JoinDataSet {
             return builder.build();
           }
       ).forEach(
-          this::add
+          this::addEntry
       );
     }}.build();
   }

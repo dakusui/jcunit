@@ -264,39 +264,39 @@ public class CAgenerationUnderConstraints {
     List<String> attrs = IntStream.range(0, 10).mapToObj(i -> String.format("%s%d", prefix, i)).collect(Collectors.toList());
     return new SchemafulTupleSet.Builder(
         attrs
-    ).add(toTuple(attrs, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1
-    )).add(toTuple(attrs, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2
-    )).add(toTuple(attrs, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3
-    )).add(toTuple(attrs, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0
-    )).add(toTuple(attrs, 1, 0, 2, 3, 0, 1, 2, 3, 0, 1
-    )).add(toTuple(attrs, 1, 1, 3, 0, 1, 2, 3, 0, 1, 2
-    )).add(toTuple(attrs, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3
-    )).add(toTuple(attrs, 1, 3, 1, 2, 3, 0, 1, 2, 3, 0
-    )).add(toTuple(attrs, 2, 0, 3, 2, 0, 3, 3, 2, 0, 1
-    )).add(toTuple(attrs, 2, 1, 0, 3, 1, 0, 0, 3, 1, 2
-    )).add(toTuple(attrs, 2, 2, 1, 0, 2, 1, 1, 0, 2, 3
-    )).add(toTuple(attrs, 2, 3, 2, 1, 3, 2, 2, 1, 3, 0
-    )).add(toTuple(attrs, 3, 0, 0, 2, 3, 1, 0, 2, 3, 1
-    )).add(toTuple(attrs, 3, 1, 1, 3, 0, 2, 1, 3, 0, 2
-    )).add(toTuple(attrs, 3, 2, 2, 0, 1, 3, 2, 0, 1, 3
-    )).add(toTuple(attrs, 3, 3, 3, 1, 2, 0, 3, 1, 2, 0
-    )).add(toTuple(attrs, 2, 0, 0, 0, 3, 2, 0, 0, 3, 1
-    )).add(toTuple(attrs, 3, 1, 1, 1, 0, 3, 1, 1, 0, 2
-    )).add(toTuple(attrs, 0, 2, 2, 2, 1, 0, 2, 2, 1, 3
-    )).add(toTuple(attrs, 2, 3, 3, 3, 2, 1, 3, 3, 2, 0
-    )).add(toTuple(attrs, 2, 2, 1, 1, 0, 2, 0, 0, 3, 2
-    )).add(toTuple(attrs, 1, 3, 2, 2, 1, 3, 0, 0, 0, 3
-    )).add(toTuple(attrs, 2, 0, 3, 3, 2, 0, 0, 0, 1, 0
-    )).add(toTuple(attrs, 0, 1, 0, 0, 3, 1, 1, 1, 2, 1
-    )).add(toTuple(attrs, 2, 2, 2, 2, 2, 0, 1, 1, 0, 1
-    )).add(toTuple(attrs, 3, 3, 3, 3, 3, 1, 1, 1, 0, 2
-    )).add(toTuple(attrs, 1, 3, 0, 0, 0, 2, 2, 2, 1, 3
-    )).add(toTuple(attrs, 1, 1, 1, 1, 3, 3, 2, 2, 1, 0
-    )).add(toTuple(attrs, 1, 0, 3, 3, 0, 2, 2, 2, 2, 2
-    )).add(toTuple(attrs, 3, 2, 0, 0, 1, 3, 3, 3, 2, 0
-    )).add(toTuple(attrs, 3, 1, 1, 1, 1, 0, 3, 3, 3, 3
-    )).add(toTuple(attrs, 3, 3, 2, 2, 2, 0, 3, 3, 3, 1
-    )).add(toTuple(attrs, 1, 0, 1, 0, 1, 0, 2, 0, 0, 3
+    ).addEntry(toTuple(attrs, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1
+    )).addEntry(toTuple(attrs, 0, 1, 2, 2, 2, 2, 2, 2, 2, 2
+    )).addEntry(toTuple(attrs, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3
+    )).addEntry(toTuple(attrs, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0
+    )).addEntry(toTuple(attrs, 1, 0, 2, 3, 0, 1, 2, 3, 0, 1
+    )).addEntry(toTuple(attrs, 1, 1, 3, 0, 1, 2, 3, 0, 1, 2
+    )).addEntry(toTuple(attrs, 1, 2, 0, 1, 2, 3, 0, 1, 2, 3
+    )).addEntry(toTuple(attrs, 1, 3, 1, 2, 3, 0, 1, 2, 3, 0
+    )).addEntry(toTuple(attrs, 2, 0, 3, 2, 0, 3, 3, 2, 0, 1
+    )).addEntry(toTuple(attrs, 2, 1, 0, 3, 1, 0, 0, 3, 1, 2
+    )).addEntry(toTuple(attrs, 2, 2, 1, 0, 2, 1, 1, 0, 2, 3
+    )).addEntry(toTuple(attrs, 2, 3, 2, 1, 3, 2, 2, 1, 3, 0
+    )).addEntry(toTuple(attrs, 3, 0, 0, 2, 3, 1, 0, 2, 3, 1
+    )).addEntry(toTuple(attrs, 3, 1, 1, 3, 0, 2, 1, 3, 0, 2
+    )).addEntry(toTuple(attrs, 3, 2, 2, 0, 1, 3, 2, 0, 1, 3
+    )).addEntry(toTuple(attrs, 3, 3, 3, 1, 2, 0, 3, 1, 2, 0
+    )).addEntry(toTuple(attrs, 2, 0, 0, 0, 3, 2, 0, 0, 3, 1
+    )).addEntry(toTuple(attrs, 3, 1, 1, 1, 0, 3, 1, 1, 0, 2
+    )).addEntry(toTuple(attrs, 0, 2, 2, 2, 1, 0, 2, 2, 1, 3
+    )).addEntry(toTuple(attrs, 2, 3, 3, 3, 2, 1, 3, 3, 2, 0
+    )).addEntry(toTuple(attrs, 2, 2, 1, 1, 0, 2, 0, 0, 3, 2
+    )).addEntry(toTuple(attrs, 1, 3, 2, 2, 1, 3, 0, 0, 0, 3
+    )).addEntry(toTuple(attrs, 2, 0, 3, 3, 2, 0, 0, 0, 1, 0
+    )).addEntry(toTuple(attrs, 0, 1, 0, 0, 3, 1, 1, 1, 2, 1
+    )).addEntry(toTuple(attrs, 2, 2, 2, 2, 2, 0, 1, 1, 0, 1
+    )).addEntry(toTuple(attrs, 3, 3, 3, 3, 3, 1, 1, 1, 0, 2
+    )).addEntry(toTuple(attrs, 1, 3, 0, 0, 0, 2, 2, 2, 1, 3
+    )).addEntry(toTuple(attrs, 1, 1, 1, 1, 3, 3, 2, 2, 1, 0
+    )).addEntry(toTuple(attrs, 1, 0, 3, 3, 0, 2, 2, 2, 2, 2
+    )).addEntry(toTuple(attrs, 3, 2, 0, 0, 1, 3, 3, 3, 2, 0
+    )).addEntry(toTuple(attrs, 3, 1, 1, 1, 1, 0, 3, 3, 3, 3
+    )).addEntry(toTuple(attrs, 3, 3, 2, 2, 2, 0, 3, 3, 3, 1
+    )).addEntry(toTuple(attrs, 1, 0, 1, 0, 1, 0, 2, 0, 0, 3
     )).build();
   }
 
@@ -360,7 +360,7 @@ public class CAgenerationUnderConstraints {
   private static SchemafulTupleSet toSchemafulTupleSet(TestSuite testSuite) {
     return new SchemafulTupleSet.Builder(
         testSuite.getParameterSpace().getParameterNames()
-    ).addAll(
+    ).addAllEntries(
         testSuite.stream().map(TestCase::get).collect(Collectors.toList())
     ).build();
   }

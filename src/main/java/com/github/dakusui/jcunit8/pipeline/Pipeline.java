@@ -115,7 +115,7 @@ public interface Pipeline {
           .map(config.generator(parameterSpace, config.getRequirement()))
           .reduce(config.<SchemafulTupleSet>joiner())
           .map(
-              (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
+              (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAllEntries(
                   tuples.stream()
                       .map((Tuple tuple) -> {
                         Tuple.Builder builder = Tuple.builder();

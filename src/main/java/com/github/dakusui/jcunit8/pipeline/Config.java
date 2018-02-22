@@ -108,7 +108,7 @@ public interface Config {
           ).collect(
               toList()
           )
-      ).addAll(
+      ).addAllEntries(
           generatorFactory.create(
               factorSpace,
               requirement,

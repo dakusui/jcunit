@@ -73,7 +73,7 @@ public class IncrementalJoiner extends Joiner.Base {
     log("Inc:phase-3: ts.size=%s", ts.size());
     return new SchemafulTupleSet.Builder(
         concat(lhs.getAttributeNames().stream(), rhs.getAttributeNames().stream()).collect(toList())
-    ).addAll(
+    ).addAllEntries(
         ts
     ).build();
   }
