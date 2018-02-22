@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
+import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -192,5 +193,12 @@ public class SimilarityBasedJoiner extends Joiner.Base {
       ret = ret / (double) u.keySet().size();
       return ret;
     }
+  }
+
+  public static void main(String... args)  {
+    System.out.println(new Locale("ja", "jp", "jp"));
+//    System.out.println(new Date());
+    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG, new Locale("ja", "jp", "jp"));
+    System.out.println(dateFormat.format(new Date()));
   }
 }

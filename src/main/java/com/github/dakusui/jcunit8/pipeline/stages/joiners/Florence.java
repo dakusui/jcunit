@@ -1,16 +1,23 @@
 package com.github.dakusui.jcunit8.pipeline.stages.joiners;
 
+import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Stream.concat;
 
 public class Florence extends Joiner.Base {
   private final Requirement requirement;
@@ -65,12 +72,11 @@ public class Florence extends Joiner.Base {
   protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
     int t = this.requirement.strength();
 
-    List<Factor> allFactors = Stream.concat(
+    List<Factor> allFactors = concat(
         lhs.getAttributeNames().stream().map(s -> getFactorFrom(lhs, s)),
         rhs.getAttributeNames().stream().map(s -> getFactorFrom(rhs, s))
     ).collect(toList());
     List<Factor> processedFactors = initializeProcessedFactors(lhs);
-
 
     // all valid t-way tuples are already covered in LHS.
     // all valid t-way tuples are already covered in RHS.
@@ -92,91 +98,91 @@ public class Florence extends Joiner.Base {
      *         * t; strength
      *         * 0-origin
      */
-//    TupleSet π;
-//    for (int i = 0; i < rhs.width(); i++) {
-//      /*     5.    let π be the set of t -way combinations of values involving parameter
-//       *            Pi and t -1 parameters among the first i – 1 parameters (*2)
-//       */
-//      Factor Pi = getFactorFrom(rhs, rhs.getAttributeNames().get(i));
-//      processedFactors.add(Pi);
-//      π = prepare_π(processedFactors, allFactors, allConstraints, t);
-//      /*     6.     // horizontal extension for parameter Pi
-//       *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
-//       */
-//      for (Tuple τ : ts) {
-//        /*     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
-//         *                ..., vi-1 , vi ) so that τ’ covers the most number of
-//         *                combinations of values in π (*3)
-//         */
-//        Object vi = chooseLevelThatCoversMostTuples(
-//            τ, Pi, π, t,
-//            allFactors,
-//            allConstraints,
-//            session
-//        ).orElseThrow(
-//            ////
-//            // (*3) This cannot happen
-//            () -> TestDefinitionException.failedToCover(Pi.getName(), Pi.getLevels(), τ)
-//        );
-//        τ.put(Pi.getName(), vi);
-//        /*  9.         remove from π the combinations of values covered by τ’
-//         */
-//        π.removeAll(TupleUtils.subtuplesOf(τ, t));
-//      }
-//
-//      /* 10.
-//       * 11.    // vertical extension for parameter P i
-//       * 12.    for (each combination σ in set π ) {
-//       */
-//      for (Tuple σ : new LinkedList<>(π)) {
-//        /* 13.      if (there exists a test that already covers σ ) {
-//         * 14.          remove σ from π
-//         * 15.      } else {
-//         * 16.        change an existing test, if possible, or otherwise add a new test
-//         *            to cover σ and remove it from π (*4)
-//         * 17.      }
-//         */
-//        if (ts.stream().anyMatch(σ::isSubtupleOf)) {
-//          π.remove(σ);
-//        } else {
-//          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(
-//              ts, σ
-//          ).filter(
-//              (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints, this.session).test(
-//                  Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()
-//              ) // (*4)
-//          ).findFirst(
-//          ).orElseGet(
-//              () -> createTupleFrom(
-//                  FactorUtils.toFactorNames(processedFactors),
-//                  σ
-//              )
-//          );
-//          /*
-//           * <pre>
-//           * 16. change an existing test, if possible, or otherwise add a new test
-//           *     to cover σ (*a)
-//           * </pre>
-//           */
-//          chosenTest.putAll(σ);
-//          if (!ts.contains(chosenTest))
-//            ts.add(chosenTest);
-//          π.remove(σ);
-//        }
-//      }
-//      ts = ts.stream()
-//          .map(
-//              replaceDontCareValuesWithActualLevels(
-//                  allFactors,
-//                  allConstraints,
-//                  session
-//              )
-//          ).collect(toList());
-//    }
+    //    TupleSet π;
+    //    for (int i = 0; i < rhs.width(); i++) {
+    //      /*     5.    let π be the set of t -way combinations of values involving parameter
+    //       *            Pi and t -1 parameters among the first i – 1 parameters (*2)
+    //       */
+    //      Factor Pi = getFactorFrom(rhs, rhs.getAttributeNames().get(i));
+    //      processedFactors.add(Pi);
+    //      π = prepare_π(processedFactors, allFactors, allConstraints, t);
+    //      /*     6.     // horizontal extension for parameter Pi
+    //       *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
+    //       */
+    //      for (Tuple τ : ts) {
+    //        /*     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+    //         *                ..., vi-1 , vi ) so that τ’ covers the most number of
+    //         *                combinations of values in π (*3)
+    //         */
+    //        Object vi = chooseLevelThatCoversMostTuples(
+    //            τ, Pi, π, t,
+    //            allFactors,
+    //            allConstraints,
+    //            session
+    //        ).orElseThrow(
+    //            ////
+    //            // (*3) This cannot happen
+    //            () -> TestDefinitionException.failedToCover(Pi.getName(), Pi.getLevels(), τ)
+    //        );
+    //        τ.put(Pi.getName(), vi);
+    //        /*  9.         remove from π the combinations of values covered by τ’
+    //         */
+    //        π.removeAll(TupleUtils.subtuplesOf(τ, t));
+    //      }
+    //
+    //      /* 10.
+    //       * 11.    // vertical extension for parameter P i
+    //       * 12.    for (each combination σ in set π ) {
+    //       */
+    //      for (Tuple σ : new LinkedList<>(π)) {
+    //        /* 13.      if (there exists a test that already covers σ ) {
+    //         * 14.          remove σ from π
+    //         * 15.      } else {
+    //         * 16.        change an existing test, if possible, or otherwise add a new test
+    //         *            to cover σ and remove it from π (*4)
+    //         * 17.      }
+    //         */
+    //        if (ts.stream().anyMatch(σ::isSubtupleOf)) {
+    //          π.remove(σ);
+    //        } else {
+    //          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(
+    //              ts, σ
+    //          ).filter(
+    //              (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints, this.session).test(
+    //                  Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()
+    //              ) // (*4)
+    //          ).findFirst(
+    //          ).orElseGet(
+    //              () -> createTupleFrom(
+    //                  FactorUtils.toFactorNames(processedFactors),
+    //                  σ
+    //              )
+    //          );
+    //          /*
+    //           * <pre>
+    //           * 16. change an existing test, if possible, or otherwise add a new test
+    //           *     to cover σ (*a)
+    //           * </pre>
+    //           */
+    //          chosenTest.putAll(σ);
+    //          if (!ts.contains(chosenTest))
+    //            ts.add(chosenTest);
+    //          π.remove(σ);
+    //        }
+    //      }
+    //      ts = ts.stream()
+    //          .map(
+    //              replaceDontCareValuesWithActualLevels(
+    //                  allFactors,
+    //                  allConstraints,
+    //                  session
+    //              )
+    //          ).collect(toList());
+    //    }
 
     ////
     SchemafulTupleSet.Builder builder = new SchemafulTupleSet.Builder(
-        Stream.concat(
+        concat(
             lhs.getAttributeNames().stream(),
             rhs.getAttributeNames().stream()
         ).collect(toList())
@@ -203,5 +209,106 @@ public class Florence extends Joiner.Base {
     return tupleSet.getAttributeNames().stream().map(
         factorName -> getFactorFrom(tupleSet, factorName)
     ).collect(toList());
+  }
+
+  private static class Session {
+    private TupleSet uniquTuplesOfStrength(
+        SchemafulTupleSet lhs,
+        SchemafulTupleSet rhs,
+        List<String> alreadyProcessedFactorsInRhs,
+        String newFactorNameInRhs,
+        int strength
+    ) {
+      Checks.checkcond(strength > 1);
+      for (int i = 1; i < strength; i++) {
+        TupleSet uniqueTuplesFromLhs = uniqueTuplesOfStrength(lhs, i);
+        TupleSet uniqueTuplesFromRhs = new TupleSet.Builder().addAll(
+            StreamSupport.stream(
+                new Combinator<>(alreadyProcessedFactorsInRhs, strength - i - 1).spliterator(),
+                false
+            ).flatMap(
+                (List<String> chosenFactorNames) -> uniqueTuples(
+                    rhs,
+                    concat(chosenFactorNames.stream(), Stream.of(newFactorNameInRhs)).collect(toList())
+                ).stream()
+            ).distinct(
+            ).collect(
+                toList()
+            )
+        ).build();
+        uniqueTuplesFromLhs.cartesianProduct(uniqueTuplesFromRhs);
+      }
+      // t = 3
+      // a a a | b b n
+      // i 1, j 1 k 1
+      // i 2, j 0 k 1
+
+      // t = 3
+      // a a a || n
+      // i 2 j 0 k 1  || i + j + k = 3 = t
+
+      // t = 4
+      // a a a || b n
+      // i = 2 j = 1 k = 1 || k = 1, i = t - k - j
+
+      // i = 1 + t - j + 1
+
+      // i + j + 1 = t, l.size >= i >= 1, r.size >= j >= 1
+
+
+      return IntStream.range(
+          1 + strength - 1 - alreadyProcessedFactorsInRhs.size(),
+          strength
+      ).mapToObj(
+          (int i) -> {
+            TupleSet uniqueTuplesFromLhs = uniqueTuplesOfStrength(lhs, i);
+            TupleSet uniqueTuplesFromRhs = new TupleSet.Builder().addAll(
+                StreamSupport.stream(
+                    new Combinator<>(alreadyProcessedFactorsInRhs, strength - i - 1).spliterator(),
+                    false
+                ).flatMap(
+                    (List<String> chosenFactorNames) -> uniqueTuples(
+                        rhs,
+                        concat(chosenFactorNames.stream(), Stream.of(newFactorNameInRhs)).collect(toList())
+                    ).stream()
+                ).distinct(
+                ).collect(
+                    toList()
+                )
+            ).build();
+            return uniqueTuplesFromLhs.cartesianProduct(uniqueTuplesFromRhs);
+          }
+      ).reduce(
+          (TupleSet t, TupleSet u) -> new TupleSet.Builder().addAll(t).addAll(u).build()
+      ).orElseThrow(
+          AssertionError::new
+      );
+    }
+
+    private TupleSet uniqueTuplesOfStrength(SchemafulTupleSet tuples, int strength) {
+      return new TupleSet.Builder().addAll(
+          StreamSupport.stream(
+              new Combinator<>(
+                  tuples.getAttributeNames(),
+                  strength
+              ).spliterator(),
+              false
+          ).flatMap(
+              factorNames -> uniqueTuples(tuples, factorNames).stream()
+          ).distinct(
+          ).collect(
+              toList()
+          )
+      ).build();
+    }
+
+    private TupleSet uniqueTuples(SchemafulTupleSet tuples, List<String> factorNames) {
+      return new TupleSet.Builder().addAll(
+          tuples.stream()
+              .map(tuple -> TupleUtils.project(tuple, factorNames))
+              .distinct()
+              .collect(toList())
+      ).build();
+    }
   }
 }
