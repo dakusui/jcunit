@@ -16,6 +16,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.memoize;
+import static com.github.dakusui.jcunit8.core.Utils.project;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.StreamSupport.stream;
@@ -90,13 +91,16 @@ public class Florence extends Joiner.Base {
           F,
           t
       );
+      final List<String> involvedFactors = concat(alreadyProcessedFactors.stream(), Stream.of(F)).collect(toList());
+      ////
+      // hg
       for (Tuple τ : new ArrayList<>(ts)) {
         Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, lhs, rhs, alreadyProcessedFactors, t);
         Tuple.Builder b = Tuple.builder().putAll(τ);
         List<Tuple> candidates = rhs.index().find(
             TupleUtils.project(
                 b.put(F, vi).build(),
-                concat(alreadyProcessedFactors.stream(), Stream.of(F)).collect(toList())
+                involvedFactors
             )
         );
         assert !candidates.isEmpty();
@@ -107,12 +111,29 @@ public class Florence extends Joiner.Base {
         );
         ts.remove(τ);
         ts.add(b.build());
-        while (!π.isEmpty()) {
-
-        }
       }
+      ////
+      // vg
+      while (!π.isEmpty()) {
+        Tuple n = session.chooseBestCombination(
+            π,
+            lhs,
+            rhs,
+            involvedFactors,
+            ts
+        );
+        π.removeAll(TupleUtils.subtuplesOf(n, t));
+        ts.add(n);
+      }
+      alreadyProcessedFactors = involvedFactors;
     }
-    return ts.build();
+    return session.ensureAllTuplesAreUsed(
+        session.ensureAllTuplesAreUsed(
+            ts,
+            lhs
+        ),
+        rhs
+    ).build();
 
     // all valid t-way tuples are already covered in LHS.
     // all valid t-way tuples are already covered in RHS.
@@ -333,6 +354,21 @@ public class Florence extends Joiner.Base {
     public Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> alreadyProcessedFactors, int strength) {
       return null;
     }
+
+    public Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> factorNames, SchemafulTupleSet.Builder ts) {
+      return null;
+    }
+
+    public SchemafulTupleSet.Builder ensureAllTuplesAreUsed(SchemafulTupleSet.Builder ts, SchemafulTupleSet tuples) {
+      tuples.stream()
+          .filter(
+              t -> ts.stream()
+                  .map(tuple -> project(tuples.getAttributeNames(), tuple))
+                  .noneMatch(t::equals)
+          ).forEach(ts::add);
+      return ts;
+    }
+
   }
 
   public static void main(String... args) {
