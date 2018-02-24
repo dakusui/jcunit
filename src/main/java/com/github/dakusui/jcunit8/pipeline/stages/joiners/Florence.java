@@ -261,25 +261,45 @@ public class Florence extends Joiner.Base {
 
     List<List<String>> factorNames(List<String> fromLhs, List<String> fromRhs, String f, int t) {
       List<List<String>> ret = new ArrayList<>();
-      IntStream.range(1, t - 2).mapToObj(
-          (int i) -> StreamSupport.stream(
-              new Combinator<>(fromLhs, i).spliterator(),
-              false
-          )
-      ).flatMap(new Function<Stream<List<String>>, Stream<List<List<String>>>>() {
-        @Override
-        public Stream<List<List<String>>> apply(Stream<List<String>> fromLhs) {
-          return null;
+      for (int i = 1; i < t; i++) {
+        if (i > fromLhs.size())
+          continue;
+        if (t - i - 1 > fromLhs.size())
+          continue;
+        for (List<String> leftFactors : new Combinator<>(fromLhs, i)) {
+          for (List<String> rightFactors : new Combinator<>(fromRhs, t - i - 1)) {
+            ret.add(new ArrayList<String>() {{
+              addAll(leftFactors);
+              addAll(rightFactors);
+              add(f);
+            }});
+          }
         }
-      });
+      }
       return ret;
+    }
+
+    Stream<List<String>> streamFactorNameSets(List<String> fromLhs, List<String> fromRhs, String f, int t) {
+      return IntStream.range(1, t)
+          .filter((int i) -> i > fromLhs.size())
+          .filter((int i) -> t - i - 1 > fromLhs.size())
+          .mapToObj((int i) -> new Combinator<>(fromLhs, i))
+          .flatMap((Combinator<String> lcomb) -> StreamSupport.stream(lcomb.spliterator(), false))
+          .flatMap(
+              (List<String> lhsFactors) -> StreamSupport.stream(new Combinator<>(fromRhs, t - lhsFactors.size() - 1).spliterator(), false)
+                  .map((List<String> rhsFactors) -> (List<String>) new ArrayList<String>() {{
+                    addAll(lhsFactors);
+                    addAll(rhsFactors);
+                    add(f);
+                  }})
+          );
     }
 
     Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> factorNames, SchemafulTupleSet.Builder ts) {
       return null;
     }
 
-    public SchemafulTupleSet.Builder ensureAllTuplesAreUsed(SchemafulTupleSet.Builder ts, SchemafulTupleSet tuples) {
+    SchemafulTupleSet.Builder ensureAllTuplesAreUsed(SchemafulTupleSet.Builder ts, SchemafulTupleSet tuples) {
       tuples.stream()
           .filter(
               t -> ts.stream()
