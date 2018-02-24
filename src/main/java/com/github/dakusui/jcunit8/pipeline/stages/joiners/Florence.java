@@ -14,7 +14,6 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -262,22 +261,14 @@ public class Florence extends Joiner.Base {
 
     List<List<String>> factorNames(List<String> fromLhs, List<String> fromRhs, String f, int t) {
       List<List<String>> ret = new ArrayList<>();
-      for (int i = 1; i <= t - 2; t++) {
-
-      }
       IntStream.range(1, t - 2).mapToObj(
-          new IntFunction<Stream<List<String>>>() {
-            @Override
-            public Stream<List<String>> apply(int i) {
-              return StreamSupport.stream(
-                  new Combinator<>(fromLhs, i).spliterator(),
-                  false
-              );
-            }
-          }
-      ).flatMap(new Function<Stream<List<String>>, Stream<?>>() {
+          (int i) -> StreamSupport.stream(
+              new Combinator<>(fromLhs, i).spliterator(),
+              false
+          )
+      ).flatMap(new Function<Stream<List<String>>, Stream<List<List<String>>>>() {
         @Override
-        public Stream<?> apply(Stream<List<String>> listStream) {
+        public Stream<List<List<String>>> apply(Stream<List<String>> fromLhs) {
           return null;
         }
       });
