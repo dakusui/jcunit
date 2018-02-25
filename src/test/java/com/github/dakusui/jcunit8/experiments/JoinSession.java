@@ -4,8 +4,9 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.pipeline.stages.joiners.IncrementalJoiner;
+import com.github.dakusui.jcunit8.pipeline.stages.joiners.Florence;
 import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
+import com.github.dakusui.jcunit8.pipeline.stages.joiners.old.IncrementalJoiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 
 import java.util.List;
@@ -61,6 +62,10 @@ class JoinSession {
 
   static Joiner standard(Requirement requirement) {
     return new StandardJoiner(requirement);
+  }
+
+  static Joiner florence(Requirement requirement) {
+    return new Florence(requirement);
   }
 
   static Joiner incremental(Requirement requirement) {

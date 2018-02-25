@@ -2,8 +2,7 @@ package com.github.dakusui.jcunit8.experiments;
 
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
-import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner2;
+import com.github.dakusui.jcunit8.pipeline.stages.joiners.Florence;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import org.junit.After;
 import org.junit.Rule;
@@ -22,90 +21,90 @@ public class StandardJoinSandbox {
 
   @Test
   public void std2_lhs10_rhs1_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 10, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs20_rhs1_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 20, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs40_rhs1_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 40, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs50_rhs1_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 50, 1, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs3_1() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     runJoin(3, joinerFactory, 0, 10, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs20_rhs3_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 20, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs30_rhs3_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 30, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs40_rhs3_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 40, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs50_rhs3_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 50, 3, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs4_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 10, 4, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs5_4() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 10, 5, testName.getMethodName());
   }
 
   @Test
   public void std2_lhs10_rhs3() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner2::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 10, 3, testName.getMethodName());
   }
 
   @Test
   public void std1_lhs10_rhs3() {
-    Function<Requirement, Joiner> joinerFactory = StandardJoiner::new;
+    Function<Requirement, Joiner> joinerFactory = Florence::new;
     for (int i = 0; i < 4; i++)
       runJoin(i, joinerFactory, 0, 10, 3, testName.getMethodName());
   }

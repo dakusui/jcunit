@@ -165,7 +165,7 @@ public class StandardJoiner extends Joiner.Base {
         .build();
   }
 
-  static void log(String label, Object... args) {
+  public static void log(String label, Object... args) {
     long now = System.currentTimeMillis();
     long time = cur == 0 ? 0 : now - cur;
     if (isDebugEnabled())
@@ -177,7 +177,7 @@ public class StandardJoiner extends Joiner.Base {
     return "yes".equals(System.getProperty("debug"));
   }
 
-  static List<Tuple> findCoveringTuplesIn(Tuple aTuple, SchemafulTupleSet tuples) {
+  public static List<Tuple> findCoveringTuplesIn(Tuple aTuple, SchemafulTupleSet tuples) {
     Tuple inConcern = project(aTuple, tuples.getAttributeNames());
     return tuples.stream(
     ).filter(

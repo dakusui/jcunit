@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.pipeline.stages.joiners;
+package com.github.dakusui.jcunit8.pipeline.stages.joiners.old;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.Utils;

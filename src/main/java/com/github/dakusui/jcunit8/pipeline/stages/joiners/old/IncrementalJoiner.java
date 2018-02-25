@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.pipeline.stages.joiners;
+package com.github.dakusui.jcunit8.pipeline.stages.joiners.old;
 
 import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
