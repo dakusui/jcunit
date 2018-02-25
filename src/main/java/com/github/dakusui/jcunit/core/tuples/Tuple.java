@@ -58,6 +58,10 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       }
       return ret;
     }
+
+    public boolean isEmpty() {
+      return this.attrs.isEmpty();
+    }
   }
 
   boolean isSubtupleOf(Tuple another);

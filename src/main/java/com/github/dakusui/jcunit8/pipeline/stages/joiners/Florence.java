@@ -4,24 +4,24 @@ import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit8.core.StreamableCombinator;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
+import static com.github.dakusui.jcunit8.core.Utils.combinations;
 import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static com.github.dakusui.jcunit8.core.Utils.project;
+import static java.util.Collections.disjoint;
 import static java.util.Collections.singletonList;
+import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.StreamSupport.stream;
@@ -97,10 +97,13 @@ public class Florence extends Joiner.Base {
           t
       );
       final List<String> involvedFactors = concat(alreadyProcessedFactors.stream(), Stream.of(F)).collect(toList());
+      final List<List<String>> tWayFactorNameSets = session
+          .streamFactorNameSets(lhs.getAttributeNames(), alreadyProcessedFactors, F, t)
+          .collect(toList());
       ////
       // hg
       for (Tuple τ : new ArrayList<>(ts)) {
-        Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, lhs, rhs, involvedFactors, t);
+        Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets);
         Tuple.Builder b = Tuple.builder().putAll(τ);
         List<Tuple> candidates = rhs.index().find(
             project(
@@ -123,9 +126,7 @@ public class Florence extends Joiner.Base {
         Tuple n = session.chooseBestCombination(
             π,
             lhs,
-            rhs,
-            involvedFactors,
-            ts
+            rhs
         );
         π.removeAll(TupleUtils.subtuplesOf(n, t));
         ts.add(n);
@@ -237,7 +238,7 @@ public class Florence extends Joiner.Base {
       ).build();
     }
 
-    Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> involvedFactors, int strength) {
+    Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets) {
       if (τ.containsKey(f))
         return τ;
       Tuple q = project(
@@ -245,48 +246,28 @@ public class Florence extends Joiner.Base {
           involvedFactors.subList(0, involvedFactors.size() - 1)
       );
       return rhs.project(involvedFactors).stream()
-          .filter(tuple -> tuple.containsKey(q))
-          .map(
-              tuple -> project(tuple, singletonList(f))
-          )
+          .filter(q::isSubtupleOf)
+          .map(tuple -> project(tuple, singletonList(f)))
           .distinct()
-          .collect(toList())
-          .stream().max(new Comparator<Object>() {
-            @Override
-            public int compare(Object o1, Object o2) {
-              return 0;
-            }
-          }).orElseThrow(RuntimeException::new);
+          .max(comparingInt(o -> numberOfTuplesCoveredBy(τ, f, o, π, factorNameSets)))
+          .orElseThrow(RuntimeException::new);
     }
 
-    List<List<String>> factorNames(List<String> fromLhs, List<String> fromRhs, String f, int t) {
-      List<List<String>> ret = new ArrayList<>();
-      for (int i = 1; i < t; i++) {
-        if (i > fromLhs.size())
-          continue;
-        if (t - i - 1 > fromLhs.size())
-          continue;
-        for (List<String> leftFactors : new Combinator<>(fromLhs, i)) {
-          for (List<String> rightFactors : new Combinator<>(fromRhs, t - i - 1)) {
-            ret.add(new ArrayList<String>() {{
-              addAll(leftFactors);
-              addAll(rightFactors);
-              add(f);
-            }});
-          }
-        }
-      }
-      return ret;
+    private int numberOfTuplesCoveredBy(Tuple τ, String f, Object v, TupleSet π, List<List<String>> factorNameSets) {
+      Tuple tuple = Tuple.builder().putAll(τ).put(f, v).build();
+      return (int) factorNameSets.stream()
+          .mapToInt(factorNames -> π.contains(project(factorNames, tuple)) ? 1 : 0)
+          .count();
     }
 
     Stream<List<String>> streamFactorNameSets(List<String> fromLhs, List<String> fromRhs, String f, int t) {
       return IntStream.range(1, t)
           .filter((int i) -> i > fromLhs.size())
           .filter((int i) -> t - i - 1 > fromLhs.size())
-          .mapToObj((int i) -> new Combinator<>(fromLhs, i))
-          .flatMap((Combinator<String> lcomb) -> StreamSupport.stream(lcomb.spliterator(), false))
+          .mapToObj((int i) -> new StreamableCombinator<>(fromLhs, i))
+          .flatMap(StreamableCombinator::stream)
           .flatMap(
-              (List<String> lhsFactors) -> StreamSupport.stream(new Combinator<>(fromRhs, t - lhsFactors.size() - 1).spliterator(), false)
+              (List<String> lhsFactors) -> combinations(fromRhs, t - lhsFactors.size() - 1)
                   .map((List<String> rhsFactors) -> (List<String>) new ArrayList<String>() {{
                     addAll(lhsFactors);
                     addAll(rhsFactors);
@@ -295,8 +276,64 @@ public class Florence extends Joiner.Base {
           );
     }
 
-    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> factorNames, SchemafulTupleSet.Builder ts) {
-      return null;
+    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+      class Entry {
+        private final Tuple             tuple;
+        private final SchemafulTupleSet candidates;
+
+        private Entry(Tuple tuple, SchemafulTupleSet candidates) {
+          this.tuple = tuple;
+          this.candidates = candidates;
+        }
+      }
+      return concat(
+          lhs.stream().map(tuple -> new Entry(tuple, rhs)),
+          rhs.stream().map(tuple -> new Entry(tuple, lhs)))
+          .max(comparingInt(
+              o -> countOverlappingTuples(o.tuple, π)))
+          .map(
+              entry -> entry.candidates.stream()
+                  .max(comparingInt(t -> countTuplesCoveredBy(t, entry.tuple, π)))
+                  .map(chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates))
+                  .orElseThrow(RuntimeException::new)
+          ).orElseThrow(RuntimeException::new);
+    }
+
+    private Tuple connect(Tuple t, Tuple u) {
+      return Tuple.builder().putAll(t).putAll(u).build();
+    }
+
+    private int countOverlappingTuples(Tuple tuple, TupleSet π) {
+      return (int) π.stream()
+          .filter(each -> disjoint(each.keySet(), tuple.keySet())
+              || intersection(tuple, each).isPresent())
+          .count();
+    }
+
+    private int countTuplesCoveredBy(Tuple t, Tuple u, TupleSet π) {
+      return (int) π.stream(
+      ).filter(
+          tuple -> tuple.isSubtupleOf(connect(t, u))
+      ).count(
+      );
+    }
+
+    private Optional<Tuple> intersection(Tuple t, Tuple u) {
+      return t.size() <= u.size() ?
+          intersects_(t, u) :
+          intersects_(u, t);
+    }
+
+    private Optional<Tuple> intersects_(Tuple t, Tuple u) {
+      Tuple.Builder b = Tuple.builder();
+      for (String k : t.keySet()) {
+        if (!u.containsKey(k))
+          continue;
+        if (!Objects.equals(u.get(k), t.get(k)))
+          return Optional.empty();
+      }
+      assert !b.isEmpty();
+      return Optional.of(b.build());
     }
 
     SchemafulTupleSet.Builder ensureAllTuplesAreUsed(SchemafulTupleSet.Builder ts, SchemafulTupleSet tuples) {

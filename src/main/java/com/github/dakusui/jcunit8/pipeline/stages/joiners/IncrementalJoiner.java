@@ -25,6 +25,7 @@ import static java.lang.Math.max;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 
+@SuppressWarnings("NonAsciiCharacters")
 public class IncrementalJoiner extends Joiner.Base {
 
   private final Requirement requirement;
@@ -332,6 +333,6 @@ public class IncrementalJoiner extends Joiner.Base {
   }
 
   public static void main(String... args) {
-    System.out.println(Arrays.stream(new Integer[]{1, 2, 3}).sorted((o1, o2) -> o1 - o2).collect(toList()));
+    System.out.println(Arrays.stream(new Integer[] { 1, 2, 3 }).sorted((o1, o2) -> o1 - o2).collect(toList()));
   }
 }

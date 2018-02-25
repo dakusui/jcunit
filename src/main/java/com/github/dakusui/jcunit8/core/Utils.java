@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
@@ -159,5 +160,9 @@ public enum Utils {
 
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
     return memoize(function, new ConcurrentHashMap<>());
+  }
+
+  public static <T> Stream<List<T>> combinations(List<T> elements, int k) {
+    return new StreamableCombinator<>(elements, k).stream();
   }
 }
