@@ -122,7 +122,7 @@ public class Florence extends Joiner.Base {
           ts.add(b.build());
         }
       } finally {
-        System.out.println("hg:" + (System.currentTimeMillis() - beforeHg));
+        System.out.println("hg:" + ts.content().size() + ":" + π.size() + ":" + (System.currentTimeMillis() - beforeHg));
       }
       ////
       // vg
@@ -139,11 +139,11 @@ public class Florence extends Joiner.Base {
             π.removeAll(TupleUtils.subtuplesOf(n, t));
             ts.add(n);
           } finally {
-            System.out.println("vg[i]:" + π.size() + ":" + (System.currentTimeMillis() - beforeVg_i));
+            System.out.println("vg[i]:" + ts.content().size() + ":" + π.size() + ":" + (System.currentTimeMillis() - beforeVg_i));
           }
         }
       } finally {
-        System.out.println("vg:" + (System.currentTimeMillis() - beforeVg));
+        System.out.println("vg:" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg));
       }
       alreadyProcessedFactors = involvedFactors;
     }
@@ -154,12 +154,9 @@ public class Florence extends Joiner.Base {
         }}
     ).addAllEntries(
         session.ensureAllTuplesAreUsed(
-            session.ensureAllTuplesAreUsed(
-                ts,
-                lhs
-            ),
+            ts,
             rhs
-        ).build()
+        ).content().stream().distinct().collect(toList())
     ).build();
   }
 
@@ -343,8 +340,8 @@ public class Florence extends Joiner.Base {
     private int countOverlappingTuples(Tuple tuple, TupleSet π) {
       return (int) π.stream()
           .filter(each ->
-//              disjoint(each.keySet(), tuple.keySet()) ||
-                  intersection(tuple, each).isPresent())
+              //              disjoint(each.keySet(), tuple.keySet()) ||
+              intersection(tuple, each).isPresent())
           .count();
     }
 
