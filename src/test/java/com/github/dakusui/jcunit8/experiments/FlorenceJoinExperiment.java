@@ -28,7 +28,7 @@ public class FlorenceJoinExperiment {
     }
   }
 
-  public static class WithIncrementalJoiner_Doi2 extends TestBase {
+  public static class WithFlorenceJoiner_Doi2 extends TestBase {
     Function<Requirement, Joiner> joinerFactory() {
       return JoinSession::florence;
     }
@@ -39,7 +39,7 @@ public class FlorenceJoinExperiment {
     }
   }
 
-  public static class WithIncrementalJoiner_Doi3 extends TestBase {
+  public static class WithFlorenceJoiner_Doi3 extends TestBase {
     Function<Requirement, Joiner> joinerFactory() {
       return JoinSession::florence;
     }

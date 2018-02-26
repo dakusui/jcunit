@@ -185,6 +185,10 @@ public interface SchemafulTupleSet extends List<Tuple> {
       this.tuples = new LinkedList<>();
     }
 
+    public Builder removeEntry(Tuple tuple) {
+      this.tuples.remove(tuple);
+      return this;
+    }
     public Builder addEntry(Tuple tuple) {
       ////
       // Make sure all the tuples in this suite object have the same set of attribute
@@ -195,7 +199,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
     }
 
     public Builder addAllEntries(Collection<Tuple> tuples) {
-      this.addAll(tuples);
+      this.tuples.addAll(tuples);
       return this;
     }
 

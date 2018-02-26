@@ -19,7 +19,6 @@ import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
 import static com.github.dakusui.jcunit8.core.Utils.combinations;
 import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static com.github.dakusui.jcunit8.core.Utils.project;
-import static java.util.Collections.disjoint;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
@@ -86,7 +85,7 @@ public class Florence extends Joiner.Base {
     Session session = new Session();
 
     List<String> alreadyProcessedFactors = new LinkedList<>();
-    SchemafulTupleSet.Builder ts = new SchemafulTupleSet.Builder(lhs.getAttributeNames()).addAllEntries(lhs);
+    TupleSet.Builder ts = new TupleSet.Builder().addAll(lhs);
     for (int i = 0; i < rhs.width(); i++) {
       String F = rhs.getAttributeNames().get(i);
       TupleSet π = session.allPossibleUniqueTuplesOfStrength(
@@ -102,43 +101,65 @@ public class Florence extends Joiner.Base {
           .collect(toList());
       ////
       // hg
-      for (Tuple τ : new ArrayList<>(ts)) {
-        Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets);
-        Tuple.Builder b = Tuple.builder().putAll(τ);
-        List<Tuple> candidates = rhs.index().find(
-            project(
-                b.put(F, vi).build(),
-                involvedFactors
-            )
-        );
-        assert !candidates.isEmpty();
-        if (candidates.size() == 1)
-          b.putAll(candidates.get(0));
-        π.removeAll(
-            tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, vi, t, τ)
-        );
-        ts.remove(τ);
-        ts.add(b.build());
+      long beforeHg = System.currentTimeMillis();
+      try {
+        for (Tuple τ : new ArrayList<>(ts.content())) {
+          Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets);
+          Tuple.Builder b = Tuple.builder().putAll(τ);
+          List<Tuple> candidates = rhs.index().find(
+              project(
+                  b.put(F, vi).build(),
+                  involvedFactors
+              )
+          );
+          assert !candidates.isEmpty();
+          if (candidates.size() == 1)
+            b.putAll(candidates.get(0));
+          π.removeAll(
+              tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, vi, t, τ)
+          );
+          ts.remove(τ);
+          ts.add(b.build());
+        }
+      } finally {
+        System.out.println("hg:" + (System.currentTimeMillis() - beforeHg));
       }
       ////
       // vg
-      while (!π.isEmpty()) {
-        Tuple n = session.chooseBestCombination(
-            π,
-            lhs,
-            rhs
-        );
-        π.removeAll(TupleUtils.subtuplesOf(n, t));
-        ts.add(n);
+      long beforeVg = System.currentTimeMillis();
+      try {
+        while (!π.isEmpty()) {
+          long beforeVg_i = System.currentTimeMillis();
+          try {
+            Tuple n = session.chooseBestCombination(
+                π,
+                lhs,
+                rhs
+            );
+            π.removeAll(TupleUtils.subtuplesOf(n, t));
+            ts.add(n);
+          } finally {
+            System.out.println("vg[i]:" + π.size() + ":" + (System.currentTimeMillis() - beforeVg_i));
+          }
+        }
+      } finally {
+        System.out.println("vg:" + (System.currentTimeMillis() - beforeVg));
       }
       alreadyProcessedFactors = involvedFactors;
     }
-    return session.ensureAllTuplesAreUsed(
+    return new SchemafulTupleSet.Builder(
+        new ArrayList<String>() {{
+          addAll(lhs.getAttributeNames());
+          addAll(rhs.getAttributeNames());
+        }}
+    ).addAllEntries(
         session.ensureAllTuplesAreUsed(
-            ts,
-            lhs
-        ),
-        rhs
+            session.ensureAllTuplesAreUsed(
+                ts,
+                lhs
+            ),
+            rhs
+        ).build()
     ).build();
   }
 
@@ -170,38 +191,43 @@ public class Florence extends Joiner.Base {
         String newFactorNameInRhs,
         int strength
     ) {
-      Checks.checkcond(strength > 1);
-      Checks.checkcond(lhs.width() + alreadyProcessedFactorsInRhs.size() + 1 >= strength);
-      return IntStream.range(
-          1,
-          strength
-      ).filter(
-          (int i) -> i + alreadyProcessedFactorsInRhs.size() + 1 >= strength
-      ).mapToObj(
-          (int i) -> uniqueTuplesOfStrength(lhs, i).cartesianProduct(
-              new TupleSet.Builder().addAll(
-                  stream(
-                      new Combinator<>(alreadyProcessedFactorsInRhs, strength - i - 1).spliterator(),
-                      false
-                  ).flatMap(
-                      (List<String> chosenFactorNames) -> uniqueTuples(
-                          rhs,
-                          concat(
-                              chosenFactorNames.stream(),
-                              Stream.of(newFactorNameInRhs)
-                          ).collect(toList())
-                      ).stream()
-                  ).distinct(
-                  ).collect(
-                      toList()
-                  )
-              ).build()
-          )
-      ).reduce(
-          (TupleSet t, TupleSet u) -> new TupleSet.Builder().addAll(t).addAll(u).build()
-      ).orElseThrow(
-          AssertionError::new
-      );
+      long before = System.currentTimeMillis();
+      try {
+        Checks.checkcond(strength > 1);
+        Checks.checkcond(lhs.width() + alreadyProcessedFactorsInRhs.size() + 1 >= strength);
+        return IntStream.range(
+            1,
+            strength
+        ).filter(
+            (int i) -> i + alreadyProcessedFactorsInRhs.size() + 1 >= strength
+        ).mapToObj(
+            (int i) -> uniqueTuplesOfStrength(lhs, i).cartesianProduct(
+                new TupleSet.Builder().addAll(
+                    stream(
+                        new Combinator<>(alreadyProcessedFactorsInRhs, strength - i - 1).spliterator(),
+                        false
+                    ).flatMap(
+                        (List<String> chosenFactorNames) -> uniqueTuples(
+                            rhs,
+                            concat(
+                                chosenFactorNames.stream(),
+                                Stream.of(newFactorNameInRhs)
+                            ).collect(toList())
+                        ).stream()
+                    ).distinct(
+                    ).collect(
+                        toList()
+                    )
+                ).build()
+            )
+        ).reduce(
+            (TupleSet t, TupleSet u) -> new TupleSet.Builder().addAll(t).addAll(u).build()
+        ).orElseThrow(
+            AssertionError::new
+        );
+      } finally {
+        System.out.println("allPossibleUniqueTuplesOfStrength:" + (System.currentTimeMillis() - before));
+      }
     }
 
     private TupleSet uniqueTuplesOfStrength(SchemafulTupleSet tuples, int strength) {
@@ -240,7 +266,7 @@ public class Florence extends Joiner.Base {
 
     Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets) {
       if (τ.containsKey(f))
-        return τ;
+        return τ.get(f);
       Tuple q = project(
           τ,
           involvedFactors.subList(0, involvedFactors.size() - 1)
@@ -250,6 +276,9 @@ public class Florence extends Joiner.Base {
           .map(tuple -> project(tuple, singletonList(f)))
           .distinct()
           .max(comparingInt(o -> numberOfTuplesCoveredBy(τ, f, o, π, factorNameSets)))
+          .map(
+              chosenTuple -> chosenTuple.get(f)
+          )
           .orElseThrow(RuntimeException::new);
     }
 
@@ -295,8 +324,16 @@ public class Florence extends Joiner.Base {
               entry -> entry.candidates.stream()
                   .max(comparingInt(t -> countTuplesCoveredBy(t, entry.tuple, π)))
                   .map(chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates))
-                  .orElseThrow(RuntimeException::new)
-          ).orElseThrow(RuntimeException::new);
+                  .orElseGet(() -> {
+                    // workaround compilation error on intellij ultimate/macosx
+                    throw new RuntimeException();
+                  })
+              //.orElseThrow(RuntimeException::new)
+          ).orElseGet(() -> {
+            // workaround compilation error on intellij ultimate/macosx
+            throw new RuntimeException();
+          });
+      //          ).orElseThrow(RuntimeException::new);
     }
 
     private Tuple connect(Tuple t, Tuple u) {
@@ -305,8 +342,9 @@ public class Florence extends Joiner.Base {
 
     private int countOverlappingTuples(Tuple tuple, TupleSet π) {
       return (int) π.stream()
-          .filter(each -> disjoint(each.keySet(), tuple.keySet())
-              || intersection(tuple, each).isPresent())
+          .filter(each ->
+//              disjoint(each.keySet(), tuple.keySet()) ||
+                  intersection(tuple, each).isPresent())
           .count();
     }
 
@@ -320,26 +358,28 @@ public class Florence extends Joiner.Base {
 
     private Optional<Tuple> intersection(Tuple t, Tuple u) {
       return t.size() <= u.size() ?
-          intersects_(t, u) :
-          intersects_(u, t);
+          intersections_(t, u) :
+          intersections_(u, t);
     }
 
-    private Optional<Tuple> intersects_(Tuple t, Tuple u) {
+    private Optional<Tuple> intersections_(Tuple t, Tuple u) {
       Tuple.Builder b = Tuple.builder();
       for (String k : t.keySet()) {
         if (!u.containsKey(k))
           continue;
         if (!Objects.equals(u.get(k), t.get(k)))
           return Optional.empty();
+        b.put(k, t.get(k));
       }
-      assert !b.isEmpty();
-      return Optional.of(b.build());
+      return b.isEmpty() ?
+          Optional.empty() :
+          Optional.of(b.build());
     }
 
-    SchemafulTupleSet.Builder ensureAllTuplesAreUsed(SchemafulTupleSet.Builder ts, SchemafulTupleSet tuples) {
+    TupleSet.Builder ensureAllTuplesAreUsed(TupleSet.Builder ts, SchemafulTupleSet tuples) {
       tuples.stream()
           .filter(
-              t -> ts.stream()
+              t -> ts.content().stream()
                   .map(tuple -> project(tuples.getAttributeNames(), tuple))
                   .noneMatch(t::equals)
           ).forEach(ts::add);

@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static java.util.Collections.unmodifiableCollection;
+
 public interface TupleSet extends Set<Tuple> {
   TupleSet cartesianProduct(TupleSet tupleSet);
 
@@ -43,9 +45,17 @@ public interface TupleSet extends Set<Tuple> {
       return this;
     }
 
+    public Builder remove(Tuple tuple) {
+      this.work.remove(tuple);
+      return this;
+    }
+
     public TupleSet build() {
       return new Impl(this.work);
     }
 
+    public Collection<Tuple> content() {
+      return unmodifiableCollection(this.work);
+    }
   }
 }
