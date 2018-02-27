@@ -102,6 +102,7 @@ public class Florence extends Joiner.Base {
       ////
       // hg
       long beforeHg = System.currentTimeMillis();
+      int sizeOfπBeforeHd = π.size();
       try {
         for (Tuple τ : new ArrayList<>(ts.content())) {
           Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets);
@@ -122,7 +123,7 @@ public class Florence extends Joiner.Base {
           ts.add(b.build());
         }
       } finally {
-        System.out.println("hg:" + ts.content().size() + ":" + π.size() + ":" + (System.currentTimeMillis() - beforeHg));
+        System.out.println("hg:" + π.size() + "<-" + sizeOfπBeforeHd + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeHg));
       }
       ////
       // vg
@@ -134,16 +135,17 @@ public class Florence extends Joiner.Base {
             Tuple n = session.chooseBestCombination(
                 π,
                 lhs,
-                rhs
+                rhs,
+                involvedFactors
             );
             π.removeAll(TupleUtils.subtuplesOf(n, t));
             ts.add(n);
           } finally {
-            System.out.println("vg[i]:" + ts.content().size() + ":" + π.size() + ":" + (System.currentTimeMillis() - beforeVg_i));
+            System.out.println("vg[i]:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg_i));
           }
         }
       } finally {
-        System.out.println("vg:" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg));
+        System.out.println("vg:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg));
       }
       alreadyProcessedFactors = involvedFactors;
     }
@@ -302,35 +304,47 @@ public class Florence extends Joiner.Base {
           );
     }
 
-    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> involvedFactors) {
       class Entry {
-        private final Tuple             tuple;
-        private final SchemafulTupleSet candidates;
+        private final Tuple    tuple;
+        private final TupleSet candidates;
 
-        private Entry(Tuple tuple, SchemafulTupleSet candidates) {
+        private Entry(Tuple tuple, TupleSet candidates) {
           this.tuple = tuple;
           this.candidates = candidates;
         }
       }
-      return concat(
-          lhs.stream().map(tuple -> new Entry(tuple, rhs)),
-          rhs.stream().map(tuple -> new Entry(tuple, lhs)))
-          .max(comparingInt(
-              o -> countOverlappingTuples(o.tuple, π)))
-          .map(
-              entry -> entry.candidates.stream()
-                  .max(comparingInt(t -> countTuplesCoveredBy(t, entry.tuple, π)))
-                  .map(chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates))
-                  .orElseGet(() -> {
-                    // workaround compilation error on intellij ultimate/macosx
-                    throw new RuntimeException();
-                  })
-              //.orElseThrow(RuntimeException::new)
-          ).orElseGet(() -> {
-            // workaround compilation error on intellij ultimate/macosx
-            throw new RuntimeException();
-          });
+      return lhs.stream().map(
+          tuple -> new Entry(tuple, simplify(rhs, involvedFactors))
+      ).max(comparingInt(
+          o -> countOverlappingTuples(o.tuple, π))
+      ).map(
+          entry -> entry.candidates.stream()
+              .max(comparingInt(t -> countTuplesCoveredBy(t, entry.tuple, π)))
+              .map(chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates))
+              .orElseGet(() -> {
+                // workaround compilation error on intellij ultimate/macosx
+                throw new RuntimeException();
+              })
+          //.orElseThrow(RuntimeException::new)
+      ).orElseGet(() -> {
+        // workaround compilation error on intellij ultimate/macosx
+        throw new RuntimeException();
+      });
       //          ).orElseThrow(RuntimeException::new);
+    }
+
+    private TupleSet simplify(SchemafulTupleSet in, List<String> involvedFactors) {
+      return new TupleSet.Builder() {
+        {
+          in.stream().map(tuple -> {
+            Tuple q = project(tuple, involvedFactors);
+            return in.index().find(q).size() == 1 ?
+                tuple :
+                q;
+          }).distinct().forEach(this::add);
+        }
+      }.build();
     }
 
     private Tuple connect(Tuple t, Tuple u) {
