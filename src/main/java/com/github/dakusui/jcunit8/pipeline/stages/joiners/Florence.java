@@ -27,6 +27,7 @@ import static java.util.stream.StreamSupport.stream;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Florence extends Joiner.Base {
+  private static boolean debug = false;
   private final Requirement requirement;
 
   public Florence(Requirement requirement) {
@@ -85,6 +86,7 @@ public class Florence extends Joiner.Base {
     Session session = new Session();
 
     List<String> alreadyProcessedFactors = new LinkedList<>();
+    Set<Tuple> used = new LinkedHashSet<>();
     TupleSet.Builder ts = new TupleSet.Builder().addAll(lhs);
     for (int i = 0; i < rhs.width(); i++) {
       String F = rhs.getAttributeNames().get(i);
@@ -95,6 +97,13 @@ public class Florence extends Joiner.Base {
           F,
           t
       );
+      ////
+      // TODO: NOTE: Surprisingly, this optimization didn't help at all and expensive.
+      //      removeAlreadyCoveredTuples(
+      //          π,
+      //          ts.content().stream().filter(tuple -> tuple.containsKey(F)).collect(toList()),
+      //          t
+      //      );
       final List<String> involvedFactors = concat(alreadyProcessedFactors.stream(), Stream.of(F)).collect(toList());
       final List<List<String>> tWayFactorNameSets = session
           .streamFactorNameSets(lhs.getAttributeNames(), alreadyProcessedFactors, F, t)
@@ -116,6 +125,13 @@ public class Florence extends Joiner.Base {
           assert !candidates.isEmpty();
           if (candidates.size() == 1)
             b.putAll(candidates.get(0));
+          else {
+            List<Tuple> notUsedCandidates = (candidates.stream().filter(tuple -> !used.contains(tuple)).collect(toList()));
+            if (notUsedCandidates.size() == 1) {
+              b.putAll(notUsedCandidates.get(0));
+              used.add(notUsedCandidates.get(0));
+            }
+          }
           π.removeAll(
               tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, vi, t, τ)
           );
@@ -123,7 +139,9 @@ public class Florence extends Joiner.Base {
           ts.add(b.build());
         }
       } finally {
-        System.out.println("hg:" + π.size() + "<-" + sizeOfπBeforeHd + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeHg));
+        if (debug)
+          System.out.println("hg:" + π.size() + "<-" + sizeOfπBeforeHd + ":" + ts.content().size() + ":" + (System
+              .currentTimeMillis() - beforeHg));
       }
       ////
       // vg
@@ -141,11 +159,14 @@ public class Florence extends Joiner.Base {
             π.removeAll(TupleUtils.subtuplesOf(n, t));
             ts.add(n);
           } finally {
-            System.out.println("vg[i]:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg_i));
+            if (debug)
+              System.out.println("vg[i]:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() -
+                  beforeVg_i));
           }
         }
       } finally {
-        System.out.println("vg:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg));
+        if (debug)
+          System.out.println("vg:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg));
       }
       alreadyProcessedFactors = involvedFactors;
     }
@@ -160,6 +181,12 @@ public class Florence extends Joiner.Base {
             rhs
         ).content().stream().distinct().collect(toList())
     ).build();
+  }
+
+  private void removeAlreadyCoveredTuples(TupleSet π, Collection<Tuple> ts, int t) {
+    ts.forEach(
+        tuple -> π.removeAll(TupleUtils.subtuplesOf(tuple, t))
+    );
   }
 
   private List<Tuple> tuplesNewlyCovered(List<String> factorsFromLhs, List<String> factorsFromRhs, String currentFactor, Object valueForCurrentFactor, int t, Tuple τ) {
@@ -181,7 +208,6 @@ public class Florence extends Joiner.Base {
         (SchemafulTupleSet tuples) -> memoize(
             (List<String> factorNames) -> _uniqueTuples(tuples, factorNames)
         ));
-
 
     private TupleSet allPossibleUniqueTuplesOfStrength(
         SchemafulTupleSet lhs,
@@ -225,7 +251,8 @@ public class Florence extends Joiner.Base {
             AssertionError::new
         );
       } finally {
-        System.out.println("allPossibleUniqueTuplesOfStrength:" + (System.currentTimeMillis() - before));
+        if (debug)
+          System.out.println("allPossibleUniqueTuplesOfStrength:" + (System.currentTimeMillis() - before));
       }
     }
 
@@ -326,12 +353,10 @@ public class Florence extends Joiner.Base {
                 // workaround compilation error on intellij ultimate/macosx
                 throw new RuntimeException();
               })
-          //.orElseThrow(RuntimeException::new)
       ).orElseGet(() -> {
         // workaround compilation error on intellij ultimate/macosx
         throw new RuntimeException();
       });
-      //          ).orElseThrow(RuntimeException::new);
     }
 
     private TupleSet simplify(SchemafulTupleSet in, List<String> involvedFactors) {
