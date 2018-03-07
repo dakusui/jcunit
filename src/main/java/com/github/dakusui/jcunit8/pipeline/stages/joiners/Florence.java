@@ -109,9 +109,12 @@ public class Florence extends Joiner.Base {
         int tuplesRemovedLastTime = -1;
         for (Tuple τ : new ArrayList<>(ts.content())) {
           int sizeOfπBeforeRemoval = π.size();
-          long max = tuplesRemovedLastTime == -1 ?
-              tWayFactorNameSets.size() :
-              tuplesRemovedLastTime;
+          long max = Math.min(
+              tuplesRemovedLastTime == -1 ?
+                  Long.MAX_VALUE :
+                  tuplesRemovedLastTime,
+              sizeOfπBeforeHg
+          );
           Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, max);
           Tuple.Builder b = Tuple.builder().putAll(τ);
           List<Tuple> candidates = rhs.index().find(
@@ -146,15 +149,15 @@ public class Florence extends Joiner.Base {
       long beforeVg = System.currentTimeMillis();
       try {
         int ii = 0;
-        int tuplesRemovedFromπ = -1;
+        int tuplesRemovedLastTime = -1;
         while (!π.isEmpty()) {
           long beforeVg_i = System.currentTimeMillis();
           try {
             int sizeOfπBeforeRemoval = π.size();
             long max = Math.min(
-                tuplesRemovedFromπ < 0 ?
-                    tWayFactorNameSets.size() :
-                    tuplesRemovedFromπ,
+                tuplesRemovedLastTime < 0 ?
+                    Long.MAX_VALUE :
+                    tuplesRemovedLastTime,
                 π.size()
             );
             Tuple n = session.chooseBestCombination(
@@ -166,7 +169,7 @@ public class Florence extends Joiner.Base {
             );
             π.removeAll(TupleUtils.subtuplesOf(n, t));
             ts.add(n);
-            tuplesRemovedFromπ = sizeOfπBeforeRemoval - π.size();
+            tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
           } finally {
             debug("vg[%s]:%s:%s:%s", ii, π.size(), ts.content().size(), (System.currentTimeMillis() - beforeVg_i));
             if (π.size() < 16) {
