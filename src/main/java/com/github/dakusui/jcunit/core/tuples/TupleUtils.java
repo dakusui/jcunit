@@ -75,4 +75,15 @@ public enum TupleUtils {
   public static Tuple connect(Tuple tuple1, Tuple tuple2) {
     return Tuple.builder().putAll(tuple1).putAll(tuple2).build();
   }
+
+  public static Set<Tuple> covered(Set<Tuple> tuples, Tuple t, int doi) {
+    Set<Tuple> ret = new LinkedHashSet<>();
+    TupleUtils.subtuplesOf(t, doi).forEach(
+        each -> {
+          if (ret.contains(each))
+            ret.add(each);
+        }
+    );
+    return ret;
+  }
 }

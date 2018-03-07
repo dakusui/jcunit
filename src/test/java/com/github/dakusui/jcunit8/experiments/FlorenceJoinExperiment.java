@@ -58,7 +58,7 @@ public class FlorenceJoinExperiment {
     @BeforeClass
     public static void warmup() {
       if (!StandardJoiner.isDebugEnabled()) {
-        runJoin("(warmup)", 2, 10, 10, JoinSession::standard);
+        runJoin("(warmup)", 2, 10, 10, JoinSession::florence);
       }
     }
 
