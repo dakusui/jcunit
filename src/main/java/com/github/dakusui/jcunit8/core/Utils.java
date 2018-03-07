@@ -12,8 +12,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.*;
+import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
@@ -164,5 +165,83 @@ public enum Utils {
 
   public static <T> Stream<List<T>> combinations(List<T> elements, int k) {
     return new StreamableCombinator<>(elements, k).stream();
+  }
+
+  /**
+   * Returns an element in a given stream which gives a maximum value when {@code f}
+   * is applied to it.
+   * <p>
+   * {@code max} is the possible maximum value for {@code f} when it is applied to elements in {@code in}. If it is not known,
+   * consider simply using {@code Stream#max} method, not this one.
+   * <p>
+   * This method cannot be used for a stream {@code in} which contains {@code null}.
+   *
+   * @param in  A stream.
+   * @param max Known maximum value for
+   * @param f   A function to evaluate each element in {@code in} as an integer.
+   * @param <T> Type of each element in {@code in}.
+   * @return an {@code Optional} describing the maximum element of this stream,
+   * or an empty {@code Optional} if the stream is empty
+   */
+  public static <T> Optional<T> max(Stream<T> in, long max, Function<T, Long> f) {
+    return find(in, max, f, r -> r <= 0);
+  }
+
+  /**
+   * Returns an element in a given stream which gives a minimum value when {@code f}
+   * is applied to it.
+   * <p>
+   * {@code max} is the possible minimum value for {@code f} when it is applied to elements in {@code in}.
+   * If it is not known, consider simply using {@code Stream#max} method, not this one.
+   * <p>
+   * This method cannot be used for a stream {@code in} which contains {@code null}.
+   *
+   * @param in  A stream.
+   * @param min Known minimum value for
+   * @param f   A function to evaluate each element in {@code in} as an integer.
+   * @param <T> Type of each element in {@code in}.
+   * @return an {@code Optional} describing the maximum element of this stream,
+   * or an empty {@code Optional} if the stream is empty
+   */
+  public static <T> Optional<T> min(Stream<T> in, long min, Function<T, Long> f) {
+    return find(in, min, f, r -> r <= 0);
+  }
+
+  private static <T> Optional<T> find(Stream<T> in, long boundary, Function<T, Long> f, LongPredicate p) {
+    AtomicReference<T> foundMax = new AtomicReference<>();
+    Optional<T> v;
+    return (v = in.peek(Objects::requireNonNull)
+        .peek(t -> {
+          T cur = foundMax.get();
+          if (cur == null || p.test(f.apply(cur) - f.apply(t)))
+            foundMax.set(t);
+        })
+        .filter(t -> p.test(boundary - f.apply(t)))
+        .findFirst()).isPresent() ?
+        v :
+        Optional.ofNullable(foundMax.get());
+  }
+
+  public static <T> Set<T> intersection(Set<T> a, Set<T> b) {
+    return a.size() <= b.size() ?
+        _intersection(a, b) :
+        _intersection(b, a);
+  }
+
+  private static <T> Set<T> _intersection(Set<T> a, Set<T> b) {
+    return a.stream().filter(b::contains).collect(
+        toLinkedHashSet()
+    );
+  }
+
+  public static <T> Collector<T, Set<T>, Set<T>> toLinkedHashSet() {
+    return Collector.of(
+        LinkedHashSet::new,
+        Set::add,
+        (left, right) -> {
+          left.addAll(right);
+          return left;
+        }
+    );
   }
 }

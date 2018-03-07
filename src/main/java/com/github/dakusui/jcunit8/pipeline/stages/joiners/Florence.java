@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.StreamableCombinator;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
@@ -139,34 +140,42 @@ public class Florence extends Joiner.Base {
           ts.add(b.build());
         }
       } finally {
-        if (debug)
-          System.out.println("hg:" + π.size() + "<-" + sizeOfπBeforeHd + ":" + ts.content().size() + ":" + (System
-              .currentTimeMillis() - beforeHg));
+        debug("hg:" + π.size() + "<-" + sizeOfπBeforeHd + ":" + ts.content().size() + ":" + (System
+            .currentTimeMillis() - beforeHg));
       }
       ////
       // vg
       long beforeVg = System.currentTimeMillis();
       try {
+        int ii = 0;
+        boolean firstTime = true;
+        int tuplesRemovedFromπ = -1;
         while (!π.isEmpty()) {
           long beforeVg_i = System.currentTimeMillis();
           try {
+            long max = tuplesRemovedFromπ < 0 ?
+                new Combinator<>(involvedFactors, t).size() :
+                tuplesRemovedFromπ;
             Tuple n = session.chooseBestCombination(
                 π,
                 lhs,
                 rhs,
-                involvedFactors
+                involvedFactors,
+                max
             );
             π.removeAll(TupleUtils.subtuplesOf(n, t));
             ts.add(n);
           } finally {
-            if (debug)
-              System.out.println("vg[i]:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() -
-                  beforeVg_i));
+            firstTime = false;
+            debug("vg[%s]:%s:%s:%s", ii, π.size(), ts.content().size(), (System.currentTimeMillis() - beforeVg_i));
+            if (π.size() < 16) {
+              debug("π=%s", π);
+            }
+            ii++;
           }
         }
       } finally {
-        if (debug)
-          System.out.println("vg:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg));
+        debug("vg:" + π.size() + ":" + ts.content().size() + ":" + (System.currentTimeMillis() - beforeVg));
       }
       alreadyProcessedFactors = involvedFactors;
     }
@@ -251,8 +260,7 @@ public class Florence extends Joiner.Base {
             AssertionError::new
         );
       } finally {
-        if (debug)
-          System.out.println("allPossibleUniqueTuplesOfStrength:" + (System.currentTimeMillis() - before));
+        debug("allPossibleUniqueTuplesOfStrength:" + (System.currentTimeMillis() - before));
       }
     }
 
@@ -331,7 +339,7 @@ public class Florence extends Joiner.Base {
           );
     }
 
-    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> involvedFactors) {
+    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> involvedFactors, long max) {
       class Entry {
         private final Tuple    tuple;
         private final TupleSet candidates;
@@ -341,6 +349,26 @@ public class Florence extends Joiner.Base {
           this.candidates = candidates;
         }
       }
+      return lhs.stream().map(
+          tuple -> new Entry(tuple, simplify(rhs, involvedFactors))
+      ).max(comparingInt(
+          o -> countOverlappingTuples(o.tuple, π))
+      ).map(
+          entry -> Utils.max(
+              entry.candidates.stream(),
+              max,
+              t -> (long) countTuplesCoveredBy(t, entry.tuple, π)
+          ).map(
+              chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates)
+          ).orElseGet(() -> {
+            // workaround compilation error on intellij ultimate/macosx
+            throw new RuntimeException();
+          })
+      ).orElseGet(() -> {
+        // workaround compilation error on intellij ultimate/macosx
+        throw new RuntimeException();
+      });
+      /*
       return lhs.stream().map(
           tuple -> new Entry(tuple, simplify(rhs, involvedFactors))
       ).max(comparingInt(
@@ -357,6 +385,7 @@ public class Florence extends Joiner.Base {
         // workaround compilation error on intellij ultimate/macosx
         throw new RuntimeException();
       });
+      */
     }
 
     private TupleSet simplify(SchemafulTupleSet in, List<String> involvedFactors) {
@@ -392,13 +421,13 @@ public class Florence extends Joiner.Base {
       );
     }
 
-    private Optional<Tuple> intersection(Tuple t, Tuple u) {
+    private static Optional<Tuple> intersection(Tuple t, Tuple u) {
       return t.size() <= u.size() ?
           intersections_(t, u) :
           intersections_(u, t);
     }
 
-    private Optional<Tuple> intersections_(Tuple t, Tuple u) {
+    private static Optional<Tuple> intersections_(Tuple t, Tuple u) {
       Tuple.Builder b = Tuple.builder();
       for (String k : t.keySet()) {
         if (!u.containsKey(k))
@@ -421,6 +450,10 @@ public class Florence extends Joiner.Base {
           ).forEach(ts::add);
       return ts;
     }
+  }
 
+  static void debug(String s, Object... args) {
+    if (StandardJoiner.isDebugEnabled())
+      System.out.println(String.format(s, args));
   }
 }

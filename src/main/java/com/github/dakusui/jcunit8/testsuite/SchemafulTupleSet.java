@@ -189,6 +189,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
       this.tuples.remove(tuple);
       return this;
     }
+
     public Builder addEntry(Tuple tuple) {
       ////
       // Make sure all the tuples in this suite object have the same set of attribute
@@ -276,7 +277,8 @@ public interface SchemafulTupleSet extends List<Tuple> {
       }
       return new Impl(
           new ArrayList<>(this.attributeNames),
-          this.tuples);
+          this.tuples.stream().distinct().collect(toList())
+      );
     }
 
     @Override
