@@ -13,7 +13,9 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.*;
+import java.util.function.Function;
+import java.util.function.LongPredicate;
+import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -167,6 +169,11 @@ public enum Utils {
     return new StreamableCombinator<>(elements, k).stream();
   }
 
+  public static long countCombinations(List<?> elements, int k) {
+    return new StreamableCombinator<>(elements, k).size();
+  }
+
+
   /**
    * Returns an element in a given stream which gives a maximum value when {@code f}
    * is applied to it.
@@ -204,20 +211,20 @@ public enum Utils {
    * or an empty {@code Optional} if the stream is empty
    */
   public static <T> Optional<T> min(Stream<T> in, long min, Function<T, Long> f) {
-    return find(in, min, f, r -> r <= 0);
+    return find(in, min, f, r -> r >= 0);
   }
 
   private static <T> Optional<T> find(Stream<T> in, long boundary, Function<T, Long> f, LongPredicate p) {
     AtomicReference<T> foundMax = new AtomicReference<>();
-    Optional<T> v;
-    return (v = in.peek(Objects::requireNonNull)
+    Optional<T> v = in.peek(Objects::requireNonNull)
         .peek(t -> {
           T cur = foundMax.get();
           if (cur == null || p.test(f.apply(cur) - f.apply(t)))
             foundMax.set(t);
         })
         .filter(t -> p.test(boundary - f.apply(t)))
-        .findFirst()).isPresent() ?
+        .findFirst();
+    return v.isPresent() ?
         v :
         Optional.ofNullable(foundMax.get());
   }
@@ -233,6 +240,7 @@ public enum Utils {
         toLinkedHashSet()
     );
   }
+
 
   public static <T> Collector<T, Set<T>, Set<T>> toLinkedHashSet() {
     return Collector.of(

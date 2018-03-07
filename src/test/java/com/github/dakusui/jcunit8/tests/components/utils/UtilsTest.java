@@ -5,6 +5,9 @@ import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.stream.Stream;
+
+import static com.github.dakusui.crest.Crest.*;
 import static org.junit.Assert.assertEquals;
 
 public class UtilsTest {
@@ -17,5 +20,61 @@ public class UtilsTest {
   public void givenString$whenPrint$thenNotBroken() {
     assertEquals("Hello", Utils.print("Hello"));
     assertEquals("Hello2", Utils.print("Hello2"));
+  }
+
+  @Test
+  public void max1() {
+    assertThat(
+        Utils.max(Stream.of(1, 2, 3, 2, 3, 4), 5, v -> (long) v),
+        allOf(
+            asBoolean("isPresent").isTrue().$(),
+            asInteger("get").eq(4).$()
+        )
+    );
+  }
+
+  @Test
+  public void max2() {
+    assertThat(
+        Utils.max(Stream.of(1, 2, 3, 2, 3, 4), 4, v -> (long) v),
+        allOf(
+            asBoolean("isPresent").isTrue().$(),
+            asInteger("get").eq(4).$()
+        )
+    );
+  }
+
+  @Test
+  public void max3() {
+    assertThat(
+        Utils.max(Stream.of(1, 2, 3, 2, 3, 4), 2, v -> (long) v),
+        allOf(
+            asBoolean("isPresent").isTrue().$(),
+            asInteger("get").eq(2).$()
+        )
+    );
+  }
+
+
+  @Test
+  public void min1() {
+    assertThat(
+        Utils.min(Stream.of(1, 2, 3, 2, 3, 0, 4), 5, v -> (long) v),
+        allOf(
+            asBoolean("isPresent").isTrue().$(),
+            asInteger("get").eq(1).$()
+        )
+    );
+  }
+
+  @Test
+  public void min2() {
+    assertThat(
+        Utils.min(Stream.of(1, 2, 3, 2, 3, 0, 4), -1, v -> (long) v),
+        allOf(
+            asBoolean("isPresent").isTrue().$(),
+            asInteger("get").eq(0).$()
+        )
+    );
   }
 }

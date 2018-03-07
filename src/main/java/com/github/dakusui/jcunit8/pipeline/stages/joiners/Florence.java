@@ -21,14 +21,12 @@ import static com.github.dakusui.jcunit8.core.Utils.combinations;
 import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static com.github.dakusui.jcunit8.core.Utils.project;
 import static java.util.Collections.singletonList;
-import static java.util.Comparator.comparingInt;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.StreamSupport.stream;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Florence extends Joiner.Base {
-  private static boolean debug = false;
   private final Requirement requirement;
 
   public Florence(Requirement requirement) {
@@ -36,7 +34,7 @@ public class Florence extends Joiner.Base {
   }
 
   protected long sizeOf(SchemafulTupleSet tupleSet) {
-    return -tupleSet.width();
+    return tupleSet.width();
   }
 
   /**
@@ -98,13 +96,6 @@ public class Florence extends Joiner.Base {
           F,
           t
       );
-      ////
-      // TODO: NOTE: Surprisingly, this optimization didn't help at all and expensive.
-      //      removeAlreadyCoveredTuples(
-      //          π,
-      //          ts.content().stream().filter(tuple -> tuple.containsKey(F)).collect(toList()),
-      //          t
-      //      );
       final List<String> involvedFactors = concat(alreadyProcessedFactors.stream(), Stream.of(F)).collect(toList());
       final List<List<String>> tWayFactorNameSets = session
           .streamFactorNameSets(lhs.getAttributeNames(), alreadyProcessedFactors, F, t)
@@ -112,10 +103,16 @@ public class Florence extends Joiner.Base {
       ////
       // hg
       long beforeHg = System.currentTimeMillis();
-      int sizeOfπBeforeHd = π.size();
+      int sizeOfπBeforeHg = π.size();
       try {
+
+        int tuplesRemovedLastTime = -1;
         for (Tuple τ : new ArrayList<>(ts.content())) {
-          Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets);
+          int sizeOfπBeforeRemoval = π.size();
+          long max = tuplesRemovedLastTime == -1 ?
+              tWayFactorNameSets.size() :
+              tuplesRemovedLastTime;
+          Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, max);
           Tuple.Builder b = Tuple.builder().putAll(τ);
           List<Tuple> candidates = rhs.index().find(
               project(
@@ -136,11 +133,12 @@ public class Florence extends Joiner.Base {
           π.removeAll(
               tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, vi, t, τ)
           );
+          tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
           ts.remove(τ);
           ts.add(b.build());
         }
       } finally {
-        debug("hg:" + π.size() + "<-" + sizeOfπBeforeHd + ":" + ts.content().size() + ":" + (System
+        debug("hg:" + π.size() + "<-" + sizeOfπBeforeHg + ":" + ts.content().size() + ":" + (System
             .currentTimeMillis() - beforeHg));
       }
       ////
@@ -148,14 +146,17 @@ public class Florence extends Joiner.Base {
       long beforeVg = System.currentTimeMillis();
       try {
         int ii = 0;
-        boolean firstTime = true;
         int tuplesRemovedFromπ = -1;
         while (!π.isEmpty()) {
           long beforeVg_i = System.currentTimeMillis();
           try {
-            long max = tuplesRemovedFromπ < 0 ?
-                new Combinator<>(involvedFactors, t).size() :
-                tuplesRemovedFromπ;
+            int sizeOfπBeforeRemoval = π.size();
+            long max = Math.min(
+                tuplesRemovedFromπ < 0 ?
+                    tWayFactorNameSets.size() :
+                    tuplesRemovedFromπ,
+                π.size()
+            );
             Tuple n = session.chooseBestCombination(
                 π,
                 lhs,
@@ -165,8 +166,8 @@ public class Florence extends Joiner.Base {
             );
             π.removeAll(TupleUtils.subtuplesOf(n, t));
             ts.add(n);
+            tuplesRemovedFromπ = sizeOfπBeforeRemoval - π.size();
           } finally {
-            firstTime = false;
             debug("vg[%s]:%s:%s:%s", ii, π.size(), ts.content().size(), (System.currentTimeMillis() - beforeVg_i));
             if (π.size() < 16) {
               debug("π=%s", π);
@@ -190,12 +191,6 @@ public class Florence extends Joiner.Base {
             rhs
         ).content().stream().distinct().collect(toList())
     ).build();
-  }
-
-  private void removeAlreadyCoveredTuples(TupleSet π, Collection<Tuple> ts, int t) {
-    ts.forEach(
-        tuple -> π.removeAll(TupleUtils.subtuplesOf(tuple, t))
-    );
   }
 
   private List<Tuple> tuplesNewlyCovered(List<String> factorsFromLhs, List<String> factorsFromRhs, String currentFactor, Object valueForCurrentFactor, int t, Tuple τ) {
@@ -298,22 +293,23 @@ public class Florence extends Joiner.Base {
       ).build();
     }
 
-    Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets) {
+    Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets, long max) {
       if (τ.containsKey(f))
         return τ.get(f);
       Tuple q = project(
           τ,
           involvedFactors.subList(0, involvedFactors.size() - 1)
       );
-      return rhs.project(involvedFactors).stream()
-          .filter(q::isSubtupleOf)
-          .map(tuple -> project(tuple, singletonList(f)))
-          .distinct()
-          .max(comparingInt(o -> numberOfTuplesCoveredBy(τ, f, o, π, factorNameSets)))
-          .map(
-              chosenTuple -> chosenTuple.get(f)
-          )
-          .orElseThrow(RuntimeException::new);
+      return Utils.max(
+          rhs.project(involvedFactors).stream()
+              .filter(q::isSubtupleOf)
+              .map(tuple -> project(tuple, singletonList(f)))
+              .distinct(),
+          max,
+          o -> (long) numberOfTuplesCoveredBy(τ, f, o, π, factorNameSets)
+      ).map(
+          chosenTuple -> chosenTuple.get(f)
+      ).orElseThrow(RuntimeException::new);
     }
 
     private int numberOfTuplesCoveredBy(Tuple τ, String f, Object v, TupleSet π, List<List<String>> factorNameSets) {
@@ -325,8 +321,6 @@ public class Florence extends Joiner.Base {
 
     Stream<List<String>> streamFactorNameSets(List<String> fromLhs, List<String> fromRhs, String f, int t) {
       return IntStream.range(1, t)
-          .filter((int i) -> i > fromLhs.size())
-          .filter((int i) -> t - i - 1 > fromLhs.size())
           .mapToObj((int i) -> new StreamableCombinator<>(fromLhs, i))
           .flatMap(StreamableCombinator::stream)
           .flatMap(
@@ -349,10 +343,12 @@ public class Florence extends Joiner.Base {
           this.candidates = candidates;
         }
       }
-      return lhs.stream().map(
-          tuple -> new Entry(tuple, simplify(rhs, involvedFactors))
-      ).max(comparingInt(
-          o -> countOverlappingTuples(o.tuple, π))
+      return Utils.max(
+          lhs.stream().map(
+              tuple -> new Entry(tuple, simplify(rhs, involvedFactors))
+          ),
+          max,
+          o -> (long) countCompatibleTuples(o.tuple, π)
       ).map(
           entry -> Utils.max(
               entry.candidates.stream(),
@@ -368,24 +364,6 @@ public class Florence extends Joiner.Base {
         // workaround compilation error on intellij ultimate/macosx
         throw new RuntimeException();
       });
-      /*
-      return lhs.stream().map(
-          tuple -> new Entry(tuple, simplify(rhs, involvedFactors))
-      ).max(comparingInt(
-          o -> countOverlappingTuples(o.tuple, π))
-      ).map(
-          entry -> entry.candidates.stream()
-              .max(comparingInt(t -> countTuplesCoveredBy(t, entry.tuple, π)))
-              .map(chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates))
-              .orElseGet(() -> {
-                // workaround compilation error on intellij ultimate/macosx
-                throw new RuntimeException();
-              })
-      ).orElseGet(() -> {
-        // workaround compilation error on intellij ultimate/macosx
-        throw new RuntimeException();
-      });
-      */
     }
 
     private TupleSet simplify(SchemafulTupleSet in, List<String> involvedFactors) {
@@ -405,12 +383,8 @@ public class Florence extends Joiner.Base {
       return Tuple.builder().putAll(t).putAll(u).build();
     }
 
-    private int countOverlappingTuples(Tuple tuple, TupleSet π) {
-      return (int) π.stream()
-          .filter(each ->
-              //              disjoint(each.keySet(), tuple.keySet()) ||
-              intersection(tuple, each).isPresent())
-          .count();
+    private int countCompatibleTuples(Tuple tuple, TupleSet π) {
+      return (int) π.stream().filter(each -> areCompatible(tuple, each)).count();
     }
 
     private int countTuplesCoveredBy(Tuple t, Tuple u, TupleSet π) {
@@ -421,24 +395,20 @@ public class Florence extends Joiner.Base {
       );
     }
 
-    private static Optional<Tuple> intersection(Tuple t, Tuple u) {
+    private static boolean areCompatible(Tuple t, Tuple u) {
       return t.size() <= u.size() ?
-          intersections_(t, u) :
-          intersections_(u, t);
+          areCompatible_(t, u) :
+          areCompatible_(u, t);
     }
 
-    private static Optional<Tuple> intersections_(Tuple t, Tuple u) {
-      Tuple.Builder b = Tuple.builder();
+    private static boolean areCompatible_(Tuple t, Tuple u) {
       for (String k : t.keySet()) {
         if (!u.containsKey(k))
           continue;
-        if (!Objects.equals(u.get(k), t.get(k)))
-          return Optional.empty();
-        b.put(k, t.get(k));
+        if (!Objects.equals(t.get(k), u.get(k)))
+          return false;
       }
-      return b.isEmpty() ?
-          Optional.empty() :
-          Optional.of(b.build());
+      return true;
     }
 
     TupleSet.Builder ensureAllTuplesAreUsed(TupleSet.Builder ts, SchemafulTupleSet tuples) {
