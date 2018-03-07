@@ -35,7 +35,7 @@ public class Florence extends Joiner.Base {
   }
 
   protected long sizeOf(SchemafulTupleSet tupleSet) {
-    return tupleSet.width();
+    return -tupleSet.width();
   }
 
   /**
