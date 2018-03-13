@@ -27,7 +27,7 @@ import static java.util.stream.StreamSupport.stream;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Florence extends Joiner.Base {
-  private final Requirement requirement;
+  final Requirement requirement;
 
   public Florence(Requirement requirement) {
     this.requirement = requirement;
@@ -115,7 +115,10 @@ public class Florence extends Joiner.Base {
                   tuplesRemovedLastTime,
               sizeOfπBeforeHg
           );
-          Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, max);
+          boolean τIsFullTuple = τ.containsKey(F);
+          Object vi = τIsFullTuple ?
+              τ.get(F) :
+              session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, max);
           Tuple.Builder b = Tuple.builder().putAll(τ);
           List<Tuple> candidates = rhs.index().find(
               project(
@@ -124,19 +127,13 @@ public class Florence extends Joiner.Base {
               )
           );
           assert !candidates.isEmpty();
-          if (candidates.size() == 1)
-            b.putAll(candidates.get(0));
-          else {
-            List<Tuple> notUsedCandidates = (candidates.stream().filter(tuple -> !used.contains(tuple)).collect(toList()));
-            if (notUsedCandidates.size() == 1) {
-              b.putAll(notUsedCandidates.get(0));
-              used.add(notUsedCandidates.get(0));
-            }
-          }
+          chooseCandidateIfOnlyOne(b, used, candidates);
           π.removeAll(
               tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, vi, t, τ)
           );
-          tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
+          tuplesRemovedLastTime = τIsFullTuple ?
+              tuplesRemovedLastTime :
+              sizeOfπBeforeRemoval - π.size();
           ts.remove(τ);
           ts.add(b.build());
         }
@@ -196,7 +193,20 @@ public class Florence extends Joiner.Base {
     ).build();
   }
 
-  private List<Tuple> tuplesNewlyCovered(List<String> factorsFromLhs, List<String> factorsFromRhs, String currentFactor, Object valueForCurrentFactor, int t, Tuple τ) {
+  private void chooseCandidateIfOnlyOne(Tuple.Builder b, Set<Tuple> used, List<Tuple> candidates) {
+    if (candidates.size() == 1) {
+      b.putAll(candidates.get(0));
+      used.add(candidates.get(0));
+      return;
+    }
+    List<Tuple> notUsedCandidates = (candidates.stream().filter(tuple -> !used.contains(tuple)).collect(toList()));
+    if (notUsedCandidates.size() == 1) {
+      b.putAll(notUsedCandidates.get(0));
+      used.add(notUsedCandidates.get(0));
+    }
+  }
+
+  List<Tuple> tuplesNewlyCovered(List<String> factorsFromLhs, List<String> factorsFromRhs, String currentFactor, Object valueForCurrentFactor, int t, Tuple τ) {
     return stream(new Combinator<>(
             concat(
                 factorsFromLhs.stream(),
@@ -210,13 +220,20 @@ public class Florence extends Joiner.Base {
     }.put(currentFactor, valueForCurrentFactor).build()).collect(toList());
   }
 
-  private static class Session {
-    private final Function<SchemafulTupleSet, Function<List<String>, TupleSet>> uniqueTuplesFunction = memoize(
+  static class Session {
+    private final Function<SchemafulTupleSet, Function<List<String>, TupleSet>> uniqueTuplesFunction   = memoize(
         (SchemafulTupleSet tuples) -> memoize(
             (List<String> factorNames) -> _uniqueTuples(tuples, factorNames)
         ));
+    private final Function<Tuple, Function<Tuple, Tuple>>                       connect                = memoize(
+        (Tuple t) -> memoize((Tuple u) -> _connect(t, u)
+        ));
+    private final Function<SchemafulTupleSet, Function<Integer, TupleSet>>      uniqueTuplesOfStrength = memoize(
+        (SchemafulTupleSet tuples) -> memoize(
+            (Integer strength) -> _uniqueTuplesOfStrength(tuples, strength)
+        ));
 
-    private TupleSet allPossibleUniqueTuplesOfStrength(
+    TupleSet allPossibleUniqueTuplesOfStrength(
         SchemafulTupleSet lhs,
         SchemafulTupleSet rhs,
         List<String> alreadyProcessedFactorsInRhs,
@@ -262,43 +279,20 @@ public class Florence extends Joiner.Base {
       }
     }
 
-    private TupleSet uniqueTuplesOfStrength(SchemafulTupleSet tuples, int strength) {
-      return new TupleSet.Builder().addAll(
-          stream(
-              new Combinator<>(
-                  tuples.getAttributeNames(),
-                  strength
-              ).spliterator(),
-              false
-          ).flatMap(
-              factorNames -> uniqueTuples(tuples, factorNames).stream()
-          ).distinct(
-          ).collect(
-              toList()
-          )
-      ).build();
+    TupleSet uniqueTuplesOfStrength(SchemafulTupleSet tuples, int strength) {
+      return uniqueTuplesOfStrength.apply(tuples).apply(strength);
     }
 
     /*
      * This does exactly the same as what _uniqueTuples does but with better performance
      * by memoization.
      */
-    private TupleSet uniqueTuples(SchemafulTupleSet tuples, List<String> factorNames) {
+    TupleSet uniqueTuples(SchemafulTupleSet tuples, List<String> factorNames) {
       return uniqueTuplesFunction.apply(tuples).apply(factorNames);
     }
 
-    private TupleSet _uniqueTuples(SchemafulTupleSet tuples, List<String> factorNames) {
-      return new TupleSet.Builder().addAll(
-          tuples.stream()
-              .map(tuple -> project(tuple, factorNames))
-              .distinct()
-              .collect(toList())
-      ).build();
-    }
-
     Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets, long max) {
-      if (τ.containsKey(f))
-        return τ.get(f);
+      assert !τ.containsKey(f);
       Tuple q = project(
           τ,
           involvedFactors.subList(0, involvedFactors.size() - 1)
@@ -356,7 +350,7 @@ public class Florence extends Joiner.Base {
           entry -> Utils.max(
               entry.candidates.stream(),
               max,
-              t -> (long) countTuplesCoveredBy(t, entry.tuple, π)
+              t -> (long) countTuplesCoveredBy(connect(t, entry.tuple), π)
           ).map(
               chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates)
           ).orElseGet(() -> {
@@ -383,17 +377,17 @@ public class Florence extends Joiner.Base {
     }
 
     private Tuple connect(Tuple t, Tuple u) {
-      return Tuple.builder().putAll(t).putAll(u).build();
+      return connect.apply(t).apply(u);
     }
 
     private int countCompatibleTuples(Tuple tuple, TupleSet π) {
       return (int) π.stream().filter(each -> areCompatible(tuple, each)).count();
     }
 
-    private int countTuplesCoveredBy(Tuple t, Tuple u, TupleSet π) {
+    private int countTuplesCoveredBy(Tuple t, TupleSet π) {
       return (int) π.stream(
       ).filter(
-          tuple -> tuple.isSubtupleOf(connect(t, u))
+          tuple -> tuple.isSubtupleOf(t)
       ).count(
       );
     }
@@ -422,6 +416,36 @@ public class Florence extends Joiner.Base {
                   .noneMatch(t::equals)
           ).forEach(ts::add);
       return ts;
+    }
+
+    private static Tuple _connect(Tuple t, Tuple u) {
+      return Tuple.builder().putAll(t).putAll(u).build();
+    }
+
+    TupleSet _uniqueTuplesOfStrength(SchemafulTupleSet tuples, int strength) {
+      return new TupleSet.Builder().addAll(
+          stream(
+              new Combinator<>(
+                  tuples.getAttributeNames(),
+                  strength
+              ).spliterator(),
+              false
+          ).flatMap(
+              factorNames -> uniqueTuples(tuples, factorNames).stream()
+          ).distinct(
+          ).collect(
+              toList()
+          )
+      ).build();
+    }
+
+    TupleSet _uniqueTuples(SchemafulTupleSet tuples, List<String> factorNames) {
+      return new TupleSet.Builder().addAll(
+          tuples.stream()
+              .map(tuple -> project(tuple, factorNames))
+              .distinct()
+              .collect(toList())
+      ).build();
     }
   }
 

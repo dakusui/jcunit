@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.LongPredicate;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -23,6 +24,7 @@ import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 
 public enum Utils {
   ;
@@ -173,6 +175,30 @@ public enum Utils {
     return new StreamableCombinator<>(elements, k).size();
   }
 
+  @SuppressWarnings("unchecked")
+  public static <T> Stream<List<T>> cartesian(Stream<T>... streams) {
+    return cartesian(Arrays.stream(streams).map((Function<Stream<T>, Supplier<Stream<T>>>) s -> {
+      T[] arr = (T[]) s.toArray();
+      return () -> Arrays.stream(arr);
+    }).collect(toList()));
+  }
+
+  public static <T> Stream<List<T>> cartesian(List<Supplier<Stream<T>>> streams) {
+    return streams.isEmpty() ?
+        Stream.empty() :
+        streams.size() == 1 ?
+            streams.get(0).get().map(i -> new ArrayList<T>(1) {{
+              add(i);
+            }}) :
+            cartesian(() -> cartesian(streams.subList(0, streams.size() - 1)), streams.get(streams.size() - 1));
+  }
+
+  private static <T> Stream<List<T>> cartesian(Supplier<Stream<List<T>>> i, Supplier<Stream<T>> j) {
+    return i.get().flatMap(
+        list -> j.get().map(t -> new LinkedList<T>(list) {{
+          add(t);
+        }}));
+  }
 
   /**
    * Returns an element in a given stream which gives a maximum value when {@code f}
@@ -251,5 +277,13 @@ public enum Utils {
           return left;
         }
     );
+  }
+
+  public static void main(String... args) {
+    Utils.cartesian(
+        Stream.of("hello", "world"),
+        Stream.of("1", "2"),
+        Stream.of("X", "Y", "Z")
+    ).forEach(System.out::println);
   }
 }
