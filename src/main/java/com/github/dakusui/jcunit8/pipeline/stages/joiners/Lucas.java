@@ -143,7 +143,7 @@ public class Lucas extends Florence {
     ).build();
   }
 
-  private static class Session extends Florence.Session {
+  public static class Session extends Florence.Session {
     private final Function<SchemafulTupleSet, Function<List<String>, TupleSet>> uniqueTuplesFunction = memoize(
         (SchemafulTupleSet tuples) -> memoize(
             (List<String> factorNames) -> _uniqueTuples(tuples, factorNames)
@@ -202,7 +202,7 @@ public class Lucas extends Florence {
     }
 
     @SuppressWarnings("unchecked")
-    private Stream<List<String>> chooseFactorNames(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
+    Stream<List<String>> chooseFactorNames(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
       // min(lhs.size, t - 1) >= #(from lhs)              >= 1
       // min(rhs.size, t - 1) >= #(from rhs (processed))  >= 0
       // min(F.length, t - 1)>= #(from F[] (new))        >= 1
@@ -210,6 +210,8 @@ public class Lucas extends Florence {
       return cartesian(
           range(1, min(lhsFactorNames.size() + 1, t)).boxed(),
           range(1, min(cur.size() + 1, t)).boxed()
+      ).filter(
+          degrees -> degrees.stream().allMatch(d -> d >= 0)
       ).map(
           degrees -> new ArrayList<Integer>(3) {{
             addAll(degrees);
@@ -230,15 +232,6 @@ public class Lucas extends Florence {
         addAll(b);
       }};
     }
-  }
-
-  public static void main(String... args) {
-    new Session().chooseFactorNames(
-        asList("l0", "l1", "l2"),
-        asList("r0", "r1", "r2"),
-        asList("c0", "c1", "c2"),
-        3
-    ).forEach(System.out::println);
   }
 
   private static <T> List<T> sublist(List<T> list, int fromIndex, int toIndex) {

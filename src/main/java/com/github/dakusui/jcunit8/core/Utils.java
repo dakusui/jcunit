@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
@@ -168,6 +169,7 @@ public enum Utils {
   }
 
   public static <T> Stream<List<T>> combinations(List<T> elements, int k) {
+    Checks.checkcond(k >= 0);
     return new StreamableCombinator<>(elements, k).stream();
   }
 

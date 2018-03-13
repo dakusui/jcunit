@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.*;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
@@ -93,6 +94,68 @@ public class UtilsTest {
             asInteger("size").eq(12).$(),
             asObject("get", 0).equalTo(asList("hello", "1", "X")).$(),
             asObject("get", 1).equalTo(asList("hello", "1", "Y")).$()
+        )
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void cartesian2() {
+    assertThat(
+        Utils.cartesian(
+            Stream.of("hello", "world"),
+            Stream.of("1"),
+            Stream.of("X", "Y", "Z")
+        ).collect(toList()),
+        allOf(
+            asInteger("size").eq(6).$(),
+            asObject("get", 0).equalTo(asList("hello", "1", "X")).$(),
+            asObject("get", 1).equalTo(asList("hello", "1", "Y")).$()
+        )
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void cartesian3() {
+    assertThat(
+        Utils.cartesian(
+            Stream.of("hello", "world"),
+            Stream.of("X", "Y", "Z")
+        ).collect(toList()),
+        allOf(
+            asInteger("size").eq(6).$(),
+            asObject("get", 0).equalTo(asList("hello", "X")).$(),
+            asObject("get", 1).equalTo(asList("hello", "Y")).$()
+        )
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void cartesian4() {
+    assertThat(
+        Utils.cartesian(
+            Stream.of("hello", "world"),
+            Stream.of("X", "Y", "Z"),
+            Stream.empty()
+        ).collect(toList()),
+        allOf(
+            asInteger("size").eq(0).$()
+        )
+    );
+  }
+  @SuppressWarnings("unchecked")
+  @Test
+  public void cartesian5() {
+    assertThat(
+        Utils.cartesian(
+            Stream.of("hello", "world")
+        ).collect(toList()),
+        allOf(
+            asInteger("size").eq(2).$(),
+            asObject("get", 0).equalTo(singletonList("hello")).$(),
+            asObject("get", 1).equalTo(singletonList("world")).$()
         )
     );
   }
