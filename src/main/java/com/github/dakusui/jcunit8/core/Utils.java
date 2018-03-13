@@ -278,12 +278,4 @@ public enum Utils {
         }
     );
   }
-
-  public static void main(String... args) {
-    Utils.cartesian(
-        Stream.of("hello", "world"),
-        Stream.of("1", "2"),
-        Stream.of("X", "Y", "Z")
-    ).forEach(System.out::println);
-  }
 }

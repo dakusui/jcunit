@@ -35,7 +35,7 @@ public class Lucas extends Florence {
     Set<Tuple> used = new LinkedHashSet<>();
     TupleSet.Builder ts = new TupleSet.Builder().addAll(lhs);
     for (int i = 0; i < rhs.width(); i += t - 1) {
-      String[] F = rhs.getAttributeNames().subList(i, i + t - 1).toArray(new String[0]);
+      String[] F = sublist(rhs.getAttributeNames(), i, i + t - 1).toArray(new String[0]);
       TupleSet π = session.allPossibleUniqueTuplesOfStrength(
           lhs,
           rhs,
@@ -201,6 +201,7 @@ public class Lucas extends Florence {
       }
     }
 
+    @SuppressWarnings("unchecked")
     private Stream<List<String>> chooseFactorNames(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
       // min(lhs.size, t - 1) >= #(from lhs)              >= 1
       // min(rhs.size, t - 1) >= #(from rhs (processed))  >= 0
@@ -229,5 +230,23 @@ public class Lucas extends Florence {
         addAll(b);
       }};
     }
+  }
+
+  public static void main(String... args) {
+    new Session().chooseFactorNames(
+        asList("l0", "l1", "l2"),
+        asList("r0", "r1", "r2"),
+        asList("c0", "c1", "c2"),
+        3
+    ).forEach(System.out::println);
+  }
+
+  private static <T> List<T> sublist(List<T> list, int fromIndex, int toIndex) {
+    return list.subList(
+        fromIndex,
+        toIndex < list.size() ?
+            toIndex :
+            list.size()
+    );
   }
 }

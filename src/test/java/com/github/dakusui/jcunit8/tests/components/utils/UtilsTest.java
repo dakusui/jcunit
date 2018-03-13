@@ -8,6 +8,8 @@ import org.junit.Test;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.*;
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.Assert.assertEquals;
 
 public class UtilsTest {
@@ -74,6 +76,23 @@ public class UtilsTest {
         allOf(
             asBoolean("isPresent").isTrue().$(),
             asInteger("get").eq(0).$()
+        )
+    );
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void cartesian() {
+    assertThat(
+        Utils.cartesian(
+            Stream.of("hello", "world"),
+            Stream.of("1", "2"),
+            Stream.of("X", "Y", "Z")
+        ).collect(toList()),
+        allOf(
+            asInteger("size").eq(12).$(),
+            asObject("get", 0).equalTo(asList("hello", "1", "X")).$(),
+            asObject("get", 1).equalTo(asList("hello", "1", "Y")).$()
         )
     );
   }
