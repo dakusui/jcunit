@@ -70,12 +70,6 @@ public enum Utils {
     return ret;
   }
 
-  public static Tuple project(List<String> keys, Tuple from) {
-    Tuple.Builder builder = Tuple.builder();
-    keys.forEach((String key) -> builder.put(key, from.get(key)));
-    return builder.build();
-  }
-
   public static TestClass createTestClassMock(final TestClass testClass) {
     return new TestClass(testClass.getJavaClass()) {
       @Override
@@ -278,6 +272,19 @@ public enum Utils {
           left.addAll(right);
           return left;
         }
+    );
+  }
+
+  public static <T> List<T> append(List<T> a, List<T> b) {
+    return Stream.concat(a.stream(), b.stream()).collect(toList());
+  }
+
+  public static <T> List<T> sublist(List<T> list, int fromIndex, int toIndex) {
+    return list.subList(
+        fromIndex,
+        toIndex < list.size() ?
+            toIndex :
+            list.size()
     );
   }
 }

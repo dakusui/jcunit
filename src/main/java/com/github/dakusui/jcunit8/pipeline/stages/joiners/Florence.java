@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit8.pipeline.stages.joiners;
 
 import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.StreamableCombinator;
 import com.github.dakusui.jcunit8.core.Utils;
@@ -17,9 +16,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
-import static com.github.dakusui.jcunit8.core.Utils.combinations;
-import static com.github.dakusui.jcunit8.core.Utils.memoize;
-import static com.github.dakusui.jcunit8.core.Utils.project;
+import static com.github.dakusui.jcunit8.core.Utils.*;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
@@ -128,6 +125,7 @@ public class Florence extends Joiner.Base {
           );
           assert !candidates.isEmpty();
           chooseCandidateIfOnlyOne(b, used, candidates);
+          Tuple newTuple = b.build();
           π.removeAll(
               tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, vi, t, τ)
           );
@@ -135,7 +133,7 @@ public class Florence extends Joiner.Base {
               tuplesRemovedLastTime :
               sizeOfπBeforeRemoval - π.size();
           ts.remove(τ);
-          ts.add(b.build());
+          ts.add(newTuple);
         }
       } finally {
         debug("hg:" + π.size() + "<-" + sizeOfπBeforeHg + ":" + ts.content().size() + ":" + (System
@@ -164,7 +162,10 @@ public class Florence extends Joiner.Base {
                 involvedFactors,
                 max
             );
-            π.removeAll(TupleUtils.subtuplesOf(n, t));
+            π.removeAll(
+                tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, n.get(F), t, n)
+            );
+            //);
             ts.add(n);
             tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
           } finally {
@@ -206,13 +207,9 @@ public class Florence extends Joiner.Base {
     }
   }
 
-  List<Tuple> tuplesNewlyCovered(List<String> factorsFromLhs, List<String> factorsFromRhs, String currentFactor, Object valueForCurrentFactor, int t, Tuple τ) {
-    return stream(new Combinator<>(
-            concat(
-                factorsFromLhs.stream(),
-                factorsFromRhs.stream()
-            ).collect(toList()), t - 1).spliterator(),
-        false
+  private List<Tuple> tuplesNewlyCovered(List<String> factorsFromLhs, List<String> factorsFromRhs, String currentFactor, Object valueForCurrentFactor, int t, Tuple τ) {
+    return combinations(
+        append(factorsFromLhs, factorsFromRhs), t - 1
     ).map(factorNames -> new Tuple.Builder() {
       {
         factorNames.forEach(k -> put(k, τ.get(k)));
@@ -303,16 +300,15 @@ public class Florence extends Joiner.Base {
               .map(tuple -> project(tuple, singletonList(f)))
               .distinct(),
           max,
-          o -> (long) numberOfTuplesCoveredBy(τ, f, o, π, factorNameSets)
+          (Tuple t) -> (long) numberOfTuplesInπCoveredBy(connect(τ, t), π, factorNameSets)
       ).map(
           chosenTuple -> chosenTuple.get(f)
       ).orElseThrow(RuntimeException::new);
     }
 
-    private int numberOfTuplesCoveredBy(Tuple τ, String f, Object v, TupleSet π, List<List<String>> factorNameSets) {
-      Tuple tuple = Tuple.builder().putAll(τ).put(f, v).build();
+    int numberOfTuplesInπCoveredBy(Tuple tuple, TupleSet π, List<List<String>> factorNameSets) {
       return (int) factorNameSets.stream()
-          .mapToInt(factorNames -> π.contains(project(factorNames, tuple)) ? 1 : 0)
+          .mapToInt(factorNames -> π.contains(project(tuple, factorNames)) ? 1 : 0)
           .count();
     }
 
@@ -376,7 +372,7 @@ public class Florence extends Joiner.Base {
       }.build();
     }
 
-    private Tuple connect(Tuple t, Tuple u) {
+    Tuple connect(Tuple t, Tuple u) {
       return connect.apply(t).apply(u);
     }
 
@@ -412,7 +408,7 @@ public class Florence extends Joiner.Base {
       tuples.stream()
           .filter(
               t -> ts.content().stream()
-                  .map(tuple -> project(tuples.getAttributeNames(), tuple))
+                  .map(tuple -> project(tuple, tuples.getAttributeNames()))
                   .noneMatch(t::equals)
           ).forEach(ts::add);
       return ts;

@@ -1,24 +1,22 @@
 package com.github.dakusui.jcunit8.pipeline.stages.joiners;
 
-import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit8.core.Utils.*;
 import static java.lang.Math.min;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
-import static java.util.stream.Stream.concat;
-import static java.util.stream.StreamSupport.stream;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Lucas extends Florence {
@@ -34,7 +32,7 @@ public class Lucas extends Florence {
     List<String> alreadyProcessedFactors = new LinkedList<>();
     Set<Tuple> used = new LinkedHashSet<>();
     TupleSet.Builder ts = new TupleSet.Builder().addAll(lhs);
-    for (int i = 0; i < rhs.width(); i += t - 1) {
+    for (int i = 0; i < rhs.width(); i += 10) {
       String[] F = sublist(rhs.getAttributeNames(), i, i + t - 1).toArray(new String[0]);
       TupleSet π = session.allPossibleUniqueTuplesOfStrength(
           lhs,
@@ -43,10 +41,13 @@ public class Lucas extends Florence {
           F,
           t
       );
-      final List<String> involvedFactors = concat(alreadyProcessedFactors.stream(), Stream.of(F)).collect(toList());
-      final List<List<String>> tWayFactorNameSets = session
-          .chooseFactorNames(lhs.getAttributeNames(), alreadyProcessedFactors, asList(F), t)
-          .collect(toList());
+      final List<String> involvedFactors = append(alreadyProcessedFactors, asList(F));
+      final List<List<String>> tWayFactorNameSets = session.streamFactorNameLists(
+          lhs.getAttributeNames(),
+          alreadyProcessedFactors,
+          asList(F),
+          t
+      ).collect(toList());
       ////
       // hg
       long beforeHg = System.currentTimeMillis();
@@ -62,13 +63,14 @@ public class Lucas extends Florence {
                   tuplesRemovedLastTime,
               sizeOfπBeforeHg
           );
-          Object vi = session.chooseLevelThatCoversMostTuplesIn(τ, F[0], π, rhs, involvedFactors, tWayFactorNameSets, max);
-          Tuple.Builder b = Tuple.builder().putAll(τ);
+          Object[] v = session.chooseLevelsThatCoverMostTuplesInπ(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, max);
+          assert v.length == F.length;
+          Tuple.Builder b = new Tuple.Builder() {{
+            putAll(τ);
+            IntStream.range(0, v.length).forEach(ii -> put(F[ii], v[ii]));
+          }};
           List<Tuple> candidates = rhs.index().find(
-              project(
-                  involvedFactors,
-                  b.put(F[0], vi).build()
-              )
+              project(b.build(), involvedFactors)
           );
           assert !candidates.isEmpty();
           if (candidates.size() == 1)
@@ -81,7 +83,7 @@ public class Lucas extends Florence {
             }
           }
           π.removeAll(
-              tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F[0], vi, t, τ)
+              session.tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, v, t, τ)
           );
           tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
           ts.remove(τ);
@@ -114,7 +116,9 @@ public class Lucas extends Florence {
                 involvedFactors,
                 max
             );
-            π.removeAll(TupleUtils.subtuplesOf(n, t));
+            π.removeAll(session.tuplesNewlyCovered(
+                lhs.getAttributeNames(), alreadyProcessedFactors, F, Arrays.stream(F).map(n::get).toArray(), t, n
+            ));
             ts.add(n);
             tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
           } finally {
@@ -144,11 +148,6 @@ public class Lucas extends Florence {
   }
 
   public static class Session extends Florence.Session {
-    private final Function<SchemafulTupleSet, Function<List<String>, TupleSet>> uniqueTuplesFunction = memoize(
-        (SchemafulTupleSet tuples) -> memoize(
-            (List<String> factorNames) -> _uniqueTuples(tuples, factorNames)
-        ));
-
     TupleSet allPossibleUniqueTuplesOfStrength(
         SchemafulTupleSet lhs,
         SchemafulTupleSet rhs,
@@ -161,48 +160,24 @@ public class Lucas extends Florence {
         checkcond(strength > 1);
         checkcond(lhs.width() + alreadyProcessedFactorsInRhs.size() + 1 >= strength);
         checkcond(newFactorNamesInRhs.length == strength - 1);
-
-        // lhs              >= 1
-        // rhs (processed)  >= 0
-        // F[] (new)        >= 1
-        // #(from rhs) + #(from F[]) + #(from lhs) == t
-        return range(
-            1,
+        return new TupleSet.Builder().addAll(streamFactorNameLists(
+            lhs.getAttributeNames(),
+            alreadyProcessedFactorsInRhs,
+            asList(newFactorNamesInRhs),
             strength
-        ).filter(
-            (int i) -> i + alreadyProcessedFactorsInRhs.size() + 1 >= strength
-        ).mapToObj(
-            (int i) -> uniqueTuplesOfStrength(lhs, i).cartesianProduct(
-                new TupleSet.Builder().addAll(
-                    stream(
-                        new Combinator<>(alreadyProcessedFactorsInRhs, strength - i - strength - 1).spliterator(),
-                        false
-                    ).flatMap(
-                        (List<String> chosenFactorNames) -> uniqueTuples(
-                            rhs,
-                            concat(
-                                chosenFactorNames.stream(),
-                                Arrays.stream(newFactorNamesInRhs)
-                            ).collect(toList())
-                        ).stream()
-                    ).distinct(
-                    ).collect(
-                        toList()
-                    )
-                ).build()
-            )
-        ).reduce(
-            (TupleSet t, TupleSet u) -> new TupleSet.Builder().addAll(t).addAll(u).build()
-        ).orElseThrow(
-            AssertionError::new
-        );
+            ).flatMap(
+            chosenFactorNames -> lhs.lenientProject(chosenFactorNames).stream().flatMap(
+                fromLhs -> rhs.lenientProject(chosenFactorNames).stream().map(
+                    fromRhs -> connect(fromLhs, fromRhs)))
+            ).collect(toList())
+        ).build();
       } finally {
         debug("allPossibleUniqueTuplesOfStrength:" + (System.currentTimeMillis() - before));
       }
     }
 
     @SuppressWarnings("unchecked")
-    Stream<List<String>> chooseFactorNames(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
+    Stream<List<String>> streamFactorNameLists(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
       // min(lhs.size, t - 1) >= #(from lhs)              >= 1
       // min(rhs.size, t - 1) >= #(from rhs (processed))  >= 0
       // min(F.length, t - 1)>= #(from F[] (new))        >= 1
@@ -210,13 +185,13 @@ public class Lucas extends Florence {
       return cartesian(
           range(1, min(lhsFactorNames.size() + 1, t)).boxed(),
           range(1, min(cur.size() + 1, t)).boxed()
-      ).filter(
-          degrees -> degrees.stream().allMatch(d -> d >= 0)
       ).map(
           degrees -> new ArrayList<Integer>(3) {{
             addAll(degrees);
             add(t - get(0) - get(1));
           }}
+      ).filter(
+          degrees -> degrees.stream().allMatch(d -> d >= 0)
       ).flatMap(degrees -> cartesian(
           combinations(lhsFactorNames, degrees.get(0)),
           combinations(rhsFactorNames, degrees.get(2)),
@@ -226,20 +201,34 @@ public class Lucas extends Florence {
       );
     }
 
-    private static <T> List<T> append(List<T> a, List<T> b) {
-      return new ArrayList<T>(a.size() + b.size()) {{
-        addAll(a);
-        addAll(b);
-      }};
+    Object[] chooseLevelsThatCoverMostTuplesInπ(Tuple τ, String[] F, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets, long max) {
+      Tuple q = project(
+          τ,
+          involvedFactors.subList(0, involvedFactors.size() - 1)
+      );
+      return Utils.max(
+          rhs.project(involvedFactors).stream()
+              .filter(q::isSubtupleOf)
+              .map(tuple -> project(tuple, asList(F)))
+              .distinct(),
+          max,
+          (Tuple t) -> (long) numberOfTuplesInπCoveredBy(connect(τ, t), π, factorNameSets)
+      ).map(
+          chosenTuple -> Arrays.stream(F).map(chosenTuple::get).collect(toList()).toArray()
+      ).orElseThrow(
+          AssertionError::new
+      );
     }
-  }
 
-  private static <T> List<T> sublist(List<T> list, int fromIndex, int toIndex) {
-    return list.subList(
-        fromIndex,
-        toIndex < list.size() ?
-            toIndex :
-            list.size()
-    );
+    List<Tuple> tuplesNewlyCovered(List<String> factorsFromLhs, List<String> factorsFromRhs, String[] currentFactors, Object[] valuesForCurrentFactors, int t, Tuple τ) {
+      assert currentFactors.length == valuesForCurrentFactors.length;
+      Tuple base = new Tuple.Builder() {{
+        putAll(τ);
+        IntStream.range(0, currentFactors.length).forEach(i -> put(currentFactors[i], valuesForCurrentFactors[i]));
+      }}.build();
+      return streamFactorNameLists(factorsFromLhs, factorsFromRhs, asList(currentFactors), t)
+          .map(factorNames -> project(base, factorNames))
+          .collect(toList());
+    }
   }
 }

@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit8.core.Utils;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.jcunit8.core.Utils.project;
+import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
 import static java.util.Arrays.asList;
 
 public interface Constraint extends TestPredicate {
@@ -19,7 +19,7 @@ public interface Constraint extends TestPredicate {
 
       @Override
       public boolean test(Tuple tuple) {
-        return predicate.test(project(args, tuple));
+        return predicate.test(project(tuple, args));
       }
 
       @Override

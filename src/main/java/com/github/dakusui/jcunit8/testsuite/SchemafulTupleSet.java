@@ -25,6 +25,8 @@ public interface SchemafulTupleSet extends List<Tuple> {
 
   SchemafulTupleSet project(List<String> attributes);
 
+  SchemafulTupleSet lenientProject(List<String> attributes);
+
   Index index();
 
   interface Index {
@@ -33,8 +35,6 @@ public interface SchemafulTupleSet extends List<Tuple> {
     List<Tuple> find(Tuple query);
 
     List<Tuple> allPossibleTuples(List<String> attrs);
-
-    List<Object> getAttributeValuesOf(String attr);
 
     class Impl implements Index {
       class Pair {
@@ -113,12 +113,6 @@ public interface SchemafulTupleSet extends List<Tuple> {
         }
         return allPossibleTuplesForAttributes.get(attrs);
       }
-
-      @Override
-      public List<Object> getAttributeValuesOf(String attr) {
-        return attributes.get(check(attr, attributes::containsKey, () -> String.format("Unknown attribute: '%s'", attr)));
-      }
-
 
       private <T> List<T> intersect(List<T> a, List<T> b) {
         if (a.isEmpty() || b.isEmpty())
@@ -237,9 +231,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
 
         @Override
         public SchemafulTupleSet project(List<String> attributes) {
-          checknotnull(
-              attributes
-          );
+          checknotnull(attributes);
           check(
               attributes,
               this.attributeNames::containsAll,
@@ -249,6 +241,12 @@ public interface SchemafulTupleSet extends List<Tuple> {
                       a -> !this.attributeNames.contains(a)
                   ).collect(toList())
               ));
+          return lenientProject(attributes);
+        }
+
+        @Override
+        public SchemafulTupleSet lenientProject(List<String> attributes) {
+          checknotnull(attributes);
           return new SchemafulTupleSet.Builder(attributes).addAllEntries(
               this.tuples.stream().map(
                   t -> TupleUtils.project(t, attributes)

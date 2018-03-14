@@ -11,6 +11,7 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static java.util.Collections.singletonList;
@@ -165,13 +166,9 @@ public class SimilarityBasedJoiner extends Joiner.Base {
       joined.stream()
           .flatMap(Collection::stream)
           .forEach(tuple ->
-              b.add(this.project(tuple, lhs.getAttributeNames()), this.project(tuple, rhs.getAttributeNames()))
+              b.add(project(tuple, lhs.getAttributeNames()), project(tuple, rhs.getAttributeNames()))
           );
       return b.build();
-    }
-
-    public Tuple project(Tuple tuple, List<String> attributeNames) {
-      return Utils.project(attributeNames, tuple);
     }
   }
 
