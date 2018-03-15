@@ -20,8 +20,11 @@ import static java.util.stream.IntStream.range;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Lucas extends Florence {
+  private final int delta;
+
   public Lucas(Requirement requirement) {
     super(requirement);
+    delta = requirement.strength() * 2;
   }
 
   @Override
@@ -32,8 +35,8 @@ public class Lucas extends Florence {
     List<String> alreadyProcessedFactors = new LinkedList<>();
     Set<Tuple> used = new LinkedHashSet<>();
     TupleSet.Builder ts = new TupleSet.Builder().addAll(lhs);
-    for (int i = 0; i < rhs.width(); i += 10) {
-      String[] F = sublist(rhs.getAttributeNames(), i, i + t - 1).toArray(new String[0]);
+    for (int i = 0; i < rhs.width(); i += delta) {
+      String[] F = sublist(rhs.getAttributeNames(), i, i + delta).toArray(new String[0]);
       TupleSet π = session.allPossibleUniqueTuplesOfStrength(
           lhs,
           rhs,
@@ -53,17 +56,13 @@ public class Lucas extends Florence {
       long beforeHg = System.currentTimeMillis();
       int sizeOfπBeforeHg = π.size();
       try {
-
-        int tuplesRemovedLastTime = -1;
+        Florence.Session.Hg hg = new Florence.Session.Hg();
         for (Tuple τ : new ArrayList<>(ts.content())) {
-          int sizeOfπBeforeRemoval = π.size();
-          long max = Math.min(
-              tuplesRemovedLastTime == -1 ?
-                  Long.MAX_VALUE :
-                  tuplesRemovedLastTime,
-              sizeOfπBeforeHg
-          );
-          Object[] v = session.chooseLevelsThatCoverMostTuplesInπ(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, max);
+          hg.max(Math.min(
+              tWayFactorNameSets.size(),
+              π.size()
+          ));
+          Object[] v = session.chooseLevelsThatCoverMostTuplesInπ(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, hg);
           assert v.length == F.length;
           Tuple.Builder b = new Tuple.Builder() {{
             putAll(τ);
@@ -85,7 +84,6 @@ public class Lucas extends Florence {
           π.removeAll(
               session.tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, v, t, τ)
           );
-          tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
           ts.remove(τ);
           ts.add(b.build());
         }
@@ -98,32 +96,30 @@ public class Lucas extends Florence {
       long beforeVg = System.currentTimeMillis();
       try {
         int ii = 0;
-        int tuplesRemovedLastTime = -1;
+        Florence.Session.Vg vg = new Florence.Session.Vg();
         while (!π.isEmpty()) {
           long beforeVg_i = System.currentTimeMillis();
           try {
             int sizeOfπBeforeRemoval = π.size();
-            long max = Math.min(
-                tuplesRemovedLastTime < 0 ?
-                    Long.MAX_VALUE :
-                    tuplesRemovedLastTime,
-                π.size()
-            );
             Tuple n = session.chooseBestCombination(
                 π,
                 lhs,
                 rhs,
                 involvedFactors,
-                max
+                vg
             );
             π.removeAll(session.tuplesNewlyCovered(
                 lhs.getAttributeNames(), alreadyProcessedFactors, F, Arrays.stream(F).map(n::get).toArray(), t, n
             ));
             ts.add(n);
-            tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
+            vg.updateMaxFor(
+                project(n, lhs.getAttributeNames()),
+                project(n, rhs.getAttributeNames()),
+                sizeOfπBeforeRemoval - π.size()
+            );
           } finally {
             debug("vg[%s]:%s:%s:%s", ii, π.size(), ts.content().size(), (System.currentTimeMillis() - beforeVg_i));
-            if (π.size() < 16) {
+            if (π.size() < 10) {
               debug("π=%s", π);
             }
             ii++;
@@ -159,7 +155,6 @@ public class Lucas extends Florence {
       try {
         checkcond(strength > 1);
         checkcond(lhs.width() + alreadyProcessedFactorsInRhs.size() + 1 >= strength);
-        checkcond(newFactorNamesInRhs.length == strength - 1);
         return new TupleSet.Builder().addAll(streamFactorNameLists(
             lhs.getAttributeNames(),
             alreadyProcessedFactorsInRhs,
@@ -172,7 +167,7 @@ public class Lucas extends Florence {
             ).collect(toList())
         ).build();
       } finally {
-        debug("allPossibleUniqueTuplesOfStrength:" + (System.currentTimeMillis() - before));
+        debug("allPossibleUniqueTuplesOfStrength:%s", (System.currentTimeMillis() - before));
       }
     }
 
@@ -201,7 +196,7 @@ public class Lucas extends Florence {
       );
     }
 
-    Object[] chooseLevelsThatCoverMostTuplesInπ(Tuple τ, String[] F, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets, long max) {
+    Object[] chooseLevelsThatCoverMostTuplesInπ(Tuple τ, String[] F, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets, Hg hg) {
       Tuple q = project(
           τ,
           involvedFactors.subList(0, involvedFactors.size() - 1)
@@ -209,12 +204,18 @@ public class Lucas extends Florence {
       return Utils.max(
           rhs.project(involvedFactors).stream()
               .filter(q::isSubtupleOf)
+              .sorted(Comparator.comparingInt(t -> hg.howManyTimesAlreadyUsed(t, F)))
               .map(tuple -> project(tuple, asList(F)))
               .distinct(),
-          max,
+          hg.max(),
           (Tuple t) -> (long) numberOfTuplesInπCoveredBy(connect(τ, t), π, factorNameSets)
       ).map(
           chosenTuple -> Arrays.stream(F).map(chosenTuple::get).collect(toList()).toArray()
+      ).filter(
+          levels -> {
+            hg.add(levels);
+            return true;
+          }
       ).orElseThrow(
           AssertionError::new
       );

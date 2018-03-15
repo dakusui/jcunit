@@ -17,7 +17,9 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
 import static com.github.dakusui.jcunit8.core.Utils.*;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Stream.concat;
 import static java.util.stream.StreamSupport.stream;
@@ -104,18 +106,19 @@ public class Florence extends Joiner.Base {
       try {
 
         int tuplesRemovedLastTime = -1;
+        Session.Hg hg = new Session.Hg();
         for (Tuple τ : new ArrayList<>(ts.content())) {
           int sizeOfπBeforeRemoval = π.size();
-          long max = Math.min(
+          hg.max(Math.min(
               tuplesRemovedLastTime == -1 ?
                   Long.MAX_VALUE :
                   tuplesRemovedLastTime,
               sizeOfπBeforeHg
-          );
+          ));
           boolean τIsFullTuple = τ.containsKey(F);
           Object vi = τIsFullTuple ?
               τ.get(F) :
-              session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, max);
+              session.chooseLevelThatCoversMostTuplesIn(τ, F, π, rhs, involvedFactors, tWayFactorNameSets, hg);
           Tuple.Builder b = Tuple.builder().putAll(τ);
           List<Tuple> candidates = rhs.index().find(
               project(
@@ -144,30 +147,24 @@ public class Florence extends Joiner.Base {
       long beforeVg = System.currentTimeMillis();
       try {
         int ii = 0;
-        int tuplesRemovedLastTime = -1;
+        Session.Vg vg = new Session.Vg();
         while (!π.isEmpty()) {
           long beforeVg_i = System.currentTimeMillis();
           try {
             int sizeOfπBeforeRemoval = π.size();
-            long max = Math.min(
-                tuplesRemovedLastTime < 0 ?
-                    Long.MAX_VALUE :
-                    tuplesRemovedLastTime,
-                π.size()
-            );
             Tuple n = session.chooseBestCombination(
                 π,
                 lhs,
                 rhs,
                 involvedFactors,
-                max
+                vg
             );
             π.removeAll(
                 tuplesNewlyCovered(lhs.getAttributeNames(), alreadyProcessedFactors, F, n.get(F), t, n)
             );
-            //);
             ts.add(n);
-            tuplesRemovedLastTime = sizeOfπBeforeRemoval - π.size();
+            vg.updateMaxFor(
+                project(n, lhs.getAttributeNames()), project(n, rhs.getAttributeNames()), sizeOfπBeforeRemoval - π.size());
           } finally {
             debug("vg[%s]:%s:%s:%s", ii, π.size(), ts.content().size(), (System.currentTimeMillis() - beforeVg_i));
             if (π.size() < 16) {
@@ -288,7 +285,7 @@ public class Florence extends Joiner.Base {
       return uniqueTuplesFunction.apply(tuples).apply(factorNames);
     }
 
-    Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets, long max) {
+    Object chooseLevelThatCoversMostTuplesIn(Tuple τ, String f, TupleSet π, SchemafulTupleSet rhs, List<String> involvedFactors, List<List<String>> factorNameSets, Hg hg) {
       assert !τ.containsKey(f);
       Tuple q = project(
           τ,
@@ -299,7 +296,7 @@ public class Florence extends Joiner.Base {
               .filter(q::isSubtupleOf)
               .map(tuple -> project(tuple, singletonList(f)))
               .distinct(),
-          max,
+          hg.max(),
           (Tuple t) -> (long) numberOfTuplesInπCoveredBy(connect(τ, t), π, factorNameSets)
       ).map(
           chosenTuple -> chosenTuple.get(f)
@@ -326,7 +323,7 @@ public class Florence extends Joiner.Base {
           );
     }
 
-    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> involvedFactors, long max) {
+    Tuple chooseBestCombination(TupleSet π, SchemafulTupleSet lhs, SchemafulTupleSet rhs, List<String> involvedFactors, Vg vg) {
       class Entry {
         private final Tuple    tuple;
         private final TupleSet candidates;
@@ -338,36 +335,99 @@ public class Florence extends Joiner.Base {
       }
       return Utils.max(
           lhs.stream().map(
-              tuple -> new Entry(tuple, simplify(rhs, involvedFactors))
+              tuple -> new Entry(tuple, simplify(rhs, involvedFactors, vg.usedRhsFor(tuple)))
           ),
-          max,
-          o -> (long) countCompatibleTuples(o.tuple, π)
+          vg.maxCompatibleTuples,
+          (Entry e) -> (long) countCompatibleTuples(e.tuple, π)
+      ).filter(
+          (Entry e) -> {
+            vg.updateMaxCompatibleTuples(countCompatibleTuples(e.tuple, π));
+            return true;
+          }
       ).map(
           entry -> Utils.max(
               entry.candidates.stream(),
-              max,
-              t -> (long) countTuplesCoveredBy(connect(t, entry.tuple), π)
+              vg.maxFor(entry.tuple),
+              t -> (long) countTuplesCoveredBy(connect(entry.tuple, t), π)
           ).map(
               chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates)
           ).orElseGet(() -> {
-            // workaround compilation error on intellij ultimate/macosx
             throw new RuntimeException();
           })
       ).orElseGet(() -> {
-        // workaround compilation error on intellij ultimate/macosx
         throw new RuntimeException();
       });
     }
 
-    private TupleSet simplify(SchemafulTupleSet in, List<String> involvedFactors) {
+    static class Hg {
+      long                       max         = Long.MAX_VALUE;
+      Map<List<Object>, Integer> alreadyUsed = new HashMap<>();
+
+      int howManyTimesAlreadyUsed(Object[] levels) {
+        return alreadyUsed.getOrDefault(requireNonNull(asList(levels)), 0);
+      }
+
+      int howManyTimesAlreadyUsed(Tuple tuple, String[] F) {
+        return howManyTimesAlreadyUsed(Arrays.stream(F).map(tuple::get).toArray());
+      }
+
+      void add(Object[] levels) {
+        this.alreadyUsed.put(asList(levels), howManyTimesAlreadyUsed(levels) + 1);
+      }
+
+      long max() {
+        return this.max;
+      }
+
+      void max(long max) {
+//        assert this.max >= max;
+        this.max = max;
+      }
+    }
+
+    static class Vg {
+      private long                   maxCompatibleTuples = Long.MAX_VALUE;
+      private Map<Tuple, Long>       maxForTuple         = new HashMap<>();
+      private Map<Tuple, Set<Tuple>> usedRhs             = new HashMap<>();
+
+      long maxFor(Tuple tuple) {
+        return maxForTuple.getOrDefault(tuple, Long.MAX_VALUE);
+      }
+
+      void updateMaxFor(Tuple lhs, Tuple rhs, long value) {
+        assert maxFor(lhs) >= value;
+        this.maxForTuple.put(lhs, value);
+        this.usedRhs.put(
+            lhs,
+            new HashSet<Tuple>() {{
+              addAll(usedRhsFor(lhs));
+              add(rhs);
+            }}
+        );
+      }
+
+      Set<Tuple> usedRhsFor(Tuple tuple) {
+        return Collections.unmodifiableSet(usedRhs.getOrDefault(tuple, Collections.emptySet()));
+      }
+
+      void updateMaxCompatibleTuples(long maxCompatibleTuples) {
+        assert this.maxCompatibleTuples >= maxCompatibleTuples;
+        this.maxCompatibleTuples = maxCompatibleTuples;
+      }
+    }
+
+    private TupleSet simplify(SchemafulTupleSet in, List<String> involvedFactors, Set<Tuple> exclude) {
       return new TupleSet.Builder() {
         {
-          in.stream().map(tuple -> {
-            Tuple q = project(tuple, involvedFactors);
-            return in.index().find(q).size() == 1 ?
-                tuple :
-                q;
-          }).distinct().forEach(this::add);
+          in.stream()
+              .map(tuple -> {
+                Tuple q = project(tuple, involvedFactors);
+                return in.index().find(q).size() == 1 ?
+                    tuple :
+                    q;
+              })
+              .filter(tuple -> !exclude.contains(tuple))
+              .distinct().forEach(this::add);
         }
       }.build();
     }
