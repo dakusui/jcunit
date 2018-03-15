@@ -333,6 +333,9 @@ public class Florence extends Joiner.Base {
           this.candidates = candidates;
         }
       }
+      Function<Tuple, Integer> countTuplesCoveredBy = memoize(
+          tuple -> countTuplesCoveredBy(tuple, π)
+      );
       return Utils.max(
           lhs.stream().map(
               tuple -> new Entry(tuple, simplify(rhs, involvedFactors, vg.usedRhsFor(tuple)))
@@ -348,7 +351,11 @@ public class Florence extends Joiner.Base {
           entry -> Utils.max(
               entry.candidates.stream(),
               vg.maxFor(entry.tuple),
-              t -> (long) countTuplesCoveredBy(connect(entry.tuple, t), π)
+              t -> (long) countTuplesCoveredBy.apply(connect(entry.tuple, t))
+          ).filter(chosenFromCandidates -> {
+                vg.updateMaxFor(entry.tuple, chosenFromCandidates, countTuplesCoveredBy.apply(connect(entry.tuple, chosenFromCandidates)));
+                return true;
+              }
           ).map(
               chosenFromCandidates -> connect(entry.tuple, chosenFromCandidates)
           ).orElseGet(() -> {
@@ -380,7 +387,7 @@ public class Florence extends Joiner.Base {
       }
 
       void max(long max) {
-//        assert this.max >= max;
+        assert this.max >= max;
         this.max = max;
       }
     }

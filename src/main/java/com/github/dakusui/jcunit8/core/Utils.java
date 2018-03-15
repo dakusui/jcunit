@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit8.core;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.junit.runners.Parameterized;
@@ -14,10 +13,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.function.LongPredicate;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
@@ -237,18 +233,18 @@ public enum Utils {
   }
 
   private static <T> Optional<T> find(Stream<T> in, long boundary, Function<T, Long> f, LongPredicate p) {
-    AtomicReference<T> foundMax = new AtomicReference<>();
+    AtomicReference<T> found = new AtomicReference<>();
     Optional<T> v = in.peek(Objects::requireNonNull)
         .peek(t -> {
-          T cur = foundMax.get();
+          T cur = found.get();
           if (cur == null || p.test(f.apply(cur) - f.apply(t)))
-            foundMax.set(t);
+            found.set(t);
         })
         .filter(t -> p.test(boundary - f.apply(t)))
         .findFirst();
     return v.isPresent() ?
         v :
-        Optional.ofNullable(foundMax.get());
+        Optional.ofNullable(found.get());
   }
 
   public static <T> Set<T> intersection(Set<T> a, Set<T> b) {

@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -100,7 +101,6 @@ public class Lucas extends Florence {
         while (!π.isEmpty()) {
           long beforeVg_i = System.currentTimeMillis();
           try {
-            int sizeOfπBeforeRemoval = π.size();
             Tuple n = session.chooseBestCombination(
                 π,
                 lhs,
@@ -112,11 +112,6 @@ public class Lucas extends Florence {
                 lhs.getAttributeNames(), alreadyProcessedFactors, F, Arrays.stream(F).map(n::get).toArray(), t, n
             ));
             ts.add(n);
-            vg.updateMaxFor(
-                project(n, lhs.getAttributeNames()),
-                project(n, rhs.getAttributeNames()),
-                sizeOfπBeforeRemoval - π.size()
-            );
           } finally {
             debug("vg[%s]:%s:%s:%s", ii, π.size(), ts.content().size(), (System.currentTimeMillis() - beforeVg_i));
             if (π.size() < 10) {
@@ -144,6 +139,14 @@ public class Lucas extends Florence {
   }
 
   public static class Session extends Florence.Session {
+    private final Function<List<String>, Function<List<String>, Function<List<String>, Function<Integer, List<List<String>>>>>>
+        listFactorNameLists_ = memoize(
+        lhsFactorNames -> memoize(
+            rhsFactorNames -> memoize(
+                cur -> memoize(
+                    t -> listFactorNameLists_(lhsFactorNames, rhsFactorNames, cur, t)
+                ))));
+
     TupleSet allPossibleUniqueTuplesOfStrength(
         SchemafulTupleSet lhs,
         SchemafulTupleSet rhs,
@@ -171,8 +174,16 @@ public class Lucas extends Florence {
       }
     }
 
-    @SuppressWarnings("unchecked")
     Stream<List<String>> streamFactorNameLists(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
+      return listFactorNameLists_.apply(lhsFactorNames).apply(rhsFactorNames).apply(cur).apply(t).stream();
+    }
+
+    List<List<String>> listFactorNameLists_(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
+      return streamFactorNameLists_(lhsFactorNames, rhsFactorNames, cur, t).collect(toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    Stream<List<String>> streamFactorNameLists_(List<String> lhsFactorNames, List<String> rhsFactorNames, List<String> cur, int t) {
       // min(lhs.size, t - 1) >= #(from lhs)              >= 1
       // min(rhs.size, t - 1) >= #(from rhs (processed))  >= 0
       // min(F.length, t - 1)>= #(from F[] (new))        >= 1
