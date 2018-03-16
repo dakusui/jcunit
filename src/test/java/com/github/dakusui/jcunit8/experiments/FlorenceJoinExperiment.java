@@ -58,7 +58,7 @@ public class FlorenceJoinExperiment {
     @BeforeClass
     public static void warmup() {
       if (!StandardJoiner.isDebugEnabled()) {
-        runJoin("(warmup)", 2, 10, 10, JoinSession::florence, false);
+        runJoin("(warmup)", 2, 10, 10, JoinSession::florence, true);
       }
     }
 
@@ -117,13 +117,12 @@ public class FlorenceJoinExperiment {
     abstract int doi();
   }
 
-  static void runJoin(String testName, int doi, int lhsNumFactors, int rhsNumFactors, Function<Requirement, Joiner> joinerFactory, boolean warmUp) {
+  static void runJoin(String testName, int doi, int lhsNumFactors, int rhsNumFactors, Function<Requirement, Joiner> joinerFactory, boolean fullCheck) {
     SchemafulTupleSet lhs = JoinDataSet.load(doi, lhsNumFactors);
     SchemafulTupleSet rhs = JoinDataSet.load(doi, rhsNumFactors, integer -> String.format("r%03d", integer));
-    JoinSession session = new JoinSession.Builder(doi).with(joinerFactory).lhs(lhs).rhs(rhs).build();
+    JoinSession session = new JoinSession.Builder(doi).with(joinerFactory).lhs(lhs).rhs(rhs).fullCheck(fullCheck).build();
     session.execute();
     session.verify();
-    checkCoverage(session.result, doi, Long.MAX_VALUE);
     System.out.printf("%s: size=%d; width=%d; time=%s[msec]; %s (input=lhs=%s; rhs=%s)%n",
         testName, session.result.size(), session.result.width(),
         session.time(), session.result.getAttributeNames().size(),
@@ -131,11 +130,5 @@ public class FlorenceJoinExperiment {
         rhs.size()
     );
   }
-
-  static void checkCoverage(SchemafulTupleSet result, int doi, long num) {
-
-  }
-
-
 }
 

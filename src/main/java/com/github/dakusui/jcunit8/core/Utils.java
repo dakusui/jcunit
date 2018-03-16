@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.core;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.junit.runners.Parameterized;
@@ -13,12 +14,16 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.*;
+import java.util.function.Function;
+import java.util.function.LongPredicate;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
 import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -173,6 +178,48 @@ public enum Utils {
       T[] arr = (T[]) s.toArray();
       return () -> Arrays.stream(arr);
     }).collect(toList()));
+  }
+
+  public static List<List<Tuple>> group(List<Tuple> in, int leniency) {
+    return in.isEmpty() ?
+        emptyList() :
+        new LinkedList<List<Tuple>>() {{
+          group(this, in.get(0), in.subList(1, in.size()), leniency);
+        }};
+  }
+
+  private static void group(List<List<Tuple>> ret, Tuple first, List<Tuple> in, int leniency) {
+    requireNonNull(first);
+    List<List<Tuple>> work = group_(first, in, leniency);
+    assert work.size() == 1 || work.size() == 2;
+    ret.add(work.get(0));
+    if (work.size() == 2) {
+      List<Tuple> cdr = work.get(1);
+      assert !cdr.isEmpty();
+      group(ret, cdr.get(0), cdr.subList(1, cdr.size()), leniency);
+    }
+  }
+
+  /**
+   */
+  private static List<List<Tuple>> group_(Tuple first, List<Tuple> in, int leniency) {
+    if (in.isEmpty())
+      return singletonList(singletonList(first));
+    List<List<Tuple>> ret = new ArrayList<List<Tuple>>() {{
+      add(new LinkedList<Tuple>() {{
+        add(first);
+      }});
+      add(new LinkedList<>());
+    }};
+    in.forEach(tuple -> ret.get(areInSameGroup(first, tuple, leniency) ? 0 : 1).add(tuple));
+    return ret.get(1).isEmpty() ?
+        singletonList(ret.get(0)) :
+        ret;
+  }
+
+  static boolean areInSameGroup(Tuple a, Tuple b, int leniency) {
+    assert a.keySet().equals(b.keySet());
+    return a.keySet().stream().filter(key -> Objects.equals(a.get(key), b.get(key))).count() >= leniency;
   }
 
   public static <T> Stream<List<T>> cartesian(List<Supplier<Stream<T>>> streams) {

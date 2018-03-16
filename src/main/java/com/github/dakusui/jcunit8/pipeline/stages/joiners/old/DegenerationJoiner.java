@@ -36,7 +36,6 @@ public class DegenerationJoiner extends Joiner.Base {
   private Set<Tuple> limitedJoin(SchemafulTupleSet lhs, int lhsStrength, SchemafulTupleSet rhs, int rhsStrength) {
     TupleSet tuplesToBeCovered = lhs.subtuplesOf(lhsStrength).cartesianProduct(rhs.subtuplesOf(rhsStrength));
 
-
     assert tuplesToBeCovered.isEmpty();
     return null;
   }
@@ -69,7 +68,7 @@ public class DegenerationJoiner extends Joiner.Base {
         }
       }
       return tuplesToBeCovered.isEmpty() ?
-          Optional.of(builder.build()) :
+          Optional.of(builder.build().toSet()) :
           Optional.empty();
     }
 

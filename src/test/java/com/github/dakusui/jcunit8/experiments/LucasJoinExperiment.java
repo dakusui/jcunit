@@ -129,7 +129,7 @@ public class LucasJoinExperiment {
 
     @Test
     public void joinLhs010() {
-      runJoin(testName.getMethodName(), doi(), 10, rhsWidth(), joinerFactory(), false);
+      runJoin(testName.getMethodName(), doi(), 10, rhsWidth(), joinerFactory(), true);
     }
 
     @Test

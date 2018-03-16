@@ -74,7 +74,7 @@ public class StandardJoiner extends Joiner.Base {
                   Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
                   int numCovered = sizeOfIntersection(
                       connectingSubtuples,
-                      remainingTuplesToBeCovered
+                      remainingTuplesToBeCovered.toSet()
                   );
                   if (numCovered > most) {
                     most = numCovered;
@@ -108,7 +108,7 @@ public class StandardJoiner extends Joiner.Base {
           Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(tuple).apply(rhsTuple);
           int numCovered = sizeOfIntersection(
               connectingSubtuples,
-              remainingTuplesToBeCovered
+              remainingTuplesToBeCovered.toSet()
           );
           if (numCovered > most) {
             most = numCovered;
@@ -197,7 +197,7 @@ public class StandardJoiner extends Joiner.Base {
       if (i > rhs.getAttributeNames().size())
         break;
       TupleSet rhsTupleSet = rhs.subtuplesOf(i);
-      builder.addAll(lhsTupleSet.cartesianProduct(rhsTupleSet));
+      builder.addAll(lhsTupleSet.cartesianProduct(rhsTupleSet).toUnmodifiableCollection());
     }
     return builder.build();
   }

@@ -12,12 +12,16 @@ import com.github.dakusui.jcunit8.pipeline.stages.joiners.StandardJoiner;
 import com.github.dakusui.jcunit8.pipeline.stages.joiners.old.IncrementalJoiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static java.util.stream.Collectors.toList;
 
 class JoinSession {
@@ -26,16 +30,21 @@ class JoinSession {
   private final int                           strength;
   private final Function<Requirement, Joiner> joinerFactory;
   SchemafulTupleSet result;
-  boolean executed  = false;
-  boolean succeeded = false;
-  private long after;
-  private long before;
+  private boolean executed  = false;
+  private       long    after;
+  private       long    before;
+  private final boolean fullCheck;
+  private final Function<SchemafulTupleSet, Function<Set<String>, SchemafulTupleSet.Index>> project = memoize(
+      tuples -> memoize(
+          factors -> project_(tuples, factors)
+      ));
 
-  JoinSession(int strength, Function<Requirement, Joiner> joinerFactory, SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
+  JoinSession(int strength, Function<Requirement, Joiner> joinerFactory, SchemafulTupleSet lhs, SchemafulTupleSet rhs, boolean fullCheck) {
     this.strength = strength;
     this.lhs = checknotnull(lhs);
     this.rhs = checknotnull(rhs);
     this.joinerFactory = checknotnull(joinerFactory);
+    this.fullCheck = fullCheck;
   }
 
   void execute() {
@@ -44,7 +53,6 @@ class JoinSession {
       this.before = System.currentTimeMillis();
       this.result = CAgenerationUnderConstraints.join(strength, joinerFactory, lhs, rhs);
       this.after = System.currentTimeMillis();
-      this.succeeded = true;
     } finally {
       this.executed = true;
     }
@@ -89,29 +97,53 @@ class JoinSession {
     assert result.size() >= rhs.size();
     assert result.size() >= lhs.size();
     assert result.size() == result.stream().distinct().collect(toList()).size();
+    int missingTuplesTrigger = 100;
+    if (fullCheck)
+      verifyCoverage(missingTuplesTrigger);
   }
 
-  void verifyCoverage() {
+  private void verifyCoverage(int trigger) {
+    Florence.debug("Verifying...");
+    List<Tuple> missingTuples = new LinkedList<Tuple>() {
+      @Override
+      public boolean add(Tuple entry) {
+        boolean ret = super.add(entry);
+        if (size() > trigger)
+          throw new RuntimeException("Too many missing tuples!");
+        return ret;
+      }
+    };
+    verifyCoverage(missingTuples::add);
+    if (!missingTuples.isEmpty()) {
+      missingTuples.forEach(System.err::println);
+      throw new RuntimeException("Missing tuples are found!");
+    }
+    Florence.debug("Verification finished successfully");
+  }
+
+  private void verifyCoverage(Consumer<Tuple> missingTupleHandler) {
     IntStream.range(0, this.strength).boxed().flatMap(
         i -> Utils.combinations(lhs.getAttributeNames(), i).flatMap(
             factorsFromLhs -> lhs.project(factorsFromLhs).stream().flatMap(
                 tupleFromLhs -> Utils.combinations(rhs.getAttributeNames(), strength - i).flatMap(
-                    factorsFromRhs -> rhs.project(factorsFromLhs).stream().map(
+                    factorsFromRhs -> rhs.project(factorsFromRhs).stream().map(
                         tupleFromRhs -> TupleUtils.connect(tupleFromLhs, tupleFromRhs)
                     ))))
     ).filter(
-        new Predicate<Tuple>() {
-          @Override
-          public boolean test(Tuple tuple) {
-            return isCoveredBy(tuple, result);
-          }
-        }
-    ).forEach(System.out::println);
+        tuple -> !isCoveredBy(tuple, result)
+    ).forEach(missingTupleHandler);
   }
 
   private boolean isCoveredBy(Tuple tuple, SchemafulTupleSet tuples) {
-    //TODO
-    return false;
+    return !project(tuples, tuple.keySet()).find(tuple).isEmpty();
+  }
+
+  private SchemafulTupleSet.Index project(SchemafulTupleSet tuples, Set<String> factors) {
+    return project.apply(tuples).apply(factors);
+  }
+
+  private SchemafulTupleSet.Index project_(SchemafulTupleSet tuples, Set<String> factors) {
+    return tuples.project(new ArrayList<>(factors)).index();
   }
 
   private static List<Tuple> notUsedTuplesIn(SchemafulTupleSet
@@ -126,6 +158,7 @@ class JoinSession {
     private       SchemafulTupleSet             lhs;
     private       SchemafulTupleSet             rhs;
     private       Function<Requirement, Joiner> joinerFactory;
+    private       boolean                       fullCheck;
 
     Builder(int strength) {
       this.strength = strength;
@@ -146,8 +179,13 @@ class JoinSession {
       return this;
     }
 
+    public Builder fullCheck(boolean fullCheck) {
+      this.fullCheck = fullCheck;
+      return this;
+    }
+
     JoinSession build() {
-      return new JoinSession(this.strength, joinerFactory, lhs, rhs);
+      return new JoinSession(this.strength, joinerFactory, lhs, rhs, fullCheck);
     }
   }
 }

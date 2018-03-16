@@ -1,10 +1,13 @@
 package com.github.dakusui.jcunit8.tests.components.utils;
 
 import com.github.dakusui.jcunit8.core.Utils;
+import com.github.dakusui.jcunit8.experiments.JoinDataSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.*;
@@ -145,6 +148,7 @@ public class UtilsTest {
         )
     );
   }
+
   @SuppressWarnings("unchecked")
   @Test
   public void cartesian5() {
@@ -158,5 +162,20 @@ public class UtilsTest {
             asObject("get", 1).equalTo(singletonList("world")).$()
         )
     );
+  }
+
+  @Test
+  public void group3() {
+    SchemafulTupleSet data = JoinDataSet.load(3, 10);
+    System.out.println(data.size());
+    AtomicInteger sum = new AtomicInteger(0);
+    Utils.group(data, 6).forEach(
+        tuples -> {
+          System.out.println("group:size=" + tuples.size());
+          sum.getAndAdd(tuples.size());
+          tuples.forEach(tuple -> System.out.println("  " + tuple));
+        }
+    );
+    assertEquals(data.size(), sum.get());
   }
 }

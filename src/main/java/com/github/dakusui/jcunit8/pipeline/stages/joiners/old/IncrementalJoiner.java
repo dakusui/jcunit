@@ -251,7 +251,7 @@ public class IncrementalJoiner extends Joiner.Base {
                 Set<Tuple> connectingSubtuples = this.connectingSubtuplesOf.apply(requirement.strength()).apply(lhsTuple).apply(rhsTuple);
                 int numCovered = sizeOfIntersection(
                     connectingSubtuples,
-                    remainingTuplesToBeCovered
+                    remainingTuplesToBeCovered.toSet()
                 );
                 if (numCovered > most) {
                   most = numCovered;

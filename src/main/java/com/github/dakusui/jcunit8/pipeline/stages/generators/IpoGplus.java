@@ -183,7 +183,7 @@ public class IpoGplus extends Generator.Base {
        * 11.    // vertical extension for parameter P i
        * 12.    for (each combination σ in set π ) {
        */
-      for (Tuple σ : new LinkedList<>(π)) {
+      for (Tuple σ : π) {
         /* 13.      if (there exists a test that already covers σ ) {
          * 14.          remove σ from π
          * 15.      } else {

@@ -43,7 +43,7 @@ public interface JoinDataSet {
             )
         );
         assert url != null;
-        BufferedReader br = null;
+        BufferedReader br;
         try {
           br = new BufferedReader(new InputStreamReader(url.openStream()));
           String line;

@@ -33,7 +33,7 @@ public interface Degenerator {
       @Override
       public SchemafulTupleSet degenerate(SchemafulTupleSet in, int doi) {
         TupleSet allPossibleTuples = allPossibleTuples(in, doi);
-        Set<Tuple> remainingTuples = new LinkedHashSet<>(allPossibleTuples);
+        Set<Tuple> remainingTuples = allPossibleTuples.toSet();
         Set<Tuple> remainingCandidate = in.stream().collect(toLinkedHashSet());
         SchemafulTupleSet.Builder b = new SchemafulTupleSet.Builder(in.getAttributeNames());
         long removedLastTime = -1;

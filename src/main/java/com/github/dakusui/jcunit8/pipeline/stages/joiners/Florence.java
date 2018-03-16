@@ -87,6 +87,7 @@ public class Florence extends Joiner.Base {
     Set<Tuple> used = new LinkedHashSet<>();
     TupleSet.Builder ts = new TupleSet.Builder().addAll(lhs);
     for (int i = 0; i < rhs.width(); i++) {
+      long beforePreparation = System.currentTimeMillis();
       String F = rhs.getAttributeNames().get(i);
       TupleSet π = session.allPossibleUniqueTuplesOfStrength(
           lhs,
@@ -99,6 +100,7 @@ public class Florence extends Joiner.Base {
       final List<List<String>> tWayFactorNameSets = session
           .streamFactorNameSets(lhs.getAttributeNames(), alreadyProcessedFactors, F, t)
           .collect(toList());
+      debug("preparation:π.size=%s,ts.size=%s:%s[msec]", π.size(), ts.content().size(), System.currentTimeMillis() - beforePreparation);
       ////
       // hg
       long beforeHg = System.currentTimeMillis();
@@ -139,8 +141,8 @@ public class Florence extends Joiner.Base {
           ts.add(newTuple);
         }
       } finally {
-        debug("hg:" + π.size() + "<-" + sizeOfπBeforeHg + ":" + ts.content().size() + ":" + (System
-            .currentTimeMillis() - beforeHg));
+        debug("hg:π.size=%s,ts.size=%s:%s[msec]",
+            π.size(), ts.content().size(), (System.currentTimeMillis() - beforeHg));
       }
       ////
       // vg
@@ -167,9 +169,6 @@ public class Florence extends Joiner.Base {
                 project(n, lhs.getAttributeNames()), project(n, rhs.getAttributeNames()), sizeOfπBeforeRemoval - π.size());
           } finally {
             debug("vg[%s]:%s:%s:%s", ii, π.size(), ts.content().size(), (System.currentTimeMillis() - beforeVg_i));
-            if (π.size() < 16) {
-              debug("π=%s", π);
-            }
             ii++;
           }
         }
@@ -215,16 +214,20 @@ public class Florence extends Joiner.Base {
   }
 
   static class Session {
-    private final Function<SchemafulTupleSet, Function<List<String>, TupleSet>> uniqueTuplesFunction   = memoize(
+    private final Function<SchemafulTupleSet, Function<List<String>, TupleSet>>          uniqueTuplesFunction     = memoize(
         (SchemafulTupleSet tuples) -> memoize(
             (List<String> factorNames) -> _uniqueTuples(tuples, factorNames)
         ));
-    private final Function<Tuple, Function<Tuple, Tuple>>                       connect                = memoize(
+    private final Function<Tuple, Function<Tuple, Tuple>>                                connect                  = memoize(
         (Tuple t) -> memoize((Tuple u) -> _connect(t, u)
         ));
-    private final Function<SchemafulTupleSet, Function<Integer, TupleSet>>      uniqueTuplesOfStrength = memoize(
+    private final Function<SchemafulTupleSet, Function<Integer, TupleSet>>               uniqueTuplesOfStrength   = memoize(
         (SchemafulTupleSet tuples) -> memoize(
             (Integer strength) -> _uniqueTuplesOfStrength(tuples, strength)
+        ));
+    private final Function<SchemafulTupleSet, Function<List<String>, SchemafulTupleSet>> projectSchemafulTupleSet = memoize(
+        tuples -> memoize(
+            tuples::lenientProject
         ));
 
     TupleSet allPossibleUniqueTuplesOfStrength(
@@ -264,7 +267,7 @@ public class Florence extends Joiner.Base {
                 ).build()
             )
         ).reduce(
-            (TupleSet t, TupleSet u) -> new TupleSet.Builder().addAll(t).addAll(u).build()
+            (TupleSet t, TupleSet u) -> new TupleSet.Builder().addAll(t.toUnmodifiableCollection()).addAll(u.toUnmodifiableCollection()).build()
         ).orElseThrow(
             AssertionError::new
         );
@@ -336,9 +339,10 @@ public class Florence extends Joiner.Base {
       Function<Tuple, Integer> countTuplesCoveredBy = memoize(
           tuple -> countTuplesCoveredBy(tuple, π)
       );
+      SchemafulTupleSet rhsProjected = projectSchemafulTupleSet(rhs, involvedFactors);
       return Utils.max(
           lhs.stream().map(
-              tuple -> new Entry(tuple, simplify(rhs, involvedFactors, vg.usedRhsFor(tuple)))
+              tuple -> new Entry(tuple, prune(rhsProjected, vg.usedRhsFor(tuple)))
           ),
           vg.maxCompatibleTuples,
           (Entry e) -> (long) countCompatibleTuples(e.tuple, π)
@@ -364,6 +368,13 @@ public class Florence extends Joiner.Base {
       ).orElseGet(() -> {
         throw new RuntimeException();
       });
+    }
+
+    private TupleSet prune(SchemafulTupleSet rhsProjected, Set<Tuple> exclude) {
+      return new TupleSet.Builder(
+      ).addAll(
+          rhsProjected.stream().filter(tuple -> !exclude.contains(tuple)).collect(toList())
+      ).build();
     }
 
     static class Hg {
@@ -423,20 +434,8 @@ public class Florence extends Joiner.Base {
       }
     }
 
-    private TupleSet simplify(SchemafulTupleSet in, List<String> involvedFactors, Set<Tuple> exclude) {
-      return new TupleSet.Builder() {
-        {
-          in.stream()
-              .map(tuple -> {
-                Tuple q = project(tuple, involvedFactors);
-                return in.index().find(q).size() == 1 ?
-                    tuple :
-                    q;
-              })
-              .filter(tuple -> !exclude.contains(tuple))
-              .distinct().forEach(this::add);
-        }
-      }.build();
+    SchemafulTupleSet projectSchemafulTupleSet(SchemafulTupleSet tuples, List<String> factorNames) {
+      return projectSchemafulTupleSet.apply(tuples).apply(factorNames);
     }
 
     Tuple connect(Tuple t, Tuple u) {
@@ -512,8 +511,8 @@ public class Florence extends Joiner.Base {
     }
   }
 
-  static void debug(String s, Object... args) {
+  public static void debug(String s, Object... args) {
     if (StandardJoiner.isDebugEnabled())
-      System.out.println(String.format(s, args));
+      System.out.println(String.format("[%-8s] %s", Thread.currentThread().getName(), String.format(s, args)));
   }
 }
