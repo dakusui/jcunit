@@ -1,7 +1,9 @@
 package com.github.dakusui.jcunit8.experiments;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.joiners.Florence;
@@ -12,6 +14,8 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
 import static java.util.stream.Collectors.toList;
@@ -87,7 +91,31 @@ class JoinSession {
     assert result.size() == result.stream().distinct().collect(toList()).size();
   }
 
-  private static List<Tuple> notUsedTuplesIn(SchemafulTupleSet input, SchemafulTupleSet result) {
+  void verifyCoverage() {
+    IntStream.range(0, this.strength).boxed().flatMap(
+        i -> Utils.combinations(lhs.getAttributeNames(), i).flatMap(
+            factorsFromLhs -> lhs.project(factorsFromLhs).stream().flatMap(
+                tupleFromLhs -> Utils.combinations(rhs.getAttributeNames(), strength - i).flatMap(
+                    factorsFromRhs -> rhs.project(factorsFromLhs).stream().map(
+                        tupleFromRhs -> TupleUtils.connect(tupleFromLhs, tupleFromRhs)
+                    ))))
+    ).filter(
+        new Predicate<Tuple>() {
+          @Override
+          public boolean test(Tuple tuple) {
+            return isCoveredBy(tuple, result);
+          }
+        }
+    ).forEach(System.out::println);
+  }
+
+  private boolean isCoveredBy(Tuple tuple, SchemafulTupleSet tuples) {
+    //TODO
+    return false;
+  }
+
+  private static List<Tuple> notUsedTuplesIn(SchemafulTupleSet
+      input, SchemafulTupleSet result) {
     return input.stream().filter(
         eachFromInput -> !result.project(input.getAttributeNames()).contains(eachFromInput)
     ).collect(toList());
