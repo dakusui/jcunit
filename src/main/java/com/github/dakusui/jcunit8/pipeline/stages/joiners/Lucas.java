@@ -23,11 +23,11 @@ import static java.util.stream.IntStream.range;
 
 @SuppressWarnings("NonAsciiCharacters")
 public class Lucas extends Florence {
-  private final int delta;
+  private final int initialDelta;
 
   public Lucas(Requirement requirement) {
     super(requirement);
-    delta = requirement.strength() + 1;
+    initialDelta = requirement.strength() * 2;
   }
 
   @Override
@@ -38,6 +38,7 @@ public class Lucas extends Florence {
     List<String> alreadyProcessedFactors = new LinkedList<>();
     Set<Tuple> used = new LinkedHashSet<>();
     TupleSet.Builder ts = new TupleSet.Builder().addAll(lhs);
+    int delta = initialDelta;
     for (int i = 0; i < rhs.width(); i += delta) {
       debug("preparation:(begin)");
       long beforePreparation = currentTimeMillis();
@@ -125,6 +126,7 @@ public class Lucas extends Florence {
         debug("vg:π.size=%s,ts.size=%s:%s[msec]", π.size(), ts.content().size(), currentTimeMillis() - beforeVg);
       }
       alreadyProcessedFactors = involvedFactors;
+      //delta = 2;
     }
     return new SchemafulTupleSet.Builder(
         new ArrayList<String>() {{
@@ -145,13 +147,17 @@ public class Lucas extends Florence {
 
   private void updateBuilderAndMarkUsedIfUnique(Tuple.Builder b, Set<Tuple> used, List<Tuple> candidates) {
     if (candidates.size() == 1) {
-      b.putAll(candidates.get(0));
-      used.add(candidates.get(0));
+      Tuple it = candidates.get(0);
+      b.putAll(it);
+      if (!used.contains(it))
+        used.add(candidates.get(0));
     } else {
       List<Tuple> notUsedCandidates = (candidates.stream().filter(tuple -> !used.contains(tuple)).collect(toList()));
       if (notUsedCandidates.size() == 1) {
-        b.putAll(notUsedCandidates.get(0));
-        used.add(notUsedCandidates.get(0));
+        Tuple it = notUsedCandidates.get(0);
+        b.putAll(it);
+        if (!used.contains(it))
+          used.add(it);
       }
     }
   }
