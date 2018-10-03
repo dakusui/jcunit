@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.usecases.lifecycle;
 
-import com.github.dakusui.crest.core.Printable;
+import com.github.dakusui.crest.utils.printable.Printable;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
