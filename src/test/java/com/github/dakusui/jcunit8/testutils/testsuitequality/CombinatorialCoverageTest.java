@@ -13,7 +13,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.crest.functions.CrestPredicates.isEmpty;
+import static com.github.dakusui.faultsource.printable.Predicates.isEmpty;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.*;
 import static java.util.stream.Collectors.toList;
 
