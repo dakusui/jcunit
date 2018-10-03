@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
-import com.github.dakusui.faultsource.printable.Functions;
+import com.github.dakusui.crest.utils.printable.Functions;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,9 +9,7 @@ import org.junit.runner.JUnitCore;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
 
 /*
  * Seed feature test.

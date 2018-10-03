@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
-import com.github.dakusui.crest.core.Printable;
+import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
@@ -13,7 +13,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.faultsource.printable.Predicates.isEmpty;
+import static com.github.dakusui.crest.utils.printable.Predicates.isEmpty;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.*;
 import static java.util.stream.Collectors.toList;
 
