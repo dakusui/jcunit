@@ -418,7 +418,7 @@ and validation.
 
 * [JCUnit wiki](https://github.com/dakusui/jcunit/wiki)
 * [JCUnit blog; Japanese; 日本語](http://jcunit.hatenablog.jp/)
-* [Test Design as Code: JCUnit](http://ieeexplore.ieee.org/document/7928008/); A paper on this product; Presented at IEEE International Conference on Software Testing
+* [Test Design as Code: JCUnit](http://ieeexplore.ieee.org/document/7928008/); A paper on this product; Presented at IEEE International Conference on Software Testing 2017
 
 # Copyright and license #
 
