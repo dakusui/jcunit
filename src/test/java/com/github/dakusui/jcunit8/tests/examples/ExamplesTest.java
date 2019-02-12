@@ -97,7 +97,7 @@ public class ExamplesTest {
         JUnitCore.runClasses(ParameterHelperExample.class),
         allOf(
             asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(124).$()
+            asInteger("getRunCount").equalTo(107).$()
         )
     );
   }
