@@ -114,7 +114,7 @@ public interface Pipeline {
           .map(config.optimizer())
           .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
           .map(config.generator(parameterSpace, config.getRequirement()))
-          .reduce(config.<SchemafulTupleSet>joiner())
+          .reduce(config.joiner())
           .map(
               (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
                   tuples.stream()

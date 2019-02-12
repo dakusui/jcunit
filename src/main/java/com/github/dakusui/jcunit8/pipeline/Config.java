@@ -50,7 +50,7 @@ public interface Config {
       this.requirement = requirement;
       this.withGeneratorFactory(new Generator.Factory.Standard());
       this.withJoiner(new Joiner.Standard(requirement));
-      this.withPartitioner(new Partitioner.Standard());
+      this.withPartitioner(new Partitioner.Standard(requirement));
     }
 
     public Builder withGeneratorFactory(Generator.Factory generatorFactory) {
