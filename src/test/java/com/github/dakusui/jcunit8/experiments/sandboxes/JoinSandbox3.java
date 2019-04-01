@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.StopWatch;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
@@ -63,9 +64,9 @@ public class JoinSandbox3 {
     Future<List<Tuple>> ca3 = threadPool.submit(new CoveringArrayGenerator(spec3.build(), 2));
 
     return CoveringArrayGenerationUtils.join(
-        CoveringArrayGenerationUtils.join(ca1.get(), ca2.get(), 2),
+        CoveringArrayGenerationUtils.join(ca1.get(), ca2.get(), Joiner.Standard::new, 2),
         ca3.get(),
-        2
+        Joiner.Standard::new, 2
     );
   }
 }

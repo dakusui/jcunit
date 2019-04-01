@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.experiments;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ public enum JoinExperimentUtils {
         strength
     );
     reportBuilder = reportBuilder.timeMerged(stopWatch.get()).sizeMerged(merged.size());
-    List<Tuple> joined = join(lhs, rhs, strength);
+    List<Tuple> joined = join(lhs, rhs, Joiner.Standard::new, strength);
     reportBuilder = reportBuilder.timeJoining(stopWatch.get()).sizeJoining(joined.size());
 
     assertCoveringArray(lhs, lhsFactorSpace, strength);

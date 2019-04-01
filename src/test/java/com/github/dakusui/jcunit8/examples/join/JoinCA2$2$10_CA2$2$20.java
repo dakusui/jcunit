@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.examples.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Test;
 
@@ -13,8 +14,8 @@ import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArra
 public class JoinCA2$2$10_CA2$2$20 {
   private List<Tuple> lhs    = generateWithIpoGplus(new FactorSpaceSpec("LHS").addFactor(2, 10).build(), 2);
   private List<Tuple> rhs    = generateWithIpoGplus(new FactorSpaceSpec("RHS").addFactor(2, 20).build(), 2);
-  private List<Tuple> joined = join(lhs, rhs, 2);
-  private List<Tuple> joined2 = join(rhs, lhs, 2);
+  private List<Tuple> joined = join(lhs, rhs, Joiner.Standard::new, 2);
+  private List<Tuple> joined2 = join(rhs, lhs, Joiner.Standard::new, 2);
 
   @Test
   public void printLhs() {

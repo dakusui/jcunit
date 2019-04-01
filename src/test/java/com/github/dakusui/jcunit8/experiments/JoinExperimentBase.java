@@ -2,12 +2,15 @@ package com.github.dakusui.jcunit8.experiments;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.pipeline.Requirement;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.AfterClass;
 import org.junit.Before;
 
 import java.util.List;
+import java.util.function.Function;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.configureStdIOs;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
@@ -74,8 +77,13 @@ public abstract class JoinExperimentBase {
     return CoveringArrayGenerationUtils.join(
         lhs,
         rhs,
+        joinerFactory(),
         strength()
     );
+  }
+
+  protected Function<Requirement, Joiner> joinerFactory() {
+    return Joiner.Standard::new;
   }
 
   static class Report {

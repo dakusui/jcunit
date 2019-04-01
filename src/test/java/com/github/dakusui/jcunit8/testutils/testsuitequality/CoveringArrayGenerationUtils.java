@@ -6,7 +6,11 @@ import com.github.dakusui.crest.matcherbuilders.primitives.AsBoolean;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;
-import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.factorspace.Factor;
+import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -15,7 +19,11 @@ import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
@@ -89,10 +97,8 @@ public enum CoveringArrayGenerationUtils {
     ).generate();
   }
 
-  public static List<Tuple> join(List<Tuple> lhs, List<Tuple> rhs, int strength) {
-    return new Joiner.Standard(
-        new Requirement.Builder().withStrength(strength).build()
-    ).apply(
+  public static List<Tuple> join(List<Tuple> lhs, List<Tuple> rhs, Function<Requirement, Joiner> joinerFactory, int strength) {
+    return joinerFactory.apply(new Requirement.Builder().withStrength(strength).build()).apply(
         SchemafulTupleSet.fromTuples(lhs),
         SchemafulTupleSet.fromTuples(rhs)
     );
@@ -114,8 +120,8 @@ public enum CoveringArrayGenerationUtils {
   }
 
   /*
-     * Returns an example if any.
-     */
+   * Returns an example if any.
+   */
   public static Optional<Tuple> findAllowedSuperTupleFor(Tuple tuple, ParameterSpace parameterSpace) {
     List<String> allKeysUsedByConstraintsButNotInTuple = parameterSpace.getConstraints().stream(
     ).flatMap(

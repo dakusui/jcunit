@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.experiments.JoinExperimentUtils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import org.junit.Test;
 
 import java.util.List;
@@ -55,7 +56,7 @@ public class JoinSandbox1 {
     rhs.forEach(System.out::println);
 
     System.out.println("lhs x rhs");
-    List<Tuple> joined = join(lhs, rhs, 2);
+    List<Tuple> joined = join(lhs, rhs, Joiner.Standard::new, 2);
 
     joined.forEach(System.out::println);
     System.out.println(joined.size());
@@ -125,7 +126,7 @@ public class JoinSandbox1 {
     rhs.forEach(System.out::println);
 
     System.out.println("lhs x rhs");
-    List<Tuple> joined = join(lhs, rhs, 2);
+    List<Tuple> joined = join(lhs, rhs, Joiner.Standard::new, 2);
 
     joined.forEach(System.out::println);
     System.out.println(joined.size());
