@@ -46,19 +46,17 @@ public abstract class JoinExperimentBase {
 
   protected abstract FactorSpaceSpec lhsFactorSpaceSpec();
 
-  protected void exerciseJoin(FactorSpace rhsFactorSpace, int times) {
-    List<Tuple> rhs = generateWithIpoGplus(
-        rhsFactorSpace, strength()
-    );
+  protected void exerciseJoin(FactorSpace rhsFactorSpace, int times, List<Tuple> rhs) {
     // Do warm-up and validate generated covering array.
-    assertCoveringArray(
-        exerciseJoin(rhs),
-        CoveringArrayGenerationUtils.mergeFactorSpaces(
-            lhsFactorSpace,
-            rhsFactorSpace
-        ),
-        strength()
-    );
+    if (false)
+      assertCoveringArray(
+          exerciseJoin(rhs),
+          CoveringArrayGenerationUtils.mergeFactorSpaces(
+              lhsFactorSpace,
+              rhsFactorSpace
+          ),
+          strength()
+      );
     for (int i = 0; i < times; i++) {
       CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
       System.out.printf(

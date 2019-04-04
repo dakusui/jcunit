@@ -6,21 +6,12 @@ import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.connectingSubtuplesOf;
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.project;
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
+import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static com.github.dakusui.jcunit8.core.Utils.sizeOfIntersection;
@@ -219,9 +210,13 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       leftoverWorkForLhs.addAll(lhs);
       leftoverWorkForRhs.addAll(rhs);
       {
+        Function<Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>>, Function<SchemafulTupleSet, Function<Integer, SchemafulTupleSet>>> weakener
+            = memoize(tupletsFinder -> memoize(in -> memoize(strength -> weakenTo(in, strength, tupletsFinder))));
+        Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> tupletsFinder
+            = memoize(in -> memoize(strength -> tupletsCoveredBy(in, strength)));
         for (int i = 1; i < requirement().strength(); i++) {
-          SchemafulTupleSet weakenedLhs = weakenTo(lhs, i);
-          SchemafulTupleSet weakenedRhs = weakenTo(rhs, requirement().strength() - i);
+          SchemafulTupleSet weakenedLhs = weakener.apply(tupletsFinder).apply(lhs).apply(i);
+          SchemafulTupleSet weakenedRhs = weakener.apply(tupletsFinder).apply(rhs).apply(requirement().strength() - i);
           b.addAll(
               cartesianProduct(
                   weakenedLhs,
@@ -254,9 +249,9 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }
     }
 
-    private static SchemafulTupleSet weakenTo(SchemafulTupleSet in, int strength) {
+    private static SchemafulTupleSet weakenTo(SchemafulTupleSet in, int strength, Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> coveredTupletsFinder) {
       SchemafulTupleSet.Builder b = new SchemafulTupleSet.Builder(in.getAttributeNames());
-      Set<Tuple> tupletsToBeCovered = tupletsCoveredBy(in, strength);
+      Set<Tuple> tupletsToBeCovered = coveredTupletsFinder.apply(in).apply(strength);
       for (Tuple each : in) {
         int before = tupletsToBeCovered.size();
         tupletsToBeCovered.removeAll(subtuplesOf(each, strength));
