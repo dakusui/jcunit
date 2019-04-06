@@ -238,21 +238,26 @@ public enum CoveringArrayGenerationUtils {
   public static void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace, int strength) {
     //    System.out.println("== " + coveringArray.size() + " ==");
     //    coveringArray.forEach(System.out::println);
-
-    assertThat(
-        coveringArray,
-        asListOf(
-            Tuple.class,
-            Printable.function(
-                "coveredTuples",
-                (List<Tuple> ca) -> coveredTuples(strength, ca)
-            )
-        ).containsAll(
-            allPossibleTuplesInFactors(
-                strength,
-                factorSpace.getFactors())
-        ).$()
-    );
+    System.out.println("Verifying covering array: numFactors=" + factorSpace + ", strength=" + strength);
+    StopWatch stopWatch = new StopWatch();
+    try {
+      assertThat(
+          coveringArray,
+          asListOf(
+              Tuple.class,
+              Printable.function(
+                  "coveredTuples",
+                  (List<Tuple> ca) -> coveredTuples(strength, ca)
+              )
+          ).containsAll(
+              allPossibleTuplesInFactors(
+                  strength,
+                  factorSpace.getFactors())
+          ).$()
+      );
+    } finally {
+      System.out.println(stopWatch.get() + " [msec]");
+    }
   }
 
   public static class TestSuiteBuilder {

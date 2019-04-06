@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.experiments;
 
+import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Test;
 
@@ -9,80 +10,82 @@ public abstract class JoinExperimentRhs2_n extends JoinExperimentBase {
 
   @Test
   public void whenJoinWith2_10$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 10).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 10);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
-        ));
+        )
+    );
   }
 
   @Test
   public void whenJoinWith2_20$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 20).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 20);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
-        ));
+        )
+    );
   }
 
   @Test
   public void whenJoinWith2_30$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 30).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 30);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
         ));
   }
 
   @Test
   public void whenJoinWith2_40$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 40).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 40);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
         ));
   }
 
   @Test
   public void whenJoinWith2_50$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 50).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 50);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
         ));
   }
 
   @Test
   public void whenJoinWith2_60$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 60).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 60);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
         ));
   }
 
   @Test
   public void whenJoinWith2_70$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 70).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 70);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
         ));
   }
 
   @Test
   public void whenJoinWith2_80$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 80).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 80);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
         ));
   }
@@ -90,10 +93,10 @@ public abstract class JoinExperimentRhs2_n extends JoinExperimentBase {
 
   @Test
   public void whenJoinWith2_90$thenLetsSee() {
-    final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 90).build();
+    FactorSpaceSpec rSpec = factorSpeceSpec("R", 90);
+    final FactorSpace r = rSpec.build();
     exerciseJoin(
-        r,
-        10, generateWithIpoGplus(
+        10, rSpec, generateWithIpoGplus(
             r, strength()
         ));
   }

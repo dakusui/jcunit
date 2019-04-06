@@ -1,7 +1,9 @@
 package com.github.dakusui.jcunit8.experiments;
 
+import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -10,9 +12,11 @@ import org.junit.runner.RunWith;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 
 @RunWith(Enclosed.class)
 public class ExperimentsTest {
+
   public static class JoinExperimentTest extends JoinExperimentBase {
     @Override
     protected int strength() {
@@ -21,47 +25,35 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 5);
+      return factorSpeceSpec("L", 5);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 10).build();
-      exerciseJoin(
-          r,
-          10, generateWithIpoGplus(
-              r, strength()
-          ));
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 10);
+      final FactorSpace r = rSpec.build();
+      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_20$thenLetsSee() {
-      final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 20).build();
-      exerciseJoin(
-          r,
-          10, generateWithIpoGplus(
-              r, strength()
-          ));
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 20);
+      final FactorSpace r = rSpec.build();
+      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_30$thenLetsSee() {
-      final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 30).build();
-      exerciseJoin(
-          r,
-          10, generateWithIpoGplus(
-              r, strength()
-          ));
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 30);
+      final FactorSpace r = rSpec.build();
+      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_40$thenLetsSee() {
-      final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 40).build();
-      exerciseJoin(
-          r,
-          10, generateWithIpoGplus(
-              r, strength()
-          ));
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 40);
+      final FactorSpace r = rSpec.build();
+      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
   }
 
@@ -78,19 +70,22 @@ public class ExperimentsTest {
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 20).build();
+      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactor(2, 20);
+      final FactorSpace r = rSpec.build();
       exerciseJoin(
-          r,
-          10, generateWithIpoGplus(
-              r, strength()
-          ));
+          10,
+          rSpec,
+          loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
+              rSpec,
+              strength(),
+              CoveringArrayGenerationUtils::generateWithIpoGplus));
     }
   }
 
   public static class JoinExperimentWithStrength3UsingWeakenProductMethodTest extends JoinExperimentBase {
     @Override
     protected int strength() {
-      return 4;
+      return 3;
     }
 
     @Override
@@ -100,8 +95,13 @@ public class ExperimentsTest {
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      final com.github.dakusui.jcunit8.factorspace.FactorSpace r = new FactorSpaceSpec("R").addFactor(2, 20).build();
-      exerciseJoin(r, 10, generateWithIpoGplus(r, strength()));
+      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactor(2, 20);
+      exerciseJoin(10,
+          rSpec,
+          loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
+              rSpec,
+              strength(),
+              CoveringArrayGenerationUtils::generateWithIpoGplus));
     }
 
     @Override
