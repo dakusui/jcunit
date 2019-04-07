@@ -1,7 +1,8 @@
 package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.experiments.JoinExperimentUtils;
+import com.github.dakusui.jcunit8.experiments.compat.CompatJoinExperimentUtils;
+import com.github.dakusui.jcunit8.experiments.compat.CompatJoinReport;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
@@ -17,9 +18,9 @@ public class JoinSandbox1 {
 
   @Test
   public void exerciseExperimentsFrom5To50() {
-    System.out.println(JoinExperimentUtils.Report.header());
+    System.out.println(CompatJoinReport.header());
     for (int i = 50; i <= 50; i += 5) {
-      JoinExperimentUtils.exerciseStandardExperiment10Times(i, i);
+      CompatJoinExperimentUtils.exerciseStandardExperiment10Times(i, i);
     }
   }
 
@@ -192,111 +193,111 @@ public class JoinSandbox1 {
 
   @Test
   public void test2$2$30() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 50));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 50));
   }
 
   @Test
   public void test2$2$25() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 25));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 25));
   }
 
   @Test
   public void test2$2$20() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 20));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 20));
   }
 
   @Test
   public void test2$2$15() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 15));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 15));
   }
 
   @Test
   public void test2$2$10() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 10));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 10));
   }
 
   @Test
   public void test3$2$10() {
-    System.out.println(JoinExperimentUtils.Report.header());
-    System.out.println(JoinExperimentUtils.exercise(3, 2, 5));
+    System.out.println(CompatJoinReport.header());
+    System.out.println(CompatJoinExperimentUtils.exercise(3, 2, 5));
   }
 
   @Test
   public void test2$3$10() {
-    System.out.println(JoinExperimentUtils.Report.header());
-    System.out.println(JoinExperimentUtils.exercise(2, 3, 5));
+    System.out.println(CompatJoinReport.header());
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 3, 5));
   }
 
   @Test
   public void test2$2$5() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 5));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 5));
   }
 
   @Test
   public void test2$2$4() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 4));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 4));
   }
 
   @Test
   public void test2$2$3() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 3));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 3));
   }
 
   @Test
   public void test2$2$2() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 2));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 2));
   }
 
   @Test
   public void uneven100a() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 90, 10));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 90, 10));
   }
 
   @Test
   public void uneven100b() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 80, 20));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 80, 20));
   }
 
   @Test
   public void uneven100c() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 75, 25));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 75, 25));
   }
 
   @Test
   public void uneven100d() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 70, 40));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 70, 40));
   }
 
   @Test
   public void uneven100e() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 60, 40));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 60, 40));
   }
 
   @Test
   public void uneven60a() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 40, 20));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 40, 20));
   }
 
   @Test
   public void even50() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 50, 50));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 50, 50));
   }
 
   @Test
   public void even25() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 25, 25));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 25, 25));
   }
 
 
   @Test
   public void even13() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 13, 13));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 13, 13));
   }
 
 
   @Test
   public void even10() {
-    System.out.println(JoinExperimentUtils.exercise(2, 2, 10, 10));
+    System.out.println(CompatJoinExperimentUtils.exercise(2, 2, 10, 10));
   }
 
 

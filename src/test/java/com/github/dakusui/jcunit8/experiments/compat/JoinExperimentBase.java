@@ -1,6 +1,7 @@
-package com.github.dakusui.jcunit8.experiments;
+package com.github.dakusui.jcunit8.experiments.compat;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.experiments.join.JoinReport;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -18,7 +19,7 @@ import java.util.function.Function;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.configureStdIOs;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
+import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 
 public abstract class JoinExperimentBase {
   private static boolean     initialized    = false;
@@ -32,7 +33,7 @@ public abstract class JoinExperimentBase {
     }
   }
 
-  static FactorSpaceSpec factorSpeceSpec(String r, int numFactors) {
+  public static FactorSpaceSpec factorSpeceSpec(String r, int numFactors) {
     return new FactorSpaceSpec(r).addFactor(2, numFactors);
   }
 
@@ -57,15 +58,15 @@ public abstract class JoinExperimentBase {
 
   protected abstract FactorSpaceSpec lhsFactorSpaceSpec();
 
-  void exerciseJoin(int times, FactorSpaceSpec rhsSpec, List<Tuple> rhs) {
-    System.out.println(Report.header());
+  public void exerciseJoin(int times, FactorSpaceSpec rhsSpec, List<Tuple> rhs) {
+    System.out.println(JoinReport.header());
     List<Tuple> joined = null;
     for (int i = 0; i < times; i++) {
       CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
       joined = exerciseJoin(rhs);
       System.out.printf(
           "%s%n",
-          new Report(
+          new JoinReport(
               Integer.toString(lhsFactorSpace.getFactorNames().size()),
               Objects.toString(rhsSpec.numFactors()),
               joined.size(),
@@ -96,25 +97,4 @@ public abstract class JoinExperimentBase {
     return Joiner.Standard::new;
   }
 
-  static class Report {
-    private final String lhsDesc;
-    private final String rhsDesc;
-    private final long   time;
-    private final int    size;
-
-    Report(String lhsDesc, String rhdDesc, int size, long time) {
-      this.lhsDesc = lhsDesc;
-      this.rhsDesc = rhdDesc;
-      this.size = size;
-      this.time = time;
-    }
-
-    static String header() {
-      return "lhs,rhs,time,size";
-    }
-
-    public String toString() {
-      return String.format("%s,%s,%s,%s", lhsDesc, rhsDesc, time, size);
-    }
-  }
 }

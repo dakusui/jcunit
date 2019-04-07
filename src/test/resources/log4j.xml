@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+    <appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%-5p [%-10t]: %16c{2}%3L:%m%n"/>
+        </layout>
+    </appender>
+    <appender name="stderr" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.err"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern"
+                   value="%-5p [%-10t]: %16c{2}%3L:%m%n"/>
+        </layout>
+    </appender>
+    <logger name="com.github.dakusui.jcunit8">
+        <level value="debug"/>
+        <appender-ref ref="stderr"/>
+    </logger>
+</log4j:configuration>

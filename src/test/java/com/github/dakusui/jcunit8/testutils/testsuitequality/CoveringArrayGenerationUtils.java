@@ -57,7 +57,7 @@ public enum CoveringArrayGenerationUtils {
             IntStream.range(0, numFactors).mapToObj(
                 i -> String.format("%s-%02d", prefix, i)
             ).map(
-                name -> p(name, IntStream.range(0, numLevels).mapToObj(i -> i).collect(toList()).toArray())
+                name -> p(name, IntStream.range(0, numLevels).boxed().collect(toList()).toArray())
             ).collect(toList()),
             Collections.emptyList()
         )
@@ -175,7 +175,7 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static List<Tuple> allPossibleTuples(int strength, List<Parameter> parameters) {
-    return allPossibleTuples(strength, parameters.toArray(new Parameter[parameters.size()]));
+    return allPossibleTuples(strength, parameters.toArray(new Parameter[0]));
   }
 
   public static List<Tuple> allPossibleTuples(int strength, Parameter... parameters) {
@@ -199,11 +199,11 @@ public enum CoveringArrayGenerationUtils {
     );
   }
 
+  @SuppressWarnings("RedundantCast")
   private static List<List<Object>> convertParameters(List<Parameter> parameters) {
-    return parameters.stream(
-    ).map(
-        (Function<Parameter, List<Object>>) Parameter::getKnownValues
-    ).collect(toList());
+    return parameters.stream()
+        .map((Function<Parameter, List<Object>>) Parameter::getKnownValues)
+        .collect(toList());
   }
 
   static TestSuite buildTestSuite(int strength, List<Parameter> parameters, List<Constraint> constraints) {

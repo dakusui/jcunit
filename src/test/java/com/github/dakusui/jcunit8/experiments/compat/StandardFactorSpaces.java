@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments;
+package com.github.dakusui.jcunit8.experiments.compat;
 
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.GenerationTestBase;

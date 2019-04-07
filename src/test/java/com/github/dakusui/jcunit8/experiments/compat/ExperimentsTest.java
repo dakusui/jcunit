@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments;
+package com.github.dakusui.jcunit8.experiments.compat;
 
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
+import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 
 @RunWith(Enclosed.class)
 public class ExperimentsTest {
