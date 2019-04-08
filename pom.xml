@@ -88,6 +88,24 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.24</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>actionunit</artifactId>
+            <version>5.2.3</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>processstreamer</artifactId>
+                    <groupId>com.github.dakusui</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>processstreamer</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

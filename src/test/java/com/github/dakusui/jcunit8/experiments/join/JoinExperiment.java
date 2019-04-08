@@ -66,8 +66,8 @@ public class JoinExperiment {
     }
   }
 
-  private String formatCoveringArray(List<Tuple> lhs, IntUnaryOperator p, FactorSpaceSpec p2) {
-    return String.format("|CA(%s, %s)|=%s", p.applyAsInt(this.spec.strength), p2.signature(), lhs.size());
+  private String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpec p2) {
+    return String.format("|CA(%s, %s)|=%s", p.applyAsInt(this.spec.strength), p2.signature(), ca.size());
   }
 
   private static List<Tuple> exerciseJoin(List<Tuple> lhs, List<Tuple> rhs, int strength, Function<Requirement, Joiner> joinerFactory) {
@@ -88,6 +88,13 @@ public class JoinExperiment {
         strength,
         generator
     );
+  }
+
+  public int cost() {
+    return (
+        spec.lhsSpec.numFactors() * spec.lhsStrength.applyAsInt(spec.strength) +
+            spec.rhsSpec.numFactors() * spec.rhsStrength.applyAsInt(spec.strength)) * spec.strength;
+
   }
 
   public static class Builder implements Cloneable {

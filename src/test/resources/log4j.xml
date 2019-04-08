@@ -17,7 +17,11 @@
         </layout>
     </appender>
     <logger name="com.github.dakusui.jcunit8">
-        <level value="debug"/>
+        <level value="info"/>
+        <appender-ref ref="stderr"/>
+    </logger>
+    <logger name="com.github.dakusui.processstreamer">
+        <level value="info"/>
         <appender-ref ref="stderr"/>
     </logger>
 </log4j:configuration>

@@ -5,6 +5,7 @@ target/
 .classpath
 .djunitplugin
 jcoverage.ser
+acts*.jar
 .idea/
 *.iml
 .DS_Store

@@ -235,7 +235,9 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
           leftoverWorkForRhs.removeAll(weakenedRhs);
         }
       }
-      ensureLeftoversArePresent(work, leftoverWorkForLhs, leftoverWorkForRhs, rhs.get(0));
+      ensureLeftoversArePresent(work,
+          leftoverWorkForLhs, leftoverWorkForRhs,
+          lhs.get(0), rhs.get(0));
       b.addAll(new ArrayList<>(work));
       return b.build();
     }
@@ -243,20 +245,38 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     private void ensureLeftoversArePresent(
         LinkedHashSet<Tuple> b,
         Set<Tuple> leftoverWorkForLhs, Set<Tuple> leftoverWorkForRhs,
+        Tuple firstTupleInLhs,
         Tuple firstTupleInRhs) {
-      int max = max(leftoverWorkForLhs.size(), leftoverWorkForRhs.size());
-      int min = min(leftoverWorkForLhs.size(), leftoverWorkForRhs.size());
-      List<Tuple> leftOverFromLhs = new ArrayList<Tuple>() {{
-        addAll(leftoverWorkForLhs);
+      if (leftoverWorkForLhs.isEmpty() && leftoverWorkForRhs.isEmpty()) {
+        return;
+      }
+      if (leftoverWorkForLhs.size() > leftoverWorkForRhs.size())
+        ensureLeftoversArePresent_(
+            b,
+            leftoverWorkForLhs, leftoverWorkForRhs, firstTupleInRhs);
+      else
+        ensureLeftoversArePresent_(
+            b,
+            leftoverWorkForRhs, leftoverWorkForLhs, firstTupleInLhs);
+    }
+
+    private void ensureLeftoversArePresent_(
+        LinkedHashSet<Tuple> b,
+        Set<Tuple> biggerLeftover, Set<Tuple> nonBiggerLeftover,
+        Tuple firstTupleInNonBigger) {
+      int max = max(biggerLeftover.size(), nonBiggerLeftover.size());
+      int min = min(biggerLeftover.size(), nonBiggerLeftover.size());
+      List<Tuple> leftOverFromBigger = new ArrayList<Tuple>() {{
+        addAll(biggerLeftover);
       }};
-      List<Tuple> leftOverFromRhs = new ArrayList<Tuple>() {{
-        addAll(leftoverWorkForRhs);
+      List<Tuple> leftOverFromNonBigger = new ArrayList<Tuple>() {{
+        addAll(nonBiggerLeftover);
       }};
       for (int i = 0; i < max; i++) {
         if (i < min)
-          b.add(JoinerUtils.connect(leftOverFromLhs.get(i), leftOverFromRhs.get(i)));
+          b.add(JoinerUtils.connect(leftOverFromBigger.get(i), leftOverFromNonBigger.get(i)));
         else
-          b.add(JoinerUtils.connect(leftOverFromLhs.get(i), firstTupleInRhs));
+          b.add(JoinerUtils.connect(leftOverFromBigger.get(i), firstTupleInNonBigger));
       }
     }
 

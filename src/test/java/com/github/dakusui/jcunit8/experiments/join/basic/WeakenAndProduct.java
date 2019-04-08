@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
+import com.github.dakusui.jcunit8.experiments.join.ActsUtils;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
@@ -8,9 +9,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import java.io.File;
+import java.util.LinkedList;
 import java.util.List;
-
-import static java.util.Arrays.asList;
 
 @RunWith(Parameterized.class)
 public class WeakenAndProduct {
@@ -18,28 +19,13 @@ public class WeakenAndProduct {
 
   @Parameters
   public static List<JoinExperiment> experiments() {
-    return asList(
-        createExperiment(10, 10, 3),
-        createExperiment(20, 10, 3),
-        createExperiment(30, 10, 3),
-        createExperiment(40, 10, 3),
-        createExperiment(50, 10, 3),
-        createExperiment(60, 10, 3),
-        createExperiment(70, 0, 3),
-        createExperiment(80, 10, 3),
-        createExperiment(90, 10, 3),
-        createExperiment(100, 10, 3),
-        createExperiment(10, 20, 3),
-        createExperiment(20, 20, 3),
-        createExperiment(30, 20, 3),
-        createExperiment(40, 20, 3),
-        createExperiment(50, 20, 3),
-        createExperiment(60, 20, 3),
-        createExperiment(70, 20, 3),
-        createExperiment(80, 20, 3),
-        createExperiment(90, 20, 3),
-        createExperiment(100, 20, 3)
-    );
+    List<JoinExperiment> work = new LinkedList<>();
+    for (int t = 2; t <= 3; t++)
+      for (int i = 10; i < 100; i += 10)
+        for (int j = 10; j < 100; j += 10)
+          work.add(createExperiment(i, j, t));
+    work.sort((o1, o2) -> (o1.cost() - o2.cost()));
+    return work;
   }
 
   private static JoinExperiment createExperiment(int lhsNumFactors, int rhsNumFactors, int strength) {
@@ -49,6 +35,7 @@ public class WeakenAndProduct {
         .strength(strength)
         .times(2)
         .joiner(Joiner.WeakenProduct::new)
+        .generator((factorSpace, t) -> ActsUtils.generateWithActs(new File("target/acts"), factorSpace, t))
         .verification(false)
         .build();
   }
