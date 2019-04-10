@@ -90,13 +90,6 @@ public class JoinExperiment {
     );
   }
 
-  public int cost() {
-    return (
-        spec.lhsSpec.numFactors() * spec.lhsStrength.applyAsInt(spec.strength) +
-            spec.rhsSpec.numFactors() * spec.rhsStrength.applyAsInt(spec.strength)) * spec.strength;
-
-  }
-
   public static class Builder implements Cloneable {
     Function<Requirement, Joiner>                 joinerFactory;
     FactorSpaceSpec                               lhsSpec;
