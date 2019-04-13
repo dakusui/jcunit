@@ -36,4 +36,8 @@ public class JoinExperimentBase {
   public void exercise() {
     this.experiment.exercise();
   }
+
+  protected void joinAndPrint() {
+    this.experiment.joinAndPrint();
+  }
 }

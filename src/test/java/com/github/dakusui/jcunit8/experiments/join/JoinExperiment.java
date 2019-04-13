@@ -66,6 +66,18 @@ public class JoinExperiment {
     }
   }
 
+  public void joinAndPrint() {
+    List<Tuple> lhs = loadOrGenerateCoveringArray(
+        this.spec.lhsSpec,
+        this.spec.lhsStrength.applyAsInt(this.spec.strength),
+        this.spec.generator);
+    List<Tuple> rhs = loadOrGenerateCoveringArray(
+        this.spec.rhsSpec,
+        this.spec.rhsStrength.applyAsInt(this.spec.strength),
+        this.spec.generator);
+    exerciseJoin(lhs, rhs, this.spec.strength, this.spec.joinerFactory).forEach(System.out::println);
+  }
+
   private String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpec p2) {
     return String.format("|CA(%s, %s)|=%s", p.applyAsInt(this.spec.strength), p2.signature(), ca.size());
   }

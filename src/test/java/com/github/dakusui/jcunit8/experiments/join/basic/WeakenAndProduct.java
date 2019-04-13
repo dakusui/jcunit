@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.experiments.join.basic;
 
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameters;
@@ -58,6 +59,25 @@ public class WeakenAndProduct {
         work.add(createExperiment(i, j, t, Joiner.Standard::new));
       }
       return work;
+    }
+  }
+
+  public static class Smallest extends JoinExperimentBase {
+
+    public Smallest(JoinExperiment experiment) {
+      super(experiment);
+    }
+
+    @Parameters
+    public static List<JoinExperiment> experiments() {
+      List<JoinExperiment> work = new LinkedList<>();
+      work.add(createExperiment(3, 3, 2, Joiner.Standard::new));
+      return work;
+    }
+
+    @Test
+    public void joinAndPrint() {
+      super.joinAndPrint();
     }
   }
 }
