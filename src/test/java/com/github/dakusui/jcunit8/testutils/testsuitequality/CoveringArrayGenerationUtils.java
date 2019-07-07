@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
 import com.github.dakusui.combinatoradix.Combinator;
-import com.github.dakusui.crest.core.Printable;
 import com.github.dakusui.crest.matcherbuilders.primitives.AsBoolean;
+import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;

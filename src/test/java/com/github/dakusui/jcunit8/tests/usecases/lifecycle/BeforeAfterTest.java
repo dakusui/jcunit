@@ -1,12 +1,14 @@
 package com.github.dakusui.jcunit8.tests.usecases.lifecycle;
 
-import com.github.dakusui.crest.core.Printable;
+import com.github.dakusui.crest.utils.printable.Printable;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 
 import java.util.List;
 
-import static com.github.dakusui.crest.Crest.*;
+import static com.github.dakusui.crest.Crest.asBoolean;
+import static com.github.dakusui.crest.Crest.asString;
+import static com.github.dakusui.crest.Crest.assertThat;
 
 public class BeforeAfterTest {
   @SuppressWarnings("unchecked")

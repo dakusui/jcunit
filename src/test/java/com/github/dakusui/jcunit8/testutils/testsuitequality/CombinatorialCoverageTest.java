@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
-import com.github.dakusui.crest.core.Printable;
+import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
@@ -12,9 +12,15 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.crest.functions.CrestPredicates.isEmpty;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.*;
+import static com.github.dakusui.crest.Crest.allOf;
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.utils.printable.Predicates.isEmpty;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.c;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.constraints;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.failsIf;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.p;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.parameters;
 import static java.util.stream.Collectors.toList;
 
 public class CombinatorialCoverageTest {

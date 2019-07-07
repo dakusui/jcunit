@@ -32,24 +32,56 @@ public enum ActsUtils {
     StringBuilder b = new StringBuilder();
     b.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     b.append("<System name=\"").append(systemName).append("\">\n");
-    b.append("  <Parameters>\n");
-    for (int i = 0; i < factorSpace.getFactors().size(); i++) {
-      b.append("    <Parameter id=\"").append(i).append("\" name=\"")
-          .append(String.format("PREFIX-%d", i))
-          .append("\" type=\"0\">\n");
-      b.append("      <values>\n");
-      Factor factor = factorSpace.getFactors().get(i);
-      for (int j = 0; j < factor.getLevels().size(); j++) {
-        b.append("        <value>").append(factor.getLevels().get(j)).append("</value>\n");
-      }
-      b.append("      </values>\n");
-      b.append("      <basechoices />\n").append("      <invalidValues />\n")
-          .append("    </Parameter>\n");
-    }
-    b.append("  </Parameters>\n");
+    renderParameters(factorSpace, b, 1);
+    renderConstraints(b, 1);
+    b.append("\n");
     b.append("</System>");
 
     return b.toString();
+  }
+
+  private static void renderParameters(FactorSpace factorSpace, StringBuilder b, int indentLevel) {
+    b.append(indent(indentLevel)).append("<Parameters>").append(newLine());
+    indentLevel++;
+    for (int i = 0; i < factorSpace.getFactors().size(); i++) {
+      indentLevel = renderParameter(factorSpace, b, indentLevel, i);
+    }
+    b.append(indent(indentLevel)).append("</Parameters>").append(newLine());
+  }
+
+  private static int renderParameter(FactorSpace factorSpace, StringBuilder b, int indentLevel, int parameterId) {
+    String parameterName = String.format("PREFIX-%d", parameterId);
+    String parameterType = "0";
+    b.append(indent(indentLevel))
+        .append("<Parameter id=\"").append(parameterId).append("\" name=\"")
+        .append(parameterName).append("\" type=\"").append(parameterType).append("\">")
+        .append(newLine());
+    indentLevel++;
+    b.append(indent(indentLevel)).append("<values>").append(newLine());
+    Factor factor = factorSpace.getFactors().get(parameterId);
+    indentLevel++;
+    for (int j = 0; j < factor.getLevels().size(); j++) {
+      b.append(indent(indentLevel)).append("<value>").append(factor.getLevels().get(j)).append("</value>").append(newLine());
+    }
+    indentLevel--;
+    b.append(indent(indentLevel)).append("</values>").append(newLine());
+    b.append(indent(indentLevel)).append("<basechoices />").append(newLine());
+    b.append(indent(indentLevel)).append("<invalidValues />").append(newLine());
+    indentLevel--;
+    b.append(indent(indentLevel))
+        .append("</Parameter>\n").append(newLine());
+    return indentLevel;
+  }
+
+  private static void renderConstraints(StringBuilder b, int indentLevel) {
+  }
+
+  private static String indent(int indentLevel) {
+    return String.format("%" + (indentLevel * 2) + "s", "");
+  }
+
+  private static String newLine() {
+    return String.format("%n");
   }
 
   static List<Tuple> readTestSuiteFromCsv(Stream<String> data) {
@@ -223,26 +255,5 @@ public enum ActsUtils {
       ret.addAll(readTestSuiteFromCsv(data));
     }
     return ret;
-  }
-
-  private static Stream<String> readCsv() {
-    return Stream.of(
-        "# ACTS Test Suite Generation: Sun Apr 07 17:57:26 JST 2019",
-        "#  '*' represents don't care value ",
-        "# Degree of interaction coverage: ",
-        "# Number of parameters: 10",
-        "# Maximum number of values per parameter: 2",
-        "# Number ofconfigurations: 10",
-        "PREFIX-0,PREFIX-1,PREFIX-2,PREFIX-3,PREFIX-4,PREFIX-5,PREFIX-6,PREFIX-7,PREFIX-8,PREFIX-9",
-        "0,0,1,1,1,1,1,1,1,1",
-        "0,1,0,0,0,0,0,0,0,0",
-        "1,0,0,1,0,1,0,1,0,1",
-        "1,1,1,0,1,0,1,0,1,0",
-        "1,0,1,0,0,1,0,0,1,1",
-        "1,1,0,1,1,0,1,1,0,0",
-        "0,0,1,1,1,0,0,0,0,1",
-        "1,1,0,0,0,1,1,1,1,0",
-        "1,0,0,1,0,1,1,0,0,0",
-        "0,1,1,1,1,1,0,1,0,1");
   }
 }
