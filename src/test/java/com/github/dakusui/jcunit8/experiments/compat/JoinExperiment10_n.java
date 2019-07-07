@@ -9,7 +9,7 @@ import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArra
 public class JoinExperiment10_n extends JoinExperimentBase {
   @Test
   public void whenJoinWith10_5$thenLetsSee() {
-    FactorSpaceSpec rhsSpec = new FactorSpaceSpec("R").addFactor(10, 10);
+    FactorSpaceSpec rhsSpec = new FactorSpaceSpec("R").addFactors(10, 10);
     final FactorSpace r = rhsSpec.build();
     exerciseJoin(5, rhsSpec, generateWithIpoGplus(r, strength()));
   }
@@ -21,6 +21,6 @@ public class JoinExperiment10_n extends JoinExperimentBase {
 
   @Override
   protected FactorSpaceSpec lhsFactorSpaceSpec() {
-    return new FactorSpaceSpec("L").addFactor(10, 10);
+    return new FactorSpaceSpec("L").addFactors(10, 10);
   }
 }

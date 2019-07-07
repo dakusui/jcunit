@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
-import com.github.dakusui.jcunit8.experiments.join.ActsUtils;
+import com.github.dakusui.jcunit8.experiments.join.acts.ActsUtils;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
@@ -18,8 +18,8 @@ public class JoinExperimentBase {
 
   static JoinExperiment createExperiment(int lhsNumFactors, int rhsNumFactors, int strength, Function<Requirement, Joiner> joinerFactory) {
     return new JoinExperiment.Builder()
-        .lhs(new FactorSpaceSpec("L").addFactor(2, lhsNumFactors))
-        .rhs(new FactorSpaceSpec("R").addFactor(2, rhsNumFactors))
+        .lhs(new FactorSpaceSpec("L").addFactors(2, lhsNumFactors))
+        .rhs(new FactorSpaceSpec("R").addFactors(2, rhsNumFactors))
         .strength(strength)
         .times(2)
         .joiner(joinerFactory)

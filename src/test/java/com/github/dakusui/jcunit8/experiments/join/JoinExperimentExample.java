@@ -8,8 +8,8 @@ public class JoinExperimentExample {
   @Test
   public void example1() {
     new JoinExperiment.Builder()
-        .lhs(new FactorSpaceSpec("L").addFactor(2, 20))
-        .rhs(new FactorSpaceSpec("R").addFactor(2, 20))
+        .lhs(new FactorSpaceSpec("L").addFactors(2, 20))
+        .rhs(new FactorSpaceSpec("R").addFactors(2, 20))
         .strength(4)
         .times(10)
         .joiner(Joiner.WeakenProduct::new)
@@ -20,8 +20,8 @@ public class JoinExperimentExample {
   @Test
   public void example1_1() {
     new JoinExperiment.Builder()
-        .lhs(new FactorSpaceSpec("L").addFactor(2, 20))
-        .rhs(new FactorSpaceSpec("R").addFactor(2, 20))
+        .lhs(new FactorSpaceSpec("L").addFactors(2, 20))
+        .rhs(new FactorSpaceSpec("R").addFactors(2, 20))
         .strength(5)
         .times(10)
         .joiner(Joiner.WeakenProduct::new)
@@ -32,8 +32,8 @@ public class JoinExperimentExample {
   @Test
   public void example2() {
     new JoinExperiment.Builder()
-        .lhs(new FactorSpaceSpec("L").addFactor(2, 20), 4)
-        .rhs(new FactorSpaceSpec("R").addFactor(2, 20), 4)
+        .lhs(new FactorSpaceSpec("L").addFactors(2, 20), 4)
+        .rhs(new FactorSpaceSpec("R").addFactors(2, 20), 4)
         .strength(3)
         .times(2)
         .joiner(Joiner.Standard::new)

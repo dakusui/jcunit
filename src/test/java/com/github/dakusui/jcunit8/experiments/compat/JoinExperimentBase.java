@@ -34,7 +34,7 @@ public abstract class JoinExperimentBase {
   }
 
   public static FactorSpaceSpec factorSpeceSpec(String r, int numFactors) {
-    return new FactorSpaceSpec(r).addFactor(2, numFactors);
+    return new FactorSpaceSpec(r).addFactors(2, numFactors);
   }
 
   @Before

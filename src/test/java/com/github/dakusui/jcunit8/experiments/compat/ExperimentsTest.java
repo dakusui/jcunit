@@ -65,12 +65,12 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 20);
+      return new FactorSpaceSpec("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactor(2, 20);
+      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
       final FactorSpace r = rSpec.build();
       exerciseJoin(
           10,
@@ -90,12 +90,12 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactor(2, 20);
+      return new FactorSpaceSpec("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactor(2, 20);
+      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
       exerciseJoin(10,
           rSpec,
           loadPregeneratedOrGenerateAndSaveCoveringArrayFor(

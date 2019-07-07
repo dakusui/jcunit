@@ -63,7 +63,7 @@ public enum JoinExperimentUtils {
 
   private static FactorSpaceSpec convertToAbstractModel(FactorSpaceSpec in) {
     FactorSpaceSpec ret = new FactorSpaceSpec("PREFIX");
-    in.factorSpecs().forEach(entry -> ret.addFactor(entry.getKey(), entry.getValue()));
+    in.factorSpecs().forEach(entry -> ret.addFactors(entry.getKey(), entry.getValue()));
     return ret;
   }
 

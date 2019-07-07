@@ -1,7 +1,11 @@
-package com.github.dakusui.jcunit8.experiments.join;
+package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import org.junit.Test;
 
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.allOf;
@@ -11,6 +15,32 @@ import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
 
 public class ActsUtilsTest {
+
+  @Test
+  public void testGenerateAndReport() {
+    File baseDir = new File("target");
+    ActsUtils.generateAndReport(baseDir, 4, 90, 3);
+    ActsUtils.generateAndReport(baseDir, 4, 180, 3);
+  }
+
+  @Test
+  public void testGenerateAndReportWithConstraints() {
+    File baseDir = new File("target");
+    generateAndReportWithConstraints(baseDir, 90);
+    generateAndReportWithConstraints(baseDir, 180);
+  }
+
+  public void generateAndReportWithConstraints(File baseDir, int numFactors) {
+    List<Function<List<String>, ActsConstraint>> constraints = new LinkedList<>();
+    for (int i = 0; i < numFactors / 10; i++) {
+      constraints.add(ActsUtils.createConstraint(i * 10));
+    }
+    ActsUtils.generateAndReport(baseDir, 4, numFactors, 3,
+        constraints.toArray(new Function[0])
+    );
+  }
+
+
   @Test
   public void testReadTestSuiteFromCsv() {
     assertThat(
