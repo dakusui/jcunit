@@ -29,6 +29,13 @@ public class ActsUtilsTest {
     generateAndReportWithConstraints(baseDir, 10);
     generateAndReportWithConstraints(baseDir, 20);
     generateAndReportWithConstraints(baseDir, 30);
+    generateAndReportWithConstraints(baseDir, 40);
+    generateAndReportWithConstraints(baseDir, 50);
+    generateAndReportWithConstraints(baseDir, 60);
+    generateAndReportWithConstraints(baseDir, 70);
+    generateAndReportWithConstraints(baseDir, 80);
+    generateAndReportWithConstraints(baseDir, 90);
+    generateAndReportWithConstraints(baseDir, 100);
   }
 
   @SuppressWarnings("unchecked")
@@ -37,7 +44,7 @@ public class ActsUtilsTest {
     for (int i = 0; i < numFactors / 10; i++) {
       constraints.add(ActsUtils.createConstraint(i * 10));
     }
-    ActsUtils.generateAndReport(baseDir, 4, numFactors, 2,
+    ActsUtils.generateAndReport(baseDir, 4, numFactors, 3,
         constraints.toArray(new Function[0])
     );
   }
@@ -46,7 +53,7 @@ public class ActsUtilsTest {
   @Test
   public void testReadTestSuiteFromCsv() {
     assertThat(
-        ActsUtils.readTestSuiteFromCsv(readCsv()),
+        Acts.readTestSuiteFromCsv(readCsv()),
         allOf(
             asInteger("size").eq(10).$(),
             asString(call("get", 0).andThen("get", "PREFIX-0").$()).equalTo("0").$(),

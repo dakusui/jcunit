@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import static java.lang.String.format;
 
 public enum StringUtils {
   ;
@@ -44,6 +45,18 @@ public enum StringUtils {
   @SuppressWarnings("unchecked")
   public static String join(String sep, List<?> elems) {
     return join(sep, Formatter.INSTANCE, checknotnull(elems).toArray());
+  }
+
+  public static void appendLine(StringBuilder b, int indentLevel, String s) {
+    b.append(indent(indentLevel)).append(s).append(newLine());
+  }
+
+  public static String indent(int indentLevel) {
+    return format("%" + (indentLevel * 2) + "s", "");
+  }
+
+  public static String newLine() {
+    return format("%n");
   }
 
 
