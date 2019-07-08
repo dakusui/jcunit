@@ -15,11 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -48,14 +44,14 @@ public enum ActsUtils {
   }
 
   private static class FactorSpaceAdapter {
-    static final Function<Integer, String>                    NAME_RESOLVER =
-        (id) -> String.format("PREFIX-%d", id);
-    final        Function<Integer, String>                    name;
-    final        Function<Integer, String>                    type;
-    final        Function<Integer, Factor>                    factor;
-    final        Function<Integer, Function<Integer, Object>> value;
-    final        int                                          numParameters;
-    final        Function<String, String>                     factorNameToParameterName;
+    static final Function<Integer, String> NAME_RESOLVER =
+        (id) -> String.format("p%d", id);
+    final Function<Integer, String> name;
+    final Function<Integer, String> type;
+    final Function<Integer, Factor> factor;
+    final Function<Integer, Function<Integer, Object>> value;
+    final int numParameters;
+    final Function<String, String> factorNameToParameterName;
 
     private FactorSpaceAdapter(
         Function<Integer, String> name,
@@ -239,7 +235,9 @@ public enum ActsUtils {
     return new ActsConstraint() {
       @Override
       public String toText(Function<String, String> factorNameToParameterName) {
-        return factorNameToParameterName.apply(f) + " &gt; " + factorNameToParameterName.apply(g);
+        ////
+        // Since ACTS seems not supporting > (&gt;), invert the comparator.
+        return factorNameToParameterName.apply(g) + " &lt; " + factorNameToParameterName.apply(f);
       }
 
       @SuppressWarnings("unchecked")
@@ -341,17 +339,19 @@ public enum ActsUtils {
 
       private StreamChecker createStreamChecker() {
         return new StreamChecker() {
-          boolean errorFound = false;
+          List<String> foundErrors = new LinkedList<>();
 
           @Override
           public boolean getAsBoolean() {
-            return !errorFound;
+            return foundErrors.isEmpty();
           }
 
           @Override
           public void accept(String s) {
             if (s.contains("Errors encountered"))
-              errorFound = true;
+              foundErrors.add(s);
+            if (s.contains("Constraints can not be parsed"))
+              foundErrors.add(s);
           }
 
           @Override

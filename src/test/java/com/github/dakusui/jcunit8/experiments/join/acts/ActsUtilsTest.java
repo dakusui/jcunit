@@ -26,16 +26,18 @@ public class ActsUtilsTest {
   @Test
   public void testGenerateAndReportWithConstraints() {
     File baseDir = new File("target");
-    generateAndReportWithConstraints(baseDir, 90);
-    generateAndReportWithConstraints(baseDir, 180);
+    generateAndReportWithConstraints(baseDir, 10);
+    generateAndReportWithConstraints(baseDir, 20);
+    generateAndReportWithConstraints(baseDir, 30);
   }
 
-  public void generateAndReportWithConstraints(File baseDir, int numFactors) {
+  @SuppressWarnings("unchecked")
+  private void generateAndReportWithConstraints(File baseDir, int numFactors) {
     List<Function<List<String>, ActsConstraint>> constraints = new LinkedList<>();
     for (int i = 0; i < numFactors / 10; i++) {
       constraints.add(ActsUtils.createConstraint(i * 10));
     }
-    ActsUtils.generateAndReport(baseDir, 4, numFactors, 3,
+    ActsUtils.generateAndReport(baseDir, 4, numFactors, 2,
         constraints.toArray(new Function[0])
     );
   }
