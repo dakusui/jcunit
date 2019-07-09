@@ -3,10 +3,14 @@ package com.github.dakusui.jcunit8.testutils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +24,8 @@ import static java.util.stream.Collectors.toList;
 
 public enum UTUtils {
   ;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UTUtils.class);
 
   @SuppressWarnings("unchecked")
   public static boolean isToStringOverridden(Class klass) {
@@ -122,5 +128,15 @@ public enum UTUtils {
             .map(TestOracle::toMatcher)
             .collect(toList())
     );
+  }
+
+  public static File createTempDirectory(String pathname) {
+    try {
+      File dir = new File(pathname);
+      LOGGER.debug("{} was created={}", dir, dir.mkdirs());
+      return Files.createTempDirectory(dir.toPath(), "jcunit-").toFile();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

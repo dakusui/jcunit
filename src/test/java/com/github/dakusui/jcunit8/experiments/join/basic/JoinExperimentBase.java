@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit8.experiments.join.acts.Acts;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,7 @@ public class JoinExperimentBase {
   private final JoinExperiment experiment;
 
   static JoinExperiment createExperiment(int lhsNumFactors, int rhsNumFactors, int strength, Function<Requirement, Joiner> joinerFactory) {
+    UTUtils.createTempDirectory("target/acts");
     return new JoinExperiment.Builder()
         .lhs(new FactorSpaceSpec("L").addFactors(2, lhsNumFactors))
         .rhs(new FactorSpaceSpec("R").addFactors(2, rhsNumFactors))

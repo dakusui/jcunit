@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
+import com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
@@ -22,6 +23,7 @@ import static java.util.Arrays.asList;
 
 public enum ActsUtils {
   ;
+
   static String buildActsModel(FactorSpace factorSpace, String systemName) {
     StringBuilder b = new StringBuilder();
     b.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
@@ -184,9 +186,9 @@ public enum ActsUtils {
   public static ActsConstraint createConstraint(List<String> factorNames) {
     String[] p = factorNames.toArray(new String[0]);
     return or(
-        gt(p[0], p[1]),
+        ge(p[0], p[1]),
         gt(p[2], p[3]),
-        gt(p[4], p[5]),
+        eq(p[4], p[5]),
         gt(p[6], p[7]),
         gt(p[8], p[1]));
   }
@@ -226,10 +228,10 @@ public enum ActsUtils {
   private static ActsConstraint gt(String f, String g) {
     return new ActsConstraint() {
       @Override
-      public String toText(Function<String, String> factorNameToParameterName) {
+      public String toText(Function<String, String> factorNameNormalizer) {
         ////
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
-        return factorNameToParameterName.apply(g) + " &lt; " + factorNameToParameterName.apply(f);
+        return factorNameNormalizer.apply(g) + " &lt; " + factorNameNormalizer.apply(f);
       }
 
       @SuppressWarnings("unchecked")
@@ -247,13 +249,61 @@ public enum ActsUtils {
     };
   }
 
+  private static ActsConstraint ge(String f, String g) {
+    return new ActsConstraint() {
+      @Override
+      public String toText(Function<String, String> factorNameNormalizer) {
+        ////
+        // Since ACTS seems not supporting > (&gt;), invert the comparator.
+        return factorNameNormalizer.apply(g) + " &lt;= " + factorNameNormalizer.apply(f);
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public boolean test(Tuple tuple) {
+        Checks.checkcond(tuple.get(f) instanceof Comparable);
+        Checks.checkcond(tuple.get(g) instanceof Comparable);
+        return ((Comparable) f).compareTo(g) >= 0;
+      }
+
+      @Override
+      public List<String> involvedKeys() {
+        return asList(f, g);
+      }
+    };
+  }
+
+  private static ActsConstraint eq(String f, String g) {
+    return new ActsConstraint() {
+      @Override
+      public String toText(Function<String, String> factorNameNormalizer) {
+        ////
+        // Since ACTS seems not supporting > (&gt;), invert the comparator.
+        return factorNameNormalizer.apply(g) + " &lt;= " + factorNameNormalizer.apply(f);
+      }
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public boolean test(Tuple tuple) {
+        Checks.checkcond(tuple.get(f) instanceof Comparable);
+        Checks.checkcond(tuple.get(g) instanceof Comparable);
+        return ((Comparable) f).compareTo(g) == 0;
+      }
+
+      @Override
+      public List<String> involvedKeys() {
+        return asList(f, g);
+      }
+    };
+  }
+
 
   @SafeVarargs
   public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, ActsConstraint>... constraints) {
     CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
     List<Tuple> generated;
     generated = generateWithActs(baseDir, numLevels, numFactors, strength, constraints);
-    System.out.println("size=" + generated.size() + " time=" + stopWatch.get() + "[msec]");
+    System.out.println("model=" + numLevels + "^" + numFactors + " t=" + strength + " size=" + generated.size() + " time=" + stopWatch.get() + "[msec]");
   }
 
   @SafeVarargs

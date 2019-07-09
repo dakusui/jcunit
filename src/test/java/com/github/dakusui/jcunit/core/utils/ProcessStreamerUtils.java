@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.join.acts;
+package com.github.dakusui.jcunit.core.utils;
 
 import com.github.dakusui.printables.PrintablePredicate;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
@@ -20,9 +20,9 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
-enum ProcessStreamerUtils {
+public enum ProcessStreamerUtils {
   ;
-  private static final Logger LOGGER = LoggerFactory.getLogger(ActsUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStreamerUtils.class);
 
   private static ProcessStreamer.Checker.StreamChecker createStreamChecker(String... regexes) {
     List<Pattern> patterns = Arrays.stream(regexes)
@@ -55,28 +55,28 @@ enum ProcessStreamerUtils {
     };
   }
 
-  static Stream<String> streamFile(File file) {
+  public static Stream<String> streamFile(File file) {
     return processStreamer(format("cat %s", file.getAbsolutePath()), ProcessStreamer.Checker.createDefault()).stream();
   }
 
-  static ProcessStreamer processStreamer(String command, ProcessStreamer.Checker checker) {
+  public static ProcessStreamer processStreamer(String command, ProcessStreamer.Checker checker) {
     LOGGER.debug("Executing:[{}]", command);
     return new ProcessStreamer.Builder(Shell.local(), command)
         .checker(checker)
         .build();
   }
 
-  static void writeTo(File file, String data) {
+  public static void writeTo(File file, String data) {
     processStreamer(format("echo '%s' > %s", data, file.getAbsolutePath()), ProcessStreamer.Checker.createDefault())
         .stream()
         .forEach(LOGGER::debug);
   }
 
-  static class StandardChecker implements ProcessStreamer.Checker {
+  public static class StandardChecker implements ProcessStreamer.Checker {
     private final StreamChecker stdoutChecker;
     private final StreamChecker stderrChecker;
 
-    StandardChecker(String... regexes) {
+    public StandardChecker(String... regexes) {
       stdoutChecker = createStreamChecker(regexes);
       stderrChecker = createStreamChecker(regexes);
 

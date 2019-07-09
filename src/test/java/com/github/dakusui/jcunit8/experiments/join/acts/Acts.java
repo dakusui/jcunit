@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +29,8 @@ public class Acts {
   }
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Acts.class);
-  private final        int    strength;
-  private final        File   baseDir;
+  private final int strength;
+  private final File baseDir;
 
   private Acts(FactorSpace factorSpace, int strength, File baseDir, String algorithm, String constraintHandler) {
     this.factorSpace = factorSpace;
@@ -131,10 +132,10 @@ public class Acts {
   }
 
   public static class Builder {
-    private File        baseDir;
-    private int         strength          = 2;
-    private String      algorithm         = "ipog";
-    private String      constraintHandler = "solver";
+    private File baseDir;
+    private int strength = 2;
+    private String algorithm = "ipog";
+    private String constraintHandler = "solver";
     private FactorSpace factorSpace;
 
     public Acts build() {
@@ -153,11 +154,33 @@ public class Acts {
       return this;
     }
 
+    /**
+     * You can set one of {@code no}, {@code solver}, and {@code forbiddentuples}, which represent
+     * "No constraint handler is used", "CSP solver", adn "Minimum forbidden tuples method", respectively.
+     *
+     * @param constraintHandler A constraint handler used during covering array generation.
+     * @return Thi object.
+     */
     public Builder constraintHandler(String constraintHandler) {
       this.constraintHandler = requireNonNull(constraintHandler);
       return this;
     }
 
+    /**
+     * Sets a name of an algorithm with which a covering array is generated.
+     * You can use one of followings.
+     * <ul>
+     * <li>ipog - use algorithm IPO (default)</li>
+     * <li>ipog_d - use algorithm IPO + Binary Construction (for large systems)</li>
+     * <li>ipof - use ipof method</li>
+     * <li>ipof2 - use the ipof2 method</li>
+     * <li>basechoice - use Base Choice method</li>
+     * <li>null - use to check coverage only (no test generation)</li>
+     * </ul>
+     *
+     * @param algorithm A name of algorithm used for covering array generation.
+     * @return This object
+     */
     public Builder algorithm(String algorithm) {
       this.algorithm = requireNonNull(algorithm);
       return this;

@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join.acts;
 
+import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
+import static com.github.dakusui.jcunit8.experiments.join.acts.Acts.readTestSuiteFromCsv;
 
 public class ActsUtilsTest {
 
@@ -25,26 +27,35 @@ public class ActsUtilsTest {
 
   @Test
   public void testGenerateAndReportWithConstraints() {
-    File baseDir = new File("target");
-    generateAndReportWithConstraints(baseDir, 10);
-    generateAndReportWithConstraints(baseDir, 20);
-    generateAndReportWithConstraints(baseDir, 30);
-    generateAndReportWithConstraints(baseDir, 40);
-    generateAndReportWithConstraints(baseDir, 50);
-    generateAndReportWithConstraints(baseDir, 60);
-    generateAndReportWithConstraints(baseDir, 70);
-    generateAndReportWithConstraints(baseDir, 80);
-    generateAndReportWithConstraints(baseDir, 90);
-    generateAndReportWithConstraints(baseDir, 100);
+    File baseDir = UTUtils.createTempDirectory("target/acts");
+    generateAndReportWithConstraints(baseDir, 10, 2);
+    generateAndReportWithConstraints(baseDir, 20, 2);
+    generateAndReportWithConstraints(baseDir, 30, 2);
+    generateAndReportWithConstraints(baseDir, 40, 2);
+    generateAndReportWithConstraints(baseDir, 50, 2);
+    generateAndReportWithConstraints(baseDir, 60, 2);
+    generateAndReportWithConstraints(baseDir, 70, 2);
+    generateAndReportWithConstraints(baseDir, 80, 2);
+    generateAndReportWithConstraints(baseDir, 90, 2);
+    generateAndReportWithConstraints(baseDir, 100, 2);
+  }
+
+  @Test
+  public void testGenerateAndReportWithConstraintsWithStrength3() {
+    File baseDir = UTUtils.createTempDirectory("target/acts");
+    generateAndReportWithConstraints(baseDir, 10, 3);
+    generateAndReportWithConstraints(baseDir, 20, 3);
+    generateAndReportWithConstraints(baseDir, 30, 3);
+    generateAndReportWithConstraints(baseDir, 40, 3);
   }
 
   @SuppressWarnings("unchecked")
-  private void generateAndReportWithConstraints(File baseDir, int numFactors) {
+  private void generateAndReportWithConstraints(File baseDir, int numFactors, int strength) {
     List<Function<List<String>, ActsConstraint>> constraints = new LinkedList<>();
     for (int i = 0; i < numFactors / 10; i++) {
       constraints.add(ActsUtils.createConstraint(i * 10));
     }
-    ActsUtils.generateAndReport(baseDir, 4, numFactors, 3,
+    ActsUtils.generateAndReport(baseDir, 4, numFactors, strength,
         constraints.toArray(new Function[0])
     );
   }
@@ -53,7 +64,7 @@ public class ActsUtilsTest {
   @Test
   public void testReadTestSuiteFromCsv() {
     assertThat(
-        Acts.readTestSuiteFromCsv(readCsv()),
+        readTestSuiteFromCsv(readCsv()),
         allOf(
             asInteger("size").eq(10).$(),
             asString(call("get", 0).andThen("get", "PREFIX-0").$()).equalTo("0").$(),
