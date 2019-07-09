@@ -17,7 +17,11 @@
         </layout>
     </appender>
     <logger name="com.github.dakusui.jcunit8">
-        <level value="info"/>
+        <level value="trace"/>
+        <appender-ref ref="stderr"/>
+    </logger>
+    <logger name="com.github.dakusui.jcunit">
+        <level value="trace"/>
         <appender-ref ref="stderr"/>
     </logger>
     <logger name="com.github.dakusui.processstreamer">

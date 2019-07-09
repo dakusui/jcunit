@@ -13,6 +13,9 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.streamFile;
+import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.writeTo;
+import static com.github.dakusui.jcunit8.experiments.join.acts.ActsUtils.buildActsModel;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -20,8 +23,8 @@ import static java.util.stream.Collectors.toList;
 public class Acts {
 
   private final FactorSpace factorSpace;
-  private String algorithm;
-  private String constraintHandler;
+  private       String      algorithm;
+  private       String      constraintHandler;
 
   private static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength) {
     LOGGER.debug("Directory:{} was created: {}", baseDir, baseDir.mkdirs());
@@ -29,8 +32,8 @@ public class Acts {
   }
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Acts.class);
-  private final int strength;
-  private final File baseDir;
+  private final        int    strength;
+  private final        File   baseDir;
 
   private Acts(FactorSpace factorSpace, int strength, File baseDir, String algorithm, String constraintHandler) {
     this.factorSpace = factorSpace;
@@ -85,7 +88,7 @@ public class Acts {
   }
 
   private List<Tuple> run() {
-    ProcessStreamerUtils.writeTo(inFile(baseDir), ActsUtils.buildActsModel(factorSpace, "unknown"));
+    writeTo(inFile(baseDir), buildActsModel(factorSpace, "unknown"));
     /*
       ACTS Version: 3.0
       Usage: java [options] -jar jarName <inputFileName> [outputFileName]
@@ -126,16 +129,16 @@ public class Acts {
         .stream()
         .forEach(LOGGER::trace);
 
-    try (Stream<String> s = ProcessStreamerUtils.streamFile(outFile(baseDir))) {
+    try (Stream<String> s = streamFile(outFile(baseDir)).peek(LOGGER::trace)) {
       return readTestSuiteFromCsv(s);
     }
   }
 
   public static class Builder {
-    private File baseDir;
-    private int strength = 2;
-    private String algorithm = "ipog";
-    private String constraintHandler = "solver";
+    private File        baseDir;
+    private int         strength          = 2;
+    private String      algorithm         = "ipog";
+    private String      constraintHandler = "solver";
     private FactorSpace factorSpace;
 
     public Acts build() {

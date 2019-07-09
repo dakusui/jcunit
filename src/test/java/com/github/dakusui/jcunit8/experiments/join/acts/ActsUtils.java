@@ -1,14 +1,14 @@
 package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Arrays;
@@ -18,11 +18,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.streamFile;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 
 public enum ActsUtils {
   ;
+  private static Logger LOGGER = LoggerFactory.getLogger(ActsUtils.class);
 
   static String buildActsModel(FactorSpace factorSpace, String systemName) {
     StringBuilder b = new StringBuilder();
@@ -38,14 +42,14 @@ public enum ActsUtils {
   }
 
   private static class FactorSpaceAdapter {
-    static final Function<Integer, String> NAME_RESOLVER =
+    static final Function<Integer, String>                    NAME_RESOLVER =
         (id) -> String.format("p%d", id);
-    final Function<Integer, String> name;
-    final Function<Integer, String> type;
-    final Function<Integer, Factor> factor;
-    final Function<Integer, Function<Integer, Object>> value;
-    final int numParameters;
-    final Function<String, String> factorNameToParameterName;
+    final        Function<Integer, String>                    name;
+    final        Function<Integer, String>                    type;
+    final        Function<Integer, Factor>                    factor;
+    final        Function<Integer, Function<Integer, Object>> value;
+    final        int                                          numParameters;
+    final        Function<String, String>                     factorNameToParameterName;
 
     private FactorSpaceAdapter(
         Function<Integer, String> name,
@@ -203,7 +207,7 @@ public enum ActsUtils {
       public String toText(Function<String, String> factorNameToParameterName) {
         return Arrays.stream(constraints)
             .map(each -> each.toText(factorNameToParameterName))
-            .collect(Collectors.joining(" || "));
+            .collect(joining(" || "));
       }
 
       @Override
@@ -226,26 +230,8 @@ public enum ActsUtils {
   }
 
   private static ActsConstraint gt(String f, String g) {
-    return new ActsConstraint() {
-      @Override
-      public String toText(Function<String, String> factorNameNormalizer) {
-        ////
-        // Since ACTS seems not supporting > (&gt;), invert the comparator.
-        return factorNameNormalizer.apply(g) + " &lt; " + factorNameNormalizer.apply(f);
-      }
+    return new Comp(f, g) {
 
-      @SuppressWarnings("unchecked")
-      @Override
-      public boolean test(Tuple tuple) {
-        Checks.checkcond(tuple.get(f) instanceof Comparable);
-        Checks.checkcond(tuple.get(g) instanceof Comparable);
-        return ((Comparable) f).compareTo(g) > 0;
-      }
-
-      @Override
-      public List<String> involvedKeys() {
-        return asList(f, g);
-      }
     };
   }
 
@@ -261,8 +247,8 @@ public enum ActsUtils {
       @SuppressWarnings("unchecked")
       @Override
       public boolean test(Tuple tuple) {
-        Checks.checkcond(tuple.get(f) instanceof Comparable);
-        Checks.checkcond(tuple.get(g) instanceof Comparable);
+        checkcond(tuple.get(f) instanceof Comparable);
+        checkcond(tuple.get(g) instanceof Comparable);
         return ((Comparable) f).compareTo(g) >= 0;
       }
 
@@ -285,8 +271,8 @@ public enum ActsUtils {
       @SuppressWarnings("unchecked")
       @Override
       public boolean test(Tuple tuple) {
-        Checks.checkcond(tuple.get(f) instanceof Comparable);
-        Checks.checkcond(tuple.get(g) instanceof Comparable);
+        checkcond(tuple.get(f) instanceof Comparable);
+        checkcond(tuple.get(g) instanceof Comparable);
         return ((Comparable) f).compareTo(g) == 0;
       }
 
@@ -317,10 +303,46 @@ public enum ActsUtils {
         factorSpace,
         strength);
     List<Tuple> ret = new LinkedList<>();
-    try (Stream<String> data = ProcessStreamerUtils.streamFile(Acts.outFile(baseDir))) {
+    try (Stream<String> data = streamFile(Acts.outFile(baseDir)).peek(LOGGER::trace)) {
       ret.addAll(Acts.readTestSuiteFromCsv(data));
     }
     return ret;
   }
 
+  abstract static class Comp implements ActsConstraint {
+    private final String g;
+    private final String f;
+
+    public Comp(String f, String g) {
+      this.g = g;
+      this.f = f;
+    }
+
+    @Override
+    public String toText(Function<String, String> factorNameNormalizer) {
+      ////
+      // Since ACTS seems not supporting > (&gt;), invert the comparator.
+      return toText(factorNameNormalizer.apply(g), factorNameNormalizer.apply(f));
+    }
+
+    public String toText(String normalizedFactorNameForG, String normalizedFactorNameForF) {
+      return normalizedFactorNameForG + " &lt; " + normalizedFactorNameForF;
+    }
+
+    @Override
+    public boolean test(Tuple tuple) {
+      checkcond(tuple.get(f) instanceof Comparable);
+      checkcond(tuple.get(g) instanceof Comparable);
+      return compare(f, g);
+    }
+
+    public static boolean compare(Comparable f, Comparable g) {
+      return f.compareTo(g) > 0;
+    }
+
+    @Override
+    public List<String> involvedKeys() {
+      return asList(f, g);
+    }
+  }
 }

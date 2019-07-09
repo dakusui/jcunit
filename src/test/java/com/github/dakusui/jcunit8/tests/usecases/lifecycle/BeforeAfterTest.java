@@ -17,18 +17,14 @@ public class BeforeAfterTest {
     synchronized (BeforeAfter.log) {
       BeforeAfter.log.clear();
       assertThat(
-          JUnitCore.runClasses(BeforeAfter.class).wasSuccessful(),
-          asBoolean("wasSuccessful").matcher()
-      );
+          JUnitCore.runClasses(BeforeAfter.class),
+          asBoolean("wasSuccessful").matcher());
       assertThat(
           BeforeAfter.log,
           asString(
-              Printable.function("join", list -> String.join("", (List<String>) list))
-          ).matchesRegex(
-              "B(bta)+A"
-          ).matcher(
-          )
-      );
+              Printable.function("join", list -> String.join("", (List<String>) list)))
+              .matchesRegex("B(bta)+A")
+              .matcher());
     }
   }
 }

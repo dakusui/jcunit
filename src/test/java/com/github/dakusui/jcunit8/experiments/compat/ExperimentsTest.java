@@ -5,6 +5,7 @@ import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -57,6 +58,11 @@ public class ExperimentsTest {
     }
   }
 
+  /**
+   * This experiment consumes too much time for daily unit testing and it is
+   * ignored by default.
+   */
+  @Ignore
   public static class JoinExperimentWithStrength3Test extends JoinExperimentBase {
     @Override
     protected int strength() {

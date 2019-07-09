@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit.core.utils;
 
 import com.github.dakusui.printables.PrintablePredicate;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer.Checker;
 import com.github.dakusui.processstreamer.core.process.Shell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +25,11 @@ public enum ProcessStreamerUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(ProcessStreamerUtils.class);
 
-  private static ProcessStreamer.Checker.StreamChecker createStreamChecker(String... regexes) {
+  private static Checker.StreamChecker createStreamChecker(String... regexes) {
     List<Pattern> patterns = Arrays.stream(regexes)
         .map(Pattern::compile)
         .collect(toList());
-    return new ProcessStreamer.Checker.StreamChecker() {
+    return new Checker.StreamChecker() {
       List<String> foundErrors = new LinkedList<>();
 
       @Override
@@ -56,10 +57,12 @@ public enum ProcessStreamerUtils {
   }
 
   public static Stream<String> streamFile(File file) {
-    return processStreamer(format("cat %s", file.getAbsolutePath()), ProcessStreamer.Checker.createDefault()).stream();
+    return processStreamer(format("cat %s", file.getAbsolutePath()),
+        Checker.createDefault())
+        .stream();
   }
 
-  public static ProcessStreamer processStreamer(String command, ProcessStreamer.Checker checker) {
+  public static ProcessStreamer processStreamer(String command, Checker checker) {
     LOGGER.debug("Executing:[{}]", command);
     return new ProcessStreamer.Builder(Shell.local(), command)
         .checker(checker)
@@ -67,12 +70,12 @@ public enum ProcessStreamerUtils {
   }
 
   public static void writeTo(File file, String data) {
-    processStreamer(format("echo '%s' > %s", data, file.getAbsolutePath()), ProcessStreamer.Checker.createDefault())
+    processStreamer(format("echo '%s' > %s", data, file.getAbsolutePath()), Checker.createDefault())
         .stream()
         .forEach(LOGGER::debug);
   }
 
-  public static class StandardChecker implements ProcessStreamer.Checker {
+  public static class StandardChecker implements Checker {
     private final StreamChecker stdoutChecker;
     private final StreamChecker stderrChecker;
 
