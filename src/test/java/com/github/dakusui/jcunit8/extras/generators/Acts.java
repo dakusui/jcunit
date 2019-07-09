@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.join.acts;
+package com.github.dakusui.jcunit8.extras.generators;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.streamFile;
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.writeTo;
-import static com.github.dakusui.jcunit8.experiments.join.acts.ActsUtils.buildActsModel;
+import static com.github.dakusui.jcunit8.extras.generators.ActsUtils.buildActsModel;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -43,7 +43,7 @@ public class Acts {
     this.constraintHandler = constraintHandler;
   }
 
-  static List<Tuple> readTestSuiteFromCsv(Stream<String> data) {
+  public static List<Tuple> readTestSuiteFromCsv(Stream<String> data) {
     AtomicReference<List<String>> header = new AtomicReference<>();
     return data.filter(s -> !s.startsWith("#"))
         .filter(s -> {

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
-import com.github.dakusui.jcunit8.experiments.join.acts.Acts;
+import com.github.dakusui.jcunit8.extras.generators.Acts;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.join.acts;
+package com.github.dakusui.jcunit8.extras.generators;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;

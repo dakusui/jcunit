@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.extras.abstracter;
 
-import com.github.dakusui.jcunit8.experiments.join.acts.ActsConstraint;
+import com.github.dakusui.jcunit8.extras.generators.ActsConstraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 
@@ -24,7 +24,15 @@ public class FactorSpaceSpec {
   private final List<Function<List<String>, ActsConstraint>> constraints = new LinkedList<>();
 
   public FactorSpaceSpec addFactors(int numLevels, int numFactors) {
-    this.factorSpecs.put(numLevels, numFactors);
+    FactorSpaceSpec ret = this;
+    for (int i = 0; i < numFactors; i++)
+      ret = this.addFactor(numLevels);
+    return ret;
+  }
+
+  public FactorSpaceSpec addFactor(int numLevels) {
+    this.factorSpecs.putIfAbsent(numLevels, 0);
+    this.factorSpecs.put(numLevels, factorSpecs.get(numLevels) + 1);
     return this;
   }
 

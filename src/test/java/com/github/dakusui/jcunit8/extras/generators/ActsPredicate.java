@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.join.acts;
+package com.github.dakusui.jcunit8.extras.generators;
 
 
 import java.util.function.Function;
