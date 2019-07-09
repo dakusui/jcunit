@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 
 import java.util.ArrayList;
 import java.util.Collections;

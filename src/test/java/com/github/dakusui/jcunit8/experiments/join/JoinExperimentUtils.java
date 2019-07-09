@@ -1,8 +1,9 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public enum JoinExperimentUtils {
       BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
     return loadPregeneratedCoveringArrayFor(factorSpaceSpec, strength, baseDir)
         .orElseGet(() -> {
-          FactorSpaceSpec abstractModel = convertToAbstractModel(factorSpaceSpec);
+          CompatFactorSpaceSpec abstractModel = convertToAbstractModel(factorSpaceSpec);
           LOGGER.debug(String.format("Generating a covering array for %s(strength=%s) ...", factorSpaceSpec, strength));
           List<Tuple> ret = factory.apply(abstractModel.build(), strength);
           LOGGER.debug("Generated.");
@@ -61,8 +62,8 @@ public enum JoinExperimentUtils {
         });
   }
 
-  private static FactorSpaceSpec convertToAbstractModel(FactorSpaceSpec in) {
-    FactorSpaceSpec ret = new FactorSpaceSpec("PREFIX");
+  private static CompatFactorSpaceSpec convertToAbstractModel(FactorSpaceSpec in) {
+    CompatFactorSpaceSpec ret = new CompatFactorSpaceSpec("PREFIX");
     in.factorSpecs().forEach(entry -> ret.addFactors(entry.getKey(), entry.getValue()));
     return ret;
   }

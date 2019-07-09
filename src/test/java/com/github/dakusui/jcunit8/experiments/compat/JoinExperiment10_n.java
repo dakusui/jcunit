@@ -1,7 +1,8 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Test;
 
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
@@ -9,7 +10,7 @@ import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArra
 public class JoinExperiment10_n extends JoinExperimentBase {
   @Test
   public void whenJoinWith10_5$thenLetsSee() {
-    FactorSpaceSpec rhsSpec = new FactorSpaceSpec("R").addFactors(10, 10);
+    FactorSpaceSpec rhsSpec = new CompatFactorSpaceSpec("R").addFactors(10, 10);
     final FactorSpace r = rhsSpec.build();
     exerciseJoin(5, rhsSpec, generateWithIpoGplus(r, strength()));
   }
@@ -21,6 +22,6 @@ public class JoinExperiment10_n extends JoinExperimentBase {
 
   @Override
   protected FactorSpaceSpec lhsFactorSpaceSpec() {
-    return new FactorSpaceSpec("L").addFactors(10, 10);
+    return new CompatFactorSpaceSpec("L").addFactors(10, 10);
   }
 }

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.testutils.testsuitequality;
+package com.github.dakusui.jcunit8.extras.abstracter;
 
 import com.github.dakusui.jcunit8.experiments.join.acts.ActsConstraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
@@ -11,6 +11,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -21,11 +22,6 @@ import static java.util.stream.Collectors.toList;
 public class FactorSpaceSpec {
   private final SortedMap<Integer, Integer>                  factorSpecs = new TreeMap<>((o1, o2) -> o2 - o1);
   private final List<Function<List<String>, ActsConstraint>> constraints = new LinkedList<>();
-  private final String                                       prefix;
-
-  public FactorSpaceSpec(String prefix) {
-    this.prefix = prefix;
-  }
 
   public FactorSpaceSpec addFactors(int numLevels, int numFactors) {
     this.factorSpecs.put(numLevels, numFactors);
@@ -43,7 +39,7 @@ public class FactorSpaceSpec {
       factorSpecs.keySet().stream()
           .flatMap((Integer numLevels) -> IntStream.range(0, factorSpecs.get(numLevels))
               .mapToObj(i -> Factor.create(
-                  format("%s-%02d", prefix, index.getAndIncrement()),
+                  composeFactorName(index::getAndIncrement),
                   IntStream.range(0, numLevels)
                       .boxed().collect(toList())
                       .toArray())))
@@ -57,11 +53,8 @@ public class FactorSpaceSpec {
     );
   }
 
-  @Override
-  public String toString() {
-    return this.factorSpecs.keySet().stream()
-        .map(k -> format("%s^%s", k, this.factorSpecs.get(k)))
-        .collect(joining(" ", format("%s[", this.prefix), "]"));
+  public String prefix() {
+    return "p";
   }
 
   public String signature() {
@@ -70,19 +63,22 @@ public class FactorSpaceSpec {
         .collect(joining(","));
   }
 
-  public static void main(String... args) {
-    System.out.println(new FactorSpaceSpec("F").addFactors(2, 3).addFactors(4, 2).toString());
-  }
-
   public int numFactors() {
     return this.factorSpecs.values().stream().reduce(Integer::sum).orElse(0);
   }
 
-  public String prefix() {
-    return prefix;
-  }
-
   public Stream<Map.Entry<Integer, Integer>> factorSpecs() {
     return this.factorSpecs.entrySet().stream();
+  }
+
+  @Override
+  public String toString() {
+    return this.factorSpecs.keySet().stream()
+        .map(k -> format("%s^%s", k, this.factorSpecs.get(k)))
+        .collect(joining(" ", format("%s[", this.prefix()), "]"));
+  }
+
+  private String composeFactorName(IntSupplier factorId) {
+    return format("%s-%02d", prefix(), factorId.getAsInt());
   }
 }

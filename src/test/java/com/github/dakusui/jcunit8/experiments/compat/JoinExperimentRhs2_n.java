@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Test;
 
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;

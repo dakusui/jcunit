@@ -2,12 +2,13 @@ package com.github.dakusui.jcunit8.experiments.compat;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.experiments.join.JoinReport;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.AfterClass;
 import org.junit.Before;
 
@@ -17,9 +18,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.configureStdIOs;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
-import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 
 public abstract class JoinExperimentBase {
   private static boolean     initialized    = false;
@@ -34,7 +35,7 @@ public abstract class JoinExperimentBase {
   }
 
   public static FactorSpaceSpec factorSpeceSpec(String r, int numFactors) {
-    return new FactorSpaceSpec(r).addFactors(2, numFactors);
+    return new CompatFactorSpaceSpec(r).addFactors(2, numFactors);
   }
 
   @Before

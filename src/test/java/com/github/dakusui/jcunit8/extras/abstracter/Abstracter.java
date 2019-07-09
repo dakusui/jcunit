@@ -1,15 +1,15 @@
 package com.github.dakusui.jcunit8.extras.abstracter;
 
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
 
 public enum Abstracter {
   ;
-  static FactorSpace toFactorSpace(FactorSpaceSpec factorSpaceSpec) {
+  static FactorSpace toFactorSpace(CompatFactorSpaceSpec factorSpaceSpec) {
     return null;
   }
 
-  static FactorSpaceSpec factorSpaceSpec(FactorSpace factorSpace) {
+  static CompatFactorSpaceSpec factorSpaceSpec(FactorSpace factorSpace) {
     return null;
   }
 }

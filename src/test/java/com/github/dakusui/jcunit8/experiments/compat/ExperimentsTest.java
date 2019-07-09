@@ -1,10 +1,11 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -12,8 +13,8 @@ import org.junit.runner.RunWith;
 
 import java.util.function.Function;
 
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
 import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
+import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
 
 @RunWith(Enclosed.class)
 public class ExperimentsTest {
@@ -71,12 +72,12 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactors(2, 20);
+      return new CompatFactorSpaceSpec("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
+      FactorSpaceSpec rSpec = new CompatFactorSpaceSpec("R").addFactors(2, 20);
       final FactorSpace r = rSpec.build();
       exerciseJoin(
           10,
@@ -96,12 +97,12 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactors(2, 20);
+      return new CompatFactorSpaceSpec("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
+      FactorSpaceSpec rSpec = new CompatFactorSpaceSpec("R").addFactors(2, 20);
       exerciseJoin(10,
           rSpec,
           loadPregeneratedOrGenerateAndSaveCoveringArrayFor(

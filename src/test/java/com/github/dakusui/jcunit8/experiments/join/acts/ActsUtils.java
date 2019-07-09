@@ -2,11 +2,12 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,7 +295,7 @@ public enum ActsUtils {
 
   @SafeVarargs
   public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, ActsConstraint>... constraints) {
-    FactorSpaceSpec factorSpaceSpec = new FactorSpaceSpec("L").addFactors(numLevels, numFactors);
+    FactorSpaceSpec factorSpaceSpec = new CompatFactorSpaceSpec("L").addFactors(numLevels, numFactors);
     for (Function<List<String>, ActsConstraint> each : constraints)
       factorSpaceSpec = factorSpaceSpec.addConstraint(each);
     FactorSpace factorSpace = factorSpaceSpec.build();

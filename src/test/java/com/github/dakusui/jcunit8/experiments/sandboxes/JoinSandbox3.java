@@ -1,15 +1,20 @@
 package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.StopWatch;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.StopWatch;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
 
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
 
@@ -24,16 +29,16 @@ public class JoinSandbox3 {
     }
 
     @Override
-    public List<Tuple> call() throws Exception {
+    public List<Tuple> call() {
       return CoveringArrayGenerationUtils.generateWithIpoGplus(factorSpace, strength);
     }
   }
 
   @Test
   public void test() throws ExecutionException, InterruptedException {
-    FactorSpaceSpec spec1 = new FactorSpaceSpec("A").addFactors(2, 40);
-    FactorSpaceSpec spec2 = new FactorSpaceSpec("B").addFactors(2, 30);
-    FactorSpaceSpec spec3 = new FactorSpaceSpec("C").addFactors(2, 30);
+    FactorSpaceSpec spec1 = new CompatFactorSpaceSpec("A").addFactors(2, 40);
+    FactorSpaceSpec spec2 = new CompatFactorSpaceSpec("B").addFactors(2, 30);
+    FactorSpaceSpec spec3 = new CompatFactorSpaceSpec("C").addFactors(2, 30);
 
     ExecutorService threadPool = ForkJoinPool.commonPool();
     try {
