@@ -4,29 +4,17 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 
 public class FactorSpaceEncoder {
-  static class Locator {
-    final int numLevels;
-    final int index;
-
-    Locator(int numLevels, int index) {
-      this.numLevels = numLevels;
-      this.index = index;
-    }
-  }
-
-  private final FactorSpaceSpec            spec               = new FactorSpaceSpec();
-  private final Map<Integer, List<Factor>> factors            = new HashMap<>();
-  private final Map<String, Integer>       indicesInSameLevel = new HashMap<>();
+  private final List<Constraint> constraints = new LinkedList<>();
+  private final FactorSpaceSpec spec = new FactorSpaceSpec();
+  private final Map<Integer, List<Factor>> factors = new HashMap<>();
+  private final Map<String, Integer> indicesInSameLevel = new HashMap<>();
 
   public FactorSpaceEncoder addFactor(Factor factor) {
     int factorSize = factor.getLevels().size();
@@ -38,12 +26,28 @@ public class FactorSpaceEncoder {
   }
 
   public FactorSpaceEncoder addConstraint(Constraint constraint) {
+    this.constraints.add(constraint);
     return this;
   }
+
 
   public EncodedFactorSpace encoded() {
     return new EncodedFactorSpace() {
       final FactorSpace inner = spec.build();
+
+      String encodeFactorName(String externalFactorName) {
+        return encodeFactorName(
+            spec.firstFactorIndexOf(inner.getFactor(externalFactorName).getLevels().size()),
+            indicesInSameLevel.get(externalFactorName));
+      }
+
+      String encodeFactorName(int firstFactorIndexInSameNumLevels, int indexInSameNumLevels) {
+        return String.format("p%d", firstFactorIndexInSameNumLevels + indexInSameNumLevels);
+      }
+
+      String decodeFactorName(String internalFactorName) {
+        return null;
+      }
 
       @Override
       Function<String, String> factorNameEncoder() {
