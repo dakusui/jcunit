@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
-import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
 
 public class CompatFactorSpaceSpec extends FactorSpaceSpec {
   private final String                                       prefix;

@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
-import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join.acts;
 
-import com.github.dakusui.jcunit8.extras.generators.ActsConstraint;
 import com.github.dakusui.jcunit8.extras.generators.ActsUtils;
+import com.github.dakusui.jcunit8.extras.normalizer.NormalizedConstraint;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
@@ -53,7 +53,7 @@ public class ActsUtilsTest {
 
   @SuppressWarnings("unchecked")
   private void generateAndReportWithConstraints(File baseDir, int numFactors, int strength) {
-    List<Function<List<String>, ActsConstraint>> constraints = new LinkedList<>();
+    List<Function<List<String>, NormalizedConstraint>> constraints = new LinkedList<>();
     for (int i = 0; i < numFactors / 10; i++) {
       constraints.add(ActsUtils.createConstraint(i * 10));
     }

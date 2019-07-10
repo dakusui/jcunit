@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.experiments.compat;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.experiments.join.JoinReport;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
-import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;

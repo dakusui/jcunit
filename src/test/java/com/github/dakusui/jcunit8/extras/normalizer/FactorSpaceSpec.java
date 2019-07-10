@@ -1,10 +1,13 @@
-package com.github.dakusui.jcunit8.extras.abstracter;
+package com.github.dakusui.jcunit8.extras.normalizer;
 
-import com.github.dakusui.jcunit8.extras.generators.ActsConstraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
@@ -18,7 +21,7 @@ import static java.util.stream.Collectors.toList;
 
 public class FactorSpaceSpec {
   private final SortedMap<Integer, Integer> factorSpecs = new TreeMap<>((o1, o2) -> o2 - o1);
-  private final List<Function<List<String>, ActsConstraint>> constraints = new LinkedList<>();
+  private final List<Function<List<String>, NormalizedConstraint>> constraints = new LinkedList<>();
 
   public FactorSpaceSpec addFactors(int numLevels, int numFactors) {
     FactorSpaceSpec ret = this;
@@ -33,7 +36,7 @@ public class FactorSpaceSpec {
     return this;
   }
 
-  public FactorSpaceSpec addConstraint(Function<List<String>, ActsConstraint> constraint) {
+  public FactorSpaceSpec addConstraint(Function<List<String>, NormalizedConstraint> constraint) {
     this.constraints.add(constraint);
     return this;
   }

@@ -2,11 +2,12 @@ package com.github.dakusui.jcunit8.extras.generators;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
-import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.NormalizedConstraint;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +93,61 @@ public enum ActsUtils {
     StringUtils.appendLine(b, indentLevel, "</Parameters>");
   }
 
+  /**
+   * <ul>
+   * <li>type:0: Number and Range</li>
+   * <li>type:1: Enum </li>
+   * <li>type:2: bool</li>
+   *</ul>
+   * <pre>
+   *   <Parameters>
+   *     <Parameter id="2" name="enum1" type="1">
+   *       <values>
+   *         <value>elem1</value>
+   *         <value>elem2</value>
+   *       </values>
+   *       <basechoices />
+   *       <invalidValues />
+   *     </Parameter>
+   *     <Parameter id="3" name="num1" type="0">
+   *       <values>
+   *         <value>0</value>
+   *         <value>100</value>
+   *         <value>123</value>
+   *         <value>1000000</value>
+   *         <value>2000000000</value>
+   *         <value>-2000000000</value>
+   *       </values>
+   *       <basechoices />
+   *       <invalidValues />
+   *     </Parameter>
+   *     <Parameter id="4" name="bool1" type="2">
+   *       <values>
+   *         <value>true</value>
+   *         <value>false</value>
+   *       </values>
+   *       <basechoices />
+   *       <invalidValues />
+   *     </Parameter>
+   *     <Parameter id="5" name="range1" type="0">
+   *       <values>
+   *         <value>0</value>
+   *         <value>1</value>
+   *         <value>2</value>
+   *         <value>3</value>
+   *       </values>
+   *       <basechoices />
+   *       <invalidValues />
+   *     </Parameter>
+   *   </Parameters>
+   * </pre>
+   *
+   * @param b
+   * @param indentLevel
+   * @param parameterId
+   * @param parameter
+   * @return
+   */
   private static int renderParameter(StringBuilder b, int indentLevel, int parameterId, FactorSpaceAdapter parameter) {
     b.append(StringUtils.indent(indentLevel))
         .append("<Parameter id=\"").append(parameterId).append("\" name=\"")
@@ -117,6 +173,15 @@ public enum ActsUtils {
   }
 
   /**
+   * <pre>
+   *     <Constraints>
+   *     <Constraint text="(num1 &gt;= 100 &amp;&amp; bool1) &amp;&amp; (enum1 == &quot;elem2&quot;)"><Parameters>
+   *       <Parameter name="bool1"/>
+   *       <Parameter name="num1"/>
+   *       <Parameter name="enum1"/>
+   *     </Parameters></Constraint>
+   *   </Constraints>
+   * </pre>
    * <pre>
    *     <Constraints>
    *       <Constraint text="l01 &lt;= l02 || l03 &lt;= l04 || l05 &lt;= l06 || l07&lt;= l08 || l09 &lt;= l02">
@@ -188,7 +253,7 @@ public enum ActsUtils {
    *
    * @param factorNames A list of factor names.
    */
-  public static ActsConstraint createConstraint(List<String> factorNames) {
+  public static NormalizedConstraint createConstraint(List<String> factorNames) {
     String[] p = factorNames.toArray(new String[0]);
     return or(
         ge(p[0], p[1]),
@@ -198,12 +263,12 @@ public enum ActsUtils {
         gt(p[8], p[1]));
   }
 
-  public static Function<List<String>, ActsConstraint> createConstraint(int offset) {
+  public static Function<List<String>, NormalizedConstraint> createConstraint(int offset) {
     return strings -> createConstraint(strings.subList(offset, offset + 10));
   }
 
-  private static ActsConstraint or(ActsConstraint... constraints) {
-    return new ActsConstraint() {
+  private static NormalizedConstraint or(NormalizedConstraint... constraints) {
+    return new NormalizedConstraint() {
       @Override
       public String toText(Function<String, String> factorNameToParameterName) {
         return Arrays.stream(constraints)
@@ -213,7 +278,7 @@ public enum ActsUtils {
 
       @Override
       public boolean test(Tuple tuple) {
-        for (ActsConstraint each : constraints) {
+        for (NormalizedConstraint each : constraints) {
           if (each.test(tuple))
             return true;
         }
@@ -230,14 +295,14 @@ public enum ActsUtils {
     };
   }
 
-  private static ActsConstraint gt(String f, String g) {
+  private static NormalizedConstraint gt(String f, String g) {
     return new Comp(f, g) {
 
     };
   }
 
-  private static ActsConstraint ge(String f, String g) {
-    return new ActsConstraint() {
+  private static NormalizedConstraint ge(String f, String g) {
+    return new NormalizedConstraint() {
       @Override
       public String toText(Function<String, String> factorNameNormalizer) {
         ////
@@ -260,8 +325,8 @@ public enum ActsUtils {
     };
   }
 
-  private static ActsConstraint eq(String f, String g) {
-    return new ActsConstraint() {
+  private static NormalizedConstraint eq(String f, String g) {
+    return new NormalizedConstraint() {
       @Override
       public String toText(Function<String, String> factorNameNormalizer) {
         ////
@@ -286,7 +351,7 @@ public enum ActsUtils {
 
 
   @SafeVarargs
-  public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, ActsConstraint>... constraints) {
+  public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
     CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
     List<Tuple> generated;
     generated = generateWithActs(baseDir, numLevels, numFactors, strength, constraints);
@@ -294,9 +359,9 @@ public enum ActsUtils {
   }
 
   @SafeVarargs
-  public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, ActsConstraint>... constraints) {
+  public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
     FactorSpaceSpec factorSpaceSpec = new CompatFactorSpaceSpec("L").addFactors(numLevels, numFactors);
-    for (Function<List<String>, ActsConstraint> each : constraints)
+    for (Function<List<String>, NormalizedConstraint> each : constraints)
       factorSpaceSpec = factorSpaceSpec.addConstraint(each);
     FactorSpace factorSpace = factorSpaceSpec.build();
     Acts.generateWithActs(
@@ -310,7 +375,7 @@ public enum ActsUtils {
     return ret;
   }
 
-  abstract static class Comp implements ActsConstraint {
+  abstract static class Comp implements NormalizedConstraint {
     private final String g;
     private final String f;
 

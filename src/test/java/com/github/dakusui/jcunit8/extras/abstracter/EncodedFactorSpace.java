@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.extras.abstracter;
 
+import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;

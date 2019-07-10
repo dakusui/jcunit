@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
-import com.github.dakusui.jcunit8.extras.abstracter.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
