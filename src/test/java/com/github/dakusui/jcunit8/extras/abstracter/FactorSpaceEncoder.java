@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.extras.abstracter;
 
-import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -13,7 +13,7 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 
 public class FactorSpaceEncoder {
   private final List<Constraint>           constraints        = new LinkedList<>();
-  private final FactorSpaceSpec            spec               = new FactorSpaceSpec();
+  private final FactorSpaceSpecForExperiments spec               = new FactorSpaceSpecForExperiments();
   private final Map<Integer, List<Factor>> factors            = new HashMap<>();
   private final Map<String, Integer>       indicesInSameLevel = new HashMap<>();
 

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.extras.abstracter;
 
-import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -29,7 +29,7 @@ public abstract class EncodedFactorSpace implements FactorSpace {
     }
 
     public EncodedFactorSpace build() {
-      FactorSpaceSpec factorSpaceSpec = new FactorSpaceSpec();
+      FactorSpaceSpecForExperiments factorSpaceSpec = new FactorSpaceSpecForExperiments();
       FactorSpace inner = factorSpaceSpec.build();
       return new EncodedFactorSpace() {
         @Override

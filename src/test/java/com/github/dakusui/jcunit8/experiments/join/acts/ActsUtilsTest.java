@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit8.extras.generators.ActsUtils;
-import com.github.dakusui.jcunit8.extras.normalizer.NormalizedConstraint;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.NormalizedConstraint;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 

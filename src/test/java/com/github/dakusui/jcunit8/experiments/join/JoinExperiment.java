@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -78,8 +78,8 @@ public class JoinExperiment {
     exerciseJoin(lhs, rhs, this.spec.strength, this.spec.joinerFactory).forEach(System.out::println);
   }
 
-  private String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpec p2) {
-    return String.format("|CA(%s, %s)|=%s", p.applyAsInt(this.spec.strength), p2.signature(), ca.size());
+  private String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpecForExperiments p2) {
+    return String.format("|CA(%s, %s)|=%s", p.applyAsInt(this.spec.strength), p2.createSignature(), ca.size());
   }
 
   private static List<Tuple> exerciseJoin(List<Tuple> lhs, List<Tuple> rhs, int strength, Function<Requirement, Joiner> joinerFactory) {
@@ -92,7 +92,7 @@ public class JoinExperiment {
   }
 
   private static List<Tuple> loadOrGenerateCoveringArray(
-      FactorSpaceSpec factorSpaceSpec,
+      FactorSpaceSpecForExperiments factorSpaceSpec,
       int strength,
       BiFunction<FactorSpace, Integer, List<Tuple>> generator) {
     return loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
@@ -104,8 +104,8 @@ public class JoinExperiment {
 
   public static class Builder implements Cloneable {
     Function<Requirement, Joiner>                 joinerFactory;
-    FactorSpaceSpec                               lhsSpec;
-    FactorSpaceSpec                               rhsSpec;
+    FactorSpaceSpecForExperiments lhsSpec;
+    FactorSpaceSpecForExperiments rhsSpec;
     BiFunction<FactorSpace, Integer, List<Tuple>> generator   = CoveringArrayGenerationUtils::generateWithIpoGplus;
     int                                           strength    = 2;
     IntUnaryOperator                              lhsStrength = i -> i;
@@ -113,29 +113,29 @@ public class JoinExperiment {
     int                                           times       = 1;
     private boolean verification;
 
-    public Builder lhs(FactorSpaceSpec lhs) {
+    public Builder lhs(FactorSpaceSpecForExperiments lhs) {
       return this.lhs(lhs, i -> i);
     }
 
-    public Builder lhs(FactorSpaceSpec lhs, int strength) {
+    public Builder lhs(FactorSpaceSpecForExperiments lhs, int strength) {
       return this.lhs(lhs, i -> strength);
     }
 
-    public Builder lhs(FactorSpaceSpec lhs, IntUnaryOperator strength) {
+    public Builder lhs(FactorSpaceSpecForExperiments lhs, IntUnaryOperator strength) {
       this.lhsSpec = lhs;
       this.lhsStrength = strength;
       return this;
     }
 
-    public Builder rhs(FactorSpaceSpec rhs) {
+    public Builder rhs(FactorSpaceSpecForExperiments rhs) {
       return this.rhs(rhs, i -> i);
     }
 
-    public Builder rhs(FactorSpaceSpec rhs, int strength) {
+    public Builder rhs(FactorSpaceSpecForExperiments rhs, int strength) {
       return this.rhs(rhs, i -> strength);
     }
 
-    public Builder rhs(FactorSpaceSpec rhs, IntUnaryOperator strength) {
+    public Builder rhs(FactorSpaceSpecForExperiments rhs, IntUnaryOperator strength) {
       this.rhsSpec = rhs;
       this.rhsStrength = strength;
       return this;

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import org.junit.BeforeClass;
 
@@ -16,7 +16,7 @@ public class GenerationTestBase {
   }
 
 
-  protected void exerciseGeneration(FactorSpaceSpec factorSpaceSpec, int strength, int times) {
+  protected void exerciseGeneration(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, int times) {
     assertCoveringArray(
         exerciseGeneration(factorSpaceSpec, strength).generatedCoveringArray,
         factorSpaceSpec.build(),
@@ -27,7 +27,7 @@ public class GenerationTestBase {
     }
   }
 
-  private Report exerciseGeneration(FactorSpaceSpec factorSpaceSpec, int strength) {
+  private Report exerciseGeneration(FactorSpaceSpecForExperiments factorSpaceSpec, int strength) {
     FactorSpace factorSpace = factorSpaceSpec.build();
     CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
     return new Report(

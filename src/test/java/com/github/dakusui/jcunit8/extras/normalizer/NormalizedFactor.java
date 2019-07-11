@@ -2,19 +2,10 @@ package com.github.dakusui.jcunit8.extras.normalizer;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 
-interface NormalizedFactor extends Factor {
-  FactorType type();
+import java.util.function.Function;
 
-  enum FactorType {
-    NUMBER(0),
-    ENUM(1),
-    BOOL(2),
-    ;
+public interface NormalizedFactor extends Factor {
+  Function<Integer, Integer> denormalizer();
 
-    private final int type;
-
-    FactorType(int type) {
-      this.type = type;
-    }
-  }
+  Object getRawLevel(int i);
 }

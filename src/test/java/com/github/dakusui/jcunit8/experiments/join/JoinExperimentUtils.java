@@ -1,8 +1,8 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
-import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public enum JoinExperimentUtils {
   private static final Logger LOGGER = LoggerFactory.getLogger(JoinExperimentUtils.class);
 
   public static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
-      FactorSpaceSpec factorSpaceSpec,
+      FactorSpaceSpecForExperiments factorSpaceSpec,
       int strength,
       BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
     File baseDir = new File("src/test/resources/pregenerated-cas");
@@ -43,13 +43,13 @@ public enum JoinExperimentUtils {
   }
 
   private static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
-      FactorSpaceSpec factorSpaceSpec,
+      FactorSpaceSpecForExperiments factorSpaceSpec,
       int strength,
       File baseDir,
       BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
     return loadPregeneratedCoveringArrayFor(factorSpaceSpec, strength, baseDir)
         .orElseGet(() -> {
-          CompatFactorSpaceSpec abstractModel = convertToAbstractModel(factorSpaceSpec);
+          CompatFactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
           LOGGER.debug(String.format("Generating a covering array for %s(strength=%s) ...", factorSpaceSpec, strength));
           List<Tuple> ret = factory.apply(abstractModel.build(), strength);
           LOGGER.debug("Generated.");
@@ -62,15 +62,15 @@ public enum JoinExperimentUtils {
         });
   }
 
-  private static CompatFactorSpaceSpec convertToAbstractModel(FactorSpaceSpec in) {
-    CompatFactorSpaceSpec ret = new CompatFactorSpaceSpec("PREFIX");
+  private static CompatFactorSpaceSpecForExperiments convertToAbstractModel(FactorSpaceSpecForExperiments in) {
+    CompatFactorSpaceSpecForExperiments ret = new CompatFactorSpaceSpecForExperiments("PREFIX");
     in.factorSpecs().forEach(entry -> ret.addFactors(entry.getKey(), entry.getValue()));
     return ret;
   }
 
-  private static Optional<List<Tuple>> loadPregeneratedCoveringArrayFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
+  private static Optional<List<Tuple>> loadPregeneratedCoveringArrayFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
     try {
-      LOGGER.debug("Loading pre-generated covering array for " + factorSpaceSpec.signature() + ":strength=" + strength);
+      LOGGER.debug("Loading pre-generated covering array for " + factorSpaceSpec.createSignature() + ":strength=" + strength);
       try {
         return Optional.of(
             loadFrom(fileFor(factorSpaceSpec, strength, baseDir)).stream()
@@ -88,12 +88,12 @@ public enum JoinExperimentUtils {
     }
   }
 
-  private static File fileFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
+  private static File fileFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
     return new File(new File(baseDir, Objects.toString(strength)), signatureOf(factorSpaceSpec));
   }
 
-  private static String signatureOf(FactorSpaceSpec factorSpaceSpec) {
-    return factorSpaceSpec.signature();
+  private static String signatureOf(FactorSpaceSpecForExperiments factorSpaceSpec) {
+    return factorSpaceSpec.createSignature();
   }
 
   private static void saveTo(File file, List<Tuple> tuples) {

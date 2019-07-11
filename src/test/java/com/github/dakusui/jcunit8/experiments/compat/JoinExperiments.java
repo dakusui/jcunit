@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpec;
-import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
@@ -14,8 +14,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 10);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 10);
     }
   }
 
@@ -26,8 +26,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 20);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 20);
     }
   }
 
@@ -38,8 +38,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 30);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 30);
     }
   }
 
@@ -50,8 +50,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 40);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 40);
     }
   }
 
@@ -62,8 +62,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 50);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 50);
     }
   }
 
@@ -74,8 +74,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 60);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 60);
     }
   }
 
@@ -86,8 +86,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 70);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 70);
     }
   }
 
@@ -98,8 +98,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 80);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 80);
     }
   }
 
@@ -110,8 +110,8 @@ public class JoinExperiments {
     }
 
     @Override
-    protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpec("L").addFactors(2, 90);
+    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 90);
     }
   }
 }
