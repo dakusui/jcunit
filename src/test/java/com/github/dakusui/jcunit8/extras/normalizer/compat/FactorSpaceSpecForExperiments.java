@@ -6,10 +6,12 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.IntSupplier;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static java.lang.String.format;
@@ -17,6 +19,7 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class FactorSpaceSpecForExperiments extends FactorSpaceSpec {
+  protected final List<Function<List<String>, NormalizedConstraint>> constraints = new LinkedList<>();
   public FactorSpaceSpecForExperiments addFactors(int numLevels, int numFactors) {
     FactorSpaceSpecForExperiments ret = this;
     for (int i = 0; i < numFactors; i++)
@@ -77,5 +80,8 @@ public class FactorSpaceSpecForExperiments extends FactorSpaceSpec {
 
   private String composeFactorName(IntSupplier factorId) {
     return format("%s-%02d", prefix(), factorId.getAsInt());
+  }
+  public Stream<Map.Entry<Integer, Integer>> factorSpecs() {
+    return this.factorSpecs.entrySet().stream();
   }
 }
