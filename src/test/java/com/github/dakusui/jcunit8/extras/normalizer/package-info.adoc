@@ -1,8 +1,9 @@
-:xrefstyle: full
 
-This packages holds classes for the "factor space normalization" mechanism.
+:xrefstyle: short
 
-== Factor Space Normalization Mechanism
+This packages holds classes for the "Abstractive Generator" mechanism.
+
+== Abstractive Generator
 
 Factor Space Normalization Mechanism provides a way to "abstract" a given factor space.
 With this capability, JCUnit can support external Combinatorial Interaction Testing(CIT) tools, such as ACTS and PICT.
@@ -10,54 +11,94 @@ Not only that, the mechanism to "store" generated covering arrays to reuse them 
 
 It creates an object called ```FactorSpaceSpec```, which has information to describe characteristics of the given factor space but omitting concrete aspects.
 
-== Architecture
+== Design
 
-Following diagram illustrates the overall architecture of this mechanism.
+Following diagram xref:Pipeline[] illustrates the overall architecture of this mechanism.
 
 [ditaa]
+.Pipeline
+----
+       +--------------+
+       |RawFactorSpace|
+       +------+-------+
+              ^
+              |  Reads
+              |                      /--------------------------------------\
+/-------------|-----------------\    |                                      |
+|             |                 |    |        +----------------------+      |
+|   +---------+---------+       |    |        |NormalizedFactorSpace |      |
+|   |   Factor Space    |Creates|    |        +----------+-----------+      |
+|   |    Normalizer     +---------=->+                   |                  |
+|   |                   |       |    |          +--------+---------+        |
+|   +-------------------+       |    |          |                  |        |
+|                               |    |          V                  V        |
+|                          Reads|    |  +---------------+   +------------+  |
+|                           /---------->+FactorSpaceSpec|   |Denormalizer|  |
+|                           |   |    |  +---------------+   +------+-----+  |
+|   +-------------------+   |   |    |                             :        |
+|   |  GeneraionEngine  +---/   |    \---------------------------- | -------/
+|   |                   +---\   |    /---------------------------- V -------\
+|   +-------------------+   |   |    |    +-----------+       +---------+   |
+|                           |   |    |    |  Abstract |       |TestSuite|   |
+|                           \-=+--------->| Test Suite|<------+ Wrapper |   |
+|                      Generates|    |    +-----------+       +---------+   |
+\-------------------------------/    |   (Covering Array)     (Adapter)     |
+                                     \--------------------------------------/
+AbstractiveGenerator                 Generated Test Suite
 ----
 
 
-        +--------------+
-        |RawFactorSpace|
-        +--------------+
-               ^
-               |  Reads
-+-------------------------------+
-|              |                |
-|   +----------+-----------+    |
-|   |FactorSpaceNormalizer |    |
-|   +----------+-----------+    |
-|              |                |
-|              :  Creates       |
-|              V                |
-|   +----------------------+    |
-|   |NormalizedFactorSpace |<>---------+----------------------+
-|   +----------------------+    |      |                      |
-|                               |      |                      |
-|                               |      V                      V
-|   +-------------------+  Reads +---------------+   +------------+
-|   |  GeneraionEngine  +<>----->|FactorSpaceSpec|   |Denormalizer|<--+
-|   |                   +-=-+    +---------------+   +------------+   |
-|   +---------+---------+   |   |                                     |
-|                           |   |                                     |
-|                           |   |                                     |   +---------+
-|                           |   |+-----------+                        +-<>|TestSuite|
-|                           +--->| TestSuite |<-------------------------<>+ Wrapper |
-|Abstract Generator             |+-----------+                            +---------+
-+-------------------------------+                                           (Adapter)
+=== Abstractive Generator
+
+*Abstractuve Generator* component reads a raw factor space, which is built by a user and contains concrete information about test cases, such as names of factors and actual values of each levels of theirs and generates a test suite as other generators.
+However, it first generates an intermediate entity called *Normalized Factor Space*, which consists of a *FactorSpaceSpec* and *Denormalizer* and let another module *Generation Engine* generate an abstract test suite.
+
+(t.b.d.)
+
+==== Factor Space Normalizer
+
+Factor Space normalizer is a component that directly reads an input, "raw" factor space and it generates a normalized factor space by extracting abstract characteristics of it while generating another entity "denormalizer".
+
+(t.b.d)
 
 
-----
 
-An object ```FactorSpaceSpec``` holds information to construct a factor space
+===== Normalized Factor Space
 
-=== Internal Representation
+(t.b.d.)
+
+===== Factor Space Spec
+
+A **Factor Space Spec** is an entity that holds mathematical characteristics of the Raw Factor Space.
+
+Signature
+(t.b.d.)
+
+===== Denormalizer and TestSuiteWrapper
+
+Denormalizer has a capability of converting a test case in an **Abstract Test Suite**
+
+(t.b.d.)
+
+==== Generation Engine
+
+*Cacher* Generator and *Acts* support by JCunit are examples of such Generation Engines.
+
+(t.b.d.)
+
+===== Abstract Test Suite (Covering Array)
+
+(t.b.d.)
+
+=== Persistence
+
 
 
 == Limitation
 
 * Signature of a factor space that has constraints.
+* Negative Test generation.
+* Normalizability. Types and constraints. (int, bool, enum)
 
 
 == Terminology
