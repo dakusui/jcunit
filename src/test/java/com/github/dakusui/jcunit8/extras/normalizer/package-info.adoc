@@ -1,0 +1,68 @@
+:xrefstyle: full
+
+This packages holds classes for the "factor space normalization" mechanism.
+
+== Factor Space Normalization Mechanism
+
+Factor Space Normalization Mechanism provides a way to "abstract" a given factor space.
+With this capability, JCUnit can support external Combinatorial Interaction Testing(CIT) tools, such as ACTS and PICT.
+Not only that, the mechanism to "store" generated covering arrays to reuse them are relying on this.
+
+It creates an object called ```FactorSpaceSpec```, which has information to describe characteristics of the given factor space but omitting concrete aspects.
+
+== Architecture
+
+Following diagram illustrates the overall architecture of this mechanism.
+
+[ditaa]
+----
+
+
+        +--------------+
+        |RawFactorSpace|
+        +--------------+
+               ^
+               |  Reads
++-------------------------------+
+|              |                |
+|   +----------+-----------+    |
+|   |FactorSpaceNormalizer |    |
+|   +----------+-----------+    |
+|              |                |
+|              :  Creates       |
+|              V                |
+|   +----------------------+    |
+|   |NormalizedFactorSpace |<>---------+----------------------+
+|   +----------------------+    |      |                      |
+|                               |      |                      |
+|                               |      V                      V
+|   +-------------------+  Reads +---------------+   +------------+
+|   |  GeneraionEngine  +<>----->|FactorSpaceSpec|   |Denormalizer|<--+
+|   |                   +-=-+    +---------------+   +------------+   |
+|   +---------+---------+   |   |                                     |
+|                           |   |                                     |
+|                           |   |                                     |   +---------+
+|                           |   |+-----------+                        +-<>|TestSuite|
+|                           +--->| TestSuite |<-------------------------<>+ Wrapper |
+|Abstract Generator             |+-----------+                            +---------+
++-------------------------------+                                           (Adapter)
+
+
+----
+
+An object ```FactorSpaceSpec``` holds information to construct a factor space
+
+=== Internal Representation
+
+
+== Limitation
+
+* Signature of a factor space that has constraints.
+
+
+== Terminology
+
+FactorSpace:: Factor Space consists of factors and constraints among them.
+
+== References
+(t.b.d.)
