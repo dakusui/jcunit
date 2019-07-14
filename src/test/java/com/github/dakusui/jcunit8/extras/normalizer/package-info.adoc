@@ -47,25 +47,25 @@ Following diagram xref:Pipeline[] illustrates the overall architecture of this m
 AbstractiveGenerator                 Generated Test Suite
 ----
 
+In this section, each component in this diagram and interaction between them will be discussed.
+
+=== Raw Factor Space
+
+"Raw Factor Space" refers to a given input to this mechanism.
 
 === Abstractive Generator
 
-*Abstractuve Generator* component reads a raw factor space, which is built by a user and contains concrete information about test cases, such as names of factors and actual values of each levels of theirs and generates a test suite as other generators.
+*Abstractive Generator* component reads a raw factor space, which is built by a user and contains concrete information about test cases, such as names of factors and actual values of each levels of theirs and generates a test suite as other generators.
 However, it first generates an intermediate entity called *Normalized Factor Space*, which consists of a *FactorSpaceSpec* and *Denormalizer* and let another module *Generation Engine* generate an abstract test suite.
-
-(t.b.d.)
 
 ==== Factor Space Normalizer
 
 Factor Space normalizer is a component that directly reads an input, "raw" factor space and it generates a normalized factor space by extracting abstract characteristics of it while generating another entity "denormalizer".
-
-(t.b.d)
-
-
+In other words, it divides a given raw factor space into two sub models, one is a *FactorSpaceSpec*, which describes mathematical characteristics and the other is a *Denormalizer*, which is for human-readable aspects such as names of factors and actual levels of them.
 
 ===== Normalized Factor Space
 
-(t.b.d.)
+A *Normalized*
 
 ===== Factor Space Spec
 
