@@ -36,12 +36,16 @@ public interface Node {
 
   interface Leaf extends Node {
     String id();
+    String[] args();
 
     class Impl implements Leaf {
-      private final String id;
+      private static final String[] NONE = new String[0];
+      private final String   id;
+      private final String[] args;
 
-      Impl(String id) {
-        this.id = id;
+      Impl(String s) {
+        this.id = head(s);
+        this.args = tail(s);
       }
 
       @Override
@@ -50,8 +54,25 @@ public interface Node {
       }
 
       @Override
+      public String[] args() {
+        return this.args;
+      }
+
+      @Override
       public void accept(Visitor visitor) {
         visitor.visitLeaf(this);
+      }
+
+      private static String head(String s) {
+        return s.contains(" ") ?
+            s.substring(0, s.indexOf(' ')) :
+            s;
+      }
+
+      private static String[] tail(String s) {
+        return s.contains(" ") ?
+            s.substring(s.indexOf(' ') + 1).split(" ") :
+            NONE;
       }
     }
   }

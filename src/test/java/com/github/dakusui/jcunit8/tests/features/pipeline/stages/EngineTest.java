@@ -76,6 +76,7 @@ public class EngineTest extends PipelineTestBase {
   @Test
   public void givenOneFactorWithConstraint$whenEngine$thenTupleSetGenerated() {
     Constraint constraint = Constraint.create(
+        "simple1=E1",
         tuple -> !Objects.equals(tuple.get("simple1"), "E1"),
         singletonList("simple1"));
     SchemafulTupleSetUtils.validateSchemafulTupleSet(

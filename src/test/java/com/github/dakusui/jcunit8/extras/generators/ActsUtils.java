@@ -98,7 +98,7 @@ public enum ActsUtils {
    * <li>type:0: Number and Range</li>
    * <li>type:1: Enum </li>
    * <li>type:2: bool</li>
-   *</ul>
+   * </ul>
    * <pre>
    *   <Parameters>
    *     <Parameter id="2" name="enum1" type="1">
@@ -277,6 +277,11 @@ public enum ActsUtils {
       }
 
       @Override
+      public String getName() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
       public boolean test(Tuple tuple) {
         for (NormalizedConstraint each : constraints) {
           if (each.test(tuple))
@@ -298,6 +303,10 @@ public enum ActsUtils {
   private static NormalizedConstraint gt(String f, String g) {
     return new Comp(f, g) {
 
+      @Override
+      public String getName() {
+        throw new UnsupportedOperationException();
+      }
     };
   }
 
@@ -308,6 +317,11 @@ public enum ActsUtils {
         ////
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
         return factorNameNormalizer.apply(g) + " &lt;= " + factorNameNormalizer.apply(f);
+      }
+
+      @Override
+      public String getName() {
+        throw new UnsupportedOperationException();
       }
 
       @SuppressWarnings("unchecked")
@@ -332,6 +346,11 @@ public enum ActsUtils {
         ////
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
         return factorNameNormalizer.apply(g) + " &lt;= " + factorNameNormalizer.apply(f);
+      }
+
+      @Override
+      public String getName() {
+        throw new UnsupportedOperationException();
       }
 
       @SuppressWarnings("unchecked")

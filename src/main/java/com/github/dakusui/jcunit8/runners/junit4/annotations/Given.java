@@ -30,7 +30,6 @@ public @interface Given {
    */
   String[] value() default { ALL_CONSTRAINTS };
 
-
   class Validator extends AnnotationValidator {
     @Override
     public List<Exception> validateAnnotatedMethod(FrameworkMethod method) {
@@ -41,7 +40,8 @@ public @interface Given {
       return new LinkedList<Exception>() {{
         NodeUtils.allLeaves(instance.value())
             .forEach((String s) -> {
-              if (!s.matches("[A-Za-z][A-Za-z0-9_]*"))
+              // "matches(helloWorld)@[a]"
+              if (!s.matches("[A-Za-z_$][A-Za-z0-9_$]*"))
                 add(new Exception(format("'%s' is not a valid condition name", s)));
               else {
                 if (testClass.getAnnotatedMethods(Condition.class).stream()

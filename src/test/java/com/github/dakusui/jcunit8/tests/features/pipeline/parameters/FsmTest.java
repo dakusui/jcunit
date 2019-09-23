@@ -63,7 +63,11 @@ public class FsmTest extends PipelineTestBase {
     TestSuiteUtils.validateTestSuite(
         generateTestSuite(
             singletonList(Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1).create("fsm1")),
-            singletonList(Constraint.create(tuple -> true, "fsm1"))
+            singletonList(Constraint.create(
+                "alwaysTrue[fsm1]",
+                tuple -> true,
+                "fsm1"
+            ))
         ),
         UTUtils.matcher(
             sizeIs(">=number of states, at least", size -> size >= FlyingSpaghettiMonsterSpec.values().length)
@@ -108,7 +112,11 @@ public class FsmTest extends PipelineTestBase {
     ParameterSpaceUtils.validateParameterSpace(
         preprocess(
             singletonList(Parameter.Fsm.Factory.of(FlyingSpaghettiMonsterSpec.class, 1).create("fsm1")),
-            singletonList(Constraint.create(tuple -> true, "fsm1"))
+            singletonList(Constraint.create(
+                "alwaysTrue[fsm1]",
+                tuple -> true,
+                "fsm1"
+            ))
         ),
         UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),

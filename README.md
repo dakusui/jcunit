@@ -1,71 +1,18 @@
 ![JCUnit](src/main/resources/JCunit-logo.png) is a model based testing tool powered by combinatorial testing techniques.
 
-# Introduction: Renewal of JCUnit
-The last month (Mar/2017) I attended and made a presentation about JCUnit
-at [ICST 2017](http://aster.or.jp/conference/icst2017/)(IEEE Conference on Software Testing 2017)
-and got a lot of new findings and feedbacks from it. It was an exciting
-experience for me and I realized that it's time to re-design JCUnit now
-based on new ideas.
+Current version of JCUnit (0.8.x) is not compatible with older versions anymore.
+Users who need to use older ones, please refer to [JCUnit-0.7.x](https://github.com/dakusui/jcunit/wiki/0.7.x).
 
-Followings are new features that will be introduced to JCUnit in the next
-major release, 0.8.x.
+In this document, the new version is called "JCUnit8" to tell it from older ones
+when necessary.
 
-* Annotation Renewal
-* Pipeline Renewal
-    - New pipeline design
-    - API
-* New covering array engine
-    - "IPO-G+"
-
-It will no longer be working with old Java SE6 and require Java 8. Neither
-it will not be compatible with older versions of JCUnit. The new version is
-called "JCUnit 8" named after both Java 8 and the next major version of JCUnit,
-0.8.x. Not only that, functionalities of older versions are removed from
-JCUnit8.
-
-## About 0.7.x
-0.7.x of JCUnit will remain available and you can keep using it but all
-new features will be introduced to JCUnit8 (0.8.x or later), not to 0.7.x or
-older.
-
-### Installation and how to use it.
-It is tested using ```JUnit``` (4.12) and ```mockito-core``` (1.9.5).
-
-You will only need to link JCUnit to your project.
-Below is a pom.xml fragment to describe jcunit's dependency.
-Please add it to your project's pom.xml
-
-```xml
-
-    <dependency>
-      <groupId>com.github.dakusui</groupId>
-      <artifactId>jcunit</artifactId>
-      <version>[0.7.0,)</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-```
-
-That's it. Let's go.
-
-
-* **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
-* **NOTE:** Source code is found here:[0.7.x-develop branch](https://github.com/dakusui/jcunit/tree/0.7.x-develop)
-* **NOTE:** Documentation is found here:[Wiki (0.7.x)](https://github.com/dakusui/jcunit/wiki/0.7.x)
 ## About 0.8.x
-0.8.x and later is actively being developed right now and will be called **JCUnit8**.
-It will require Java SE8 or later.
+0.8.x and later is actively being developed right now and called **JCUnit8**.
+It requires Java SE8.
 
-Major chanes are planned in 0.8.x including move to Java 8, redesigning
-pipeline mechanism, etc., most of which are incompatible with older versions.
-
-Implementation of the features have almost finished already and they will
-be walked through one by one in this document.
+Major changes have been introduced in 0.8.x including move to Java 8, redesigning
+pipeline mechanism, renewed annotations, etc., most of which are incompatible with 
+older versions.
 
 ### Installation and how to use it.
 Please use following dependencies to use **JCUnit8**.
@@ -75,7 +22,7 @@ Please use following dependencies to use **JCUnit8**.
     <dependency>
       <groupId>com.github.dakusui</groupId>
       <artifactId>jcunit</artifactId>
-      <version>[0.8.1,)</version>
+      <version>[0.8.12,)</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -88,6 +35,21 @@ Please use following dependencies to use **JCUnit8**.
 
 * **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
 * **NOTE:** Source code is found here:[0.8.x-develop branch](https://github.com/dakusui/jcunit/tree/0.8.x-develop)
+
+# New features
+Followings are major new features that have been introduced to JCUnit in 0.8.x.
+
+* Annotation Renewal
+* Pipeline Renewal
+    - New pipeline design
+    - API
+* New covering array engine
+    - "IPO-G+"
+
+It will no longer be working with old Java SE6 and require Java 8. Neither
+it will not be compatible with older versions of JCUnit. The new version is
+called "JCUnit 8" named after both Java 8 and the version of JCUnit, 0.8.x. Not 
+only that, some functionalities of older versions are removed from JCUnit8.
 
 ### Annotation Renewal
 
@@ -115,7 +77,7 @@ Followings are the annotations used in the new style.
 These will be explained in this section.
 
 #### Defining a test class
-The new test runner is called **JCUnit8** (```com.github.dakusui.jcunit8.runners.junit4.JCUnit8```).
+The new test runner is called **JCUnit8** (```com.github.dakusui.jcunit8.runners.junit4.JCUnit8X```).
 When you use the runner, a configuration factory for the test class can
 be specified it with another annotation ```@ConfigureWith```. With it, you
 can control various features of **JCUnit** such as negative test generation,
@@ -439,6 +401,10 @@ constraints, not given by ```tuple```.
 validated. And it might be re-desinged based on findings from the optimization
 and validation.
 
+### Limitations
+* If you have multiple test methods in your test class from an IDE such as IntelliJ, you cannot run only one of them.
+ JCUnit has a helper class to work around the situation. Please refer to [Issue-125](https://github.com/dakusui/jcunit/issues/125).
+
 ### TODOs
 * Validations
 * Default value of '@ConfigureWith' annotation: If the test class is implementing
@@ -448,11 +414,11 @@ and validation.
 * FSM feature has already been implemented, but not yet tested in 0.8.x line.
 * Make the pipeline execute its internal processes where possible.
 
-
 # References
 
 * [JCUnit wiki](https://github.com/dakusui/jcunit/wiki)
 * [JCUnit blog; Japanese; 日本語](http://jcunit.hatenablog.jp/)
+* [Test Design as Code: JCUnit](http://ieeexplore.ieee.org/document/7928008/); A paper on this product; Presented at IEEE International Conference on Software Testing 2017
 
 # Copyright and license #
 

@@ -64,16 +64,16 @@ public class RegexTest extends PipelineTestBase {
             ),
             allSatisfy(UTUtils.oracle(
                 "Non empty",
-                (TestCase t) -> !t.get().isEmpty()
+                (TestCase t) -> !t.getTestInput().isEmpty()
             )),
             allSatisfy(UTUtils.oracle(
                 "'regex1' attribute holds a non-empty list",
                 (TestCase t) ->
-                    t.get().get("regex1") instanceof List && !((List) t.get().get("regex1")).isEmpty()
+                    t.getTestInput().get("regex1") instanceof List && !((List) t.getTestInput().get("regex1")).isEmpty()
             )),
             allSatisfy(UTUtils.oracle(
                 "First element of 'regex1' attribute is 'A'",
-                (TestCase t) -> Objects.equals(((List) t.get().get("regex1")).get(0), "A")
+                (TestCase t) -> Objects.equals(((List) t.getTestInput().get("regex1")).get(0), "A")
             ))));
   }
 
@@ -94,6 +94,7 @@ public class RegexTest extends PipelineTestBase {
         preprocess(
             singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
             singletonList(Constraint.create(
+                "alwaysTrue[regex1]",
                 tuple -> true,
                 "regex1"
             ))),

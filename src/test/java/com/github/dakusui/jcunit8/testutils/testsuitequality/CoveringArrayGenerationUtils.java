@@ -6,11 +6,7 @@ import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;
-import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Factor;
-import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -19,20 +15,14 @@ import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.crest.Crest.asBoolean;
-import static com.github.dakusui.crest.Crest.asListOf;
-import static com.github.dakusui.crest.Crest.assertThat;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -210,7 +200,7 @@ public enum CoveringArrayGenerationUtils {
     return new TestSuiteBuilder(
     ) {{
       parameters.forEach(each -> addParameter(each.getName(), each.getKnownValues().toArray()));
-      constraints.forEach(each -> addConstraint(each, each.involvedKeys().toArray(new String[0])));
+      constraints.forEach(each -> addConstraint(each.getName(), each, each.involvedKeys().toArray(new String[0])));
     }}.setStrength(
         strength
     ).buildTestSuite();
@@ -221,7 +211,7 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static Constraint c(Predicate<Tuple> constraint, String... involvedKeys) {
-    return Constraint.create(constraint, involvedKeys);
+    return Constraint.create(String.format("c%s", Arrays.toString(involvedKeys)), constraint, involvedKeys);
   }
 
   public static List<Parameter> parameters(Parameter... parameters) {
@@ -267,7 +257,7 @@ public enum CoveringArrayGenerationUtils {
 
     private int strength;
 
-    public TestSuiteBuilder() {
+    TestSuiteBuilder() {
       this.setStrength(2);
     }
 
@@ -276,22 +266,22 @@ public enum CoveringArrayGenerationUtils {
       return this;
     }
 
-    public TestSuiteBuilder addSeed(Tuple tuple) {
+    TestSuiteBuilder addSeed(Tuple tuple) {
       this.seeds.add(tuple);
       return this;
     }
 
-    public TestSuiteBuilder addConstraint(Predicate<Tuple> constraint, String... args) {
-      this.constraints.add(Constraint.create(constraint, args));
+    TestSuiteBuilder addConstraint(String name, Predicate<Tuple> constraint, String... args) {
+      this.constraints.add(Constraint.create(name, constraint, args));
       return this;
     }
 
-    public TestSuiteBuilder addParameter(String name, Object... levels) {
+    TestSuiteBuilder addParameter(String name, Object... levels) {
       this.parameters.add(p(name, levels));
       return this;
     }
 
-    public TestSuite buildTestSuite() {
+    TestSuite buildTestSuite() {
       return new Pipeline.Standard().execute(
           new Config.Builder(
               new Requirement.Builder(
@@ -301,7 +291,8 @@ public enum CoveringArrayGenerationUtils {
                   this.strength
               ).build()
           ).build(),
-          parameterSpace(parameters, constraints)
+          parameterSpace(parameters, constraints),
+          null
       );
     }
   }

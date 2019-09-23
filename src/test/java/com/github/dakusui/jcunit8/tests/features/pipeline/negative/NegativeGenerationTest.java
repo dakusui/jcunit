@@ -18,6 +18,7 @@ public class NegativeGenerationTest extends PipelineTestBase {
   @Test
   public void test() {
     Constraint constraint = Constraint.create(
+        "simple1!=simple2",
         tuple -> !Objects.equals(tuple.get("simple1"), tuple.get("simple2")),
         "simple1",
         "simple2"
@@ -58,10 +59,10 @@ public class NegativeGenerationTest extends PipelineTestBase {
                 (TestSuite testCases) ->
                     testCases.stream()
                         .allMatch(tupleTestCase -> tupleTestCase.getCategory() == TestCase.Category.REGULAR ?
-                            constraint.test(tupleTestCase.get()) :
+                            constraint.test(tupleTestCase.getTestInput()) :
                             tupleTestCase.getCategory() == TestCase.Category.NEGATIVE &&
                                 tupleTestCase.violatedConstraints().stream()
-                                    .noneMatch(constraint1 -> constraint1.test(tupleTestCase.get()))
+                                    .noneMatch(constraint1 -> constraint1.test(tupleTestCase.getTestInput()))
                         ))
         ));
   }

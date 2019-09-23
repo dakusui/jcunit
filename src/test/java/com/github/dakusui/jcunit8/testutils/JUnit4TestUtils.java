@@ -1,23 +1,20 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import org.hamcrest.Matcher;
+import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
 import java.util.List;
+import java.util.function.Function;
 
+import static com.github.dakusui.crest.utils.printable.Printable.function;
 import static java.lang.String.format;
-import static org.junit.Assert.assertThat;
 
-public enum ResultUtils {
+public enum JUnit4TestUtils {
   ;
 
-  public static void validateJUnitResult(Result result, Matcher<Result> matcher) {
-    System.out.println(toString(result));
-    assertThat(
-        makePrintable(result),
-        matcher
-    );
+  public static Result runClasses(Class<?>... classes) {
+    return makePrintable(JUnitCore.runClasses(classes));
   }
 
   private static String toString(Result result) {
@@ -64,9 +61,25 @@ public enum ResultUtils {
 
       @Override
       public String toString() {
-        return ResultUtils.toString(this);
+        return JUnit4TestUtils.toString(this);
       }
 
     };
+  }
+
+  public static Function<Result, Integer> funcGetFailureCount() {
+    return function("getFailureCount", Result::getFailureCount);
+  }
+
+  public static Function<Result, Integer> funcGetIgnoreCount() {
+    return function("getIgnoreCount", Result::getIgnoreCount);
+  }
+
+  public static Function<Result, Integer> funcGetRunCount() {
+    return function("getRunCount", Result::getRunCount);
+  }
+
+  public static Function<Result, Boolean> funcWasSuccessful() {
+    return function("wasSuccessful", Result::wasSuccessful);
   }
 }

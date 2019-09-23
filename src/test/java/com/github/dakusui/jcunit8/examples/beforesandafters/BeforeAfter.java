@@ -3,12 +3,15 @@ package com.github.dakusui.jcunit8.examples.beforesandafters;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
+import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
+import com.github.dakusui.jcunit8.testsuite.TestOracle;
+import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;
 import org.junit.runner.RunWith;
+
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @RunWith(JCUnit8.class)
 public class BeforeAfter {
@@ -42,6 +45,11 @@ public class BeforeAfter {
     return ParameterUtils.simple("F1", "F2");
   }
 
+  @Condition
+  public boolean aIsA2(@From(("a")) String a) {
+    return "A2".equals(a);
+  }
+
   @BeforeClass
   public static void beforeClass() {
     System.out.println("beforeClass");
@@ -63,6 +71,7 @@ public class BeforeAfter {
   }
 
   @Test
+  @Given("aIsA2")
   public void test2(@From("d") String d) {
     System.out.println("      test2:" + d);
   }
@@ -78,7 +87,24 @@ public class BeforeAfter {
   }
 
   @AfterClass
-  public static void afterClass() {
-    System.out.println("afterClass");
+  public static void afterClass(@From("@suite") TestSuite suite) {
+    System.out.println("afterClass:[");
+    Stream.concat(
+        Stream.of(
+            suite.getScenario().oracles().stream().map(TestOracle::getName).map(s -> String.format("<%s>", s)).collect(toList())
+        ),
+        suite.stream().map(
+            testCase -> suite.getScenario().oracles().stream().map(oracle -> oracle.shouldInvoke().test(testCase.getTestInput())).collect(toList())
+        )
+    ).forEach(
+        objects -> {
+          System.out.print("  ");
+          objects.forEach(
+              e -> System.out.printf("%-20s", e)
+          );
+          System.out.println();
+        }
+    );
+    System.out.println("]");
   }
 }

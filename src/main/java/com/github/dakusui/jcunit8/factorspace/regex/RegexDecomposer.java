@@ -70,6 +70,11 @@ public class RegexDecomposer extends RegexTranslator {
       ret.add(new Constraint() {
 
         @Override
+        public String getName() {
+          return toString();
+        }
+
+        @Override
         public boolean test(Tuple in) {
           for (String eachReferrer : referrers) {
             Object referrerValue = in.get(eachReferrer);
