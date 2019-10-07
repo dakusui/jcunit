@@ -142,11 +142,11 @@ public enum ActsUtils {
    *   </Parameters>
    * </pre>
    *
-   * @param b
-   * @param indentLevel
-   * @param parameterId
-   * @param parameter
-   * @return
+   * @param b A string builder with which a given parameter is rendered.
+   * @param indentLevel A current indentation level.
+   * @param parameterId An identifier of a given parameter as {@code parameter}.
+   * @param parameter A parameter to be rendered.
+   * @return The indentation level after the given parameter is rendered.
    */
   private static int renderParameter(StringBuilder b, int indentLevel, int parameterId, FactorSpaceAdapter parameter) {
     b.append(StringUtils.indent(indentLevel))

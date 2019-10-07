@@ -48,9 +48,9 @@ AbstractiveGenerator                 Generated Test Suite
 ----
 
 
-=== Abstractive Generator
+=== Abstract Generator
 
-*Abstractuve Generator* component reads a raw factor space, which is built by a user and contains concrete information about test cases, such as names of factors and actual values of each levels of theirs and generates a test suite as other generators.
+*Abstract Generator* component reads a raw factor space, which is built by a user and contains concrete information about test cases, such as names of factors and actual values of each levels of theirs and generates a test suite as other generators.
 However, it first generates an intermediate entity called *Normalized Factor Space*, which consists of a *FactorSpaceSpec* and *Denormalizer* and let another module *Generation Engine* generate an abstract test suite.
 
 (t.b.d.)
