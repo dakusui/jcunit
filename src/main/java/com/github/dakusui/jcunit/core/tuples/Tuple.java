@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit.core.tuples;
 
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -31,14 +30,6 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       this.attrs.put(
           k,
           asList(elements)
-      );
-      return this;
-    }
-
-    public <SUT> Builder putFsm(Scenario<SUT> fsmScenario) {
-      this.attrs.put(
-          fsmScenario.name(),
-          fsmScenario
       );
       return this;
     }

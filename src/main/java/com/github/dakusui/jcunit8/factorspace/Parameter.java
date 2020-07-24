@@ -1,16 +1,10 @@
 package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit.fsm.FiniteStateMachine;
-import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit.regex.RegexComposer;
 import com.github.dakusui.jcunit8.core.Utils;
-import com.github.dakusui.jcunit8.factorspace.fsm.FsmComposer;
-import com.github.dakusui.jcunit8.factorspace.fsm.FsmDecomposer;
-import com.github.dakusui.jcunit8.factorspace.fsm.Scenario;
 import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
 import java.util.LinkedList;
@@ -20,7 +14,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.checkValue;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -227,75 +220,6 @@ public interface Parameter<T> {
 
       private static <U> Regex<U> create(String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
         return new Impl<>(name, regex, knownValues, func);
-      }
-    }
-  }
-
-  interface Fsm<SUT> extends Parameter<Scenario<SUT>> {
-    class Impl<SUT> extends Parameter.Base<Scenario<SUT>> implements Fsm<SUT> {
-      private final FsmComposer<SUT> composer;
-      private final FactorSpace      factorSpace;
-
-      Impl(String name, FiniteStateMachine<SUT> model, List<Scenario<SUT>> knownValues, int scenarioLength) {
-        super(name, knownValues);
-        FsmDecomposer<SUT> decomposer = new FsmDecomposer<>(name, model, scenarioLength);
-        this.composer = new FsmComposer<>(name, model, scenarioLength);
-        this.factorSpace = FactorSpace.create(decomposer.getFactors(), decomposer.getConstraints());
-      }
-
-      @Override
-      public Optional<Tuple> decomposeValue(Scenario<SUT> value) {
-        return _decomposeValue(
-            value,
-            this.factorSpace.stream(),
-            tuple -> {
-              try {
-                return this.composer.composeValueFrom(tuple);
-              } catch (InvalidTestException e) {
-                return false;
-              }
-            },
-            Utils.conjunct(this.factorSpace.getConstraints())
-        );
-      }
-
-      @Override
-      public Scenario<SUT> composeValue(Tuple tuple) {
-        return composer.composeValueFrom(tuple);
-      }
-
-      @Override
-      protected List<Factor> decompose() {
-        return factorSpace.getFactors();
-      }
-
-      @Override
-      protected List<Constraint> generateConstraints() {
-        return factorSpace.getConstraints();
-      }
-    }
-
-    class Factory<SUT> extends Parameter.Factory.Base<Scenario<SUT>> {
-      private final Class<? extends FsmSpec<SUT>> fsmSpecClass;
-      private       int                           scenarioLength;
-
-      @Override
-      public Fsm<SUT> create(String name) {
-        return new Impl<>(
-            name,
-            new FiniteStateMachine.Impl<>(name, this.fsmSpecClass),
-            knownValues,
-            scenarioLength
-        );
-      }
-
-      public Factory(Class<? extends FsmSpec<SUT>> fsmSpecClass, int scenarioLength) {
-        this.fsmSpecClass = requireNonNull(fsmSpecClass);
-        this.scenarioLength = checkValue(scenarioLength, (Integer value) -> value > 0);
-      }
-
-      public static <SUT_> Factory<SUT_> of(Class<? extends FsmSpec<SUT_>> fsmSpecClass, int scenarioLength) {
-        return new Factory<>(fsmSpecClass, scenarioLength);
       }
     }
   }

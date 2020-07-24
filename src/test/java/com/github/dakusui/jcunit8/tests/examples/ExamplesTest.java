@@ -4,8 +4,6 @@ import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
 import com.github.dakusui.jcunit8.examples.beforesandafters.BeforeAfter;
 import com.github.dakusui.jcunit8.examples.beforesandafters.UnusedParameter;
 import com.github.dakusui.jcunit8.examples.config.ConfigExample;
-import com.github.dakusui.jcunit8.examples.flyingspaghettimonster.FlyingSpaghettiMonsterExample;
-import com.github.dakusui.jcunit8.examples.parameterhelper.ParameterHelperExample;
 import com.github.dakusui.jcunit8.examples.parameterizedconstraint.ParameterizedConstraintExample;
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
 import com.github.dakusui.jcunit8.examples.seed.BankAccountExampleWithSeeds;
@@ -28,16 +26,6 @@ public class ExamplesTest {
   public void quadraticEquationSolver() {
     assertThat(
         JUnitCore.runClasses(QuadraticEquationExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").gt(0).$()
-        ));
-  }
-
-  @Test
-  public void flyingSpaghettiMonster() {
-    assertThat(
-        JUnitCore.runClasses(FlyingSpaghettiMonsterExample.class),
         allOf(
             asBoolean("wasSuccessful").isTrue().$(),
             asInteger("getRunCount").gt(0).$()
@@ -87,17 +75,6 @@ public class ExamplesTest {
         allOf(
             asBoolean("wasSuccessful").isTrue().$(),
             asInteger("getRunCount").equalTo(184).$()
-        )
-    );
-  }
-
-  @Test
-  public void helper() {
-    assertThat(
-        JUnitCore.runClasses(ParameterHelperExample.class),
-        allOf(
-            asBoolean("wasSuccessful").isTrue().$(),
-            asInteger("getRunCount").equalTo(107).$()
         )
     );
   }

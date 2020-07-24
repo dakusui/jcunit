@@ -1,10 +1,6 @@
 package com.github.dakusui.jcunit8.runners.helpers;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.fsm.spec.FsmSpec;
-import com.github.dakusui.jcunit8.factorspace.GroupedParameterFactoryBuilder;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.SequenceParameterFactoryBuilder;
 
 import java.util.function.Function;
 
@@ -24,22 +20,5 @@ public enum ParameterUtils {
 
   public static Parameter.Regex.Factory<String> regex(String regex) {
     return regex(regex, Function.identity());
-  }
-
-  public static <T> Parameter.Fsm.Factory<T> fsm(Class<? extends FsmSpec<T>> fsmSpecClass, int scenarioLength) {
-    return Parameter.Fsm.Factory.of(fsmSpecClass, scenarioLength);
-  }
-
-  @SafeVarargs
-  public static <T> SequenceParameterFactoryBuilder<T> sequence(T... args) {
-    return new SequenceParameterFactoryBuilder<>(asList(args));
-  }
-
-  public static <T> GroupedParameterFactoryBuilder<T> grouped(Function<Tuple, T> translator) {
-    return new GroupedParameterFactoryBuilder<>(translator);
-  }
-
-  public static GroupedParameterFactoryBuilder<Tuple> grouped() {
-    return grouped(Function.identity());
   }
 }

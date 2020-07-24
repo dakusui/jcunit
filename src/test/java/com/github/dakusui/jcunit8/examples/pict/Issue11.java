@@ -76,11 +76,6 @@ public class Issue11 {
     return ParameterUtils.simple("4.0", "5.0", "5.5", "6.0");
   }
 
-  @ParameterSource
-  public Parameter.Factory<List<String>> apps() {
-    return ParameterUtils.sequence("SQLServer", "Exchange", "Office").size(3, 4).withoutRepetition().build();
-  }
-
   @Test
   public void test(
       /*/
