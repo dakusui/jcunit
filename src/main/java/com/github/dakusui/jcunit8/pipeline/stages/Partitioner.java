@@ -125,29 +125,5 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
       }
       return ret;
     }
-
-  }
-
-  class ConnectedConstraintFinder {
-    private final List<Constraint> allConstraints;
-
-    public ConnectedConstraintFinder(List<Constraint> constraints) {
-      this.allConstraints = constraints;
-    }
-
-    private List<Constraint> find(Constraint constraint) {
-      return Standard.findConnectedConstraints(constraint, new ArrayList<Constraint>(this.allConstraints) {{
-        remove(constraint);
-      }});
-    }
-
-    public List<Constraint> findAll(List<Constraint> constraints) {
-      LinkedHashSet<Constraint> work = new LinkedHashSet<>();
-      for (Constraint each : constraints) {
-        work.addAll(find(each));
-        work.add(each);
-      }
-      return new ArrayList<>(work);
-    }
   }
 }
