@@ -117,7 +117,7 @@ public class RegexDecomposer extends RegexTranslator {
         continue;
       for (Object eachLevel : each.getLevels()) {
         if (eachLevel instanceof List) {
-          for (Object eachElement : (List) eachLevel) {
+          for (Object eachElement : (List<?>) eachLevel) {
             if (eachElement instanceof Reference) {
               if (referred.getName().equals(((Reference) eachElement).key)) {
                 ret.add(each);
