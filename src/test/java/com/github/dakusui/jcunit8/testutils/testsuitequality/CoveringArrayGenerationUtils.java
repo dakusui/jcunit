@@ -10,16 +10,11 @@ import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.crest.Crest.*;
@@ -30,69 +25,13 @@ import static java.util.stream.Collectors.toList;
 public enum CoveringArrayGenerationUtils {
   ;
 
-  public static FactorSpace mergeFactorSpaces(FactorSpace lhsFactorSpace, FactorSpace rhsFactorSpace) {
-    return FactorSpace.create(
-        Stream.concat(
-            lhsFactorSpace.getFactors().stream(), rhsFactorSpace.getFactors().stream()
-        ).collect(toList()),
-        Stream.concat(
-            lhsFactorSpace.getConstraints().stream(), rhsFactorSpace.getConstraints().stream()
-        ).collect(toList())
-    );
-  }
-
-  public static FactorSpace createFactorSpace(String prefix, int numLevels, int numFactors) {
-    return toFactorSpace(
-        parameterSpace(
-            IntStream.range(0, numFactors).mapToObj(
-                i -> String.format("%s-%02d", prefix, i)
-            ).map(
-                name -> p(name, IntStream.range(0, numLevels).boxed().collect(toList()).toArray())
-            ).collect(toList()),
-            Collections.emptyList()
-        )
-    );
-  }
-
-  public static ParameterSpace parameterSpace(List<Parameter> parameters, List<Constraint> constraints) {
+  public static ParameterSpace parameterSpace(List<Parameter<?>> parameters, List<Constraint> constraints) {
     return new ParameterSpace.Builder()
         .addAllParameters(parameters)
         .addAllConstraints(constraints)
         .build();
   }
 
-  public static FactorSpace factorSpace(List<Parameter> parameters, List<Constraint> constraints) {
-    return toFactorSpace(parameterSpace(parameters, constraints));
-  }
-
-  public static FactorSpace toFactorSpace(ParameterSpace parameterSpace) {
-    return FactorSpace.create(
-        parameterSpace.getParameterNames().stream(
-        ).map(
-            parameterSpace::getParameter
-        ).map(
-            parameter -> Factor.create(parameter.getName(), parameter.getKnownValues().toArray())
-        ).collect(
-            toList()
-        ),
-        parameterSpace.getConstraints()
-    );
-  }
-
-  public static List<Tuple> generateWithIpoGplus(FactorSpace factorSpace, int strength) {
-    return new IpoGplus(
-        factorSpace,
-        new Requirement.Builder().withStrength(strength).build(),
-        Collections.emptyList()
-    ).generate();
-  }
-
-  public static List<Tuple> join(List<Tuple> lhs, List<Tuple> rhs, Function<Requirement, Joiner> joinerFactory, int strength) {
-    return joinerFactory.apply(new Requirement.Builder().withStrength(strength).build()).apply(
-        SchemafulTupleSet.fromTuples(lhs),
-        SchemafulTupleSet.fromTuples(rhs)
-    );
-  }
 
   public static List<Tuple> coveredTuples(int strength, Collection<Tuple> in) {
     return Utils.unique(
@@ -164,11 +103,11 @@ public enum CoveringArrayGenerationUtils {
         ));
   }
 
-  public static List<Tuple> allPossibleTuples(int strength, List<Parameter> parameters) {
+  public static List<Tuple> allPossibleTuples(int strength, List<Parameter<?>> parameters) {
     return allPossibleTuples(strength, parameters.toArray(new Parameter[0]));
   }
 
-  public static List<Tuple> allPossibleTuples(int strength, Parameter... parameters) {
+  public static List<Tuple> allPossibleTuples(int strength, Parameter<?>... parameters) {
     return StreamSupport.stream(
         new Combinator<>(
             asList(parameters), strength
@@ -189,14 +128,13 @@ public enum CoveringArrayGenerationUtils {
     );
   }
 
-  @SuppressWarnings("RedundantCast")
-  private static List<List<Object>> convertParameters(List<Parameter> parameters) {
+  private static List<List<?>> convertParameters(List<Parameter<?>> parameters) {
     return parameters.stream()
-        .map((Function<Parameter, List<Object>>) Parameter::getKnownValues)
+        .map((Function<Parameter<?>, List<?>>) Parameter::getKnownValues)
         .collect(toList());
   }
 
-  static TestSuite buildTestSuite(int strength, List<Parameter> parameters, List<Constraint> constraints) {
+  static TestSuite buildTestSuite(int strength, List<Parameter<?>> parameters, List<Constraint> constraints) {
     return new TestSuiteBuilder(
     ) {{
       parameters.forEach(each -> addParameter(each.getName(), each.getKnownValues().toArray()));
@@ -214,7 +152,7 @@ public enum CoveringArrayGenerationUtils {
     return Constraint.create(String.format("c%s", Arrays.toString(involvedKeys)), constraint, involvedKeys);
   }
 
-  public static List<Parameter> parameters(Parameter... parameters) {
+  public static List<Parameter<?>> parameters(Parameter<?>... parameters) {
     return asList(parameters);
   }
 
@@ -252,7 +190,7 @@ public enum CoveringArrayGenerationUtils {
 
   public static class TestSuiteBuilder {
     private final List<Tuple>      seeds       = new LinkedList<>();
-    private final List<Parameter>  parameters  = new LinkedList<>();
+    private final List<Parameter<?>>  parameters  = new LinkedList<>();
     private final List<Constraint> constraints = new LinkedList<>();
 
     private int strength;

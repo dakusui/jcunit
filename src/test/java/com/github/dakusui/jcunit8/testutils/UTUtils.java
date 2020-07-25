@@ -3,14 +3,9 @@ package com.github.dakusui.jcunit8.testutils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -25,10 +20,7 @@ import static java.util.stream.Collectors.toList;
 public enum UTUtils {
   ;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UTUtils.class);
-
-  @SuppressWarnings("unchecked")
-  public static boolean isToStringOverridden(Class klass) {
+  public static boolean isToStringOverridden(Class<?> klass) {
     try {
       return !Objects.equals(klass.getMethod("toString"), Object.class.getMethod("toString"));
     } catch (NoSuchMethodException e) {
@@ -36,7 +28,7 @@ public enum UTUtils {
     }
   }
 
-  public static <C extends Collection> TestOracle<C> sizeIs(String description, Predicate<Integer> predicate) {
+  public static <C extends Collection<?>> TestOracle<C> sizeIs(String description, Predicate<Integer> predicate) {
     return oracle(
         "Size",
         Collection::size,
@@ -59,25 +51,14 @@ public enum UTUtils {
 
   public synchronized static void configureStdIOs() {
     if (UTUtils.isRunByMaven()) {
-      setSilent();
       System.setOut(DUMMY_PRINTSTREAM);
       System.setErr(DUMMY_PRINTSTREAM);
-    } else {
-      setVerbose();
     }
-  }
-
-  public synchronized static void setSilent() {
-    out = DUMMY_PRINTSTREAM;
-  }
-
-  public synchronized static void setVerbose() {
-    out = System.out;
   }
 
   public static final PrintStream DUMMY_PRINTSTREAM = new PrintStream(new OutputStream() {
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) {
     }
   });
 
@@ -85,8 +66,6 @@ public enum UTUtils {
     System.out.println(value);
     return value;
   }
-
-  private static PrintStream out = System.out;
 
   /**
    * Names a predicate and returns it.
@@ -128,15 +107,5 @@ public enum UTUtils {
             .map(TestOracle::toMatcher)
             .collect(toList())
     );
-  }
-
-  public static File createTempDirectory(String pathname) {
-    try {
-      File dir = new File(pathname);
-      LOGGER.debug("{} was created={}", dir, dir.mkdirs());
-      return Files.createTempDirectory(dir.toPath(), "jcunit-").toFile();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

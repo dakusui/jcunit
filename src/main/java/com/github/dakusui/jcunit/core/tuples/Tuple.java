@@ -11,10 +11,8 @@ import java.util.TreeMap;
 import static java.util.Arrays.asList;
 
 public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
-  @SuppressWarnings("unchecked")
   class Builder {
     LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
-    private boolean dictionaryOrder = true;
 
     public Builder put(String k, Object v) {
       this.attrs.put(k, v);
@@ -39,11 +37,9 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       for (String k : this.attrs.keySet()) {
         ret.put(k, this.attrs.get(k));
       }
-      if (this.dictionaryOrder) {
-        Tuple sorted = new Sorted();
-        sorted.putAll(ret);
-        ret = sorted;
-      }
+      Tuple sorted = new Sorted();
+      sorted.putAll(ret);
+      ret = sorted;
       return ret;
     }
   }

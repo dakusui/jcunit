@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
-import com.github.dakusui.jcunit8.factorspace.TestPredicate;
+import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
@@ -23,7 +23,7 @@ public enum TestScenarioFactoryForJUnit4 {
   ;
 
   public static TestScenario create(TestClass testClass) {
-    SortedMap<String, TestPredicate> predicates = NodeUtils.allTestPredicates(testClass);
+    SortedMap<String, TuplePredicate> predicates = NodeUtils.allTestPredicates(testClass);
     return new TestScenario() {
       @Override
       public List<TupleConsumer> preSuiteProcedures() {

@@ -2,7 +2,11 @@ package com.github.dakusui.jcunit.core.utils;
 
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 /**
  * This class provides static methods each of which tests a given object/condition
@@ -100,6 +104,6 @@ public enum Checks {
   public static String composeMessage(String msgOrFmt, Object... args) {
     if (msgOrFmt != null)
       return format(msgOrFmt, args);
-    return format("Message:'%s'", StringUtils.join(",", args));
+    return format("Message:'%s'", Arrays.stream(args).map(Objects::toString).collect(joining(",")));
   }
 }

@@ -15,30 +15,30 @@ import static java.util.Arrays.asList;
 
 public abstract class PipelineTestBase {
 
-  protected TestSuite generateTestSuite(Parameter... parameters) {
+  protected TestSuite generateTestSuite(Parameter<?>... parameters) {
     ParameterSpace parameterSpace = new ParameterSpace.Builder()
         .addAllParameters(asList(parameters))
         .build();
     return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace, null);
   }
 
-  protected TestSuite generateTestSuite(List<Parameter> parameters, List<Constraint> constraints) {
+  protected TestSuite generateTestSuite(List<Parameter<?>> parameters, List<Constraint> constraints) {
     return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints), null);
   }
 
-  protected ParameterSpace preprocess(Parameter... parameters) {
+  protected ParameterSpace preprocess(Parameter<?>... parameters) {
     return new Pipeline.Standard().preprocess(buildConfig(), new ParameterSpace.Builder().addAllParameters(asList(parameters)).build());
   }
 
-  protected ParameterSpace preprocess(List<Parameter> parameters, List<Constraint> constraints) {
+  protected ParameterSpace preprocess(List<Parameter<?>> parameters, List<Constraint> constraints) {
     return new Pipeline.Standard().preprocess(buildConfig(), new ParameterSpace.Builder().addAllParameters(parameters).addAllConstraints(constraints).build());
   }
 
-  protected SchemafulTupleSet engine(List<Parameter> parameters, List<Constraint> constraints) {
+  protected SchemafulTupleSet engine(List<Parameter<?>> parameters, List<Constraint> constraints) {
     return new Pipeline.Standard().engine(buildConfig(), new ParameterSpace.Builder().addAllParameters(parameters).addAllConstraints(constraints).build());
   }
 
-  protected FactorSpace encode(List<Parameter> parameters, List<Constraint> constraints) {
+  protected FactorSpace encode(List<Parameter<?>> parameters, List<Constraint> constraints) {
     return buildConfig()
         .encoder().apply(
             new ParameterSpace.Builder()

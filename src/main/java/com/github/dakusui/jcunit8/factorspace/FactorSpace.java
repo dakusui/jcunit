@@ -15,7 +15,7 @@ public interface FactorSpace {
   static FactorSpace create(List<? extends Factor> factors, List<Constraint> constraints) {
     List<Constraint> work = new ArrayList<>(constraints);
     return new FactorSpace() {
-      Map<String, Factor> factorMap = new LinkedHashMap<String, Factor>() {{
+      final Map<String, Factor> factorMap = new LinkedHashMap<String, Factor>() {{
         factors.forEach(each -> put(each.getName(), each));
       }};
 

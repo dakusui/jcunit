@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.TestPredicate;
+import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
 
       @Override
       public String toString() {
-        return TestPredicate.toString(this);
+        return TuplePredicate.toString(this);
       }
     });
   }

@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.runners.junit4.utils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit8.factorspace.TestPredicate;
+import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
@@ -164,7 +164,7 @@ public enum InternalUtils {
     };
   }
 
-  public static TestOracle toTestOracle(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
+  public static TestOracle toTestOracle(FrameworkMethod method, SortedMap<String, TuplePredicate> predicates) {
     return new TestOracle() {
       @Override
       public String getName() {
@@ -223,7 +223,7 @@ public enum InternalUtils {
     };
   }
 
-  public static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TestPredicate> predicates) {
+  public static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TuplePredicate> predicates) {
     return tuple -> {
       //noinspection SimplifiableIfStatement
       if (method.getAnnotation(Given.class) == null)
