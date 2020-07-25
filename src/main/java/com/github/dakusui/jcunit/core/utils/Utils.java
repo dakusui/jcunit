@@ -2,10 +2,9 @@ package com.github.dakusui.jcunit.core.utils;
 
 
 import java.lang.reflect.Array;
-import java.util.*;
-import java.util.function.Function;
-
-import static com.github.dakusui.jcunit.core.utils.Checks.checknotnull;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A utility class of JCUnit.
@@ -34,28 +33,8 @@ public enum Utils {
 
   @SafeVarargs
   public static <T> List<T> concatenate(List<T> a, T... b) {
-    List<T> ret = new LinkedList<T>(a);
+    List<T> ret = new LinkedList<>(a);
     ret.addAll(Arrays.asList(b));
     return ret;
   }
-
-  public static <E> List<E> sort(List<E> list, Comparator<? super E> by) {
-    list.sort(by);
-    return list;
-  }
-
-  public static <K, V> Map<K, V> toMap(List<V> in, Function<V, K> form) {
-    checknotnull(in);
-    checknotnull(form);
-    ////
-    // In most cases, it's better to use LinkedHashMap in JCUnit because
-    // it needs to guarantee the test case generation generatedTuples the same always.
-    // So this method returns LinkedHashMap instead of HashMap.
-    Map<K, V> ret = new LinkedHashMap<>();
-    for (V each : in) {
-      ret.put(form.apply(each), each);
-    }
-    return ret;
-  }
-
 }
