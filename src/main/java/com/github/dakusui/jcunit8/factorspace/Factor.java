@@ -7,7 +7,7 @@ import static java.util.Arrays.asList;
 public interface Factor {
   static Factor create(final String name, final Object[] args) {
     return new Factor() {
-      private List<Object> levels = asList(args);
+      private final List<Object> levels = asList(args);
 
       @Override
       public String getName() {
