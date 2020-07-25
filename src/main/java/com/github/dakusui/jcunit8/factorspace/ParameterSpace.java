@@ -35,15 +35,15 @@ public interface ParameterSpace {
   }
 
   class Builder {
-    List<Parameter>  parameters  = new LinkedList<>();
+    List<Parameter<?>>  parameters  = new LinkedList<>();
     List<Constraint> constraints = new LinkedList<>();
 
-    public Builder addParameter(Parameter parameter) {
+    public Builder addParameter(Parameter<?> parameter) {
       this.parameters.add(parameter);
       return this;
     }
 
-    public Builder addAllParameters(Collection<? extends Parameter> parameters) {
+    public Builder addAllParameters(Collection<? extends Parameter<?>> parameters) {
       parameters.forEach(Builder.this::addParameter);
       return this;
     }

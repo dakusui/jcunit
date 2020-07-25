@@ -96,13 +96,13 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
                               List<FrameworkMethod> methods = parameterSpaceDefinitionClass.getAnnotatedMethods(ParameterSource.class).stream()
                                   .filter(
                                       (FrameworkMethod each) ->
-                                          Objects.equals(each.getName(), From.class.cast(annotation).value()))
+                                          Objects.equals(each.getName(), ((From) annotation).value()))
                                   .collect(toList());
                               if (methods.isEmpty())
                                 errors.add(new Exception(
                                     format(
                                         "A method '%s' annotated with '%s' is not defined in '%s'",
-                                        From.class.cast(annotation).value(),
+                                        ((From) annotation).value(),
                                         ParameterSource.class.getSimpleName(),
                                         parameterSpaceDefinitionClass.getJavaClass().getCanonicalName()
                                     )));
@@ -112,7 +112,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter> parameters, List<Constraint> constraints) {
+  private static ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter<?>> parameters, List<Constraint> constraints) {
     return new ParameterSpace.Builder()
         .addAllParameters(parameters)
         .addAllConstraints(constraints)
@@ -120,11 +120,11 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
   private static TestSuite buildTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
-    return Pipeline.Standard.<Tuple>create().execute(config, parameterSpace, testScenario);
+    return Pipeline.Standard.create().execute(config, parameterSpace, testScenario);
   }
 
-  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
-    return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter>() {
+  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter<?>> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
+    return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter<?>>() {
       {
         parameterSpaceDefinitionTestClass.getAnnotatedMethods(ParameterSource.class).forEach(
             frameworkMethod -> put(frameworkMethod.getName(),
@@ -136,10 +136,10 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
+  private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory<?>> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
     return (Object o) -> {
       try {
-        return (com.github.dakusui.jcunit8.factorspace.Parameter.Factory) method.invokeExplosively(o);
+        return (com.github.dakusui.jcunit8.factorspace.Parameter.Factory<?>) method.invokeExplosively(o);
       } catch (Throwable throwable) {
         throw unexpectedByDesign(throwable);
       }
@@ -245,7 +245,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
   private TestClass createParameterSpaceDefinitionTestClass() {
-    Class parameterSpaceClass = getConfigureWithAnnotation().parameterSpace();
+    Class<?> parameterSpaceClass = getConfigureWithAnnotation().parameterSpace();
     return Objects.equals(parameterSpaceClass, ConfigureWith.DEFAULT_INSTANCE.parameterSpace()) ?
         this.getTestClass() :
         new TestClass(parameterSpaceClass);
@@ -369,7 +369,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     private Statement oracleInvoker(TestOracle oracle, Tuple testInput) {
       return new Statement() {
         @Override
-        public void evaluate() throws Throwable {
+        public void evaluate() {
           oracle.accept(testInput);
         }
       };

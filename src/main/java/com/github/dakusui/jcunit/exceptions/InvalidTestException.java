@@ -10,6 +10,6 @@ public class InvalidTestException extends JCUnitException {
   }
 
   public InvalidTestException(String message) {
-    super(message, null);
+    this(message, null);
   }
 }

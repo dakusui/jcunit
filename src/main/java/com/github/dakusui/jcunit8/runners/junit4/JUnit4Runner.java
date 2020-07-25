@@ -26,7 +26,7 @@ public class JUnit4Runner {
     return this.request;
   }
 
-  private JUnit4Runner(Class clazz, String methodName, int startInclusive, int endExclusive) {
+  private JUnit4Runner(Class<?> clazz, String methodName, int startInclusive, int endExclusive) {
     this.request = Request.classes(clazz).filterWith(
         createFilter(methodName, startInclusive, endExclusive)
     );
@@ -73,19 +73,19 @@ public class JUnit4Runner {
         return false;
       }
 
-      int id = Integer.valueOf(matcher.group(1));
+      int id = Integer.parseInt(matcher.group(1));
       return startInclusive == ALL_TESTCASES || id >= startInclusive && id < endExclusive;
     };
   }
 
   public static class Builder {
 
-    private final Class clazz;
+    private final Class<?> clazz;
     private String methodName     = ANY_METHOD;
     private int    startInclusive = ALL_TESTCASES;
     private int    endInclusive   = ALL_TESTCASES;
 
-    public Builder(Class clazz) {
+    public Builder(Class<?> clazz) {
       this.clazz = Objects.requireNonNull(clazz);
     }
 
