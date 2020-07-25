@@ -24,6 +24,7 @@ public interface Config {
 
   /**
    * Returns a function that encodes a parameter space into internal factor spaces.
+   *
    * @return A function that encodes a parameter space.
    */
   Function<ParameterSpace, FactorSpace> encoder();
@@ -48,9 +49,9 @@ public interface Config {
 
     public Builder(Requirement requirement) {
       this.requirement = requirement;
-      this.withGeneratorFactory(new Generator.Factory.Standard());
-      this.withJoiner(new Joiner.Standard(requirement));
-      this.withPartitioner(new Partitioner.Standard(requirement));
+      this.withJoiner(new Joiner.Standard(requirement))
+          .withPartitioner(new Partitioner.Standard(requirement))
+          .withGeneratorFactory(new Generator.Factory.Standard());
     }
 
     public Builder withGeneratorFactory(Generator.Factory generatorFactory) {
