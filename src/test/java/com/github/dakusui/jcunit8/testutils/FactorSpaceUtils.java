@@ -12,7 +12,7 @@ import static org.junit.Assert.assertThat;
 public enum FactorSpaceUtils {
   ;
 
-  public static TestOracle<FactorSpace, Integer> sizeOfFactorsIs(String description, Predicate<Integer> predicate) {
+  public static TestOracle<FactorSpace> sizeOfFactorsIs(String description, Predicate<Integer> predicate) {
     return oracle(
         "{x}.getFactors().size()",
         factorSpace -> factorSpace.getFactors().size(),
@@ -21,7 +21,7 @@ public enum FactorSpaceUtils {
     );
   }
 
-  public static TestOracle<FactorSpace, Integer> sizeOfConstraintsIs(String description, Predicate<Integer> predicate) {
+  public static TestOracle<FactorSpace> sizeOfConstraintsIs(String description, Predicate<Integer> predicate) {
     return new TestOracle.Builder<FactorSpace, Integer>()
         .withTransformer(
             "{x}.getConstraints().size()",
@@ -34,7 +34,7 @@ public enum FactorSpaceUtils {
         .build();
   }
 
-  public static TestOracle<FactorSpace, Factor> factorSatisfies(String factorName, String predicateDescription, Predicate<Factor> predicate) {
+  public static TestOracle<FactorSpace> factorSatisfies(String factorName, String predicateDescription, Predicate<Factor> predicate) {
     return new TestOracle.Builder<FactorSpace, Factor>()
         .withTransformer(
             String.format("{x}.getFactor(%s)", factorName),

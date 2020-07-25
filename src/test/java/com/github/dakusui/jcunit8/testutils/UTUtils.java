@@ -36,7 +36,7 @@ public enum UTUtils {
     }
   }
 
-  public static <C extends Collection> TestOracle<C, Integer> sizeIs(String description, Predicate<Integer> predicate) {
+  public static <C extends Collection> TestOracle<C> sizeIs(String description, Predicate<Integer> predicate) {
     return oracle(
         "Size",
         Collection::size,
@@ -95,11 +95,11 @@ public enum UTUtils {
    * @param predicate         Predicate to be named.
    * @param <T>               A type of value given to {@code predicate}.
    */
-  public static <T> TestOracle<T, T> oracle(String descriptionOfTest, Predicate<T> predicate) {
+  public static <T> TestOracle<T> oracle(String descriptionOfTest, Predicate<T> predicate) {
     return oracle("{x}", t -> t, descriptionOfTest, predicate);
   }
 
-  public static <T, U> TestOracle<T, U> oracle(String descriptionOfTransform, Function<T, U> transform, String descriptionOfTest, Predicate<U> tester) {
+  public static <T, U> TestOracle<T> oracle(String descriptionOfTransform, Function<T, U> transform, String descriptionOfTest, Predicate<U> tester) {
     return new TestOracle.Builder<T, U>()
         .withTester(descriptionOfTest, tester)
         .withTransformer(descriptionOfTransform, transform)
@@ -118,11 +118,11 @@ public enum UTUtils {
   }
 
   @SafeVarargs
-  public static <T> Matcher<T> matcher(TestOracle<T, ?>... testOracles) {
+  public static <T> Matcher<T> matcher(TestOracle<T>... testOracles) {
     return matcher(asList(testOracles));
   }
 
-  private static <T> Matcher<T> matcher(List<TestOracle<T, ?>> testOracles) {
+  private static <T> Matcher<T> matcher(List<TestOracle<T>> testOracles) {
     return CoreMatchers.allOf(
         testOracles.stream()
             .map(TestOracle::toMatcher)

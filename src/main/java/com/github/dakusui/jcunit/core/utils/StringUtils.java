@@ -47,18 +47,6 @@ public enum StringUtils {
     return join(sep, Formatter.INSTANCE, checknotnull(elems).toArray());
   }
 
-  public static void appendLine(StringBuilder b, int indentLevel, String s) {
-    b.append(indent(indentLevel)).append(s).append(newLine());
-  }
-
-  public static String indent(int indentLevel) {
-    return format("%" + (indentLevel * 2) + "s", "");
-  }
-
-  public static String newLine() {
-    return format("%n");
-  }
-
 
   public interface Formatter<T> {
     Formatter INSTANCE = (Formatter<Object>) elem ->
