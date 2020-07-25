@@ -2,7 +2,11 @@ package com.github.dakusui.jcunit.core.utils;
 
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 /**
  * This class provides static methods each of which tests a given object/condition
@@ -76,15 +80,6 @@ public enum Checks {
   }
 
   /**
-   * @see com.github.dakusui.jcunit.exceptions.InvalidTestException
-   */
-  public static void checktest(boolean cond, String msg, Object... args) {
-    if (!cond) {
-      throw new InvalidTestException(composeMessage(msg, args));
-    }
-  }
-
-  /**
    * Wraps a given exception wrapping by a {@code JCUnitException}, which
    * is a runtime exception.
    *
@@ -106,18 +101,9 @@ public enum Checks {
     throw wrap(e, e.getMessage());
   }
 
-  public static RuntimeException wraptesterror(Throwable throwable, String msgOrFmt, Object... args) {
-    throw new InvalidTestException(composeMessage(msgOrFmt, args), throwable);
-  }
-
-
   public static String composeMessage(String msgOrFmt, Object... args) {
     if (msgOrFmt != null)
       return format(msgOrFmt, args);
-    return format("Message:'%s'", StringUtils.join(",", args));
-  }
-
-  public static IllegalStateException fail() {
-    throw new IllegalStateException();
+    return format("Message:'%s'", Arrays.stream(args).map(Objects::toString).collect(joining(",")));
   }
 }

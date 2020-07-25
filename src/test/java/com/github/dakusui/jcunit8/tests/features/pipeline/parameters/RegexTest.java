@@ -69,11 +69,11 @@ public class RegexTest extends PipelineTestBase {
             allSatisfy(UTUtils.oracle(
                 "'regex1' attribute holds a non-empty list",
                 (TestCase t) ->
-                    t.getTestInput().get("regex1") instanceof List && !((List) t.getTestInput().get("regex1")).isEmpty()
+                    t.getTestInput().get("regex1") instanceof List && !((List<?>) t.getTestInput().get("regex1")).isEmpty()
             )),
             allSatisfy(UTUtils.oracle(
                 "First element of 'regex1' attribute is 'A'",
-                (TestCase t) -> Objects.equals(((List) t.getTestInput().get("regex1")).get(0), "A")
+                (TestCase t) -> Objects.equals(((List<?>) t.getTestInput().get("regex1")).get(0), "A")
             ))));
   }
 
@@ -121,7 +121,7 @@ public class RegexTest extends PipelineTestBase {
                   Object value = tuple.get("regex1");
                   if (!(value instanceof List))
                     return false;
-                  List list = (List) value;
+                  List<?> list = (List<?>) value;
                   return list.size() >= 1 && list.size() <= 4;
                 }
             )));

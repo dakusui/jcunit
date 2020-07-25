@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.runners.core;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.TestPredicate;
+import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -25,16 +25,16 @@ import static java.util.stream.Collectors.toList;
 public enum NodeUtils {
   ;
 
-  public static TestPredicate buildPredicate(String[] values, SortedMap<String, TestPredicate> predicates_) {
+  public static TuplePredicate buildPredicate(String[] values, SortedMap<String, TuplePredicate> predicates_) {
     class Builder implements Node.Visitor {
-      private final SortedMap<String, TestPredicate> predicates = predicates_;
-      private Predicate<Tuple> result;
-      private final SortedSet<String> involvedKeys = new TreeSet<>();
+      private final SortedMap<String, TuplePredicate> predicates   = predicates_;
+      private Predicate<Tuple>                        result;
+      private final SortedSet<String>                 involvedKeys = new TreeSet<>();
 
       @SuppressWarnings("unchecked")
       @Override
       public void visitLeaf(Node.Leaf leaf) {
-        TestPredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
+        TuplePredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
         involvedKeys.addAll(predicate.involvedKeys());
         if (leaf.args().length == 0)
           result = predicate;
@@ -87,7 +87,7 @@ public enum NodeUtils {
         result = result.negate();
       }
 
-      private Optional<TestPredicate> lookupTestPredicate(String name) {
+      private Optional<TuplePredicate> lookupTestPredicate(String name) {
         return this.predicates.containsKey(name) ?
             Optional.of(this.predicates.get(name)) :
             Optional.empty();
@@ -95,7 +95,7 @@ public enum NodeUtils {
     }
     Builder builder = new Builder();
     parse(values).accept(builder);
-    return TestPredicate.of(
+    return TuplePredicate.of(
         Arrays.toString(values),
         new ArrayList<>(builder.involvedKeys),
         builder.result
@@ -116,7 +116,7 @@ public enum NodeUtils {
     };
   }
 
-  public static SortedMap<String, TestPredicate> allTestPredicates(TestClass testClass) {
+  public static SortedMap<String, TuplePredicate> allTestPredicates(TestClass testClass) {
     ////
     // TestClass <>--------------> parameterSpace class
     //                               constraints
@@ -133,7 +133,7 @@ public enum NodeUtils {
             )
         )
     ).collect(Collectors.toMap(
-        TestPredicate::getName,
+        TuplePredicate::getName,
         each -> each
     )));
   }
@@ -148,7 +148,7 @@ public enum NodeUtils {
         configureWith.parameterSpace();
   }
 
-  private static Stream<TestPredicate> streamTestPredicatesIn(Class parameterSpaceDefinitionClass) {
+  private static Stream<TuplePredicate> streamTestPredicatesIn(Class parameterSpaceDefinitionClass) {
     TestClass wrapper = new TestClass(parameterSpaceDefinitionClass);
     Object testObject = createInstanceOf(wrapper);
     return wrapper.getAnnotatedMethods(Condition.class).stream(
@@ -157,7 +157,7 @@ public enum NodeUtils {
     );
   }
 
-  public static TestPredicate createTestPredicate(Object testObject, FrameworkMethod frameworkMethod) {
+  public static TuplePredicate createTestPredicate(Object testObject, FrameworkMethod frameworkMethod) {
     Method method = frameworkMethod.getMethod();
     //noinspection RedundantTypeArguments (to suppress a compilation error)
     List<String> involvedKeys = Stream.of(method.getParameterAnnotations())
@@ -216,7 +216,7 @@ public enum NodeUtils {
     };
     return frameworkMethod.getAnnotation(Condition.class).constraint() ?
         Constraint.create(frameworkMethod.getName(), predicate, involvedKeys) :
-        new TestPredicate() {
+        new TuplePredicate() {
           @Override
           public String getName() {
             return frameworkMethod.getName();

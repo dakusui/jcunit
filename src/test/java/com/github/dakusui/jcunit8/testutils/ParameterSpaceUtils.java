@@ -15,7 +15,7 @@ import static org.junit.Assert.assertThat;
 public enum ParameterSpaceUtils {
   ;
 
-  public static TestOracle<ParameterSpace, List<Object>> allKnownValuesOfParameterSatisfy(String parameterName, Predicate<Object> predicate) {
+  public static TestOracle<ParameterSpace> allKnownValuesOfParameterSatisfy(String parameterName, Predicate<Object> predicate) {
     return UTUtils.oracle(
         String.format("All values of parameter '%s'  should satisfy '%s'", parameterName, predicate),
         (ParameterSpace target) -> target.getParameter(parameterName).getKnownValues(),
@@ -24,12 +24,12 @@ public enum ParameterSpaceUtils {
     );
   }
 
-  public static TestOracle<ParameterSpace, Integer> sizeOfParameterKnownValuesSatisfies(String parameterName, Predicate<Integer> predicate) {
+  public static TestOracle<ParameterSpace> sizeOfParameterKnownValuesSatisfies(String parameterName, Predicate<Integer> predicate) {
     return UTUtils.oracle(
         String.format("Size of known values (%s) should be %s", parameterName, predicate),
         (ParameterSpace target) -> target.getParameter(parameterName).getKnownValues().size(),
         "",
-        predicate::test
+        predicate
     );
   }
 
@@ -41,7 +41,7 @@ public enum ParameterSpaceUtils {
             asList(values)));
   }
 
-  public static TestOracle<ParameterSpace, Integer> hasConstraints(int numConstraints) {
+  public static TestOracle<ParameterSpace> hasConstraints(int numConstraints) {
     return UTUtils.oracle(
         "",
         (ParameterSpace target) -> target.getConstraints().size(),
@@ -49,7 +49,7 @@ public enum ParameterSpaceUtils {
         size -> size == numConstraints);
   }
 
-  public static TestOracle<ParameterSpace, Integer> hasParameters(int numParameters) {
+  public static TestOracle<ParameterSpace> hasParameters(int numParameters) {
     return UTUtils.oracle(
         "Number of parameters ",
         (ParameterSpace target) -> target.getParameterNames().size(),
@@ -58,7 +58,8 @@ public enum ParameterSpaceUtils {
     );
   }
 
-  public static TestOracle<ParameterSpace, List<Class>> parametersAreAllInstancesOf(Class<? extends Parameter> parameterClass) {
+  @SuppressWarnings("rawtypes")
+  public static TestOracle<ParameterSpace> parametersAreAllInstancesOf(Class<? extends Parameter> parameterClass) {
     return UTUtils.oracle(
         String.format("Parameters are all %s", parameterClass.getSimpleName()),
         (ParameterSpace target) ->
@@ -66,17 +67,18 @@ public enum ParameterSpaceUtils {
                 .map((String s) -> target.getParameter(s).getClass())
                 .collect(toList()),
         "",
-        (List<Class> parameterClasses) -> parameterClasses.stream()
+        (List<Class<?>> parameterClasses) -> parameterClasses.stream()
             .allMatch(parameterClass::isAssignableFrom)
     );
   }
 
-  public static TestOracle<ParameterSpace, Class> parameterIsInstanceOf(String parameterName, Class<? extends Parameter> parameterClass) {
+  @SuppressWarnings("rawtypes")
+  public static TestOracle<ParameterSpace> parameterIsInstanceOf(String parameterName, Class<? extends Parameter> parameterClass) {
     return UTUtils.oracle(
         "",
         (ParameterSpace parameterSpace) -> parameterSpace.getParameter(parameterName).getClass(),
         String.format("Parameter '%s' is instance of '%s'", parameterName, parameterClass.getSimpleName()),
-        (Predicate<Class>) parameterClass::isAssignableFrom
+        (Predicate<Class<?>>) parameterClass::isAssignableFrom
     );
   }
 

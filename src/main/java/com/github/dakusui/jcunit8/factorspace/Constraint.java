@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import static com.github.dakusui.jcunit8.core.Utils.project;
 import static java.util.Arrays.asList;
 
-public interface Constraint extends TestPredicate {
+public interface Constraint extends TuplePredicate {
   static Constraint create(String name, Predicate<Tuple> predicate, List<String> args) {
     return new Constraint() {
       @Override

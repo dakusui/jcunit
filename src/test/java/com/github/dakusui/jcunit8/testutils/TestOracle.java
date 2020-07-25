@@ -8,12 +8,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface TestOracle<T, U> extends Predicate<T> {
+public interface TestOracle<T> extends Predicate<T> {
   Matcher<T> toMatcher();
-
-  Function<T, U> transformer();
-
-  Predicate<U> tester();
 
   class Builder<T, U> {
     Function<T, U> transformer;
@@ -51,25 +47,15 @@ public interface TestOracle<T, U> extends Predicate<T> {
       return this;
     }
 
-    public TestOracle<T, U> build() {
+    public TestOracle<T> build() {
       Objects.requireNonNull(this.transformerName);
       Objects.requireNonNull(this.transformer);
       Objects.requireNonNull(this.testerName);
       Objects.requireNonNull(this.tester);
-      return new TestOracle<T, U>() {
-        @Override
-        public Function<T, U> transformer() {
-          return transformer;
-        }
-
-        @Override
-        public Predicate<U> tester() {
-          return tester;
-        }
-
+      return new TestOracle<T>() {
         @Override
         public boolean test(T t) {
-          return tester().test(transformer().apply(t));
+          return tester.test(transformer.apply(t));
         }
 
         @Override
@@ -101,7 +87,7 @@ public interface TestOracle<T, U> extends Predicate<T> {
                   .appendText(" and '")
                   .appendText(transformerName)
                   .appendText("' became ")
-                  .appendValue(transformer().apply((T) item));
+                  .appendValue(transformer.apply((T) item));
             }
           };
         }

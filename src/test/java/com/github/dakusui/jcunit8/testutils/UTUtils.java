@@ -3,14 +3,9 @@ package com.github.dakusui.jcunit8.testutils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -25,10 +20,7 @@ import static java.util.stream.Collectors.toList;
 public enum UTUtils {
   ;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UTUtils.class);
-
-  @SuppressWarnings("unchecked")
-  public static boolean isToStringOverridden(Class klass) {
+  public static boolean isToStringOverridden(Class<?> klass) {
     try {
       return !Objects.equals(klass.getMethod("toString"), Object.class.getMethod("toString"));
     } catch (NoSuchMethodException e) {
@@ -36,7 +28,7 @@ public enum UTUtils {
     }
   }
 
-  public static <C extends Collection> TestOracle<C, Integer> sizeIs(String description, Predicate<Integer> predicate) {
+  public static <C extends Collection<?>> TestOracle<C> sizeIs(String description, Predicate<Integer> predicate) {
     return oracle(
         "Size",
         Collection::size,
@@ -59,25 +51,14 @@ public enum UTUtils {
 
   public synchronized static void configureStdIOs() {
     if (UTUtils.isRunByMaven()) {
-      setSilent();
       System.setOut(DUMMY_PRINTSTREAM);
       System.setErr(DUMMY_PRINTSTREAM);
-    } else {
-      setVerbose();
     }
-  }
-
-  public synchronized static void setSilent() {
-    out = DUMMY_PRINTSTREAM;
-  }
-
-  public synchronized static void setVerbose() {
-    out = System.out;
   }
 
   public static final PrintStream DUMMY_PRINTSTREAM = new PrintStream(new OutputStream() {
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b) {
     }
   });
 
@@ -86,8 +67,6 @@ public enum UTUtils {
     return value;
   }
 
-  private static PrintStream out = System.out;
-
   /**
    * Names a predicate and returns it.
    *
@@ -95,11 +74,11 @@ public enum UTUtils {
    * @param predicate         Predicate to be named.
    * @param <T>               A type of value given to {@code predicate}.
    */
-  public static <T> TestOracle<T, T> oracle(String descriptionOfTest, Predicate<T> predicate) {
+  public static <T> TestOracle<T> oracle(String descriptionOfTest, Predicate<T> predicate) {
     return oracle("{x}", t -> t, descriptionOfTest, predicate);
   }
 
-  public static <T, U> TestOracle<T, U> oracle(String descriptionOfTransform, Function<T, U> transform, String descriptionOfTest, Predicate<U> tester) {
+  public static <T, U> TestOracle<T> oracle(String descriptionOfTransform, Function<T, U> transform, String descriptionOfTest, Predicate<U> tester) {
     return new TestOracle.Builder<T, U>()
         .withTester(descriptionOfTest, tester)
         .withTransformer(descriptionOfTransform, transform)
@@ -118,25 +97,15 @@ public enum UTUtils {
   }
 
   @SafeVarargs
-  public static <T> Matcher<T> matcher(TestOracle<T, ?>... testOracles) {
+  public static <T> Matcher<T> matcher(TestOracle<T>... testOracles) {
     return matcher(asList(testOracles));
   }
 
-  private static <T> Matcher<T> matcher(List<TestOracle<T, ?>> testOracles) {
+  private static <T> Matcher<T> matcher(List<TestOracle<T>> testOracles) {
     return CoreMatchers.allOf(
         testOracles.stream()
             .map(TestOracle::toMatcher)
             .collect(toList())
     );
-  }
-
-  public static File createTempDirectory(String pathname) {
-    try {
-      File dir = new File(pathname);
-      LOGGER.debug("{} was created={}", dir, dir.mkdirs());
-      return Files.createTempDirectory(dir.toPath(), "jcunit-").toFile();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 }
