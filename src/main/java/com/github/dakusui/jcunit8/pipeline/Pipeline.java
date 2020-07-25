@@ -26,7 +26,6 @@ import static java.util.stream.Collectors.toList;
 /**
  * A pipeline object.
  */
-@SuppressWarnings("unchecked")
 public interface Pipeline {
   TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenarioFactory);
 
@@ -38,7 +37,7 @@ public interface Pipeline {
 
     public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
       validateSeeds(config.getRequirement().seeds(), parameterSpace);
-      TestSuite.Builder builder = new TestSuite.Builder(parameterSpace, testScenario);
+      TestSuite.Builder<?> builder = new TestSuite.Builder<>(parameterSpace, testScenario);
       builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
       List<Tuple> regularTestTuples = engine(config, parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestTuples);
@@ -158,12 +157,11 @@ public interface Pipeline {
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
-    @SuppressWarnings("unchecked")
-    private Parameter toSimpleParameterIfNecessary(Config config, Parameter parameter, List<Constraint> constraints) {
+    private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         return Parameter.Simple.Factory.of(
             Utils.unique(
-                Stream.<Object>concat(
+                Stream.concat(
                     parameter.getKnownValues().stream(),
                     engine(config, new ParameterSpace.Builder().addParameter(parameter).build()).stream()
                         .map(tuple -> tuple.get(parameter.getName())) // Extraction
@@ -193,7 +191,7 @@ public interface Pipeline {
       return isReferencedBy(parameter, constraints) || !parameter.getKnownValues().isEmpty();
     }
 
-    private boolean isReferencedBy(Parameter parameter, List<Constraint> constraints) {
+    private boolean isReferencedBy(Parameter<?> parameter, List<Constraint> constraints) {
       return constraints.stream().anyMatch(each -> each.involvedKeys().contains(parameter.getName()));
     }
 
