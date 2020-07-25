@@ -158,22 +158,24 @@ public interface Pipeline {
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
-    @SuppressWarnings("unchecked")
-    private Parameter toSimpleParameterIfNecessary(Config config, Parameter parameter, List<Constraint> constraints) {
+    private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
+        List<Object> values = Stream
+            .concat(
+                parameter.getKnownValues().stream(),
+                engine(
+                    config, new ParameterSpace.Builder().addParameter(parameter).build())
+                    .stream().map(tuple -> tuple.get(parameter.getName())
+                ) // Extraction
+            ).collect(toList());
         return Parameter.Simple.Factory.of(
             Utils.unique(
-                Stream.<Object>concat(
-                    parameter.getKnownValues().stream(),
-                    engine(config, new ParameterSpace.Builder().addParameter(parameter).build()).stream()
-                        .map(tuple -> tuple.get(parameter.getName())) // Extraction
-                ).collect(toList())
+                values
             ))
             .create(parameter.getName());
       }
       return parameter;
     }
-
     /**
      * Checks is a parameter is referenced by any constraint in a given list or it
      * has any known actual values.
