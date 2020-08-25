@@ -114,7 +114,7 @@ public enum JoinExperimentUtils {
   private static Tuple convert(Tuple in, String newPrefix) {
     Tuple.Builder b = Tuple.builder();
     in.forEach((k, v) -> b.put(
-        requireArgument(k, key -> key.startsWith("PREFIX")).replace("PREFIX", newPrefix),
+        requireArgument(k, key -> key.startsWith("p")).replace("p", newPrefix),
         v
     ));
     return b.build();
