@@ -303,8 +303,8 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
 
     private static Set<Tuple> tupletsCoveredBy(SchemafulTupleSet in, int strength) {
-      Set<Tuple> ret = new HashSet<>();
-      in.forEach(tuple -> ret.addAll(subtuplesOf(tuple, strength)));
+      Set<Tuple> ret = ConcurrentHashMap.newKeySet();
+      in.stream().parallel().forEach(row -> ret.addAll(subtuplesOf(row, strength)));
       return ret;
     }
 
