@@ -39,7 +39,7 @@ public class WeakenAndProduct {
       List<JoinExperiment> work = new LinkedList<>();
       for (int t = 2; t <= 3; t++)
         for (int i = 100; i < 1000; i += 100)
-            work.add(createExperiment(i, i, t, Joiner.WeakenProduct::new));
+          work.add(createExperiment(i, i, t, Joiner.WeakenProduct::new));
       return work;
     }
   }
@@ -52,9 +52,9 @@ public class WeakenAndProduct {
     @Parameters
     public static List<JoinExperiment> experiments() {
       List<JoinExperiment> work = new LinkedList<>();
-      for (int t = 3; t <= 3; t++)
-        for (int i = 200; i <= 200; i += 100)
-          work.add(createExperiment(i, i, t, Joiner.WeakenProduct::new));
+      int t = 5;
+      int degree = 20;
+      work.add(createExperiment(degree, degree, t, Joiner.WeakenProduct::new));
       return work;
     }
   }
@@ -67,9 +67,9 @@ public class WeakenAndProduct {
     @Parameters
     public static List<JoinExperiment> experiments() {
       List<JoinExperiment> work = new LinkedList<>();
-      for (int t = 2; t <= 7; t++) {
-        int i = 100;
-        int j = 100;
+      for (int t = 2; t < 7; t++) {
+        int i = 20;
+        int j = 20;
         work.add(createExperiment(i, j, t, Joiner.WeakenProduct::new));
       }
       return work;
