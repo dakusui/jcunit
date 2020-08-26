@@ -44,6 +44,21 @@ public class WeakenAndProduct {
     }
   }
 
+  public static class Benchmark extends JoinExperimentBase {
+    public Benchmark(JoinExperiment experiment) {
+      super(experiment);
+    }
+
+    @Parameters
+    public static List<JoinExperiment> experiments() {
+      List<JoinExperiment> work = new LinkedList<>();
+      for (int t = 3; t <= 3; t++)
+        for (int i = 200; i <= 200; i += 100)
+          work.add(createExperiment(i, i, t, Joiner.WeakenProduct::new));
+      return work;
+    }
+  }
+
   public static class HigherStrength extends JoinExperimentBase {
     public HigherStrength(JoinExperiment experiment) {
       super(experiment);

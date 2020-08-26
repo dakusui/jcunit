@@ -8,6 +8,7 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -277,57 +278,6 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
         else
           b.add(connect(leftOverFromBigger.get(i), firstTupleInNonBigger));
       }
-    }
-  }
-
-  public static class WeakenProduct2 extends WeakenProduct {
-    private final Function<Integer, Function<List<String>, Function<List<String>, Set<List<String>>>>> composeColumnSelections;
-    Set<Tuple> coveredCrossingTuplets = new HashSet<>();
-
-    public WeakenProduct2(Requirement requirement) {
-      super(requirement);
-      this.composeColumnSelections = memoize((Integer i) -> memoize((List<String> l) -> memoize((List<String> r) -> composeColumnSelections(i, l, r))));
-    }
-
-    void addConnectedTuples(LinkedHashSet<Tuple> work, SchemafulTupleSet weakenedLhs, SchemafulTupleSet weakenedRhs) {
-      for (Tuple eachFromLhs : weakenedLhs) {
-        for (Tuple eachFromRhs : weakenedRhs) {
-          int numTupletsBeforeAdding = coveredCrossingTuplets.size();
-          coveredCrossingTuplets.addAll(crossingTuplets(eachFromLhs, eachFromRhs, requirement().strength()));
-          if (coveredCrossingTuplets.size() > numTupletsBeforeAdding)
-            work.add(connect(eachFromLhs, eachFromRhs));
-        }
-      }
-    }
-
-    private Collection<? extends Tuple> crossingTuplets(Tuple eachFromLhs, Tuple eachFromRhs, int strength) {
-      Tuple connected = connect(eachFromLhs, eachFromRhs);
-      return composeColumnSelections
-          .apply(strength)
-          .apply(new ArrayList<>(eachFromLhs.keySet()))
-          .apply(new ArrayList<>(eachFromRhs.keySet()))
-          .stream()
-          .map(each -> project(connected, each))
-          .collect(Collectors.toList());
-    }
-
-    private Set<List<String>> composeColumnSelections(int strength, List<String> lhsColumns, List<String> rhsColumns) {
-      Set<List<String>> columnSelections = new HashSet<>();
-      for (int i = 1; i <= strength - 1; i++) {
-        StreamableCombinator<String> lhs = new StreamableCombinator<>(lhsColumns, i);
-
-        int finalI = i;
-        lhs.stream()
-            .flatMap((Function<List<String>, Stream<List<String>>>) fromLhs ->
-                new StreamableCombinator<>(rhsColumns, finalI)
-                    .stream()
-                    .map(fromRhs -> new LinkedList<String>() {{
-                      addAll(fromLhs);
-                      addAll(fromRhs);
-                    }}))
-            .forEach(columnSelections::add);
-      }
-      return columnSelections;
     }
   }
 

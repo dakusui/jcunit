@@ -4,19 +4,35 @@ import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.util.*;
+import java.util.function.Function;
 
+import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static java.util.Objects.requireNonNull;
 
 public enum TupleUtils {
   ;
+  private static final Function<Integer, Function<Set<String>, List<List<String>>>> KEY_SET_COMBINATIONS = keySetCombinations();
 
-  public static Set<Tuple> subtuplesOf(
-      Tuple tuple, int strength) {
-    Checks.checknotnull(tuple);
-    Checks.checkcond(strength >= 0 && strength <= tuple.size());
+  public static Set<Tuple> subtuplesOf(Tuple tuple, int strength) {
+    assert tuple != null;
+    assert strength >= 0;
+    assert strength <= tuple.size();
+    return subtuplesOf(tuple, KEY_SET_COMBINATIONS.apply(strength).apply(tuple.keySet()));
+  }
+
+  private static Function<Integer, Function<Set<String>, List<List<String>>>> keySetCombinations() {
+    return memoize(strength -> memoize(keySet -> keySetCombinations(strength, keySet)));
+  }
+
+  private static List<List<String>> keySetCombinations(int strength, Set<String> keySet) {
+    List<List<String>> ret = new LinkedList<>();
+    for (List<String> each : new Combinator<>(new LinkedList<>(keySet), strength))
+      ret.add(each);
+    return ret;
+  }
+
+  private static Set<Tuple> subtuplesOf(Tuple tuple, Iterable<List<String>> c) {
     Set<Tuple> ret = new LinkedHashSet<>();
-    Combinator<String> c = new Combinator<>(
-        new LinkedList<>(tuple.keySet()), strength);
     for (List<String> keys : c) {
       Tuple cur = new Tuple.Impl();
       for (String k : keys) {
