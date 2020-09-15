@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
-import com.github.dakusui.jcunit8.extras.generators.Acts;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
+import com.github.dakusui.jcunit8.extras.generators.Acts;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
@@ -15,7 +15,7 @@ import java.util.function.Function;
 
 @RunWith(Parameterized.class)
 public class JoinExperimentBase {
-  private final JoinExperiment experiment;
+  private final Experiment experiment;
 
   static JoinExperiment createExperiment(int lhsNumFactors, int rhsNumFactors, int strength, Function<Requirement, Joiner> joinerFactory) {
     UTUtils.createTempDirectory("target/acts");
@@ -30,16 +30,54 @@ public class JoinExperimentBase {
         .build();
   }
 
-  JoinExperimentBase(JoinExperiment experiment) {
+  JoinExperimentBase(Experiment experiment) {
     this.experiment = experiment;
   }
 
   @Test
   public void exercise() {
-    this.experiment.exercise();
+    System.out.println(this.experiment.conduct());
   }
 
-  protected void joinAndPrint() {
-    this.experiment.joinAndPrint();
+  static Experiment createExperiment(int strength, int degree, int order, GenerationMode generationMode) {
+    return generationMode.createExperiment(strength, degree, order);
+  }
+
+  enum GenerationMode {
+    WITH_JOIN {
+      @Override
+      JoinExperiment createExperiment(int strength, int degree, int order) {
+        UTUtils.createTempDirectory("target/acts");
+        return new JoinExperiment.Builder()
+            .lhs(new CompatFactorSpaceSpecForExperiments("L").addFactors(order, degree / 2))
+            .rhs(new CompatFactorSpaceSpecForExperiments("R").addFactors(order, degree / 2))
+            .strength(strength)
+            .times(1)
+            .joiner(Joiner.WeakenProduct::new)
+            .generator((factorSpace, t) -> Acts.generateWithActs(new File("target/acts"), factorSpace, t))
+            .verification(false)
+            .build();
+      }
+    },
+    WITH_ACTS_FULL {
+      @Override
+      Experiment createExperiment(int strength, int degree, int order) {
+        return new ActsExperiment(strength, degree, order);
+      }
+    },
+    WITH_ACTS_INCREMENTAL {
+      @Override
+      JoinExperiment createExperiment(int strength, int degree, int order) {
+        return null;
+      }
+    };
+
+    abstract Experiment createExperiment(int strength, int degree, int order);
+  }
+
+  enum ConstraintSet {
+    NO_CONSTRAINT,
+    BASIC,
+    BASIC_PLUS;
   }
 }

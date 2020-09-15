@@ -1,6 +1,8 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
-public class JoinReport {
+import com.github.dakusui.jcunit8.experiments.join.basic.Experiment;
+
+public class JoinReport implements Experiment.Report {
   private final String lhsDesc;
   private final String rhsDesc;
   private final long   time;

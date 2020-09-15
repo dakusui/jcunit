@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit8.experiments.join.basic;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized.Parameters;
@@ -40,6 +39,22 @@ public class WeakenAndProduct {
       for (int t = 2; t <= 3; t++)
         for (int i = 100; i < 1000; i += 100)
           work.add(createExperiment(i, i, t, Joiner.WeakenProduct::new));
+      return work;
+    }
+  }
+
+  public static class Example extends JoinExperimentBase {
+    public Example(Experiment experiment) {
+      super(experiment);
+    }
+
+    @Parameters
+    public static List<Experiment> experiments() {
+      List<Experiment> work = new LinkedList<>();
+      for (int t = 2; t <= 3; t++)
+        for (int i = 100; i < 200; i += 100)
+          for (GenerationMode generationMode : new GenerationMode[] { GenerationMode.WITH_ACTS_FULL, GenerationMode.WITH_JOIN })
+            work.add(createExperiment(t, i, 4, generationMode));
       return work;
     }
   }
@@ -91,25 +106,6 @@ public class WeakenAndProduct {
         work.add(createExperiment(i, j, t, Joiner.Standard::new));
       }
       return work;
-    }
-  }
-
-  public static class Smallest extends JoinExperimentBase {
-
-    public Smallest(JoinExperiment experiment) {
-      super(experiment);
-    }
-
-    @Parameters
-    public static List<JoinExperiment> experiments() {
-      List<JoinExperiment> work = new LinkedList<>();
-      work.add(createExperiment(3, 3, 2, Joiner.Standard::new));
-      return work;
-    }
-
-    @Test
-    public void joinAndPrint() {
-      super.joinAndPrint();
     }
   }
 }

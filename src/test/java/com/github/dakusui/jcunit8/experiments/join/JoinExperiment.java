@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.experiments.join.basic.Experiment;
 import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -19,7 +20,7 @@ import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.lo
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
 import static java.util.Objects.requireNonNull;
 
-public class JoinExperiment {
+public class JoinExperiment implements Experiment {
   private final Builder spec;
 
   private JoinExperiment(JoinExperiment.Builder builder) {
@@ -91,7 +92,7 @@ public class JoinExperiment {
     );
   }
 
-  private static List<Tuple> loadOrGenerateCoveringArray(
+  public static List<Tuple> loadOrGenerateCoveringArray(
       FactorSpaceSpecForExperiments factorSpaceSpec,
       int strength,
       BiFunction<FactorSpace, Integer, List<Tuple>> generator) {
@@ -102,10 +103,31 @@ public class JoinExperiment {
     );
   }
 
+  @Override
+  public Report conduct() {
+    List<Tuple> lhs = loadOrGenerateCoveringArray(
+        this.spec.lhsSpec,
+        this.spec.lhsStrength.applyAsInt(this.spec.strength),
+        this.spec.generator);
+    List<Tuple> rhs = loadOrGenerateCoveringArray(
+        this.spec.rhsSpec,
+        this.spec.rhsStrength.applyAsInt(this.spec.strength),
+        this.spec.generator);
+    System.out.println(JoinReport.header());
+    CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
+    List<Tuple> joined = exerciseJoin(lhs, rhs, this.spec.strength, this.spec.joinerFactory);
+    return new JoinReport(
+        formatCoveringArray(lhs, this.spec.lhsStrength, this.spec.lhsSpec),
+        formatCoveringArray(rhs, this.spec.rhsStrength, this.spec.rhsSpec),
+        joined.size(),
+        stopWatch.get()
+    );
+  }
+
   public static class Builder implements Cloneable {
     Function<Requirement, Joiner>                 joinerFactory;
-    FactorSpaceSpecForExperiments lhsSpec;
-    FactorSpaceSpecForExperiments rhsSpec;
+    FactorSpaceSpecForExperiments                 lhsSpec;
+    FactorSpaceSpecForExperiments                 rhsSpec;
     BiFunction<FactorSpace, Integer, List<Tuple>> generator   = CoveringArrayGenerationUtils::generateWithIpoGplus;
     int                                           strength    = 2;
     IntUnaryOperator                              lhsStrength = i -> i;
