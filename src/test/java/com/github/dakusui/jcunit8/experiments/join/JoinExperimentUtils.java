@@ -1,20 +1,13 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,12 +20,13 @@ import static java.util.stream.Collectors.toList;
 public enum JoinExperimentUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(JoinExperimentUtils.class);
+  public static final File BASE_DIR = new File("src/test/resources/pregenerated-cas");
 
   public static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
       FactorSpaceSpecForExperiments factorSpaceSpec,
       int strength,
       BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
-    File baseDir = new File("src/test/resources/pregenerated-cas");
+    File baseDir = BASE_DIR;
     if (new File(baseDir, Objects.toString(strength)).mkdirs())
       LOGGER.debug(String.format("Directory '%s/%s' was created.", baseDir, strength));
     return loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
@@ -51,15 +45,34 @@ public enum JoinExperimentUtils {
         .orElseGet(() -> {
           CompatFactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
           LOGGER.debug(String.format("Generating a covering array for %s(strength=%s) ...", factorSpaceSpec, strength));
+          long before = System.currentTimeMillis();
           List<Tuple> ret = factory.apply(abstractModel.build(), strength);
+          long after = System.currentTimeMillis();
           LOGGER.debug("Generated.");
           LOGGER.debug("Saving...");
-          saveTo(fileFor(abstractModel, strength, baseDir), ret);
+          saveTo(dataFileFor(abstractModel, strength, baseDir), ret);
+          saveTo(timeFileFor(abstractModel, strength, baseDir), after - before);
           LOGGER.debug("Saved.");
           return ret.stream()
               .map(t -> convert(t, factorSpaceSpec.prefix()))
               .collect(toList());
         });
+  }
+
+  public static long timeSpentForGeneratingCoveringArray(
+      FactorSpaceSpecForExperiments factorSpaceSpec,
+      int strength,
+      BiFunction<FactorSpace, Integer, List<Tuple>> factory
+  ) {
+    File baseDir = BASE_DIR;
+    // Ensure the array is pre-generated already.
+    loadPregeneratedOrGenerateAndSaveCoveringArrayFor(factorSpaceSpec, strength, baseDir, factory);
+    CompatFactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
+    try {
+      return loadFrom(timeFileFor(abstractModel, strength, baseDir));
+    } catch (IOException | ClassNotFoundException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   private static CompatFactorSpaceSpecForExperiments convertToAbstractModel(FactorSpaceSpecForExperiments in) {
@@ -68,12 +81,16 @@ public enum JoinExperimentUtils {
     return ret;
   }
 
+  @SuppressWarnings("unchecked")
   private static Optional<List<Tuple>> loadPregeneratedCoveringArrayFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
     try {
       LOGGER.debug("Loading pre-generated covering array for " + factorSpaceSpec.createSignature() + ":strength=" + strength);
       try {
+        if (!timeFileFor(factorSpaceSpec, strength, baseDir).exists())
+          throw new FileNotFoundException("Time-file doesn't exist");
         return Optional.of(
-            loadFrom(fileFor(factorSpaceSpec, strength, baseDir)).stream()
+            ((List<Tuple>)loadFrom(dataFileFor(factorSpaceSpec, strength, baseDir)))
+                .stream()
                 .map(each -> convert(each, factorSpaceSpec.prefix()))
                 .collect(toList()));
       } finally {
@@ -88,26 +105,34 @@ public enum JoinExperimentUtils {
     }
   }
 
-  private static File fileFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
-    return new File(new File(baseDir, Objects.toString(strength)), signatureOf(factorSpaceSpec));
+  private static File dataFileFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
+    return fileFor(strength, baseDir, signatureOf(factorSpaceSpec));
+  }
+
+  private static File timeFileFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
+    return fileFor(strength, baseDir, signatureOf(factorSpaceSpec) + ".time");
+  }
+
+  private static File fileFor(int strength, File baseDir, String filename) {
+    return new File(new File(baseDir, Objects.toString(strength)), filename);
   }
 
   private static String signatureOf(FactorSpaceSpecForExperiments factorSpaceSpec) {
     return factorSpaceSpec.createSignature();
   }
 
-  private static void saveTo(File file, List<Tuple> tuples) {
+  private static void saveTo(File file, Object data) {
     try (ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
-      oos.writeObject(tuples);
+      oos.writeObject(data);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @SuppressWarnings("unchecked")
-  private static List<Tuple> loadFrom(File file) throws IOException, ClassNotFoundException {
+  private static <T> T loadFrom(File file) throws IOException, ClassNotFoundException {
     try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)))) {
-      return (List<Tuple>) ois.readObject();
+      return (T) ois.readObject();
     }
   }
 
