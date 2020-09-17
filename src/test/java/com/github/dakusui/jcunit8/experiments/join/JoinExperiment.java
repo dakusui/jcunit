@@ -12,12 +12,19 @@ import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenera
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntUnaryOperator;
 
 import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
+import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.timeSpentForGeneratingCoveringArray;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
+import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
 public class JoinExperiment implements Experiment {
@@ -105,23 +112,70 @@ public class JoinExperiment implements Experiment {
 
   @Override
   public Report conduct() {
-    List<Tuple> lhs = loadOrGenerateCoveringArray(
-        this.spec.lhsSpec,
-        this.spec.lhsStrength.applyAsInt(this.spec.strength),
-        this.spec.generator);
-    List<Tuple> rhs = loadOrGenerateCoveringArray(
-        this.spec.rhsSpec,
-        this.spec.rhsStrength.applyAsInt(this.spec.strength),
-        this.spec.generator);
-    System.out.println(JoinReport.header());
-    CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
-    List<Tuple> joined = exerciseJoin(lhs, rhs, this.spec.strength, this.spec.joinerFactory);
-    return new JoinReport(
-        formatCoveringArray(lhs, this.spec.lhsStrength, this.spec.lhsSpec),
-        formatCoveringArray(rhs, this.spec.rhsStrength, this.spec.rhsSpec),
-        joined.size(),
-        stopWatch.get()
-    );
+    ExecutorService executorService = Executors.newFixedThreadPool(2);
+    try {
+      long beforePreparation = System.currentTimeMillis();
+      Future<Entry<List<Tuple>, Long>> lhsFuture = executorService.submit(() -> loadOrGenerateCoveringArrayWithGenerationTime(
+          spec.lhsSpec,
+          spec.lhsStrength.applyAsInt(spec.strength),
+          spec.generator));
+      Future<Entry<List<Tuple>, Long>> rhsFuture = executorService.submit(() -> loadOrGenerateCoveringArrayWithGenerationTime(
+          spec.rhsSpec,
+          spec.rhsStrength.applyAsInt(spec.strength),
+          spec.generator));
+      Entry<List<Tuple>, Long> lhs = futureGet(lhsFuture);
+      Entry<List<Tuple>, Long> rhs = futureGet(rhsFuture);
+      long afterPreparation = System.currentTimeMillis();
+      System.out.println(JoinReport.header());
+      CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
+      List<Tuple> joined = exerciseJoin(lhs.getKey(), rhs.getKey(), this.spec.strength, this.spec.joinerFactory);
+      return new JoinReport(
+          formatCoveringArray(lhs.getKey(), this.spec.lhsStrength, this.spec.lhsSpec),
+          formatCoveringArray(rhs.getKey(), this.spec.rhsStrength, this.spec.rhsSpec),
+          joined.size(),
+          stopWatch.get() + max(afterPreparation - beforePreparation, max(lhs.getValue(), rhs.getValue())));
+    } finally {
+      executorService.shutdownNow();
+    }
+  }
+
+  private Entry<List<Tuple>, Long> futureGet(Future<Entry<List<Tuple>, Long>> lhsFuture) {
+    try {
+      return lhsFuture.get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private static Entry<List<Tuple>, Long> loadOrGenerateCoveringArrayWithGenerationTime(FactorSpaceSpecForExperiments lhsSpec, int strength, BiFunction<FactorSpace, Integer, List<Tuple>> generator) {
+    List<Tuple> tuples = loadOrGenerateCoveringArray(
+        lhsSpec,
+        strength,
+        generator);
+    long generationTime = timeSpentForGeneratingCoveringArray(
+        lhsSpec,
+        strength,
+        generator);
+    return entry(tuples, generationTime);
+  }
+
+  private static <K, V> Entry<K, V> entry(K k, V v) {
+    return new Entry<K, V>() {
+      @Override
+      public K getKey() {
+        return k;
+      }
+
+      @Override
+      public V getValue() {
+        return v;
+      }
+
+      @Override
+      public V setValue(Object value) {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   public static class Builder implements Cloneable {

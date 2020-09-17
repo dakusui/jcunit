@@ -43,22 +43,6 @@ public class WeakenAndProduct {
     }
   }
 
-  public static class Example extends JoinExperimentBase {
-    public Example(Experiment experiment) {
-      super(experiment);
-    }
-
-    @Parameters
-    public static List<Experiment> experiments() {
-      List<Experiment> work = new LinkedList<>();
-      for (int t = 2; t <= 3; t++)
-        for (int i = 100; i < 200; i += 100)
-          for (GenerationMode generationMode : new GenerationMode[] { GenerationMode.WITH_ACTS_FULL, GenerationMode.WITH_JOIN })
-            work.add(createExperiment(t, i, 4, generationMode));
-      return work;
-    }
-  }
-
   public static class Benchmark extends JoinExperimentBase {
     public Benchmark(JoinExperiment experiment) {
       super(experiment);
