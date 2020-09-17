@@ -253,7 +253,7 @@ public enum ActsUtils {
    *
    * @param factorNames A list of factor names.
    */
-  public static NormalizedConstraint createConstraint(List<String> factorNames) {
+  public static NormalizedConstraint createBasicConstraint(List<String> factorNames) {
     String[] p = factorNames.toArray(new String[0]);
     return or(
         ge(p[0], p[1]),
@@ -263,8 +263,8 @@ public enum ActsUtils {
         gt(p[8], p[1]));
   }
 
-  public static Function<List<String>, NormalizedConstraint> createConstraint(int offset) {
-    return strings -> createConstraint(strings.subList(offset, offset + 10));
+  public static Function<List<String>, NormalizedConstraint> createBasicConstraint(int offset) {
+    return strings -> createBasicConstraint(strings.subList(offset, offset + 10));
   }
 
   private static NormalizedConstraint or(NormalizedConstraint... constraints) {

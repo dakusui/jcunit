@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
+import com.github.dakusui.jcunit8.experiments.generation.ConstraintSet;
 import org.junit.runners.Parameterized;
 
 import java.util.LinkedList;
@@ -13,10 +14,11 @@ public class Example extends JoinExperimentBase {
   @Parameterized.Parameters
   public static List<Experiment> experiments() {
     List<Experiment> work = new LinkedList<>();
-    for (int t = 2; t <= 3; t++)
-      for (int i = 100; i < 10000; i += 100)
-        for (GenerationMode generationMode : new GenerationMode[] { GenerationMode.WITH_ACTS_FULL, GenerationMode.WITH_JOIN })
-          work.add(createExperiment(t, i, 4, generationMode));
+    for (ConstraintSet constraintSet : new ConstraintSet[] { ConstraintSet.NONE, ConstraintSet.BASIC })
+      for (GenerationMode generationMode : new GenerationMode[] { GenerationMode.WITH_ACTS_FULL, GenerationMode.WITH_JOIN })
+        for (int t = 2; t <= 3; t++)
+          for (int i = 20; i < 60; i += 20)
+            work.add(createExperiment(t, i, 4, generationMode, constraintSet));
     return work;
   }
 }

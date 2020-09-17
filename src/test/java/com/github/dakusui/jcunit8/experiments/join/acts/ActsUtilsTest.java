@@ -55,7 +55,7 @@ public class ActsUtilsTest {
   private void generateAndReportWithConstraints(File baseDir, int numFactors, int strength) {
     List<Function<List<String>, NormalizedConstraint>> constraints = new LinkedList<>();
     for (int i = 0; i < numFactors / 10; i++) {
-      constraints.add(ActsUtils.createConstraint(i * 10));
+      constraints.add(ActsUtils.createBasicConstraint(i * 10));
     }
     ActsUtils.generateAndReport(baseDir, 4, numFactors, strength,
         constraints.toArray(new Function[0])
