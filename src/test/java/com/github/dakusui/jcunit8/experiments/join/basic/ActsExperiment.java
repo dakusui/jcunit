@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.experiments.generation.ConstraintSet;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils;
 import com.github.dakusui.jcunit8.extras.generators.Acts;
 import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
@@ -18,16 +19,23 @@ public class ActsExperiment implements Experiment {
   private final int                                           order;
   private final int                                           degree;
   private final BiFunction<FactorSpace, Integer, List<Tuple>> generator = (factorSpace, t) -> Acts.generateWithActs(new File("target/acts"), factorSpace, t);
+  private final ConstraintSet                                 constraintSet;
 
-  public ActsExperiment(int strength, int degree, int order) {
+  public ActsExperiment(int strength, int degree, int order, ConstraintSet constraintSet) {
     this.strength = strength;
     this.order = order;
     this.degree = degree;
+    this.constraintSet = constraintSet;
   }
 
   @Override
   public Report conduct() {
-    FactorSpaceSpecForExperiments abstractModel = new CompatFactorSpaceSpecForExperiments("L").addFactors(order, degree / 2);
+    FactorSpaceSpecForExperiments abstractModel = new CompatFactorSpaceSpecForExperiments("L") {{
+      FactorSpaceSpecForExperiments factorSpaceSpec = this.constraintSetName(constraintSet.name());
+      for (int offset = 0; offset < degree; offset += 10)
+        constraintSet.constraintFactory(offset).ifPresent(factorSpaceSpec::addConstraint);
+
+    }}.addFactors(order, degree);
     List<Tuple> array = loadOrGenerateCoveringArray(
         abstractModel,
         strength,

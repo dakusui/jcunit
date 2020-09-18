@@ -14,7 +14,7 @@ public class Example extends JoinExperimentBase {
   @Parameterized.Parameters
   public static List<Experiment> experiments() {
     List<Experiment> work = new LinkedList<>();
-    for (ConstraintSet constraintSet : new ConstraintSet[] { ConstraintSet.NONE, ConstraintSet.BASIC })
+    for (ConstraintSet constraintSet : new ConstraintSet[] { ConstraintSet.BASIC, ConstraintSet.NONE })
       for (GenerationMode generationMode : new GenerationMode[] { GenerationMode.WITH_ACTS_FULL, GenerationMode.WITH_JOIN })
         for (int t = 2; t <= 3; t++)
           for (int i = 20; i < 60; i += 20)

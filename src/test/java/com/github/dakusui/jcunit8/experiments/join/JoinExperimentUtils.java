@@ -19,8 +19,8 @@ import static java.util.stream.Collectors.toList;
 
 public enum JoinExperimentUtils {
   ;
-  private static final Logger LOGGER = LoggerFactory.getLogger(JoinExperimentUtils.class);
-  public static final File BASE_DIR = new File("src/test/resources/pregenerated-cas");
+  private static final Logger LOGGER   = LoggerFactory.getLogger(JoinExperimentUtils.class);
+  public static final  File   BASE_DIR = new File("src/test/resources/pregenerated-cas");
 
   public static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
       FactorSpaceSpecForExperiments factorSpaceSpec,
@@ -78,6 +78,10 @@ public enum JoinExperimentUtils {
   private static CompatFactorSpaceSpecForExperiments convertToAbstractModel(FactorSpaceSpecForExperiments in) {
     CompatFactorSpaceSpecForExperiments ret = new CompatFactorSpaceSpecForExperiments("PREFIX");
     in.factorSpecs().forEach(entry -> ret.addFactors(entry.getKey(), entry.getValue()));
+    if (!in.constraints().isEmpty()) {
+      in.constraints().forEach(ret::addConstraint);
+      ret.constraintSetName(in.constraintSetName().orElseThrow(RuntimeException::new));
+    }
     return ret;
   }
 
@@ -89,7 +93,7 @@ public enum JoinExperimentUtils {
         if (!timeFileFor(factorSpaceSpec, strength, baseDir).exists())
           throw new FileNotFoundException("Time-file doesn't exist");
         return Optional.of(
-            ((List<Tuple>)loadFrom(dataFileFor(factorSpaceSpec, strength, baseDir)))
+            ((List<Tuple>) loadFrom(dataFileFor(factorSpaceSpec, strength, baseDir)))
                 .stream()
                 .map(each -> convert(each, factorSpaceSpec.prefix()))
                 .collect(toList()));

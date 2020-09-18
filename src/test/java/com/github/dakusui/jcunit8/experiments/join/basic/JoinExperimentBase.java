@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit8.experiments.join.basic;
 import com.github.dakusui.jcunit8.experiments.generation.ConstraintSet;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
 import com.github.dakusui.jcunit8.extras.generators.Acts;
+import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
@@ -65,7 +66,7 @@ public class JoinExperimentBase {
     WITH_ACTS_FULL {
       @Override
       Experiment createExperiment(int strength, int degree, int order, ConstraintSet constraintSet) {
-        return new ActsExperiment(strength, degree, order);
+        return new ActsExperiment(strength, degree, order, constraintSet);
       }
     },
     WITH_ACTS_INCREMENTAL {
@@ -79,8 +80,9 @@ public class JoinExperimentBase {
 
     static CompatFactorSpaceSpecForExperiments createFactorySpaceSpec(ConstraintSet constraintSet, final String prefix, int degree) {
       return new CompatFactorSpaceSpecForExperiments(prefix) {{
+        FactorSpaceSpecForExperiments factorSpaceSpec = this.constraintSetName(constraintSet.name());
         for (int offset = 0; offset < degree; offset += 10)
-          constraintSet.constraintFactories(offset).ifPresent(this::addConstraint);
+          constraintSet.constraintFactory(offset).ifPresent(factorSpaceSpec::addConstraint);
       }};
     }
   }
