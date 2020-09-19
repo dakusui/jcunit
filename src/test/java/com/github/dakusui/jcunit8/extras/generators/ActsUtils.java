@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.joining;
 
 public enum ActsUtils {
   ;
-  private static Logger LOGGER = LoggerFactory.getLogger(ActsUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ActsUtils.class);
 
   static String buildActsModel(FactorSpace factorSpace, String systemName) {
     StringBuilder b = new StringBuilder();
@@ -142,10 +142,10 @@ public enum ActsUtils {
    *   </Parameters>
    * </pre>
    *
-   * @param b A string builder with which a given parameter is rendered.
+   * @param b           A string builder with which a given parameter is rendered.
    * @param indentLevel A current indentation level.
    * @param parameterId An identifier of a given parameter as {@code parameter}.
-   * @param parameter A parameter to be rendered.
+   * @param parameter   A parameter to be rendered.
    * @return The indentation level after the given parameter is rendered.
    */
   private static int renderParameter(StringBuilder b, int indentLevel, int parameterId, FactorSpaceAdapter parameter) {
@@ -263,8 +263,30 @@ public enum ActsUtils {
         gt(p[8], p[1]));
   }
 
+  /*
+      (pi,1>pi,2 ∨ pi,3>pi,4 ∨ pi,5>pi,6 ∨ pi,7>pi,8 ∨ pi,9>pi,2)
+                    ∧pi,10>pi,1
+                    ∧pi,9>pi,2
+                    ∧pi,8>pi,3
+                    ∧pi,7>pi,4
+                    ∧pi,6>pi,5 (0≤i<n)
+   */
+  public static NormalizedConstraint createBasicPlusConstraint(List<String> factorNames) {
+    String[] p = factorNames.toArray(new String[0]);
+    return and(or(
+        ge(p[0], p[1]),
+        gt(p[2], p[3]),
+        eq(p[4], p[5]),
+        gt(p[6], p[7]),
+        gt(p[8], p[1])), gt(p[9], p[0]), gt(p[8], p[1]), gt(p[7], p[2]), gt(p[6], p[3]), gt(p[5], p[4]));
+  }
+
   public static Function<List<String>, NormalizedConstraint> createBasicConstraint(int offset) {
     return strings -> createBasicConstraint(strings.subList(offset, offset + 10));
+  }
+
+  public static Function<List<String>, NormalizedConstraint> createBasicPlusConstraint(int offset) {
+    return strings -> createBasicPlusConstraint(strings.subList(offset, offset + 10));
   }
 
   private static NormalizedConstraint or(NormalizedConstraint... constraints) {
@@ -288,6 +310,39 @@ public enum ActsUtils {
             return true;
         }
         return false;
+      }
+
+      @Override
+      public List<String> involvedKeys() {
+        return Arrays.stream(constraints)
+            .flatMap(each -> each.involvedKeys().stream())
+            .distinct()
+            .collect(Collectors.toList());
+      }
+    };
+  }
+
+  private static NormalizedConstraint and(NormalizedConstraint... constraints) {
+    return new NormalizedConstraint() {
+      @Override
+      public String toText(Function<String, String> factorNameToParameterName) {
+        return Arrays.stream(constraints)
+            .map(each -> each.toText(factorNameToParameterName))
+            .collect(joining(" &amp;&amp; "));
+      }
+
+      @Override
+      public String getName() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean test(Tuple tuple) {
+        for (NormalizedConstraint each : constraints) {
+          if (each.test(tuple))
+            return false;
+        }
+        return true;
       }
 
       @Override
@@ -324,7 +379,7 @@ public enum ActsUtils {
         throw new UnsupportedOperationException();
       }
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public boolean test(Tuple tuple) {
         checkcond(tuple.get(f) instanceof Comparable);
@@ -353,7 +408,7 @@ public enum ActsUtils {
         throw new UnsupportedOperationException();
       }
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public boolean test(Tuple tuple) {
         checkcond(tuple.get(f) instanceof Comparable);
@@ -421,7 +476,8 @@ public enum ActsUtils {
       return compare(f, g);
     }
 
-    public static boolean compare(Comparable f, Comparable g) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static boolean compare(Comparable f, Comparable g) {
       return f.compareTo(g) > 0;
     }
 

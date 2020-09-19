@@ -14,16 +14,22 @@ public enum ConstraintSet {
       return Optional.empty();
     }
   },
+  /*
+    pi,1>pi,2∨pi,3>pi,4∨pi,5>pi,6∨pi,7>pi,8∨pi,9>pi,2(0≤i<n)
+   */
   BASIC {
     @Override
     public Optional<NormalizedConstraintFactory> constraintFactory(int offset) {
       return Optional.of(factorNames -> ActsUtils.createBasicConstraint(offset).apply(factorNames));
     }
   },
+  /*
+    (pi,1>pi,2∨pi,3>pi,4∨pi,5>pi,6∨pi,7>pi,8∨pi,9>pi,2)∧pi,10>pi,1∧pi,9>pi,2∧pi,8>pi,3∧pi,7>pi,4∧pi,6>pi,5(0≤i<n)
+   */
   BASIC_PLUS {
     @Override
     public Optional<NormalizedConstraintFactory> constraintFactory(int offset) {
-      throw new UnsupportedOperationException();
+      return Optional.of(factorNames -> ActsUtils.createBasicPlusConstraint(offset).apply(factorNames));
     }
   };
 
