@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.generation;
 
-import com.github.dakusui.jcunit8.experiments.peerj.acts.ActsUtils;
-import com.github.dakusui.jcunit8.experiments.peerj.NormalizedConstraint;
+import com.github.dakusui.peerj.acts.ActsUtils;
+import com.github.dakusui.peerj.model.NormalizedConstraint;
 
 import java.util.List;
 import java.util.Optional;

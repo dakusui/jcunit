@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.peerj;
+package com.github.dakusui.peerj.model;
 
 public class CompatFactorSpaceSpecForExperiments extends FactorSpaceSpecForExperiments {
   private final String                                       prefix;

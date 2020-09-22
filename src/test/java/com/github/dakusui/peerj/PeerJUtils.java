@@ -1,9 +1,12 @@
-package com.github.dakusui.jcunit8.experiments.peerj;
+package com.github.dakusui.peerj;
 
 import com.github.dakusui.jcunit8.experiments.generation.ConstraintSet;
-import com.github.dakusui.jcunit8.experiments.peerj.acts.Acts;
+import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
+import com.github.dakusui.peerj.acts.ActsExperiment;
+import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 
 import java.io.File;
 

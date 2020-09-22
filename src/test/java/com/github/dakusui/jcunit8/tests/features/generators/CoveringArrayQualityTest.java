@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.generators;
 
-import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.GenerationTestBase;
 import org.junit.Test;
 

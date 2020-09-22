@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.experiments.peerj.FactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import org.junit.BeforeClass;
 

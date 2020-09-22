@@ -1,12 +1,12 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
-import com.github.dakusui.jcunit8.experiments.peerj.Experiment;
-import com.github.dakusui.jcunit8.experiments.peerj.JoinExperiment;
-import com.github.dakusui.jcunit8.experiments.peerj.acts.Acts;
+import com.github.dakusui.peerj.Experiment;
+import com.github.dakusui.peerj.JoinExperiment;
+import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
-import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

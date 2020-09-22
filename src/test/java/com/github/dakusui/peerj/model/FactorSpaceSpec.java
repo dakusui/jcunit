@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.peerj;
+package com.github.dakusui.peerj.model;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 
@@ -14,8 +14,8 @@ public class FactorSpaceSpec {
    */
   protected final SortedMap<Integer, Integer>       factorSpecs           = new TreeMap<>((o1, o2) -> o2 - o1);
   private final   Map<String, String>               normalizedFactorNames = new HashMap<>();
-  private final   Map<String, String>               rawFactorNames        = new HashMap<>();
-  private final   SortedSet<NormalizableConstraint> constraints           = new TreeSet<>(Comparator.reverseOrder());
+  private final   Map<String, String>               rawFactorNames = new HashMap<>();
+  private final   SortedSet<NormalizableConstraint> constraints    = new TreeSet<>(Comparator.reverseOrder());
 
   public FactorSpaceSpec addFactor(Factor factor) {
     checkcond(!normalizedFactorNames.containsKey(factor.getName()));

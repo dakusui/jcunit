@@ -1,13 +1,13 @@
-package com.github.dakusui.jcunit8.experiments.peerj.acts;
+package com.github.dakusui.peerj.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit8.experiments.peerj.FactorSpaceSpecForExperiments;
-import com.github.dakusui.jcunit8.experiments.peerj.NormalizedConstraint;
+import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

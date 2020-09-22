@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.peerj.acts;
+package com.github.dakusui.peerj.acts;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.streamFile;
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.writeTo;
-import static com.github.dakusui.jcunit8.experiments.peerj.acts.ActsUtils.buildActsModel;
+import static com.github.dakusui.peerj.acts.ActsUtils.buildActsModel;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;

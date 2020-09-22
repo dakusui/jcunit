@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.examples.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import org.junit.Test;
 
 import java.util.List;

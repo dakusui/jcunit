@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.peerj;
+package com.github.dakusui.peerj;
 
 public interface Experiment {
   Report conduct();

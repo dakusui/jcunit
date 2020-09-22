@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.peerj.acts;
+package com.github.dakusui.peerj.acts;
 
 
 import java.util.function.Function;
