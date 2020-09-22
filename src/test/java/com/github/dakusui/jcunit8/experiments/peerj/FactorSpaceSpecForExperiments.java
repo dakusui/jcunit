@@ -1,6 +1,5 @@
-package com.github.dakusui.jcunit8.extras.normalizer.compat;
+package com.github.dakusui.jcunit8.experiments.peerj;
 
-import com.github.dakusui.jcunit8.extras.normalizer.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
-import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.FactorSpaceSpecForExperiments;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 

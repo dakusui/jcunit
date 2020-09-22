@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
-import com.github.dakusui.jcunit8.experiments.join.basic.Experiment;
+import com.github.dakusui.jcunit8.experiments.peerj.Experiment;
 
 public class JoinReport implements Experiment.Report {
   private final String lhsDesc;

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.extras.normalizer;
+package com.github.dakusui.jcunit8.experiments.peerj;
 
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 

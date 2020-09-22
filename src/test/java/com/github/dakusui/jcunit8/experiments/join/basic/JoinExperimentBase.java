@@ -1,13 +1,12 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
-import com.github.dakusui.jcunit8.experiments.generation.ConstraintSet;
-import com.github.dakusui.jcunit8.experiments.join.JoinExperiment;
-import com.github.dakusui.jcunit8.extras.generators.Acts;
-import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.Experiment;
+import com.github.dakusui.jcunit8.experiments.peerj.JoinExperiment;
+import com.github.dakusui.jcunit8.experiments.peerj.acts.Acts;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -32,7 +31,7 @@ public class JoinExperimentBase {
         .build();
   }
 
-  JoinExperimentBase(Experiment experiment) {
+  public JoinExperimentBase(Experiment experiment) {
     this.experiment = experiment;
   }
 
@@ -41,49 +40,4 @@ public class JoinExperimentBase {
     System.out.println(this.experiment.conduct());
   }
 
-  static Experiment createExperiment(int strength, int degree, int order, GenerationMode generationMode, ConstraintSet constraintSet) {
-    return generationMode.createExperiment(strength, degree, order, constraintSet);
-  }
-
-  enum GenerationMode {
-    WITH_JOIN {
-      @Override
-      JoinExperiment createExperiment(int strength, int degree, int order, ConstraintSet constraintSet) {
-        UTUtils.createTempDirectory("target/acts");
-        int lhsDegree = degree / 2;
-        int rhsDegree = degree / 2;
-        return new JoinExperiment.Builder()
-            .lhs(createFactorySpaceSpec(constraintSet, "L", lhsDegree).addFactors(order, lhsDegree))
-            .rhs(createFactorySpaceSpec(constraintSet, "R", rhsDegree).addFactors(order, rhsDegree))
-            .strength(strength)
-            .times(1)
-            .joiner(Joiner.WeakenProduct::new)
-            .generator((factorSpace, t) -> Acts.generateWithActs(new File("target/acts"), factorSpace, t))
-            .verification(false)
-            .build();
-      }
-    },
-    WITH_ACTS_FULL {
-      @Override
-      Experiment createExperiment(int strength, int degree, int order, ConstraintSet constraintSet) {
-        return new ActsExperiment(strength, degree, order, constraintSet);
-      }
-    },
-    WITH_ACTS_INCREMENTAL {
-      @Override
-      JoinExperiment createExperiment(int strength, int degree, int order, ConstraintSet constraintSet) {
-        return null;
-      }
-    };
-
-    abstract Experiment createExperiment(int strength, int degree, int order, ConstraintSet constraintSet);
-
-    static CompatFactorSpaceSpecForExperiments createFactorySpaceSpec(ConstraintSet constraintSet, final String prefix, int degree) {
-      return new CompatFactorSpaceSpecForExperiments(prefix) {{
-        FactorSpaceSpecForExperiments factorSpaceSpec = this.constraintSetName(constraintSet.name());
-        for (int offset = 0; offset < degree; offset += 10)
-          constraintSet.constraintFactory(offset).ifPresent(factorSpaceSpec::addConstraint);
-      }};
-    }
-  }
 }

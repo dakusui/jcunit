@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.extras.generators;
+package com.github.dakusui.jcunit8.experiments.peerj.acts;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.streamFile;
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.writeTo;
-import static com.github.dakusui.jcunit8.extras.generators.ActsUtils.buildActsModel;
+import static com.github.dakusui.jcunit8.experiments.peerj.acts.ActsUtils.buildActsModel;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -23,8 +23,8 @@ import static java.util.stream.Collectors.toList;
 public class Acts {
 
   private final FactorSpace factorSpace;
-  private       String      algorithm;
-  private       String      constraintHandler;
+  private final String      algorithm;
+  private final String      constraintHandler;
 
   private static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength) {
     LOGGER.debug("Directory:{} was created: {}", baseDir, baseDir.mkdirs());
@@ -71,7 +71,7 @@ public class Acts {
         .collect(toList());
   }
 
-  static File outFile(File baseDir) {
+  public static File outFile(File baseDir) {
     return new File(baseDir, "acts.ca");
   }
 

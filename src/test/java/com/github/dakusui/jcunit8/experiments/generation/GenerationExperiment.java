@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.generation;
 
 import com.github.dakusui.jcunit8.testutils.testsuitequality.GenerationTestBase;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
 import org.junit.Test;
 
 public class GenerationExperiment extends GenerationTestBase {

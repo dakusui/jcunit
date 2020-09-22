@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join.acts;
 
-import com.github.dakusui.jcunit8.extras.generators.ActsUtils;
-import com.github.dakusui.jcunit8.extras.normalizer.compat.NormalizedConstraint;
+import com.github.dakusui.jcunit8.experiments.peerj.acts.ActsUtils;
+import com.github.dakusui.jcunit8.experiments.peerj.NormalizedConstraint;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
-import static com.github.dakusui.jcunit8.extras.generators.Acts.readTestSuiteFromCsv;
+import static com.github.dakusui.jcunit8.experiments.peerj.acts.Acts.readTestSuiteFromCsv;
 
 public class ActsUtilsTest {
 

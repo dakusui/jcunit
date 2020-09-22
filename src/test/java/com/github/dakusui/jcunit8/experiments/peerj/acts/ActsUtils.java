@@ -1,13 +1,13 @@
-package com.github.dakusui.jcunit8.extras.generators;
+package com.github.dakusui.jcunit8.experiments.peerj.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
-import com.github.dakusui.jcunit8.extras.normalizer.compat.NormalizedConstraint;
+import com.github.dakusui.jcunit8.experiments.peerj.FactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.NormalizedConstraint;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +30,7 @@ public enum ActsUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(ActsUtils.class);
 
-  static String buildActsModel(FactorSpace factorSpace, String systemName) {
+  public static String buildActsModel(FactorSpace factorSpace, String systemName) {
     StringBuilder b = new StringBuilder();
     b.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     b.append("<System name=\"").append(systemName).append("\">\n");

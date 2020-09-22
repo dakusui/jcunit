@@ -1,18 +1,16 @@
-package com.github.dakusui.jcunit8.experiments.join.basic;
+package com.github.dakusui.jcunit8.experiments.peerj;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.experiments.generation.ConstraintSet;
 import com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils;
-import com.github.dakusui.jcunit8.extras.generators.Acts;
-import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.peerj.acts.Acts;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CompatFactorSpaceSpecForExperiments;
 
 import java.io.File;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import static com.github.dakusui.jcunit8.experiments.join.JoinExperiment.loadOrGenerateCoveringArray;
+import static com.github.dakusui.jcunit8.experiments.peerj.JoinExperiment.loadOrGenerateCoveringArray;
 
 public class ActsExperiment implements Experiment {
   private final int                                           strength;

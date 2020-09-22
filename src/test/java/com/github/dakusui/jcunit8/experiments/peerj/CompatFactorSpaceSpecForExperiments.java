@@ -1,6 +1,4 @@
-package com.github.dakusui.jcunit8.testutils.testsuitequality;
-
-import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
+package com.github.dakusui.jcunit8.experiments.peerj;
 
 public class CompatFactorSpaceSpecForExperiments extends FactorSpaceSpecForExperiments {
   private final String                                       prefix;

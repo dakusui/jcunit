@@ -1,8 +1,7 @@
-package com.github.dakusui.jcunit8.experiments.join;
+package com.github.dakusui.jcunit8.experiments.peerj;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.experiments.join.basic.Experiment;
-import com.github.dakusui.jcunit8.extras.normalizer.compat.FactorSpaceSpecForExperiments;
+import com.github.dakusui.jcunit8.experiments.join.JoinReport;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
