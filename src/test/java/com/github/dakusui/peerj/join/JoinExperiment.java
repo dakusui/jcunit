@@ -1,12 +1,12 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.join;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.experiments.join.JoinReport;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
+import com.github.dakusui.peerj.Experiment;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 
 import java.util.ArrayList;
@@ -21,8 +21,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.IntUnaryOperator;
 
-import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
-import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.timeSpentForGeneratingCoveringArray;
+import static com.github.dakusui.peerj.utils.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
+import static com.github.dakusui.peerj.utils.JoinExperimentUtils.timeSpentForGeneratingCoveringArray;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
 import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;

@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 
 import java.util.function.Function;
 
-import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
+import static com.github.dakusui.peerj.utils.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
 
 @RunWith(Enclosed.class)

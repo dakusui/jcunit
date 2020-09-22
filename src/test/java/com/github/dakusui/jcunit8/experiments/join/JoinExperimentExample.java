@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join;
 
-import com.github.dakusui.peerj.JoinExperiment;
+import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import org.junit.Test;

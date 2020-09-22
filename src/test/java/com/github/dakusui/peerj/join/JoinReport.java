@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.experiments.join;
+package com.github.dakusui.peerj.join;
 
 import com.github.dakusui.peerj.Experiment;
 

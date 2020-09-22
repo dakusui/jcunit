@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.experiments.join.JoinReport;
+import com.github.dakusui.peerj.join.JoinReport;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.github.dakusui.jcunit8.experiments.join.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
+import static com.github.dakusui.peerj.utils.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.configureStdIOs;
 import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
 

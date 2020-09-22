@@ -1,7 +1,9 @@
-package com.github.dakusui.peerj.acts;
+package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
+import com.github.dakusui.peerj.acts.Acts;
+import com.github.dakusui.peerj.acts.ActsPredicate;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.jcunit8.factorspace.Constraint;

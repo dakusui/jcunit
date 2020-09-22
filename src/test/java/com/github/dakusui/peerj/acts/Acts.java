@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.streamFile;
 import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.writeTo;
-import static com.github.dakusui.peerj.acts.ActsUtils.buildActsModel;
+import static com.github.dakusui.peerj.utils.ActsUtils.buildActsModel;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;

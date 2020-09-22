@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
 import com.github.dakusui.peerj.Experiment;
-import com.github.dakusui.peerj.JoinExperiment;
+import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;

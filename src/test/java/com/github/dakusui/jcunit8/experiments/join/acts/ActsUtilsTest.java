@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.join.acts;
 
-import com.github.dakusui.peerj.acts.ActsUtils;
+import com.github.dakusui.peerj.utils.ActsUtils;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
