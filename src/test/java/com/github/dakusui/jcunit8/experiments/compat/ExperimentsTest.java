@@ -1,6 +1,5 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
-import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -72,12 +71,12 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 20);
+      return new FactorSpaceSpecForExperiments("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = new CompatFactorSpaceSpecForExperiments("R").addFactors(2, 20);
+      FactorSpaceSpecForExperiments rSpec = new FactorSpaceSpecForExperiments("R").addFactors(2, 20);
       final FactorSpace r = rSpec.build();
       exerciseJoin(
           10,
@@ -97,12 +96,12 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
-      return new CompatFactorSpaceSpecForExperiments("L").addFactors(2, 20);
+      return new FactorSpaceSpecForExperiments("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = new CompatFactorSpaceSpecForExperiments("R").addFactors(2, 20);
+      FactorSpaceSpecForExperiments rSpec = new FactorSpaceSpecForExperiments("R").addFactors(2, 20);
       exerciseJoin(10,
           rSpec,
           loadPregeneratedOrGenerateAndSaveCoveringArrayFor(

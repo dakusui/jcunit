@@ -3,7 +3,6 @@ package com.github.dakusui.peerj.utils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ public enum JoinExperimentUtils {
       BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
     return loadPregeneratedCoveringArrayFor(factorSpaceSpec, strength, baseDir)
         .orElseGet(() -> {
-          CompatFactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
+          FactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
           LOGGER.debug(String.format("Generating a covering array for %s(strength=%s) ...", factorSpaceSpec, strength));
           long before = System.currentTimeMillis();
           List<Tuple> ret = factory.apply(abstractModel.build(), strength);
@@ -67,7 +66,7 @@ public enum JoinExperimentUtils {
     File baseDir = BASE_DIR;
     // Ensure the array is pre-generated already.
     loadPregeneratedOrGenerateAndSaveCoveringArrayFor(factorSpaceSpec, strength, baseDir, factory);
-    CompatFactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
+    FactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
     try {
       return loadFrom(timeFileFor(abstractModel, strength, baseDir));
     } catch (IOException | ClassNotFoundException e) {
@@ -75,8 +74,8 @@ public enum JoinExperimentUtils {
     }
   }
 
-  private static CompatFactorSpaceSpecForExperiments convertToAbstractModel(FactorSpaceSpecForExperiments in) {
-    CompatFactorSpaceSpecForExperiments ret = new CompatFactorSpaceSpecForExperiments("PREFIX");
+  private static FactorSpaceSpecForExperiments convertToAbstractModel(FactorSpaceSpecForExperiments in) {
+    FactorSpaceSpecForExperiments ret = new FactorSpaceSpecForExperiments("PREFIX");
     in.factorSpecs().forEach(entry -> ret.addFactors(entry.getKey(), entry.getValue()));
     if (!in.constraints().isEmpty()) {
       in.constraints().forEach(ret::addConstraint);

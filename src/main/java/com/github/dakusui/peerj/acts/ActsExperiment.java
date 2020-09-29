@@ -6,7 +6,6 @@ import com.github.dakusui.peerj.utils.JoinExperimentUtils;
 import com.github.dakusui.peerj.Experiment;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 
 import java.io.File;
 import java.util.List;
@@ -30,7 +29,7 @@ public class ActsExperiment implements Experiment {
 
   @Override
   public Report conduct() {
-    FactorSpaceSpecForExperiments abstractModel = new CompatFactorSpaceSpecForExperiments("L") {{
+    FactorSpaceSpecForExperiments abstractModel = new FactorSpaceSpecForExperiments("L") {{
       FactorSpaceSpecForExperiments factorSpaceSpec = this.constraintSetName(constraintSet.name());
       for (int offset = 0; offset < degree; offset += 10)
         constraintSet.constraintFactory(offset).ifPresent(factorSpaceSpec::addConstraint);

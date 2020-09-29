@@ -7,7 +7,6 @@ import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -35,7 +34,7 @@ public abstract class JoinExperimentBase {
   }
 
   public static FactorSpaceSpecForExperiments factorSpeceSpec(String r, int numFactors) {
-    return new CompatFactorSpaceSpecForExperiments(r).addFactors(2, numFactors);
+    return new FactorSpaceSpecForExperiments(r).addFactors(2, numFactors);
   }
 
   @Before

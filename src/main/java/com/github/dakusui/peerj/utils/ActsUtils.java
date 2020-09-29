@@ -9,7 +9,6 @@ import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -435,7 +434,7 @@ public enum ActsUtils {
 
   @SafeVarargs
   public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
-    FactorSpaceSpecForExperiments factorSpaceSpec = new CompatFactorSpaceSpecForExperiments("L").addFactors(numLevels, numFactors);
+    FactorSpaceSpecForExperiments factorSpaceSpec = new FactorSpaceSpecForExperiments("L").addFactors(numLevels, numFactors);
     for (Function<List<String>, NormalizedConstraint> each : constraints)
       factorSpaceSpec = factorSpaceSpec.addConstraint(each);
     FactorSpace factorSpace = factorSpaceSpec.build();

@@ -18,8 +18,13 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class FactorSpaceSpecForExperiments extends FactorSpaceSpec {
+  protected final String                                             prefix;
   private         String                                             constraintSetName = null;
   protected final List<Function<List<String>, NormalizedConstraint>> constraints       = new LinkedList<>();
+
+  public FactorSpaceSpecForExperiments(String prefix) {
+    this.prefix = prefix;
+  }
 
   public FactorSpaceSpecForExperiments addFactors(int numLevels, int numFactors) {
     FactorSpaceSpecForExperiments ret = this;
@@ -81,10 +86,6 @@ public class FactorSpaceSpecForExperiments extends FactorSpaceSpec {
             .collect(toList()));
   }
 
-  public String prefix() {
-    return "p";
-  }
-
   @Override
   public String toString() {
     return this.factorSpecs.keySet().stream()
@@ -98,5 +99,9 @@ public class FactorSpaceSpecForExperiments extends FactorSpaceSpec {
 
   public Stream<Map.Entry<Integer, Integer>> factorSpecs() {
     return this.factorSpecs.entrySet().stream();
+  }
+
+  public String prefix() {
+    return prefix;
   }
 }

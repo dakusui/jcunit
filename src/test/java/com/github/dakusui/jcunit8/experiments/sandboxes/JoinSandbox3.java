@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
@@ -36,9 +35,9 @@ public class JoinSandbox3 {
 
   @Test
   public void test() throws ExecutionException, InterruptedException {
-    FactorSpaceSpecForExperiments spec1 = new CompatFactorSpaceSpecForExperiments("A").addFactors(2, 40);
-    FactorSpaceSpecForExperiments spec2 = new CompatFactorSpaceSpecForExperiments("B").addFactors(2, 30);
-    FactorSpaceSpecForExperiments spec3 = new CompatFactorSpaceSpecForExperiments("C").addFactors(2, 30);
+    FactorSpaceSpecForExperiments spec1 = new FactorSpaceSpecForExperiments("A").addFactors(2, 40);
+    FactorSpaceSpecForExperiments spec2 = new FactorSpaceSpecForExperiments("B").addFactors(2, 30);
+    FactorSpaceSpecForExperiments spec3 = new FactorSpaceSpecForExperiments("C").addFactors(2, 30);
 
     ExecutorService threadPool = ForkJoinPool.commonPool();
     try {

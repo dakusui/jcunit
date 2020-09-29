@@ -6,7 +6,6 @@ import com.github.dakusui.peerj.Experiment;
 import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.acts.ActsExperiment;
 import com.github.dakusui.peerj.join.JoinExperiment;
-import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +65,8 @@ public enum PeerJUtils {
 
     abstract Experiment createExperiment(int strength, int degree, int order, ConstraintSet constraintSet);
 
-    static CompatFactorSpaceSpecForExperiments createFactorySpaceSpec(ConstraintSet constraintSet, final String prefix, int degree) {
-      return new CompatFactorSpaceSpecForExperiments(prefix) {{
+    static FactorSpaceSpecForExperiments createFactorySpaceSpec(ConstraintSet constraintSet, final String prefix, int degree) {
+      return new FactorSpaceSpecForExperiments(prefix) {{
         FactorSpaceSpecForExperiments factorSpaceSpec = this.constraintSetName(constraintSet.name());
         for (int offset = 0; offset < degree; offset += 10)
           constraintSet.constraintFactory(offset).ifPresent(factorSpaceSpec::addConstraint);
