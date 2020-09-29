@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
 
@@ -20,7 +20,7 @@ import java.util.function.Function;
 
 import static com.github.dakusui.peerj.utils.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.configureStdIOs;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.assertCoveringArray;
 
 public abstract class JoinExperimentBase {
   private static boolean     initialized    = false;

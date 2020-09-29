@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.peerj.utils.ActsUtils;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
-import com.github.dakusui.jcunit8.testutils.UTUtils;
+import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class ActsUtilsTest {
 
   @Test
   public void testGenerateAndReportWithConstraints() {
-    File baseDir = UTUtils.createTempDirectory("target/acts");
+    File baseDir = PeerJUtils.createTempDirectory("target/acts");
     generateAndReportWithConstraints(baseDir, 10, 2);
     generateAndReportWithConstraints(baseDir, 20, 2);
     generateAndReportWithConstraints(baseDir, 30, 2);
@@ -44,7 +44,7 @@ public class ActsUtilsTest {
 
   @Test
   public void testGenerateAndReportWithConstraintsWithStrength3() {
-    File baseDir = UTUtils.createTempDirectory("target/acts");
+    File baseDir = PeerJUtils.createTempDirectory("target/acts");
     generateAndReportWithConstraints(baseDir, 10, 3);
     generateAndReportWithConstraints(baseDir, 20, 3);
     generateAndReportWithConstraints(baseDir, 30, 3);

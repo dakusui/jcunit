@@ -1,6 +1,5 @@
 package com.github.dakusui.peerj;
 
-import com.github.dakusui.jcunit8.experiments.join.basic.JoinExperimentBase;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.runners.Parameterized.Parameters;
 

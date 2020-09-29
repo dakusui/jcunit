@@ -1,29 +1,43 @@
 package com.github.dakusui.peerj.utils;
 
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.peerj.ConstraintSet;
 import com.github.dakusui.peerj.Experiment;
 import com.github.dakusui.peerj.acts.Acts;
-import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.testutils.UTUtils;
 import com.github.dakusui.peerj.acts.ActsExperiment;
 import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 public enum PeerJUtils {
   ;
+  private static final Logger LOGGER = LoggerFactory.getLogger(PeerJUtils.class);
 
   public static Experiment createExperiment(int strength, int degree, int order, GenerationMode generationMode, ConstraintSet constraintSet) {
     return generationMode.createExperiment(strength, degree, order, constraintSet);
+  }
+
+  public static File createTempDirectory(String pathname) {
+    try {
+      File dir = new File(pathname);
+      LOGGER.debug("{} was created={}", dir, dir.mkdirs());
+      return Files.createTempDirectory(dir.toPath(), "jcunit-").toFile();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public enum GenerationMode {
     WITH_JOIN {
       @Override
       JoinExperiment createExperiment(int strength, int degree, int order, ConstraintSet constraintSet) {
-        UTUtils.createTempDirectory("target/acts");
+        createTempDirectory("target/acts");
         int lhsDegree = degree / 2;
         int rhsDegree = degree / 2;
         return new JoinExperiment.Builder()

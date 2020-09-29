@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit.core.utils;
+package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.printables.PrintablePredicate;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;

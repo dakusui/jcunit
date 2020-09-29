@@ -2,8 +2,8 @@ package com.github.dakusui.peerj.acts;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +13,9 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.streamFile;
-import static com.github.dakusui.jcunit.core.utils.ProcessStreamerUtils.writeTo;
 import static com.github.dakusui.peerj.utils.ActsUtils.buildActsModel;
+import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
+import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.writeTo;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;

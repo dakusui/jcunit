@@ -1,7 +1,8 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
-import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.peerj.JoinExperimentBase;
+import com.github.dakusui.peerj.join.JoinExperiment;
 import org.junit.Ignore;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

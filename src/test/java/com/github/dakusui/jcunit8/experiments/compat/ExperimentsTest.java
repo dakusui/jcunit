@@ -5,7 +5,7 @@ import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import java.util.function.Function;
 
 import static com.github.dakusui.peerj.utils.JoinExperimentUtils.loadPregeneratedOrGenerateAndSaveCoveringArrayFor;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.generateWithIpoGplus;
 
 @RunWith(Enclosed.class)
 public class ExperimentsTest {

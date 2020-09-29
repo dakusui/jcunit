@@ -3,11 +3,12 @@ package com.github.dakusui.jcunit8.testutils.testsuitequality;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import org.junit.BeforeClass;
 
 import java.util.List;
 
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.assertCoveringArray;
 
 public class GenerationTestBase {
   @BeforeClass

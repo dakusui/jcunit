@@ -1,6 +1,7 @@
-package com.github.dakusui.jcunit8.testutils.testsuitequality;
+package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.combinatoradix.Combinator;
+import com.github.dakusui.crest.Crest;
 import com.github.dakusui.crest.matcherbuilders.primitives.AsBoolean;
 import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
@@ -22,7 +23,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -196,7 +196,7 @@ public enum CoveringArrayGenerationUtils {
         .collect(toList());
   }
 
-  static TestSuite buildTestSuite(int strength, List<Parameter> parameters, List<Constraint> constraints) {
+  public static TestSuite buildTestSuite(int strength, List<Parameter> parameters, List<Constraint> constraints) {
     return new TestSuiteBuilder(
     ) {{
       parameters.forEach(each -> addParameter(each.getName(), each.getKnownValues().toArray()));
@@ -218,8 +218,8 @@ public enum CoveringArrayGenerationUtils {
     return asList(parameters);
   }
 
-  static <I> AsBoolean<? super I> failsIf(boolean condition) {
-    return asBoolean(Printable.function(
+  public static <I> AsBoolean<? super I> failsIf(boolean condition) {
+    return Crest.asBoolean(Printable.function(
         "debugMode",
         (Function<I, Boolean>) (t -> !condition)
     )).isTrue();
@@ -231,9 +231,9 @@ public enum CoveringArrayGenerationUtils {
     System.out.println("Verifying covering array: numFactors=" + factorSpace + ", strength=" + strength);
     StopWatch stopWatch = new StopWatch();
     try {
-      assertThat(
+      Crest.assertThat(
           coveringArray,
-          asListOf(
+          Crest.asListOf(
               Tuple.class,
               Printable.function(
                   "coveredTuples",

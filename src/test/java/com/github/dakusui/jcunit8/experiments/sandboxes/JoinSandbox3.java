@@ -5,8 +5,8 @@ import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
 import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.StopWatch;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.StopWatch;
 import org.junit.Test;
 
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.assertCoveringArray;
 
 public class JoinSandbox3 {
   class CoveringArrayGenerator implements Callable<List<Tuple>> {

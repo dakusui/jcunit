@@ -25,8 +25,6 @@ import static java.util.stream.Collectors.toList;
 public enum UTUtils {
   ;
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(UTUtils.class);
-
   @SuppressWarnings("unchecked")
   public static boolean isToStringOverridden(Class klass) {
     try {
@@ -130,13 +128,4 @@ public enum UTUtils {
     );
   }
 
-  public static File createTempDirectory(String pathname) {
-    try {
-      File dir = new File(pathname);
-      LOGGER.debug("{} was created={}", dir, dir.mkdirs());
-      return Files.createTempDirectory(dir.toPath(), "jcunit-").toFile();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
 }

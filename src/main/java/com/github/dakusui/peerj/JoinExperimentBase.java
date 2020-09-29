@@ -1,12 +1,11 @@
-package com.github.dakusui.jcunit8.experiments.join.basic;
+package com.github.dakusui.peerj;
 
-import com.github.dakusui.peerj.Experiment;
-import com.github.dakusui.peerj.join.JoinExperiment;
-import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.testutils.UTUtils;
+import com.github.dakusui.peerj.acts.Acts;
+import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.CompatFactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -18,8 +17,8 @@ import java.util.function.Function;
 public class JoinExperimentBase {
   private final Experiment experiment;
 
-  static JoinExperiment createExperiment(int lhsNumFactors, int rhsNumFactors, int strength, Function<Requirement, Joiner> joinerFactory) {
-    UTUtils.createTempDirectory("target/acts");
+  protected static JoinExperiment createExperiment(int lhsNumFactors, int rhsNumFactors, int strength, Function<Requirement, Joiner> joinerFactory) {
+    PeerJUtils.createTempDirectory("target/acts");
     return new JoinExperiment.Builder()
         .lhs(new CompatFactorSpaceSpecForExperiments("L").addFactors(2, lhsNumFactors))
         .rhs(new CompatFactorSpaceSpecForExperiments("R").addFactors(2, rhsNumFactors))

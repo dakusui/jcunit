@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,11 +17,11 @@ import static com.github.dakusui.crest.Crest.allOf;
 import static com.github.dakusui.crest.Crest.asListOf;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.utils.printable.Predicates.isEmpty;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.c;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.constraints;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.failsIf;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.p;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.parameters;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.c;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.constraints;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.failsIf;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.p;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.parameters;
 import static java.util.stream.Collectors.toList;
 
 public class CombinatorialCoverageTest {

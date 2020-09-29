@@ -13,7 +13,6 @@ import java.util.function.IntSupplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -61,15 +60,6 @@ public class FactorSpaceSpecForExperiments extends FactorSpaceSpec {
 
   public List<Function<List<String>, NormalizedConstraint>> constraints() {
     return constraints;
-  }
-
-  public int firstFactorIndexOf(int numLevel) {
-    checkcond(factorSpecs.containsKey(numLevel));
-    AtomicInteger c = new AtomicInteger(0);
-    factorSpecs.keySet().stream()
-        .filter(i -> i > numLevel)
-        .forEach(i -> c.accumulateAndGet(factorSpecs.get(i), Integer::sum));
-    return c.get();
   }
 
   public FactorSpace build() {

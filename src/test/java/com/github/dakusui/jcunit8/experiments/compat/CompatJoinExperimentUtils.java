@@ -3,15 +3,15 @@ package com.github.dakusui.jcunit8.experiments.compat;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 
 import java.util.List;
 
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.assertCoveringArray;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.createFactorSpace;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.join;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.mergeFactorSpaces;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.assertCoveringArray;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.createFactorSpace;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.generateWithIpoGplus;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.join;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.mergeFactorSpaces;
 
 public enum CompatJoinExperimentUtils {
   ;

@@ -5,7 +5,7 @@ import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import org.junit.Test;
 
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.generateWithIpoGplus;
 
 public class JoinExperiment10_n extends JoinExperimentBase {
   @Test

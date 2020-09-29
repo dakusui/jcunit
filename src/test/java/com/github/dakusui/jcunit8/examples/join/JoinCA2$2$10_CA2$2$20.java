@@ -8,8 +8,8 @@ import org.junit.Test;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.generateWithIpoGplus;
-import static com.github.dakusui.jcunit8.testutils.testsuitequality.CoveringArrayGenerationUtils.join;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.generateWithIpoGplus;
+import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.join;
 
 public class JoinCA2$2$10_CA2$2$20 {
   private List<Tuple> lhs    = generateWithIpoGplus(new CompatFactorSpaceSpecForExperiments("LHS").addFactors(2, 10).build(), 2);
