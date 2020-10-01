@@ -1,14 +1,13 @@
-package com.github.dakusui.peerj.utils;
+package com.github.dakusui.peerj.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
-import com.github.dakusui.peerj.acts.Acts;
-import com.github.dakusui.peerj.acts.ActsPredicate;
-import com.github.dakusui.peerj.model.FactorSpaceSpec;
-import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.model.FactorSpaceSpec;
+import com.github.dakusui.peerj.model.NormalizedConstraint;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,11 +207,11 @@ public enum ActsUtils {
     StringUtils.appendLine(b, indentLevel, "<Constraints>");
     indentLevel++;
     for (Constraint each : constraints) {
-      if (!(each instanceof ActsPredicate))
+      if (!(each instanceof NormalizedConstraint))
         throw new UnsupportedOperationException();
       StringUtils.appendLine(b, indentLevel,
           format("<Constraint text=\"%s\">",
-              ((ActsPredicate) each).toText(factorSpaceAdapter.factorNameToParameterName)));
+              ((NormalizedConstraint) each).toText(factorSpaceAdapter.factorNameToParameterName)));
       StringUtils.appendLine(b, indentLevel, "<Parameters>");
       indentLevel++;
       for (String eachFactorName : each.involvedKeys())

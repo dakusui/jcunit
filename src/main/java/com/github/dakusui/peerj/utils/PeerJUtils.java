@@ -1,8 +1,8 @@
 package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.peerj.ConstraintSet;
-import com.github.dakusui.peerj.Experiment;
+import com.github.dakusui.peerj.model.ConstraintSet;
+import com.github.dakusui.peerj.model.Experiment;
 import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.acts.ActsExperiment;
 import com.github.dakusui.peerj.join.JoinExperiment;

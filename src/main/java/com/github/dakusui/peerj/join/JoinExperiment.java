@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.peerj.Experiment;
+import com.github.dakusui.peerj.model.Experiment;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 

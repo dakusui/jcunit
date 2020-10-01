@@ -1,7 +1,6 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.model;
 
-import com.github.dakusui.peerj.utils.ActsUtils;
-import com.github.dakusui.peerj.model.NormalizedConstraint;
+import com.github.dakusui.peerj.acts.ActsUtils;
 
 import java.util.List;
 import java.util.Optional;

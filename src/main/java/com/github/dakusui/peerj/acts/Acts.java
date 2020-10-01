@@ -13,7 +13,7 @@ import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.utils.ActsUtils.buildActsModel;
+import static com.github.dakusui.peerj.acts.ActsUtils.buildActsModel;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.writeTo;
 import static java.util.Arrays.asList;

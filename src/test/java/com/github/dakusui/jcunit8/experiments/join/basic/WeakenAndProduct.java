@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.join.basic;
 
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.peerj.JoinExperimentBase;
+import com.github.dakusui.peerj.runners.ExperimentRunner;
 import com.github.dakusui.peerj.join.JoinExperiment;
 import org.junit.Ignore;
 import org.junit.experimental.runners.Enclosed;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @RunWith(Enclosed.class)
 public class WeakenAndProduct {
-  public static class RunthroughStrength2and3 extends JoinExperimentBase {
+  public static class RunthroughStrength2and3 extends ExperimentRunner {
     public RunthroughStrength2and3(JoinExperiment experiment) {
       super(experiment);
     }
@@ -29,7 +29,7 @@ public class WeakenAndProduct {
     }
   }
 
-  public static class RunthroughStrength2and3b extends JoinExperimentBase {
+  public static class RunthroughStrength2and3b extends ExperimentRunner {
     public RunthroughStrength2and3b(JoinExperiment experiment) {
       super(experiment);
     }
@@ -44,7 +44,7 @@ public class WeakenAndProduct {
     }
   }
 
-  public static class Benchmark extends JoinExperimentBase {
+  public static class Benchmark extends ExperimentRunner {
     public Benchmark(JoinExperiment experiment) {
       super(experiment);
     }
@@ -59,7 +59,7 @@ public class WeakenAndProduct {
     }
   }
 
-  public static class HigherStrength extends JoinExperimentBase {
+  public static class HigherStrength extends ExperimentRunner {
     public HigherStrength(JoinExperiment experiment) {
       super(experiment);
     }
@@ -77,7 +77,7 @@ public class WeakenAndProduct {
   }
 
   @Ignore
-  public static class HigherStrengthWithStandardJoiner extends JoinExperimentBase {
+  public static class HigherStrengthWithStandardJoiner extends ExperimentRunner {
     public HigherStrengthWithStandardJoiner(JoinExperiment experiment) {
       super(experiment);
     }

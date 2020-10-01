@@ -1,7 +1,8 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.runners;
 
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.peerj.model.Experiment;
 import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
@@ -14,7 +15,7 @@ import java.io.File;
 import java.util.function.Function;
 
 @RunWith(Parameterized.class)
-public class JoinExperimentBase {
+public class ExperimentRunner {
   private final Experiment experiment;
 
   protected static JoinExperiment createExperiment(int lhsNumFactors, int rhsNumFactors, int strength, Function<Requirement, Joiner> joinerFactory) {
@@ -30,7 +31,7 @@ public class JoinExperimentBase {
         .build();
   }
 
-  public JoinExperimentBase(Experiment experiment) {
+  public ExperimentRunner(Experiment experiment) {
     this.experiment = experiment;
   }
 

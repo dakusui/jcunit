@@ -1,6 +1,6 @@
 package com.github.dakusui.peerj.join;
 
-import com.github.dakusui.peerj.Experiment;
+import com.github.dakusui.peerj.model.Experiment;
 
 public class JoinReport implements Experiment.Report {
   private final String lhsDesc;

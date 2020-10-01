@@ -1,12 +1,14 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.runners;
 
+import com.github.dakusui.peerj.model.ConstraintSet;
+import com.github.dakusui.peerj.model.Experiment;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.runners.Parameterized.Parameters;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class PeerJ extends JoinExperimentBase {
+public class PeerJ extends ExperimentRunner {
   public PeerJ(Experiment experiment) {
     super(experiment);
   }
