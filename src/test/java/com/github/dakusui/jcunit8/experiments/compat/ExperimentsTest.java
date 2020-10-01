@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.experiments.compat;
 
-import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
@@ -25,34 +25,34 @@ public class ExperimentsTest {
     }
 
     @Override
-    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
+    protected FactorSpaceSpec lhsFactorSpaceSpec() {
       return factorSpeceSpec("L", 5);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = factorSpeceSpec("R", 10);
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 10);
       final FactorSpace r = rSpec.build();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_20$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = factorSpeceSpec("R", 20);
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 20);
       final FactorSpace r = rSpec.build();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_30$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = factorSpeceSpec("R", 30);
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 30);
       final FactorSpace r = rSpec.build();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_40$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = factorSpeceSpec("R", 40);
+      FactorSpaceSpec rSpec = factorSpeceSpec("R", 40);
       final FactorSpace r = rSpec.build();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
@@ -70,13 +70,13 @@ public class ExperimentsTest {
     }
 
     @Override
-    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
-      return new FactorSpaceSpecForExperiments("L").addFactors(2, 20);
+    protected FactorSpaceSpec lhsFactorSpaceSpec() {
+      return new FactorSpaceSpec("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = new FactorSpaceSpecForExperiments("R").addFactors(2, 20);
+      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
       final FactorSpace r = rSpec.build();
       exerciseJoin(
           10,
@@ -95,13 +95,13 @@ public class ExperimentsTest {
     }
 
     @Override
-    protected FactorSpaceSpecForExperiments lhsFactorSpaceSpec() {
-      return new FactorSpaceSpecForExperiments("L").addFactors(2, 20);
+    protected FactorSpaceSpec lhsFactorSpaceSpec() {
+      return new FactorSpaceSpec("L").addFactors(2, 20);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpecForExperiments rSpec = new FactorSpaceSpecForExperiments("R").addFactors(2, 20);
+      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
       exerciseJoin(10,
           rSpec,
           loadPregeneratedOrGenerateAndSaveCoveringArrayFor(

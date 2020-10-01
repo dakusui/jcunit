@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.peerj.Experiment;
-import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class JoinExperiment implements Experiment {
     exerciseJoin(lhs, rhs, this.spec.strength, this.spec.joinerFactory).forEach(System.out::println);
   }
 
-  private String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpecForExperiments p2) {
+  private String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpec p2) {
     return String.format("|CA(%s, %s)|=%s", p.applyAsInt(this.spec.strength), p2.createSignature(), ca.size());
   }
 
@@ -100,7 +100,7 @@ public class JoinExperiment implements Experiment {
   }
 
   public static List<Tuple> loadOrGenerateCoveringArray(
-      FactorSpaceSpecForExperiments factorSpaceSpec,
+      FactorSpaceSpec factorSpaceSpec,
       int strength,
       BiFunction<FactorSpace, Integer, List<Tuple>> generator) {
     return loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
@@ -147,7 +147,7 @@ public class JoinExperiment implements Experiment {
     }
   }
 
-  private static Entry<List<Tuple>, Long> loadOrGenerateCoveringArrayWithGenerationTime(FactorSpaceSpecForExperiments lhsSpec, int strength, BiFunction<FactorSpace, Integer, List<Tuple>> generator) {
+  private static Entry<List<Tuple>, Long> loadOrGenerateCoveringArrayWithGenerationTime(FactorSpaceSpec lhsSpec, int strength, BiFunction<FactorSpace, Integer, List<Tuple>> generator) {
     List<Tuple> tuples = loadOrGenerateCoveringArray(
         lhsSpec,
         strength,
@@ -180,8 +180,8 @@ public class JoinExperiment implements Experiment {
 
   public static class Builder implements Cloneable {
     Function<Requirement, Joiner>                 joinerFactory;
-    FactorSpaceSpecForExperiments                 lhsSpec;
-    FactorSpaceSpecForExperiments                 rhsSpec;
+    FactorSpaceSpec                               lhsSpec;
+    FactorSpaceSpec                               rhsSpec;
     BiFunction<FactorSpace, Integer, List<Tuple>> generator   = CoveringArrayGenerationUtils::generateWithIpoGplus;
     int                                           strength    = 2;
     IntUnaryOperator                              lhsStrength = i -> i;
@@ -189,29 +189,29 @@ public class JoinExperiment implements Experiment {
     int                                           times       = 1;
     private boolean verification;
 
-    public Builder lhs(FactorSpaceSpecForExperiments lhs) {
+    public Builder lhs(FactorSpaceSpec lhs) {
       return this.lhs(lhs, i -> i);
     }
 
-    public Builder lhs(FactorSpaceSpecForExperiments lhs, int strength) {
+    public Builder lhs(FactorSpaceSpec lhs, int strength) {
       return this.lhs(lhs, i -> strength);
     }
 
-    public Builder lhs(FactorSpaceSpecForExperiments lhs, IntUnaryOperator strength) {
+    public Builder lhs(FactorSpaceSpec lhs, IntUnaryOperator strength) {
       this.lhsSpec = lhs;
       this.lhsStrength = strength;
       return this;
     }
 
-    public Builder rhs(FactorSpaceSpecForExperiments rhs) {
+    public Builder rhs(FactorSpaceSpec rhs) {
       return this.rhs(rhs, i -> i);
     }
 
-    public Builder rhs(FactorSpaceSpecForExperiments rhs, int strength) {
+    public Builder rhs(FactorSpaceSpec rhs, int strength) {
       return this.rhs(rhs, i -> strength);
     }
 
-    public Builder rhs(FactorSpaceSpecForExperiments rhs, IntUnaryOperator strength) {
+    public Builder rhs(FactorSpaceSpec rhs, IntUnaryOperator strength) {
       this.rhsSpec = rhs;
       this.rhsStrength = strength;
       return this;

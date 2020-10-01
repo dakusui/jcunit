@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.experiments.sandboxes;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
@@ -35,9 +35,9 @@ public class JoinSandbox3 {
 
   @Test
   public void test() throws ExecutionException, InterruptedException {
-    FactorSpaceSpecForExperiments spec1 = new FactorSpaceSpecForExperiments("A").addFactors(2, 40);
-    FactorSpaceSpecForExperiments spec2 = new FactorSpaceSpecForExperiments("B").addFactors(2, 30);
-    FactorSpaceSpecForExperiments spec3 = new FactorSpaceSpecForExperiments("C").addFactors(2, 30);
+    FactorSpaceSpec spec1 = new FactorSpaceSpec("A").addFactors(2, 40);
+    FactorSpaceSpec spec2 = new FactorSpaceSpec("B").addFactors(2, 30);
+    FactorSpaceSpec spec3 = new FactorSpaceSpec("C").addFactors(2, 30);
 
     ExecutorService threadPool = ForkJoinPool.commonPool();
     try {
@@ -62,7 +62,7 @@ public class JoinSandbox3 {
     }
   }
 
-  private List<Tuple> generateCoveringArrayByCascading(FactorSpaceSpecForExperiments spec1, FactorSpaceSpecForExperiments spec2, FactorSpaceSpecForExperiments spec3, ExecutorService threadPool) throws InterruptedException, ExecutionException {
+  private List<Tuple> generateCoveringArrayByCascading(FactorSpaceSpec spec1, FactorSpaceSpec spec2, FactorSpaceSpec spec3, ExecutorService threadPool) throws InterruptedException, ExecutionException {
     Future<List<Tuple>> ca1 = threadPool.submit(new CoveringArrayGenerator(spec1.build(), 2));
     Future<List<Tuple>> ca2 = threadPool.submit(new CoveringArrayGenerator(spec2.build(), 2));
     Future<List<Tuple>> ca3 = threadPool.submit(new CoveringArrayGenerator(spec3.build(), 2));

@@ -1,7 +1,7 @@
 package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.model.FactorSpaceSpecForExperiments;
+import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ public enum JoinExperimentUtils {
   public static final  File   BASE_DIR = new File("src/test/resources/pregenerated-cas");
 
   public static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
-      FactorSpaceSpecForExperiments factorSpaceSpec,
+      FactorSpaceSpec factorSpaceSpec,
       int strength,
       BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
     File baseDir = BASE_DIR;
@@ -36,13 +36,13 @@ public enum JoinExperimentUtils {
   }
 
   private static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
-      FactorSpaceSpecForExperiments factorSpaceSpec,
+      FactorSpaceSpec factorSpaceSpec,
       int strength,
       File baseDir,
       BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
     return loadPregeneratedCoveringArrayFor(factorSpaceSpec, strength, baseDir)
         .orElseGet(() -> {
-          FactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
+          FactorSpaceSpec abstractModel = convertToAbstractModel(factorSpaceSpec);
           LOGGER.debug(String.format("Generating a covering array for %s(strength=%s) ...", factorSpaceSpec, strength));
           long before = System.currentTimeMillis();
           List<Tuple> ret = factory.apply(abstractModel.build(), strength);
@@ -59,14 +59,14 @@ public enum JoinExperimentUtils {
   }
 
   public static long timeSpentForGeneratingCoveringArray(
-      FactorSpaceSpecForExperiments factorSpaceSpec,
+      FactorSpaceSpec factorSpaceSpec,
       int strength,
       BiFunction<FactorSpace, Integer, List<Tuple>> factory
   ) {
     File baseDir = BASE_DIR;
     // Ensure the array is pre-generated already.
     loadPregeneratedOrGenerateAndSaveCoveringArrayFor(factorSpaceSpec, strength, baseDir, factory);
-    FactorSpaceSpecForExperiments abstractModel = convertToAbstractModel(factorSpaceSpec);
+    FactorSpaceSpec abstractModel = convertToAbstractModel(factorSpaceSpec);
     try {
       return loadFrom(timeFileFor(abstractModel, strength, baseDir));
     } catch (IOException | ClassNotFoundException e) {
@@ -74,8 +74,8 @@ public enum JoinExperimentUtils {
     }
   }
 
-  private static FactorSpaceSpecForExperiments convertToAbstractModel(FactorSpaceSpecForExperiments in) {
-    FactorSpaceSpecForExperiments ret = new FactorSpaceSpecForExperiments("PREFIX");
+  private static FactorSpaceSpec convertToAbstractModel(FactorSpaceSpec in) {
+    FactorSpaceSpec ret = new FactorSpaceSpec("PREFIX");
     in.factorSpecs().forEach(entry -> ret.addFactors(entry.getKey(), entry.getValue()));
     if (!in.constraints().isEmpty()) {
       in.constraints().forEach(ret::addConstraint);
@@ -85,7 +85,7 @@ public enum JoinExperimentUtils {
   }
 
   @SuppressWarnings("unchecked")
-  private static Optional<List<Tuple>> loadPregeneratedCoveringArrayFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
+  private static Optional<List<Tuple>> loadPregeneratedCoveringArrayFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
     try {
       LOGGER.debug("Loading pre-generated covering array for " + factorSpaceSpec.createSignature() + ":strength=" + strength);
       try {
@@ -108,11 +108,11 @@ public enum JoinExperimentUtils {
     }
   }
 
-  private static File dataFileFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
+  private static File dataFileFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
     return fileFor(strength, baseDir, signatureOf(factorSpaceSpec));
   }
 
-  private static File timeFileFor(FactorSpaceSpecForExperiments factorSpaceSpec, int strength, File baseDir) {
+  private static File timeFileFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
     return fileFor(strength, baseDir, signatureOf(factorSpaceSpec) + ".time");
   }
 
@@ -120,7 +120,7 @@ public enum JoinExperimentUtils {
     return new File(new File(baseDir, Objects.toString(strength)), filename);
   }
 
-  private static String signatureOf(FactorSpaceSpecForExperiments factorSpaceSpec) {
+  private static String signatureOf(FactorSpaceSpec factorSpaceSpec) {
     return factorSpaceSpec.createSignature();
   }
 
