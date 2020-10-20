@@ -436,7 +436,7 @@ public enum ActsUtils {
     FactorSpaceSpec factorSpaceSpec = new FactorSpaceSpec("L").addFactors(numLevels, numFactors);
     for (Function<List<String>, NormalizedConstraint> each : constraints)
       factorSpaceSpec = factorSpaceSpec.addConstraint(each);
-    FactorSpace factorSpace = factorSpaceSpec.build();
+    FactorSpace factorSpace = factorSpaceSpec.toFactorSpace();
     Acts.generateWithActs(
         baseDir,
         factorSpace,

@@ -46,8 +46,8 @@ public class JoinSandbox3 {
       assertCoveringArray(
           generateCoveringArrayByCascading(spec1, spec2, spec3, threadPool),
           CoveringArrayGenerationUtils.mergeFactorSpaces(
-              CoveringArrayGenerationUtils.mergeFactorSpaces(spec1.build(), spec2.build()),
-              spec3.build()
+              CoveringArrayGenerationUtils.mergeFactorSpaces(spec1.toFactorSpace(), spec2.toFactorSpace()),
+              spec3.toFactorSpace()
           ),
           2
       );
@@ -63,9 +63,9 @@ public class JoinSandbox3 {
   }
 
   private List<Tuple> generateCoveringArrayByCascading(FactorSpaceSpec spec1, FactorSpaceSpec spec2, FactorSpaceSpec spec3, ExecutorService threadPool) throws InterruptedException, ExecutionException {
-    Future<List<Tuple>> ca1 = threadPool.submit(new CoveringArrayGenerator(spec1.build(), 2));
-    Future<List<Tuple>> ca2 = threadPool.submit(new CoveringArrayGenerator(spec2.build(), 2));
-    Future<List<Tuple>> ca3 = threadPool.submit(new CoveringArrayGenerator(spec3.build(), 2));
+    Future<List<Tuple>> ca1 = threadPool.submit(new CoveringArrayGenerator(spec1.toFactorSpace(), 2));
+    Future<List<Tuple>> ca2 = threadPool.submit(new CoveringArrayGenerator(spec2.toFactorSpace(), 2));
+    Future<List<Tuple>> ca3 = threadPool.submit(new CoveringArrayGenerator(spec3.toFactorSpace(), 2));
 
     return CoveringArrayGenerationUtils.join(
         CoveringArrayGenerationUtils.join(ca1.get(), ca2.get(), Joiner.Standard::new, 2),

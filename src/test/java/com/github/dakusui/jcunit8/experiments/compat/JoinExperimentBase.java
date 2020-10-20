@@ -43,7 +43,7 @@ public abstract class JoinExperimentBase {
       if (!initialized) {
         configureStdIOs();
         FactorSpaceSpec lhsSpec = lhsFactorSpaceSpec();
-        lhsFactorSpace = lhsSpec.build();
+        lhsFactorSpace = lhsSpec.toFactorSpace();
         lhs = loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
             lhsSpec,
             strength(),
@@ -76,8 +76,8 @@ public abstract class JoinExperimentBase {
     }
     FactorSpace joinedFactorSpace = FactorSpace.create(
         new ArrayList<Factor>(lhsFactorSpaceSpec().numFactors() + rhsSpec.numFactors()) {{
-          addAll(lhsFactorSpaceSpec().build().getFactors());
-          addAll(rhsSpec.build().getFactors());
+          addAll(lhsFactorSpaceSpec().toFactorSpace().getFactors());
+          addAll(rhsSpec.toFactorSpace().getFactors());
         }},
         Collections.emptyList()
     );

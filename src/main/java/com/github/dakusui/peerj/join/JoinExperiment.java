@@ -65,8 +65,8 @@ public class JoinExperiment implements Experiment {
     if (spec.verification) {
       FactorSpace joinedFactorSpace = FactorSpace.create(
           new ArrayList<Factor>(spec.lhsSpec.numFactors() + spec.rhsSpec.numFactors()) {{
-            addAll(spec.lhsSpec.build().getFactors());
-            addAll(spec.rhsSpec.build().getFactors());
+            addAll(spec.lhsSpec.toFactorSpace().getFactors());
+            addAll(spec.rhsSpec.toFactorSpace().getFactors());
           }},
           Collections.emptyList()
       );

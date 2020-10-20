@@ -20,7 +20,7 @@ public class GenerationTestBase {
   protected void exerciseGeneration(FactorSpaceSpec factorSpaceSpec, int strength, int times) {
     assertCoveringArray(
         exerciseGeneration(factorSpaceSpec, strength).generatedCoveringArray,
-        factorSpaceSpec.build(),
+        factorSpaceSpec.toFactorSpace(),
         strength
     );
     for (int i = 0; i < times; i++) {
@@ -29,7 +29,7 @@ public class GenerationTestBase {
   }
 
   private Report exerciseGeneration(FactorSpaceSpec factorSpaceSpec, int strength) {
-    FactorSpace factorSpace = factorSpaceSpec.build();
+    FactorSpace factorSpace = factorSpaceSpec.toFactorSpace();
     CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
     return new Report(
         String.format("%s", factorSpaceSpec),

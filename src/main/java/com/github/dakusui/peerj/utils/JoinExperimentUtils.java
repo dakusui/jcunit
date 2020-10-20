@@ -45,7 +45,7 @@ public enum JoinExperimentUtils {
           FactorSpaceSpec abstractModel = convertToAbstractModel(factorSpaceSpec);
           LOGGER.debug(String.format("Generating a covering array for %s(strength=%s) ...", factorSpaceSpec, strength));
           long before = System.currentTimeMillis();
-          List<Tuple> ret = factory.apply(abstractModel.build(), strength);
+          List<Tuple> ret = factory.apply(abstractModel.toFactorSpace(), strength);
           long after = System.currentTimeMillis();
           LOGGER.debug("Generated.");
           LOGGER.debug("Saving...");

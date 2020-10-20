@@ -32,28 +32,28 @@ public class ExperimentsTest {
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpeceSpec("R", 10);
-      final FactorSpace r = rSpec.build();
+      final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_20$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpeceSpec("R", 20);
-      final FactorSpace r = rSpec.build();
+      final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_30$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpeceSpec("R", 30);
-      final FactorSpace r = rSpec.build();
+      final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_40$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpeceSpec("R", 40);
-      final FactorSpace r = rSpec.build();
+      final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
   }
@@ -77,7 +77,7 @@ public class ExperimentsTest {
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
       FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
-      final FactorSpace r = rSpec.build();
+      final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(
           10,
           rSpec,

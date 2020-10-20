@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -23,12 +24,12 @@ public class FactorSpaceSpec {
    */
   protected final SortedMap<Integer, Integer>                        factorSpecs       = new TreeMap<>((o1, o2) -> o2 - o1);
 
-  public int numFactors() {
-    return this.factorSpecs.values().stream().reduce(Integer::sum).orElse(0);
-  }
-
   public FactorSpaceSpec(String prefix) {
     this.prefix = prefix;
+  }
+
+  public int numFactors() {
+    return this.factorSpecs.values().stream().reduce(Integer::sum).orElse(0);
   }
 
   public FactorSpaceSpec addFactors(int numLevels, int numFactors) {
@@ -77,7 +78,7 @@ public class FactorSpaceSpec {
     return constraints;
   }
 
-  public FactorSpace build() {
+  public FactorSpace toFactorSpace() {
     AtomicInteger index = new AtomicInteger(0);
     LinkedList<Factor> factors = new LinkedList<Factor>() {{
       factorSpecs.keySet().stream()
@@ -113,5 +114,17 @@ public class FactorSpaceSpec {
 
   public String prefix() {
     return prefix;
+  }
+
+  public static class Builder {
+    private final String prefix;
+
+    public Builder(String prefix) {
+      this.prefix = requireNonNull(prefix);
+    }
+
+    FactorSpaceSpec build() {
+      return new FactorSpaceSpec(this.prefix);
+    }
   }
 }

@@ -10,7 +10,7 @@ public class JoinExperiment10_n extends JoinExperimentBase {
   @Test
   public void whenJoinWith10_5$thenLetsSee() {
     FactorSpaceSpec rhsSpec = new FactorSpaceSpec("R").addFactors(10, 10);
-    final FactorSpace r = rhsSpec.build();
+    final FactorSpace r = rhsSpec.toFactorSpace();
     exerciseJoin(5, rhsSpec, generateWithIpoGplus(r, strength()));
   }
 
