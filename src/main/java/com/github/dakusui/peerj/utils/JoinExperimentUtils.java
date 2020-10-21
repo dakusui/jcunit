@@ -1,8 +1,8 @@
 package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
-import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +10,6 @@ import java.io.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Predicate;
 
 import static java.lang.String.format;
@@ -24,7 +23,7 @@ public enum JoinExperimentUtils {
   public static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
       FactorSpaceSpec factorSpaceSpec,
       int strength,
-      BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
+      JoinExperiment.Generator factory) {
     File baseDir = BASE_DIR;
     if (new File(baseDir, Objects.toString(strength)).mkdirs())
       LOGGER.debug(String.format("Directory '%s/%s' was created.", baseDir, strength));
@@ -39,13 +38,13 @@ public enum JoinExperimentUtils {
       FactorSpaceSpec factorSpaceSpec,
       int strength,
       File baseDir,
-      BiFunction<FactorSpace, Integer, List<Tuple>> factory) {
+      JoinExperiment.Generator factory) {
     return loadPregeneratedCoveringArrayFor(factorSpaceSpec, strength, baseDir)
         .orElseGet(() -> {
           FactorSpaceSpec abstractModel = convertToAbstractModel(factorSpaceSpec);
           LOGGER.debug(String.format("Generating a covering array for %s(strength=%s) ...", factorSpaceSpec, strength));
           long before = System.currentTimeMillis();
-          List<Tuple> ret = factory.apply(abstractModel.toFactorSpace(), strength);
+          List<Tuple> ret = factory.generate(modelDirFor(abstractModel, strength, baseDir), abstractModel.toFactorSpace(), strength);
           long after = System.currentTimeMillis();
           LOGGER.debug("Generated.");
           LOGGER.debug("Saving...");
@@ -61,7 +60,7 @@ public enum JoinExperimentUtils {
   public static long timeSpentForGeneratingCoveringArray(
       FactorSpaceSpec factorSpaceSpec,
       int strength,
-      BiFunction<FactorSpace, Integer, List<Tuple>> factory
+      JoinExperiment.Generator factory
   ) {
     File baseDir = BASE_DIR;
     // Ensure the array is pre-generated already.
@@ -108,12 +107,16 @@ public enum JoinExperimentUtils {
     }
   }
 
-  private static File dataFileFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
+  private static File modelDirFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
     return fileFor(strength, baseDir, signatureOf(factorSpaceSpec));
   }
 
+  private static File dataFileFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
+    return fileFor(strength, baseDir, signatureOf(factorSpaceSpec) + "/acts.data");
+  }
+
   private static File timeFileFor(FactorSpaceSpec factorSpaceSpec, int strength, File baseDir) {
-    return fileFor(strength, baseDir, signatureOf(factorSpaceSpec) + ".time");
+    return fileFor(strength, baseDir, signatureOf(factorSpaceSpec) + "/acts.time");
   }
 
   private static File fileFor(int strength, File baseDir, String filename) {

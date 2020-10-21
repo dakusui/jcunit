@@ -88,7 +88,7 @@ public class JoinSandbox1 {
 
   @Test
   public void medAndMed() {
-    List<Parameter> lhsParameters;
+    List<Parameter<?>> lhsParameters;
     List<Tuple> lhs = generateWithIpoGplus(
         factorSpace(
             lhsParameters = parameters(
@@ -107,7 +107,7 @@ public class JoinSandbox1 {
     System.out.println("lhs");
     lhs.forEach(System.out::println);
 
-    List<Parameter> rhsParameters;
+    List<Parameter<?>> rhsParameters;
     List<Tuple> rhs = generateWithIpoGplus(
         factorSpace(
             rhsParameters = parameters(

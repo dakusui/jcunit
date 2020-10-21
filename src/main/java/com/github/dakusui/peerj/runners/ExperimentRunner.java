@@ -2,16 +2,15 @@ package com.github.dakusui.peerj.runners;
 
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.peerj.model.Experiment;
 import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.join.JoinExperiment;
+import com.github.dakusui.peerj.model.Experiment;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.io.File;
 import java.util.function.Function;
 
 @RunWith(Parameterized.class)
@@ -26,7 +25,7 @@ public class ExperimentRunner {
         .strength(strength)
         .times(2)
         .joiner(joinerFactory)
-        .generator((factorSpace, t) -> Acts.generateWithActs(new File("target/acts"), factorSpace, t))
+        .generator((baseDir, factorSpace, t) -> Acts.generateWithActs(baseDir, factorSpace, t, "ipog", "solver"))
         .verification(false)
         .build();
   }
@@ -39,5 +38,4 @@ public class ExperimentRunner {
   public void exercise() {
     System.out.println(this.experiment.conduct());
   }
-
 }

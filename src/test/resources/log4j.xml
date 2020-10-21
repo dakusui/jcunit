@@ -25,7 +25,7 @@
         <appender-ref ref="stderr"/>
     </logger>
     <logger name="com.github.dakusui.processstreamer">
-        <level value="info"/>
+        <level value="trace"/>
         <appender-ref ref="stderr"/>
     </logger>
 </log4j:configuration>

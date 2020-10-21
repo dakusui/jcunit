@@ -11,18 +11,17 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public class FactorSpaceSpec {
   protected final String                                             prefix;
-  private         String                                             constraintSetName = null;
-  protected final List<Function<List<String>, NormalizedConstraint>> constraints       = new LinkedList<>();
+  private         String                                             constraintSetName  = null;
+  protected final List<Function<List<String>, NormalizedConstraint>> constraints        = new LinkedList<>();
   /**
    * Descending order by the number of levels of factors.
    */
-  protected final SortedMap<Integer, Integer>                        factorSpecs       = new TreeMap<>((o1, o2) -> o2 - o1);
+  protected final SortedMap<Integer, Integer>                        factorSpecs        = new TreeMap<>((o1, o2) -> o2 - o1);
 
   public FactorSpaceSpec(String prefix) {
     this.prefix = prefix;
@@ -114,17 +113,5 @@ public class FactorSpaceSpec {
 
   public String prefix() {
     return prefix;
-  }
-
-  public static class Builder {
-    private final String prefix;
-
-    public Builder(String prefix) {
-      this.prefix = requireNonNull(prefix);
-    }
-
-    FactorSpaceSpec build() {
-      return new FactorSpaceSpec(this.prefix);
-    }
   }
 }

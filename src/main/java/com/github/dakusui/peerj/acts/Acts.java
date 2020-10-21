@@ -26,9 +26,14 @@ public class Acts {
   private final String      algorithm;
   private final String      constraintHandler;
 
-  private static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength) {
+  private static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
     LOGGER.debug("Directory:{} was created: {}", baseDir, baseDir.mkdirs());
-    return new Acts.Builder().baseDir(baseDir).factorSpace(factorSpace).strength(strength).build().run();
+    return new Builder().baseDir(baseDir).factorSpace(factorSpace)
+        .strength(strength)
+        .algorithm(algorithm)
+        .constraintHandler(constraintHandler)
+        .build()
+        .run();
   }
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Acts.class);
@@ -83,12 +88,16 @@ public class Acts {
     return "src/test/resources/bin/acts_3.0.jar";
   }
 
-  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength) {
-    return runActs(baseDir, factorSpace, strength);
+  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
+    return runActs(baseDir, factorSpace, strength, algorithm, constraintHandler);
   }
 
   private List<Tuple> run() {
-    writeTo(inFile(baseDir), buildActsModel(factorSpace, "unknown"));
+
+    final File inFile = inFile(baseDir);
+    boolean baseDirCreated = baseDir.mkdirs();
+    LOGGER.debug("Basedir was created: {}", baseDirCreated);
+    writeTo(inFile, buildActsModel(factorSpace, "unknown"));
     /*
       ACTS Version: 3.0
       Usage: java [options] -jar jarName <inputFileName> [outputFileName]
@@ -115,7 +124,8 @@ public class Acts {
                solver - handle constraints using CSP solver
                forbiddentuples - handle constraints using minimum forbidden tuples (default)
      */
-    ProcessStreamerUtils.processStreamer(StableTemplatingUtils.template(
+    final File outFile = outFile(baseDir);
+    String commandLine = StableTemplatingUtils.template(
         "{{JAVA}} -Ddoi={{STRENGTH}} -Dalgo={{ALGORITHM}} -Dchandler={{CHANDLER}} -Doutput=csv -jar {{ACTS_JAR}} {{IN}} {{OUT}}",
         new TreeMap<String, Object>() {{
           put("{{JAVA}}", "java");
@@ -123,13 +133,17 @@ public class Acts {
           put("{{ALGORITHM}}", algorithm);
           put("{{CHANDLER}}", constraintHandler);
           put("{{ACTS_JAR}}", actsJar());
-          put("{{IN}}", inFile(baseDir));
-          put("{{OUT}}", outFile(baseDir));
-        }}), new ProcessStreamerUtils.StandardChecker("Errors encountered", "Constraints can not be parsed"))
+          put("{{IN}}", inFile);
+          put("{{OUT}}", outFile);
+        }});
+    writeTo(new File(baseDir, "acts.commandLine"), commandLine);
+    ProcessStreamerUtils.processStreamer(
+        commandLine,
+        new ProcessStreamerUtils.StandardChecker("Errors encountered", "Constraints can not be parsed"))
         .stream()
         .forEach(LOGGER::trace);
 
-    try (Stream<String> s = streamFile(outFile(baseDir)).peek(LOGGER::trace)) {
+    try (Stream<String> s = streamFile(outFile).peek(LOGGER::trace)) {
       return readTestSuiteFromCsv(s);
     }
   }
@@ -159,7 +173,7 @@ public class Acts {
 
     /**
      * You can set one of {@code no}, {@code solver}, and {@code forbiddentuples}, which represent
-     * "No constraint handler is used", "CSP solver", adn "Minimum forbidden tuples method", respectively.
+     * "No constraint handler is used", "CSP solver", and "Minimum forbidden tuples method", respectively.
      *
      * @param constraintHandler A constraint handler used during covering array generation.
      * @return Thi object.

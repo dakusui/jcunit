@@ -94,7 +94,7 @@ public class CombinatorialCoverageTest {
   }
 
   private void givenParameterSpaceAndStrength$whenBuildTestSuite$thenCombinatorialCoverageFineAndNoConstraintIsViolated(
-      List<Parameter> parameters, List<Constraint> constraints, int strength
+      List<Parameter<?>> parameters, List<Constraint> constraints, int strength
   ) {
     System.out.println(
         CoveringArrayGenerationUtils.allPossibleTuples(strength, parameters)
@@ -112,7 +112,7 @@ public class CombinatorialCoverageTest {
   }
 
   private static void assertTestSuite(
-      TestSuite testSuite, List<Parameter> parameters, int strength, @SuppressWarnings("SameParameterValue") boolean debug
+      TestSuite testSuite, List<Parameter<?>> parameters, int strength, @SuppressWarnings("SameParameterValue") boolean debug
   ) {
     assertThat(
         testSuite,

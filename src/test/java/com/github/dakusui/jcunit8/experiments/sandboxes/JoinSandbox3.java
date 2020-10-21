@@ -8,6 +8,7 @@ import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.StopWatch;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -18,7 +19,7 @@ import java.util.concurrent.Future;
 import static com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils.assertCoveringArray;
 
 public class JoinSandbox3 {
-  class CoveringArrayGenerator implements Callable<List<Tuple>> {
+  static class CoveringArrayGenerator implements Callable<List<Tuple>> {
     final private FactorSpace factorSpace;
     final private int         strength;
 
@@ -29,7 +30,7 @@ public class JoinSandbox3 {
 
     @Override
     public List<Tuple> call() {
-      return CoveringArrayGenerationUtils.generateWithIpoGplus(factorSpace, strength);
+      return CoveringArrayGenerationUtils.generateWithIpoGplus(new File("target/ipog+"), factorSpace, strength);
     }
   }
 
