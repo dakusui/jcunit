@@ -18,7 +18,8 @@ import static java.util.stream.Collectors.toList;
 public enum JoinExperimentUtils {
   ;
   private static final Logger LOGGER   = LoggerFactory.getLogger(JoinExperimentUtils.class);
-  public static final  File   BASE_DIR = new File("src/test/resources/pregenerated-cas");
+  public static final  String TEST_RESOURCES_DIR = "src/test/resources";
+  public static final File BASE_DIR = new File(TEST_RESOURCES_DIR + "/pregenerated-cas");
 
   public static List<Tuple> loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
       FactorSpaceSpec factorSpaceSpec,

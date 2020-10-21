@@ -40,4 +40,16 @@ public class CasaUtilsTest {
             "- 20 - 3").iterator());
     System.out.println(casaModel);
   }
+
+
+  @Test
+  public void readBanking2FromFile() {
+    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
+        "IBM",
+        "Banking2",
+        "prefix",
+        -1
+    );
+    System.out.println(casaModel);
+  }
 }
