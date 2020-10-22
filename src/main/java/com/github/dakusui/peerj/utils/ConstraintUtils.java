@@ -7,10 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 public enum ConstraintUtils {
   ;
@@ -43,7 +45,7 @@ public enum ConstraintUtils {
         return Arrays.stream(constraints)
             .flatMap(each -> each.involvedKeys().stream())
             .distinct()
-            .collect(Collectors.toList());
+            .collect(toList());
       }
 
       @Override
@@ -81,7 +83,7 @@ public enum ConstraintUtils {
         return Arrays.stream(constraints)
             .flatMap(each -> each.involvedKeys().stream())
             .distinct()
-            .collect(Collectors.toList());
+            .collect(toList());
       }
 
       @Override
@@ -125,7 +127,9 @@ public enum ConstraintUtils {
 
       @Override
       public List<String> involvedKeys() {
-        return asList(f, g);
+        return Stream.of(f, g)
+            .filter(n -> n.matches("^[A-Za-z]+.*"))
+            .collect(toList());
       }
 
       @Override
@@ -139,9 +143,7 @@ public enum ConstraintUtils {
     return new NormalizedConstraint() {
       @Override
       public String toText(Function<String, String> factorNameNormalizer) {
-        ////
-        // Since ACTS seems not supporting > (&gt;), invert the comparator.
-        return factorNameNormalizer.apply(g) + " == " + factorNameNormalizer.apply(f);
+        return factorNameNormalizer.apply(f) + " == " + factorNameNormalizer.apply(g);
       }
 
       @Override
@@ -159,7 +161,9 @@ public enum ConstraintUtils {
 
       @Override
       public List<String> involvedKeys() {
-        return asList(f, g);
+        return Stream.of(f, g)
+            .filter(n -> n.matches("^[A-Za-z]+.*"))
+            .collect(toList());
       }
 
       @Override
@@ -173,9 +177,7 @@ public enum ConstraintUtils {
     return new NormalizedConstraint() {
       @Override
       public String toText(Function<String, String> factorNameNormalizer) {
-        ////
-        // Since ACTS seems not supporting > (&gt;), invert the comparator.
-        return factorNameNormalizer.apply(g) + " != " + factorNameNormalizer.apply(f);
+        return factorNameNormalizer.apply(f) + " != " + factorNameNormalizer.apply(g);
       }
 
       @Override
@@ -193,7 +195,9 @@ public enum ConstraintUtils {
 
       @Override
       public List<String> involvedKeys() {
-        return asList(f, g);
+        return Stream.of(f, g)
+            .filter(n -> n.matches("^[A-Za-z]+.*"))
+            .collect(toList());
       }
 
       @Override
@@ -237,7 +241,9 @@ public enum ConstraintUtils {
 
     @Override
     public List<String> involvedKeys() {
-      return asList(f, g);
+      return Stream.of(f, g)
+          .filter(n -> n.matches("^[A-Za-z]+.*"))
+          .collect(toList());
     }
 
     @Override

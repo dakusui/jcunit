@@ -60,7 +60,9 @@ public enum ActsUtils {
       this.factor = factor;
       this.value = value;
       this.factorNameToParameterName = factorName ->
-          name.apply(indexOfFactorName.apply(factorName));
+          indexOfFactorName.apply(factorName) >= 0
+              ? name.apply(indexOfFactorName.apply(factorName))
+              : factorName;
       this.numParameters = numParameters;
     }
 
@@ -213,8 +215,7 @@ public enum ActsUtils {
       for (String eachFactorName : each.involvedKeys())
         StringUtils.appendLine(b,
             indentLevel,
-            format("<Parameter name=\"%s\"/>",
-                factorSpaceAdapter.factorNameToParameterName.apply(eachFactorName)));
+            format("<Parameter name=\"%s\"/>", factorSpaceAdapter.factorNameToParameterName.apply(eachFactorName)));
       indentLevel--;
       StringUtils.appendLine(b, indentLevel, "</Parameters>");
       StringUtils.appendLine(b, indentLevel, "</Constraint>");
