@@ -1,9 +1,12 @@
 package com.github.dakusui.peerj.utils;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.jcunit8.pipeline.Requirement;
+import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
 
 import java.io.*;
@@ -12,6 +15,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public enum CasaUtils {
@@ -73,12 +79,66 @@ public enum CasaUtils {
   BENCHMARK_30("Synthetic", "benchmark_30"),
   ;
 
-  private final String categoryName;
-  private final String modelName;
+  public static final long   SESSION_ID = System.currentTimeMillis();
+  private final       String categoryName;
+  private final       String modelName;
 
   CasaUtils(String categoryName, String modelName) {
     this.categoryName = categoryName;
     this.modelName = modelName;
+  }
+
+  public static File baseDirFor(CasaUtils def, String generationMode) {
+    return new File("target/acts/" + SESSION_ID + "/casa-" + def + "-" + generationMode + "-" + currentThread().getId());
+  }
+
+  public static Tuple renameFactors(Tuple tuple, long i) {
+    Tuple.Builder b = Tuple.builder();
+    tuple.keySet().forEach(k -> b.put(format("P%02d_%s", i, k), tuple.get(k)));
+    return b.build();
+  }
+
+  public static Partitioner simplePartitioner() {
+    return new Partitioner() {
+      @Override
+      public List<FactorSpace> apply(FactorSpace factorSpace) {
+        factorSpace.getFactorNames();
+        List<String> keysInConstraints = factorSpace.getConstraints()
+            .stream()
+            .flatMap(c -> c.involvedKeys().stream())
+            .distinct()
+            .collect(toList());
+        List<String> keysNotInConstraints = factorSpace.getFactorNames()
+            .stream()
+            .filter(k -> !keysInConstraints.contains(k))
+            .collect(toList());
+
+        return asList(
+            projectFactorSpace(factorSpace, keysInConstraints, factorSpace.getConstraints()),
+            projectFactorSpace(factorSpace, keysNotInConstraints, emptyList())
+        );
+      }
+
+      private FactorSpace projectFactorSpace(FactorSpace factorSpace, List<String> keysInConstraints, List<Constraint> constraints) {
+        return FactorSpace.create(
+            keysInConstraints
+                .stream()
+                .filter(k -> factorSpace.getFactorNames().contains(k))
+                .map(factorSpace::getFactor)
+                .collect(toList()),
+            constraints);
+      }
+    };
+  }
+
+  public static Partitioner standardPartitioner(int strength) {
+    return new Partitioner.Standard(requirement(3));
+  }
+
+  public static Requirement requirement(int strength) {
+    return new Requirement.Builder()
+        .withStrength(strength)
+        .build();
   }
 
   public static class CasaModel {
@@ -274,5 +334,11 @@ public enum CasaUtils {
 
   private static File modelFileFor(String categoryName, String modelName) {
     return new File(categoryDirectoryFor(categoryName), String.format("%s.model", modelName));
+  }
+
+  public static class NotCombinatorialJoinApplicable extends RuntimeException {
+    public NotCombinatorialJoinApplicable(String message) {
+      super(message);
+    }
   }
 }

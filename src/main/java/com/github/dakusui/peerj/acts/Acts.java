@@ -26,7 +26,7 @@ public class Acts {
   private final String      algorithm;
   private final String      constraintHandler;
 
-  private static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
+  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
     LOGGER.debug("Directory:{} was created: {}", baseDir, baseDir.mkdirs());
     return new Builder().baseDir(baseDir).factorSpace(factorSpace)
         .strength(strength)
