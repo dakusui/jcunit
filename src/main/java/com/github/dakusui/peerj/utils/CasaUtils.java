@@ -14,6 +14,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+import static com.github.dakusui.crest.utils.printable.Functions.size;
+import static com.github.dakusui.pcond.Preconditions.require;
+import static com.github.dakusui.pcond.functions.Predicates.greaterThan;
+import static com.github.dakusui.pcond.functions.Predicates.transform;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
@@ -88,8 +92,12 @@ public enum CasaUtils {
     this.modelName = modelName;
   }
 
-  public static File baseDirFor(CasaUtils def, String generationMode) {
-    return new File("target/acts/" + SESSION_ID + "/casa-" + def + "-" + generationMode + "-" + currentThread().getId());
+  public static File baseDirFor(CasaUtils def, int strength, String generationMode, String joinMode) {
+    return new File(
+        "target/acts/" + SESSION_ID + "/casa-" + def + "/" + generationMode + "-" +
+            joinMode + "/" +
+            strength + "/" +
+            currentThread().getId());
   }
 
   public static Tuple renameFactors(Tuple tuple, long i) {
@@ -119,6 +127,11 @@ public enum CasaUtils {
         );
       }
 
+      @Override
+      public String name() {
+        return "simple";
+      }
+
       private FactorSpace projectFactorSpace(FactorSpace factorSpace, List<String> keysInConstraints, List<Constraint> constraints) {
         return FactorSpace.create(
             keysInConstraints
@@ -132,7 +145,12 @@ public enum CasaUtils {
   }
 
   public static Partitioner standardPartitioner(int strength) {
-    return new Partitioner.Standard(requirement(3));
+    return new Partitioner.Standard(requirement(strength)) {
+      @Override
+      public List<FactorSpace> apply(FactorSpace factorSpace) {
+        return require(super.apply(factorSpace), transform(size()).check(greaterThan(1)));
+      }
+    };
   }
 
   public static Requirement requirement(int strength) {

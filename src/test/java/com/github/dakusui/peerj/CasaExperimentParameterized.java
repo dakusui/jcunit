@@ -2,8 +2,6 @@ package com.github.dakusui.peerj;
 
 import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
 import com.github.dakusui.peerj.utils.CasaUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -93,15 +91,12 @@ public class CasaExperimentParameterized extends CasaExperimentBase {
   public static List<Spec> parameters() {
     return Arrays.stream(CasaUtils.values())
         .flatMap(each -> Stream.of(2, 3, 4, 5, 6)
-            .flatMap(t -> Stream.of(
-                Printable.<Spec, Partitioner>function("simplePartitioner", spec -> simplePartitioner())//,
-                //Printable.<Spec, Partitioner>function("standardPartitioner", spec -> new Partitioner.Standard(requirement(t)))
-            ).map(partitionerFactory -> new Spec.Builder()
+            .map(t -> new Spec.Builder()
                 .strength(t)
                 .algorithm(IPOG)
                 .constraintHandlingMethod(FORBIDDEN_TUPLES)
                 .def(each)
-                .build())))
+                .build()))
         .collect(toList());
   }
 
@@ -153,9 +148,5 @@ public class CasaExperimentParameterized extends CasaExperimentBase {
   @Override
   protected int strength() {
     return spec.strength;
-  }
-
-  private static Requirement requirement(Integer t) {
-    return new Requirement.Builder().withStrength(t).build();
   }
 }

@@ -62,7 +62,7 @@ public abstract class CasaExperimentBase {
         requirement.strength()
     );
     return generateWithActs(
-        CasaUtils.baseDirFor(def, "acts"),
+        CasaUtils.baseDirFor(def, casaModel.strength, "acts", "none"),
         casaModel.factorSpace,
         casaModel.strength,
         algorithm(),
@@ -86,7 +86,7 @@ public abstract class CasaExperimentBase {
             throw new CasaUtils.NotCombinatorialJoinApplicable(def.toString());
         })
         .map(factorSpace -> generateWithActs(
-            CasaUtils.baseDirFor(def, "join"),
+            CasaUtils.baseDirFor(def, casaModel.strength, "join", partitioner.name()),
             factorSpace,
             casaModel.strength,
             algorithm(),
