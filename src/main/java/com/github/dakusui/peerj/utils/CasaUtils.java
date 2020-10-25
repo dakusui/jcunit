@@ -93,11 +93,15 @@ public enum CasaUtils {
   }
 
   public static File baseDirFor(CasaUtils def, int strength, String generationMode, String joinMode) {
+    return baseDirFor(def, strength, generationMode, joinMode, currentThread().getId());
+  }
+
+  public static File baseDirFor(CasaUtils def, int strength, String generationMode, String joinMode, long threadid) {
     return new File(
         "target/acts/" + SESSION_ID + "/casa-" + def + "/" + generationMode + "-" +
             joinMode + "/" +
             strength + "/" +
-            currentThread().getId());
+            threadid);
   }
 
   public static Tuple renameFactors(Tuple tuple, long i) {
@@ -149,6 +153,11 @@ public enum CasaUtils {
       @Override
       public List<FactorSpace> apply(FactorSpace factorSpace) {
         return require(super.apply(factorSpace), transform(size()).check(greaterThan(1)));
+      }
+
+      @Override
+      public String name() {
+        return "standard";
       }
     };
   }

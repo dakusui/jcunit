@@ -11,7 +11,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import java.util.Arrays;
+import java.io.*;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -21,15 +21,15 @@ import static com.github.dakusui.pcond.Preconditions.require;
 import static com.github.dakusui.pcond.functions.Predicates.greaterThanOrEqualTo;
 import static com.github.dakusui.peerj.CasaExperimentBase.Algorithm.IPOG;
 import static com.github.dakusui.peerj.CasaExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
-import static com.github.dakusui.peerj.utils.CasaUtils.simplePartitioner;
-import static com.github.dakusui.peerj.utils.CasaUtils.standardPartitioner;
+import static com.github.dakusui.peerj.utils.CasaUtils.*;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 
 @RunWith(Parameterized.class)
-public class CasaExperimentParameterized extends CasaExperimentBase {
+public abstract class CasaExperimentParameterized extends CasaExperimentBase {
 
   public static class StopWatch<T, R> implements Function<T, R> {
     final         Function<T, R>      function;
@@ -89,7 +89,14 @@ public class CasaExperimentParameterized extends CasaExperimentBase {
 
   @Parameters
   public static List<Spec> parameters() {
-    return Arrays.stream(CasaUtils.values())
+    return parameters(0, 15);
+  }
+
+  public static List<Spec> parameters(int begin, int end) {
+    CasaUtils[] values = values();
+    return asList(values)
+        .subList(begin, Math.min(values.length, end))
+        .stream()
         .flatMap(each -> Stream.of(2, 3, 4, 5, 6)
             .map(t -> new Spec.Builder()
                 .strength(t)
@@ -111,8 +118,11 @@ public class CasaExperimentParameterized extends CasaExperimentBase {
         Printable.function("conductActsExperiment", (CasaExperimentParameterized self) -> self.conductActsExperiment(self.spec.def)),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
-    stopWatch.apply(this);
-    System.out.println(stopWatch.report());
+    try {
+      stopWatch.apply(this);
+    } finally {
+      writeTo(resultFile("acts", "none"), Stream.of(stopWatch.report()));
+    }
   }
 
   @Test
@@ -121,8 +131,11 @@ public class CasaExperimentParameterized extends CasaExperimentBase {
         Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperiment(self.spec.def, simplePartitioner())),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
-    stopWatch.apply(this);
-    System.out.println(stopWatch.report());
+    try {
+      stopWatch.apply(this);
+    } finally {
+      writeTo(resultFile("join", "simple"), Stream.of(stopWatch.report()));
+    }
   }
 
   @Test
@@ -131,8 +144,36 @@ public class CasaExperimentParameterized extends CasaExperimentBase {
         Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperiment(self.spec.def, standardPartitioner(spec.strength))),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
-    stopWatch.apply(this);
-    System.out.println(stopWatch.report());
+    try {
+      stopWatch.apply(this);
+    } finally {
+      writeTo(resultFile("join", "standard"), Stream.of(stopWatch.report()));
+    }
+  }
+
+  public File resultFile(String generationMode, String joinMode) {
+    File baseDir = baseDirFor(this.spec.def, this.spec.strength, generationMode, joinMode, -1).getParentFile();
+    //noinspection ResultOfMethodCallIgnored
+    baseDir.mkdirs();
+    return new File(baseDir, "result.txt");
+  }
+
+  public void writeTo(File file, Stream<String> stream) {
+    try {
+      try (OutputStreamWriter writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)))) {
+        stream.peek(System.out::println).forEach(line -> write(writer, String.format("%s%n", line)));
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void write(OutputStreamWriter writer, String line) {
+    try {
+      writer.write(line);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
