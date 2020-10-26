@@ -45,11 +45,11 @@ public enum CasaUtils {
   STORAGE5("IBM", "Storage5"),
   STORAGE6("IBM", "SystemMgmt"),
   TELECOM("IBM", "Telecom"),
-  BENCHMARK_APACHE("Real", "benchmark_apache"),
-  BENCHMARK_BUGZILLA("Real", "benchmark_bugzilla"),
-  BENCHMARK_GCC("Real", "benchmark_gcc"),
-  BENCHMARK_SPINS("Real", "benchmark_spins"),
-  BENCHMARK_SPINV("Real", "benchmark_spinv"),
+  REAL_APACHE("Real", "benchmark_apache"),
+  REAL_BUGZILLA("Real", "benchmark_bugzilla"),
+  REAL_GCC("Real", "benchmark_gcc"),
+  REAL_SPINS("Real", "benchmark_spins"),
+  REAL_SPINV("Real", "benchmark_spinv"),
   TCAS("Real", "tcas"),
   BENCHMARK_1("Synthetic", "benchmark_1"),
   BENCHMARK_2("Synthetic", "benchmark_2"),
@@ -84,8 +84,8 @@ public enum CasaUtils {
   ;
 
   public static final long   SESSION_ID = System.currentTimeMillis();
-  private final       String categoryName;
-  private final       String modelName;
+  public final        String categoryName;
+  public final        String modelName;
 
   CasaUtils(String categoryName, String modelName) {
     this.categoryName = categoryName;

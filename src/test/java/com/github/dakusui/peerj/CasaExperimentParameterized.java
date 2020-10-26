@@ -4,16 +4,17 @@ import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.peerj.utils.CasaUtils;
 import org.junit.Before;
-import org.junit.Rule;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.NOP;
@@ -23,11 +24,10 @@ import static com.github.dakusui.peerj.CasaExperimentBase.Algorithm.IPOG;
 import static com.github.dakusui.peerj.CasaExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static com.github.dakusui.peerj.utils.CasaUtils.*;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(Parameterized.class)
 public abstract class CasaExperimentParameterized extends CasaExperimentBase {
 
@@ -78,26 +78,17 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     }
   }
 
-  @Rule
-  public Timeout globalTimeout = new Timeout(10, MINUTES);
-
   private final Spec spec;
 
   public CasaExperimentParameterized(Spec spec) {
     this.spec = spec;
   }
 
-  @Parameters
-  public static List<Spec> parameters() {
-    return parameters(0, 15);
-  }
-
-  public static List<Spec> parameters(int begin, int end) {
+  public static List<Spec> parameters(Predicate<CasaUtils> cond, List<Integer> strengths) {
     CasaUtils[] values = values();
-    return asList(values)
-        .subList(begin, Math.min(values.length, end))
-        .stream()
-        .flatMap(each -> Stream.of(2, 3, 4, 5, 6)
+    return Arrays.stream(values)
+        .filter(cond)
+        .flatMap(each -> strengths.stream()
             .map(t -> new Spec.Builder()
                 .strength(t)
                 .algorithm(IPOG)
@@ -152,7 +143,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
   }
 
   public File resultFile(String generationMode, String joinMode) {
-    File baseDir = baseDirFor(this.spec.def, this.spec.strength, generationMode, joinMode, -1).getParentFile();
+    File baseDir = baseDirFor(this.spec.def, this.spec.strength, generationMode, joinMode).getParentFile();
     //noinspection ResultOfMethodCallIgnored
     baseDir.mkdirs();
     return new File(baseDir, "result.txt");
