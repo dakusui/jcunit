@@ -83,7 +83,6 @@ public enum CasaDataSet {
   BENCHMARK_30("Synthetic", "benchmark_30"),
   ;
 
-  public static final long   SESSION_ID = System.currentTimeMillis();
   public final        String categoryName;
   public final        String modelName;
 

@@ -80,7 +80,7 @@ public class CasaUtilsTest extends PeerJExperimentBase {
         strength()
     );
     List<Tuple> result = generateWithActs(
-        new File("target/acts/cassa"),
+        new File("target/acts/casa"),
         casaModel.factorSpace,
         casaModel.strength,
         algorithm(),
@@ -101,7 +101,7 @@ public class CasaUtilsTest extends PeerJExperimentBase {
         strength()
     );
     List<Tuple> result = generateWithActs(
-        new File("target/acts/cassa"),
+        new File("target/acts/casa"),
         casaModel.factorSpace,
         casaModel.strength,
         algorithm(),

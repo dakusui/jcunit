@@ -20,6 +20,7 @@ import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
 import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
 import static com.github.dakusui.peerj.acts.Acts.runActs;
+import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.toList;
 
@@ -33,6 +34,11 @@ public abstract class PeerJExperimentBase {
       this.strength = strength;
       this.algorithm = algorithm;
       this.constraintHandlingMethod = constraintHandlingMethod;
+    }
+
+    @Override
+    public String toString() {
+      return format("t=%s:algorithm=%s:constraintHandling=%s", strength, algorithm, constraintHandlingMethod);
     }
 
     public abstract static class Builder<B extends Builder<B>> {

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
@@ -43,7 +44,7 @@ public class Acts {
   private Acts(FactorSpace factorSpace, int strength, File baseDir, String algorithm, String constraintHandler) {
     this.factorSpace = factorSpace;
     this.strength = strength;
-    this.baseDir = baseDir;
+    this.baseDir = new File(baseDir, Objects.toString(Thread.currentThread().getId()));
     this.algorithm = algorithm;
     this.constraintHandler = constraintHandler;
   }

@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.peerj.utils.CasaDataSet;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import static com.github.dakusui.crest.utils.printable.Functions.size;
 import static com.github.dakusui.pcond.Preconditions.*;
 import static com.github.dakusui.pcond.functions.Predicates.*;
 import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
@@ -27,12 +25,16 @@ import static java.util.stream.Collectors.toSet;
 public enum PeerJUtils2 {
   ;
 
+  public static final long   SESSION_ID = System.currentTimeMillis();
+
   public static File baseDirFor(String datasetName, int strength, String generationMode, String partitionerName) {
     return new File(
-        "target/acts/" + CasaDataSet.SESSION_ID + "/" + datasetName + "/" + generationMode + "-" +
+        "target/acts/" +
+            SESSION_ID + "/" +
+            datasetName + "/" +
+            generationMode + "-" +
             partitionerName + "/" +
-            strength + "/" +
-            currentThread().getId());
+            strength);
   }
 
   public static Tuple renameFactors(Tuple tuple, long i) {
