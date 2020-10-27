@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
+import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import org.junit.After;
@@ -15,8 +16,10 @@ import java.util.NoSuchElementException;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
+import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
 import static com.github.dakusui.peerj.acts.Acts.runActs;
-import static com.github.dakusui.peerj.utils.CasaUtils.renameFactors;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.toList;
 
@@ -36,6 +39,10 @@ public abstract class PeerJExperimentBase {
       int                      strength;
       Algorithm                algorithm;
       ConstraintHandlingMethod constraintHandlingMethod;
+
+      public Builder() {
+        this.strength(2).algorithm(IPOG).constraintHandlingMethod(FORBIDDEN_TUPLES);
+      }
 
       @SuppressWarnings("unchecked")
       public B strength(int strength) {
@@ -79,7 +86,12 @@ public abstract class PeerJExperimentBase {
     return runActs(baseDir, factorSpace, strength, algorithm.name, constraintHandlingMethod.name);
   }
 
-  public static SchemafulTupleSet generateWithCombinatorialJoin(Requirement requirement, File baseDir, List<FactorSpace> factorSpaces, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
+  public static List<Tuple> generateWithCombinatorialJoin(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
+    List<FactorSpace> factorSpaces = partitioner.apply(factorSpace);
+    return generateWithCombinatorialJoin(requirement, baseDir, factorSpaces, algorithm, constraintHandlingMethod, messageOnFailure);
+  }
+
+  private static SchemafulTupleSet generateWithCombinatorialJoin(Requirement requirement, File baseDir, List<FactorSpace> factorSpaces, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
     int strength = requirement.strength();
     return factorSpaces
         .parallelStream()
@@ -113,7 +125,8 @@ public abstract class PeerJExperimentBase {
   }
 
   public enum ConstraintHandlingMethod {
-    FORBIDDEN_TUPLES("forbiddentuples");
+    FORBIDDEN_TUPLES("forbiddentuples"),
+    SOLVER("solver");
 
     private final String name;
 

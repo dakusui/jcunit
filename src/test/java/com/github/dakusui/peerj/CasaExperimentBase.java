@@ -53,7 +53,7 @@ public abstract class CasaExperimentBase extends PeerJExperimentBase {
   }
 
   public List<Tuple> conductActsExperimentForCasa(CasaDataSet def) {
-    Requirement requirement = CasaUtils.requirement(strength());
+    Requirement requirement = PeerJUtils2.requirement(strength());
     CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         def,
         "prefix",
@@ -68,15 +68,16 @@ public abstract class CasaExperimentBase extends PeerJExperimentBase {
   }
 
   public List<Tuple> conductJoinExperimentForCasa(CasaDataSet def, Partitioner partitioner) {
-    Requirement requirement = CasaUtils.requirement(strength());
+    Requirement requirement = PeerJUtils2.requirement(strength());
     CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         def,
         "prefix",
         requirement.strength());
     int strength = casaModel.strength;
     File baseDir = CasaUtils.baseDirFor(def, strength, "join", partitioner.name());
-    List<FactorSpace> factorSpaces = partitioner.apply(casaModel.factorSpace);
     String messageOnFailure = def.toString();
-    return generateWithCombinatorialJoin(requirement, baseDir, factorSpaces, algorithm(), constraintHandlingMethod(), messageOnFailure);
+    FactorSpace factorSpace = casaModel.factorSpace;
+    return generateWithCombinatorialJoin(requirement, baseDir, partitioner, factorSpace, algorithm(), constraintHandlingMethod(), messageOnFailure);
   }
+
 }

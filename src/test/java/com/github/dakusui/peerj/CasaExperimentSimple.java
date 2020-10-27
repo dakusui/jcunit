@@ -9,7 +9,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.NOP;
-import static com.github.dakusui.peerj.utils.CasaUtils.simplePartitioner;
+import static com.github.dakusui.peerj.PeerJUtils2.simplePartitioner;
 
 public class CasaExperimentSimple extends CasaExperimentBase {
   @Before

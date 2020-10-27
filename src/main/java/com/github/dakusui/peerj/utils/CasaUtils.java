@@ -1,12 +1,10 @@
 package com.github.dakusui.peerj.utils;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import com.github.dakusui.peerj.PeerJUtils2;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
 
 import java.io.*;
@@ -14,93 +12,14 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import static com.github.dakusui.crest.utils.printable.Functions.size;
-import static com.github.dakusui.pcond.Preconditions.require;
-import static com.github.dakusui.pcond.functions.Predicates.greaterThan;
-import static com.github.dakusui.pcond.functions.Predicates.transform;
 import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 public enum CasaUtils {
   ;
 
-  public static File baseDirFor(CasaDataSet def, int strength, String generationMode, String joinMode) {
-    return baseDirFor(def, strength, generationMode, joinMode, currentThread().getId());
-  }
-
-  public static File baseDirFor(CasaDataSet def, int strength, String generationMode, String joinMode, long threadid) {
-    return new File(
-        "target/acts/" + CasaDataSet.SESSION_ID + "/casa-" + def + "/" + generationMode + "-" +
-            joinMode + "/" +
-            strength + "/" +
-            threadid);
-  }
-
-  public static Tuple renameFactors(Tuple tuple, long i) {
-    Tuple.Builder b = Tuple.builder();
-    tuple.keySet().forEach(k -> b.put(format("P%02d_%s", i, k), tuple.get(k)));
-    return b.build();
-  }
-
-  public static Partitioner simplePartitioner() {
-    return new Partitioner() {
-      @Override
-      public List<FactorSpace> apply(FactorSpace factorSpace) {
-        factorSpace.getFactorNames();
-        List<String> keysInConstraints = factorSpace.getConstraints()
-            .stream()
-            .flatMap(c -> c.involvedKeys().stream())
-            .distinct()
-            .collect(toList());
-        List<String> keysNotInConstraints = factorSpace.getFactorNames()
-            .stream()
-            .filter(k -> !keysInConstraints.contains(k))
-            .collect(toList());
-
-        return asList(
-            projectFactorSpace(factorSpace, keysInConstraints, factorSpace.getConstraints()),
-            projectFactorSpace(factorSpace, keysNotInConstraints, emptyList())
-        );
-      }
-
-      @Override
-      public String name() {
-        return "simple";
-      }
-
-      private FactorSpace projectFactorSpace(FactorSpace factorSpace, List<String> keysInConstraints, List<Constraint> constraints) {
-        return FactorSpace.create(
-            keysInConstraints
-                .stream()
-                .filter(k -> factorSpace.getFactorNames().contains(k))
-                .map(factorSpace::getFactor)
-                .collect(toList()),
-            constraints);
-      }
-    };
-  }
-
-  public static Partitioner standardPartitioner(int strength) {
-    return new Partitioner.Standard(requirement(strength)) {
-      @Override
-      public List<FactorSpace> apply(FactorSpace factorSpace) {
-        return require(super.apply(factorSpace), transform(size()).check(greaterThan(1)));
-      }
-
-      @Override
-      public String name() {
-        return "standard";
-      }
-    };
-  }
-
-  public static Requirement requirement(int strength) {
-    return new Requirement.Builder()
-        .withStrength(strength)
-        .build();
+  public static File baseDirFor(CasaDataSet def, int strength, String generationMode, String partitionerName) {
+    return PeerJUtils2.baseDirFor("casa-" + def, strength, generationMode, partitionerName);
   }
 
   /**
