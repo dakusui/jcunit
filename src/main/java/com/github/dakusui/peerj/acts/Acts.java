@@ -137,12 +137,13 @@ public class Acts {
           put("{{OUT}}", outFile);
         }});
     writeTo(new File(baseDir, "acts.commandLine"), commandLine);
+    long before = System.currentTimeMillis();
     ProcessStreamerUtils.processStreamer(
         commandLine,
         new ProcessStreamerUtils.StandardChecker("Errors encountered", "Constraints can not be parsed"))
         .stream()
         .forEach(LOGGER::trace);
-
+    writeTo(new File(baseDir, "acts.time"), String.format("%s[msec]", System.currentTimeMillis() - before));
     try (Stream<String> s = streamFile(outFile).peek(LOGGER::trace)) {
       return readTestSuiteFromCsv(s);
     }

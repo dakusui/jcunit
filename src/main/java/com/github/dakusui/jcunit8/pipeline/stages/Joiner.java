@@ -1,6 +1,8 @@
 package com.github.dakusui.jcunit8.pipeline.stages;
 
+import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
@@ -11,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
@@ -287,23 +290,46 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
 
     private static SchemafulTupleSet weakenTo(SchemafulTupleSet in, int strength, Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> coveredTupletsFinder) {
-      SchemafulTupleSet.Builder b = new SchemafulTupleSet.Builder(in.getAttributeNames());
-      Set<Tuple> tupletsToBeCovered = coveredTupletsFinder.apply(in).apply(strength);
-      for (Tuple each : in) {
-        int before = tupletsToBeCovered.size();
-        tupletsToBeCovered.removeAll(subtuplesOf(each, strength));
-        if (tupletsToBeCovered.size() < before)
-          b.add(each);
-        if (tupletsToBeCovered.isEmpty())
-          break;
+      long before_ = System.currentTimeMillis();
+      try {
+        SchemafulTupleSet.Builder b = new SchemafulTupleSet.Builder(in.getAttributeNames());
+        Set<Tuple> tupletsToBeCovered = coveredTupletsFinder.apply(in).apply(strength);
+        long t = System.currentTimeMillis();
+        for (Tuple each : in) {
+          long u = System.currentTimeMillis();
+          try {
+            int before = tupletsToBeCovered.size();
+            tupletsToBeCovered.removeAll(subtuplesOf(each, strength));
+            if (tupletsToBeCovered.size() < before)
+              b.add(each);
+            if (tupletsToBeCovered.isEmpty())
+              break;
+          } finally {
+            System.err.printf("      processEach(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - u);
+          }
+        }
+        System.err.printf("constructWeakened(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - t);
+        return b.build();
+      } finally {
+        System.err.printf("         weakenTo(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - before_);
       }
-      return b.build();
     }
 
     private static Set<Tuple> tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
-      Set<Tuple> ret = ConcurrentHashMap.newKeySet();
-      rows.stream().parallel().forEach(row -> subtuplesOf(row, strength).stream().parallel().forEach(ret::add));
-      return ret;
+      long before_ = System.currentTimeMillis();
+      try {
+        Set<Tuple> ret = ConcurrentHashMap.newKeySet();
+        List<List<String>> keySetCombinations = StreamSupport.stream(new Combinator<>(rows.getAttributeNames(), strength).spliterator(), true).collect(toList());
+        rows.stream()
+            .parallel()
+            .forEach(row ->
+                keySetCombinations.stream()
+                    .map(keys -> TupleUtils.project(row, keys))
+                    .forEach(ret::add));
+        return ret;
+      } finally {
+        System.err.printf(" tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
+      }
     }
 
     private static List<Tuple> cartesianProduct(List<Tuple> lhs, List<Tuple> rhs) {

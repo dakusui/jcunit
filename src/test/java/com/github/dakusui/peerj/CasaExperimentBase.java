@@ -66,10 +66,7 @@ public abstract class CasaExperimentBase {
         casaModel.factorSpace,
         casaModel.strength,
         algorithm(),
-        constraintHandlingMethod())
-        .stream()
-        .peek(System.err::println)
-        .collect(toList());
+        constraintHandlingMethod());
   }
 
   protected List<Tuple> conductJoinExperiment(CasaUtils def, Partitioner partitioner) {
@@ -94,10 +91,7 @@ public abstract class CasaExperimentBase {
         .map(arr -> arr.stream().map((Tuple t) -> renameFactors(t, currentThread().getId())).collect(toList()))
         .map(SchemafulTupleSet::fromTuples)
         .reduce(new Joiner.WeakenProduct(requirement))
-        .orElseThrow(NoSuchElementException::new)
-        .stream()
-        .peek(System.err::println)
-        .collect(toList());
+        .orElseThrow(NoSuchElementException::new)        ;
   }
 
   abstract protected ConstraintHandlingMethod constraintHandlingMethod();

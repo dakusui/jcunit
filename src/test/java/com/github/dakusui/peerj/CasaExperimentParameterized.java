@@ -100,7 +100,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
 
   @Before
   public void before() {
-    System.setErr(NOP);
+    //System.setErr(NOP);
   }
 
   @Test
