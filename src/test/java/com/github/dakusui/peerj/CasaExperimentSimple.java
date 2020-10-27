@@ -1,7 +1,7 @@
 package com.github.dakusui.peerj;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.utils.CasaUtils;
+import com.github.dakusui.peerj.utils.CasaDataSet;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +19,9 @@ public class CasaExperimentSimple extends CasaExperimentBase {
 
   @Test
   public void generateCoveringArrayByActs() {
-    for (CasaUtils each : CasaUtils.values()) {
+    for (CasaDataSet each : CasaDataSet.values()) {
       long before = System.currentTimeMillis();
-      List<Tuple> result = this.conductActsExperiment(each);
+      List<Tuple> result = this.conductActsExperimentForCasa(each);
       System.out.println("name:" + each + ",time:" + (System.currentTimeMillis() - before) + ",size:" + result.size());
     }
   }
@@ -29,12 +29,12 @@ public class CasaExperimentSimple extends CasaExperimentBase {
 
   @Test
   public void generateCoveringArrayFileByJoining() {
-    for (CasaUtils each : CasaUtils.values()) {
+    for (CasaDataSet each : CasaDataSet.values()) {
       long before = System.currentTimeMillis();
       try {
-        List<Tuple> result = this.conductJoinExperiment(each, simplePartitioner());
+        List<Tuple> result = this.conductJoinExperimentForCasa(each, simplePartitioner());
         System.out.println("name:" + each + ",time:" + (System.currentTimeMillis() - before) + ",size:" + result.size());
-      } catch (CasaUtils.NotCombinatorialJoinApplicable | ProcessStreamer.Failure e) {
+      } catch (CasaDataSet.NotCombinatorialJoinApplicable | ProcessStreamer.Failure e) {
         System.out.println("name:" + each + ",FAILED");
       }
     }

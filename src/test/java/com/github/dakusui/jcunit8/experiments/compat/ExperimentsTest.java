@@ -26,33 +26,33 @@ public class ExperimentsTest {
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return factorSpeceSpec("L", 5);
+      return factorSpecSpec("L", 5);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpec rSpec = factorSpeceSpec("R", 10);
+      FactorSpaceSpec rSpec = factorSpecSpec("R", 10);
       final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_20$thenLetsSee() {
-      FactorSpaceSpec rSpec = factorSpeceSpec("R", 20);
+      FactorSpaceSpec rSpec = factorSpecSpec("R", 20);
       final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_30$thenLetsSee() {
-      FactorSpaceSpec rSpec = factorSpeceSpec("R", 30);
+      FactorSpaceSpec rSpec = factorSpecSpec("R", 30);
       final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_40$thenLetsSee() {
-      FactorSpaceSpec rSpec = factorSpeceSpec("R", 40);
+      FactorSpaceSpec rSpec = factorSpecSpec("R", 40);
       final FactorSpace r = rSpec.toFactorSpace();
       exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
     }

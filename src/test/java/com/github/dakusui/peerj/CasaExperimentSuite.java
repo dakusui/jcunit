@@ -15,7 +15,7 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(Enclosed.class)
-public class CasaExperimentSuite1 {
+public class CasaExperimentSuite {
   public static class Lower extends CasaExperimentParameterized {
     public Lower(Spec spec) {
       super(spec);
@@ -23,7 +23,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> each.categoryName.equals("Real"), asList(2, 3));
+      return parameters(each -> each.categoryName().equals("Real"), asList(2, 3));
     }
   }
 
@@ -37,7 +37,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("apache")), singletonList(4));
+      return parameters(each -> (each.categoryName().equals("Real") && each.modelName().endsWith("apache")), singletonList(4));
     }
   }
 
@@ -51,7 +51,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("bugzilla")), singletonList(4));
+      return parameters(each -> (each.categoryName().equals("Real") && each.modelName().endsWith("bugzilla")), singletonList(4));
     }
   }
 
@@ -62,7 +62,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("gcc")), singletonList(3));
+      return parameters(each -> (each.categoryName().equals("Real") && each.modelName().endsWith("gcc")), singletonList(3));
     }
 
     @Ignore
@@ -82,7 +82,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("gcc")), singletonList(4));
+      return parameters(each -> (each.categoryName().equals("Real") && each.modelName().endsWith("gcc")), singletonList(4));
     }
 
     @Ignore
@@ -102,7 +102,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("gcc")), singletonList(5));
+      return parameters(each -> (each.categoryName().equals("Real") && each.modelName().endsWith("gcc")), singletonList(5));
     }
   }
 
@@ -116,7 +116,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("gcc")), singletonList(6));
+      return parameters(each -> (each.categoryName().equals("Real") && each.modelName().endsWith("gcc")), singletonList(6));
     }
   }
 
@@ -130,7 +130,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("spins")), singletonList(4));
+      return parameters(each -> (each.categoryName.equals("Real") && each.modelName().endsWith("spins")), singletonList(4));
     }
   }
 
@@ -144,7 +144,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("spins")), singletonList(4));
+      return parameters(each -> (each.categoryName.equals("Real") && each.modelName().endsWith("spins")), singletonList(4));
     }
   }
 
@@ -158,7 +158,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("spinv")), singletonList(4));
+      return parameters(each -> (each.categoryName.equals("Real") && each.modelName().endsWith("spinv")), singletonList(4));
     }
   }
 
@@ -172,7 +172,7 @@ public class CasaExperimentSuite1 {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> (each.categoryName.equals("Real") && each.modelName.endsWith("tcas")), singletonList(4));
+      return parameters(each -> (each.categoryName.equals("Real") && each.modelName().endsWith("tcas")), singletonList(4));
     }
   }
 }

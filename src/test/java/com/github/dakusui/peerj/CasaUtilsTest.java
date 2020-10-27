@@ -1,7 +1,7 @@
 package com.github.dakusui.peerj;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import com.github.dakusui.peerj.utils.CasaDataSet;
 import com.github.dakusui.peerj.utils.CasaUtils;
 import org.junit.Test;
 
@@ -9,16 +9,17 @@ import java.io.File;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.peerj.CasaExperimentBase.Algorithm.IPOG;
-import static com.github.dakusui.peerj.CasaExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 
-public class CasaUtilsTest extends CasaExperimentBase {
+public class CasaUtilsTest extends PeerJExperimentBase {
   @Test
   public void testInsurance() {
-    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         "prefix",
         -1,
         asList(
@@ -32,7 +33,7 @@ public class CasaUtilsTest extends CasaExperimentBase {
 
   @Test
   public void testBanking2() {
-    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         "prefix",
         -1,
         asList(
@@ -57,7 +58,7 @@ public class CasaUtilsTest extends CasaExperimentBase {
 
   @Test
   public void readBanking2FromFile() {
-    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         "IBM",
         "Banking2",
         "prefix",
@@ -72,7 +73,7 @@ public class CasaUtilsTest extends CasaExperimentBase {
 
   @Test
   public void generateCoveringArrayForBanking2FromFile() {
-    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         "IBM",
         "Banking2",
         "prefix",
@@ -93,7 +94,7 @@ public class CasaUtilsTest extends CasaExperimentBase {
 
   @Test
   public void generateCoveringArrayForInsuranceFromFile() {
-    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         "IBM",
         "Insurance",
         "prefix",
@@ -127,4 +128,62 @@ public class CasaUtilsTest extends CasaExperimentBase {
     return 2;
   }
 
+  public static class Spec {
+    final CasaDataSet def;
+    final int         strength;
+    final Algorithm                algorithm;
+    final ConstraintHandlingMethod constraintHandlingMethod;
+
+    public Spec(CasaDataSet def, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+      this.def = def;
+      this.strength = strength;
+      this.algorithm = algorithm;
+      this.constraintHandlingMethod = constraintHandlingMethod;
+    }
+
+    @Override
+    public String toString() {
+      return format("%s:t=%s:algorithm=%s:constraintHandling=%s", def, strength, algorithm, constraintHandlingMethod);
+    }
+
+    static Spec create(CasaDataSet def) {
+      return new Builder()
+          .def(def)
+          .strength(2)
+          .algorithm(Algorithm.IPOG)
+          .constraintHandlingMethod(ConstraintHandlingMethod.FORBIDDEN_TUPLES)
+          .build();
+    }
+
+    public static class Builder {
+      CasaDataSet def;
+      int         strength;
+      Algorithm                algorithm;
+      ConstraintHandlingMethod constraintHandlingMethod;
+
+      public Builder def(CasaDataSet def) {
+        this.def = def;
+        return this;
+      }
+
+      public Builder strength(int strength) {
+        this.strength = strength;
+        return this;
+      }
+
+      public Builder algorithm(Algorithm algorithm) {
+        this.algorithm = algorithm;
+        return this;
+      }
+
+      public Builder constraintHandlingMethod(ConstraintHandlingMethod constraintHandlingMethod) {
+        this.constraintHandlingMethod = constraintHandlingMethod;
+        return this;
+      }
+
+      public Spec build() {
+        return new Spec(def, strength, algorithm, constraintHandlingMethod);
+      }
+    }
+  }
 }

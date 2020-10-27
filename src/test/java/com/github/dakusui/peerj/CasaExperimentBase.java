@@ -3,118 +3,24 @@ package com.github.dakusui.peerj;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.peerj.utils.CasaDataSet;
 import com.github.dakusui.peerj.utils.CasaUtils;
-import org.junit.After;
-import org.junit.Before;
 
 import java.io.File;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
-import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
-import static com.github.dakusui.peerj.acts.Acts.runActs;
-import static com.github.dakusui.peerj.utils.CasaUtils.renameFactors;
+import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
-import static java.util.stream.Collectors.toList;
 
-public abstract class CasaExperimentBase {
-  @Before
-  public void before() {
-    suppressStdOutErrIfUnderPitestOrSurefire();
-  }
+public abstract class CasaExperimentBase extends PeerJExperimentBase {
+  public static class Spec extends PeerJExperimentBase.Spec {
+    final CasaDataSet def;
 
-  @After
-  public void after() {
-    restoreStdOutErr();
-  }
-
-  public enum Algorithm {
-    IPOG("ipog"),
-    ;
-
-    public final String name;
-
-    Algorithm(String algorithmName) {
-      this.name = algorithmName;
-    }
-  }
-
-  public enum ConstraintHandlingMethod {
-    FORBIDDEN_TUPLES("forbiddentuples");
-
-    private final String name;
-
-    ConstraintHandlingMethod(String handlerName) {
-      this.name = handlerName;
-    }
-  }
-
-  protected List<Tuple> conductActsExperiment(CasaUtils def) {
-    Requirement requirement = CasaUtils.requirement(strength());
-    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
-        def,
-        "prefix",
-        requirement.strength()
-    );
-    return generateWithActs(
-        CasaUtils.baseDirFor(def, casaModel.strength, "acts", "none"),
-        casaModel.factorSpace,
-        casaModel.strength,
-        algorithm(),
-        constraintHandlingMethod());
-  }
-
-  protected List<Tuple> conductJoinExperiment(CasaUtils def, Partitioner partitioner) {
-    Requirement requirement = CasaUtils.requirement(strength());
-    CasaUtils.CasaModel casaModel = CasaUtils.readCasaModel(
-        def,
-        "prefix",
-        requirement.strength());
-    return partitioner.apply(casaModel.factorSpace)
-        .parallelStream()
-        .peek(factorSpace -> System.err.println("->" + factorSpace))
-        .peek(factorSpace -> {
-          if (factorSpace.getFactorNames().isEmpty())
-            throw new CasaUtils.NotCombinatorialJoinApplicable(def.toString());
-        })
-        .map(factorSpace -> generateWithActs(
-            CasaUtils.baseDirFor(def, casaModel.strength, "join", partitioner.name()),
-            factorSpace,
-            casaModel.strength,
-            algorithm(),
-            constraintHandlingMethod()))
-        .map(arr -> arr.stream().map((Tuple t) -> renameFactors(t, currentThread().getId())).collect(toList()))
-        .map(SchemafulTupleSet::fromTuples)
-        .reduce(new Joiner.WeakenProduct(requirement))
-        .orElseThrow(NoSuchElementException::new)        ;
-  }
-
-  abstract protected ConstraintHandlingMethod constraintHandlingMethod();
-
-  abstract protected Algorithm algorithm();
-
-  abstract protected int strength();
-
-  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
-    return runActs(baseDir, factorSpace, strength, algorithm.name, constraintHandlingMethod.name);
-  }
-
-  public static class Spec {
-    final CasaUtils                def;
-    final int                      strength;
-    final Algorithm                algorithm;
-    final ConstraintHandlingMethod constraintHandlingMethod;
-
-    public Spec(CasaUtils def, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+    public Spec(CasaDataSet def, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+      super(strength, algorithm, constraintHandlingMethod);
       this.def = def;
-      this.strength = strength;
-      this.algorithm = algorithm;
-      this.constraintHandlingMethod = constraintHandlingMethod;
     }
 
     @Override
@@ -122,44 +28,55 @@ public abstract class CasaExperimentBase {
       return format("%s:t=%s:algorithm=%s:constraintHandling=%s", def, strength, algorithm, constraintHandlingMethod);
     }
 
-    static Spec create(CasaUtils def) {
+    static Spec create(CasaDataSet def) {
       return new Builder()
           .def(def)
           .strength(2)
-          .algorithm(Algorithm.IPOG)
-          .constraintHandlingMethod(ConstraintHandlingMethod.FORBIDDEN_TUPLES)
+          .algorithm(IPOG)
+          .constraintHandlingMethod(FORBIDDEN_TUPLES)
           .build();
     }
 
-    public static class Builder {
-      CasaUtils                def;
-      int                      strength;
-      Algorithm                algorithm;
-      ConstraintHandlingMethod constraintHandlingMethod;
+    public static class Builder extends PeerJExperimentBase.Spec.Builder<Builder> {
+      CasaDataSet def;
 
-      public Builder def(CasaUtils def) {
+      public Builder def(CasaDataSet def) {
         this.def = def;
         return this;
       }
 
-      public Builder strength(int strength) {
-        this.strength = strength;
-        return this;
-      }
-
-      public Builder algorithm(Algorithm algorithm) {
-        this.algorithm = algorithm;
-        return this;
-      }
-
-      public Builder constraintHandlingMethod(ConstraintHandlingMethod constraintHandlingMethod) {
-        this.constraintHandlingMethod = constraintHandlingMethod;
-        return this;
-      }
-
+      @Override
       public Spec build() {
         return new Spec(def, strength, algorithm, constraintHandlingMethod);
       }
     }
+  }
+
+  public List<Tuple> conductActsExperimentForCasa(CasaDataSet def) {
+    Requirement requirement = CasaUtils.requirement(strength());
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
+        def,
+        "prefix",
+        requirement.strength()
+    );
+    return PeerJExperimentBase.generateWithActs(
+        CasaUtils.baseDirFor(def, casaModel.strength, "acts", "none"),
+        casaModel.factorSpace,
+        casaModel.strength,
+        algorithm(),
+        constraintHandlingMethod());
+  }
+
+  public List<Tuple> conductJoinExperimentForCasa(CasaDataSet def, Partitioner partitioner) {
+    Requirement requirement = CasaUtils.requirement(strength());
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
+        def,
+        "prefix",
+        requirement.strength());
+    int strength = casaModel.strength;
+    File baseDir = CasaUtils.baseDirFor(def, strength, "join", partitioner.name());
+    List<FactorSpace> factorSpaces = partitioner.apply(casaModel.factorSpace);
+    String messageOnFailure = def.toString();
+    return generateWithCombinatorialJoin(requirement, baseDir, factorSpaces, algorithm(), constraintHandlingMethod(), messageOnFailure);
   }
 }

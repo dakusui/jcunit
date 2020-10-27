@@ -33,7 +33,7 @@ public abstract class JoinExperimentBase {
     }
   }
 
-  public static FactorSpaceSpec factorSpeceSpec(String r, int numFactors) {
+  public static FactorSpaceSpec factorSpecSpec(String r, int numFactors) {
     return new FactorSpaceSpec(r).addFactors(2, numFactors);
   }
 

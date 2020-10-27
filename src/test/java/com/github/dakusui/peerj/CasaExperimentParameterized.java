@@ -2,6 +2,7 @@ package com.github.dakusui.peerj;
 
 import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.peerj.utils.CasaDataSet;
 import com.github.dakusui.peerj.utils.CasaUtils;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -17,12 +18,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.NOP;
 import static com.github.dakusui.pcond.Preconditions.require;
 import static com.github.dakusui.pcond.functions.Predicates.greaterThanOrEqualTo;
-import static com.github.dakusui.peerj.CasaExperimentBase.Algorithm.IPOG;
-import static com.github.dakusui.peerj.CasaExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
-import static com.github.dakusui.peerj.utils.CasaUtils.*;
+import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.utils.CasaDataSet.*;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -84,8 +84,8 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     this.spec = spec;
   }
 
-  public static List<Spec> parameters(Predicate<CasaUtils> cond, List<Integer> strengths) {
-    CasaUtils[] values = values();
+  public static List<Spec> parameters(Predicate<CasaDataSet> cond, List<Integer> strengths) {
+    CasaDataSet[] values = values();
     return Arrays.stream(values)
         .filter(cond)
         .flatMap(each -> strengths.stream()
@@ -105,8 +105,8 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
 
   @Test
   public void acts() {
-    StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-        Printable.function("conductActsExperiment", (CasaExperimentParameterized self) -> self.conductActsExperiment(self.spec.def)),
+    StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<CasaExperimentParameterized, List<Tuple>>(
+        Printable.function("conductActsExperiment", (CasaExperimentParameterized self) -> self.conductActsExperimentForCasa(self.spec.def)),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {
@@ -119,7 +119,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
   @Test
   public void joinWithSimplePartitioner() {
     StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-        Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperiment(self.spec.def, simplePartitioner())),
+        Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperimentForCasa(self.spec.def, CasaUtils.simplePartitioner())),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {
@@ -132,7 +132,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
   @Test
   public void joinWithStandardPartitioner() {
     StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-        Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperiment(self.spec.def, standardPartitioner(spec.strength))),
+        Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperimentForCasa(self.spec.def, CasaUtils.standardPartitioner(spec.strength))),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {
@@ -143,7 +143,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
   }
 
   public File resultFile(String generationMode, String joinMode) {
-    File baseDir = baseDirFor(this.spec.def, this.spec.strength, generationMode, joinMode).getParentFile();
+    File baseDir = CasaUtils.baseDirFor(this.spec.def, this.spec.strength, generationMode, joinMode).getParentFile();
     //noinspection ResultOfMethodCallIgnored
     baseDir.mkdirs();
     return new File(baseDir, "result.txt");
