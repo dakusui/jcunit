@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System name="unknown">
+  <Parameters>
+    <Parameter id="0" name="p0" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="1" name="p1" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="2" name="p2" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="3" name="p3" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="4" name="p4" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="5" name="p5" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="6" name="p6" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="7" name="p7" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="8" name="p8" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="9" name="p9" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="10" name="p10" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="11" name="p11" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="12" name="p12" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="13" name="p13" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="14" name="p14" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="15" name="p15" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="16" name="p16" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="17" name="p17" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    </Parameters>
+  <Constraints>
+    <Constraint text="p0 != 1 || p1 != 1">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p1"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p2 != 1">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p2"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p13 != 1">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p13"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p14 != 1">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p14"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p14 != 2">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p14"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p14 != 3">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p14"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p15 != 1">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p15"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p15 != 2">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p15"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p0 != 1 || p15 != 3">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p15"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p12 != 1 || p15 != 1">
+    <Parameters>
+      <Parameter name="p12"/>
+      <Parameter name="p15"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p12 != 1 || p15 != 2">
+    <Parameters>
+      <Parameter name="p12"/>
+      <Parameter name="p15"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p12 != 1 || p15 != 3">
+    <Parameters>
+      <Parameter name="p12"/>
+      <Parameter name="p15"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p3 != 1 || p4 != 0">
+    <Parameters>
+      <Parameter name="p3"/>
+      <Parameter name="p4"/>
+    </Parameters>
+    </Constraint>
+  </Constraints>
+
+</System>

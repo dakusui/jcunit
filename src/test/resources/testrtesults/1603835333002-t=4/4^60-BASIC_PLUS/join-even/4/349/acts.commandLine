@@ -1,0 +1,1 @@
+java -Ddoi=4 -Dalgo=ipog -Dchandler=solver -Doutput=csv -jar src/test/resources/bin/acts_3.0.jar target/acts/1603835333002/4^60-BASIC_PLUS/join-even/4/349/acts.xml target/acts/1603835333002/4^60-BASIC_PLUS/join-even/4/349/acts.ca

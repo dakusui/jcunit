@@ -1,0 +1,11 @@
+# ACTS Test Suite Generation: Wed Oct 28 06:08:21 JST 2020
+#  '*' represents don't care value 
+# Degree of interaction coverage: 2
+# Number of parameters: 3
+# Maximum number of values per parameter: 2
+# Number of configurations: 4
+p0,p1,p2
+0,0,1
+0,1,0
+1,0,0
+1,1,1

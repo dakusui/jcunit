@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System name="unknown">
+  <Parameters>
+    <Parameter id="0" name="p0" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="1" name="p1" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="2" name="p2" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="3" name="p3" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    </Parameters>
+  <Constraints>
+    <Constraint text="p0 != 0 || p1 != 0">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p1"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p2 != 0 || p3 != 0">
+    <Parameters>
+      <Parameter name="p2"/>
+      <Parameter name="p3"/>
+    </Parameters>
+    </Constraint>
+  </Constraints>
+
+</System>
