@@ -10,8 +10,6 @@ import com.github.dakusui.peerj.utils.CasaUtils;
 import java.io.File;
 import java.util.List;
 
-import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
-import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
 
 public abstract class CasaExperimentBase extends PeerJExperimentBase {
