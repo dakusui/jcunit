@@ -305,7 +305,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             if (tupletsToBeCovered.isEmpty())
               break;
           } finally {
-            System.err.printf("      processEach(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - u);
+//            System.err.printf("      processEach(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - u);
           }
         }
         System.err.printf("constructWeakened(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - t);
@@ -328,7 +328,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
                     .forEach(ret::add));
         return ret;
       } finally {
-        System.err.printf(" tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
+        System.err.printf("  tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
       }
     }
 

@@ -28,15 +28,6 @@ public abstract class CasaExperimentBase extends PeerJExperimentBase {
       return format("%s:t=%s:algorithm=%s:constraintHandling=%s", def, strength, algorithm, constraintHandlingMethod);
     }
 
-    static Spec create(CasaDataSet def) {
-      return new Builder()
-          .def(def)
-          .strength(2)
-          .algorithm(IPOG)
-          .constraintHandlingMethod(FORBIDDEN_TUPLES)
-          .build();
-    }
-
     public static class Builder extends PeerJExperimentBase.Spec.Builder<Builder> {
       CasaDataSet def;
 

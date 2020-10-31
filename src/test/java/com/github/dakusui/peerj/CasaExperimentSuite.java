@@ -29,7 +29,7 @@ public class CasaExperimentSuite {
 
   public static class Apache4 extends CasaExperimentParameterized {
     @Rule
-    public Timeout globalTimeout = new Timeout(20, MINUTES);
+    public Timeout globalTimeout = new Timeout(300, MINUTES);
 
     public Apache4(Spec spec) {
       super(spec);
@@ -43,7 +43,7 @@ public class CasaExperimentSuite {
 
   public static class Bugzilla4 extends CasaExperimentParameterized {
     @Rule
-    public Timeout globalTimeout = new Timeout(20, MINUTES);
+    public Timeout globalTimeout = new Timeout(40, MINUTES);
 
     public Bugzilla4(Spec spec) {
       super(spec);
@@ -94,7 +94,7 @@ public class CasaExperimentSuite {
 
   public static class Gcc5 extends CasaExperimentParameterized {
     @Rule
-    public Timeout globalTimeout = new Timeout(20, MINUTES);
+    public Timeout globalTimeout = new Timeout(40, MINUTES);
 
     public Gcc5(Spec spec) {
       super(spec);
@@ -108,7 +108,7 @@ public class CasaExperimentSuite {
 
   public static class Gcc6 extends CasaExperimentParameterized {
     @Rule
-    public Timeout globalTimeout = new Timeout(30, MINUTES);
+    public Timeout globalTimeout = new Timeout(40, MINUTES);
 
     public Gcc6(Spec spec) {
       super(spec);

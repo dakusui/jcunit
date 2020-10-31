@@ -5,12 +5,13 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.junit.runners.Parameterized;
 
-import java.io.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
@@ -18,9 +19,8 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
 import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
-import static com.github.dakusui.peerj.utils.CasaDataSet.*;
+import static com.github.dakusui.peerj.utils.CasaDataSet.values;
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -78,6 +78,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     }
   }
 
+  @Ignore
   @Test
   public void joinWithStandardPartitioner() {
     StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
