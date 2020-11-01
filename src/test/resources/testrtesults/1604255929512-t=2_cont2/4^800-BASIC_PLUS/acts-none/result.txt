@@ -1,0 +1,1 @@
+function:conductActsExperiment;input:[4^800-BASIC_PLUS:t=2:algorithm=IPOG:constraintHandling=SOLVER];output:[size:79];21013[msec]
