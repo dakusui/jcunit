@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<System name="unknown">
+  <Parameters>
+    <Parameter id="0" name="p0" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="1" name="p1" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="2" name="p2" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="3" name="p3" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="4" name="p4" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="5" name="p5" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="6" name="p6" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="7" name="p7" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="8" name="p8" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="9" name="p9" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="10" name="p10" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="11" name="p11" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="12" name="p12" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="13" name="p13" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="14" name="p14" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="15" name="p15" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="16" name="p16" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="17" name="p17" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="18" name="p18" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    <Parameter id="19" name="p19" type="0">
+      <values>
+        <value>0</value>
+        <value>1</value>
+        <value>2</value>
+        <value>3</value>
+      </values>
+      <basechoices />
+      <invalidValues />
+    </Parameter>
+
+    </Parameters>
+  <Relations>
+    <Relation Strength="2" Default="false">
+      <Parameter name="p0">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p1">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p2">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p3">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p4">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p5">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p6">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p7">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p8">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p9">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p10">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p11">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p12">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p13">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p14">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p15">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p16">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p17">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p18">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p19">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+    </Relation>
+    <Relation Strength="4" Default="false">
+      <Parameter name="p0">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p1">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p2">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p3">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p4">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p5">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p6">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p7">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p8">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p9">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+    </Relation>
+    <Relation Strength="4" Default="false">
+      <Parameter name="p10">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p11">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p12">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p13">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p14">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p15">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p16">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p17">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p18">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+      <Parameter name="p19">
+        <values>
+          <value>0</value>
+          <value>1</value>
+          <value>2</value>
+          <value>3</value>
+        </values>
+      </Parameter>
+
+    </Relation>
+  </Relations>
+  <Constraints>
+    <Constraint text="p1 &lt;= p0 || p3 &lt; p2 || p4 == p5 || p7 &lt; p6 || p1 &lt; p8 &amp;&amp; p0 &lt; p9 &amp;&amp; p1 &lt; p8 &amp;&amp; p2 &lt; p7 &amp;&amp; p3 &lt; p6 &amp;&amp; p4 &lt; p5">
+    <Parameters>
+      <Parameter name="p0"/>
+      <Parameter name="p1"/>
+      <Parameter name="p2"/>
+      <Parameter name="p3"/>
+      <Parameter name="p4"/>
+      <Parameter name="p5"/>
+      <Parameter name="p6"/>
+      <Parameter name="p7"/>
+      <Parameter name="p8"/>
+      <Parameter name="p9"/>
+    </Parameters>
+    </Constraint>
+    <Constraint text="p11 &lt;= p10 || p13 &lt; p12 || p14 == p15 || p17 &lt; p16 || p11 &lt; p18 &amp;&amp; p10 &lt; p19 &amp;&amp; p11 &lt; p18 &amp;&amp; p12 &lt; p17 &amp;&amp; p13 &lt; p16 &amp;&amp; p14 &lt; p15">
+    <Parameters>
+      <Parameter name="p10"/>
+      <Parameter name="p11"/>
+      <Parameter name="p12"/>
+      <Parameter name="p13"/>
+      <Parameter name="p14"/>
+      <Parameter name="p15"/>
+      <Parameter name="p16"/>
+      <Parameter name="p17"/>
+      <Parameter name="p18"/>
+      <Parameter name="p19"/>
+    </Parameters>
+    </Constraint>
+  </Constraints>
+
+</System>
