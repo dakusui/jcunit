@@ -190,6 +190,10 @@ public class IndustrialSimulationSuite {
   }
 
   private static List<PeerJExperimentParameterized.Spec> parametersWith(int strength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
+    return parametersWith(strength, -1, constraintHandlingMethod, begin, end);
+  }
+
+  private static List<PeerJExperimentParameterized.Spec> parametersWith(int baseStrength, int relationStrength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
     int startInclusive = begin / 20;
     int endExclusive = end / 20;
     return IntStream.range(startInclusive, endExclusive)
@@ -197,11 +201,12 @@ public class IndustrialSimulationSuite {
         .boxed()
         .flatMap(i -> Arrays.stream(ConstraintSet.values())
             .map(constraintSet -> new PeerJExperimentParameterized.Spec.Builder()
-                .strength(strength)
+                .strength(baseStrength)
                 .degree(i)
                 .rank(4)
                 .constraintSet(constraintSet)
                 .constraintHandlingMethod(constraintHandlingMethod)
+                .relationStrength(relationStrength)
                 .build()))
         .collect(toList());
   }
@@ -277,22 +282,37 @@ public class IndustrialSimulationSuite {
   }
 
   public static class VSCA_2_3 extends PeerJExperimentParameterized {
-    private static final int T = 2;
-
     public VSCA_2_3(Spec spec) {
       super(spec);
     }
 
     @Parameters
     public static List<Spec> parameters() {
-      return Arrays.asList(
-          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).relationStrength(3).build(),
-          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).relationStrength(3).build(),
-          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).relationStrength(3).build()
-      );
+      return parametersWith(2, 3, SOLVER, 20, 400);
     }
   }
 
+  public static class VSCA_2_4 extends PeerJExperimentParameterized {
+    public VSCA_2_4(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return parametersWith(2, 4, SOLVER, 20, 100);
+    }
+  }
+
+  public static class VSCA_2_4Cont extends PeerJExperimentParameterized {
+    public VSCA_2_4Cont(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return parametersWith(2, 4, SOLVER, 100, 180);
+    }
+  }
 
   public static class Strength4 extends PeerJExperimentParameterized {
     private static final int T = 4;
