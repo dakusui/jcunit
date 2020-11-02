@@ -8,6 +8,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.utils.PeerJUtils;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -54,6 +55,7 @@ public class IndustrialSimulationSuite {
         private int           rank;
         private ConstraintSet constraintSet;
         private String        prefix;
+        private int           relationStrength = -1;
 
         public Builder() {
           this.prefix("prefix").degree(100).rank(2).constraintSet(ConstraintSet.BASIC);
@@ -69,6 +71,17 @@ public class IndustrialSimulationSuite {
           return this;
         }
 
+        /**
+         * Used for testing VSCA generation
+         *
+         * @param relationStrength Strength for higher strength than base one and it is used for internal covering arrays joined by base one.
+         * @return This object.
+         */
+        public Builder relationStrength(int relationStrength) {
+          this.relationStrength = relationStrength;
+          return this;
+        }
+
         public Builder constraintSet(ConstraintSet constraintSet) {
           this.constraintSet = requireNonNull(constraintSet);
           return this;
@@ -81,7 +94,7 @@ public class IndustrialSimulationSuite {
 
         @Override
         public Spec build() {
-          FactorSpaceSpec factorySpaceSpec = PeerJUtils.createFactorySpaceSpec(this.constraintSet, this.prefix, this.degree);
+          FactorSpaceSpec factorySpaceSpec = PeerJUtils.createFactorySpaceSpec(this.constraintSet, this.prefix, this.degree, this.strength, this.relationStrength);
           for (int i = 0; i < this.degree; i++)
             factorySpaceSpec.addFactor(this.rank);
           return new Spec(
@@ -137,7 +150,15 @@ public class IndustrialSimulationSuite {
       File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, partitionerName);
       FactorSpace factorSpace = this.factorSpace();
       StopWatch<PeerJExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-          Printable.function("conductActsExperiment", (PeerJExperimentParameterized self) -> generateWithActs(baseDir, factorSpace, strength, algorithm(), constraintHandlingMethod())),
+          Printable.function("conductActsExperiment", (PeerJExperimentParameterized self) ->
+              generateWithActs(
+                  baseDir,
+                  factorSpace,
+                  factorSpace.relationStrength() >= 0
+                      ? -1
+                      : strength,
+                  algorithm(),
+                  constraintHandlingMethod())),
           (PeerJExperimentParameterized self) -> format("[%s]", self.spec),
           (List<Tuple> result) -> format("[size:%s]", result.size()));
       try {
@@ -196,6 +217,11 @@ public class IndustrialSimulationSuite {
     }
   }
 
+  /**
+   * Constraint Handling by forbidden-tuple mode is not practical for the
+   * "Industrial-scale" models because of its poor performance.
+   */
+  @Ignore
   public static class Strength2Cont extends PeerJExperimentParameterized {
     public Strength2Cont(Spec spec) {
       super(spec);
@@ -231,6 +257,11 @@ public class IndustrialSimulationSuite {
     }
   }
 
+  /**
+   * Constraint Handling by forbidden-tuple mode is not practical for the
+   * "Industrial-scale" models because of its poor performance.
+   */
+  @Ignore
   public static class Strength3ForbiddenTuples extends PeerJExperimentParameterized {
     public static final int T = 3;
 
@@ -243,116 +274,135 @@ public class IndustrialSimulationSuite {
       return parametersWith(T, FORBIDDEN_TUPLES, 20, 400);
     }
 
-    public static class Strength4 extends PeerJExperimentParameterized {
-      private static final int T = 4;
+  }
 
-      public Strength4(Spec spec) {
-        super(spec);
-      }
+  public static class VSCA_2_3 extends PeerJExperimentParameterized {
+    private static final int T = 2;
 
-      @Parameters
-      public static List<Spec> parameters() {
-        return Arrays.asList(
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
-        );
-      }
+    public VSCA_2_3(Spec spec) {
+      super(spec);
     }
 
-    public static class Strength4ForbiddenTuples extends PeerJExperimentParameterized {
-      private static final int T = 4;
+    @Parameters
+    public static List<Spec> parameters() {
+      return Arrays.asList(
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).relationStrength(3).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).relationStrength(3).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).relationStrength(3).build()
+      );
+    }
+  }
 
-      public Strength4ForbiddenTuples(Spec spec) {
-        super(spec);
-      }
 
-      @Parameters
-      public static List<Spec> parameters() {
-        return Arrays.asList(
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build()
-        );
-      }
+  public static class Strength4 extends PeerJExperimentParameterized {
+    private static final int T = 4;
+
+    public Strength4(Spec spec) {
+      super(spec);
     }
 
-    public static class Strength4Degree80 extends PeerJExperimentParameterized {
-      private static final int T = 4;
+    @Parameters
+    public static List<Spec> parameters() {
+      return Arrays.asList(
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
+      );
+    }
+  }
 
-      @Rule
-      public Timeout timeout = new Timeout(60, MINUTES);
+  public static class Strength5ForbiddenTuples extends PeerJExperimentParameterized {
+    private static final int T = 5;
 
-      public Strength4Degree80(Spec spec) {
-        super(spec);
-      }
+    @Rule
+    public Timeout timeout = new Timeout(40, MINUTES);
 
-      @Parameters
-      public static List<Spec> parameters() {
-        return Arrays.asList(
-            new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
-        );
-      }
+    public Strength5ForbiddenTuples(Spec spec) {
+      super(spec);
     }
 
-    public static class Strength5 extends PeerJExperimentParameterized {
-      private static final int T = 5;
+    @Parameters
+    public static List<Spec> parameters() {
+      return Arrays.asList(
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build()
+      );
+    }
+  }
 
-      @Rule
-      public Timeout timeout = new Timeout(40, MINUTES);
+  public static class Strength4Degree80 extends PeerJExperimentParameterized {
+    private static final int T = 4;
 
-      public Strength5(Spec spec) {
-        super(spec);
-      }
+    @Rule
+    public Timeout timeout = new Timeout(60, MINUTES);
 
-      @Parameters
-      public static List<Spec> parameters() {
-        return Arrays.asList(
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
-        );
-      }
+    public Strength4Degree80(Spec spec) {
+      super(spec);
     }
 
-    public static class Strength5ForbiddenTuples extends PeerJExperimentParameterized {
-      private static final int T = 5;
+    @Parameters
+    public static List<Spec> parameters() {
+      return Arrays.asList(
+          new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
+      );
+    }
+  }
 
-      @Rule
-      public Timeout timeout = new Timeout(40, MINUTES);
+  public static class Strength5 extends PeerJExperimentParameterized {
+    private static final int T = 5;
 
-      public Strength5ForbiddenTuples(Spec spec) {
-        super(spec);
-      }
+    @Rule
+    public Timeout timeout = new Timeout(40, MINUTES);
 
-      @Parameters
-      public static List<Spec> parameters() {
-        return Arrays.asList(
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
-            new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build()
-        );
-      }
+    public Strength5(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return Arrays.asList(
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
+      );
+    }
+  }
+
+  public static class Strength4ForbiddenTuples extends PeerJExperimentParameterized {
+    private static final int T = 4;
+
+    public Strength4ForbiddenTuples(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return Arrays.asList(
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(20).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(40).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build(),
+          new Spec.Builder().strength(T).degree(60).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(FORBIDDEN_TUPLES).build()
+      );
     }
   }
 }

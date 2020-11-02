@@ -25,7 +25,7 @@ import static java.util.stream.Collectors.toSet;
 public enum PeerJUtils2 {
   ;
 
-  public static final long   SESSION_ID = System.currentTimeMillis();
+  public static final long SESSION_ID = System.currentTimeMillis();
 
   public static File baseDirFor(String datasetName, int strength, String generationMode, String partitionerName) {
     return new File(
@@ -73,8 +73,8 @@ public enum PeerJUtils2 {
         allConstraints.removeAll(rightConstraints);
         System.out.println(allConstraints.size());
         requireState(allConstraints, isEmpty());
-        ret.add(FactorSpace.create(leftFactors, leftConstraints));
-        ret.add(FactorSpace.create(rightFactors, rightConstraints));
+        ret.add(FactorSpace.create(leftFactors, leftConstraints, factorSpace.baseStrength(), factorSpace.relationStrength()));
+        ret.add(FactorSpace.create(rightFactors, rightConstraints, factorSpace.baseStrength(), factorSpace.relationStrength()));
         return ret;
       }
 
@@ -118,7 +118,9 @@ public enum PeerJUtils2 {
                 .filter(k -> factorSpace.getFactorNames().contains(k))
                 .map(factorSpace::getFactor)
                 .collect(toList()),
-            constraints);
+            constraints,
+            factorSpace.baseStrength(),
+            factorSpace.relationStrength());
       }
     };
   }

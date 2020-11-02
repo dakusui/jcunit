@@ -31,6 +31,7 @@ public enum ActsUtils {
     b.append("<System name=\"").append(systemName).append("\">\n");
     FactorSpaceAdapter factorSpaceAdapter = new FactorSpaceAdapter(factorSpace);
     renderParameters(b, 1, factorSpaceAdapter);
+    renderRelations(b, 1, factorSpaceAdapter, factorSpace.baseStrength(), factorSpace.relationStrength());
     renderConstraints(b, 1, factorSpaceAdapter, factorSpace.getConstraints());
     b.append("\n");
     b.append("</System>");
@@ -223,6 +224,72 @@ public enum ActsUtils {
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</Constraints>");
   }
+
+  /**
+   * <pre>
+   *     <Relations>
+   *     <Relation Strength="3" Default="false">
+   *       <Parameter name="p0">
+   *         <value>0</value>
+   *         <value>1</value>
+   *       </Parameter>
+   *       <Parameter name="p1">
+   *         <value>0</value>
+   *         <value>1</value>
+   *       </Parameter>
+   *       <Parameter name="p2">
+   *         <value>0</value>
+   *         <value>1</value>
+   *       </Parameter>
+   *       ...
+   *       <Parameter name="p51">
+   *         <value>0</value>
+   *         <value>1</value>
+   *       </Parameter>
+   *     </Relation>
+   * </pre>
+   */
+  private static void renderRelations(StringBuilder b, int indentLevel, FactorSpaceAdapter factorSpaceAdapter, int strength, int relationStrength) {
+    if (relationStrength < 0)
+      return;
+    StringUtils.appendLine(b, indentLevel, "<Relations>");
+    indentLevel++;
+    indentLevel = renderRelation(b, indentLevel, factorSpaceAdapter, 0, factorSpaceAdapter.numParameters , strength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceAdapter, 0, factorSpaceAdapter.numParameters / 2, relationStrength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceAdapter, factorSpaceAdapter.numParameters / 2, factorSpaceAdapter.numParameters, relationStrength);
+    indentLevel--;
+    StringUtils.appendLine(b, indentLevel, "</Relations>");
+  }
+
+  private static int renderRelation(StringBuilder b, int indentLevel, FactorSpaceAdapter factorSpaceAdapter, int begin, int end, int relationStrength) {
+    StringUtils.appendLine(b, indentLevel, format("<Relation Strength=\"%s\" Default=\"false\">", relationStrength));
+    indentLevel++;
+    for (int i = begin; i < end; i++) {
+      indentLevel = renderParameterInRelation(b, indentLevel, i, factorSpaceAdapter);
+    }
+    indentLevel--;
+    StringUtils.appendLine(b, indentLevel, "</Relation>");
+    return indentLevel;
+  }
+
+  private static int renderParameterInRelation(StringBuilder b, int indentLevel, int parameterId, FactorSpaceAdapter factorSpaceAdapter) {
+    b.append(StringUtils.indent(indentLevel))
+        .append("<Parameter name=\"").append(factorSpaceAdapter.name.apply(parameterId)).append("\">")
+        .append(StringUtils.newLine());
+    indentLevel++;
+    StringUtils.appendLine(b, indentLevel, "<values>");
+    Factor factor = factorSpaceAdapter.factor.apply(parameterId);
+    indentLevel++;
+    for (int j = 0; j < factor.getLevels().size(); j++) {
+      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceAdapter.value.apply(parameterId).apply(j)).append("</value>").append(StringUtils.newLine());
+    }
+    indentLevel--;
+    StringUtils.appendLine(b, indentLevel, "</values>");
+    indentLevel--;
+    StringUtils.appendLine(b, indentLevel, "</Parameter>\n");
+    return indentLevel;
+  }
+
 
   /**
    * <pre>

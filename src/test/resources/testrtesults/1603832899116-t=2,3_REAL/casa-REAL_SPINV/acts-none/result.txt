@@ -1,1 +1,0 @@
-function:conductActsExperiment;input:[REAL_SPINV:t=3:algorithm=IPOG:constraintHandling=FORBIDDEN_TUPLES];output:[size:286];1089[msec]

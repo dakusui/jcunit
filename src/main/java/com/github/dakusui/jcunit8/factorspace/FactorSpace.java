@@ -13,6 +13,10 @@ import static java.lang.String.format;
 
 public interface FactorSpace {
   static FactorSpace create(List<? extends Factor> factors, List<Constraint> constraints) {
+    return create(factors, constraints, -1, -1);
+  }
+
+  static FactorSpace create(List<? extends Factor> factors, List<Constraint> constraints, int baseStrength, int relationStrength) {
     List<Constraint> work = new ArrayList<>(constraints);
     return new FactorSpace() {
       final Map<String, Factor> factorMap = new LinkedHashMap<String, Factor>() {{
@@ -36,8 +40,21 @@ public interface FactorSpace {
       }
 
       @Override
+      public int relationStrength() {
+        return relationStrength;
+      }
+
+      @Override
+      public int baseStrength() {
+        return baseStrength;
+      }
+
+      @Override
       public String toString() {
-        return format("factors:%s,constraints:%s", factors, constraints);
+        if (relationStrength < 0) {
+          return format("factors:%s,constraints:%s", factors, constraints);
+        }
+        return format("factors:%s,constraints:%s,relationStrength=%s", factors, constraints, relationStrength);
       }
     };
   }
@@ -48,6 +65,10 @@ public interface FactorSpace {
 
   Factor getFactor(String name);
 
+  int relationStrength();
+
+  int baseStrength();
+
   default Stream<Tuple> stream() {
     return new StreamableTupleCartesianator(getFactors()).stream();
   }
@@ -55,4 +76,5 @@ public interface FactorSpace {
   default List<String> getFactorNames() {
     return FactorUtils.toFactorNames(this.getFactors());
   }
+
 }

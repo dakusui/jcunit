@@ -32,12 +32,13 @@ public enum PeerJUtils {
     }
   }
 
-  public static FactorSpaceSpec createFactorySpaceSpec(ConstraintSet constraintSet, final String prefix, int degree) {
+  public static FactorSpaceSpec createFactorySpaceSpec(ConstraintSet constraintSet, final String prefix, int degree, int baseStrength, int relationStrength) {
     return new FactorSpaceSpec(prefix) {{
       FactorSpaceSpec factorSpaceSpec = this.constraintSetName(constraintSet.name());
       for (int offset = 0; offset < degree; offset += 10)
         constraintSet.constraintFactory(offset).ifPresent(factorSpaceSpec::addConstraint);
-    }};
+    }}.baseStrength(baseStrength)
+        .relationStrength(relationStrength);
   }
 
   public enum GenerationMode {
@@ -48,8 +49,8 @@ public enum PeerJUtils {
         int lhsDegree = degree / 2;
         int rhsDegree = degree / 2;
         return new JoinExperiment.Builder()
-            .lhs(createFactorySpaceSpec(constraintSet, "L", lhsDegree).addFactors(order, lhsDegree))
-            .rhs(createFactorySpaceSpec(constraintSet, "R", rhsDegree).addFactors(order, rhsDegree))
+            .lhs(createFactorySpaceSpec(constraintSet, "L", lhsDegree, -1, -1).addFactors(order, lhsDegree))
+            .rhs(createFactorySpaceSpec(constraintSet, "R", rhsDegree, -1, -1).addFactors(order, rhsDegree))
             .strength(strength)
             .times(1)
             .joiner(Joiner.WeakenProduct::new)

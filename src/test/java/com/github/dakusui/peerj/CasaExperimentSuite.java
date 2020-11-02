@@ -10,20 +10,30 @@ import org.junit.runners.Parameterized.Parameters;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(Enclosed.class)
 public class CasaExperimentSuite {
-  public static class Lower extends CasaExperimentParameterized {
-    public Lower(Spec spec) {
+  public static class Strength2 extends CasaExperimentParameterized {
+    public Strength2(Spec spec) {
       super(spec);
     }
 
     @Parameters
     public static List<Spec> parameters() {
-      return parameters(each -> each.categoryName().equals("Real"), asList(2, 3));
+      return parameters(each -> each.categoryName().equals("Real"), singletonList(2));
+    }
+  }
+
+  public static class Strength3 extends CasaExperimentParameterized {
+    public Strength3(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return parameters(each -> each.categoryName().equals("Real"), singletonList(3));
     }
   }
 

@@ -122,7 +122,7 @@ public class Acts {
                extend - extend from an existing test set
       -Dchandler=no|solver|forbiddentuples
                no - ignore all constraints
-               solver - handle constraints using CSP solver
+               solver - handle constraints using CSP solver　
                forbiddentuples - handle constraints using minimum forbidden tuples (default)
      */
     final File outFile = outFile(baseDir);

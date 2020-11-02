@@ -1,1 +1,0 @@
-java -Ddoi=3 -Dalgo=ipog -Dchandler=forbiddentuples -Doutput=csv -jar src/test/resources/bin/acts_3.0.jar target/acts/1603832899116/casa-TCAS/join-simple/3/56/acts.xml target/acts/1603832899116/casa-TCAS/join-simple/3/56/acts.ca

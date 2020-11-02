@@ -98,7 +98,6 @@ public abstract class PeerJExperimentBase {
   }
 
   private static SchemafulTupleSet generateWithCombinatorialJoin(Requirement requirement, File baseDir, List<FactorSpace> factorSpaces, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
-    int strength = requirement.strength();
     return factorSpaces
         .parallelStream()
         .peek(factorSpace -> System.err.println("->" + factorSpace))
@@ -109,8 +108,10 @@ public abstract class PeerJExperimentBase {
         })
         .map(factorSpace -> PeerJExperimentBase.generateWithActs(
             baseDir,
-            factorSpace,
-            strength,
+            FactorSpace.create(factorSpace.getFactors(), factorSpace.getConstraints()),
+            factorSpace.relationStrength() >= 0
+                ? factorSpace.relationStrength()
+                : requirement.strength(),
             algorithm,
             constraintHandlingMethod))
         .map(arr -> arr.stream().map((Tuple t) -> renameFactors(t, currentThread().getId())).collect(toList()))

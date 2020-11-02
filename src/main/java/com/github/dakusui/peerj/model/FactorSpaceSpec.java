@@ -16,12 +16,18 @@ import static java.util.stream.Collectors.toList;
 
 public class FactorSpaceSpec {
   protected final String                                             prefix;
-  private         String                                             constraintSetName  = null;
-  protected final List<Function<List<String>, NormalizedConstraint>> constraints        = new LinkedList<>();
+  private         String                                             constraintSetName = null;
+  protected final List<Function<List<String>, NormalizedConstraint>> constraints       = new LinkedList<>();
   /**
    * Descending order by the number of levels of factors.
    */
-  protected final SortedMap<Integer, Integer>                        factorSpecs        = new TreeMap<>((o1, o2) -> o2 - o1);
+  protected final SortedMap<Integer, Integer>                        factorSpecs       = new TreeMap<>((o1, o2) -> o2 - o1);
+
+  /**
+   * A non-negative value is set to experiment VSCA generation.
+   */
+  protected int relationStrength = -1;
+  protected int baseStrength     = -1;
 
   public FactorSpaceSpec(String prefix) {
     this.prefix = prefix;
@@ -44,10 +50,23 @@ public class FactorSpaceSpec {
     return this;
   }
 
+  public FactorSpaceSpec baseStrength(int baseStrength) {
+    this.baseStrength = baseStrength;
+    return this;
+  }
+
+  public FactorSpaceSpec relationStrength(int relationStrength) {
+    this.relationStrength = relationStrength;
+    return this;
+  }
+
   private String createSignaturePrivate() {
-    return this.factorSpecs.keySet().stream()
+    String ret = this.factorSpecs.keySet().stream()
         .map(k -> format("%s^%s", k, this.factorSpecs.get(k)))
         .collect(joining(","));
+    if (this.relationStrength < 0)
+      return ret;
+    return ret + "-relatioonStrength:" + relationStrength;
   }
 
   public String createSignature() {
@@ -93,7 +112,9 @@ public class FactorSpaceSpec {
         factors,
         constraints.stream()
             .map(each -> each.apply(factors.stream().map(Factor::getName).collect(toList())))
-            .collect(toList()));
+            .collect(toList()),
+        this.baseStrength,
+        this.relationStrength);
   }
 
   @Override
