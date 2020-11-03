@@ -29,9 +29,9 @@ import static java.lang.Math.max;
 import static java.util.Objects.requireNonNull;
 
 public class JoinExperiment implements Experiment {
-  private final Builder spec;
+  protected final Builder spec;
 
-  private JoinExperiment(JoinExperiment.Builder builder) {
+  protected JoinExperiment(JoinExperiment.Builder builder) {
     requireNonNull(builder);
     requireNonNull(builder.joinerFactory);
     requireNonNull(builder.lhsSpec);
@@ -39,59 +39,11 @@ public class JoinExperiment implements Experiment {
     this.spec = requireNonNull(builder);
   }
 
-  public void exercise() {
-    List<Tuple> joined = null;
-    List<Tuple> lhs = loadOrGenerateCoveringArray(
-        this.spec.lhsSpec,
-        this.spec.lhsStrength.applyAsInt(this.spec.strength),
-        this.spec.generator);
-    List<Tuple> rhs = loadOrGenerateCoveringArray(
-        this.spec.rhsSpec,
-        this.spec.rhsStrength.applyAsInt(this.spec.strength),
-        this.spec.generator);
-    System.out.println(JoinReport.header());
-    for (int i = 0; i < spec.times; i++) {
-      CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
-      joined = exerciseJoin(lhs, rhs, this.spec.strength, this.spec.joinerFactory);
-      System.out.printf(
-          "%s%n",
-          new JoinReport(
-              formatCoveringArray(lhs, this.spec.lhsStrength, this.spec.lhsSpec),
-              formatCoveringArray(rhs, this.spec.rhsStrength, this.spec.rhsSpec),
-              joined.size(),
-              stopWatch.get()
-          )
-      );
-    }
-    if (spec.verification) {
-      FactorSpace joinedFactorSpace = FactorSpace.create(
-          new ArrayList<Factor>(spec.lhsSpec.numFactors() + spec.rhsSpec.numFactors()) {{
-            addAll(spec.lhsSpec.toFactorSpace().getFactors());
-            addAll(spec.rhsSpec.toFactorSpace().getFactors());
-          }},
-          Collections.emptyList()
-      );
-      assertCoveringArray(joined, joinedFactorSpace, spec.strength);
-    }
-  }
-
-  public void joinAndPrint() {
-    List<Tuple> lhs = loadOrGenerateCoveringArray(
-        this.spec.lhsSpec,
-        this.spec.lhsStrength.applyAsInt(this.spec.strength),
-        this.spec.generator);
-    List<Tuple> rhs = loadOrGenerateCoveringArray(
-        this.spec.rhsSpec,
-        this.spec.rhsStrength.applyAsInt(this.spec.strength),
-        this.spec.generator);
-    exerciseJoin(lhs, rhs, this.spec.strength, this.spec.joinerFactory).forEach(System.out::println);
-  }
-
-  private String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpec p2) {
+  public String formatCoveringArray(List<Tuple> ca, IntUnaryOperator p, FactorSpaceSpec p2) {
     return String.format("|CA(%s, %s)|=%s", p.applyAsInt(this.spec.strength), p2.createSignature(), ca.size());
   }
 
-  private static List<Tuple> exerciseJoin(List<Tuple> lhs, List<Tuple> rhs, int strength, Function<Requirement, Joiner> joinerFactory) {
+  public static List<Tuple> exerciseJoin(List<Tuple> lhs, List<Tuple> rhs, int strength, Function<Requirement, Joiner> joinerFactory) {
     return CoveringArrayGenerationUtils.join(
         lhs,
         rhs,
@@ -180,15 +132,15 @@ public class JoinExperiment implements Experiment {
   }
 
   public static class Builder implements Cloneable {
-    Function<Requirement, Joiner> joinerFactory;
-    FactorSpaceSpec               lhsSpec;
-    FactorSpaceSpec               rhsSpec;
-    Generator                     generator   = CoveringArrayGenerationUtils::generateWithIpoGplus;
-    int                           strength    = 2;
-    IntUnaryOperator              lhsStrength = i -> i;
-    IntUnaryOperator              rhsStrength = i -> i;
-    int                           times       = 1;
-    private boolean verification;
+    public Function<Requirement, Joiner> joinerFactory;
+    public FactorSpaceSpec               lhsSpec;
+    public FactorSpaceSpec rhsSpec;
+    public Generator       generator   = CoveringArrayGenerationUtils::generateWithIpoGplus;
+    public int              strength    = 2;
+    public IntUnaryOperator lhsStrength = i -> i;
+    public  IntUnaryOperator rhsStrength = i -> i;
+    public int     times       = 1;
+    public boolean verification;
 
     public Builder lhs(FactorSpaceSpec lhs) {
       return this.lhs(lhs, i -> i);

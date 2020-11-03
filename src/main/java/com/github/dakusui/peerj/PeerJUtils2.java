@@ -167,6 +167,6 @@ public enum PeerJUtils2 {
     File baseDir = baseDirFor(datasetName, strength, generationMode, partitionerName).getParentFile();
     //noinspection ResultOfMethodCallIgnored
     baseDir.mkdirs();
-    return new File(baseDir, "result.txt");
+    return new File(new File(baseDir, Integer.toString(strength)), "result.txt");
   }
 }
