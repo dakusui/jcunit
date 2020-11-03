@@ -162,7 +162,7 @@ public class IndustrialSimulationSuite {
                       ? -1
                       : strength,
                   algorithm(),
-                  GenerationMode.SCRATCH, constraintHandlingMethod())),
+                  constraintHandlingMethod())),
           (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
           (List<Tuple> result) -> format("[size:%s]", result.size()));
       try {
@@ -200,12 +200,13 @@ public class IndustrialSimulationSuite {
       String partitionerName = "incremental";
       File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, partitionerName);
       FactorSpace factorSpace = this.factorSpace();
+      SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithActs(new File(baseDir, "base"), baseFactorSpaceFrom(factorSpace), strength, algorithm(), constraintHandlingMethod()));
       StopWatch<PeerJExperimentScratchParameterized, List<Tuple>> stopWatch = new StopWatch<>(
           Printable.function("conductIncrementalActsExperiment", (PeerJExperimentScratchParameterized self) ->
               extendWithActs(
                   baseDir,
                   factorSpace,
-                  null,
+                  base,
                   factorSpace.relationStrength() >= 0
                       ? -1
                       : strength,
@@ -229,9 +230,9 @@ public class IndustrialSimulationSuite {
       File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, suffix);
       FactorSpace factorSpace = this.factorSpace();
       Requirement requirement = requirement(strength);
-      SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithActs(new File(baseDir, "base"), baseFactorSpaceFrom(factorSpace), strength, algorithm(), GenerationMode.SCRATCH, constraintHandlingMethod()));
+      SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithActs(new File(baseDir, "base"), baseFactorSpaceFrom(factorSpace), strength, algorithm(), constraintHandlingMethod()));
       StopWatch<PeerJExperimentScratchParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-          Printable.function("conductIncrementalJoinExperiment", (PeerJExperimentScratchParameterized self) -> extendWithCombinatorialJoin(requirement, baseDir, factorSpace, base,  algorithm(), constraintHandlingMethod())),
+          Printable.function("conductIncrementalJoinExperiment", (PeerJExperimentScratchParameterized self) -> extendWithCombinatorialJoin(requirement, baseDir, factorSpace, base, algorithm(), constraintHandlingMethod())),
           (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
           (List<Tuple> result) -> format("[size:%s]", result.size()));
       try {

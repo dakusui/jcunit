@@ -23,6 +23,7 @@ import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdO
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
 import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static com.github.dakusui.peerj.PeerJExperimentBase.GenerationMode.EXTEND;
+import static com.github.dakusui.peerj.PeerJExperimentBase.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
 import static com.github.dakusui.peerj.acts.Acts.runActs;
 import static java.lang.String.format;
@@ -94,8 +95,8 @@ public abstract class PeerJExperimentBase {
 
   abstract protected int strength();
 
-  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, Algorithm algorithm, GenerationMode generationMode, ConstraintHandlingMethod constraintHandlingMethod) {
-    return runActs(baseDir, factorSpace, strength, algorithm.name, generationMode.name, constraintHandlingMethod.name);
+  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+    return runActs(baseDir, factorSpace, strength, algorithm.name, SCRATCH.name, constraintHandlingMethod.name);
   }
 
   public static List<Tuple> generateWithCombinatorialJoin(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
@@ -115,7 +116,6 @@ public abstract class PeerJExperimentBase {
                 ? factorSpace1.relationStrength()
                 : requirement.strength(),
             algorithm,
-            GenerationMode.SCRATCH,
             constraintHandlingMethod))
         .map((List<Tuple> tuples) -> renameFactorsInTuples(tuples, currentThread().getId()))
         .map(SchemafulTupleSet::fromTuples)
@@ -148,7 +148,7 @@ public abstract class PeerJExperimentBase {
                     additionFactorSpace,
                     requirement.strength(),
                     algorithm,
-                    GenerationMode.SCRATCH, constraintHandlingMethod), 2)))
+                    constraintHandlingMethod), 2)))
         .reduce(new Joiner.WeakenProduct(requirement))
         .orElseThrow(NoSuchElementException::new);
   }
