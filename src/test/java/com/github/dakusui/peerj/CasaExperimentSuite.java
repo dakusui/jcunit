@@ -1,5 +1,6 @@
 package com.github.dakusui.peerj;
 
+import com.github.dakusui.peerj.testbases.CasaExperimentParameterized;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;

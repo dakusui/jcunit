@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.testbases;
 
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.model.ConstraintSet;
@@ -12,6 +12,39 @@ import static java.util.Objects.requireNonNull;
 
 @RunWith(Parameterized.class)
 public abstract class PeerJExperimentParameterized extends PeerJExperimentBase {
+  public final    Spec        spec;
+  protected final FactorSpace factorSpace;
+  protected final String      dataSetName;
+
+  public PeerJExperimentParameterized(Spec spec) {
+    this.spec = spec;
+    this.factorSpace = spec.factorSpace;
+    this.dataSetName = spec.factorSpaceName;
+  }
+
+  @Override
+  protected ConstraintHandlingMethod constraintHandlingMethod() {
+    return spec.constraintHandlingMethod;
+  }
+
+  @Override
+  protected Algorithm algorithm() {
+    return spec.algorithm;
+  }
+
+  @Override
+  protected int strength() {
+    return spec.strength;
+  }
+
+  protected FactorSpace factorSpace() {
+    return this.factorSpace;
+  }
+
+  protected String dataSetName() {
+    return this.dataSetName;
+  }
+
   public static class Spec extends PeerJExperimentBase.Spec {
     final String      factorSpaceName;
     final FactorSpace factorSpace;

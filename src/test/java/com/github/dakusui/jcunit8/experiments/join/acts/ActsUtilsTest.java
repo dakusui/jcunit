@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.PeerJExperimentBase;
+import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
 import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.acts.ActsUtils;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;

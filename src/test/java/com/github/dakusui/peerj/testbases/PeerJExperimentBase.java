@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.testbases;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -21,9 +21,9 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
-import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
-import static com.github.dakusui.peerj.PeerJExperimentBase.GenerationMode.EXTEND;
-import static com.github.dakusui.peerj.PeerJExperimentBase.GenerationMode.SCRATCH;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.GenerationMode.EXTEND;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
 import static com.github.dakusui.peerj.acts.Acts.runActs;
 import static java.lang.String.format;
@@ -33,9 +33,9 @@ import static java.util.stream.Collectors.toSet;
 
 public abstract class PeerJExperimentBase {
   public abstract static class Spec {
-    final int                      strength;
-    final Algorithm                algorithm;
-    final ConstraintHandlingMethod constraintHandlingMethod;
+    public final int                      strength;
+    public final Algorithm                algorithm;
+    public final ConstraintHandlingMethod constraintHandlingMethod;
 
     public Spec(int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
       this.strength = strength;
@@ -49,9 +49,9 @@ public abstract class PeerJExperimentBase {
     }
 
     public abstract static class Builder<B extends Builder<B>> {
-      int                      strength;
-      Algorithm                algorithm;
-      ConstraintHandlingMethod constraintHandlingMethod;
+      protected int                      strength;
+      protected Algorithm                algorithm;
+      protected ConstraintHandlingMethod constraintHandlingMethod;
 
       public Builder() {
         this.strength(2).algorithm(Algorithm.IPOG).constraintHandlingMethod(FORBIDDEN_TUPLES);

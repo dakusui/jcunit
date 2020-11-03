@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.ut;
 
 import com.github.dakusui.combinatoradix.Combinator;
 import org.junit.Test;

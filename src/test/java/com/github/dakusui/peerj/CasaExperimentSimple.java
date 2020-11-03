@@ -1,6 +1,7 @@
 package com.github.dakusui.peerj;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.peerj.testbases.CasaExperimentBase;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.junit.Before;

@@ -1,9 +1,8 @@
-package com.github.dakusui.peerj.runners;
+package com.github.dakusui.peerj.ut.runners;
 
 import com.github.dakusui.jcunit8.experiments.join.acts.ActsUtilsTest;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.Experiment;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;

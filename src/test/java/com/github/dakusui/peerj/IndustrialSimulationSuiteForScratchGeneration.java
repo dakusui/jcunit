@@ -1,6 +1,8 @@
 package com.github.dakusui.peerj;
 
 import com.github.dakusui.peerj.model.ConstraintSet;
+import com.github.dakusui.peerj.testbases.PeerJExperimentScratchParameterized;
+import com.github.dakusui.peerj.ut.runners.PeerJExperimentIncrementalParameterized;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.experimental.runners.Enclosed;
@@ -10,37 +12,13 @@ import org.junit.runners.Parameterized.Parameters;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.IntStream;
 
-import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
-import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.SOLVER;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.SOLVER;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.stream.Collectors.toList;
 
 @RunWith(Enclosed.class)
 public class IndustrialSimulationSuiteForScratchGeneration {
-  private static List<PeerJExperimentScratchParameterized.Spec> parametersWith(int strength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
-    return parametersWith(strength, -1, constraintHandlingMethod, begin, end);
-  }
-
-  private static List<PeerJExperimentScratchParameterized.Spec> parametersWith(int baseStrength, int relationStrength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
-    int startInclusive = begin / 20;
-    int endExclusive = end / 20;
-    return IntStream.range(startInclusive, endExclusive)
-        .map(i -> i * 20)
-        .boxed()
-        .flatMap(i -> Arrays.stream(ConstraintSet.values())
-            .map(constraintSet -> new PeerJExperimentScratchParameterized.Spec.Builder()
-                .strength(baseStrength)
-                .degree(i)
-                .rank(4)
-                .constraintSet(constraintSet)
-                .constraintHandlingMethod(constraintHandlingMethod)
-                .relationStrength(relationStrength)
-                .build()))
-        .collect(toList());
-  }
-
   public static class Strength2 extends PeerJExperimentScratchParameterized {
     public Strength2(Spec spec) {
       super(spec);
@@ -48,7 +26,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(2, SOLVER, 20, 400);
+      return PeerJExperimentIncrementalParameterized.parametersWith(2, SOLVER, 20, 400);
     }
   }
 
@@ -64,7 +42,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(2, SOLVER, 400, 1000);
+      return PeerJExperimentIncrementalParameterized.parametersWith(2, SOLVER, 400, 1000);
     }
   }
 
@@ -75,7 +53,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(2, FORBIDDEN_TUPLES, 20, 400);
+      return PeerJExperimentIncrementalParameterized.parametersWith(2, FORBIDDEN_TUPLES, 20, 400);
     }
   }
 
@@ -88,7 +66,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(T, SOLVER, 20, 400);
+      return PeerJExperimentIncrementalParameterized.parametersWith(T, SOLVER, 20, 400);
     }
   }
 
@@ -106,7 +84,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(T, FORBIDDEN_TUPLES, 20, 400);
+      return PeerJExperimentIncrementalParameterized.parametersWith(T, FORBIDDEN_TUPLES, 20, 400);
     }
 
   }
@@ -118,7 +96,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(2, 3, SOLVER, 20, 400);
+      return PeerJExperimentIncrementalParameterized.parametersWith(2, 3, SOLVER, 20, 400);
     }
   }
 
@@ -129,7 +107,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(2, 4, SOLVER, 20, 100);
+      return PeerJExperimentIncrementalParameterized.parametersWith(2, 4, SOLVER, 20, 100);
     }
   }
 
@@ -140,7 +118,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(2, 4, SOLVER, 100, 180);
+      return PeerJExperimentIncrementalParameterized.parametersWith(2, 4, SOLVER, 100, 180);
     }
   }
 

@@ -1,9 +1,10 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.testbases;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import com.github.dakusui.peerj.PeerJUtils2;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import com.github.dakusui.peerj.utils.CasaUtils;
 

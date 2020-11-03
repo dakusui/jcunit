@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.testbases;
 
 import java.util.function.Function;
 

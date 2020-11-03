@@ -5,23 +5,16 @@ import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
-import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.utils.ConstraintUtils.*;
-import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 
 public enum ActsUtils {
   ;
