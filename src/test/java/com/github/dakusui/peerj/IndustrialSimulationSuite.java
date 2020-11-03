@@ -2,9 +2,11 @@ package com.github.dakusui.peerj;
 
 import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.utils.PeerJUtils;
@@ -20,6 +22,7 @@ import org.junit.runners.Parameterized.Parameters;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -30,11 +33,12 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 @RunWith(Enclosed.class)
 public class IndustrialSimulationSuite {
   @RunWith(Parameterized.class)
-  public abstract static class PeerJExperimentParameterized extends PeerJExperimentBase {
+  public abstract static class PeerJExperimentScratchParameterized extends PeerJExperimentBase {
     public static class Spec extends PeerJExperimentBase.Spec {
       final String      factorSpaceName;
       final FactorSpace factorSpace;
@@ -112,7 +116,7 @@ public class IndustrialSimulationSuite {
     private final FactorSpace factorSpace;
     private final String      dataSetName;
 
-    public PeerJExperimentParameterized(Spec spec) {
+    public PeerJExperimentScratchParameterized(Spec spec) {
       this.spec = spec;
       this.factorSpace = spec.factorSpace;
       this.dataSetName = spec.factorSpaceName;
@@ -142,15 +146,15 @@ public class IndustrialSimulationSuite {
     }
 
     @Test
-    public void acts() {
+    public void scratchGenerationWithActs() {
       String dataSetName = this.dataSetName();
       int strength = strength();
       String generationMode = "acts";
       String partitionerName = "none";
       File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, partitionerName);
       FactorSpace factorSpace = this.factorSpace();
-      StopWatch<PeerJExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-          Printable.function("conductActsExperiment", (PeerJExperimentParameterized self) ->
+      StopWatch<PeerJExperimentScratchParameterized, List<Tuple>> stopWatch = new StopWatch<>(
+          Printable.function("conductActsExperiment", (PeerJExperimentScratchParameterized self) ->
               generateWithActs(
                   baseDir,
                   factorSpace,
@@ -159,7 +163,7 @@ public class IndustrialSimulationSuite {
                       : strength,
                   algorithm(),
                   constraintHandlingMethod())),
-          (PeerJExperimentParameterized self) -> format("[%s]", self.spec),
+          (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
           (List<Tuple> result) -> format("[size:%s]", result.size()));
       try {
         stopWatch.apply(this);
@@ -169,7 +173,7 @@ public class IndustrialSimulationSuite {
     }
 
     @Test
-    public void join_weakenProduct() {
+    public void scratchGenerationWithWeakenProductCombinatorialJoin() {
       String dataSetName = this.dataSetName();
       int strength = strength();
       String generationMode = "join";
@@ -177,9 +181,9 @@ public class IndustrialSimulationSuite {
       File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, partitioner.name());
       FactorSpace factorSpace = this.factorSpace();
       Requirement requirement = requirement(strength);
-      StopWatch<PeerJExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-          Printable.function("conductJoinExperiment", (PeerJExperimentParameterized self) -> generateWithCombinatorialJoin(requirement, baseDir, partitioner, factorSpace, algorithm(), constraintHandlingMethod(), "")),
-          (PeerJExperimentParameterized self) -> format("[%s]", self.spec),
+      StopWatch<PeerJExperimentScratchParameterized, List<Tuple>> stopWatch = new StopWatch<>(
+          Printable.function("conductJoinExperiment", (PeerJExperimentScratchParameterized self) -> generateWithCombinatorialJoin(requirement, baseDir, partitioner, factorSpace, algorithm(), constraintHandlingMethod(), "")),
+          (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
           (List<Tuple> result) -> format("[size:%s]", result.size()));
       try {
         stopWatch.apply(this);
@@ -187,20 +191,55 @@ public class IndustrialSimulationSuite {
         writeTo(resultFile(dataSetName, strength(), generationMode, partitioner.name()), Stream.of(stopWatch.report()));
       }
     }
+
+    @Test
+    public void incrementalGenerationWithWeakenProductCombinatorialJoin() {
+      String dataSetName = this.dataSetName();
+      int strength = strength();
+      String generationMode = "join";
+      String suffix = "incremental";
+      File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, suffix);
+      FactorSpace factorSpace = this.factorSpace();
+      Requirement requirement = requirement(strength);
+      SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithActs(new File(baseDir, "base"), baseFactorSpaceFrom(factorSpace), strength, algorithm(), constraintHandlingMethod()));
+      StopWatch<PeerJExperimentScratchParameterized, List<Tuple>> stopWatch = new StopWatch<>(
+          Printable.function("conductIncrementalJoinExperiment", (PeerJExperimentScratchParameterized self) -> extendWithCombinatorialJoin(requirement, baseDir, base, factorSpace, algorithm(), constraintHandlingMethod())),
+          (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
+          (List<Tuple> result) -> format("[size:%s]", result.size()));
+      try {
+        stopWatch.apply(this);
+      } finally {
+        writeTo(resultFile(dataSetName, strength(), generationMode, suffix), Stream.of(stopWatch.report()));
+      }
+    }
+
+    private static FactorSpace baseFactorSpaceFrom(FactorSpace factorSpace) {
+      int baseDegree = factorSpace.getFactors().size() - 10;
+      List<Factor> baseFactors = factorSpace.getFactors().subList(0, baseDegree);
+      Set<String> baseFactorNames = baseFactors.stream().map(Factor::getName).collect(toSet());
+      return FactorSpace.create(
+          baseFactors,
+          factorSpace.getConstraints()
+              .stream()
+              .filter(each -> each.involvedKeys().stream().anyMatch(baseFactorNames::contains))
+              .peek(crossingConstraintFound(baseFactorNames))
+              .collect(toList()));
+    }
   }
 
-  private static List<PeerJExperimentParameterized.Spec> parametersWith(int strength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
+
+  private static List<PeerJExperimentScratchParameterized.Spec> parametersWith(int strength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
     return parametersWith(strength, -1, constraintHandlingMethod, begin, end);
   }
 
-  private static List<PeerJExperimentParameterized.Spec> parametersWith(int baseStrength, int relationStrength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
+  private static List<PeerJExperimentScratchParameterized.Spec> parametersWith(int baseStrength, int relationStrength, PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod, int begin, int end) {
     int startInclusive = begin / 20;
     int endExclusive = end / 20;
     return IntStream.range(startInclusive, endExclusive)
         .map(i -> i * 20)
         .boxed()
         .flatMap(i -> Arrays.stream(ConstraintSet.values())
-            .map(constraintSet -> new PeerJExperimentParameterized.Spec.Builder()
+            .map(constraintSet -> new PeerJExperimentScratchParameterized.Spec.Builder()
                 .strength(baseStrength)
                 .degree(i)
                 .rank(4)
@@ -211,7 +250,7 @@ public class IndustrialSimulationSuite {
         .collect(toList());
   }
 
-  public static class Strength2 extends PeerJExperimentParameterized {
+  public static class Strength2 extends PeerJExperimentScratchParameterized {
     public Strength2(Spec spec) {
       super(spec);
     }
@@ -227,7 +266,7 @@ public class IndustrialSimulationSuite {
    * "Industrial-scale" models because of its poor performance.
    */
   @Ignore
-  public static class Strength2Cont extends PeerJExperimentParameterized {
+  public static class Strength2Cont extends PeerJExperimentScratchParameterized {
     public Strength2Cont(Spec spec) {
       super(spec);
     }
@@ -238,7 +277,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class Strength2ForbiddenTuples extends PeerJExperimentParameterized {
+  public static class Strength2ForbiddenTuples extends PeerJExperimentScratchParameterized {
     public Strength2ForbiddenTuples(Spec spec) {
       super(spec);
     }
@@ -249,7 +288,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class Strength3 extends PeerJExperimentParameterized {
+  public static class Strength3 extends PeerJExperimentScratchParameterized {
     public static final int T = 3;
 
     public Strength3(Spec spec) {
@@ -267,7 +306,7 @@ public class IndustrialSimulationSuite {
    * "Industrial-scale" models because of its poor performance.
    */
   @Ignore
-  public static class Strength3ForbiddenTuples extends PeerJExperimentParameterized {
+  public static class Strength3ForbiddenTuples extends PeerJExperimentScratchParameterized {
     public static final int T = 3;
 
     public Strength3ForbiddenTuples(Spec spec) {
@@ -281,7 +320,7 @@ public class IndustrialSimulationSuite {
 
   }
 
-  public static class VSCA_2_3 extends PeerJExperimentParameterized {
+  public static class VSCA_2_3 extends PeerJExperimentScratchParameterized {
     public VSCA_2_3(Spec spec) {
       super(spec);
     }
@@ -292,7 +331,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class VSCA_2_4 extends PeerJExperimentParameterized {
+  public static class VSCA_2_4 extends PeerJExperimentScratchParameterized {
     public VSCA_2_4(Spec spec) {
       super(spec);
     }
@@ -303,7 +342,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class VSCA_2_4Cont extends PeerJExperimentParameterized {
+  public static class VSCA_2_4Cont extends PeerJExperimentScratchParameterized {
     public VSCA_2_4Cont(Spec spec) {
       super(spec);
     }
@@ -314,7 +353,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class Strength4 extends PeerJExperimentParameterized {
+  public static class Strength4 extends PeerJExperimentScratchParameterized {
     private static final int T = 4;
 
     public Strength4(Spec spec) {
@@ -337,7 +376,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class Strength5ForbiddenTuples extends PeerJExperimentParameterized {
+  public static class Strength5ForbiddenTuples extends PeerJExperimentScratchParameterized {
     private static final int T = 5;
 
     @Rule
@@ -360,7 +399,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class Strength4Degree80 extends PeerJExperimentParameterized {
+  public static class Strength4Degree80 extends PeerJExperimentScratchParameterized {
     private static final int T = 4;
 
     @Rule
@@ -380,7 +419,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class Strength5 extends PeerJExperimentParameterized {
+  public static class Strength5 extends PeerJExperimentScratchParameterized {
     private static final int T = 5;
 
     @Rule
@@ -403,7 +442,7 @@ public class IndustrialSimulationSuite {
     }
   }
 
-  public static class Strength4ForbiddenTuples extends PeerJExperimentParameterized {
+  public static class Strength4ForbiddenTuples extends PeerJExperimentScratchParameterized {
     private static final int T = 4;
 
     public Strength4ForbiddenTuples(Spec spec) {

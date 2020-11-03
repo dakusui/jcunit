@@ -1,6 +1,8 @@
 package com.github.dakusui.peerj;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
@@ -13,6 +15,9 @@ import org.junit.Before;
 import java.io.File;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
@@ -23,6 +28,7 @@ import static com.github.dakusui.peerj.acts.Acts.runActs;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public abstract class PeerJExperimentBase {
   public abstract static class Spec {
@@ -97,6 +103,11 @@ public abstract class PeerJExperimentBase {
     return generateWithCombinatorialJoin(requirement, baseDir, factorSpaces, algorithm, constraintHandlingMethod, messageOnFailure);
   }
 
+  public static List<Tuple> extendWithCombinatorialJoin(Requirement requirement, File baseDir, SchemafulTupleSet base, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+    return extendWithCombinatorialJoin(requirement, baseDir, factorSpace, base, algorithm, constraintHandlingMethod);
+  }
+
+
   private static SchemafulTupleSet generateWithCombinatorialJoin(Requirement requirement, File baseDir, List<FactorSpace> factorSpaces, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
     return factorSpaces
         .parallelStream()
@@ -114,10 +125,47 @@ public abstract class PeerJExperimentBase {
                 : requirement.strength(),
             algorithm,
             constraintHandlingMethod))
-        .map(arr -> arr.stream().map((Tuple t) -> renameFactors(t, currentThread().getId())).collect(toList()))
+        .map((List<Tuple> tuples) -> renameFactorsInTuples(tuples, currentThread().getId()))
         .map(SchemafulTupleSet::fromTuples)
         .reduce(new Joiner.WeakenProduct(requirement))
         .orElseThrow(NoSuchElementException::new);
+  }
+
+  private static List<Tuple> renameFactorsInTuples(List<Tuple> tuples, long partitionId) {
+    return tuples.stream().map((Tuple t) -> renameFactors(t, partitionId)).collect(toList());
+  }
+
+  private static SchemafulTupleSet extendWithCombinatorialJoin(Requirement requirement, File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+    List<Factor> additionFactors = factorSpace.getFactors().subList(base.getAttributeNames().size(), factorSpace.getFactors().size());
+    Set<String> additionFactorNames = additionFactors.stream()
+        .map(Factor::getName)
+        .collect(toSet());
+    List<Constraint> additionConstraints = factorSpace.getConstraints().stream()
+        .filter(each -> each.involvedKeys()
+            .stream()
+            .anyMatch(additionFactorNames::contains))
+        .peek(crossingConstraintFound(additionFactorNames))
+        .collect(toList());
+    FactorSpace additionFactorSpace = FactorSpace.create(additionFactors, additionConstraints);
+    return Stream.of(
+        SchemafulTupleSet.fromTuples(renameFactorsInTuples(base, 1)),
+        SchemafulTupleSet.fromTuples(
+            renameFactorsInTuples(
+                generateWithActs(
+                    new File(baseDir, "addition"),
+                    additionFactorSpace,
+                    requirement.strength(),
+                    algorithm,
+                    constraintHandlingMethod), 2)))
+        .reduce(new Joiner.WeakenProduct(requirement))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static Consumer<Constraint> crossingConstraintFound(Set<String> factorNames) {
+    return each -> {
+      if (!factorNames.containsAll(each.involvedKeys()))
+        throw new RuntimeException("Crossing constraint is not supported");
+    };
   }
 
   public enum Algorithm {

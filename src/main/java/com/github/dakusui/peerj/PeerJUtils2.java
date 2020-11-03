@@ -37,9 +37,9 @@ public enum PeerJUtils2 {
             strength);
   }
 
-  public static Tuple renameFactors(Tuple tuple, long i) {
+  public static Tuple renameFactors(Tuple tuple, long partitionId) {
     Tuple.Builder b = Tuple.builder();
-    tuple.keySet().forEach(k -> b.put(format("P%02d_%s", i, k), tuple.get(k)));
+    tuple.keySet().forEach(k -> b.put(format("P%02d_%s", partitionId, k), tuple.get(k)));
     return b.build();
   }
 
