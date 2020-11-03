@@ -53,7 +53,7 @@ public abstract class CasaExperimentBase extends PeerJExperimentBase {
         casaModel.factorSpace,
         casaModel.strength,
         algorithm(),
-        constraintHandlingMethod());
+        GenerationMode.SCRATCH, constraintHandlingMethod());
   }
 
   public List<Tuple> conductJoinExperimentForCasa(CasaDataSet def, Partitioner partitioner) {

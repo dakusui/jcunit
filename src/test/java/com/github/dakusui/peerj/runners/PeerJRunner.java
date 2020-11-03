@@ -1,7 +1,7 @@
 package com.github.dakusui.peerj.runners;
 
+import com.github.dakusui.jcunit8.experiments.join.acts.ActsUtilsTest;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.acts.ActsExperiment;
 import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.ConstraintSet;
@@ -41,7 +41,7 @@ public class PeerJRunner extends ExperimentRunner {
             .strength(strength)
             .times(1)
             .joiner(Joiner.WeakenProduct::new)
-            .generator((baseDir, factorSpace, t) -> Acts.generateWithActs(baseDir, factorSpace, t, opts.algorithm, opts.constraintHandling))
+            .generator((baseDir, factorSpace, t) -> ActsUtilsTest.generateWithActs(baseDir, factorSpace, t, opts.algorithm, opts.constraintHandling))
             .verification(false)
             .build();
       }

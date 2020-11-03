@@ -1,5 +1,6 @@
 package com.github.dakusui.peerj.runners;
 
+import com.github.dakusui.jcunit8.experiments.join.acts.ActsUtilsTest;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.peerj.acts.Acts;
@@ -25,7 +26,7 @@ public class ExperimentRunner {
         .strength(strength)
         .times(2)
         .joiner(joinerFactory)
-        .generator((baseDir, factorSpace, t) -> Acts.generateWithActs(baseDir, factorSpace, t, "ipog", "solver"))
+        .generator((baseDir, factorSpace, t) -> ActsUtilsTest.generateWithActs(baseDir, factorSpace, t, "ipog", "solver"))
         .verification(false)
         .build();
   }

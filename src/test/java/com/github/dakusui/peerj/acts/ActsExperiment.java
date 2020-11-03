@@ -1,6 +1,7 @@
 package com.github.dakusui.peerj.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.experiments.join.acts.ActsUtilsTest;
 import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.Experiment;
@@ -23,7 +24,7 @@ public class ActsExperiment implements Experiment {
     this.order = order;
     this.degree = degree;
     this.constraintSet = constraintSet;
-    this.generator = (baseDir, factorSpace, strength1) -> Acts.generateWithActs(baseDir, factorSpace, strength1, actsOpts.algorithm, actsOpts.constraintHandling);
+    this.generator = (baseDir, factorSpace, strength1) -> ActsUtilsTest.generateWithActs(baseDir, factorSpace, strength1, actsOpts.algorithm, actsOpts.constraintHandling);
   }
 
   @Override

@@ -1,9 +1,17 @@
 package com.github.dakusui.jcunit8.experiments.join.acts;
 
+import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.PeerJExperimentBase;
+import com.github.dakusui.peerj.acts.Acts;
 import com.github.dakusui.peerj.acts.ActsUtils;
+import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
+import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -17,14 +25,47 @@ import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
 import static com.github.dakusui.peerj.acts.Acts.readTestSuiteFromCsv;
+import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 
 public class ActsUtilsTest {
+  public static final Logger LOGGER = LoggerFactory.getLogger(ActsUtilsTest.class);
+
+  @SafeVarargs
+  public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
+    CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
+    List<Tuple> generated;
+    generated = generateWithActs(baseDir, numLevels, numFactors, strength, constraints);
+    System.out.println("model=" + numLevels + "^" + numFactors + " t=" + strength + " size=" + generated.size() + " time=" + stopWatch.get() + "[msec]");
+  }
+
+  @SafeVarargs
+  public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
+    FactorSpaceSpec factorSpaceSpec = new FactorSpaceSpec("L").addFactors(numLevels, numFactors);
+    for (Function<List<String>, NormalizedConstraint> each : constraints)
+      factorSpaceSpec = factorSpaceSpec.addConstraint(each);
+    FactorSpace factorSpace = factorSpaceSpec.toFactorSpace();
+    generateWithActs(
+        baseDir,
+        factorSpace,
+        strength,
+        "ipog",
+        "solver");
+    List<Tuple> ret = new LinkedList<>();
+    try (Stream<String> data = streamFile(Acts.outFile(baseDir)).peek(LOGGER::trace)) {
+      ret.addAll(readTestSuiteFromCsv(data));
+    }
+    return ret;
+  }
+
+  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
+    return Acts.runActs(baseDir, factorSpace, strength, algorithm, PeerJExperimentBase.GenerationMode.SCRATCH.name, constraintHandler);
+  }
 
   @Test
   public void testGenerateAndReport() {
     File baseDir = new File("target");
-    ActsUtils.generateAndReport(baseDir, 4, 90, 3);
-    ActsUtils.generateAndReport(baseDir, 4, 180, 3);
+    generateAndReport(baseDir, 4, 90, 3);
+    generateAndReport(baseDir, 4, 180, 3);
   }
 
   @Test
@@ -57,7 +98,7 @@ public class ActsUtilsTest {
     for (int i = 0; i < numFactors / 10; i++) {
       constraints.add(ActsUtils.createBasicConstraint(i * 10));
     }
-    ActsUtils.generateAndReport(baseDir, 4, numFactors, strength,
+    generateAndReport(baseDir, 4, numFactors, strength,
         constraints.toArray(new Function[0])
     );
   }

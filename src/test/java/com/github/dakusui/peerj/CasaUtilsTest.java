@@ -84,7 +84,7 @@ public class CasaUtilsTest extends PeerJExperimentBase {
         casaModel.factorSpace,
         casaModel.strength,
         algorithm(),
-        constraintHandlingMethod());
+        GenerationMode.SCRATCH, constraintHandlingMethod());
     assertThat(
         result,
         allOf(
@@ -105,7 +105,7 @@ public class CasaUtilsTest extends PeerJExperimentBase {
         casaModel.factorSpace,
         casaModel.strength,
         algorithm(),
-        constraintHandlingMethod());
+        GenerationMode.SCRATCH, constraintHandlingMethod());
     assertThat(
         result,
         allOf(

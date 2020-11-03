@@ -15,17 +15,19 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.utils.ConstraintUtils.*;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 
 public enum ActsUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(ActsUtils.class);
 
-  public static String buildActsModel(FactorSpace factorSpace, String systemName) {
+  public static String buildActsModel(FactorSpace factorSpace, String systemName, List<Tuple> testCases) {
     StringBuilder b = new StringBuilder();
     b.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     b.append("<System name=\"").append(systemName).append("\">\n");
@@ -33,6 +35,7 @@ public enum ActsUtils {
     renderParameters(b, 1, factorSpaceAdapter);
     renderRelations(b, 1, factorSpaceAdapter, factorSpace.baseStrength(), factorSpace.relationStrength());
     renderConstraints(b, 1, factorSpaceAdapter, factorSpace.getConstraints());
+    renderTestSet(b, 1, factorSpaceAdapter, factorSpace.baseStrength(), testCases);
     b.append("\n");
     b.append("</System>");
 
@@ -249,16 +252,63 @@ public enum ActsUtils {
    *     </Relation>
    * </pre>
    */
-  private static void renderRelations(StringBuilder b, int indentLevel, FactorSpaceAdapter factorSpaceAdapter, int strength, int relationStrength) {
+  private static void renderRelations(StringBuilder b, @SuppressWarnings("SameParameterValue") int indentLevel, FactorSpaceAdapter factorSpaceAdapter, int strength, int relationStrength) {
     if (relationStrength < 0)
       return;
     StringUtils.appendLine(b, indentLevel, "<Relations>");
     indentLevel++;
-    indentLevel = renderRelation(b, indentLevel, factorSpaceAdapter, 0, factorSpaceAdapter.numParameters , strength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceAdapter, 0, factorSpaceAdapter.numParameters, strength);
     indentLevel = renderRelation(b, indentLevel, factorSpaceAdapter, 0, factorSpaceAdapter.numParameters / 2, relationStrength);
     indentLevel = renderRelation(b, indentLevel, factorSpaceAdapter, factorSpaceAdapter.numParameters / 2, factorSpaceAdapter.numParameters, relationStrength);
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</Relations>");
+  }
+
+  /**
+   * <pre>
+   *   <Testset doi="2">
+   *     <Testcase TCNo="0">
+   *       <Value>1</Value>
+   *       <Value>0</Value>
+   *       <Value>0</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *       <Value>1</Value>
+   *     </Testcase>
+   *   </Testset>
+   * </pre>
+   */
+  private static void renderTestSet(StringBuilder b, @SuppressWarnings("SameParameterValue") int indentLevel, FactorSpaceAdapter factorSpaceAdapter, int strength, List<Tuple> testCases) {
+    if (testCases.isEmpty())
+      return;
+    StringUtils.appendLine(b, indentLevel, format("<Testset doi=\"%s\">", strength));
+    IntStream.range(0, testCases.size())
+        .forEach(i -> renderTestcase(b, indentLevel + 1, factorSpaceAdapter, testCases.get(i), i));
+    StringUtils.appendLine(b, indentLevel, "</Testset>");
+  }
+
+  private static void renderTestcase(StringBuilder b, int indentLevel, FactorSpaceAdapter factorSpaceAdapter, Tuple testCase, int testCaseNo) {
+    StringUtils.appendLine(b, indentLevel, format("<Testcase TCNo=\"%s\">", testCaseNo));
+    IntStream.range(0, factorSpaceAdapter.numParameters)
+        .mapToObj(i -> factorSpaceAdapter.factorNameToParameterName.apply(factorSpaceAdapter.factor.apply(i).getName()))
+        .map(k -> format("<Value>%s</Value>", testCase.get(k)))
+        .forEach(testCaseElement -> StringUtils.appendLine(b, indentLevel + 1, testCaseElement));
+    StringUtils.appendLine(b, indentLevel, "</Testcase>");
   }
 
   private static int renderRelation(StringBuilder b, int indentLevel, FactorSpaceAdapter factorSpaceAdapter, int begin, int end, int relationStrength) {
@@ -351,33 +401,4 @@ public enum ActsUtils {
   public static Function<List<String>, NormalizedConstraint> createBasicPlusConstraint(int offset) {
     return strings -> createBasicPlusConstraint(strings.subList(offset, offset + 10));
   }
-
-
-  @SafeVarargs
-  public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
-    CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
-    List<Tuple> generated;
-    generated = generateWithActs(baseDir, numLevels, numFactors, strength, constraints);
-    System.out.println("model=" + numLevels + "^" + numFactors + " t=" + strength + " size=" + generated.size() + " time=" + stopWatch.get() + "[msec]");
-  }
-
-  @SafeVarargs
-  public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
-    FactorSpaceSpec factorSpaceSpec = new FactorSpaceSpec("L").addFactors(numLevels, numFactors);
-    for (Function<List<String>, NormalizedConstraint> each : constraints)
-      factorSpaceSpec = factorSpaceSpec.addConstraint(each);
-    FactorSpace factorSpace = factorSpaceSpec.toFactorSpace();
-    Acts.generateWithActs(
-        baseDir,
-        factorSpace,
-        strength,
-        "ipog",
-        "solver");
-    List<Tuple> ret = new LinkedList<>();
-    try (Stream<String> data = streamFile(Acts.outFile(baseDir)).peek(LOGGER::trace)) {
-      ret.addAll(Acts.readTestSuiteFromCsv(data));
-    }
-    return ret;
-  }
-
 }

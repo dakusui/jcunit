@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
-import static com.github.dakusui.peerj.PeerJExperimentBase.Algorithm.IPOG;
 import static com.github.dakusui.peerj.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.PeerJExperimentBase.GenerationMode.EXTEND;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
 import static com.github.dakusui.peerj.acts.Acts.runActs;
 import static java.lang.String.format;
@@ -53,7 +53,7 @@ public abstract class PeerJExperimentBase {
       ConstraintHandlingMethod constraintHandlingMethod;
 
       public Builder() {
-        this.strength(2).algorithm(IPOG).constraintHandlingMethod(FORBIDDEN_TUPLES);
+        this.strength(2).algorithm(Algorithm.IPOG).constraintHandlingMethod(FORBIDDEN_TUPLES);
       }
 
       @SuppressWarnings("unchecked")
@@ -94,36 +94,28 @@ public abstract class PeerJExperimentBase {
 
   abstract protected int strength();
 
-  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
-    return runActs(baseDir, factorSpace, strength, algorithm.name, constraintHandlingMethod.name);
+  public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, Algorithm algorithm, GenerationMode generationMode, ConstraintHandlingMethod constraintHandlingMethod) {
+    return runActs(baseDir, factorSpace, strength, algorithm.name, generationMode.name, constraintHandlingMethod.name);
   }
 
   public static List<Tuple> generateWithCombinatorialJoin(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
     List<FactorSpace> factorSpaces = partitioner.apply(factorSpace);
-    return generateWithCombinatorialJoin(requirement, baseDir, factorSpaces, algorithm, constraintHandlingMethod, messageOnFailure);
-  }
-
-  public static List<Tuple> extendWithCombinatorialJoin(Requirement requirement, File baseDir, SchemafulTupleSet base, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
-    return extendWithCombinatorialJoin(requirement, baseDir, factorSpace, base, algorithm, constraintHandlingMethod);
-  }
-
-
-  private static SchemafulTupleSet generateWithCombinatorialJoin(Requirement requirement, File baseDir, List<FactorSpace> factorSpaces, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
     return factorSpaces
         .parallelStream()
-        .peek(factorSpace -> System.err.println("->" + factorSpace))
-        .peek(factorSpace -> {
-          if (factorSpace.getFactorNames().isEmpty()) {
+        .peek(factorSpace1 -> System.err.println("->" + factorSpace1))
+        .peek(factorSpace1 -> {
+          if (factorSpace1.getFactorNames().isEmpty()) {
             throw new CasaDataSet.NotCombinatorialJoinApplicable(messageOnFailure);
           }
         })
-        .map(factorSpace -> PeerJExperimentBase.generateWithActs(
+        .map(factorSpace1 -> PeerJExperimentBase.generateWithActs(
             baseDir,
-            FactorSpace.create(factorSpace.getFactors(), factorSpace.getConstraints()),
-            factorSpace.relationStrength() >= 0
-                ? factorSpace.relationStrength()
+            FactorSpace.create(factorSpace1.getFactors(), factorSpace1.getConstraints()),
+            factorSpace1.relationStrength() >= 0
+                ? factorSpace1.relationStrength()
                 : requirement.strength(),
             algorithm,
+            GenerationMode.SCRATCH,
             constraintHandlingMethod))
         .map((List<Tuple> tuples) -> renameFactorsInTuples(tuples, currentThread().getId()))
         .map(SchemafulTupleSet::fromTuples)
@@ -131,11 +123,11 @@ public abstract class PeerJExperimentBase {
         .orElseThrow(NoSuchElementException::new);
   }
 
-  private static List<Tuple> renameFactorsInTuples(List<Tuple> tuples, long partitionId) {
-    return tuples.stream().map((Tuple t) -> renameFactors(t, partitionId)).collect(toList());
+  public static List<Tuple> extendWithActs(File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+    return runActs(baseDir, factorSpace, strength, algorithm.name, EXTEND.name, constraintHandlingMethod.name, base);
   }
 
-  private static SchemafulTupleSet extendWithCombinatorialJoin(Requirement requirement, File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+  public static SchemafulTupleSet extendWithCombinatorialJoin(Requirement requirement, File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
     List<Factor> additionFactors = factorSpace.getFactors().subList(base.getAttributeNames().size(), factorSpace.getFactors().size());
     Set<String> additionFactorNames = additionFactors.stream()
         .map(Factor::getName)
@@ -156,7 +148,7 @@ public abstract class PeerJExperimentBase {
                     additionFactorSpace,
                     requirement.strength(),
                     algorithm,
-                    constraintHandlingMethod), 2)))
+                    GenerationMode.SCRATCH, constraintHandlingMethod), 2)))
         .reduce(new Joiner.WeakenProduct(requirement))
         .orElseThrow(NoSuchElementException::new);
   }
@@ -166,6 +158,10 @@ public abstract class PeerJExperimentBase {
       if (!factorNames.containsAll(each.involvedKeys()))
         throw new RuntimeException("Crossing constraint is not supported");
     };
+  }
+
+  private static List<Tuple> renameFactorsInTuples(List<Tuple> tuples, long partitionId) {
+    return tuples.stream().map((Tuple t) -> renameFactors(t, partitionId)).collect(toList());
   }
 
   public enum Algorithm {
@@ -179,6 +175,17 @@ public abstract class PeerJExperimentBase {
     }
   }
 
+  public enum GenerationMode {
+    SCRATCH("scratch"),
+    EXTEND("extend");
+
+    public final String name;
+
+    GenerationMode(String generationModeName) {
+      this.name = generationModeName;
+    }
+  }
+
   public enum ConstraintHandlingMethod {
     FORBIDDEN_TUPLES("forbiddentuples"),
     SOLVER("solver");
@@ -189,5 +196,4 @@ public abstract class PeerJExperimentBase {
       this.name = handlerName;
     }
   }
-
 }

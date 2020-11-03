@@ -162,7 +162,7 @@ public class IndustrialSimulationSuite {
                       ? -1
                       : strength,
                   algorithm(),
-                  constraintHandlingMethod())),
+                  GenerationMode.SCRATCH, constraintHandlingMethod())),
           (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
           (List<Tuple> result) -> format("[size:%s]", result.size()));
       try {
@@ -193,6 +193,34 @@ public class IndustrialSimulationSuite {
     }
 
     @Test
+    public void incrementalGenerationWithActs() {
+      String dataSetName = this.dataSetName();
+      int strength = strength();
+      String generationMode = "acts";
+      String partitionerName = "incremental";
+      File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, partitionerName);
+      FactorSpace factorSpace = this.factorSpace();
+      StopWatch<PeerJExperimentScratchParameterized, List<Tuple>> stopWatch = new StopWatch<>(
+          Printable.function("conductIncrementalActsExperiment", (PeerJExperimentScratchParameterized self) ->
+              extendWithActs(
+                  baseDir,
+                  factorSpace,
+                  null,
+                  factorSpace.relationStrength() >= 0
+                      ? -1
+                      : strength,
+                  algorithm(),
+                  constraintHandlingMethod())),
+          (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
+          (List<Tuple> result) -> format("[size:%s]", result.size()));
+      try {
+        stopWatch.apply(this);
+      } finally {
+        writeTo(resultFile(dataSetName, strength(), generationMode, partitionerName), Stream.of(stopWatch.report()));
+      }
+    }
+
+    @Test
     public void incrementalGenerationWithWeakenProductCombinatorialJoin() {
       String dataSetName = this.dataSetName();
       int strength = strength();
@@ -201,9 +229,9 @@ public class IndustrialSimulationSuite {
       File baseDir = baseDirFor(dataSetName, this.spec.strength, generationMode, suffix);
       FactorSpace factorSpace = this.factorSpace();
       Requirement requirement = requirement(strength);
-      SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithActs(new File(baseDir, "base"), baseFactorSpaceFrom(factorSpace), strength, algorithm(), constraintHandlingMethod()));
+      SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithActs(new File(baseDir, "base"), baseFactorSpaceFrom(factorSpace), strength, algorithm(), GenerationMode.SCRATCH, constraintHandlingMethod()));
       StopWatch<PeerJExperimentScratchParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-          Printable.function("conductIncrementalJoinExperiment", (PeerJExperimentScratchParameterized self) -> extendWithCombinatorialJoin(requirement, baseDir, base, factorSpace, algorithm(), constraintHandlingMethod())),
+          Printable.function("conductIncrementalJoinExperiment", (PeerJExperimentScratchParameterized self) -> extendWithCombinatorialJoin(requirement, baseDir, factorSpace, base,  algorithm(), constraintHandlingMethod())),
           (PeerJExperimentScratchParameterized self) -> format("[%s]", self.spec),
           (List<Tuple> result) -> format("[size:%s]", result.size()));
       try {
