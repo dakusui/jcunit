@@ -69,12 +69,6 @@ public enum ProcessStreamerUtils {
         .build();
   }
 
-  public static void writeTo(File file, String data) {
-    processStreamer(format("echo '%s' > %s", data, file.getAbsolutePath()), Checker.createDefault())
-        .stream()
-        .forEach(LOGGER::debug);
-  }
-
   public static class StandardChecker implements Checker {
     private final StreamChecker stdoutChecker;
     private final StreamChecker stderrChecker;

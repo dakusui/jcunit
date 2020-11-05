@@ -7,9 +7,7 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.model.ConstraintSet;
-import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
 import com.github.dakusui.peerj.testbases.PeerJExperimentParameterized;
-import com.github.dakusui.peerj.testbases.PeerJExperimentScratchParameterized;
 import com.github.dakusui.peerj.testbases.StopWatch;
 import org.junit.Test;
 

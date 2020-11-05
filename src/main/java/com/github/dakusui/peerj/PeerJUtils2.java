@@ -6,6 +6,10 @@ import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
+import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -24,6 +28,7 @@ import static java.util.stream.Collectors.toSet;
 
 public enum PeerJUtils2 {
   ;
+  private static final Logger LOGGER = LoggerFactory.getLogger(PeerJUtils2.class);
 
   public static final long SESSION_ID = System.currentTimeMillis();
 
@@ -168,5 +173,11 @@ public enum PeerJUtils2 {
     //noinspection ResultOfMethodCallIgnored
     baseDir.mkdirs();
     return new File(new File(baseDir, Integer.toString(strength)), "result.txt");
+  }
+
+  public static void writeTo(File file, String data) {
+    ProcessStreamerUtils.processStreamer(format("echo '%s' > %s", data, file.getAbsolutePath()), ProcessStreamer.Checker.createDefault())
+        .stream()
+        .forEach(LOGGER::debug);
   }
 }

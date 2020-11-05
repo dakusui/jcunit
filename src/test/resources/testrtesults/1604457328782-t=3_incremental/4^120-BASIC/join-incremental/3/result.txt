@@ -1,0 +1,1 @@
+function:conductIncrementalJoinExperiment;input:[4^120-BASIC:t=3:algorithm=IPOG:constraintHandling=SOLVER];output:[size:1668];4386[msec]

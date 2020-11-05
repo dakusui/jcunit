@@ -3,21 +3,19 @@ package com.github.dakusui.peerj.acts;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.PeerJUtils2;
 import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.peerj.PeerJUtils2.writeTo;
 import static com.github.dakusui.peerj.acts.ActsUtils.buildActsModel;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
-import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.writeTo;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
@@ -90,7 +88,7 @@ public class Acts {
     final File inFile = inFile(baseDir);
     boolean baseDirCreated = baseDir.mkdirs();
     LOGGER.debug("Basedir was created: {}", baseDirCreated);
-    writeTo(inFile, buildActsModel(factorSpace, "unknown", testCases));
+    PeerJUtils2.writeTo(inFile, Arrays.stream(buildActsModel(factorSpace, "unknown", testCases).split("\n")));
     /*
       ACTS Version: 3.0
       Usage: java [options] -jar jarName <inputFileName> [outputFileName]
