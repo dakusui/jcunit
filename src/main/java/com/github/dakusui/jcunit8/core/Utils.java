@@ -118,11 +118,11 @@ public enum Utils {
     return getMethod(klass, "toString");
   }
 
-  public static String className(Class klass) {
+  public static String className(Class<?> klass) {
     return className(klass, "");
   }
 
-  private static String className(Class klass, String work) {
+  private static String className(Class<?> klass, String work) {
     String canonicalName = klass.getCanonicalName();
     if (canonicalName != null)
       return canonicalName;
@@ -152,7 +152,20 @@ public enum Utils {
   }
 
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
-    Map<T, R> memo = new ConcurrentHashMap<>();
+    Map<T, R> memo = createMapForMemoization();
     return t -> memo.computeIfAbsent(t, function);
+  }
+
+  private static final List<Map<?, ?>> memos = new LinkedList<>();
+
+  private static <T, R> Map<T, R> createMapForMemoization() {
+    Map<T, R> memo = new ConcurrentHashMap<>();
+    memos.add(memo);
+    return memo;
+  }
+
+  public static void invalidateMemos() {
+    for (Map<?, ?> each : memos)
+      each.clear();
   }
 }

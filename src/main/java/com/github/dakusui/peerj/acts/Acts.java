@@ -38,7 +38,7 @@ public class Acts {
     this.factorSpace = factorSpace;
     this.testCases = unmodifiableList(new ArrayList<>(testCases));
     this.strength = strength;
-    this.baseDir = new File(baseDir, Objects.toString((Long) Thread.currentThread().getId()));
+    this.baseDir = new File(baseDir, Objects.toString(Thread.currentThread().getId()));
     this.algorithm = algorithm;
     this.mode = mode;
     this.constraintHandler = constraintHandler;
@@ -135,7 +135,7 @@ public class Acts {
         new ProcessStreamerUtils.StandardChecker("Errors encountered", "Constraints can not be parsed"))
         .stream()
         .forEach(LOGGER::trace);
-    writeTo(new File(baseDir, "acts.time"), String.format("%s[msec]", (Long) (System.currentTimeMillis() - before)));
+    writeTo(new File(baseDir, "acts.time"), String.format("%s[msec]", System.currentTimeMillis() - before));
     try (Stream<String> s = streamFile(outFile).peek(LOGGER::trace)) {
       return readTestSuiteFromCsv(s);
     }

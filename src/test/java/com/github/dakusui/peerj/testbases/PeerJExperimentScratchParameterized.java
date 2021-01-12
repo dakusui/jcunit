@@ -2,9 +2,11 @@ package com.github.dakusui.peerj.testbases;
 
 import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,6 +20,11 @@ public abstract class PeerJExperimentScratchParameterized extends PeerJExperimen
 
   public PeerJExperimentScratchParameterized(Spec spec) {
     super(spec);
+  }
+
+  @Before
+  public void before() {
+    Utils.invalidateMemos();
   }
 
   @Test
@@ -43,7 +50,7 @@ public abstract class PeerJExperimentScratchParameterized extends PeerJExperimen
     try {
       stopWatch.apply(this);
     } finally {
-      writeTo(resultFile(dataSetName, strength(), generationMode, partitionerName), Stream.of(stopWatch.report()));
+      writeTo(resultFile(dataSetName, strength(), generationMode, partitionerName), Stream.of(stopWatch.report()).peek(System.out::println));
     }
   }
 
@@ -63,7 +70,7 @@ public abstract class PeerJExperimentScratchParameterized extends PeerJExperimen
     try {
       stopWatch.apply(this);
     } finally {
-      writeTo(resultFile(dataSetName, strength(), generationMode, partitioner.name()), Stream.of(stopWatch.report()));
+      writeTo(resultFile(dataSetName, strength(), generationMode, partitioner.name()), Stream.of(stopWatch.report()).peek(System.out::println));
     }
   }
 }

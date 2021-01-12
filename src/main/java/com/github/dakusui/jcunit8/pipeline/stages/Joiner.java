@@ -23,6 +23,7 @@ import static com.github.dakusui.jcunit8.pipeline.stages.Joiner.JoinerUtils.conn
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
   abstract class Base implements Joiner {
@@ -305,7 +306,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             if (tupletsToBeCovered.isEmpty())
               break;
           } finally {
-//            System.err.printf("      processEach(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - u);
+            System.err.printf("      processEach(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - u);
           }
         }
         System.err.printf("constructWeakened(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - t);
@@ -315,7 +316,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }
     }
 
-    private static Set<Tuple> tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
+    private static Set<Tuple> _tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
       long before_ = System.currentTimeMillis();
       try {
         Set<Tuple> ret = ConcurrentHashMap.newKeySet();
@@ -327,6 +328,45 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
                     .map(keys -> TupleUtils.project(row, keys))
                     .forEach(ret::add));
         return ret;
+      } finally {
+        System.err.printf("  tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
+      }
+    }
+
+    private static final Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> TUPLETS_COVERED_BY =
+        memoize(rows -> memoize(strength -> tupletsCoveredBy_(rows, strength)));
+
+    private static Set<Tuple> tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
+      return TUPLETS_COVERED_BY.apply(rows).apply(strength);
+    }
+
+    static final class Pair {
+      final String key;
+      final Object value;
+
+      Pair(Tuple tuple) {
+        assert tuple.size() == 1;
+        this.key = tuple.keySet().iterator().next();
+        this.value = tuple.get(key);
+      }
+    }
+
+    private static Set<Tuple> tupletsCoveredBy_(SchemafulTupleSet rows, int strength) {
+      long before_ = System.currentTimeMillis();
+      try {
+        if (strength == 1) {
+          Set<Tuple> ret = new HashSet<>();
+          for (Tuple each : rows)
+            ret.addAll(subtuplesOf(each, 1));
+          return ret;
+        }
+        Set<Tuple> t_1 = tupletsCoveredBy(rows, 1);
+        Set<Tuple> lower = tupletsCoveredBy(rows, strength - 1);
+        return lower
+            .stream()
+            .parallel()
+            .flatMap(each -> t_1.stream().map(Pair::new).filter(t -> !each.containsKey(t.key)).map(t -> Tuple.builder().putAll(each).put(t.key, t.value).build()))
+            .collect(toSet());
       } finally {
         System.err.printf("  tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
       }

@@ -15,6 +15,7 @@ import java.util.List;
 
 import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.SOLVER;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(Enclosed.class)
@@ -184,6 +185,24 @@ public class IndustrialSimulationSuiteForScratchGeneration {
           new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.NONE).constraintHandlingMethod(SOLVER).build(),
           new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.BASIC).constraintHandlingMethod(SOLVER).build(),
           new Spec.Builder().strength(T).degree(80).rank(4).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
+      );
+    }
+  }
+
+  public static class Debug extends PeerJExperimentScratchParameterized {
+    private static final int T = 3;
+
+    @Rule
+    public Timeout timeout = new Timeout(60, MINUTES);
+
+    public Debug(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return singletonList(
+          new Spec.Builder().strength(T).degree(20).rank(3).constraintSet(ConstraintSet.BASIC_PLUS).constraintHandlingMethod(SOLVER).build()
       );
     }
   }

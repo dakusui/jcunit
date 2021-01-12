@@ -153,7 +153,7 @@ public enum PeerJUtils2 {
   public static void writeTo(File file, Stream<String> stream) {
     try {
       try (OutputStreamWriter writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)))) {
-        stream.peek(System.out::println).forEach(line -> write(writer, String.format("%s%n", line)));
+        stream.peek(LOGGER::trace).forEach(line -> write(writer, String.format("%s%n", line)));
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
