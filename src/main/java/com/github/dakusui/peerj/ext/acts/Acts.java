@@ -1,26 +1,24 @@
-package com.github.dakusui.peerj.acts;
+package com.github.dakusui.peerj.ext.acts;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.PeerJUtils2;
+import com.github.dakusui.peerj.ext.shared.ExternalUtils;
 import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.PeerJUtils2.writeTo;
-import static com.github.dakusui.peerj.acts.ActsUtils.buildActsModel;
+import static com.github.dakusui.peerj.ext.acts.ActsUtils.buildActsModel;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
 
 public class Acts {
 
@@ -44,48 +42,12 @@ public class Acts {
     this.constraintHandler = constraintHandler;
   }
 
-  public static List<Tuple> readTestSuiteFromCsv(Stream<String> data) {
-    AtomicReference<List<String>> header = new AtomicReference<>();
-    return data.filter(s -> !s.startsWith("#"))
-        .filter(s -> {
-          if (header.get() == null) {
-            header.set(asList(s.split(",")));
-            return false;
-          }
-          return true;
-        })
-        .map(
-            s -> {
-              List<String> record = asList(s.split(","));
-              List<String> h = header.get();
-              if (record.size() != h.size()) {
-                System.out.println("header:" + h);
-                System.out.println("record:" + record);
-                throw new IllegalArgumentException("size(header)=" + h.size() + ", size(record)=" + record.size());
-              }
-              Tuple.Builder b = Tuple.builder();
-              for (int i = 0; i < h.size(); i++)
-                b.put(h.get(i), record.get(i));
-              return b.build();
-            }
-        )
-        .collect(toList());
-  }
-
-  public static File outFile(File baseDir) {
-    return new File(baseDir, "acts.ca");
-  }
-
-  private static File inFile(File baseDir) {
-    return new File(baseDir, "acts.xml");
-  }
-
   private static String actsJar() {
     return "src/test/resources/bin/acts_3.0.jar";
   }
 
   private List<Tuple> run() {
-    final File inFile = inFile(baseDir);
+    final File inFile = ExternalUtils.inFile(baseDir);
     boolean baseDirCreated = baseDir.mkdirs();
     LOGGER.debug("Basedir was created: {}", baseDirCreated);
     PeerJUtils2.writeTo(inFile, Arrays.stream(buildActsModel(factorSpace, "unknown", testCases).split("\n")));
@@ -115,7 +77,7 @@ public class Acts {
                solver - handle constraints using CSP solver　
                forbiddentuples - handle constraints using minimum forbidden tuples (default)
      */
-    final File outFile = outFile(baseDir);
+    final File outFile = ExternalUtils.outFile(baseDir);
     String commandLine = StableTemplatingUtils.template(
         "{{JAVA}} -Ddoi={{STRENGTH}} -Dalgo={{ALGORITHM}} -Dchandler={{CHANDLER}} -Doutput=csv -jar {{ACTS_JAR}} {{IN}} {{OUT}}",
         new TreeMap<String, Object>() {{
@@ -137,7 +99,7 @@ public class Acts {
         .forEach(LOGGER::trace);
     writeTo(new File(baseDir, "acts.time"), String.format("%s[msec]", System.currentTimeMillis() - before));
     try (Stream<String> s = streamFile(outFile).peek(LOGGER::trace)) {
-      return readTestSuiteFromCsv(s);
+      return ActsUtils.readTestSuiteFromCsv(s);
     }
   }
 

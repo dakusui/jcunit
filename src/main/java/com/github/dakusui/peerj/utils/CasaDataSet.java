@@ -1,28 +1,6 @@
 package com.github.dakusui.peerj.utils;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.peerj.model.NormalizedConstraint;
-
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
-
-import static com.github.dakusui.crest.utils.printable.Functions.size;
-import static com.github.dakusui.pcond.Preconditions.require;
-import static com.github.dakusui.pcond.functions.Predicates.greaterThan;
-import static com.github.dakusui.pcond.functions.Predicates.transform;
-import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 public enum CasaDataSet {
   BANKING1("IBM", "Banking1"),
@@ -83,8 +61,8 @@ public enum CasaDataSet {
   BENCHMARK_30("Synthetic", "benchmark_30"),
   ;
 
-  public final        String categoryName;
-  public final        String modelName;
+  public final String categoryName;
+  public final String modelName;
 
   CasaDataSet(String categoryName, String modelName) {
     this.categoryName = categoryName;

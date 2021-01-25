@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import static com.github.dakusui.pcond.functions.Predicates.startsWith;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
@@ -49,13 +50,23 @@ public enum JoinExperimentUtils {
           long after = System.currentTimeMillis();
           LOGGER.debug("Generated.");
           LOGGER.debug("Saving...");
-          saveTo(dataFileFor(abstractModel, strength, baseDir), ret);
+          saveTo(createDirFor(dataFileFor(abstractModel, strength, baseDir)), ret);
           saveTo(timeFileFor(abstractModel, strength, baseDir), after - before);
           LOGGER.debug("Saved.");
           return ret.stream()
               .map(t -> convert(t, factorSpaceSpec.prefix()))
               .collect(toList());
         });
+  }
+
+  private static File createDirFor(File dataFileFor) {
+    File parentDirectory = dataFileFor.getParentFile();
+    boolean created = false;
+    if (!parentDirectory.exists())
+      created = parentDirectory.mkdirs();
+    if (created)
+      LOGGER.trace("A directory {} was created", parentDirectory);
+    return dataFileFor;
   }
 
   public static long timeSpentForGeneratingCoveringArray(
@@ -75,7 +86,7 @@ public enum JoinExperimentUtils {
   }
 
   private static FactorSpaceSpec convertToAbstractModel(FactorSpaceSpec in) {
-    FactorSpaceSpec ret = new FactorSpaceSpec("PREFIX");
+    FactorSpaceSpec ret = new FactorSpaceSpec("p");
     in.factorSpecs().forEach(entry -> ret.addFactors(entry.getKey(), entry.getValue()));
     if (!in.constraints().isEmpty()) {
       in.constraints().forEach(ret::addConstraint);
@@ -146,7 +157,7 @@ public enum JoinExperimentUtils {
   private static Tuple convert(Tuple in, String newPrefix) {
     Tuple.Builder b = Tuple.builder();
     in.forEach((k, v) -> b.put(
-        requireArgument(k, key -> key.startsWith("p")).replace("p", newPrefix),
+        requireArgument(k, startsWith("p")).replace("p", newPrefix),
         v
     ));
     return b.build();

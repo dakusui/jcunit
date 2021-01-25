@@ -25,7 +25,7 @@ import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintH
 import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.GenerationMode.EXTEND;
 import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
-import static com.github.dakusui.peerj.acts.Acts.runActs;
+import static com.github.dakusui.peerj.ext.acts.Acts.runActs;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.toList;

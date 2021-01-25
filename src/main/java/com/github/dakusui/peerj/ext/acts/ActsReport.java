@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.acts;
+package com.github.dakusui.peerj.ext.acts;
 
 import com.github.dakusui.peerj.model.Experiment;
 

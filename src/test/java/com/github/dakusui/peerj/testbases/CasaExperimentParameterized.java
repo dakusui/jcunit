@@ -1,7 +1,7 @@
 package com.github.dakusui.peerj.testbases;
 
-import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.pcond.functions.Printables;
 import com.github.dakusui.peerj.PeerJUtils2;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
   @Test
   public void acts() {
     StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<CasaExperimentParameterized, List<Tuple>>(
-        Printable.function("conductActsExperiment", (CasaExperimentParameterized self) -> self.conductActsExperimentForCasa(self.spec.def)),
+        Printables.function("conductActsExperiment", (CasaExperimentParameterized self) -> self.conductActsExperimentForCasa(self.spec.def)),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {
@@ -69,7 +69,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
   @Test
   public void joinWithSimplePartitioner() {
     StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-        Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperimentForCasa(self.spec.def, PeerJUtils2.simplePartitioner())),
+        Printables.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperimentForCasa(self.spec.def, PeerJUtils2.simplePartitioner())),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {
@@ -83,7 +83,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
   @Test
   public void joinWithStandardPartitioner() {
     StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
-        Printable.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperimentForCasa(self.spec.def, PeerJUtils2.standardPartitioner(spec.strength))),
+        Printables.function("conductJoinExperiment", (CasaExperimentParameterized self) -> self.conductJoinExperimentForCasa(self.spec.def, PeerJUtils2.standardPartitioner(spec.strength))),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {

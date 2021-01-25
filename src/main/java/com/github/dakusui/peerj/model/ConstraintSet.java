@@ -1,6 +1,6 @@
 package com.github.dakusui.peerj.model;
 
-import com.github.dakusui.peerj.acts.ActsUtils;
+import com.github.dakusui.peerj.ext.acts.ActsUtils;
 
 import java.util.List;
 import java.util.Optional;

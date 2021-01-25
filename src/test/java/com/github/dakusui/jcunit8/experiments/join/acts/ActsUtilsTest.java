@@ -2,9 +2,10 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.ext.shared.ExternalUtils;
 import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
-import com.github.dakusui.peerj.acts.Acts;
-import com.github.dakusui.peerj.acts.ActsUtils;
+import com.github.dakusui.peerj.ext.acts.Acts;
+import com.github.dakusui.peerj.ext.acts.ActsUtils;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
@@ -24,7 +25,7 @@ import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
-import static com.github.dakusui.peerj.acts.Acts.readTestSuiteFromCsv;
+import static com.github.dakusui.peerj.ext.acts.ActsUtils.readTestSuiteFromCsv;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 
 public class ActsUtilsTest {
@@ -51,7 +52,7 @@ public class ActsUtilsTest {
         "ipog",
         "solver");
     List<Tuple> ret = new LinkedList<>();
-    try (Stream<String> data = streamFile(Acts.outFile(baseDir)).peek(LOGGER::trace)) {
+    try (Stream<String> data = streamFile(ExternalUtils.outFile(baseDir)).peek(LOGGER::trace)) {
       ret.addAll(readTestSuiteFromCsv(data));
     }
     return ret;
