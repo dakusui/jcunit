@@ -45,17 +45,12 @@ public class ActsUtilsTest {
     for (Function<List<String>, NormalizedConstraint> each : constraints)
       factorSpaceSpec = factorSpaceSpec.addConstraint(each);
     FactorSpace factorSpace = factorSpaceSpec.toFactorSpace();
-    generateWithActs(
+    return new LinkedList<>(generateWithActs(
         baseDir,
         factorSpace,
         strength,
         "ipog",
-        "solver");
-    List<Tuple> ret = new LinkedList<>();
-    try (Stream<String> data = streamFile(ExternalUtils.outFile(baseDir)).peek(LOGGER::trace)) {
-      ret.addAll(readTestSuiteFromCsv(data));
-    }
-    return ret;
+        "solver"));
   }
 
   public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
