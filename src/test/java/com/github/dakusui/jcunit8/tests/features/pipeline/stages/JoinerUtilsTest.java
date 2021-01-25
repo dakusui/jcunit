@@ -1,7 +1,8 @@
-package com.github.dakusui.jcunit8.pipeline.stages;
+package com.github.dakusui.jcunit8.tests.features.pipeline.stages;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
+import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.pcond.functions.Printables;
 import org.junit.Test;
