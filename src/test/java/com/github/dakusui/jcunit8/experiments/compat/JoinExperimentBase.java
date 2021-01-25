@@ -81,6 +81,7 @@ public abstract class JoinExperimentBase {
         }},
         Collections.emptyList()
     );
+    joined.forEach(System.out::println);
     assertCoveringArray(joined, joinedFactorSpace, strength());
   }
 

@@ -1,19 +1,15 @@
 package com.github.dakusui.jcunit8.pipeline.stages;
 
-import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
@@ -197,6 +193,35 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
   }
 
   class WeakenProduct extends Base {
+    private final Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> TUPLETS_COVERED_BY =
+        memoize(rows -> memoize(strength -> tupletsCoveredBy_(rows, strength)));
+
+    public Set<Tuple> tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
+      Set<Tuple> ret = TUPLETS_COVERED_BY.apply(rows).apply(strength);
+      System.err.println(":::" + ret + ":t=" + strength + ":rows=" + rows);
+      return ret;
+    }
+
+    private Set<Tuple> tupletsCoveredBy_(SchemafulTupleSet rows, int strength) {
+      long before_ = System.currentTimeMillis();
+      try {
+        if (strength == 1) {
+          Set<Tuple> ret = new HashSet<>();
+          for (Tuple each : rows)
+            ret.addAll(subtuplesOf(each, 1));
+          return ret;
+        }
+        Set<Tuple> t_1 = tupletsCoveredBy(rows, 1);
+        Set<Tuple> lower = tupletsCoveredBy(rows, strength - 1);
+        return lower
+            .stream()
+            .parallel()
+            .flatMap(each -> t_1.stream().map(JoinerUtils.Pair::new).filter(t -> !each.containsKey(t.key)).map(t -> Tuple.builder().putAll(each).put(t.key, t.value).build()))
+            .collect(toSet());
+      } finally {
+        System.err.printf("  tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
+      }
+    }
 
     public WeakenProduct(Requirement requirement) {
       super(requirement);
@@ -220,7 +245,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
         Function<Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>>, Function<SchemafulTupleSet, Function<Integer, SchemafulTupleSet>>> weakener
             = memoize(tupletsFinder -> memoize(in -> memoize(strength -> JoinerUtils.weakenTo(in, strength, tupletsFinder))));
         Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> tupletsFinder
-            = memoize(in -> memoize(strength -> JoinerUtils.tupletsCoveredBy(in, strength)));
+            = memoize(in -> memoize(strength -> tupletsCoveredBy(in, strength)));
         for (int i = 1; i < requirement().strength(); i++) {
           SchemafulTupleSet weakenedLhs = weakener.apply(tupletsFinder).apply(lhs).apply(i);
           SchemafulTupleSet weakenedRhs = weakener.apply(tupletsFinder).apply(rhs).apply(requirement().strength() - i);
@@ -237,14 +262,14 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       return b.build();
     }
 
-    void addConnectedTuples(LinkedHashSet<Tuple> work, SchemafulTupleSet weakenedLhs, SchemafulTupleSet weakenedRhs) {
+    static void addConnectedTuples(LinkedHashSet<Tuple> work, SchemafulTupleSet weakenedLhs, SchemafulTupleSet weakenedRhs) {
       work.addAll(
           JoinerUtils.cartesianProduct(
               weakenedLhs,
               weakenedRhs));
     }
 
-    private void ensureLeftoversArePresent(
+    static private void ensureLeftoversArePresent(
         LinkedHashSet<Tuple> b,
         Set<Tuple> leftoverWorkForLhs, Set<Tuple> leftoverWorkForRhs,
         Tuple firstTupleInLhs,
@@ -262,7 +287,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             leftoverWorkForRhs, leftoverWorkForLhs, firstTupleInLhs);
     }
 
-    private void ensureLeftoversArePresent_(
+    static private void ensureLeftoversArePresent_(
         LinkedHashSet<Tuple> b,
         Set<Tuple> biggerLeftover, Set<Tuple> nonBiggerLeftover,
         Tuple firstTupleInNonBigger) {
@@ -316,29 +341,6 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }
     }
 
-    private static Set<Tuple> _tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
-      long before_ = System.currentTimeMillis();
-      try {
-        Set<Tuple> ret = ConcurrentHashMap.newKeySet();
-        List<List<String>> keySetCombinations = StreamSupport.stream(new Combinator<>(rows.getAttributeNames(), strength).spliterator(), true).collect(toList());
-        rows.stream()
-            .parallel()
-            .forEach(row ->
-                keySetCombinations.stream()
-                    .map(keys -> TupleUtils.project(row, keys))
-                    .forEach(ret::add));
-        return ret;
-      } finally {
-        System.err.printf("  tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
-      }
-    }
-
-    private static final Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> TUPLETS_COVERED_BY =
-        memoize(rows -> memoize(strength -> tupletsCoveredBy_(rows, strength)));
-
-    private static Set<Tuple> tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
-      return TUPLETS_COVERED_BY.apply(rows).apply(strength);
-    }
 
     static final class Pair {
       final String key;
@@ -351,28 +353,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }
     }
 
-    private static Set<Tuple> tupletsCoveredBy_(SchemafulTupleSet rows, int strength) {
-      long before_ = System.currentTimeMillis();
-      try {
-        if (strength == 1) {
-          Set<Tuple> ret = new HashSet<>();
-          for (Tuple each : rows)
-            ret.addAll(subtuplesOf(each, 1));
-          return ret;
-        }
-        Set<Tuple> t_1 = tupletsCoveredBy(rows, 1);
-        Set<Tuple> lower = tupletsCoveredBy(rows, strength - 1);
-        return lower
-            .stream()
-            .parallel()
-            .flatMap(each -> t_1.stream().map(Pair::new).filter(t -> !each.containsKey(t.key)).map(t -> Tuple.builder().putAll(each).put(t.key, t.value).build()))
-            .collect(toSet());
-      } finally {
-        System.err.printf("  tupletsCoveredBy(t=%s,degree=%s);time=%10d[msec]%n", strength, rows.getAttributeNames().size(), System.currentTimeMillis() - before_);
-      }
-    }
-
-    private static List<Tuple> cartesianProduct(List<Tuple> lhs, List<Tuple> rhs) {
+    public static List<Tuple> cartesianProduct(List<Tuple> lhs, List<Tuple> rhs) {
       return lhs.stream()
           .flatMap((Function<Tuple, Stream<Tuple>>) l -> rhs.stream()
               .map(r -> connect(l, r)))

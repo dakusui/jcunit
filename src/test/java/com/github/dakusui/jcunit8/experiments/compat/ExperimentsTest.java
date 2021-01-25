@@ -33,28 +33,28 @@ public class ExperimentsTest {
     public void whenJoinWith2_10$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpecSpec("R", 10);
       final FactorSpace r = rSpec.toFactorSpace();
-      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
+      exerciseJoin(1, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_20$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpecSpec("R", 20);
       final FactorSpace r = rSpec.toFactorSpace();
-      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
+      exerciseJoin(1, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_30$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpecSpec("R", 30);
       final FactorSpace r = rSpec.toFactorSpace();
-      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
+      exerciseJoin(1, rSpec, generateWithIpoGplus(r, strength()));
     }
 
     @Test
     public void whenJoinWith2_40$thenLetsSee() {
       FactorSpaceSpec rSpec = factorSpecSpec("R", 40);
       final FactorSpace r = rSpec.toFactorSpace();
-      exerciseJoin(10, rSpec, generateWithIpoGplus(r, strength()));
+      exerciseJoin(1, rSpec, generateWithIpoGplus(r, strength()));
     }
   }
 
@@ -91,18 +91,18 @@ public class ExperimentsTest {
   public static class JoinExperimentWithStrength3UsingWeakenProductMethodTest extends JoinExperimentBase {
     @Override
     protected int strength() {
-      return 3;
+      return 2;
     }
 
     @Override
     protected FactorSpaceSpec lhsFactorSpaceSpec() {
-      return new FactorSpaceSpec("L").addFactors(2, 20);
+      return new FactorSpaceSpec("L").addFactors(2, 10);
     }
 
     @Test
     public void whenJoinWith2_10$thenLetsSee() {
-      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 20);
-      exerciseJoin(10,
+      FactorSpaceSpec rSpec = new FactorSpaceSpec("R").addFactors(2, 10);
+      exerciseJoin(2,
           rSpec,
           loadPregeneratedOrGenerateAndSaveCoveringArrayFor(
               rSpec,
