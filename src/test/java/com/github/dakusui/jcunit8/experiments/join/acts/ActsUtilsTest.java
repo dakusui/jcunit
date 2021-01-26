@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.ext.ExternalEngine;
 import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
 import com.github.dakusui.peerj.ext.acts.Acts;
 import com.github.dakusui.peerj.ext.acts.ActsUtils;
@@ -22,6 +23,7 @@ import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
+import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.ext.acts.ActsUtils.readTestSuiteFromCsv;
 
 public class ActsUtilsTest {
@@ -48,7 +50,7 @@ public class ActsUtilsTest {
   }
 
   public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
-    return Acts.runActs(baseDir, factorSpace, strength, algorithm, PeerJExperimentBase.GenerationMode.SCRATCH.name, constraintHandler);
+    return Acts.runActs(baseDir, factorSpace, strength, algorithm, SCRATCH, constraintHandler);
   }
 
   @Test

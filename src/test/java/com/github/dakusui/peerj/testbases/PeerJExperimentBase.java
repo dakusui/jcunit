@@ -21,11 +21,11 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.GenerationMode.EXTEND;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
+import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.INCREMENTAL;
+import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.ext.acts.Acts.runActs;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.stream.Collectors.toList;
@@ -96,7 +96,7 @@ public abstract class PeerJExperimentBase {
   abstract protected int strength();
 
   public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
-    return runActs(baseDir, factorSpace, strength, algorithm.name, SCRATCH.name, constraintHandlingMethod.name);
+    return runActs(baseDir, factorSpace, strength, algorithm.name, SCRATCH, constraintHandlingMethod.name);
   }
 
   public static List<Tuple> generateWithCombinatorialJoin(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
@@ -124,7 +124,7 @@ public abstract class PeerJExperimentBase {
   }
 
   public static List<Tuple> extendWithActs(File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
-    return runActs(baseDir, factorSpace, strength, algorithm.name, EXTEND.name, constraintHandlingMethod.name, base);
+    return runActs(baseDir, factorSpace, strength, algorithm.name, INCREMENTAL, constraintHandlingMethod.name, base);
   }
 
   public static SchemafulTupleSet extendWithCombinatorialJoin(Requirement requirement, File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
@@ -172,17 +172,6 @@ public abstract class PeerJExperimentBase {
 
     Algorithm(String algorithmName) {
       this.name = algorithmName;
-    }
-  }
-
-  public enum GenerationMode {
-    SCRATCH("scratch"),
-    EXTEND("extend");
-
-    public final String name;
-
-    GenerationMode(String generationModeName) {
-      this.name = generationModeName;
     }
   }
 

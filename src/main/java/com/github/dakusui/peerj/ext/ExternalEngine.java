@@ -17,6 +17,11 @@ import static com.github.dakusui.peerj.ext.shared.IoUtils.writeTo;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 
 public interface ExternalEngine {
+  enum GenerationMode {
+    SCRATCH,
+    INCREMENTAL
+  }
+
   Logger LOGGER = LoggerFactory.getLogger(ExternalEngine.class);
 
   default void recordExecutedCommandLine(String commandLine, String commandLineFile) {
@@ -66,5 +71,52 @@ public interface ExternalEngine {
 
   FactorSpace factorSpace();
 
+  int strength();
+
+  String mode();
+
+  GenerationMode generationMode();
+
   String composeCommandLine(File inFile, File outFile);
+
+  abstract class Base implements ExternalEngine {
+    private final FactorSpace    factorSpace;
+    private final List<Tuple>    testCases;
+    private final int            strength;
+    private final File           baseDir;
+    private final GenerationMode generationMode;
+
+    protected Base(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, GenerationMode generationMode) {
+      this.factorSpace = factorSpace;
+      this.testCases = testCases;
+      this.strength = strength;
+      this.baseDir = baseDir;
+      this.generationMode = generationMode;
+    }
+
+    @Override
+    public File baseDir() {
+      return this.baseDir;
+    }
+
+    @Override
+    public List<Tuple> testCases() {
+      return this.testCases;
+    }
+
+    @Override
+    public FactorSpace factorSpace() {
+      return this.factorSpace;
+    }
+
+    @Override
+    public int strength() {
+      return this.strength;
+    }
+
+    @Override
+    public GenerationMode generationMode() {
+      return this.generationMode;
+    }
+  }
 }

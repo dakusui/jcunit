@@ -8,51 +8,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.TreeMap;
 
 import static com.github.dakusui.peerj.ext.acts.ActsUtils.buildActsModel;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
-public class Acts implements ExternalEngine {
+public class Acts extends ExternalEngine.Base {
 
-  private final FactorSpace factorSpace;
-  private final List<Tuple> testCases;
-  private final String      algorithm;
-  private final String      constraintHandler;
-  private final String      mode;
+  private final String algorithm;
+  private final String constraintHandler;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Acts.class);
-  private final        int    strength;
-  private final        File   baseDir;
 
-  private Acts(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, String algorithm, String mode, String constraintHandler) {
-    this.factorSpace = factorSpace;
-    this.testCases = unmodifiableList(new ArrayList<>(testCases));
-    this.strength = strength;
-    this.baseDir = new File(baseDir, Objects.toString(Thread.currentThread().getId()));
+  private Acts(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, String algorithm, GenerationMode mode, String constraintHandler) {
+    super(factorSpace, testCases, strength, baseDir, mode);
     this.algorithm = algorithm;
-    this.mode = mode;
     this.constraintHandler = constraintHandler;
   }
 
   @Override
   public String buildModel() {
     return buildActsModel(factorSpace(), "unknown", testCases());
-  }
-
-  @Override
-  public List<Tuple> testCases() {
-    return this.testCases;
-  }
-
-  @Override
-  public FactorSpace factorSpace() {
-    return this.factorSpace;
   }
 
   @Override
@@ -94,9 +72,9 @@ public class Acts implements ExternalEngine {
         "{{JAVA}} -Ddoi={{STRENGTH}} -Dalgo={{ALGORITHM}} -Dchandler={{CHANDLER}} -Doutput=csv -jar {{ACTS_JAR}} {{IN}} {{OUT}}",
         new TreeMap<String, Object>() {{
           put("{{JAVA}}", "java");
-          put("{{STRENGTH}}", strength);
+          put("{{STRENGTH}}", strength());
           put("{{ALGORITHM}}", algorithm);
-          put("{{MODE}}", mode);
+          put("{{MODE}}", mode());
           put("{{CHANDLER}}", constraintHandler);
           put("{{ACTS_JAR}}", actsJar());
           put("{{IN}}", inFile);
@@ -105,20 +83,30 @@ public class Acts implements ExternalEngine {
   }
 
   @Override
-  public File baseDir() {
-    return this.baseDir;
+  public String mode() {
+    String ret;
+    switch (this.generationMode()) {
+    case SCRATCH:
+      ret = "scratch";
+      break;
+    case INCREMENTAL:
+      ret = "extend";
+      break;
+    default:
+      throw new UnsupportedOperationException();
+    }
+    return ret;
   }
 
   private static String actsJar() {
     return "src/test/resources/bin/acts_3.0.jar";
   }
 
-
-  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String mode, String constraintHandler) {
+  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, GenerationMode mode, String constraintHandler) {
     return runActs(baseDir, factorSpace, strength, algorithm, mode, constraintHandler, emptyList());
   }
 
-  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String mode, String constraintHandler, List<Tuple> testCases) {
+  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, GenerationMode mode, String constraintHandler, List<Tuple> testCases) {
     LOGGER.debug("Directory:{} was created: {}", baseDir, baseDir.mkdirs());
     return new Builder().baseDir(baseDir)
         .factorSpace(factorSpace)
@@ -132,13 +120,13 @@ public class Acts implements ExternalEngine {
   }
 
   public static class Builder {
-    private File        baseDir;
-    private int         strength          = 2;
-    private String      algorithm         = "ipog";
-    private String      mode              = "scratch";
-    private String      constraintHandler = "solver";
-    private FactorSpace factorSpace;
-    private List<Tuple> testCases         = emptyList();
+    private File           baseDir;
+    private int            strength          = 2;
+    private String         algorithm         = "ipog";
+    private GenerationMode mode              = GenerationMode.SCRATCH;
+    private String         constraintHandler = "solver";
+    private FactorSpace    factorSpace;
+    private List<Tuple>    testCases         = emptyList();
 
     public Builder baseDir(File baseDir) {
       this.baseDir = requireNonNull(baseDir);
@@ -189,7 +177,7 @@ public class Acts implements ExternalEngine {
      * @param mode Generation mode
      * @return This object
      */
-    public Builder mode(String mode) {
+    public Builder mode(GenerationMode mode) {
       this.mode = mode;
       return this;
     }
