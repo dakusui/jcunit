@@ -13,6 +13,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.INCREMENTAL;
+import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.ext.shared.IoUtils.writeTo;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 
@@ -73,8 +75,6 @@ public interface ExternalEngine {
 
   int strength();
 
-  String mode();
-
   GenerationMode generationMode();
 
   String composeCommandLine(File inFile, File outFile);
@@ -86,7 +86,11 @@ public interface ExternalEngine {
     private final File           baseDir;
     private final GenerationMode generationMode;
 
-    protected Base(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, GenerationMode generationMode) {
+    protected Base(File baseDir, int strength, FactorSpace factorSpace, List<Tuple> testCases) {
+      this(baseDir, strength, factorSpace, testCases.isEmpty() ? SCRATCH : INCREMENTAL, testCases);
+    }
+
+    protected Base(File baseDir, int strength, FactorSpace factorSpace, GenerationMode generationMode, List<Tuple> testCases) {
       this.factorSpace = factorSpace;
       this.testCases = testCases;
       this.strength = strength;

@@ -9,17 +9,12 @@ import java.util.List;
 
 public class Pict extends ExternalEngine.Base {
   private Pict(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, GenerationMode mode) {
-    super(factorSpace, testCases, strength, baseDir, mode);
+    super(baseDir, strength, factorSpace, mode, testCases);
   }
 
   @Override
   public String engineName() {
     return "pict";
-  }
-
-  @Override
-  public String mode() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

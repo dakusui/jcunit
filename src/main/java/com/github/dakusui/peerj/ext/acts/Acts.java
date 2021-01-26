@@ -22,8 +22,8 @@ public class Acts extends ExternalEngine.Base {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Acts.class);
 
-  private Acts(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, String algorithm, GenerationMode mode, String constraintHandler) {
-    super(factorSpace, testCases, strength, baseDir, mode);
+  private Acts(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, String algorithm, String constraintHandler) {
+    super(baseDir, strength, factorSpace, testCases);
     this.algorithm = algorithm;
     this.constraintHandler = constraintHandler;
   }
@@ -82,8 +82,7 @@ public class Acts extends ExternalEngine.Base {
         }});
   }
 
-  @Override
-  public String mode() {
+  private String mode() {
     String ret;
     switch (this.generationMode()) {
     case SCRATCH:
@@ -102,17 +101,16 @@ public class Acts extends ExternalEngine.Base {
     return "src/test/resources/bin/acts_3.0.jar";
   }
 
-  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, GenerationMode mode, String constraintHandler) {
-    return runActs(baseDir, factorSpace, strength, algorithm, mode, constraintHandler, emptyList());
+  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
+    return runActs(baseDir, factorSpace, strength, algorithm, constraintHandler, emptyList());
   }
 
-  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, GenerationMode mode, String constraintHandler, List<Tuple> testCases) {
+  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler, List<Tuple> testCases) {
     LOGGER.debug("Directory:{} was created: {}", baseDir, baseDir.mkdirs());
     return new Builder().baseDir(baseDir)
         .factorSpace(factorSpace)
         .strength(strength)
         .algorithm(algorithm)
-        .mode(mode)
         .constraintHandler(constraintHandler)
         .testCases(testCases)
         .build()
@@ -120,13 +118,12 @@ public class Acts extends ExternalEngine.Base {
   }
 
   public static class Builder {
-    private File           baseDir;
-    private int            strength          = 2;
-    private String         algorithm         = "ipog";
-    private GenerationMode mode              = GenerationMode.SCRATCH;
-    private String         constraintHandler = "solver";
-    private FactorSpace    factorSpace;
-    private List<Tuple>    testCases         = emptyList();
+    private File        baseDir;
+    private int         strength          = 2;
+    private String      algorithm         = "ipog";
+    private String      constraintHandler = "solver";
+    private FactorSpace factorSpace;
+    private List<Tuple> testCases         = emptyList();
 
     public Builder baseDir(File baseDir) {
       this.baseDir = requireNonNull(baseDir);
@@ -170,17 +167,6 @@ public class Acts extends ExternalEngine.Base {
       return this;
     }
 
-    /**
-     * - scratch
-     * - extend
-     *
-     * @param mode Generation mode
-     * @return This object
-     */
-    public Builder mode(GenerationMode mode) {
-      this.mode = mode;
-      return this;
-    }
 
     public Builder factorSpace(FactorSpace factorSpace) {
       this.factorSpace = requireNonNull(factorSpace);
@@ -195,7 +181,7 @@ public class Acts extends ExternalEngine.Base {
     public Acts build() {
       return new Acts(
           requireNonNull(factorSpace),
-          testCases, strength, baseDir, algorithm, mode, constraintHandler);
+          testCases, strength, baseDir, algorithm, constraintHandler);
     }
   }
 }
