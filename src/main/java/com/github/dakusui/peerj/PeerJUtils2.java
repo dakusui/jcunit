@@ -150,16 +150,6 @@ public enum PeerJUtils2 {
         .build();
   }
 
-  public static void writeTo(File file, Stream<String> stream) {
-    try {
-      try (OutputStreamWriter writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)))) {
-        stream.peek(LOGGER::trace).forEach(line -> write(writer, String.format("%s%n", line)));
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   public static void write(OutputStreamWriter writer, String line) {
     try {
       writer.write(line);
@@ -175,9 +165,4 @@ public enum PeerJUtils2 {
     return new File(new File(baseDir, Integer.toString(strength)), "result.txt");
   }
 
-  public static void writeTo(File file, String data) {
-    ProcessStreamerUtils.processStreamer(format("echo '%s' > %s", data, file.getAbsolutePath()), ProcessStreamer.Checker.createDefault())
-        .stream()
-        .forEach(LOGGER::debug);
-  }
 }

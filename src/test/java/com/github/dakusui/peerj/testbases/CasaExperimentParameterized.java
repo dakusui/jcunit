@@ -3,6 +3,7 @@ package com.github.dakusui.peerj.testbases;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.pcond.functions.Printables;
 import com.github.dakusui.peerj.PeerJUtils2;
+import com.github.dakusui.peerj.ext.shared.IoUtils;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -62,7 +63,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     try {
       stopWatch.apply(this);
     } finally {
-      PeerJUtils2.writeTo(resultFile("acts", "none"), Stream.of(stopWatch.report()));
+      IoUtils.writeTo(resultFile("acts", "none"), Stream.of(stopWatch.report()));
     }
   }
 
@@ -75,7 +76,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     try {
       stopWatch.apply(this);
     } finally {
-      PeerJUtils2.writeTo(resultFile("join", "simple"), Stream.of(stopWatch.report()));
+      IoUtils.writeTo(resultFile("join", "simple"), Stream.of(stopWatch.report()));
     }
   }
 
@@ -89,7 +90,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     try {
       stopWatch.apply(this);
     } finally {
-      PeerJUtils2.writeTo(resultFile("join", "standard"), Stream.of(stopWatch.report()));
+      IoUtils.writeTo(resultFile("join", "standard"), Stream.of(stopWatch.report()));
     }
   }
 

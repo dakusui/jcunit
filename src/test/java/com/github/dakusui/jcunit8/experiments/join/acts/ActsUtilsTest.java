@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.shared.ExternalUtils;
 import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
 import com.github.dakusui.peerj.ext.acts.Acts;
 import com.github.dakusui.peerj.ext.acts.ActsUtils;
@@ -11,8 +10,6 @@ import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -26,11 +23,8 @@ import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
 import static com.github.dakusui.peerj.ext.acts.ActsUtils.readTestSuiteFromCsv;
-import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 
 public class ActsUtilsTest {
-  public static final Logger LOGGER = LoggerFactory.getLogger(ActsUtilsTest.class);
-
   @SafeVarargs
   public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
     CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
@@ -78,7 +72,6 @@ public class ActsUtilsTest {
     generateAndReportWithConstraints(baseDir, 90, 2);
     generateAndReportWithConstraints(baseDir, 100, 2);
   }
-
   @Test
   public void testGenerateAndReportWithConstraintsWithStrength3() {
     File baseDir = PeerJUtils.createTempDirectory("target/acts");

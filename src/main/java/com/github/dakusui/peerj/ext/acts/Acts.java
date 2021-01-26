@@ -3,24 +3,22 @@ package com.github.dakusui.peerj.ext.acts;
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.PeerJUtils2;
-import com.github.dakusui.peerj.ext.shared.ExternalUtils;
-import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
+import com.github.dakusui.peerj.ext.ExternalEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.*;
-import java.util.stream.Stream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.TreeMap;
 
-import static com.github.dakusui.peerj.PeerJUtils2.writeTo;
 import static com.github.dakusui.peerj.ext.acts.ActsUtils.buildActsModel;
-import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
-public class Acts {
+public class Acts implements ExternalEngine {
 
   private final FactorSpace factorSpace;
   private final List<Tuple> testCases;
@@ -42,43 +40,57 @@ public class Acts {
     this.constraintHandler = constraintHandler;
   }
 
-  private static String actsJar() {
-    return "src/test/resources/bin/acts_3.0.jar";
+  @Override
+  public String buildModel() {
+    return buildActsModel(factorSpace(), "unknown", testCases());
   }
 
-  private List<Tuple> run() {
-    final File inFile = ExternalUtils.inFile(baseDir);
-    boolean baseDirCreated = baseDir.mkdirs();
-    LOGGER.debug("Basedir was created: {}", baseDirCreated);
-    PeerJUtils2.writeTo(inFile, Arrays.stream(buildActsModel(factorSpace, "unknown", testCases).split("\n")));
-    /*
-      ACTS Version: 3.0
-      Usage: java [options] -jar jarName <inputFileName> [outputFileName]
-      where options include:
-      -Dalgo=ipog|ipog_d|ipof|ipof2|basechoice|null
-               ipog - use algorithm IPO (default)
-               ipog_d - use algorithm IPO + Binary Construction (for large systems)
-               ipof - use ipof method
-               ipof2 - use the ipof2 method
-               basechoice - use Base Choice method
-               null - use to check coverage only (no test generation)
-      -Ddoi=<int>
-               specify the degree of interactions to be covered. Use -1 for mixed strength.
-      -Doutput=numeric|nist|csv|excel
-               numeric - output test set in numeric format
-               nist - output test set in NIST format (default)
-               csv - output test set in CSV format
-               excel - output test set in EXCEL format
-      -Dmode=scratch|extend
-               scratch - generate tests from scratch (default)
-               extend - extend from an existing test set
-      -Dchandler=no|solver|forbiddentuples
-               no - ignore all constraints
-               solver - handle constraints using CSP solver　
-               forbiddentuples - handle constraints using minimum forbidden tuples (default)
-     */
-    final File outFile = ExternalUtils.outFile(baseDir);
-    String commandLine = StableTemplatingUtils.template(
+  @Override
+  public List<Tuple> testCases() {
+    return this.testCases;
+  }
+
+  @Override
+  public FactorSpace factorSpace() {
+    return this.factorSpace;
+  }
+
+  @Override
+  public String engineName() {
+    return "acts";
+  }
+
+  /**
+   * <pre>
+   * ACTS Version: 3.0
+   * Usage: java [options] -jar jarName <inputFileName> [outputFileName]
+   * where options include:
+   * -Dalgo=ipog|ipog_d|ipof|ipof2|basechoice|null
+   *   ipog            - use algorithm IPO (default)
+   *   ipog_d          - use algorithm IPO + Binary Construction (for large systems)
+   *   ipof            - use ipof method
+   *   ipof2           - use the ipof2 method
+   *   basechoice      - use Base Choice method
+   *   null            - use to check coverage only (no test generation)
+   * -Ddoi=<int>
+   * specify the degree of interactions to be covered. Use -1 for mixed strength.
+   * -Doutput=numeric|nist|csv|excel
+   *   numeric         - output test set in numeric format
+   *   nist            - output test set in NIST format (default)
+   *   csv             - output test set in CSV format
+   *   excel           - output test set in EXCEL format
+   * -Dmode=scratch|extend
+   *   scratch         - generate tests from scratch (default)
+   *   extend          - extend from an existing test set
+   * -Dchandler=no|solver|forbiddentuples
+   *   no              - ignore all constraints
+   *   solver          - handle constraints using CSP solver
+   *   forbiddentuples - handle constraints using minimum forbidden tuples (default)
+   * </pre>
+   */
+  @Override
+  public String composeCommandLine(File inFile, File outFile) {
+    return StableTemplatingUtils.template(
         "{{JAVA}} -Ddoi={{STRENGTH}} -Dalgo={{ALGORITHM}} -Dchandler={{CHANDLER}} -Doutput=csv -jar {{ACTS_JAR}} {{IN}} {{OUT}}",
         new TreeMap<String, Object>() {{
           put("{{JAVA}}", "java");
@@ -90,18 +102,17 @@ public class Acts {
           put("{{IN}}", inFile);
           put("{{OUT}}", outFile);
         }});
-    writeTo(new File(baseDir, "acts.commandLine"), commandLine);
-    long before = System.currentTimeMillis();
-    ProcessStreamerUtils.processStreamer(
-        commandLine,
-        new ProcessStreamerUtils.StandardChecker("Errors encountered", "Constraints can not be parsed"))
-        .stream()
-        .forEach(LOGGER::trace);
-    writeTo(new File(baseDir, "acts.time"), String.format("%s[msec]", System.currentTimeMillis() - before));
-    try (Stream<String> s = streamFile(outFile).peek(LOGGER::trace)) {
-      return ActsUtils.readTestSuiteFromCsv(s);
-    }
   }
+
+  @Override
+  public File baseDir() {
+    return this.baseDir;
+  }
+
+  private static String actsJar() {
+    return "src/test/resources/bin/acts_3.0.jar";
+  }
+
 
   public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String mode, String constraintHandler) {
     return runActs(baseDir, factorSpace, strength, algorithm, mode, constraintHandler, emptyList());
@@ -199,5 +210,4 @@ public class Acts {
           testCases, strength, baseDir, algorithm, mode, constraintHandler);
     }
   }
-
 }
