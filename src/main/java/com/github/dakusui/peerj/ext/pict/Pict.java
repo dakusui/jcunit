@@ -1,11 +1,14 @@
 package com.github.dakusui.peerj.ext.pict;
 
+import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.ext.ExternalEngine;
 
 import java.io.File;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.stream.Stream;
 
 public class Pict extends ExternalEngine.Base {
   private Pict(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, GenerationMode mode) {
@@ -19,11 +22,34 @@ public class Pict extends ExternalEngine.Base {
 
   @Override
   public String composeCommandLine(File inFile, File outFile) {
-    throw new UnsupportedOperationException();
+    return StableTemplatingUtils.template(
+        "{{PICT_EXEC}} {{IN}} /o:{{STRENGTH}} /c > {{OUT}}",
+        new TreeMap<String, Object>() {{
+          put("{{PICT_EXEC}}", pathToBinary());
+          if (generationMode() == GenerationMode.INCREMENTAL)
+            put("{{SEED}}", seedFile());
+          put("{{IN}}", inFile);
+          put("{{OUT}}", outFile);
+        }}
+    );
   }
 
   @Override
   public String buildModel() {
+    return PictUtils.buildPictModel(factorSpace());
+  }
+
+  @Override
+  public List<Tuple> readTestSuiteFromStream(Stream<String> s) {
+    return PictUtils.readTestSuiteFromTsv(s);
+  }
+
+
+  private String seedFile() {
     throw new UnsupportedOperationException();
+  }
+
+  private static String pathToBinary() {
+    return "src/test/resources/bin/" + System.getProperty("os.name") + "/pict";
   }
 }

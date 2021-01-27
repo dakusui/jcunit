@@ -5,26 +5,24 @@ import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
+import com.github.dakusui.peerj.ext.shared.FactorSpaceAdapter;
+import com.github.dakusui.peerj.ext.shared.IoUtils;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.utils.ConstraintUtils.*;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.toList;
 
 public enum ActsUtils {
   ;
-  private static final Logger LOGGER = LoggerFactory.getLogger(ActsUtils.class);
 
-  public static String buildActsModel(FactorSpace factorSpace, String systemName, List<Tuple> testCases) {
+  public static List<Tuple> readTestSuiteFromCsv(Stream<String> data) {
+    return IoUtils.readTestSuiteFromXsv(data, ",");
+  }
+
+  public static String buildActsModel(String systemName, FactorSpace factorSpace, List<Tuple> testCases) {
     StringBuilder b = new StringBuilder();
     b.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     b.append("<System name=\"").append(systemName).append("\">\n");
@@ -37,72 +35,6 @@ public enum ActsUtils {
     b.append("</System>");
 
     return b.toString();
-  }
-
-  public static List<Tuple> readTestSuiteFromCsv(Stream<String> data) {
-    AtomicReference<List<String>> header = new AtomicReference<>();
-    return data.filter(s -> !s.startsWith("#"))
-        .filter(s -> {
-          if (header.get() == null) {
-            header.set(asList(s.split(",")));
-            return false;
-          }
-          return true;
-        })
-        .map(
-            s -> {
-              List<String> record = asList(s.split(","));
-              List<String> h = header.get();
-              if (record.size() != h.size()) {
-                LOGGER.debug("header:" + h);
-                LOGGER.debug("record:" + record);
-                throw new IllegalArgumentException("size(header)=" + h.size() + ", size(record)=" + record.size());
-              }
-              Tuple.Builder b = Tuple.builder();
-              for (int i = 0; i < h.size(); i++)
-                b.put(h.get(i), record.get(i));
-              return b.build();
-            }
-        )
-        .collect(toList());
-  }
-
-  private static class FactorSpaceAdapter {
-    static final Function<Integer, String>                    NAME_RESOLVER =
-        (id) -> String.format("p%d", id);
-    final        Function<Integer, String>                    name;
-    final        Function<Integer, String>                    type;
-    final        Function<Integer, Factor>                    factor;
-    final        Function<Integer, Function<Integer, Object>> value;
-    final        int                                          numParameters;
-    final        Function<String, String>                     factorNameToParameterName;
-
-    private FactorSpaceAdapter(
-        Function<Integer, String> name,
-        Function<Integer, String> type,
-        Function<Integer, Factor> factor,
-        Function<Integer, Function<Integer, Object>> value,
-        Function<String, Integer> indexOfFactorName,
-        int numParameters) {
-      this.name = name;
-      this.type = type;
-      this.factor = factor;
-      this.value = value;
-      this.factorNameToParameterName = factorName ->
-          indexOfFactorName.apply(factorName) >= 0
-              ? name.apply(indexOfFactorName.apply(factorName))
-              : factorName;
-      this.numParameters = numParameters;
-    }
-
-    FactorSpaceAdapter(FactorSpace factorSpace) {
-      this(NAME_RESOLVER,
-          (id) -> "0",
-          (id) -> factorSpace.getFactors().get(id),
-          (ii) -> (j) -> factorSpace.getFactors().get(ii).getLevels().get(j),
-          (factorName) -> factorSpace.getFactorNames().indexOf(factorName),
-          factorSpace.getFactors().size());
-    }
   }
 
   @SuppressWarnings("SameParameterValue")
@@ -366,64 +298,4 @@ public enum ActsUtils {
   }
 
 
-  /**
-   * <pre>
-   *     <Constraints>
-   *       <Constraint text="l01 &lt;= l02 || l03 &lt;= l04 || l05 &lt;= l06 || l07&lt;= l08 || l09 &lt;= l02">
-   *       <Parameters>
-   *         <Parameter name="l01" />
-   *         <Parameter name="l02" />
-   *         <Parameter name="l03" />
-   *         <Parameter name="l04" />
-   *         <Parameter name="l05" />
-   *         <Parameter name="l06" />
-   *         <Parameter name="l07" />
-   *         <Parameter name="l08" />
-   *         <Parameter name="l09" />
-   *         <Parameter name="l02" />
-   *       </Parameters>
-   *     </Constraint>
-   *   </Constraints>
-   * </pre>
-   * <pre>
-   *   p i,1 > p i,2 ∨ p i,3 > p i,4 ∨ p i,5 > p i,6 ∨ p i,7 > p i,8 ∨ p i,9 > p i,2
-   * </pre>
-   *
-   * @param factorNames A list of factor names.
-   */
-  public static NormalizedConstraint createBasicConstraint(List<String> factorNames) {
-    String[] p = factorNames.toArray(new String[0]);
-    return or(
-        ge(p[0], p[1]),
-        gt(p[2], p[3]),
-        eq(p[4], p[5]),
-        gt(p[6], p[7]),
-        gt(p[8], p[1]));
-  }
-
-  /*
-      (pi,1>pi,2 ∨ pi,3>pi,4 ∨ pi,5>pi,6 ∨ pi,7>pi,8 ∨ pi,9>pi,2)
-                    ∧pi,10>pi,1
-                    ∧pi,9>pi,2
-                    ∧pi,8>pi,3
-                    ∧pi,7>pi,4
-                    ∧pi,6>pi,5 (0≤i<n)
-   */
-  public static NormalizedConstraint createBasicPlusConstraint(List<String> factorNames) {
-    String[] p = factorNames.toArray(new String[0]);
-    return and(or(
-        ge(p[0], p[1]),
-        gt(p[2], p[3]),
-        eq(p[4], p[5]),
-        gt(p[6], p[7]),
-        gt(p[8], p[1])), gt(p[9], p[0]), gt(p[8], p[1]), gt(p[7], p[2]), gt(p[6], p[3]), gt(p[5], p[4]));
-  }
-
-  public static Function<List<String>, NormalizedConstraint> createBasicConstraint(int offset) {
-    return strings -> createBasicConstraint(strings.subList(offset, offset + 10));
-  }
-
-  public static Function<List<String>, NormalizedConstraint> createBasicPlusConstraint(int offset) {
-    return strings -> createBasicPlusConstraint(strings.subList(offset, offset + 10));
-  }
 }

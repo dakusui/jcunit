@@ -50,9 +50,11 @@ public interface ExternalEngine {
         .forEach(LOGGER::trace);
     recordExecutionTime(System.currentTimeMillis() - before, executionTimeFile());
     try (Stream<String> s = streamFile(outFile).peek(LOGGER::trace)) {
-      return ActsUtils.readTestSuiteFromCsv(s);
+      return readTestSuiteFromStream(s);
     }
   }
+
+  List<Tuple> readTestSuiteFromStream(Stream<String> s);
 
   default String executionTimeFile() {
     return engineName() + ".time";
@@ -63,7 +65,6 @@ public interface ExternalEngine {
   }
 
   String engineName();
-
 
   File baseDir();
 

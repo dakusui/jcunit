@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.ext.acts.ActsUtils.buildActsModel;
 import static java.util.Collections.emptyList;
@@ -30,7 +31,12 @@ public class Acts extends ExternalEngine.Base {
 
   @Override
   public String buildModel() {
-    return buildActsModel(factorSpace(), "unknown", testCases());
+    return buildActsModel("unknown", factorSpace(), testCases());
+  }
+
+  @Override
+  public List<Tuple> readTestSuiteFromStream(Stream<String> s) {
+    return ActsUtils.readTestSuiteFromCsv(s);
   }
 
   @Override

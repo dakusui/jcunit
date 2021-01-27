@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.ext.acts.Acts;
-import com.github.dakusui.peerj.ext.acts.ActsUtils;
+import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
@@ -84,7 +84,7 @@ public class ActsUtilsTest {
   private void generateAndReportWithConstraints(File baseDir, int numFactors, int strength) {
     List<Function<List<String>, NormalizedConstraint>> constraints = new LinkedList<>();
     for (int i = 0; i < numFactors / 10; i++) {
-      constraints.add(ActsUtils.createBasicConstraint(i * 10));
+      constraints.add(ConstraintSet.createBasicConstraint(i * 10));
     }
     generateAndReport(baseDir, 4, numFactors, strength,
         constraints.toArray(new Function[0])
