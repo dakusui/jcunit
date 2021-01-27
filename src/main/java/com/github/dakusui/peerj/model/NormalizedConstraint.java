@@ -7,7 +7,7 @@ import java.util.Formatter;
 import java.util.function.Function;
 
 public interface NormalizedConstraint extends Constraint, Formattable {
-  String toText(Function<String, String> factorNameToParameterName);
+  String toText(Function<String, String> termNormalizer);
 
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {

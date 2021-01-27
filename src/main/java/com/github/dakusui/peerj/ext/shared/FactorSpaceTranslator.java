@@ -3,7 +3,9 @@ package com.github.dakusui.peerj.ext.shared;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 
+import java.util.Optional;
 import java.util.function.Function;
+
 
 public class FactorSpaceTranslator {
   private static final Function<Integer, String>                    NAME_RESOLVER =
@@ -12,8 +14,8 @@ public class FactorSpaceTranslator {
   private final        Function<Integer, String>                    type;
   private final        Function<Integer, Factor>                    factor;
   private final        Function<Integer, Function<Integer, Object>> value;
-  private final         int                                          numParameters;
-  public final         Function<String, String>                     factorNameToParameterName;
+  private final        int                                          numParameters;
+  private final        Function<String, Optional<String>>           factorNameToParameterName;
 
   private FactorSpaceTranslator(
       Function<Integer, String> name,
@@ -28,8 +30,8 @@ public class FactorSpaceTranslator {
     this.value = value;
     this.factorNameToParameterName = factorName ->
         indexOfFactorName.apply(factorName) >= 0
-            ? name.apply(indexOfFactorName.apply(factorName))
-            : factorName;
+            ? Optional.of(name.apply(indexOfFactorName.apply(factorName)))
+            : Optional.empty();
     this.numParameters = numParameters;
   }
 
@@ -56,6 +58,10 @@ public class FactorSpaceTranslator {
 
   public Object factorLevelOf(int parameterId, int j) {
     return this.value.apply(parameterId).apply(j);
+  }
+
+  public Optional<String> factorNameToParameterName(String factorName) {
+    return this.factorNameToParameterName.apply(factorName);
   }
 
   public int numParameters() {

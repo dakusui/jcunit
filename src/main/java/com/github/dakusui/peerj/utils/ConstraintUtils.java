@@ -20,9 +20,9 @@ public enum ConstraintUtils {
   public static NormalizedConstraint or(NormalizedConstraint... constraints) {
     return new NormalizedConstraint() {
       @Override
-      public String toText(Function<String, String> factorNameToParameterName) {
+      public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
-            .map(each -> each.toText(factorNameToParameterName))
+            .map((NormalizedConstraint each) -> each.toText(termNormalizer))
             .collect(joining(" || "));
       }
 
@@ -58,9 +58,9 @@ public enum ConstraintUtils {
   public static NormalizedConstraint and(NormalizedConstraint... constraints) {
     return new NormalizedConstraint() {
       @Override
-      public String toText(Function<String, String> factorNameToParameterName) {
+      public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
-            .map(each -> each.toText(factorNameToParameterName))
+            .map(each -> each.toText(termNormalizer))
             .collect(joining(" &amp;&amp; "));
       }
 
@@ -106,10 +106,10 @@ public enum ConstraintUtils {
   public static NormalizedConstraint ge(String f, String g) {
     return new NormalizedConstraint() {
       @Override
-      public String toText(Function<String, String> factorNameNormalizer) {
+      public String toText(Function<String, String> termNormalizer) {
         ////
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
-        return factorNameNormalizer.apply(g) + " &lt;= " + factorNameNormalizer.apply(f);
+        return termNormalizer.apply(g) + " &lt;= " + termNormalizer.apply(f);
       }
 
       @Override
@@ -142,8 +142,8 @@ public enum ConstraintUtils {
   public static NormalizedConstraint eq(String f, String g) {
     return new NormalizedConstraint() {
       @Override
-      public String toText(Function<String, String> factorNameNormalizer) {
-        return factorNameNormalizer.apply(f) + " == " + factorNameNormalizer.apply(g);
+      public String toText(Function<String, String> termNormalizer) {
+        return termNormalizer.apply(f) + " == " + termNormalizer.apply(g);
       }
 
       @Override
@@ -176,8 +176,8 @@ public enum ConstraintUtils {
   public static NormalizedConstraint neq(String f, String g) {
     return new NormalizedConstraint() {
       @Override
-      public String toText(Function<String, String> factorNameNormalizer) {
-        return factorNameNormalizer.apply(f) + " != " + factorNameNormalizer.apply(g);
+      public String toText(Function<String, String> termNormalizer) {
+        return termNormalizer.apply(f) + " != " + termNormalizer.apply(g);
       }
 
       @Override
@@ -217,10 +217,10 @@ public enum ConstraintUtils {
     }
 
     @Override
-    public String toText(Function<String, String> factorNameNormalizer) {
+    public String toText(Function<String, String> termNormalizer) {
       ////
       // Since ACTS seems not supporting > (&gt;), invert the comparator.
-      return toText(factorNameNormalizer.apply(g), factorNameNormalizer.apply(f));
+      return toText(termNormalizer.apply(g), termNormalizer.apply(f));
     }
 
     public String toText(String normalizedFactorNameForG, String normalizedFactorNameForF) {

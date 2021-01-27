@@ -10,6 +10,7 @@ import com.github.dakusui.peerj.ext.shared.IoUtils;
 import com.github.dakusui.peerj.model.NormalizedConstraint;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -170,13 +171,15 @@ public enum ActsUtils {
         throw new UnsupportedOperationException();
       StringUtils.appendLine(b, indentLevel,
           format("<Constraint text=\"%s\">",
-              ((NormalizedConstraint) each).toText(factorSpaceTranslator.factorNameToParameterName)));
+              ((NormalizedConstraint) each).toText(term -> factorSpaceTranslator.factorNameToParameterName(term).orElse(term))));
       StringUtils.appendLine(b, indentLevel, "<Parameters>");
       indentLevel++;
       for (String eachFactorName : each.involvedKeys())
         StringUtils.appendLine(b,
             indentLevel,
-            format("<Parameter name=\"%s\"/>", factorSpaceTranslator.factorNameToParameterName.apply(eachFactorName)));
+            format("<Parameter name=\"%s\"/>",
+                factorSpaceTranslator.factorNameToParameterName(eachFactorName)
+                    .orElseThrow(NoSuchElementException::new)));
       indentLevel--;
       StringUtils.appendLine(b, indentLevel, "</Parameters>");
       StringUtils.appendLine(b, indentLevel, "</Constraint>");
@@ -262,7 +265,7 @@ public enum ActsUtils {
   private static void renderTestcase(StringBuilder b, int indentLevel, FactorSpaceTranslator factorSpaceTranslator, Tuple testCase, int testCaseNo) {
     StringUtils.appendLine(b, indentLevel, format("<Testcase TCNo=\"%s\">", testCaseNo));
     IntStream.range(0, factorSpaceTranslator.numParameters())
-        .mapToObj(i -> factorSpaceTranslator.factorNameToParameterName.apply(factorSpaceTranslator.factorFor(i).getName()))
+        .mapToObj(i -> factorSpaceTranslator.factorNameToParameterName(factorSpaceTranslator.factorFor(i).getName()).orElseThrow(NoSuchElementException::new))
         .map(k -> format("<Value>%s</Value>", testCase.get(k)))
         .forEach(testCaseElement -> StringUtils.appendLine(b, indentLevel + 1, testCaseElement));
     StringUtils.appendLine(b, indentLevel, "</Testcase>");
