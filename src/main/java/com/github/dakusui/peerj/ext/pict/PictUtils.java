@@ -2,7 +2,7 @@ package com.github.dakusui.peerj.ext.pict;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.shared.FactorSpaceAdapter;
+import com.github.dakusui.peerj.ext.shared.FactorSpaceTranslator;
 import com.github.dakusui.peerj.ext.shared.IoUtils;
 
 import java.util.List;
@@ -17,9 +17,9 @@ public enum PictUtils {
 
   public static String buildPictModel(FactorSpace factorSpace) {
     StringBuilder b = new StringBuilder();
-    FactorSpaceAdapter factorSpaceAdapter = new FactorSpaceAdapter(factorSpace);
+    FactorSpaceTranslator factorSpaceTranslator = new FactorSpaceTranslator(factorSpace);
     beginParameters(b);
-    renderParameters(b, factorSpaceAdapter);
+    renderParameters(b, factorSpaceTranslator);
     endParameters(b);
     beginConstraints(b);
     renderConstraints(b);
@@ -40,14 +40,14 @@ public enum PictUtils {
   private static void endConstraints(@SuppressWarnings("unused") StringBuilder b) {
   }
 
-  private static void renderParameters(StringBuilder b, FactorSpaceAdapter factorSpaceAdapter) {
-    for (int i = 0; i < factorSpaceAdapter.numParameters; i++) {
-      renderParameter(b, i, factorSpaceAdapter);
+  private static void renderParameters(StringBuilder b, FactorSpaceTranslator factorSpaceTranslator) {
+    for (int i = 0; i < factorSpaceTranslator.numParameters(); i++) {
+      renderParameter(b, i, factorSpaceTranslator);
     }
   }
 
-  private static void renderParameter(StringBuilder b, int i, FactorSpaceAdapter factorSpaceAdapter) {
-    b.append(String.format("%-20s", factorSpaceAdapter.factorNameToParameterName.apply(factorSpaceAdapter.factor.apply(i).getName())));
+  private static void renderParameter(StringBuilder b, int i, FactorSpaceTranslator factorSpaceTranslator) {
+    b.append(String.format("%-20s", factorSpaceTranslator.factorNameToParameterName.apply(factorSpaceTranslator.factorFor(i).getName())));
   }
 
   private static void renderConstraints(StringBuilder b) {
