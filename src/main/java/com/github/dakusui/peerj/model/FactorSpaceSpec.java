@@ -16,12 +16,12 @@ import static java.util.stream.Collectors.toList;
 
 public class FactorSpaceSpec {
   protected final String                                             prefix;
-  private         String                                             constraintSetName = null;
-  protected final List<Function<List<String>, NormalizedConstraint>> constraints       = new LinkedList<>();
+  private         String                                               constraintSetName = null;
+  protected final List<Function<List<String>, FormalizableConstraint>> constraints       = new LinkedList<>();
   /**
    * Descending order by the number of levels of factors.
    */
-  protected final SortedMap<Integer, Integer>                        factorSpecs       = new TreeMap<>((o1, o2) -> o2 - o1);
+  protected final SortedMap<Integer, Integer>                          factorSpecs       = new TreeMap<>((o1, o2) -> o2 - o1);
 
   /**
    * A non-negative value is set to experiment VSCA generation.
@@ -87,12 +87,12 @@ public class FactorSpaceSpec {
     return Optional.of(constraintSetName);
   }
 
-  public FactorSpaceSpec addConstraint(Function<List<String>, NormalizedConstraint> constraint) {
+  public FactorSpaceSpec addConstraint(Function<List<String>, FormalizableConstraint> constraint) {
     this.constraints.add(constraint);
     return this;
   }
 
-  public List<Function<List<String>, NormalizedConstraint>> constraints() {
+  public List<Function<List<String>, FormalizableConstraint>> constraints() {
     return constraints;
   }
 

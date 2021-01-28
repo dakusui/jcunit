@@ -6,7 +6,6 @@ import com.github.dakusui.peerj.ext.shared.FactorSpaceTranslator;
 import com.github.dakusui.peerj.ext.shared.IoUtils;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.ext.shared.IoUtils.newLine;
@@ -44,13 +43,13 @@ public enum PictUtils {
   }
 
   private static void renderParameters(StringBuilder b, FactorSpaceTranslator factorSpaceTranslator) {
-    for (int i = 0; i < factorSpaceTranslator.numParameters(); i++) {
+    for (int i = 0; i < factorSpaceTranslator.numFactors(); i++) {
       renderParameter(b, i, factorSpaceTranslator);
     }
   }
 
   private static void renderParameter(StringBuilder b, int i, FactorSpaceTranslator factorSpaceTranslator) {
-    b.append(String.format("%-20s", factorSpaceTranslator.factorNameToParameterName(factorSpaceTranslator.factorFor(i).getName()).orElseThrow(NoSuchElementException::new)));
+    b.append(String.format("%-20s", factorSpaceTranslator.formalFactorNameOf(i)));
   }
 
   private static void renderConstraints(StringBuilder b) {

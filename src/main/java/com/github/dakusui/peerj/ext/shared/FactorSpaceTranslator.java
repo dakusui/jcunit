@@ -8,63 +8,58 @@ import java.util.function.Function;
 
 
 public class FactorSpaceTranslator {
-  private static final Function<Integer, String>                    NAME_RESOLVER =
-      (id) -> String.format("p%d", id);
+  private static final Function<Integer, String>                    NAME_FORMALIZER = (id) -> String.format("p%d", id);
   private final        Function<Integer, String>                    name;
-  private final        Function<Integer, String>                    type;
   private final        Function<Integer, Factor>                    factor;
   private final        Function<Integer, Function<Integer, Object>> value;
-  private final        int                                          numParameters;
-  private final        Function<String, Optional<String>>           factorNameToParameterName;
+  private final        int                                          numFactors;
+  private final        Function<String, Optional<String>>           factorNameFormalizer;
 
   private FactorSpaceTranslator(
       Function<Integer, String> name,
-      Function<Integer, String> type,
       Function<Integer, Factor> factor,
       Function<Integer, Function<Integer, Object>> value,
       Function<String, Integer> indexOfFactorName,
-      int numParameters) {
+      int numFactors) {
     this.name = name;
-    this.type = type;
     this.factor = factor;
     this.value = value;
-    this.factorNameToParameterName = factorName ->
+    this.factorNameFormalizer = factorName ->
         indexOfFactorName.apply(factorName) >= 0
             ? Optional.of(name.apply(indexOfFactorName.apply(factorName)))
             : Optional.empty();
-    this.numParameters = numParameters;
+    this.numFactors = numFactors;
   }
 
   public FactorSpaceTranslator(FactorSpace factorSpace) {
-    this(NAME_RESOLVER,
-        (id) -> "0",
+    this(NAME_FORMALIZER,
         (id) -> factorSpace.getFactors().get(id),
         (ii) -> (j) -> factorSpace.getFactors().get(ii).getLevels().get(j),
         (factorName) -> factorSpace.getFactorNames().indexOf(factorName),
         factorSpace.getFactors().size());
   }
 
-  public String parameterNameOf(int parameterId) {
-    return this.name.apply(parameterId);
+  public String formalFactorNameOf(int formalFactorId) {
+    return this.name.apply(formalFactorId);
   }
 
-  public String parameterTypeOf(int parameterId) {
-    return this.type.apply(parameterId);
+  public Factor factorFor(int formalFactorId) {
+    return factor.apply(formalFactorId);
   }
 
-  public Factor factorFor(int parameterId) {
-    return factor.apply(parameterId);
+  public Object formalFactorLevelOf(int formalFactorId, int formalFactorLevelId) {
+    ////
+    // If the formalFactorLevelId is not valid for the factor specified by formalFactorId,
+    // an exception will be thrown.
+    this.value.apply(formalFactorId).apply(formalFactorLevelId);
+    return formalFactorLevelId;
   }
 
-  public Object factorLevelOf(int parameterId, int j) {
-    return this.value.apply(parameterId).apply(j);
+  public Optional<String> formalizeFactorName(String factorName) {
+    return this.factorNameFormalizer.apply(factorName);
   }
 
-  public Optional<String> factorNameToParameterName(String factorName) {
-    return this.factorNameToParameterName.apply(factorName);
-  }
-
-  public int numParameters() {
-    return this.numParameters;
+  public int numFactors() {
+    return this.numFactors;
   }
 }

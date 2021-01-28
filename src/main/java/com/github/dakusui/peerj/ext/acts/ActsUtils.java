@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.ext.shared.FactorSpaceTranslator;
 import com.github.dakusui.peerj.ext.shared.IoUtils;
-import com.github.dakusui.peerj.model.NormalizedConstraint;
+import com.github.dakusui.peerj.model.FormalizableConstraint;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -42,7 +42,7 @@ public enum ActsUtils {
   private static void renderParameters(StringBuilder b, int indentLevel, FactorSpaceTranslator factorSpaceTranslator) {
     StringUtils.appendLine(b, indentLevel, "<Parameters>");
     indentLevel++;
-    for (int i = 0; i < factorSpaceTranslator.numParameters(); i++) {
+    for (int i = 0; i < factorSpaceTranslator.numFactors(); i++) {
       indentLevel = renderParameter(
           b,
           indentLevel,
@@ -110,9 +110,9 @@ public enum ActsUtils {
   private static int renderParameter(StringBuilder b, int indentLevel, int parameterId, FactorSpaceTranslator factorSpaceTranslator) {
     b.append(StringUtils.indent(indentLevel))
         .append("<Parameter id=\"").append(parameterId).append("\" name=\"")
-        .append(factorSpaceTranslator.parameterNameOf(parameterId))
+        .append(factorSpaceTranslator.formalFactorNameOf(parameterId))
         .append("\" type=\"")
-        .append(factorSpaceTranslator.parameterTypeOf(parameterId))
+        .append("0")
         .append("\">")
         .append(StringUtils.newLine());
     indentLevel++;
@@ -120,7 +120,7 @@ public enum ActsUtils {
     Factor factor = factorSpaceTranslator.factorFor(parameterId);
     indentLevel++;
     for (int j = 0; j < factor.getLevels().size(); j++) {
-      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceTranslator.factorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
+      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceTranslator.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
     }
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</values>");
@@ -167,18 +167,18 @@ public enum ActsUtils {
     StringUtils.appendLine(b, indentLevel, "<Constraints>");
     indentLevel++;
     for (Constraint each : constraints) {
-      if (!(each instanceof NormalizedConstraint))
+      if (!(each instanceof FormalizableConstraint))
         throw new UnsupportedOperationException();
       StringUtils.appendLine(b, indentLevel,
           format("<Constraint text=\"%s\">",
-              ((NormalizedConstraint) each).toText(term -> factorSpaceTranslator.factorNameToParameterName(term).orElse(term))));
+              ((FormalizableConstraint) each).toText(term -> factorSpaceTranslator.formalizeFactorName(term).orElse(term))));
       StringUtils.appendLine(b, indentLevel, "<Parameters>");
       indentLevel++;
       for (String eachFactorName : each.involvedKeys())
         StringUtils.appendLine(b,
             indentLevel,
             format("<Parameter name=\"%s\"/>",
-                factorSpaceTranslator.factorNameToParameterName(eachFactorName)
+                factorSpaceTranslator.formalizeFactorName(eachFactorName)
                     .orElseThrow(NoSuchElementException::new)));
       indentLevel--;
       StringUtils.appendLine(b, indentLevel, "</Parameters>");
@@ -217,9 +217,9 @@ public enum ActsUtils {
       return;
     StringUtils.appendLine(b, indentLevel, "<Relations>");
     indentLevel++;
-    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, 0, factorSpaceTranslator.numParameters(), strength);
-    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, 0, factorSpaceTranslator.numParameters() / 2, relationStrength);
-    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, factorSpaceTranslator.numParameters() / 2, factorSpaceTranslator.numParameters(), relationStrength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, 0, factorSpaceTranslator.numFactors(), strength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, 0, factorSpaceTranslator.numFactors() / 2, relationStrength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, factorSpaceTranslator.numFactors() / 2, factorSpaceTranslator.numFactors(), relationStrength);
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</Relations>");
   }
@@ -264,8 +264,8 @@ public enum ActsUtils {
 
   private static void renderTestcase(StringBuilder b, int indentLevel, FactorSpaceTranslator factorSpaceTranslator, Tuple testCase, int testCaseNo) {
     StringUtils.appendLine(b, indentLevel, format("<Testcase TCNo=\"%s\">", testCaseNo));
-    IntStream.range(0, factorSpaceTranslator.numParameters())
-        .mapToObj(i -> factorSpaceTranslator.factorNameToParameterName(factorSpaceTranslator.factorFor(i).getName()).orElseThrow(NoSuchElementException::new))
+    IntStream.range(0, factorSpaceTranslator.numFactors())
+        .mapToObj(factorSpaceTranslator::formalFactorNameOf)
         .map(k -> format("<Value>%s</Value>", testCase.get(k)))
         .forEach(testCaseElement -> StringUtils.appendLine(b, indentLevel + 1, testCaseElement));
     StringUtils.appendLine(b, indentLevel, "</Testcase>");
@@ -285,14 +285,14 @@ public enum ActsUtils {
 
   public static int renderParameterInRelation(StringBuilder b, int indentLevel, int parameterId, FactorSpaceTranslator factorSpaceTranslator) {
     b.append(StringUtils.indent(indentLevel))
-        .append("<Parameter name=\"").append(factorSpaceTranslator.parameterNameOf(parameterId)).append("\">")
+        .append("<Parameter name=\"").append(factorSpaceTranslator.formalFactorNameOf(parameterId)).append("\">")
         .append(StringUtils.newLine());
     indentLevel++;
     StringUtils.appendLine(b, indentLevel, "<values>");
     Factor factor = factorSpaceTranslator.factorFor(parameterId);
     indentLevel++;
     for (int j = 0; j < factor.getLevels().size(); j++) {
-      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceTranslator.factorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
+      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceTranslator.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
     }
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</values>");

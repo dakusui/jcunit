@@ -6,7 +6,7 @@ import java.util.Formattable;
 import java.util.Formatter;
 import java.util.function.Function;
 
-public interface NormalizedConstraint extends Constraint, Formattable {
+public interface FormalizableConstraint extends Constraint, Formattable {
   String toText(Function<String, String> termNormalizer);
 
   @Override

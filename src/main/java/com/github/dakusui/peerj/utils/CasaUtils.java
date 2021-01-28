@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.PeerJUtils2;
-import com.github.dakusui.peerj.model.NormalizedConstraint;
+import com.github.dakusui.peerj.model.FormalizableConstraint;
 
 import java.io.*;
 import java.util.*;
@@ -90,7 +90,7 @@ public enum CasaUtils {
 
   private static List<Constraint> readConstraints(Iterator<String> modelData, List<Factor> factors) {
     int numConstraints = readNumConstraints(modelData);
-    List<NormalizedConstraint> constraints = new ArrayList<>(numConstraints);
+    List<FormalizableConstraint> constraints = new ArrayList<>(numConstraints);
     while (modelData.hasNext()) {
       constraints.add(readConstraint(modelData, factors));
     }
@@ -106,18 +106,18 @@ public enum CasaUtils {
     return readInt(modelData);
   }
 
-  private static NormalizedConstraint readConstraint(Iterator<String> modelData, List<Factor> factors) {
+  private static FormalizableConstraint readConstraint(Iterator<String> modelData, List<Factor> factors) {
     int numTerms = readNumTerms(modelData);
-    List<NormalizedConstraint> terms = new ArrayList<>(numTerms);
+    List<FormalizableConstraint> terms = new ArrayList<>(numTerms);
     Iterator<String> i = Arrays.asList(readString(modelData).split(" +")).iterator();
     while (i.hasNext()) {
       terms.add(readTerm(i, factors));
     }
     Checks.checkcond(numTerms == terms.size());
-    return ConstraintUtils.or(terms.toArray(new NormalizedConstraint[0]));
+    return ConstraintUtils.or(terms.toArray(new FormalizableConstraint[0]));
   }
 
-  private static NormalizedConstraint readTerm(Iterator<String> terms, List<Factor> factors) {
+  private static FormalizableConstraint readTerm(Iterator<String> terms, List<Factor> factors) {
     String sign = readString(terms);
     int value = readInt(terms);
     Map.Entry<String, Object> entry = entryFor(value, factors);

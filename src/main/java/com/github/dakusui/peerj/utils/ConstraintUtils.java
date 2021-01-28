@@ -1,28 +1,26 @@
 package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.model.NormalizedConstraint;
+import com.github.dakusui.peerj.model.FormalizableConstraint;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public enum ConstraintUtils {
   ;
 
-  public static NormalizedConstraint or(NormalizedConstraint... constraints) {
-    return new NormalizedConstraint() {
+  public static FormalizableConstraint or(FormalizableConstraint... constraints) {
+    return new FormalizableConstraint() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
-            .map((NormalizedConstraint each) -> each.toText(termNormalizer))
+            .map((FormalizableConstraint each) -> each.toText(termNormalizer))
             .collect(joining(" || "));
       }
 
@@ -33,7 +31,7 @@ public enum ConstraintUtils {
 
       @Override
       public boolean test(Tuple tuple) {
-        for (NormalizedConstraint each : constraints) {
+        for (FormalizableConstraint each : constraints) {
           if (each.test(tuple))
             return true;
         }
@@ -55,8 +53,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static NormalizedConstraint and(NormalizedConstraint... constraints) {
-    return new NormalizedConstraint() {
+  public static FormalizableConstraint and(FormalizableConstraint... constraints) {
+    return new FormalizableConstraint() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
@@ -71,7 +69,7 @@ public enum ConstraintUtils {
 
       @Override
       public boolean test(Tuple tuple) {
-        for (NormalizedConstraint each : constraints) {
+        for (FormalizableConstraint each : constraints) {
           if (each.test(tuple))
             return false;
         }
@@ -93,7 +91,7 @@ public enum ConstraintUtils {
     };
   }
 
-  public static NormalizedConstraint gt(String f, String g) {
+  public static FormalizableConstraint gt(String f, String g) {
     return new Comp(f, g) {
 
       @Override
@@ -103,8 +101,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static NormalizedConstraint ge(String f, String g) {
-    return new NormalizedConstraint() {
+  public static FormalizableConstraint ge(String f, String g) {
+    return new FormalizableConstraint() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         ////
@@ -139,8 +137,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static NormalizedConstraint eq(String f, String g) {
-    return new NormalizedConstraint() {
+  public static FormalizableConstraint eq(String f, String g) {
+    return new FormalizableConstraint() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " == " + termNormalizer.apply(g);
@@ -173,8 +171,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static NormalizedConstraint neq(String f, String g) {
-    return new NormalizedConstraint() {
+  public static FormalizableConstraint neq(String f, String g) {
+    return new FormalizableConstraint() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " != " + termNormalizer.apply(g);
@@ -207,7 +205,7 @@ public enum ConstraintUtils {
     };
   }
 
-  abstract static class Comp implements NormalizedConstraint {
+  abstract static class Comp implements FormalizableConstraint {
     private final String g;
     private final String f;
 

@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.ext.acts.Acts;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
-import com.github.dakusui.peerj.model.NormalizedConstraint;
+import com.github.dakusui.peerj.model.FormalizableConstraint;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import static com.github.dakusui.peerj.ext.acts.ActsUtils.readTestSuiteFromCsv;
 
 public class ActsUtilsTest {
   @SafeVarargs
-  public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
+  public static void generateAndReport(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, FormalizableConstraint>... constraints) {
     CoveringArrayGenerationUtils.StopWatch stopWatch = new CoveringArrayGenerationUtils.StopWatch();
     List<Tuple> generated;
     generated = generateWithActs(baseDir, numLevels, numFactors, strength, constraints);
@@ -33,9 +33,9 @@ public class ActsUtilsTest {
   }
 
   @SafeVarargs
-  public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, NormalizedConstraint>... constraints) {
+  public static List<Tuple> generateWithActs(File baseDir, int numLevels, int numFactors, int strength, Function<List<String>, FormalizableConstraint>... constraints) {
     FactorSpaceSpec factorSpaceSpec = new FactorSpaceSpec("L").addFactors(numLevels, numFactors);
-    for (Function<List<String>, NormalizedConstraint> each : constraints)
+    for (Function<List<String>, FormalizableConstraint> each : constraints)
       factorSpaceSpec = factorSpaceSpec.addConstraint(each);
     FactorSpace factorSpace = factorSpaceSpec.toFactorSpace();
     return new LinkedList<>(generateWithActs(
@@ -82,7 +82,7 @@ public class ActsUtilsTest {
 
   @SuppressWarnings("unchecked")
   private void generateAndReportWithConstraints(File baseDir, int numFactors, int strength) {
-    List<Function<List<String>, NormalizedConstraint>> constraints = new LinkedList<>();
+    List<Function<List<String>, FormalizableConstraint>> constraints = new LinkedList<>();
     for (int i = 0; i < numFactors / 10; i++) {
       constraints.add(ConstraintSet.createBasicConstraint(i * 10));
     }
