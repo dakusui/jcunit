@@ -1,7 +1,7 @@
 package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.model.FormalizableConstraint;
+import com.github.dakusui.peerj.model.NormalizableConstraint;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,12 +15,12 @@ import static java.util.stream.Collectors.toList;
 public enum ConstraintUtils {
   ;
 
-  public static FormalizableConstraint or(FormalizableConstraint... constraints) {
-    return new FormalizableConstraint() {
+  public static NormalizableConstraint or(NormalizableConstraint... constraints) {
+    return new NormalizableConstraint.Or() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
-            .map((FormalizableConstraint each) -> each.toText(termNormalizer))
+            .map((NormalizableConstraint each) -> each.toText(termNormalizer))
             .collect(joining(" || "));
       }
 
@@ -31,7 +31,7 @@ public enum ConstraintUtils {
 
       @Override
       public boolean test(Tuple tuple) {
-        for (FormalizableConstraint each : constraints) {
+        for (NormalizableConstraint each : constraints) {
           if (each.test(tuple))
             return true;
         }
@@ -53,8 +53,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static FormalizableConstraint and(FormalizableConstraint... constraints) {
-    return new FormalizableConstraint() {
+  public static NormalizableConstraint and(NormalizableConstraint... constraints) {
+    return new NormalizableConstraint.And() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
@@ -69,7 +69,7 @@ public enum ConstraintUtils {
 
       @Override
       public boolean test(Tuple tuple) {
-        for (FormalizableConstraint each : constraints) {
+        for (NormalizableConstraint each : constraints) {
           if (each.test(tuple))
             return false;
         }
@@ -91,8 +91,42 @@ public enum ConstraintUtils {
     };
   }
 
-  public static FormalizableConstraint gt(String f, String g) {
-    return new Comp(f, g) {
+  public static NormalizableConstraint gt(String f, String g) {
+    return new NormalizableConstraint.GreaterThan() {
+      @Override
+      public String toText(Function<String, String> termNormalizer) {
+        ////
+        // Since ACTS seems not supporting > (&gt;), invert the comparator.
+        return toText(termNormalizer.apply(g), termNormalizer.apply(f));
+      }
+
+      public String toText(String normalizedFactorNameForG, String normalizedFactorNameForF) {
+        return normalizedFactorNameForG + " &lt; " + normalizedFactorNameForF;
+      }
+
+      @Override
+      public boolean test(Tuple tuple) {
+        checkcond(tuple.get(f) instanceof Comparable);
+        checkcond(tuple.get(g) instanceof Comparable);
+        return compare(f, g);
+      }
+
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      private boolean compare(Comparable f, Comparable g) {
+        return f.compareTo(g) > 0;
+      }
+
+      @Override
+      public List<String> involvedKeys() {
+        return Stream.of(f, g)
+            .filter(n -> n.matches("^[A-Za-z]+.*"))
+            .collect(toList());
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s", this);
+      }
 
       @Override
       public String getName() {
@@ -101,8 +135,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static FormalizableConstraint ge(String f, String g) {
-    return new FormalizableConstraint() {
+  public static NormalizableConstraint ge(String f, String g) {
+    return new NormalizableConstraint.GreaterThanOrEqualTo() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         ////
@@ -137,8 +171,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static FormalizableConstraint eq(String f, String g) {
-    return new FormalizableConstraint() {
+  public static NormalizableConstraint eq(String f, String g) {
+    return new NormalizableConstraint.EqualTo() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " == " + termNormalizer.apply(g);
@@ -171,8 +205,8 @@ public enum ConstraintUtils {
     };
   }
 
-  public static FormalizableConstraint neq(String f, String g) {
-    return new FormalizableConstraint() {
+  public static NormalizableConstraint neq(String f, String g) {
+    return new NormalizableConstraint.NotEqualTo() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " != " + termNormalizer.apply(g);
@@ -203,50 +237,5 @@ public enum ConstraintUtils {
         return String.format("%s", this);
       }
     };
-  }
-
-  abstract static class Comp implements FormalizableConstraint {
-    private final String g;
-    private final String f;
-
-    public Comp(String f, String g) {
-      this.g = g;
-      this.f = f;
-    }
-
-    @Override
-    public String toText(Function<String, String> termNormalizer) {
-      ////
-      // Since ACTS seems not supporting > (&gt;), invert the comparator.
-      return toText(termNormalizer.apply(g), termNormalizer.apply(f));
-    }
-
-    public String toText(String normalizedFactorNameForG, String normalizedFactorNameForF) {
-      return normalizedFactorNameForG + " &lt; " + normalizedFactorNameForF;
-    }
-
-    @Override
-    public boolean test(Tuple tuple) {
-      checkcond(tuple.get(f) instanceof Comparable);
-      checkcond(tuple.get(g) instanceof Comparable);
-      return compare(f, g);
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static boolean compare(Comparable f, Comparable g) {
-      return f.compareTo(g) > 0;
-    }
-
-    @Override
-    public List<String> involvedKeys() {
-      return Stream.of(f, g)
-          .filter(n -> n.matches("^[A-Za-z]+.*"))
-          .collect(toList());
-    }
-
-    @Override
-    public String toString() {
-      return String.format("%s", this);
-    }
   }
 }

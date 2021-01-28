@@ -57,7 +57,7 @@ public enum ConstraintSet {
    *
    * @param factorNames A list of factor names.
    */
-  public static FormalizableConstraint createBasicConstraint(List<String> factorNames) {
+  public static NormalizableConstraint createBasicConstraint(List<String> factorNames) {
     String[] p = factorNames.toArray(new String[0]);
     return or(
         ge(p[0], p[1]),
@@ -75,7 +75,7 @@ public enum ConstraintSet {
                       ∧pi,7>pi,4
                       ∧pi,6>pi,5 (0≤i<n)
      */
-  public static FormalizableConstraint createBasicPlusConstraint(List<String> factorNames) {
+  public static NormalizableConstraint createBasicPlusConstraint(List<String> factorNames) {
     String[] p = factorNames.toArray(new String[0]);
     return and(or(
         ge(p[0], p[1]),
@@ -85,16 +85,16 @@ public enum ConstraintSet {
         gt(p[8], p[1])), gt(p[9], p[0]), gt(p[8], p[1]), gt(p[7], p[2]), gt(p[6], p[3]), gt(p[5], p[4]));
   }
 
-  public static Function<List<String>, FormalizableConstraint> createBasicConstraint(int offset) {
+  public static Function<List<String>, NormalizableConstraint> createBasicConstraint(int offset) {
     return strings -> createBasicConstraint(strings.subList(offset, offset + 10));
   }
 
-  public static Function<List<String>, FormalizableConstraint> createBasicPlusConstraint(int offset) {
+  public static Function<List<String>, NormalizableConstraint> createBasicPlusConstraint(int offset) {
     return strings -> createBasicPlusConstraint(strings.subList(offset, offset + 10));
   }
 
   public abstract Optional<NormalizedConstraintFactory> constraintFactory(int offset);
 
-  public interface NormalizedConstraintFactory extends Function<List<String>, FormalizableConstraint> {
+  public interface NormalizedConstraintFactory extends Function<List<String>, NormalizableConstraint> {
   }
 }

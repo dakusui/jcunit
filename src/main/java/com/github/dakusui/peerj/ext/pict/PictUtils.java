@@ -2,7 +2,7 @@ package com.github.dakusui.peerj.ext.pict;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.shared.FactorSpaceTranslator;
+import com.github.dakusui.peerj.ext.shared.FactorSpaceNormalizer;
 import com.github.dakusui.peerj.ext.shared.IoUtils;
 
 import java.util.List;
@@ -19,9 +19,9 @@ public enum PictUtils {
 
   public static String buildPictModel(FactorSpace factorSpace) {
     StringBuilder b = new StringBuilder();
-    FactorSpaceTranslator factorSpaceTranslator = new FactorSpaceTranslator(factorSpace);
+    FactorSpaceNormalizer factorSpaceNormalizer = new FactorSpaceNormalizer(factorSpace);
     beginParameters(b);
-    renderParameters(b, factorSpaceTranslator);
+    renderParameters(b, factorSpaceNormalizer);
     endParameters(b);
     beginConstraints(b);
     renderConstraints(b);
@@ -42,14 +42,14 @@ public enum PictUtils {
   private static void endConstraints(@SuppressWarnings("unused") StringBuilder b) {
   }
 
-  private static void renderParameters(StringBuilder b, FactorSpaceTranslator factorSpaceTranslator) {
-    for (int i = 0; i < factorSpaceTranslator.numFactors(); i++) {
-      renderParameter(b, i, factorSpaceTranslator);
+  private static void renderParameters(StringBuilder b, FactorSpaceNormalizer factorSpaceNormalizer) {
+    for (int i = 0; i < factorSpaceNormalizer.numFormalFactors(); i++) {
+      renderParameter(b, i, factorSpaceNormalizer);
     }
   }
 
-  private static void renderParameter(StringBuilder b, int i, FactorSpaceTranslator factorSpaceTranslator) {
-    b.append(String.format("%-20s", factorSpaceTranslator.formalFactorNameOf(i)));
+  private static void renderParameter(StringBuilder b, int i, FactorSpaceNormalizer factorSpaceNormalizer) {
+    b.append(String.format("%-20s", factorSpaceNormalizer.formalFactorNameOf(i)));
   }
 
   private static void renderConstraints(StringBuilder b) {

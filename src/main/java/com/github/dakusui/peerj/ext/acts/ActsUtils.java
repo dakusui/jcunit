@@ -3,11 +3,10 @@ package com.github.dakusui.peerj.ext.acts;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.shared.FactorSpaceTranslator;
+import com.github.dakusui.peerj.ext.shared.FactorSpaceNormalizer;
 import com.github.dakusui.peerj.ext.shared.IoUtils;
-import com.github.dakusui.peerj.model.FormalizableConstraint;
+import com.github.dakusui.peerj.model.NormalizableConstraint;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -27,11 +26,11 @@ public enum ActsUtils {
     StringBuilder b = new StringBuilder();
     b.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     b.append("<System name=\"").append(systemName).append("\">\n");
-    FactorSpaceTranslator factorSpaceTranslator = new FactorSpaceTranslator(factorSpace);
-    renderParameters(b, 1, factorSpaceTranslator);
-    renderRelations(b, 1, factorSpaceTranslator, factorSpace.baseStrength(), factorSpace.relationStrength());
-    renderConstraints(b, 1, factorSpaceTranslator, factorSpace.getConstraints());
-    renderTestSet(b, 1, factorSpaceTranslator, factorSpace.baseStrength(), testCases);
+    FactorSpaceNormalizer factorSpaceNormalizer = new FactorSpaceNormalizer(factorSpace);
+    renderParameters(b, 1, factorSpaceNormalizer);
+    renderRelations(b, 1, factorSpaceNormalizer, factorSpace.baseStrength(), factorSpace.relationStrength());
+    renderConstraints(b, 1, factorSpaceNormalizer, factorSpace.getConstraints());
+    renderTestSet(b, 1, factorSpaceNormalizer, factorSpace.baseStrength(), testCases);
     b.append("\n");
     b.append("</System>");
 
@@ -39,15 +38,15 @@ public enum ActsUtils {
   }
 
   @SuppressWarnings("SameParameterValue")
-  private static void renderParameters(StringBuilder b, int indentLevel, FactorSpaceTranslator factorSpaceTranslator) {
+  private static void renderParameters(StringBuilder b, int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer) {
     StringUtils.appendLine(b, indentLevel, "<Parameters>");
     indentLevel++;
-    for (int i = 0; i < factorSpaceTranslator.numFactors(); i++) {
+    for (int i = 0; i < factorSpaceNormalizer.numFormalFactors(); i++) {
       indentLevel = renderParameter(
           b,
           indentLevel,
           i,
-          factorSpaceTranslator);
+          factorSpaceNormalizer);
     }
     StringUtils.appendLine(b, indentLevel, "</Parameters>");
   }
@@ -104,23 +103,22 @@ public enum ActsUtils {
    * @param b                     A string builder with which a given factorSpaceTranslator is rendered.
    * @param indentLevel           A current indentation level.
    * @param parameterId           An identifier of a given factorSpaceTranslator as {@code factorSpaceTranslator}.
-   * @param factorSpaceTranslator A factorSpaceTranslator to be rendered.
+   * @param factorSpaceNormalizer A factorSpaceTranslator to be rendered.
    * @return The indentation level after the given factorSpaceTranslator is rendered.
    */
-  private static int renderParameter(StringBuilder b, int indentLevel, int parameterId, FactorSpaceTranslator factorSpaceTranslator) {
+  private static int renderParameter(StringBuilder b, int indentLevel, int parameterId, FactorSpaceNormalizer factorSpaceNormalizer) {
     b.append(StringUtils.indent(indentLevel))
         .append("<Parameter id=\"").append(parameterId).append("\" name=\"")
-        .append(factorSpaceTranslator.formalFactorNameOf(parameterId))
+        .append(factorSpaceNormalizer.formalFactorNameOf(parameterId))
         .append("\" type=\"")
         .append("0")
         .append("\">")
         .append(StringUtils.newLine());
     indentLevel++;
     StringUtils.appendLine(b, indentLevel, "<values>");
-    Factor factor = factorSpaceTranslator.factorFor(parameterId);
     indentLevel++;
-    for (int j = 0; j < factor.getLevels().size(); j++) {
-      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceTranslator.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
+    for (int j = 0; j < factorSpaceNormalizer.numLevelsOfFormalFactor(parameterId); j++) {
+      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceNormalizer.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
     }
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</values>");
@@ -161,24 +159,24 @@ public enum ActsUtils {
    * </pre>
    */
   @SuppressWarnings("SameParameterValue")
-  private static void renderConstraints(StringBuilder b, int indentLevel, FactorSpaceTranslator factorSpaceTranslator, List<Constraint> constraints) {
+  private static void renderConstraints(StringBuilder b, int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer, List<Constraint> constraints) {
     if (constraints.isEmpty())
       return;
     StringUtils.appendLine(b, indentLevel, "<Constraints>");
     indentLevel++;
     for (Constraint each : constraints) {
-      if (!(each instanceof FormalizableConstraint))
+      if (!(each instanceof NormalizableConstraint))
         throw new UnsupportedOperationException();
       StringUtils.appendLine(b, indentLevel,
           format("<Constraint text=\"%s\">",
-              ((FormalizableConstraint) each).toText(term -> factorSpaceTranslator.formalizeFactorName(term).orElse(term))));
+              ((NormalizableConstraint) each).toText(term -> factorSpaceNormalizer.formalizeFactorName(term).orElse(term))));
       StringUtils.appendLine(b, indentLevel, "<Parameters>");
       indentLevel++;
       for (String eachFactorName : each.involvedKeys())
         StringUtils.appendLine(b,
             indentLevel,
             format("<Parameter name=\"%s\"/>",
-                factorSpaceTranslator.formalizeFactorName(eachFactorName)
+                factorSpaceNormalizer.formalizeFactorName(eachFactorName)
                     .orElseThrow(NoSuchElementException::new)));
       indentLevel--;
       StringUtils.appendLine(b, indentLevel, "</Parameters>");
@@ -212,14 +210,14 @@ public enum ActsUtils {
    *     </Relation>
    * </pre>
    */
-  private static void renderRelations(StringBuilder b, @SuppressWarnings("SameParameterValue") int indentLevel, FactorSpaceTranslator factorSpaceTranslator, int strength, int relationStrength) {
+  private static void renderRelations(StringBuilder b, @SuppressWarnings("SameParameterValue") int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer, int strength, int relationStrength) {
     if (relationStrength < 0)
       return;
     StringUtils.appendLine(b, indentLevel, "<Relations>");
     indentLevel++;
-    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, 0, factorSpaceTranslator.numFactors(), strength);
-    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, 0, factorSpaceTranslator.numFactors() / 2, relationStrength);
-    indentLevel = renderRelation(b, indentLevel, factorSpaceTranslator, factorSpaceTranslator.numFactors() / 2, factorSpaceTranslator.numFactors(), relationStrength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, 0, factorSpaceNormalizer.numFormalFactors(), strength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, 0, factorSpaceNormalizer.numFormalFactors() / 2, relationStrength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, factorSpaceNormalizer.numFormalFactors() / 2, factorSpaceNormalizer.numFormalFactors(), relationStrength);
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</Relations>");
   }
@@ -253,29 +251,29 @@ public enum ActsUtils {
    *   </Testset>
    * </pre>
    */
-  private static void renderTestSet(StringBuilder b, @SuppressWarnings("SameParameterValue") int indentLevel, FactorSpaceTranslator factorSpaceTranslator, int strength, List<Tuple> testCases) {
+  private static void renderTestSet(StringBuilder b, @SuppressWarnings("SameParameterValue") int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer, int strength, List<Tuple> testCases) {
     if (testCases.isEmpty())
       return;
     StringUtils.appendLine(b, indentLevel, format("<Testset doi=\"%s\">", strength));
     IntStream.range(0, testCases.size())
-        .forEach(i -> renderTestcase(b, indentLevel + 1, factorSpaceTranslator, testCases.get(i), i));
+        .forEach(i -> renderTestcase(b, indentLevel + 1, factorSpaceNormalizer, testCases.get(i), i));
     StringUtils.appendLine(b, indentLevel, "</Testset>");
   }
 
-  private static void renderTestcase(StringBuilder b, int indentLevel, FactorSpaceTranslator factorSpaceTranslator, Tuple testCase, int testCaseNo) {
+  private static void renderTestcase(StringBuilder b, int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer, Tuple testCase, int testCaseNo) {
     StringUtils.appendLine(b, indentLevel, format("<Testcase TCNo=\"%s\">", testCaseNo));
-    IntStream.range(0, factorSpaceTranslator.numFactors())
-        .mapToObj(factorSpaceTranslator::formalFactorNameOf)
+    IntStream.range(0, factorSpaceNormalizer.numFormalFactors())
+        .mapToObj(factorSpaceNormalizer::formalFactorNameOf)
         .map(k -> format("<Value>%s</Value>", testCase.get(k)))
         .forEach(testCaseElement -> StringUtils.appendLine(b, indentLevel + 1, testCaseElement));
     StringUtils.appendLine(b, indentLevel, "</Testcase>");
   }
 
-  private static int renderRelation(StringBuilder b, int indentLevel, FactorSpaceTranslator factorSpaceTranslator, int begin, int end, int relationStrength) {
+  private static int renderRelation(StringBuilder b, int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer, int begin, int end, int relationStrength) {
     StringUtils.appendLine(b, indentLevel, format("<Relation Strength=\"%s\" Default=\"false\">", relationStrength));
     indentLevel++;
     for (int i = begin; i < end; i++) {
-      indentLevel = renderParameterInRelation(b, indentLevel, i, factorSpaceTranslator);
+      indentLevel = renderParameterInRelation(b, indentLevel, i, factorSpaceNormalizer);
     }
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</Relation>");
@@ -283,16 +281,15 @@ public enum ActsUtils {
   }
 
 
-  public static int renderParameterInRelation(StringBuilder b, int indentLevel, int parameterId, FactorSpaceTranslator factorSpaceTranslator) {
+  public static int renderParameterInRelation(StringBuilder b, int indentLevel, int parameterId, FactorSpaceNormalizer factorSpaceNormalizer) {
     b.append(StringUtils.indent(indentLevel))
-        .append("<Parameter name=\"").append(factorSpaceTranslator.formalFactorNameOf(parameterId)).append("\">")
+        .append("<Parameter name=\"").append(factorSpaceNormalizer.formalFactorNameOf(parameterId)).append("\">")
         .append(StringUtils.newLine());
     indentLevel++;
     StringUtils.appendLine(b, indentLevel, "<values>");
-    Factor factor = factorSpaceTranslator.factorFor(parameterId);
     indentLevel++;
-    for (int j = 0; j < factor.getLevels().size(); j++) {
-      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceTranslator.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
+    for (int j = 0; j < factorSpaceNormalizer.numLevelsOfFormalFactor(parameterId); j++) {
+      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceNormalizer.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
     }
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</values>");

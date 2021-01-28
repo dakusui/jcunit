@@ -17,7 +17,7 @@ import static java.util.stream.Collectors.toList;
 public class FactorSpaceSpec {
   protected final String                                             prefix;
   private         String                                               constraintSetName = null;
-  protected final List<Function<List<String>, FormalizableConstraint>> constraints       = new LinkedList<>();
+  protected final List<Function<List<String>, NormalizableConstraint>> constraints       = new LinkedList<>();
   /**
    * Descending order by the number of levels of factors.
    */
@@ -87,12 +87,12 @@ public class FactorSpaceSpec {
     return Optional.of(constraintSetName);
   }
 
-  public FactorSpaceSpec addConstraint(Function<List<String>, FormalizableConstraint> constraint) {
+  public FactorSpaceSpec addConstraint(Function<List<String>, NormalizableConstraint> constraint) {
     this.constraints.add(constraint);
     return this;
   }
 
-  public List<Function<List<String>, FormalizableConstraint>> constraints() {
+  public List<Function<List<String>, NormalizableConstraint>> constraints() {
     return constraints;
   }
 
