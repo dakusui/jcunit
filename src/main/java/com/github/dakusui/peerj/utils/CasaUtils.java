@@ -5,7 +5,8 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.PeerJUtils2;
-import com.github.dakusui.peerj.model.NormalizableConstraint;
+import com.github.dakusui.peerj.ext.shared.ConstraintUtils;
+import com.github.dakusui.peerj.ext.shared.NormalizableConstraint;
 
 import java.io.*;
 import java.util.*;

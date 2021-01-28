@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.ext.shared.FactorSpaceNormalizer;
 import com.github.dakusui.peerj.ext.shared.IoUtils;
-import com.github.dakusui.peerj.model.NormalizableConstraint;
+import com.github.dakusui.peerj.ext.shared.NormalizableConstraint;
 
 import java.util.List;
 import java.util.NoSuchElementException;

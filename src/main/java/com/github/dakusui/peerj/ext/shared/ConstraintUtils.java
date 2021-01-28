@@ -1,16 +1,11 @@
-package com.github.dakusui.peerj.utils;
+package com.github.dakusui.peerj.ext.shared;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.model.NormalizableConstraint;
+import com.github.dakusui.peerj.ext.shared.NormalizableConstraint;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toList;
 
 public enum ConstraintUtils {
   ;
@@ -49,18 +44,6 @@ public enum ConstraintUtils {
       public String toText(String normalizedFactorNameForG, String normalizedFactorNameForF) {
         return normalizedFactorNameForG + " &lt; " + normalizedFactorNameForF;
       }
-
-      @Override
-      public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return compare(f, g);
-      }
-
-      @SuppressWarnings({ "rawtypes", "unchecked" })
-      private boolean compare(Comparable f, Comparable g) {
-        return f.compareTo(g) > 0;
-      }
     };
   }
 
@@ -72,14 +55,6 @@ public enum ConstraintUtils {
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
         return termNormalizer.apply(g) + " &lt;= " + termNormalizer.apply(f);
       }
-
-      @SuppressWarnings({ "unchecked", "rawtypes" })
-      @Override
-      public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return ((Comparable) f).compareTo(g) >= 0;
-      }
     };
   }
 
@@ -89,14 +64,6 @@ public enum ConstraintUtils {
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " == " + termNormalizer.apply(g);
       }
-
-      @SuppressWarnings({ "unchecked", "rawtypes" })
-      @Override
-      public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return ((Comparable) f).compareTo(g) == 0;
-      }
     };
   }
 
@@ -105,14 +72,6 @@ public enum ConstraintUtils {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " != " + termNormalizer.apply(g);
-      }
-
-      @SuppressWarnings({ "unchecked", "rawtypes" })
-      @Override
-      public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return ((Comparable) f).compareTo(g) == 0;
       }
     };
   }

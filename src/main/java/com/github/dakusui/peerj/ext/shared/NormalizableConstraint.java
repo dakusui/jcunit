@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.model;
+package com.github.dakusui.peerj.ext.shared;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static java.util.stream.Collectors.toList;
 
 public interface NormalizableConstraint extends Constraint, Formattable {
@@ -104,6 +105,18 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       protected Base(String f, String g) {
         super(f, g);
       }
+
+      @Override
+      public boolean test(Tuple tuple) {
+        checkcond(tuple.get(f) instanceof Comparable);
+        checkcond(tuple.get(g) instanceof Comparable);
+        return compare(f, g);
+      }
+
+      @SuppressWarnings({ "rawtypes", "unchecked" })
+      private boolean compare(Comparable f, Comparable g) {
+        return f.compareTo(g) > 0;
+      }
     }
   }
 
@@ -111,6 +124,14 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     abstract class Base extends NormalizableConstraint.Base.ForComparison implements GreaterThanOrEqualTo {
       protected Base(String f, String g) {
         super(f, g);
+      }
+
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      @Override
+      public boolean test(Tuple tuple) {
+        checkcond(tuple.get(f) instanceof Comparable);
+        checkcond(tuple.get(g) instanceof Comparable);
+        return ((Comparable) f).compareTo(g) >= 0;
       }
     }
   }
@@ -120,6 +141,14 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       protected Base(String f, String g) {
         super(f, g);
       }
+
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      @Override
+      public boolean test(Tuple tuple) {
+        checkcond(tuple.get(f) instanceof Comparable);
+        checkcond(tuple.get(g) instanceof Comparable);
+        return ((Comparable) f).compareTo(g) == 0;
+      }
     }
   }
 
@@ -127,6 +156,14 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     abstract class Base extends NormalizableConstraint.Base.ForComparison implements NotEqualTo {
       protected Base(String f, String g) {
         super(f, g);
+      }
+
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      @Override
+      public boolean test(Tuple tuple) {
+        checkcond(tuple.get(f) instanceof Comparable);
+        checkcond(tuple.get(g) instanceof Comparable);
+        return ((Comparable) f).compareTo(g) == 0;
       }
     }
   }

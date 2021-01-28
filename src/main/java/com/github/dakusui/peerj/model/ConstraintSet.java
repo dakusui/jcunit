@@ -1,10 +1,12 @@
 package com.github.dakusui.peerj.model;
 
+import com.github.dakusui.peerj.ext.shared.NormalizableConstraint;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.github.dakusui.peerj.utils.ConstraintUtils.*;
+import static com.github.dakusui.peerj.ext.shared.ConstraintUtils.*;
 
 public enum ConstraintSet {
   NONE {
