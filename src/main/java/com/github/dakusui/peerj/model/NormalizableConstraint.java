@@ -14,27 +14,44 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     formatter.format("%s", this.toText(Function.identity()));
   }
 
-  interface Or extends NormalizableConstraint {
+  abstract class Base implements NormalizableConstraint {
+    @Override
+    final public String getName() {
+      throw new UnsupportedOperationException();
+    }
+    @Override
+    final public String toString() {
+      return String.format("%s", this);
+    }
+  }
 
+  interface Or extends NormalizableConstraint {
+    abstract class Base extends NormalizableConstraint.Base implements Or {
+    }
   }
 
   interface And extends NormalizableConstraint {
-
+    abstract class Base extends NormalizableConstraint.Base implements And {
+    }
   }
 
   interface GreaterThan extends NormalizableConstraint {
-
+    abstract class Base extends NormalizableConstraint.Base implements GreaterThan {
+    }
   }
 
   interface GreaterThanOrEqualTo extends NormalizableConstraint {
-
+    abstract class Base extends NormalizableConstraint.Base implements GreaterThanOrEqualTo {
+    }
   }
 
   interface EqualTo extends NormalizableConstraint {
-
+    abstract class Base extends NormalizableConstraint.Base implements EqualTo {
+    }
   }
 
   interface NotEqualTo extends NormalizableConstraint {
-
+    abstract class Base extends NormalizableConstraint.Base implements NotEqualTo {
+    }
   }
 }

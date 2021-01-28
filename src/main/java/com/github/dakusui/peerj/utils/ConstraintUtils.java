@@ -16,17 +16,12 @@ public enum ConstraintUtils {
   ;
 
   public static NormalizableConstraint or(NormalizableConstraint... constraints) {
-    return new NormalizableConstraint.Or() {
+    return new NormalizableConstraint.Or.Base() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
             .map((NormalizableConstraint each) -> each.toText(termNormalizer))
             .collect(joining(" || "));
-      }
-
-      @Override
-      public String getName() {
-        throw new UnsupportedOperationException();
       }
 
       @Override
@@ -45,26 +40,16 @@ public enum ConstraintUtils {
             .distinct()
             .collect(toList());
       }
-
-      @Override
-      public String toString() {
-        return String.format("%s", this);
-      }
     };
   }
 
   public static NormalizableConstraint and(NormalizableConstraint... constraints) {
-    return new NormalizableConstraint.And() {
+    return new NormalizableConstraint.And.Base() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return Arrays.stream(constraints)
             .map(each -> each.toText(termNormalizer))
             .collect(joining(" &amp;&amp; "));
-      }
-
-      @Override
-      public String getName() {
-        throw new UnsupportedOperationException();
       }
 
       @Override
@@ -83,16 +68,11 @@ public enum ConstraintUtils {
             .distinct()
             .collect(toList());
       }
-
-      @Override
-      public String toString() {
-        return String.format("%s", this);
-      }
     };
   }
 
   public static NormalizableConstraint gt(String f, String g) {
-    return new NormalizableConstraint.GreaterThan() {
+    return new NormalizableConstraint.GreaterThan.Base() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         ////
@@ -122,31 +102,16 @@ public enum ConstraintUtils {
             .filter(n -> n.matches("^[A-Za-z]+.*"))
             .collect(toList());
       }
-
-      @Override
-      public String toString() {
-        return String.format("%s", this);
-      }
-
-      @Override
-      public String getName() {
-        throw new UnsupportedOperationException();
-      }
     };
   }
 
   public static NormalizableConstraint ge(String f, String g) {
-    return new NormalizableConstraint.GreaterThanOrEqualTo() {
+    return new NormalizableConstraint.GreaterThanOrEqualTo.Base() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         ////
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
         return termNormalizer.apply(g) + " &lt;= " + termNormalizer.apply(f);
-      }
-
-      @Override
-      public String getName() {
-        throw new UnsupportedOperationException();
       }
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -163,26 +128,16 @@ public enum ConstraintUtils {
             .filter(n -> n.matches("^[A-Za-z]+.*"))
             .collect(toList());
       }
-
-      @Override
-      public String toString() {
-        return String.format("%s", this);
-      }
     };
   }
 
   public static NormalizableConstraint eq(String f, String g) {
-    return new NormalizableConstraint.EqualTo() {
+    return new NormalizableConstraint.EqualTo.Base() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " == " + termNormalizer.apply(g);
       }
 
-      @Override
-      public String getName() {
-        throw new UnsupportedOperationException();
-      }
-
       @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public boolean test(Tuple tuple) {
@@ -196,25 +151,15 @@ public enum ConstraintUtils {
         return Stream.of(f, g)
             .filter(n -> n.matches("^[A-Za-z]+.*"))
             .collect(toList());
-      }
-
-      @Override
-      public String toString() {
-        return String.format("%s", this);
       }
     };
   }
 
   public static NormalizableConstraint neq(String f, String g) {
-    return new NormalizableConstraint.NotEqualTo() {
+    return new NormalizableConstraint.NotEqualTo.Base() {
       @Override
       public String toText(Function<String, String> termNormalizer) {
         return termNormalizer.apply(f) + " != " + termNormalizer.apply(g);
-      }
-
-      @Override
-      public String getName() {
-        throw new UnsupportedOperationException();
       }
 
       @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -230,11 +175,6 @@ public enum ConstraintUtils {
         return Stream.of(f, g)
             .filter(n -> n.matches("^[A-Za-z]+.*"))
             .collect(toList());
-      }
-
-      @Override
-      public String toString() {
-        return String.format("%s", this);
       }
     };
   }
