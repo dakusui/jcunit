@@ -3,17 +3,20 @@ package com.github.dakusui.peerj.ext.shared;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
-import java.util.Arrays;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
+import static com.github.dakusui.pcond.Preconditions.require;
+import static com.github.dakusui.pcond.functions.Predicates.isInstanceOf;
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public interface NormalizableConstraint extends Constraint, Formattable {
+  void accept(NormalizableConstraintVisitor formatter);
+
   String toText(Function<String, String> termNormalizer);
 
   @Override
@@ -32,34 +35,60 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       return String.format("%s", this);
     }
 
-    static abstract class ForJunction extends NormalizableConstraint.Base {
-      final NormalizableConstraint[] constraints;
+  }
 
-      protected ForJunction(NormalizableConstraint[] constraints) {
+  interface ForJunction extends NormalizableConstraint {
+    List<NormalizableConstraint> constraints();
+
+    abstract class Base extends NormalizableConstraint.Base implements ForJunction {
+      private final NormalizableConstraint[] constraints;
+
+      protected Base(NormalizableConstraint[] constraints) {
         this.constraints = constraints;
       }
 
       @Override
+      public List<NormalizableConstraint> constraints() {
+        return asList(this.constraints);
+      }
+
+      @Override
       public List<String> involvedKeys() {
-        return Arrays.stream(constraints)
+        return constraints()
+            .stream()
             .flatMap(each -> each.involvedKeys().stream())
             .distinct()
             .collect(toList());
       }
     }
+  }
 
-    static abstract class ForComparison extends NormalizableConstraint.Base {
-      final String f;
-      final String g;
+  interface ForComparison extends NormalizableConstraint {
+    String leftTerm();
+    String rightTerm();
 
-      protected ForComparison(String f, String g) {
-        this.f = f;
-        this.g = g;
+    abstract class Base extends NormalizableConstraint.Base implements ForComparison {
+      private final String leftTerm;
+      private final String rightTerm;
+
+      protected Base(String leftTerm, String rightTerm) {
+        this.leftTerm = require(leftTerm, isInstanceOf(Comparable.class));
+        this.rightTerm = require(rightTerm, isInstanceOf(Comparable.class));
+      }
+
+      @Override
+      public String leftTerm() {
+        return this.leftTerm;
+      }
+
+      @Override
+      public String rightTerm() {
+        return this.rightTerm;
       }
 
       @Override
       final public List<String> involvedKeys() {
-        return Stream.of(f, g)
+        return Stream.of(leftTerm, rightTerm)
             .filter(n -> n.matches("^[A-Za-z]+.*"))
             .collect(toList());
       }
@@ -67,14 +96,19 @@ public interface NormalizableConstraint extends Constraint, Formattable {
   }
 
   interface Or extends NormalizableConstraint {
-    abstract class Base extends NormalizableConstraint.Base.ForJunction implements Or {
+    @Override
+    default void accept(NormalizableConstraintVisitor formatter) {
+      formatter.visit(this);
+    }
+
+    abstract class Base extends ForJunction.Base implements Or {
       protected Base(NormalizableConstraint[] constraints) {
         super(constraints);
       }
 
       @Override
       public boolean test(Tuple tuple) {
-        for (NormalizableConstraint each : constraints) {
+        for (NormalizableConstraint each : constraints()) {
           if (each.test(tuple))
             return true;
         }
@@ -84,14 +118,19 @@ public interface NormalizableConstraint extends Constraint, Formattable {
   }
 
   interface And extends NormalizableConstraint {
-    abstract class Base extends NormalizableConstraint.Base.ForJunction implements And {
+    @Override
+    default void accept(NormalizableConstraintVisitor formatter) {
+      formatter.visit(this);
+    }
+
+    abstract class Base extends ForJunction.Base implements And {
       protected Base(NormalizableConstraint[] constraints) {
         super(constraints);
       }
 
       @Override
       public boolean test(Tuple tuple) {
-        for (NormalizableConstraint each : this.constraints) {
+        for (NormalizableConstraint each : this.constraints()) {
           if (each.test(tuple))
             return false;
         }
@@ -101,16 +140,19 @@ public interface NormalizableConstraint extends Constraint, Formattable {
   }
 
   interface GreaterThan extends NormalizableConstraint {
-    abstract class Base extends NormalizableConstraint.Base.ForComparison implements GreaterThan {
+    @Override
+    default void accept(NormalizableConstraintVisitor formatter) {
+      formatter.visit(this);
+    }
+
+    abstract class Base extends ForComparison.Base implements GreaterThan {
       protected Base(String f, String g) {
         super(f, g);
       }
 
       @Override
       public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return compare(f, g);
+        return compare(leftTerm(), rightTerm());
       }
 
       @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -121,7 +163,12 @@ public interface NormalizableConstraint extends Constraint, Formattable {
   }
 
   interface GreaterThanOrEqualTo extends NormalizableConstraint {
-    abstract class Base extends NormalizableConstraint.Base.ForComparison implements GreaterThanOrEqualTo {
+    @Override
+    default void accept(NormalizableConstraintVisitor formatter) {
+      formatter.visit(this);
+    }
+
+    abstract class Base extends ForComparison.Base implements GreaterThanOrEqualTo {
       protected Base(String f, String g) {
         super(f, g);
       }
@@ -129,15 +176,18 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return ((Comparable) f).compareTo(g) >= 0;
+        return ((Comparable) leftTerm()).compareTo(rightTerm()) >= 0;
       }
     }
   }
 
   interface EqualTo extends NormalizableConstraint {
-    abstract class Base extends NormalizableConstraint.Base.ForComparison implements EqualTo {
+    @Override
+    default void accept(NormalizableConstraintVisitor formatter) {
+      formatter.visit(this);
+    }
+
+    abstract class Base extends ForComparison.Base implements EqualTo {
       protected Base(String f, String g) {
         super(f, g);
       }
@@ -145,15 +195,18 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return ((Comparable) f).compareTo(g) == 0;
+        return ((Comparable) leftTerm()).compareTo(rightTerm()) == 0;
       }
     }
   }
 
   interface NotEqualTo extends NormalizableConstraint {
-    abstract class Base extends NormalizableConstraint.Base.ForComparison implements NotEqualTo {
+    @Override
+    default void accept(NormalizableConstraintVisitor formatter) {
+      formatter.visit(this);
+    }
+
+    abstract class Base extends ForComparison.Base implements NotEqualTo {
       protected Base(String f, String g) {
         super(f, g);
       }
@@ -161,9 +214,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       @SuppressWarnings({ "unchecked", "rawtypes" })
       @Override
       public boolean test(Tuple tuple) {
-        checkcond(tuple.get(f) instanceof Comparable);
-        checkcond(tuple.get(g) instanceof Comparable);
-        return ((Comparable) f).compareTo(g) == 0;
+        return ((Comparable) leftTerm()).compareTo(rightTerm()) == 0;
       }
     }
   }

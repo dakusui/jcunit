@@ -1,7 +1,5 @@
 package com.github.dakusui.peerj.ext.shared;
 
-import com.github.dakusui.peerj.ext.shared.NormalizableConstraint;
-
 import java.util.Arrays;
 import java.util.function.Function;
 
@@ -38,7 +36,7 @@ public enum ConstraintUtils {
       public String toText(Function<String, String> termNormalizer) {
         ////
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
-        return toText(termNormalizer.apply(g), termNormalizer.apply(f));
+        return toText(termNormalizer.apply(rightTerm()), termNormalizer.apply(leftTerm()));
       }
 
       public String toText(String normalizedFactorNameForG, String normalizedFactorNameForF) {
@@ -53,7 +51,7 @@ public enum ConstraintUtils {
       public String toText(Function<String, String> termNormalizer) {
         ////
         // Since ACTS seems not supporting > (&gt;), invert the comparator.
-        return termNormalizer.apply(g) + " &lt;= " + termNormalizer.apply(f);
+        return termNormalizer.apply(rightTerm()) + " &lt;= " + termNormalizer.apply(leftTerm());
       }
     };
   }
@@ -62,7 +60,7 @@ public enum ConstraintUtils {
     return new NormalizableConstraint.EqualTo.Base(f, g) {
       @Override
       public String toText(Function<String, String> termNormalizer) {
-        return termNormalizer.apply(f) + " == " + termNormalizer.apply(g);
+        return termNormalizer.apply(leftTerm()) + " == " + termNormalizer.apply(rightTerm());
       }
     };
   }
@@ -71,7 +69,7 @@ public enum ConstraintUtils {
     return new NormalizableConstraint.NotEqualTo.Base(f, g) {
       @Override
       public String toText(Function<String, String> termNormalizer) {
-        return termNormalizer.apply(f) + " != " + termNormalizer.apply(g);
+        return termNormalizer.apply(leftTerm()) + " != " + termNormalizer.apply(rightTerm());
       }
     };
   }
