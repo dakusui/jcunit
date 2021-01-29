@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.ext.shared;
+package com.github.dakusui.peerj.ext.base;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -15,7 +15,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
 public interface NormalizableConstraint extends Constraint, Formattable {
-  void accept(NormalizableConstraintVisitor formatter);
+  void accept(Visitor formatter);
 
   String toText(Function<String, String> termNormalizer);
 
@@ -97,7 +97,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface Or extends NormalizableConstraint {
     @Override
-    default void accept(NormalizableConstraintVisitor formatter) {
+    default void accept(Visitor formatter) {
       formatter.visit(this);
     }
 
@@ -119,7 +119,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface And extends NormalizableConstraint {
     @Override
-    default void accept(NormalizableConstraintVisitor formatter) {
+    default void accept(Visitor formatter) {
       formatter.visit(this);
     }
 
@@ -141,7 +141,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface GreaterThan extends NormalizableConstraint {
     @Override
-    default void accept(NormalizableConstraintVisitor formatter) {
+    default void accept(Visitor formatter) {
       formatter.visit(this);
     }
 
@@ -164,7 +164,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface GreaterThanOrEqualTo extends NormalizableConstraint {
     @Override
-    default void accept(NormalizableConstraintVisitor formatter) {
+    default void accept(Visitor formatter) {
       formatter.visit(this);
     }
 
@@ -183,7 +183,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface EqualTo extends NormalizableConstraint {
     @Override
-    default void accept(NormalizableConstraintVisitor formatter) {
+    default void accept(Visitor formatter) {
       formatter.visit(this);
     }
 
@@ -202,7 +202,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface NotEqualTo extends NormalizableConstraint {
     @Override
-    default void accept(NormalizableConstraintVisitor formatter) {
+    default void accept(Visitor formatter) {
       formatter.visit(this);
     }
 
@@ -217,5 +217,14 @@ public interface NormalizableConstraint extends Constraint, Formattable {
         return ((Comparable) leftTerm()).compareTo(rightTerm()) == 0;
       }
     }
+  }
+
+  interface Visitor {
+    void visit(Or constraint);
+    void visit(And constraint);
+    void visit(GreaterThan constraint);
+    void visit(GreaterThanOrEqualTo constraint);
+    void visit(EqualTo constraint);
+    void visit(NotEqualTo constraint);
   }
 }

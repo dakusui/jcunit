@@ -6,7 +6,7 @@ import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.peerj.ext.shared.IoUtils;
+import com.github.dakusui.peerj.ext.base.IoUtils;
 import org.junit.Before;
 import org.junit.Test;
 

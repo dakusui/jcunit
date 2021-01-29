@@ -4,6 +4,7 @@ import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.ext.ExternalEngine;
+import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
 
 import java.io.File;
 import java.util.List;
@@ -51,5 +52,37 @@ public class Pict extends ExternalEngine.Base {
 
   private static String pathToBinary() {
     return "src/test/resources/bin/" + System.getProperty("os.name") + "/pict";
+  }
+
+  static class ConstraintRenderer implements NormalizableConstraint.Visitor {
+    @Override
+    public void visit(NormalizableConstraint.Or constraint) {
+
+    }
+
+    @Override
+    public void visit(NormalizableConstraint.And constraint) {
+
+    }
+
+    @Override
+    public void visit(NormalizableConstraint.GreaterThan constraint) {
+
+    }
+
+    @Override
+    public void visit(NormalizableConstraint.GreaterThanOrEqualTo constraint) {
+
+    }
+
+    @Override
+    public void visit(NormalizableConstraint.EqualTo constraint) {
+
+    }
+
+    @Override
+    public void visit(NormalizableConstraint.NotEqualTo constraint) {
+
+    }
   }
 }

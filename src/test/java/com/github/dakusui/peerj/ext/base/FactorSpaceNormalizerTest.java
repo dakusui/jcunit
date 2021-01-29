@@ -1,11 +1,11 @@
-package com.github.dakusui.peerj.ext.shared;
+package com.github.dakusui.peerj.ext.base;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.pcond.provider.PreconditionViolationException;
 import org.junit.Test;
 
 import static com.github.dakusui.pcond.Preconditions.require;
-import static com.github.dakusui.peerj.ext.shared.FactorSpaceNormalizer.isSupportedFactor;
+import static com.github.dakusui.peerj.ext.base.FactorSpaceNormalizer.isSupportedFactor;
 
 public class FactorSpaceNormalizerTest {
   @Test(expected = PreconditionViolationException.class)

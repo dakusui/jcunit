@@ -2,7 +2,7 @@ package com.github.dakusui.peerj.model;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.shared.NormalizableConstraint;
+import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

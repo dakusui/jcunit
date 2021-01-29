@@ -2,8 +2,7 @@ package com.github.dakusui.peerj.ext;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.acts.ActsUtils;
-import com.github.dakusui.peerj.ext.shared.IoUtils;
+import com.github.dakusui.peerj.ext.base.IoUtils;
 import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,7 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.INCREMENTAL;
 import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.SCRATCH;
-import static com.github.dakusui.peerj.ext.shared.IoUtils.writeTo;
+import static com.github.dakusui.peerj.ext.base.IoUtils.writeTo;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 
 public interface ExternalEngine {

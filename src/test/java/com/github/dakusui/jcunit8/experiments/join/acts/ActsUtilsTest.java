@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.peerj.ext.acts.Acts;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
-import com.github.dakusui.peerj.ext.shared.NormalizableConstraint;
+import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;

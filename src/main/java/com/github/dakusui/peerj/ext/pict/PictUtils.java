@@ -2,13 +2,13 @@ package com.github.dakusui.peerj.ext.pict;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.shared.FactorSpaceNormalizer;
-import com.github.dakusui.peerj.ext.shared.IoUtils;
+import com.github.dakusui.peerj.ext.base.FactorSpaceNormalizer;
+import com.github.dakusui.peerj.ext.base.IoUtils;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.ext.shared.IoUtils.newLine;
+import static com.github.dakusui.peerj.ext.base.IoUtils.newLine;
 
 public enum PictUtils {
   ;

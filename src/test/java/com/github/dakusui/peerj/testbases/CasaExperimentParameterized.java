@@ -3,7 +3,7 @@ package com.github.dakusui.peerj.testbases;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.pcond.functions.Printables;
 import com.github.dakusui.peerj.PeerJUtils2;
-import com.github.dakusui.peerj.ext.shared.IoUtils;
+import com.github.dakusui.peerj.ext.base.IoUtils;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import org.junit.Before;
 import org.junit.FixMethodOrder;

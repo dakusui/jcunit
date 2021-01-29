@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.ext.shared;
+package com.github.dakusui.peerj.ext.base;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -17,10 +17,6 @@ import static java.util.stream.Collectors.toList;
 
 
 public class FactorSpaceNormalizer {
-  enum Type {
-    NUMBER,
-    ENUM
-  }
 
   private static final Function<Integer, String>                    NAME_FORMALIZER = (id) -> String.format("p%d", id);
   private final        Function<Integer, String>                    name;
@@ -101,11 +97,11 @@ public class FactorSpaceNormalizer {
     return predicate("isSorted", (List<?> v) -> Objects.equals(v, v.stream().sorted().collect(toList())));
   }
 
-  private static Type typeOf(Factor factor) {
+  private static Term.Type typeOf(Factor factor) {
     if (Objects.equals(String.class, factor.getLevels().get(0).getClass()))
-      return Type.ENUM;
+      return Term.Type.ENUM;
     else if (Objects.equals(Integer.class, factor.getLevels().get(0).getClass()))
-      return Type.NUMBER;
+      return Term.Type.NUMBER;
     throw new UnsupportedOperationException();
   }
 }

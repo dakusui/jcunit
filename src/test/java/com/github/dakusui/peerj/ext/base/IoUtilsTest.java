@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.ext.shared;
+package com.github.dakusui.peerj.ext.base;
 
 import java.util.List;
 
