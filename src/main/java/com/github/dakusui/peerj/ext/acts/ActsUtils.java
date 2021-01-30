@@ -41,7 +41,7 @@ public enum ActsUtils {
   private static void renderParameters(StringBuilder b, int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer) {
     StringUtils.appendLine(b, indentLevel, "<Parameters>");
     indentLevel++;
-    for (int i = 0; i < factorSpaceNormalizer.numFormalFactors(); i++) {
+    for (int i = 0; i < factorSpaceNormalizer.numNormalizedFactors(); i++) {
       indentLevel = renderParameter(
           b,
           indentLevel,
@@ -109,7 +109,7 @@ public enum ActsUtils {
   private static int renderParameter(StringBuilder b, int indentLevel, int parameterId, FactorSpaceNormalizer factorSpaceNormalizer) {
     b.append(StringUtils.indent(indentLevel))
         .append("<Parameter id=\"").append(parameterId).append("\" name=\"")
-        .append(factorSpaceNormalizer.formalFactorNameOf(parameterId))
+        .append(factorSpaceNormalizer.normalizedFactorNameOf(parameterId))
         .append("\" type=\"")
         .append("0")
         .append("\">")
@@ -117,8 +117,8 @@ public enum ActsUtils {
     indentLevel++;
     StringUtils.appendLine(b, indentLevel, "<values>");
     indentLevel++;
-    for (int j = 0; j < factorSpaceNormalizer.numLevelsOfFormalFactor(parameterId); j++) {
-      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceNormalizer.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
+    for (int j = 0; j < factorSpaceNormalizer.numLevelsOfNormalizedFactor(parameterId); j++) {
+      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceNormalizer.normalizedFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
     }
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</values>");
@@ -169,14 +169,14 @@ public enum ActsUtils {
         throw new UnsupportedOperationException();
       StringUtils.appendLine(b, indentLevel,
           format("<Constraint text=\"%s\">",
-              ((NormalizableConstraint) each).toText(term -> factorSpaceNormalizer.formalizeFactorName(term).orElse(term))));
+              ((NormalizableConstraint) each).toText(term -> factorSpaceNormalizer.normalizedFactorName(term).orElse(term))));
       StringUtils.appendLine(b, indentLevel, "<Parameters>");
       indentLevel++;
       for (String eachFactorName : each.involvedKeys())
         StringUtils.appendLine(b,
             indentLevel,
             format("<Parameter name=\"%s\"/>",
-                factorSpaceNormalizer.formalizeFactorName(eachFactorName)
+                factorSpaceNormalizer.normalizedFactorName(eachFactorName)
                     .orElseThrow(NoSuchElementException::new)));
       indentLevel--;
       StringUtils.appendLine(b, indentLevel, "</Parameters>");
@@ -215,9 +215,9 @@ public enum ActsUtils {
       return;
     StringUtils.appendLine(b, indentLevel, "<Relations>");
     indentLevel++;
-    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, 0, factorSpaceNormalizer.numFormalFactors(), strength);
-    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, 0, factorSpaceNormalizer.numFormalFactors() / 2, relationStrength);
-    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, factorSpaceNormalizer.numFormalFactors() / 2, factorSpaceNormalizer.numFormalFactors(), relationStrength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, 0, factorSpaceNormalizer.numNormalizedFactors(), strength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, 0, factorSpaceNormalizer.numNormalizedFactors() / 2, relationStrength);
+    indentLevel = renderRelation(b, indentLevel, factorSpaceNormalizer, factorSpaceNormalizer.numNormalizedFactors() / 2, factorSpaceNormalizer.numNormalizedFactors(), relationStrength);
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</Relations>");
   }
@@ -262,8 +262,8 @@ public enum ActsUtils {
 
   private static void renderTestcase(StringBuilder b, int indentLevel, FactorSpaceNormalizer factorSpaceNormalizer, Tuple testCase, int testCaseNo) {
     StringUtils.appendLine(b, indentLevel, format("<Testcase TCNo=\"%s\">", testCaseNo));
-    IntStream.range(0, factorSpaceNormalizer.numFormalFactors())
-        .mapToObj(factorSpaceNormalizer::formalFactorNameOf)
+    IntStream.range(0, factorSpaceNormalizer.numNormalizedFactors())
+        .mapToObj(factorSpaceNormalizer::normalizedFactorNameOf)
         .map(k -> format("<Value>%s</Value>", testCase.get(k)))
         .forEach(testCaseElement -> StringUtils.appendLine(b, indentLevel + 1, testCaseElement));
     StringUtils.appendLine(b, indentLevel, "</Testcase>");
@@ -283,13 +283,13 @@ public enum ActsUtils {
 
   public static int renderParameterInRelation(StringBuilder b, int indentLevel, int parameterId, FactorSpaceNormalizer factorSpaceNormalizer) {
     b.append(StringUtils.indent(indentLevel))
-        .append("<Parameter name=\"").append(factorSpaceNormalizer.formalFactorNameOf(parameterId)).append("\">")
+        .append("<Parameter name=\"").append(factorSpaceNormalizer.normalizedFactorNameOf(parameterId)).append("\">")
         .append(StringUtils.newLine());
     indentLevel++;
     StringUtils.appendLine(b, indentLevel, "<values>");
     indentLevel++;
-    for (int j = 0; j < factorSpaceNormalizer.numLevelsOfFormalFactor(parameterId); j++) {
-      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceNormalizer.formalFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
+    for (int j = 0; j < factorSpaceNormalizer.numLevelsOfNormalizedFactor(parameterId); j++) {
+      b.append(StringUtils.indent(indentLevel)).append("<value>").append(factorSpaceNormalizer.normalizedFactorLevelOf(parameterId, j)).append("</value>").append(StringUtils.newLine());
     }
     indentLevel--;
     StringUtils.appendLine(b, indentLevel, "</values>");

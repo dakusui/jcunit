@@ -18,12 +18,12 @@ import static java.util.stream.Collectors.toList;
 
 public class FactorSpaceNormalizer {
 
-  private static final Function<Integer, String>                    NAME_FORMALIZER = (id) -> String.format("p%d", id);
+  private static final Function<Integer, String>                    NAME_NORMALIZER = (id) -> String.format("p%d", id);
   private final        Function<Integer, String>                    name;
   private final        Function<Integer, Factor>                    factor;
   private final        Function<Integer, Function<Integer, Object>> value;
   private final        int                                          numFactors;
-  private final        Function<String, Optional<String>>           factorNameFormalizer;
+  private final        Function<String, Optional<String>>           factorNameNormalizer;
 
   private FactorSpaceNormalizer(
       Function<Integer, String> name,
@@ -34,7 +34,7 @@ public class FactorSpaceNormalizer {
     this.name = name;
     this.factor = factor;
     this.value = value;
-    this.factorNameFormalizer = factorName ->
+    this.factorNameNormalizer = factorName ->
         indexOfFactorName.apply(factorName) >= 0
             ? Optional.of(name.apply(indexOfFactorName.apply(factorName)))
             : Optional.empty();
@@ -42,38 +42,38 @@ public class FactorSpaceNormalizer {
   }
 
   public FactorSpaceNormalizer(FactorSpace factorSpace) {
-    this(NAME_FORMALIZER,
+    this(NAME_NORMALIZER,
         (id) -> factorSpace.getFactors().get(id),
         (i) -> (j) -> factorSpace.getFactors().get(i).getLevels().get(j),
         (factorName) -> factorSpace.getFactorNames().indexOf(factorName),
         factorSpace.getFactors().size());
   }
 
-  public String formalFactorNameOf(int formalFactorId) {
-    return this.name.apply(formalFactorId);
+  public String normalizedFactorNameOf(int normalizedFactorId) {
+    return this.name.apply(normalizedFactorId);
   }
 
-  public int numLevelsOfFormalFactor(int formalFactorId) {
-    return factorFor(formalFactorId).getLevels().size();
+  public int numLevelsOfNormalizedFactor(int normalizedFactorId) {
+    return factorFor(normalizedFactorId).getLevels().size();
   }
 
-  public Object formalFactorLevelOf(int formalFactorId, int formalFactorLevelId) {
+  public Object normalizedFactorLevelOf(int normalizedFactorId, int normalizedFactorLevelId) {
     ////
-    // If the formalFactorLevelId is not valid for the factor specified by formalFactorId,
+    // If the normalizedFactorLevelId is not valid for the factor specified by normalizedFactorId,
     // an exception will be thrown.
-    return this.value.apply(formalFactorId).apply(formalFactorLevelId);
+    return this.value.apply(normalizedFactorId).apply(normalizedFactorLevelId);
   }
 
-  public Optional<String> formalizeFactorName(String factorName) {
-    return this.factorNameFormalizer.apply(factorName);
+  public Optional<String> normalizedFactorName(String factorName) {
+    return this.factorNameNormalizer.apply(factorName);
   }
 
-  public int numFormalFactors() {
+  public int numNormalizedFactors() {
     return this.numFactors;
   }
 
-  private Factor factorFor(int formalFactorId) {
-    return factor.apply(formalFactorId);
+  private Factor factorFor(int normalizedFactorId) {
+    return factor.apply(normalizedFactorId);
   }
 
 

@@ -34,7 +34,6 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     final public String toString() {
       return String.format("%s", this);
     }
-
   }
 
   interface ForJunction extends NormalizableConstraint {
@@ -95,7 +94,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     }
   }
 
-  interface Or extends NormalizableConstraint {
+  interface Or extends NormalizableConstraint.ForJunction {
     @Override
     default void accept(Visitor formatter) {
       formatter.visit(this);
@@ -117,7 +116,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     }
   }
 
-  interface And extends NormalizableConstraint {
+  interface And extends NormalizableConstraint.ForJunction {
     @Override
     default void accept(Visitor formatter) {
       formatter.visit(this);
@@ -139,7 +138,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     }
   }
 
-  interface GreaterThan extends NormalizableConstraint {
+  interface GreaterThan extends NormalizableConstraint.ForComparison {
     @Override
     default void accept(Visitor formatter) {
       formatter.visit(this);
@@ -162,7 +161,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     }
   }
 
-  interface GreaterThanOrEqualTo extends NormalizableConstraint {
+  interface GreaterThanOrEqualTo extends NormalizableConstraint.ForComparison {
     @Override
     default void accept(Visitor formatter) {
       formatter.visit(this);
@@ -181,7 +180,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     }
   }
 
-  interface EqualTo extends NormalizableConstraint {
+  interface EqualTo extends NormalizableConstraint.ForComparison {
     @Override
     default void accept(Visitor formatter) {
       formatter.visit(this);
@@ -200,7 +199,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     }
   }
 
-  interface NotEqualTo extends NormalizableConstraint {
+  interface NotEqualTo extends NormalizableConstraint.ForComparison {
     @Override
     default void accept(Visitor formatter) {
       formatter.visit(this);
