@@ -27,30 +27,22 @@ class PictConstraintRenderer extends ConstraintRenderer<PictConstraintRenderer> 
 
   @Override
   public void visit(NormalizableConstraint.GreaterThan constraint) {
-    b.append(renderTerm(constraint.leftTerm()));
-    b.append(" > ");
-    b.append(renderTerm(constraint.rightTerm()));
+    renderComparison(constraint.leftTerm(), " > ", constraint.rightTerm());
   }
 
   @Override
   public void visit(NormalizableConstraint.GreaterThanOrEqualTo constraint) {
-    b.append(renderTerm(constraint.leftTerm()));
-    b.append(" >= ");
-    b.append(renderTerm(constraint.rightTerm()));
+    renderComparison(constraint.leftTerm(), " >= ", constraint.rightTerm());
   }
 
   @Override
   public void visit(NormalizableConstraint.EqualTo constraint) {
-    b.append(renderTerm(constraint.leftTerm()));
-    b.append(" = ");
-    b.append(renderTerm(constraint.rightTerm()));
+    renderComparison(constraint.leftTerm(), " = ", constraint.rightTerm());
   }
 
   @Override
   public void visit(NormalizableConstraint.NotEqualTo constraint) {
-    b.append(renderTerm(constraint.leftTerm()));
-    b.append(" <> ");
-    b.append(renderTerm(constraint.rightTerm()));
+    renderComparison(constraint.leftTerm(), " <> ", constraint.rightTerm());
   }
 
   @Override

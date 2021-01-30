@@ -168,8 +168,7 @@ public enum ActsUtils {
       if (!(each instanceof NormalizableConstraint))
         throw new UnsupportedOperationException();
       StringUtils.appendLine(b, indentLevel,
-          format("<Constraint text=\"%s\">",
-              ((NormalizableConstraint) each).toText(term -> factorSpaceNormalizer.normalizedFactorName(term).orElse(term))));
+          format("<Constraint text=\"%s\">", new ActsConstraintRenderer(factorSpaceNormalizer).render((NormalizableConstraint) each)));
       StringUtils.appendLine(b, indentLevel, "<Parameters>");
       indentLevel++;
       for (String eachFactorName : each.involvedKeys())

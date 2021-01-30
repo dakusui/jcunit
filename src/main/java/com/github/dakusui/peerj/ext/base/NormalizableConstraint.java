@@ -17,11 +17,9 @@ import static java.util.stream.Collectors.toList;
 public interface NormalizableConstraint extends Constraint, Formattable {
   void accept(Visitor formatter);
 
-  String toText(Function<String, String> termNormalizer);
-
   @Override
   default void formatTo(Formatter formatter, int flags, int width, int precision) {
-    formatter.format("%s", this.toText(Function.identity()));
+    formatter.format("%s", new ConstraintRenderer.DummyConstraintRenderer().render(this));
   }
 
   abstract class Base implements NormalizableConstraint {
@@ -29,7 +27,6 @@ public interface NormalizableConstraint extends Constraint, Formattable {
     final public String getName() {
       throw new UnsupportedOperationException();
     }
-
     @Override
     final public String toString() {
       return String.format("%s", this);
@@ -64,6 +61,7 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface ForComparison extends NormalizableConstraint {
     String leftTerm();
+
     String rightTerm();
 
     abstract class Base extends NormalizableConstraint.Base implements ForComparison {
@@ -122,8 +120,8 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       formatter.visit(this);
     }
 
-    abstract class Base extends ForJunction.Base implements And {
-      protected Base(NormalizableConstraint[] constraints) {
+    final class Impl extends ForJunction.Base implements And {
+      protected Impl(NormalizableConstraint[] constraints) {
         super(constraints);
       }
 
@@ -144,8 +142,8 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       formatter.visit(this);
     }
 
-    abstract class Base extends ForComparison.Base implements GreaterThan {
-      protected Base(String f, String g) {
+    final class Impl extends ForComparison.Base implements GreaterThan {
+      protected Impl(String f, String g) {
         super(f, g);
       }
 
@@ -167,8 +165,8 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       formatter.visit(this);
     }
 
-    abstract class Base extends ForComparison.Base implements GreaterThanOrEqualTo {
-      protected Base(String f, String g) {
+    final class Impl extends ForComparison.Base implements GreaterThanOrEqualTo {
+      protected Impl(String f, String g) {
         super(f, g);
       }
 
@@ -186,8 +184,8 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       formatter.visit(this);
     }
 
-    abstract class Base extends ForComparison.Base implements EqualTo {
-      protected Base(String f, String g) {
+    final class Impl extends ForComparison.Base implements EqualTo {
+      protected Impl(String f, String g) {
         super(f, g);
       }
 
@@ -205,8 +203,8 @@ public interface NormalizableConstraint extends Constraint, Formattable {
       formatter.visit(this);
     }
 
-    abstract class Base extends ForComparison.Base implements NotEqualTo {
-      protected Base(String f, String g) {
+    final class Impl extends ForComparison.Base implements NotEqualTo {
+      protected Impl(String f, String g) {
         super(f, g);
       }
 
@@ -220,10 +218,15 @@ public interface NormalizableConstraint extends Constraint, Formattable {
 
   interface Visitor {
     void visit(Or constraint);
+
     void visit(And constraint);
+
     void visit(GreaterThan constraint);
+
     void visit(GreaterThanOrEqualTo constraint);
+
     void visit(EqualTo constraint);
+
     void visit(NotEqualTo constraint);
   }
 }

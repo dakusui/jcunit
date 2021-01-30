@@ -25,22 +25,22 @@ public class ActsConstraintRenderer extends ConstraintRenderer<ActsConstraintRen
 
   @Override
   public void visit(NormalizableConstraint.GreaterThan constraint) {
-    b.append(String.format("%s &lt; %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
+    renderComparison(constraint.rightTerm(), " &lt; ", constraint.leftTerm());
   }
 
   @Override
   public void visit(NormalizableConstraint.GreaterThanOrEqualTo constraint) {
-    b.append(String.format("%s &lt;= %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
+    renderComparison(constraint.rightTerm(), " &lt;= ", constraint.leftTerm());
   }
 
   @Override
   public void visit(NormalizableConstraint.EqualTo constraint) {
-    b.append(String.format("%s == %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
+    renderComparison(constraint.leftTerm(), " == ", constraint.rightTerm());
   }
 
   @Override
   public void visit(NormalizableConstraint.NotEqualTo constraint) {
-    b.append(String.format("%s != %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
+    renderComparison(constraint.leftTerm(), " != ", constraint.rightTerm());
   }
 
   @Override

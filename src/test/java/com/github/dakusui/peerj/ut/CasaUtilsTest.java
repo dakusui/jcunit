@@ -51,7 +51,7 @@ public class CasaUtilsTest extends PeerJExperimentBase {
             "- 20 - 3").iterator());
     System.out.println(casaModel);
     assertEquals(
-        "t=2;factors:[prefix-0:[0, 1, 2, 3], prefix-1:[0, 1], prefix-2:[0, 1], prefix-3:[0, 1], prefix-4:[0, 1], prefix-5:[0, 1], prefix-6:[0, 1], prefix-7:[0, 1], prefix-8:[0, 1], prefix-9:[0, 1], prefix-10:[0, 1], prefix-11:[0, 1], prefix-12:[0, 1], prefix-13:[0, 1], prefix-14:[0, 1]],constraints:[prefix-0 != 2 || prefix-9 != 0, prefix-9 != 0 || prefix-0 != 1, prefix-9 != 0 || prefix-0 != 3]",
+        "t=2;factors:[prefix-0:[0, 1, 2, 3], prefix-1:[0, 1], prefix-2:[0, 1], prefix-3:[0, 1], prefix-4:[0, 1], prefix-5:[0, 1], prefix-6:[0, 1], prefix-7:[0, 1], prefix-8:[0, 1], prefix-9:[0, 1], prefix-10:[0, 1], prefix-11:[0, 1], prefix-12:[0, 1], prefix-13:[0, 1], prefix-14:[0, 1]],constraints:[prefix-0 != 2 or prefix-9 != 0, prefix-9 != 0 or prefix-0 != 1, prefix-9 != 0 or prefix-0 != 3]",
         casaModel.toString()
     );
   }
@@ -67,7 +67,7 @@ public class CasaUtilsTest extends PeerJExperimentBase {
     );
     System.out.println(casaModel);
     assertEquals(
-        "t=2;factors:[prefix-0:[0, 1, 2, 3], prefix-1:[0, 1], prefix-2:[0, 1], prefix-3:[0, 1], prefix-4:[0, 1], prefix-5:[0, 1], prefix-6:[0, 1], prefix-7:[0, 1], prefix-8:[0, 1], prefix-9:[0, 1], prefix-10:[0, 1], prefix-11:[0, 1], prefix-12:[0, 1], prefix-13:[0, 1], prefix-14:[0, 1]],constraints:[prefix-0 != 2 || prefix-9 != 0, prefix-9 != 0 || prefix-0 != 1, prefix-9 != 0 || prefix-0 != 3]",
+        "t=2;factors:[prefix-0:[0, 1, 2, 3], prefix-1:[0, 1], prefix-2:[0, 1], prefix-3:[0, 1], prefix-4:[0, 1], prefix-5:[0, 1], prefix-6:[0, 1], prefix-7:[0, 1], prefix-8:[0, 1], prefix-9:[0, 1], prefix-10:[0, 1], prefix-11:[0, 1], prefix-12:[0, 1], prefix-13:[0, 1], prefix-14:[0, 1]],constraints:[prefix-0 != 2 or prefix-9 != 0, prefix-9 != 0 or prefix-0 != 1, prefix-9 != 0 or prefix-0 != 3]",
         casaModel.toString()
     );
   }
