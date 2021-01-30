@@ -56,7 +56,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
 
   @Test
   public void acts() {
-    StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<CasaExperimentParameterized, List<Tuple>>(
+    StopWatch<CasaExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
         Printables.function("conductActsExperiment", (CasaExperimentParameterized self) -> self.conductActsExperimentForCasa(self.spec.def)),
         (CasaExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));

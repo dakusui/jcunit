@@ -16,8 +16,8 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 
 public class Pict extends ExternalEngine.Base {
-  private Pict(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir, GenerationMode mode) {
-    super(baseDir, strength, factorSpace, mode, testCases);
+  private Pict(FactorSpace factorSpace, List<Tuple> testCases, int strength, File baseDir) {
+    super(baseDir, strength, factorSpace, testCases);
   }
 
   @Override

@@ -16,6 +16,7 @@ import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.INCREME
 import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.SCRATCH;
 import static com.github.dakusui.peerj.ext.base.IoUtils.writeTo;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
+import static java.lang.String.format;
 
 public interface ExternalEngine {
   enum GenerationMode {
@@ -30,7 +31,7 @@ public interface ExternalEngine {
   }
 
   default void recordExecutionTime(long executionTimeInMillis, String executionTimeFile) {
-    writeTo(new File(baseDir(), executionTimeFile), String.format("%s[msec]", executionTimeInMillis));
+    writeTo(new File(baseDir(), executionTimeFile), format("%s[msec]", executionTimeInMillis));
   }
 
   default List<Tuple> run() {
@@ -94,7 +95,7 @@ public interface ExternalEngine {
       this.factorSpace = factorSpace;
       this.testCases = testCases;
       this.strength = strength;
-      this.baseDir = baseDir;
+      this.baseDir = new File(baseDir, format("%s", Thread.currentThread().getId()));
       this.generationMode = generationMode;
     }
 
