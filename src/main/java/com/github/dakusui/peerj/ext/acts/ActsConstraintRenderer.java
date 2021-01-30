@@ -4,57 +4,43 @@ import com.github.dakusui.peerj.ext.base.ConstraintRenderer;
 import com.github.dakusui.peerj.ext.base.FactorSpaceNormalizer;
 import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
 
-import static java.util.stream.Collectors.joining;
-
 public class ActsConstraintRenderer extends ConstraintRenderer<ActsConstraintRenderer> {
   public ActsConstraintRenderer(FactorSpaceNormalizer factorSpaceNormalizer) {
-    super(factorSpaceNormalizer);
+    this(factorSpaceNormalizer, true);
+  }
+
+  private ActsConstraintRenderer(FactorSpaceNormalizer factorSpaceNormalizer, boolean root) {
+    super(factorSpaceNormalizer, root);
   }
 
   @Override
   public void visit(NormalizableConstraint.Or constraint) {
-    boolean isTopLevel = isTopLevel();
-    if (!isTopLevel)
-      b.append(" ( ");
-    b.append(constraint.constraints()
-        .stream()
-        .map(v -> newObject().render(v))
-        .collect(joining(" || ")));
-    if (isTopLevel)
-      b.append(" ) ");
+    renderJunction(constraint.constraints(), " || ");
   }
 
   @Override
   public void visit(NormalizableConstraint.And constraint) {
-    boolean isTopLevel = isTopLevel();
-    if (!isTopLevel)
-      b.append(" ( ");
-    b.append(constraint.constraints()
-        .stream()
-        .map(v -> newObject().render(v))
-        .collect(joining(" &amp;&amp; ")));
-    if (isTopLevel)
-      b.append(" ) ");
+    renderJunction(constraint.constraints(), " &amp;&amp; ");
   }
 
   @Override
   public void visit(NormalizableConstraint.GreaterThan constraint) {
-
+    b.append(String.format("%s &lt; %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
   }
 
   @Override
   public void visit(NormalizableConstraint.GreaterThanOrEqualTo constraint) {
-
+    b.append(String.format("%s &lt;= %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
   }
 
   @Override
   public void visit(NormalizableConstraint.EqualTo constraint) {
-
+    b.append(String.format("%s == %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
   }
 
   @Override
   public void visit(NormalizableConstraint.NotEqualTo constraint) {
-
+    b.append(String.format("%s != %s", renderTerm(constraint.rightTerm()), renderTerm(constraint.leftTerm())));
   }
 
   @Override
@@ -63,7 +49,7 @@ public class ActsConstraintRenderer extends ConstraintRenderer<ActsConstraintRen
   }
 
   @Override
-  protected ActsConstraintRenderer newObject() {
-    return new ActsConstraintRenderer(this.factorSpaceNormalizer);
+  protected ActsConstraintRenderer createChild() {
+    return new ActsConstraintRenderer(this.factorSpaceNormalizer, false);
   }
 }
