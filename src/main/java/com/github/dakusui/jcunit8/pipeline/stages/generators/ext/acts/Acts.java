@@ -44,6 +44,19 @@ public class Acts extends ExternalEngine.Base {
     return "acts";
   }
 
+  @Override
+  public String buildSeedData(List<Tuple> seedTestCases) {
+    ////
+    // Since ACTS does not require an external seed file and the seeds are provided
+    // as a part of model file, we just throw an exception.
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean isSeedFileRequired() {
+    return false;
+  }
+
   /**
    * <pre>
    * ACTS Version: 3.0
@@ -73,7 +86,7 @@ public class Acts extends ExternalEngine.Base {
    * </pre>
    */
   @Override
-  public String composeCommandLine(File inFile, File outFile) {
+  public String composeCommandLine(File inFile, File outFile, File seedFile) {
     return StableTemplatingUtils.template(
         "{{JAVA}} -Ddoi={{STRENGTH}} -Dalgo={{ALGORITHM}} -Dchandler={{CHANDLER}} -Doutput=csv -jar {{ACTS_JAR}} {{IN}} {{OUT}}",
         new TreeMap<String, Object>() {{
@@ -86,6 +99,21 @@ public class Acts extends ExternalEngine.Base {
           put("{{IN}}", inFile);
           put("{{OUT}}", outFile);
         }});
+  }
+
+  @Override
+  public String seedFilename(String engineName) {
+    return null;
+  }
+
+  @Override
+  public String outputCoveringArrayFilename(String engineName) {
+    return engineName + ".ca";
+  }
+
+  @Override
+  public String modelFilename(final String engineName) {
+    return engineName + ".xml";
   }
 
   private String mode() {

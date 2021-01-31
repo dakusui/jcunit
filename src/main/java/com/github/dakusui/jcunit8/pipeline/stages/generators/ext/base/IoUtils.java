@@ -22,14 +22,6 @@ public enum IoUtils {
   ;
   private static final Logger LOGGER = LoggerFactory.getLogger(IoUtils.class);
 
-  public static File outFile(File baseDir) {
-    return new File(baseDir, "acts.ca");
-  }
-
-  public static File inFile(File baseDir) {
-    return new File(baseDir, "acts.xml");
-  }
-
   public static void writeTo(File file, Stream<String> stream) {
     try {
       try (OutputStreamWriter writer = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)))) {

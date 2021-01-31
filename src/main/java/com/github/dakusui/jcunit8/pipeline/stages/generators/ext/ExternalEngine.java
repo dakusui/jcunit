@@ -2,7 +2,6 @@ package com.github.dakusui.jcunit8.pipeline.stages.generators.ext;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
 import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +34,10 @@ public interface ExternalEngine {
   }
 
   default List<Tuple> run() {
-    final File inFile = IoUtils.inFile(baseDir());
-    boolean baseDirCreated = baseDir().mkdirs();
-    LOGGER.debug("Basedir was created: {}", baseDirCreated);
-    IoUtils.writeTo(inFile, Arrays.stream(buildModel().split("\n")));
-    final File outFile = IoUtils.outFile(baseDir());
-    String commandLine = composeCommandLine(inFile, outFile);
+    final File seedFile = prepareSeedFile();
+    final File inFile = prepareModelFile();
+    final File outFile = prepareOutputFile();
+    String commandLine = composeCommandLine(inFile, outFile, seedFile);
     recordExecutedCommandLine(commandLine, commandLineFile());
     long before = System.currentTimeMillis();
     ProcessStreamerUtils.processStreamer(
@@ -54,7 +51,47 @@ public interface ExternalEngine {
     }
   }
 
-  List<Tuple> readTestSuiteFromStream(Stream<String> s);
+  default File prepareSeedFile() {
+    final File seedFile = seedFile();
+    if (isSeedFileRequired()) {
+      boolean baseDirCreated = baseDir().mkdirs();
+      LOGGER.debug("Basedir for seed file was created: {}", baseDirCreated);
+      writeTo(seedFile, Arrays.stream(buildSeedData(this.testCases()).split("\n")));
+    }
+    return seedFile;
+  }
+
+  default boolean isSeedFileRequired() {
+    return this.generationMode() == INCREMENTAL;
+  }
+
+  default File prepareModelFile() {
+    final File inFile = modelFile();
+    boolean baseDirCreated = baseDir().mkdirs();
+    LOGGER.debug("Basedir for model file was created: {}", baseDirCreated);
+    writeTo(inFile, Arrays.stream(buildModel().split("\n")));
+    return inFile;
+  }
+
+  default File prepareOutputFile() {
+    final File outFile = outputCoveringArrayFile();
+    boolean baseDirCreated = baseDir().mkdirs();
+    LOGGER.debug("Basedir for output file was created: {}", baseDirCreated);
+    writeTo(outFile, Arrays.stream(buildModel().split("\n")));
+    return outFile;
+  }
+
+  default File seedFile() {
+    return new File(baseDir(), seedFilename(engineName()));
+  }
+
+  default File outputCoveringArrayFile() {
+    return new File(baseDir(), outputCoveringArrayFilename(engineName()));
+  }
+
+  default File modelFile() {
+    return new File(baseDir(), modelFilename(engineName()));
+  }
 
   default String executionTimeFile() {
     return engineName() + ".time";
@@ -64,9 +101,19 @@ public interface ExternalEngine {
     return engineName() + ".commandLine";
   }
 
+  String seedFilename(String engineName);
+
+  String outputCoveringArrayFilename(String engineName);
+
+  String modelFilename(final String engineName);
+
+  List<Tuple> readTestSuiteFromStream(Stream<String> s);
+
   String engineName();
 
   File baseDir();
+
+  String buildSeedData(List<Tuple> seedTestCases);
 
   String buildModel();
 
@@ -78,7 +125,7 @@ public interface ExternalEngine {
 
   GenerationMode generationMode();
 
-  String composeCommandLine(File inFile, File outFile);
+  String composeCommandLine(File inFile, File outFile, File seedFile);
 
   abstract class Base implements ExternalEngine {
     private final FactorSpace    factorSpace;
