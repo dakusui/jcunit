@@ -1,9 +1,9 @@
-package com.github.dakusui.peerj.ext.acts;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts;
 
 import com.github.dakusui.actionunit.utils.StableTemplatingUtils;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.ExternalEngine;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.ExternalEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.ext.acts.ActsUtils.buildActsModel;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.ActsUtils.buildActsModel;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 
@@ -105,10 +105,6 @@ public class Acts extends ExternalEngine.Base {
 
   private static String actsJar() {
     return "src/test/resources/bin/acts_3.0.jar";
-  }
-
-  public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
-    return runActs(baseDir, factorSpace, strength, algorithm, constraintHandler, emptyList());
   }
 
   public static List<Tuple> runActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler, List<Tuple> testCases) {

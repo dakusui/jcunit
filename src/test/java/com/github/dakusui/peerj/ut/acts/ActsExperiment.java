@@ -2,7 +2,7 @@ package com.github.dakusui.peerj.ut.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.experiments.join.acts.ActsUtilsTest;
-import com.github.dakusui.peerj.ext.acts.ActsReport;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.ActsReport;
 import com.github.dakusui.peerj.join.JoinExperiment;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.Experiment;

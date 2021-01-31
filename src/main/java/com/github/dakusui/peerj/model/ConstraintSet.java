@@ -1,12 +1,12 @@
 package com.github.dakusui.peerj.model;
 
-import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static com.github.dakusui.peerj.ext.base.ConstraintUtils.*;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.ConstraintUtils.*;
 
 public enum ConstraintSet {
   NONE {

@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.ext.base;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -6,7 +6,6 @@ import com.github.dakusui.jcunit8.factorspace.Constraint;
 import java.util.Formattable;
 import java.util.Formatter;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.pcond.Preconditions.require;

@@ -2,10 +2,10 @@ package com.github.dakusui.jcunit8.experiments.join.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.acts.Acts;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.Acts;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
-import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
@@ -21,7 +21,8 @@ import static com.github.dakusui.crest.Crest.asInteger;
 import static com.github.dakusui.crest.Crest.asString;
 import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.crest.Crest.call;
-import static com.github.dakusui.peerj.ext.acts.ActsUtils.readTestSuiteFromCsv;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.ActsUtils.readTestSuiteFromCsv;
+import static java.util.Collections.emptyList;
 
 public class ActsUtilsTest {
   @SafeVarargs
@@ -47,7 +48,7 @@ public class ActsUtilsTest {
   }
 
   public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, String algorithm, String constraintHandler) {
-    return Acts.runActs(baseDir, factorSpace, strength, algorithm, constraintHandler);
+    return Acts.runActs(baseDir, factorSpace, strength, algorithm, constraintHandler, emptyList());
   }
 
   @Test

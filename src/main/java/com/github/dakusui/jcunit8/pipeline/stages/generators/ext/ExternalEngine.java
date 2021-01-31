@@ -1,8 +1,8 @@
-package com.github.dakusui.peerj.ext;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.base.IoUtils;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
 import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.INCREMENTAL;
-import static com.github.dakusui.peerj.ext.ExternalEngine.GenerationMode.SCRATCH;
-import static com.github.dakusui.peerj.ext.base.IoUtils.writeTo;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.ExternalEngine.GenerationMode.INCREMENTAL;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.ExternalEngine.GenerationMode.SCRATCH;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils.writeTo;
 import static com.github.dakusui.peerj.utils.ProcessStreamerUtils.streamFile;
 import static java.lang.String.format;
 

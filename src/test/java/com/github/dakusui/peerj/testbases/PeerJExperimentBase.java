@@ -24,10 +24,12 @@ import static com.github.dakusui.crest.Crest.requireThat;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
-import static com.github.dakusui.peerj.ext.acts.Acts.runActs;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.Acts.runActs;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.pict.Pict.runPict;
 import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -96,7 +98,11 @@ public abstract class PeerJExperimentBase {
   abstract protected int strength();
 
   public static List<Tuple> generateWithActs(File baseDir, FactorSpace factorSpace, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
-    return runActs(baseDir, factorSpace, strength, algorithm.name, constraintHandlingMethod.name);
+    return runActs(baseDir, factorSpace, strength, algorithm.name, constraintHandlingMethod.name, emptyList());
+  }
+
+  public static List<Tuple> generateWithPict(File baseDir, FactorSpace factorSpace, int strength) {
+    return runPict(baseDir, factorSpace, strength, emptyList());
   }
 
   public static List<Tuple> generateWithCombinatorialJoin(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
@@ -126,6 +132,11 @@ public abstract class PeerJExperimentBase {
   public static List<Tuple> extendWithActs(File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
     requireThat(base, asListOf(Tuple.class).isNotEmpty().$());
     return runActs(baseDir, factorSpace, strength, algorithm.name, constraintHandlingMethod.name, base);
+  }
+
+  public static List<Tuple> extendWithPict(File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+    requireThat(base, asListOf(Tuple.class).isNotEmpty().$());
+    return runPict(baseDir, factorSpace, strength, base);
   }
 
   public static SchemafulTupleSet extendWithCombinatorialJoin(Requirement requirement, File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {

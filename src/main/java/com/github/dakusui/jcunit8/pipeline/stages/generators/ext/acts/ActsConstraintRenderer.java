@@ -1,8 +1,8 @@
-package com.github.dakusui.peerj.ext.acts;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts;
 
-import com.github.dakusui.peerj.ext.base.ConstraintRenderer;
-import com.github.dakusui.peerj.ext.base.FactorSpaceNormalizer;
-import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.ConstraintRenderer;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.FactorSpaceNormalizer;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
 
 public class ActsConstraintRenderer extends ConstraintRenderer<ActsConstraintRenderer> {
   public ActsConstraintRenderer(FactorSpaceNormalizer factorSpaceNormalizer) {

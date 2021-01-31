@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.ext.base;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base;
 
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;

@@ -1,12 +1,12 @@
-package com.github.dakusui.peerj.ext.acts;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.ext.base.FactorSpaceNormalizer;
-import com.github.dakusui.peerj.ext.base.IoUtils;
-import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.FactorSpaceNormalizer;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
 
 import java.util.List;
 import java.util.NoSuchElementException;

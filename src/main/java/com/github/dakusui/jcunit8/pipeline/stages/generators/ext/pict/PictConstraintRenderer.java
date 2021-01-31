@@ -1,8 +1,8 @@
-package com.github.dakusui.peerj.ext.pict;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.pict;
 
-import com.github.dakusui.peerj.ext.base.ConstraintRenderer;
-import com.github.dakusui.peerj.ext.base.FactorSpaceNormalizer;
-import com.github.dakusui.peerj.ext.base.NormalizableConstraint;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.ConstraintRenderer;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.FactorSpaceNormalizer;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
 
 import static java.lang.String.format;
 

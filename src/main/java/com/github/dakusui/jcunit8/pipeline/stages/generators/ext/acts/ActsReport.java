@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj.ext.acts;
+package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts;
 
 import com.github.dakusui.peerj.model.Experiment;
 

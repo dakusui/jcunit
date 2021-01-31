@@ -73,7 +73,7 @@ public class CasaUtilsTest extends PeerJExperimentBase {
   }
 
   @Test
-  public void generateCoveringArrayForBanking2FromFile() {
+  public void generateCoveringArrayForBanking2FromFileWithActs() {
     CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
         "IBM",
         "Banking2",
@@ -90,6 +90,26 @@ public class CasaUtilsTest extends PeerJExperimentBase {
         result,
         allOf(
             asInteger("size").eq(11).$(),
+            asInteger(call("get", 0).andThen("size").$()).eq(15).$()));
+  }
+
+  @Test
+  public void generateCoveringArrayForBanking2FromFileWithPict() {
+    CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(
+        "IBM",
+        "Banking2",
+        "prefix",
+        strength()
+    );
+    List<Tuple> result = generateWithPict(
+        new File("target/pict/casa"),
+        casaModel.factorSpace,
+        casaModel.strength
+    );
+    assertThat(
+        result,
+        allOf(
+            asInteger("size").eq(13).$(),
             asInteger(call("get", 0).andThen("size").$()).eq(15).$()));
   }
 
@@ -130,8 +150,8 @@ public class CasaUtilsTest extends PeerJExperimentBase {
   }
 
   public static class Spec {
-    final CasaDataSet def;
-    final int         strength;
+    final CasaDataSet              def;
+    final int                      strength;
     final Algorithm                algorithm;
     final ConstraintHandlingMethod constraintHandlingMethod;
 
@@ -157,8 +177,8 @@ public class CasaUtilsTest extends PeerJExperimentBase {
     }
 
     public static class Builder {
-      CasaDataSet def;
-      int         strength;
+      CasaDataSet              def;
+      int                      strength;
       Algorithm                algorithm;
       ConstraintHandlingMethod constraintHandlingMethod;
 
