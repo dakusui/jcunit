@@ -134,7 +134,7 @@ public abstract class PeerJExperimentBase {
     return runActs(baseDir, factorSpace, strength, algorithm.name, constraintHandlingMethod.name, base);
   }
 
-  public static List<Tuple> extendWithPict(File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+  public static List<Tuple> extendWithPict(File baseDir, FactorSpace factorSpace, SchemafulTupleSet base, int strength) {
     requireThat(base, asListOf(Tuple.class).isNotEmpty().$());
     return runPict(baseDir, factorSpace, strength, base);
   }

@@ -28,9 +28,9 @@ public class Pict extends ExternalEngine.Base {
 
   @Override
   public String buildSeedData(List<Tuple> seedTestCases) {
-    require(seedTestCases, isNotNull());
+    require(seedTestCases, and(isNotNull(), not(isEmpty())));
     return Stream.concat(
-        Stream.of(this.factorSpace().getFactorNames()),
+        Stream.of(seedTestCases.get(0).keySet()),
         seedTestCases.stream().map(Map::values))
         .map(each -> each.stream()
             .map(Object::toString)

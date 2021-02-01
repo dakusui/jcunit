@@ -1,6 +1,6 @@
 package com.github.dakusui.peerj.ut.runners;
 
-import com.github.dakusui.jcunit8.experiments.join.acts.ActsUtilsTest;
+import com.github.dakusui.jcunit8.tests.components.ext.ActsUtilsTest;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.peerj.ut.acts.ActsExperiment;
 import com.github.dakusui.peerj.join.JoinExperiment;

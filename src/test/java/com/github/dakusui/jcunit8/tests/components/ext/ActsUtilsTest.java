@@ -1,11 +1,16 @@
-package com.github.dakusui.jcunit8.experiments.join.acts;
+package com.github.dakusui.jcunit8.tests.components.ext;
 
+import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.Acts;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
-import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
+import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
+import com.github.dakusui.peerj.testbases.StopWatch;
 import com.github.dakusui.peerj.utils.CoveringArrayGenerationUtils;
 import com.github.dakusui.peerj.utils.PeerJUtils;
 import org.junit.Test;
@@ -16,12 +21,15 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.crest.Crest.allOf;
-import static com.github.dakusui.crest.Crest.asInteger;
-import static com.github.dakusui.crest.Crest.asString;
-import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.crest.Crest.call;
+import static com.github.dakusui.crest.Crest.*;
 import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.ActsUtils.readTestSuiteFromCsv;
+import static com.github.dakusui.peerj.PeerJUtils2.baseDirFor;
+import static com.github.dakusui.peerj.PeerJUtils2.resultFile;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.SOLVER;
+import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.extendWithActs;
+import static com.github.dakusui.peerj.ut.runners.PeerJExperimentIncrementalParameterized.baseFactorSpaceFrom;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 
 public class ActsUtilsTest {
@@ -72,6 +80,7 @@ public class ActsUtilsTest {
     generateAndReportWithConstraints(baseDir, 90, 2);
     generateAndReportWithConstraints(baseDir, 100, 2);
   }
+
   @Test
   public void testGenerateAndReportWithConstraintsWithStrength3() {
     File baseDir = PeerJUtils.createTempDirectory("target/acts");

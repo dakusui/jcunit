@@ -76,5 +76,4 @@ public interface FactorSpace {
   default List<String> getFactorNames() {
     return FactorUtils.toFactorNames(this.getFactors());
   }
-
 }

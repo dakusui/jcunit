@@ -5,8 +5,8 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
+import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.testbases.PeerJExperimentParameterized;
 import com.github.dakusui.peerj.testbases.StopWatch;
@@ -14,11 +14,14 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static com.github.dakusui.crest.Crest.asListOf;
+import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.peerj.PeerJUtils2.*;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -51,7 +54,7 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
         .collect(toList());
   }
 
-  @Test
+  @Test(timeout = 600_000)
   public void incrementalGenerationWithActs() {
     String dataSetName = this.dataSetName();
     int strength = strength();
@@ -71,6 +74,33 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
                     : strength,
                 algorithm(),
                 constraintHandlingMethod())),
+        (PeerJExperimentParameterized self) -> format("[%s]", self.spec),
+        (List<Tuple> result) -> format("[size:%s]", result.size()));
+    try {
+      stopWatch.apply(this);
+    } finally {
+      IoUtils.writeTo(resultFile(dataSetName, strength(), generationMode, partitionerName), Stream.of(stopWatch.report()));
+    }
+  }
+
+  @Test(timeout = 600_000)
+  public void incrementalGenerationWithPict() {
+    String dataSetName = this.dataSetName();
+    int strength = strength();
+    String generationMode = "pict";
+    String partitionerName = "incremental";
+    File baseDir = baseDirFor(dataSetName, this.strength(), generationMode, partitionerName);
+    FactorSpace factorSpace = this.factorSpace();
+    SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithPict(new File(baseDir, "base"), baseFactorSpaceFrom(factorSpace), strength));
+    StopWatch<PeerJExperimentParameterized, List<Tuple>> stopWatch = new StopWatch<>(
+        Printable.function("conductIncrementalPictExperiment", (PeerJExperimentParameterized self) ->
+            extendWithPict(
+                baseDir,
+                factorSpace,
+                base,
+                factorSpace.relationStrength() >= 0
+                    ? -1
+                    : strength)),
         (PeerJExperimentParameterized self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {
@@ -101,7 +131,15 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
     }
   }
 
-  private static FactorSpace baseFactorSpaceFrom(FactorSpace factorSpace) {
+  /**
+   * Creates and returns a factor space from a given factor space by reducing the
+   * last ten factors.
+   *
+   * @param factorSpace A factor space from which a new and smaller factor space
+   *                    is created.
+   * @return A created factor space.
+   */
+  public static FactorSpace baseFactorSpaceFrom(FactorSpace factorSpace) {
     int baseDegree = factorSpace.getFactors().size() - 10;
     List<Factor> baseFactors = factorSpace.getFactors().subList(0, baseDegree);
     Set<String> baseFactorNames = baseFactors.stream().map(Factor::getName).collect(toSet());
