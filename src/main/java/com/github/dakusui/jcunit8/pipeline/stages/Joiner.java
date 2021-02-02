@@ -16,6 +16,9 @@ import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static com.github.dakusui.jcunit8.core.Utils.sizeOfIntersection;
 import static com.github.dakusui.jcunit8.pipeline.stages.Joiner.JoinerUtils.connect;
+import static com.github.dakusui.pcond.Assertions.precondition;
+import static com.github.dakusui.pcond.Assertions.that;
+import static com.github.dakusui.pcond.functions.Predicates.*;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.util.stream.Collectors.toList;
@@ -228,10 +231,11 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
 
     @Override
-    protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
-      if (rhs.isEmpty() || lhs.isEmpty())
-        return lhs;
-
+    protected SchemafulTupleSet doJoin(SchemafulTupleSet rawLhs, SchemafulTupleSet rawRhs) {
+      if (rawRhs.isEmpty() || rawLhs.isEmpty())
+        return rawLhs;
+      SchemafulTupleSet lhs = JoinerUtils.shuffle(rawLhs);
+      SchemafulTupleSet rhs = JoinerUtils.shuffle(rawRhs);
       SchemafulTupleSet.Builder b = new SchemafulTupleSet.Builder(new ArrayList<String>() {{
         addAll(lhs.getAttributeNames());
         addAll(rhs.getAttributeNames());
@@ -339,6 +343,69 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       } finally {
         System.err.printf("         weakenTo(t=%s,degree=%s);time=%10d[msec]%n", strength, in.getAttributeNames().size(), System.currentTimeMillis() - before_);
       }
+    }
+
+    static SchemafulTupleSet shuffle(SchemafulTupleSet in) {
+      SchemafulTupleSet.Builder b = new SchemafulTupleSet.Builder(in.getAttributeNames());
+      for (Tuple each : rowsWithLeastFrequentValuesFirst(in)) {
+        System.out.println(each);
+        b.add(each);
+      }
+      return b.build();
+    }
+
+    private static Iterable<Tuple> rowsWithLeastFrequentValuesFirst(SchemafulTupleSet in) {
+      List<Tuple> rest = new ArrayList<>(in);
+      List<Tuple> chosen = new ArrayList<>();
+      return () -> new Iterator<Tuple>() {
+        @Override
+        public boolean hasNext() {
+          return !rest.isEmpty();
+        }
+
+        @Override
+        public Tuple next() {
+          assert precondition(rest, not(isEmpty()));
+          Tuple ret = null;
+          try {
+            if (rest.size() == 1) {
+              ret = rest.get(0);
+              return ret;
+            }
+            int v = -1;
+            for (Tuple each : rest) {
+              int cur = notCoveredValueIn(each, chosen);
+              if (cur > v) {
+                v = cur;
+                ret = each;
+              }
+              if (v == in.getAttributeNames().size()) {
+                break;
+              }
+            }
+            assert that(ret, isNotNull());
+            return ret;
+          } finally {
+            rest.remove(ret);
+            chosen.add(ret);
+          }
+        }
+
+        int notCoveredValueIn(Tuple row, List<Tuple> chosen1) {
+          int ret = 0;
+          for (String eachKey : row.keySet()) {
+            int v = 1;
+            for (Tuple eachChosen : chosen1) {
+              if (Objects.equals(row.get(eachKey), eachChosen.get(eachKey))) {
+                v = 0;
+                break;
+              }
+            }
+            ret += v;
+          }
+          return ret;
+        }
+      };
     }
 
 

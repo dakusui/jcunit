@@ -14,14 +14,11 @@ import org.junit.Test;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.crest.Crest.asListOf;
-import static com.github.dakusui.crest.Crest.assertThat;
 import static com.github.dakusui.peerj.PeerJUtils2.*;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
@@ -54,7 +51,6 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
         .collect(toList());
   }
 
-  @Test(timeout = 600_000)
   public void incrementalGenerationWithActs() {
     String dataSetName = this.dataSetName();
     int strength = strength();
@@ -110,7 +106,7 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
     }
   }
 
-  @Test
+  @Test(timeout = 600_000)
   public void incrementalGenerationWithWeakenProductCombinatorialJoin() {
     String dataSetName = this.dataSetName();
     int strength = strength();

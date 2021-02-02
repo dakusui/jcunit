@@ -61,7 +61,7 @@ public enum PictUtils {
   }
 
   private static void renderSubmodel(StringBuilder b, Submodel submodel) {
-    b.append(submodel.factorNames().stream().collect(joining("{", ", ", "}")))
+    b.append(submodel.factorNames().stream().collect(joining(", ", "{ ", " }")))
         .append(" @ ")
         .append(submodel.strength());
   }
