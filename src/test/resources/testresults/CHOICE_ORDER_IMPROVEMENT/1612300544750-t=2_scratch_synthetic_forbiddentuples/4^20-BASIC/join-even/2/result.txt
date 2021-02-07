@@ -1,0 +1,1 @@
+function:conductJoinExperiment;input:[4^20-BASIC:t=2:algorithm=IPOG:constraintHandling=FORBIDDEN_TUPLES];output:[size:74];736[msec]

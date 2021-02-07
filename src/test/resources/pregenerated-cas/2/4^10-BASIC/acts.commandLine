@@ -1,0 +1,1 @@
+java -Ddoi=2 -Dalgo=ipog -Dchandler=solver -Doutput=csv -jar src/test/resources/bin/acts_3.0.jar src/test/resources/pregenerated-cas/2/4^10-BASIC/acts.xml src/test/resources/pregenerated-cas/2/4^10-BASIC/acts.ca
