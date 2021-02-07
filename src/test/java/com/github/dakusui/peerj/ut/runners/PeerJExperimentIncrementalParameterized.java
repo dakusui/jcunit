@@ -10,6 +10,7 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.testbases.PeerJExperimentParameterized;
 import com.github.dakusui.peerj.testbases.StopWatch;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -51,6 +52,7 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
         .collect(toList());
   }
 
+  @Test
   public void incrementalGenerationWithActs() {
     String dataSetName = this.dataSetName();
     int strength = strength();
@@ -79,6 +81,7 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
     }
   }
 
+  @Ignore
   @Test(timeout = 600_000)
   public void incrementalGenerationWithPict() {
     String dataSetName = this.dataSetName();
@@ -106,7 +109,7 @@ public abstract class PeerJExperimentIncrementalParameterized extends PeerJExper
     }
   }
 
-  @Test(timeout = 600_000)
+  @Test(timeout = 3000_000)
   public void incrementalGenerationWithWeakenProductCombinatorialJoin() {
     String dataSetName = this.dataSetName();
     int strength = strength();

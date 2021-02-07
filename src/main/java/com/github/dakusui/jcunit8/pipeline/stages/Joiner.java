@@ -196,13 +196,11 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
   }
 
   class WeakenProduct extends Base {
-    private final Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> TUPLETS_COVERED_BY =
+    private final Function<SchemafulTupleSet, Function<Integer, Set<Tuple>>> tupletsCoveredBy =
         memoize(rows -> memoize(strength -> tupletsCoveredBy_(rows, strength)));
 
     public Set<Tuple> tupletsCoveredBy(SchemafulTupleSet rows, int strength) {
-      Set<Tuple> ret = TUPLETS_COVERED_BY.apply(rows).apply(strength);
-      System.err.println(":::" + ret + ":t=" + strength + ":rows=" + rows);
-      return ret;
+      return tupletsCoveredBy.apply(rows).apply(strength);
     }
 
     private Set<Tuple> tupletsCoveredBy_(SchemafulTupleSet rows, int strength) {
@@ -348,7 +346,6 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     static SchemafulTupleSet shuffle(SchemafulTupleSet in) {
       SchemafulTupleSet.Builder b = new SchemafulTupleSet.Builder(in.getAttributeNames());
       for (Tuple each : rowsWithLeastFrequentValuesFirst(in)) {
-        System.out.println(each);
         b.add(each);
       }
       return b.build();

@@ -18,18 +18,7 @@ public class IndustrialSimulationSuiteForIncrementalGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(2, SOLVER, 20, 400);
-    }
-  }
-
-  public static class Strength2Cont extends PeerJExperimentIncrementalParameterized {
-    public Strength2Cont(Spec spec) {
-      super(spec);
-    }
-
-    @Parameters
-    public static List<Spec> parameters() {
-      return parametersWith(2, SOLVER, 400, 1000);
+      return parametersWith(2, SOLVER, 20, 1000);
     }
   }
 
@@ -40,7 +29,18 @@ public class IndustrialSimulationSuiteForIncrementalGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return parametersWith(3, SOLVER, 20, 400);
+      return parametersWith(3, SOLVER, 20, 340);
+    }
+  }
+
+  public static class Strength3Cont extends PeerJExperimentIncrementalParameterized {
+    public Strength3Cont(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return parametersWith(3, SOLVER, 340, 400);
     }
   }
 }

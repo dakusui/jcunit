@@ -27,7 +27,7 @@ public class IndustrialSimulationSuiteForScratchGeneration {
 
     @Parameters
     public static List<Spec> parameters() {
-      return PeerJExperimentIncrementalParameterized.parametersWith(2, SOLVER, 20, 400);
+      return PeerJExperimentIncrementalParameterized.parametersWith(2, SOLVER, 20, 1000);
     }
   }
 
@@ -36,17 +36,6 @@ public class IndustrialSimulationSuiteForScratchGeneration {
    * "Industrial-scale" models because of its poor performance.
    */
   @Ignore
-  public static class Strength2Cont extends PeerJExperimentScratchParameterized {
-    public Strength2Cont(Spec spec) {
-      super(spec);
-    }
-
-    @Parameters
-    public static List<Spec> parameters() {
-      return PeerJExperimentIncrementalParameterized.parametersWith(2, SOLVER, 400, 1000);
-    }
-  }
-
   public static class Strength2ForbiddenTuples extends PeerJExperimentScratchParameterized {
     public Strength2ForbiddenTuples(Spec spec) {
       super(spec);
