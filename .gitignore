@@ -11,3 +11,5 @@ acts*.jar
 *.iml
 .DS_Store
 *~
+*.log
+
