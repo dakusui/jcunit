@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.Algorithm.IPOG;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static com.github.dakusui.peerj.utils.CasaDataSet.values;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;

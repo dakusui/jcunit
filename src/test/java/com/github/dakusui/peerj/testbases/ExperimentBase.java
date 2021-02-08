@@ -26,14 +26,14 @@ import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStd
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
 import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.Acts.runActs;
 import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.pict.Pict.runPict;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-public abstract class PeerJExperimentBase {
+public abstract class ExperimentBase {
   public abstract static class Spec {
     public final int                      strength;
     public final Algorithm                algorithm;
@@ -115,7 +115,7 @@ public abstract class PeerJExperimentBase {
             throw new CasaDataSet.NotCombinatorialJoinApplicable(messageOnFailure);
           }
         })
-        .map(factorSpace1 -> PeerJExperimentBase.generateWithActs(
+        .map(factorSpace1 -> ExperimentBase.generateWithActs(
             baseDir,
             FactorSpace.create(factorSpace1.getFactors(), factorSpace1.getConstraints()),
             factorSpace1.relationStrength() >= 0

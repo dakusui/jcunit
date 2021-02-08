@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.PeerJUtils2;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.testbases.StopWatch;
-import com.github.dakusui.peerj.ut.runners.PeerJExperimentIncrementalParameterized;
+import com.github.dakusui.peerj.testbases.PeerJIncremental;
 import org.junit.Test;
 
 import java.io.File;
@@ -17,8 +17,8 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.asListOf;
 import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.extendWithPict;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.generateWithPict;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.extendWithPict;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.generateWithPict;
 import static java.lang.String.format;
 
 public class PictTest {
@@ -30,7 +30,7 @@ public class PictTest {
     String partitionerName = "incremental";
     FactorSpace factorSpace = new FactorSpaceSpec("F").addFactors(2, 30).toFactorSpace();
     File baseDir = PeerJUtils2.baseDirFor(dataSetName, strength, generationMode, partitionerName);
-    SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithPict(new File(baseDir, "base"), PeerJExperimentIncrementalParameterized.baseFactorSpaceFrom(factorSpace), strength));
+    SchemafulTupleSet base = SchemafulTupleSet.fromTuples(generateWithPict(new File(baseDir, "base"), PeerJIncremental.baseFactorSpaceFrom(factorSpace), strength));
     StopWatch<PictTest, List<Tuple>> stopWatch = new StopWatch<>(
         Printable.function("conductIncrementalActsExperiment", (PictTest self) ->
             extendWithPict(

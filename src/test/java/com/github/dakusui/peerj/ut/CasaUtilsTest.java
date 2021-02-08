@@ -1,7 +1,7 @@
 package com.github.dakusui.peerj.ut;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
+import com.github.dakusui.peerj.testbases.ExperimentBase;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import com.github.dakusui.peerj.utils.CasaUtils;
 import org.junit.Test;
@@ -10,14 +10,14 @@ import java.io.File;
 import java.util.List;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.Algorithm.IPOG;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 
-public class CasaUtilsTest extends PeerJExperimentBase {
+public class CasaUtilsTest extends ExperimentBase {
   @Test
   public void testInsurance() {
     CasaDataSet.CasaModel casaModel = CasaUtils.readCasaModel(

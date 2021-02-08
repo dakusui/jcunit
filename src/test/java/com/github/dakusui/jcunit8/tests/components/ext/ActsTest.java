@@ -7,9 +7,9 @@ import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.PeerJUtils2;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
-import com.github.dakusui.peerj.testbases.PeerJExperimentBase;
+import com.github.dakusui.peerj.testbases.ExperimentBase;
 import com.github.dakusui.peerj.testbases.StopWatch;
-import com.github.dakusui.peerj.ut.runners.PeerJExperimentIncrementalParameterized;
+import com.github.dakusui.peerj.testbases.PeerJIncremental;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,9 +18,9 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.asListOf;
 import static com.github.dakusui.crest.Crest.assertThat;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.Algorithm.IPOG;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.ConstraintHandlingMethod.SOLVER;
-import static com.github.dakusui.peerj.testbases.PeerJExperimentBase.extendWithActs;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.Algorithm.IPOG;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.ConstraintHandlingMethod.SOLVER;
+import static com.github.dakusui.peerj.testbases.ExperimentBase.extendWithActs;
 import static java.lang.String.format;
 
 public class ActsTest {
@@ -31,10 +31,10 @@ public class ActsTest {
     String generationMode = "acts";
     String partitionerName = "incremental";
     FactorSpace factorSpace = new FactorSpaceSpec("F").addFactors(2, 30).toFactorSpace();
-    PeerJExperimentBase.Algorithm algorithm = IPOG;
-    PeerJExperimentBase.ConstraintHandlingMethod constraintHandlingMethod = SOLVER;
+    ExperimentBase.Algorithm algorithm = IPOG;
+    ExperimentBase.ConstraintHandlingMethod constraintHandlingMethod = SOLVER;
     File baseDir = PeerJUtils2.baseDirFor(dataSetName, strength, generationMode, partitionerName);
-    SchemafulTupleSet base = SchemafulTupleSet.fromTuples(PeerJExperimentBase.generateWithActs(new File(baseDir, "base"), PeerJExperimentIncrementalParameterized.baseFactorSpaceFrom(factorSpace), strength, algorithm, constraintHandlingMethod));
+    SchemafulTupleSet base = SchemafulTupleSet.fromTuples(ExperimentBase.generateWithActs(new File(baseDir, "base"), PeerJIncremental.baseFactorSpaceFrom(factorSpace), strength, algorithm, constraintHandlingMethod));
     StopWatch<ActsTest, List<Tuple>> stopWatch = new StopWatch<>(
         Printable.function("conductIncrementalActsExperiment", (ActsTest self) ->
             extendWithActs(

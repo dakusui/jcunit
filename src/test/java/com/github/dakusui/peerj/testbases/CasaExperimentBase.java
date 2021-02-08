@@ -13,8 +13,8 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public abstract class CasaExperimentBase extends PeerJExperimentBase {
-  public static class Spec extends PeerJExperimentBase.Spec {
+public abstract class CasaExperimentBase extends ExperimentBase {
+  public static class Spec extends ExperimentBase.Spec {
     final CasaDataSet def;
 
     public Spec(CasaDataSet def, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
@@ -27,7 +27,7 @@ public abstract class CasaExperimentBase extends PeerJExperimentBase {
       return format("%s:t=%s:algorithm=%s:constraintHandling=%s", def, strength, algorithm, constraintHandlingMethod);
     }
 
-    public static class Builder extends PeerJExperimentBase.Spec.Builder<Builder> {
+    public static class Builder extends ExperimentBase.Spec.Builder<Builder> {
       CasaDataSet def;
 
       public Builder def(CasaDataSet def) {
@@ -49,7 +49,7 @@ public abstract class CasaExperimentBase extends PeerJExperimentBase {
         "prefix",
         requirement.strength()
     );
-    return PeerJExperimentBase.generateWithActs(
+    return ExperimentBase.generateWithActs(
         CasaUtils.baseDirFor(def, casaModel.strength, "acts", "none"),
         casaModel.factorSpace,
         casaModel.strength,

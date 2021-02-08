@@ -8,6 +8,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -51,8 +52,14 @@ public enum PictUtils {
 
   private static void renderSubmodels(StringBuilder b, FactorSpace factorSpace, FactorSpaceNormalizer factorSpaceNormalizer) {
     beginSubmodels(b, factorSpace);
-    for (Submodel each : submodels(factorSpace, factorSpaceNormalizer))
-      renderSubmodel(b, each);
+    b.append(
+        submodels(factorSpace, factorSpaceNormalizer).stream()
+            .map(each -> {
+              StringBuilder bb = new StringBuilder();
+              renderSubmodel(bb, each);
+              return bb.toString();
+            })
+            .collect(Collectors.joining(String.format("%n"))));
     endSubmodels(b, factorSpace);
   }
 
