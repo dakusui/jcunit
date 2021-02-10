@@ -54,7 +54,7 @@ public interface FactorSpace {
         if (relationStrength < 0) {
           return format("factors:%s,constraints:%s", factors, constraints);
         }
-        return format("factors:%s,constraints:%s,relationStrength=%s", factors, constraints, relationStrength);
+        return format("factors:%s,constraints:%s,relationStrength:%s", factors, constraints, relationStrength);
       }
     };
   }

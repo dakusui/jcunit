@@ -67,7 +67,7 @@ public abstract class CasaExperimentBase extends ExperimentBase {
     File baseDir = CasaUtils.baseDirFor(def, strength, "join", partitioner.name());
     String messageOnFailure = def.toString();
     FactorSpace factorSpace = casaModel.factorSpace;
-    return generateWithCombinatorialJoin(requirement, baseDir, partitioner, factorSpace, algorithm(), constraintHandlingMethod(), messageOnFailure);
+    return generateWithCombinatorialJoinBasedOnActs(requirement, baseDir, partitioner, factorSpace, algorithm(), constraintHandlingMethod(), messageOnFailure);
   }
 
 }

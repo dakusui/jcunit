@@ -1,0 +1,1 @@
+function:conductScratchPictExperiment;input:[4^680:t=2:algorithm=IPOG:constraintHandling=SOLVER];output:[size:79];62843[msec]

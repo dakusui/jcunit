@@ -2,7 +2,7 @@ package com.github.dakusui.peerj;
 
 import com.github.dakusui.peerj.model.ConstraintSet;
 import com.github.dakusui.peerj.testbases.PeerJBase;
-import com.github.dakusui.peerj.testbases.PeerJScratchWithWPJoin;
+import com.github.dakusui.peerj.testbases.PeerJScratchWithWPJoinBasedOnActs;
 import org.junit.Rule;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.rules.Timeout;
@@ -18,7 +18,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(Enclosed.class)
 public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
-  public static class Strength2 extends PeerJScratchWithWPJoin {
+  public static class Strength2 extends PeerJScratchWithWPJoinBasedOnActs {
     public Strength2(Spec spec) {
       super(spec);
     }
@@ -29,7 +29,7 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     }
   }
 
-  public static class Strength3 extends PeerJScratchWithWPJoin {
+  public static class Strength3 extends PeerJScratchWithWPJoinBasedOnActs {
     public static final int T = 3;
 
     public Strength3(Spec spec) {
@@ -42,7 +42,7 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     }
   }
 
-  public static class Strength4 extends PeerJScratchWithWPJoin {
+  public static class Strength4 extends PeerJScratchWithWPJoinBasedOnActs {
     private static final int T = 4;
 
     public Strength4(Spec spec) {
@@ -65,7 +65,7 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     }
   }
 
-  public static class Strength5 extends PeerJScratchWithWPJoin {
+  public static class Strength5 extends PeerJScratchWithWPJoinBasedOnActs {
     private static final int T = 5;
 
     @Rule
@@ -88,7 +88,7 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     }
   }
 
-  public static class VSCA_2_3 extends PeerJScratchWithWPJoin {
+  public static class VSCA_2_3 extends PeerJScratchWithWPJoinBasedOnActs {
     public VSCA_2_3(Spec spec) {
       super(spec);
     }
@@ -99,7 +99,7 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     }
   }
 
-  public static class VSCA_2_4 extends PeerJScratchWithWPJoin {
+  public static class VSCA_2_4 extends PeerJScratchWithWPJoinBasedOnActs {
     public VSCA_2_4(Spec spec) {
       super(spec);
     }
@@ -110,7 +110,7 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     }
   }
 
-  public static class Strength4Degree80 extends PeerJScratchWithWPJoin {
+  public static class Strength4Degree80 extends PeerJScratchWithWPJoinBasedOnActs {
     private static final int T = 4;
 
     @Rule
@@ -130,7 +130,7 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     }
   }
 
-  public static class Debug extends PeerJScratchWithWPJoin {
+  public static class Debug extends PeerJScratchWithWPJoinBasedOnActs {
     private static final int T = 3;
 
     @Rule

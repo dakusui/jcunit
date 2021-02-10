@@ -67,7 +67,7 @@ public class FactorSpaceSpec {
         .collect(joining(","));
     if (this.relationStrength < 0)
       return ret;
-    return ret + "-relatioonStrength:" + relationStrength;
+    return ret + "-relationStrength=" + relationStrength;
   }
 
   public String createSignature() {

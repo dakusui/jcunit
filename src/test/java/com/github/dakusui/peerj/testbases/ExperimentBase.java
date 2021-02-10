@@ -21,11 +21,11 @@ import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.Crest.asListOf;
 import static com.github.dakusui.crest.Crest.requireThat;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.Acts.runActs;
+import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.pict.Pict.runPict;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
 import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
-import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.Acts.runActs;
-import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.pict.Pict.runPict;
 import static com.github.dakusui.peerj.testbases.ExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;
@@ -105,7 +105,7 @@ public abstract class ExperimentBase {
     return runPict(baseDir, factorSpace, strength, emptyList());
   }
 
-  public static List<Tuple> generateWithCombinatorialJoin(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
+  public static List<Tuple> generateWithCombinatorialJoinBasedOnActs(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
     List<FactorSpace> factorSpaces = partitioner.apply(factorSpace);
     return factorSpaces
         .parallelStream()
@@ -123,6 +123,28 @@ public abstract class ExperimentBase {
                 : requirement.strength(),
             algorithm,
             constraintHandlingMethod))
+        .map((List<Tuple> tuples) -> renameFactorsInTuples(tuples, currentThread().getId()))
+        .map(SchemafulTupleSet::fromTuples)
+        .reduce(new Joiner.WeakenProduct(requirement))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static List<Tuple> generateWithCombinatorialJoinBasedOnPict(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, String messageOnFailure) {
+    List<FactorSpace> factorSpaces = partitioner.apply(factorSpace);
+    return factorSpaces
+        .parallelStream()
+        .peek(factorSpace1 -> System.err.println("->" + factorSpace1))
+        .peek(factorSpace1 -> {
+          if (factorSpace1.getFactorNames().isEmpty()) {
+            throw new CasaDataSet.NotCombinatorialJoinApplicable(messageOnFailure);
+          }
+        })
+        .map(factorSpace1 -> ExperimentBase.generateWithPict(
+            baseDir,
+            FactorSpace.create(factorSpace1.getFactors(), factorSpace1.getConstraints()),
+            factorSpace1.relationStrength() >= 0
+                ? factorSpace1.relationStrength()
+                : requirement.strength()))
         .map((List<Tuple> tuples) -> renameFactorsInTuples(tuples, currentThread().getId()))
         .map(SchemafulTupleSet::fromTuples)
         .reduce(new Joiner.WeakenProduct(requirement))

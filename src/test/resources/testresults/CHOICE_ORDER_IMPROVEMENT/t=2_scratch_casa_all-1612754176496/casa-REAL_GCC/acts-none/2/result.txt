@@ -1,0 +1,1 @@
+function:conductActsExperiment;input:[REAL_GCC:t=2:algorithm=IPOG:constraintHandling=FORBIDDEN_TUPLES];output:[size:23];719[msec]

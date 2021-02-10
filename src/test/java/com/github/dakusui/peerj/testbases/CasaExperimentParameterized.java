@@ -63,7 +63,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     try {
       stopWatch.apply(this);
     } finally {
-      IoUtils.writeTo(resultFile("acts", "none"), Stream.of(stopWatch.report()));
+      IoUtils.writeTo(resultFile("acts", "none"), Stream.of(stopWatch.report()).peek(System.out::println));
     }
   }
 
@@ -76,7 +76,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     try {
       stopWatch.apply(this);
     } finally {
-      IoUtils.writeTo(resultFile("join", "simple"), Stream.of(stopWatch.report()));
+      IoUtils.writeTo(resultFile("join", "simple"), Stream.of(stopWatch.report()).peek(System.out::println));
     }
   }
 
@@ -90,7 +90,7 @@ public abstract class CasaExperimentParameterized extends CasaExperimentBase {
     try {
       stopWatch.apply(this);
     } finally {
-      IoUtils.writeTo(resultFile("join", "standard"), Stream.of(stopWatch.report()));
+      IoUtils.writeTo(resultFile("join", "standard"), Stream.of(stopWatch.report()).peek(System.out::println));
     }
   }
 
