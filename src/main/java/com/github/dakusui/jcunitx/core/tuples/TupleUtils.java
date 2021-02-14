@@ -18,7 +18,7 @@ public enum TupleUtils {
     Combinator<String> c = new Combinator<>(
         new LinkedList<>(tuple.keySet()), strength);
     for (List<String> keys : c) {
-      Tuple cur = new Tuple.Impl();
+      Tuple cur = new Tuple.Sorted();
       for (String k : keys) {
         cur.put(k, tuple.get(k));
       }

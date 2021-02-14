@@ -103,7 +103,7 @@ public class Negative extends Generator.Base {
   }
 
   private static Tuple composeValues(List<String> involvedKeys, List<Object> values) {
-    return new Tuple.Impl() {{
+    return new Tuple.Sorted() {{
       AtomicInteger i = new AtomicInteger(0);
       involvedKeys.forEach((String eachKey) -> put(eachKey, values.get(i.getAndIncrement())));
     }};
