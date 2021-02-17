@@ -61,9 +61,6 @@ public class JCUnitExtension implements TestTemplateInvocationContextProvider {
     JCUnitTestNameFormatter formatter = createNameFormatter(templateMethod, displayName);
     AtomicLong invocationCount = new AtomicLong(0);
 
-    // @formatter:off
-//    return Stream.of(new JCUnitTestInvocationContext(formatter, methodContext, new Object[0]));
-    // @formatter:on
     return findRepeatableAnnotations(templateMethod, ArgumentsSource.class)
         .stream()
         .map(ArgumentsSource::value)
