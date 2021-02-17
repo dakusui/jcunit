@@ -19,11 +19,11 @@ import static java.util.stream.Collectors.toList;
 
 public class GroupedParameterFactoryBuilder<T> {
   private final Function<Tuple, T> translator;
-  private       int        strength;
-  private List<Constraint>  constraints      = new LinkedList<>();
-  private List<Factor>      factors          = new LinkedList<>();
-  private Generator.Factory generatorFactory = new Generator.Factory.Standard();
-  private List<Tuple>       seeds            = Collections.emptyList();
+  private       int              strength;
+  private final List<Constraint> constraints = new LinkedList<>();
+  private final List<Factor>      factors          = new LinkedList<>();
+  private final Generator.Factory generatorFactory = new Generator.Factory.Standard();
+  private final List<Tuple>       seeds            = Collections.emptyList();
 
   public GroupedParameterFactoryBuilder(Function<Tuple, T> translator) {
     this.translator = checknotnull(translator);

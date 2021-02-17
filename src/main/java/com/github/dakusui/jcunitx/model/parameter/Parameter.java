@@ -1,14 +1,15 @@
 package com.github.dakusui.jcunitx.model.parameter;
 
+import com.github.dakusui.jcunitx.core.Utils;
 import com.github.dakusui.jcunitx.core.tuples.Tuple;
+import com.github.dakusui.jcunitx.model.condition.Constraint;
 import com.github.dakusui.jcunitx.model.factor.Factor;
 import com.github.dakusui.jcunitx.model.factor.FactorSpace;
-import com.github.dakusui.jcunitx.model.condition.Constraint;
 import com.github.dakusui.jcunitx.model.regex.Expr;
 import com.github.dakusui.jcunitx.model.regex.Parser;
 import com.github.dakusui.jcunitx.model.regex.RegexComposer;
-import com.github.dakusui.jcunitx.core.Utils;
 import com.github.dakusui.jcunitx.model.regex.RegexDecomposer;
+import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +18,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunitx.exceptions.TestDefinitionException.checkValue;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
