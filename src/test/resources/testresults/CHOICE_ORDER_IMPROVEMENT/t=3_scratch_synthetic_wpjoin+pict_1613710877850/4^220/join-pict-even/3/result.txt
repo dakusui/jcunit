@@ -1,0 +1,1 @@
+function:conductScratchJoinExperiment(PICT);input:[4^220:t=3:algorithm=IPOG:constraintHandling=SOLVER];output:[size:967];1296679[msec]

@@ -69,18 +69,24 @@ public abstract class PeerJBase extends ExperimentBase {
   }
 
   public static class Spec extends ExperimentBase.Spec {
-    final String      factorSpaceName;
-    final FactorSpace factorSpace;
+    final String        factorSpaceName;
+    final FactorSpace   factorSpace;
+    final ConstraintSet constraintSet;
 
-    public Spec(String factorSpaceName, FactorSpace factorSpace, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod) {
+    public Spec(String factorSpaceName, FactorSpace factorSpace, int strength, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, ConstraintSet constraintSet) {
       super(strength, algorithm, constraintHandlingMethod);
       this.factorSpace = factorSpace;
       this.factorSpaceName = factorSpaceName;
+      this.constraintSet = constraintSet;
     }
 
     @Override
     public String toString() {
       return format("%s:%s", this.factorSpaceName, super.toString());
+    }
+
+    public ConstraintSet constraintSet() {
+      return this.constraintSet;
     }
 
     public static class Builder extends ExperimentBase.Spec.Builder<PeerJBase.Spec.Builder> {
@@ -135,8 +141,8 @@ public abstract class PeerJBase extends ExperimentBase {
             factorySpaceSpec.toFactorSpace(),
             this.strength,
             this.algorithm,
-            this.constraintHandlingMethod
-        );
+            this.constraintHandlingMethod,
+            this.constraintSet);
       }
     }
   }

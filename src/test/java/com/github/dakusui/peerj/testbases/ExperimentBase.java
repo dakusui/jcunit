@@ -7,12 +7,14 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
+import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import org.junit.After;
 import org.junit.Before;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -105,6 +107,13 @@ public abstract class ExperimentBase {
     return runPict(baseDir, factorSpace, strength, emptyList());
   }
 
+  public static List<Tuple> generateWithJCUnit(@SuppressWarnings("unused") File baseDir, FactorSpace factorSpace, int strength) {
+    boolean direCreated = baseDir.mkdirs();
+    System.err.println(baseDir + " was created=" + direCreated);
+    return new IpoGplus(factorSpace, new Requirement.Builder().withStrength(strength).build(), Collections.emptyList()).generateCore();
+  }
+
+
   public static List<Tuple> generateWithCombinatorialJoinBasedOnActs(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, Algorithm algorithm, ConstraintHandlingMethod constraintHandlingMethod, String messageOnFailure) {
     List<FactorSpace> factorSpaces = partitioner.apply(factorSpace);
     return factorSpaces
@@ -140,6 +149,28 @@ public abstract class ExperimentBase {
           }
         })
         .map(factorSpace1 -> ExperimentBase.generateWithPict(
+            baseDir,
+            FactorSpace.create(factorSpace1.getFactors(), factorSpace1.getConstraints()),
+            factorSpace1.relationStrength() >= 0
+                ? factorSpace1.relationStrength()
+                : requirement.strength()))
+        .map((List<Tuple> tuples) -> renameFactorsInTuples(tuples, currentThread().getId()))
+        .map(SchemafulTupleSet::fromTuples)
+        .reduce(new Joiner.WeakenProduct(requirement))
+        .orElseThrow(NoSuchElementException::new);
+  }
+
+  public static List<Tuple> generateWithCombinatorialJoinBasedOnJCUnit(Requirement requirement, File baseDir, Partitioner partitioner, FactorSpace factorSpace, String messageOnFailure) {
+    List<FactorSpace> factorSpaces = partitioner.apply(factorSpace);
+    return factorSpaces
+        .parallelStream()
+        .peek(factorSpace1 -> System.err.println("->" + factorSpace1))
+        .peek(factorSpace1 -> {
+          if (factorSpace1.getFactorNames().isEmpty()) {
+            throw new CasaDataSet.NotCombinatorialJoinApplicable(messageOnFailure);
+          }
+        })
+        .map(factorSpace1 -> ExperimentBase.generateWithJCUnit(
             baseDir,
             FactorSpace.create(factorSpace1.getFactors(), factorSpace1.getConstraints()),
             factorSpace1.relationStrength() >= 0

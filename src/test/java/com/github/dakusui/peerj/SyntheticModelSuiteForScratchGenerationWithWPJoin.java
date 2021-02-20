@@ -18,6 +18,17 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(Enclosed.class)
 public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
+  public static class Strength2Pickup extends PeerJScratchWithWPJoinBasedOnActs {
+    public Strength2Pickup(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return PeerJBase.parametersWith(2, SOLVER, 40, 60);
+    }
+  }
+
   public static class Strength2 extends PeerJScratchWithWPJoinBasedOnActs {
     public Strength2(Spec spec) {
       super(spec);
