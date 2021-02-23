@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.peerj.PeerJUtils2;
+import com.github.dakusui.peerj.utils.PeerJUtils2;
 import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
 import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.slf4j.Logger;

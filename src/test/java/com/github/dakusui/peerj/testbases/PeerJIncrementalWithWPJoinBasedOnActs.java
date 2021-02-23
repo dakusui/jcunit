@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.PeerJUtils2.*;
+import static com.github.dakusui.peerj.utils.PeerJUtils2.*;
 import static java.lang.String.format;
 
 public class PeerJIncrementalWithWPJoinBasedOnActs extends PeerJIncremental {

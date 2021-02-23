@@ -1,4 +1,4 @@
-package com.github.dakusui.peerj;
+package com.github.dakusui.peerj.utils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -6,8 +6,6 @@ import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.peerj.utils.ProcessStreamerUtils;
-import com.github.dakusui.processstreamer.core.process.ProcessStreamer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +13,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.github.dakusui.crest.utils.printable.Functions.size;
 import static com.github.dakusui.pcond.Preconditions.*;

@@ -4,7 +4,6 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.peerj.PeerJUtils2;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.ConstraintUtils;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.NormalizableConstraint;
 

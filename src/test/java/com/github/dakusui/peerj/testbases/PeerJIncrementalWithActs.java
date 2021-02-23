@@ -11,8 +11,8 @@ import java.io.File;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.PeerJUtils2.baseDirFor;
-import static com.github.dakusui.peerj.PeerJUtils2.resultFile;
+import static com.github.dakusui.peerj.utils.PeerJUtils2.baseDirFor;
+import static com.github.dakusui.peerj.utils.PeerJUtils2.resultFile;
 import static java.lang.String.format;
 
 public class PeerJIncrementalWithActs extends PeerJIncremental {

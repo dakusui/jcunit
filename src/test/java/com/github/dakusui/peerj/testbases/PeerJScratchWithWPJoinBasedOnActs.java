@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.peerj.PeerJUtils2.*;
+import static com.github.dakusui.peerj.utils.PeerJUtils2.*;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.joining;
 

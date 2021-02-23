@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
-import com.github.dakusui.peerj.PeerJUtils2;
+import com.github.dakusui.peerj.utils.PeerJUtils2;
 import com.github.dakusui.peerj.model.FactorSpaceSpec;
 import com.github.dakusui.peerj.testbases.ExperimentBase;
 import com.github.dakusui.peerj.testbases.StopWatch;

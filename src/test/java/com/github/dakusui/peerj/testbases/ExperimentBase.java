@@ -27,7 +27,7 @@ import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.acts.Act
 import static com.github.dakusui.jcunit8.pipeline.stages.generators.ext.pict.Pict.runPict;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.restoreStdOutErr;
 import static com.github.dakusui.jcunit8.testutils.UTUtils.TestUtils.suppressStdOutErrIfUnderPitestOrSurefire;
-import static com.github.dakusui.peerj.PeerJUtils2.renameFactors;
+import static com.github.dakusui.peerj.utils.PeerJUtils2.renameFactors;
 import static com.github.dakusui.peerj.testbases.ExperimentBase.ConstraintHandlingMethod.FORBIDDEN_TUPLES;
 import static java.lang.String.format;
 import static java.lang.Thread.currentThread;

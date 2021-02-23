@@ -2,7 +2,7 @@ package com.github.dakusui.peerj.testbases;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.pcond.functions.Printables;
-import com.github.dakusui.peerj.PeerJUtils2;
+import com.github.dakusui.peerj.utils.PeerJUtils2;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
 import com.github.dakusui.peerj.utils.CasaDataSet;
 import org.junit.Before;
