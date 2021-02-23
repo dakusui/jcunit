@@ -11,10 +11,12 @@ import org.junit.runners.Parameterized.Parameters;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.github.dakusui.peerj.testbases.ExperimentBase.ConstraintHandlingMethod.SOLVER;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.stream.Collectors.toList;
 
 @RunWith(Enclosed.class)
 public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
@@ -26,6 +28,34 @@ public class SyntheticModelSuiteForScratchGenerationWithWPJoin {
     @Parameters
     public static List<Spec> parameters() {
       return PeerJBase.parametersWith(2, SOLVER, 40, 60);
+    }
+  }
+
+  public static class Strength3Pickup extends PeerJScratchWithWPJoinBasedOnActs {
+    public Strength3Pickup(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return PeerJBase.parametersWith(3, SOLVER, 20, 40)
+          .stream()
+//          .filter(each -> each.constraintSet() == ConstraintSet.BASIC_PLUS)
+          .collect(toList());
+    }
+  }
+
+  public static class VSCA_2_3Pickup extends PeerJScratchWithWPJoinBasedOnActs {
+    public VSCA_2_3Pickup(Spec spec) {
+      super(spec);
+    }
+
+    @Parameters
+    public static List<Spec> parameters() {
+      return PeerJBase.parametersWith(2, 3, SOLVER, 380, 400)
+          .stream()
+          .filter(each -> each.constraintSet() == ConstraintSet.BASIC_PLUS)
+          .collect(toList());
     }
   }
 

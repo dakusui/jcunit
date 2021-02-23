@@ -9,11 +9,14 @@ import com.github.dakusui.jcunit8.pipeline.stages.generators.ext.base.IoUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.peerj.PeerJUtils2.*;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
 
 public class PeerJScratchWithWPJoinBasedOnActs extends PeerJScratch {
   public PeerJScratchWithWPJoinBasedOnActs(Spec spec) {
@@ -34,9 +37,26 @@ public class PeerJScratchWithWPJoinBasedOnActs extends PeerJScratch {
         (PeerJScratchWithWPJoinBasedOnActs self) -> format("[%s]", self.spec),
         (List<Tuple> result) -> format("[size:%s]", result.size()));
     try {
-      stopWatch.apply(this);
+      List<Tuple> rows = stopWatch.apply(this);
+      IoUtils.writeTo(
+          resultCsvFile(dataSetName, strength(), generationMode, partitioner.name()),
+          rows.stream()
+              .map((Tuple each) -> each.keySet()
+                  .stream()
+                  .sorted(Comparator.comparingInt(PeerJScratchWithWPJoinBasedOnActs::keyIndexOf))
+                  .map(each::get)
+                  .map(Objects::toString)
+                  .collect(joining(",")))
+      );
     } finally {
-      IoUtils.writeTo(resultFile(dataSetName, strength(), generationMode, partitioner.name()), Stream.of(stopWatch.report()).peek(System.out::println));
+      IoUtils.writeTo(
+          resultFile(dataSetName, strength(), generationMode, partitioner.name()),
+          Stream.of(stopWatch.report()).peek(System.out::println));
     }
+  }
+
+  private static int keyIndexOf(String key) {
+    String[] arr1 = key.split("_");
+    return Integer.parseInt(arr1[0].substring(1)) * 100 + Integer.parseInt(arr1[1].substring(1));
   }
 }

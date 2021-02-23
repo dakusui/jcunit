@@ -276,17 +276,22 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
         Set<Tuple> leftoverWorkForLhs, Set<Tuple> leftoverWorkForRhs,
         Tuple firstTupleInLhs,
         Tuple firstTupleInRhs) {
-      if (leftoverWorkForLhs.isEmpty() && leftoverWorkForRhs.isEmpty()) {
-        return;
+      int before = b.size();
+      try {
+        if (leftoverWorkForLhs.isEmpty() && leftoverWorkForRhs.isEmpty()) {
+          return;
+        }
+        if (leftoverWorkForLhs.size() > leftoverWorkForRhs.size())
+          ensureLeftoversArePresent_(
+              b,
+              leftoverWorkForLhs, leftoverWorkForRhs, firstTupleInRhs);
+        else
+          ensureLeftoversArePresent_(
+              b,
+              leftoverWorkForRhs, leftoverWorkForLhs, firstTupleInLhs);
+      } finally {
+        System.err.println("numLeftOvers=" + (b.size() - before));
       }
-      if (leftoverWorkForLhs.size() > leftoverWorkForRhs.size())
-        ensureLeftoversArePresent_(
-            b,
-            leftoverWorkForLhs, leftoverWorkForRhs, firstTupleInRhs);
-      else
-        ensureLeftoversArePresent_(
-            b,
-            leftoverWorkForRhs, leftoverWorkForLhs, firstTupleInLhs);
     }
 
     static private void ensureLeftoversArePresent_(

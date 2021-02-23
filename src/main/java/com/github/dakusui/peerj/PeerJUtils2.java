@@ -165,4 +165,11 @@ public enum PeerJUtils2 {
     return new File(new File(baseDir, Integer.toString(strength)), "result.txt");
   }
 
+  public static File resultCsvFile(String datasetName, int strength, String generationMode, String partitionerName) {
+    File baseDir = baseDirFor(datasetName, strength, generationMode, partitionerName).getParentFile();
+    //noinspection ResultOfMethodCallIgnored
+    baseDir.mkdirs();
+    return new File(new File(baseDir, Integer.toString(strength)), "result.csv");
+  }
+
 }
