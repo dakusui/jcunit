@@ -8,7 +8,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import static com.github.dakusui.jcunitx.annotations.Combinatorial.*;
+import static com.github.dakusui.jcunitx.annotations.CombinatorialTest.*;
 import static java.util.stream.Collectors.joining;
 
 public class JCUnitTestNameFormatter {

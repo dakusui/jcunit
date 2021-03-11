@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunitx.annotations;
 
 import com.github.dakusui.jcunitx.engine.junit5.JCUnitExtension;
+import com.github.dakusui.jcunitx.engine.junit5.ParameterSpace;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -11,7 +12,9 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * This annotation marks a method that it can be run as a combinatorial test.
+ * This annotation marks a method that can be run as a combinatorial test powered by JCUnitX.
+ * <p>
+ * This class is implemented based on the `junit-jupiter-params`.
  *
  * @since 1.0.0
  */
@@ -19,7 +22,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @TestTemplate
 @Target(METHOD)
 @ExtendWith(JCUnitExtension.class)
-public @interface Combinatorial {
+public @interface CombinatorialTest {
   String DISPLAY_NAME_PLACEHOLDER = "{displayName}";
 
   /**
@@ -27,27 +30,25 @@ public @interface Combinatorial {
    * method (1-based): <code>{index}</code>
    *
    * @see #name
-   * @since 5.3
    */
   String INDEX_PLACEHOLDER = "{index}";
 
   /**
    * Placeholder for the complete, comma-separated arguments list of the
-   * current invocation of a {@code @ParameterizedTest} method:
+   * current invocation of a {@code @CombinatorialTest} method:
    * <code>{arguments}</code>
    *
    * @see #name
-   * @since 5.3
    */
   String ARGUMENTS_PLACEHOLDER = "{arguments}";
 
   /**
    * Default display name pattern for the current invocation of a
-   * {@code @ParameterizedTest} method: {@value}
+   * {@code @CombinatorialTest} method: {@value}
    *
    * <p>Note that the default pattern does <em>not</em> include the
    * {@linkplain #DISPLAY_NAME_PLACEHOLDER display name} of the
-   * {@code @ParameterizedTest} method.
+   * {@code @CombinatorialTest} method.
    *
    * @see #name
    * @see #DISPLAY_NAME_PLACEHOLDER
@@ -59,7 +60,7 @@ public @interface Combinatorial {
 
   /**
    * The display name to be used for individual invocations of the
-   * parameterized test; never blank or consisting solely of whitespace.
+   * combinatorial test; never blank or consisting solely of whitespace.
    *
    * <p>Defaults to {@link #DEFAULT_DISPLAY_NAME}.
    *
@@ -78,21 +79,5 @@ public @interface Combinatorial {
    */
   String name() default DEFAULT_DISPLAY_NAME;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  Class<? extends ParameterSpace.Factory> value() default ParameterSpace.Factory.class;
 }

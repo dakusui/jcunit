@@ -8,6 +8,7 @@ import org.junit.platform.commons.support.ReflectionSupport;
 import org.junit.platform.commons.util.AnnotationUtils;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.commons.util.StringUtils;
+import org.junit.platform.engine.TestDescriptor;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -20,7 +21,7 @@ import static org.junit.platform.commons.util.AnnotationUtils.isAnnotated;
 /*
 WIP
  */
-public class JCUnitTestMethodContext {
+public class JCUnitTestMethodContext implements TestMethod {
   private final
   List<ResolverType> resolverTypes;
   private final Resolver[]         resolvers;

@@ -61,7 +61,7 @@
         <maven-shade-plugin.version>3.1.1</maven-shade-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
@@ -109,7 +109,6 @@
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit-jupiter.version}</version>
         </dependency>
-
         <!-- BEGIN: TESTING DEPENDENCIES -->
         <dependency>
             <groupId>org.junit.platform</groupId>
@@ -132,6 +131,10 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit4.version}</version>
+            <!--
+            Right now, old JCUnit classes are depending on JUnit 4.12.
+            So, we still do not mark this dependency's scope "test" yet.
+            -->
             <!-- scope>test</scope -->
         </dependency>
         <!-- END: TESTING DEPENDENCIES -->
@@ -286,7 +289,7 @@
                                     <pattern>com.github.dakusui.combinatoradix
                                     </pattern>
                                     <shadedPattern>
-                                        com.github.dakusui.jcunit_combinatoradix
+                                        shadow.jcunit.com.github.dakusui.combinatoradix
                                     </shadedPattern>
                                 </relocation>
 
@@ -294,7 +297,7 @@
                                     <pattern>com.github.dakusui.pcond
                                     </pattern>
                                     <shadedPattern>
-                                        com.github.dakusui.jcunit_pcond
+                                        shadow.jcunit.com.github.dakusui.pcond
                                     </shadedPattern>
                                 </relocation>
                             </relocations>

@@ -1,10 +1,11 @@
 package com.github.dakusui.jcunitx.engine.junit5;
 
-import com.github.dakusui.jcunitx.annotations.Combinatorial;
+import com.github.dakusui.jcunitx.annotations.CombinatorialTest;
 import com.github.dakusui.jcunitx.engine.junit5.compat.AnnotationConsumerInitializer;
 import com.github.dakusui.jcunitx.engine.junit5.compat.Arguments;
 import com.github.dakusui.jcunitx.engine.junit5.compat.ArgumentsProvider;
 import com.github.dakusui.jcunitx.engine.junit5.compat.ArgumentsSource;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
@@ -18,15 +19,23 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunitx.engine.junit5.compat.Arguments.arguments;
 import static org.junit.platform.commons.util.AnnotationUtils.*;
 
 /**
  * This class is implemented based on `ParameterizedTestExtension`, which is a
  * part of `junit-jupiter-params`.
  */
-public class JCUnitExtension implements TestTemplateInvocationContextProvider {
+public class JCUnitExtension implements TestTemplateInvocationContextProvider, BeforeAllCallback {
   private static final String METHOD_CONTEXT_KEY = "context";
+
+  public JCUnitExtension() {
+    System.out.println("Instantiated!");
+  }
+
+  @Override
+  public void beforeAll(ExtensionContext context) {
+    System.out.println("beforeAllContext:" + context);
+  }
 
   @Override
   public boolean supportsTestTemplate(ExtensionContext context) {
@@ -35,11 +44,12 @@ public class JCUnitExtension implements TestTemplateInvocationContextProvider {
     }
 
     Method testMethod = context.getTestMethod().get();
-    if (!isAnnotated(testMethod, Combinatorial.class)) {
+    if (!isAnnotated(testMethod, CombinatorialTest.class)) {
       return false;
     }
 
     JCUnitTestMethodContext methodContext = new JCUnitTestMethodContext(testMethod);
+    classLevelStore(context).getOrComputeIfAbsent("BEFORE_ALL_KEY", (key) -> "BeforeAll:" + System.currentTimeMillis());
 
     Preconditions.condition(methodContext.hasPotentiallyValidSignature(),
         () -> String.format(
@@ -47,26 +57,26 @@ public class JCUnitExtension implements TestTemplateInvocationContextProvider {
                 + "argument aggregators must be declared after any indexed arguments "
                 + "and before any arguments resolved by another ParameterResolver.",
             testMethod.toGenericString()));
-
-    getStore(context).put(METHOD_CONTEXT_KEY, methodContext);
+    methodLevelStore(context).put(METHOD_CONTEXT_KEY, methodContext);
     return true;
   }
 
   @Override
-  public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext extensionContext) {
-    Method templateMethod = extensionContext.getRequiredTestMethod();
-    String displayName = extensionContext.getDisplayName();
-    JCUnitTestMethodContext methodContext = getStore(extensionContext)//
+  public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
+    Method templateMethod = context.getRequiredTestMethod();
+    String displayName = context.getDisplayName();
+    JCUnitTestMethodContext methodContext = methodLevelStore(context)//
         .get(METHOD_CONTEXT_KEY, JCUnitTestMethodContext.class);
     JCUnitTestNameFormatter formatter = createNameFormatter(templateMethod, displayName);
     AtomicLong invocationCount = new AtomicLong(0);
 
+    System.out.println("testClass=" + context.getTestClass() + ":context=" + context + ": key" + classLevelStore(context).get("BEFORE_ALL_KEY"));
     return findRepeatableAnnotations(templateMethod, ArgumentsSource.class)
         .stream()
         .map(ArgumentsSource::value)
         .map(this::instantiateArgumentsProvider)
         .map(provider -> AnnotationConsumerInitializer.initialize(templateMethod, provider))
-        .flatMap(provider -> arguments(provider, extensionContext))
+        .flatMap(provider -> arguments(provider, context))
         .map(Arguments::get)
         .map(arguments -> consumedArguments(arguments, methodContext))
         .map(arguments -> createInvocationContext(formatter, methodContext, arguments))
@@ -77,12 +87,16 @@ public class JCUnitExtension implements TestTemplateInvocationContextProvider {
 
   }
 
-  private ExtensionContext.Store getStore(ExtensionContext context) {
+  private ExtensionContext.Store methodLevelStore(ExtensionContext context) {
     return context.getStore(ExtensionContext.Namespace.create(JCUnitExtension.class, context.getRequiredTestMethod()));
   }
 
+  private ExtensionContext.Store classLevelStore(ExtensionContext context) {
+    return context.getRoot().getStore(ExtensionContext.Namespace.create(context.getTestClass().orElseThrow(RuntimeException::new)));
+  }
+
   private JCUnitTestNameFormatter createNameFormatter(Method templateMethod, String displayName) {
-    Combinatorial combinatorial = findAnnotation(templateMethod, Combinatorial.class).orElseThrow(RuntimeException::new);
+    CombinatorialTest combinatorial = findAnnotation(templateMethod, CombinatorialTest.class).orElseThrow(RuntimeException::new);
     String pattern = Preconditions.notBlank(combinatorial.name().trim(),
         () -> String.format(
             "Configuration error: @CombinatorialTest on method [%s] must be declared with a non-empty name.",
@@ -103,8 +117,7 @@ public class JCUnitExtension implements TestTemplateInvocationContextProvider {
   private ArgumentsProvider instantiateArgumentsProvider(Class<? extends ArgumentsProvider> clazz) {
     try {
       return ReflectionUtils.newInstance(clazz);
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       if (ex instanceof NoSuchMethodException) {
         String message = String.format("Failed to find a no-argument constructor for ArgumentsProvider [%s]. "
                 + "Please ensure that a no-argument constructor exists and "
@@ -119,10 +132,8 @@ public class JCUnitExtension implements TestTemplateInvocationContextProvider {
   protected static Stream<? extends Arguments> arguments(ArgumentsProvider provider, ExtensionContext context) {
     try {
       return provider.provideArguments(context);
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       throw ExceptionUtils.throwAsUncheckedException(e);
     }
   }
-
 }

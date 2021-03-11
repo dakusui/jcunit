@@ -76,7 +76,7 @@ public interface Parameter<T> {
     }
   }
 
-  interface Factory<T> {
+  interface Factory<T> extends ParameterFactory {
     <F extends Factory<T>> F addActualValue(T actualValue);
 
     <F extends Factory<T>> F addActualValues(List<T> actualValues);
