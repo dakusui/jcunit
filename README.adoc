@@ -1,6 +1,6 @@
 = README
 
-This is a "readme" file for "supplemental materials" of our paper, "Accelerating covering array generation by1combinatorial join for industry scale2software testing".
+This is a "readme" file for "supplemental materials" of our paper, "Accelerating covering array generation by combinatorial join for industry scale software testing".
 
 The supplemental files are provided as `experiment.zip`.
 It contains a maven based Java project, raw experiment results, and their summaries.
