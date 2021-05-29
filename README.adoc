@@ -8,7 +8,7 @@ The project can be imported into your IDE such as IntelliJ or Eclipse and you ca
 
 == Directory Structure
 
-When you unarchive the file, you will have following directory structure.
+When you unarchive the file, you will have the following directory structure.
 
 [source]
 ----
@@ -42,10 +42,19 @@ When you unarchive the file, you will have following directory structure.
           {Your OS Name}  <2>
             pict
           acts_3.0.jar    <3>
+        models/
+          format/
+            FORMAT.png    <4>
+          IBM/
+          ICSE15_HHSA_Benchmarks.myra.sbse/
+          Real/
+            2way/         <5>
+            3way/
+          Synthetic/
         testresults/
-          CHOICE_ORDER_IMPROVEMENT/ <4>
-          Summary/ <5>
-  target/ <6>
+          CHOICE_ORDER_IMPROVEMENT/ <6>
+          Summary/ <7>
+  target/ <8>
     acts/
     pict/
 ----
@@ -54,9 +63,11 @@ When you unarchive the file, you will have following directory structure.
 <<2>>: A directory to store a PICT executable.
 We bundled PICT that we compiled on our local environment for macOS.
 <<3>>: Place your ACTS executable jar file here.
-<<4>>: A directory that stores our raw experiment results.
-<<5>>: Spreadsheets that summarized our experiment results are stored here.
-<<6>>: Your experiment results are stored under the directory of the engine name (`acts` or `pict`) you used.
+<<4>>: An image file that describes the format of the "CASA" real world benchmark models.
+<<5>>: A directory to store model files of "CASA" real-world benchmark.
+<<6>>: A directory that stores our raw experiment results.
+<<7>>: Spreadsheets that summarized our experiment results are stored here.
+<<8>>: Your experiment results are stored under the directory of the engine name (`acts` or `pict`) you used.
 
 == Maven-based Java project
 
@@ -70,7 +81,7 @@ We bundled PICT that we compiled on our local environment for macOS.
 
 ==== ACTS
 
-ACTS is not an open source software product, and you need to acquire its binary from here by its site owner.
+ACTS is not an open source software product, and you need to acquire its binary from the owner of the following site.
 
 ----
 https://csrc.nist.gov/Projects/automated-combinatorial-testing-for-software
