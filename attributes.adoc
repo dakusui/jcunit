@@ -1,0 +1,2 @@
+include::src/site/asciidoc/versions.adoc[]
+:imagesdir: src/site/resources/images
