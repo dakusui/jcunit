@@ -1,208 +1,449 @@
-== Quick Start
+include::attributes.adoc[]
 
-`pcond` is a library that allows you to write a program in the "Design by Contract"<<DbC>> style.
-Not only that, it gives a very informative message when a check you defined fails.
+image:JCunit-logo-compact.png[] is a model based testing tool powered by combinatorial testing techniques.
 
-Unlike `Guava` 's `Preconditions` class<<GuavaPreconditions>>, you do not need to repeat the same fact both in Java for the actual check and in a natural language of yours for the message on its failure.
-Unlike `valid4j`<<v4j>>, it provides a set of human-readable predicates, which can be used as normal `java.util.function.Predicate` s instead of depending on `hamcrest` library.
+Current version of JCUnit (1.0.x) is not compatible with older versions anymore.
+Users who need to use older ones, please refer to https://github.com/dakusui/jcunit/wiki/0.8.x[JCUnit-0.8.x].
 
-== Installation
+In this document, the new version is called *JCUnitX* to tell it from older ones when necessary.
 
-Have a following maven dependency in your `pom.xml`.
+== About 1.0.x
+
+1.0.x and later is actively being developed right now and called *JCUnitX*.
+It requires Java SE8.
+
+Due to changes introduced in 1.0.x, *JCUnitX*, it is not compatible with the older versions anymore, although the programming style is the same.
+
+=== Installation and how to use it.
+
+Please use following dependencies to use *JCUnitX*.
 
 [source,xml]
 [subs="verbatim,attributes"]
 ----
 <dependency>
   <groupId>com.github.dakusui</groupId>
-  <artifactId>pcond</artifactId>
+  <artifactId>jcunit</artifactId>
   <version>{jcunit-version}</version>
+  <scope>test</scope>
 </dependency>
+<!-- TBD -->
 ----
 
-== Getting started
 
-Following is the first example of the `pcond` library.
+Replace `$\{jcunit-version\}` in the fragment with `{jcunit-version}`.
 
-[source,java]
-.Example.java
+== New features
+
+Followings are major new features that have been introduced to JCUnit in 0.8.x.
+
+* JUnit5 support
+* Introduction of new "joiner" algorithm: "Weaken-product combinatorial join"
+* Internal mechanism clean-up
+* Removal of FSM support (because REGEX is more useful)
+* Improvements in REGEX support
+
+== Programming Style
+
+=== Annotations
+
+In JCUnit8, its annotation system was completely renewed. You can find an
+example of the new annotation style link:/src/java/test/com/github/dakusui/jcunit8/examples/BankAccountExample.java[here].
+
+These days, people more and more tend to prefer http://junit.org/junit4/javadoc/4.12/org/junit/experimental/theories/Theories.html[`@Theories` style],
+where each test method takes parameters to each of whose actual value is
+assigned by a test runner, over conventional JUnit style. Newly introduced
+annotation system takes the approach.
+
+Followings are the annotations used in the new style.
+
+* Defining a test class
+* ```@Runwith(JCUnit8.class)```
+* ```@ConfigureWith```
+* Defining a test method
+* ```@Test```
+* ```@Given```
+* ```@From```
+* Defining a test space
+* ```@ParameterSource```
+* ```@Condition```
+
+These will be explained in this section.
+
+== Defining a test class
+The new test runner is called **JCUnit8** (```com.github.dakusui.jcunit8.runners.junit4.JCUnit8X```).
+When you use the runner, a configuration factory for the test class can
+be specified it with another annotation ```@ConfigureWith```. With it, you
+can control various features of **JCUnit** such as negative test generation,
+test suite strength, etc.
+
+
+[source, java]
 ----
-package com.github.dakusui.jcunit_pcond.examples;
-
-// <1>
-import static com.github.dakusui.jcunit_pcond.Assertions.precondition;
-import static com.github.dakusui.jcunit_pcond.Postconditions.ensureNonNull;
-import static com.github.dakusui.jcunit_pcond.Preconditions.requireArgument;
-import static com.github.dakusui.jcunit_pcond.functions.Functions.*;
-import static com.github.dakusui.jcunit_pcond.functions.Predicates.*;
-
-public class Example {
-  public static String hello(String yourName) {
-    // <2>
-    requireArgument(yourName, and(isNotNull(), transform(length()).check(gt(0)), containsString(" ")));
-    String ret = String.format("Hello, %s", firstNameOf(yourName));
-    // <3>
-    return ensureNonNull(ret);
-  }
-
-  private static String firstNameOf(String yourName) {
-    // <4>
-    assert precondition(yourName, containsString(" "));
-    return yourName.substring(0, yourName.indexOf(' '));
-  }
-
-  public static void main(String[] args) {
-    System.out.println(hello("JohnDoe"));
-  }
-}
+    @RunWith(JCUnit8.class)
+    @ConfigureWith(BankAccountExample.BankAccountConfigFactory.class)
+    public class BankAccountExample {
+        ...
 ----
-<1> Import entry points statically.
-<2> In order to require *your user* satisfy a certain condition on an input, use `requireXyz` methods in `Preconditions` class.
-<3> In order to ensure *your library* satisfies a certain condition on an output, use `ensureXyz` methods in `Postconditions` class.
-<4> If a certain value does not satisfy a certain condition, and it will be your own bug, (neither your user's nor a third party library,) use `assert` with a predicate built with methods in `Predicates` and `Functions`.
 
-This results in a following output.
+You can also configure a class from which parameters, constraints, and
+non-constraint conditions are generated using ```parameterSpace``` attribute.
+
+=== Defining a test method
+
+Methods annotated with ```@Test``` are considered to be test methods, but
+unlike conventional JUnit test methods, they can take parameters. But each of
+those parameters must be annotated with ```@From```, which specifies how
+actual argument values of the parameter should be supplied.
+
+
+[source, java]
+----
+
+      @Test
+      @Given("overdraftNotHappens")
+      public void whenPerformScenario$thenBalanceIsCorrect(
+          @From("scenario") List<String> scenario,
+          @From("depositAmount") int amountOfDeposit,
+          @From("withdrawAmount") int amountOfWithdraw,
+          @From("transferAmount") int amountOfTransfer
+      ) {
+          ...
+      }
+
+----
+
+
+`@From` annotations specify a name of method defined from which actual parameter
+values should be generated. Those methods must be defined in a class specified by
+`@ConfigureWith#parameterSpace`.
+
+* **NOTE:** Unlike previous versions, you will not need to use ```@Uses```
+annotations anymore because the factors used in your test method are already
+declared by parameter definitions.
+
+=== Associating test cases and test oracles
+
+Expected behaviours of test cases can be different depending on inputs of
+them. E.g., when a sequence of bank account operations is executed, the
+expected outcome will be different depending on whether an overdraft happens
+or not.
+
+In JCUnit8, this can be expressed by using ```@Given``` annotation.
+
+A `@Given` annotation specifies a condition on which this test method
+should be executed. In the example above, the test method `whenPerformScenario$thenBalanceIsCorrect`
+will be invoked when (and only when) a method `overdraftNotHappens`, defined
+in the class specified by `@ConfigureWith#parameterSpace` attribute,
+returns `true`.
+
+Currently, JCUnit allows you to create composite conditions using three
+operators, AND, OR, and NOT from simple ones. With them, you should be able
+to express any boolean forms in theory (because you can transform any boolean
+form into [DNF](https://en.wikipedia.org/wiki/Disjunctive_normal_form))
+
+But parentheses cannot be used.
+
+If you want to express ANDed conditions, you can do it by following.
+
+[source, java]
+----
+      @Test
+      @Given("condition1&&condition2")
+      public void aTestMethod(...) {
+          ...
+----
+
+To express ORed conditions,
+
+[source, java]
+----
+      @Test
+      @Given({"condition1", "condition2"})
+      public void aTestMethod(...) {
+          ...
+----
+
+To negate a condition, you can do
+
+[source, java]
+----
+      @Test
+      @Given({"!condition1", "condition2&&!condition3"})
+      public void aTestMethod(...) {
+          ...
+----
+
+
+As mentioned already, parentheses are not supported and you cannot write a condition like this.
+
+[source, java]
+----
+   @Given("(condition1||!condition2)&&condition3")
+----
+
+You will need to rewrite this to following.
+
+[source, java]
+----
+   @Given({"condition1&&condition3", "!condition2&&condition3"})
+----
+
+=== Defining a test space
+
+The model from which JCUnit generates test cases consists of three elements
+which are
+
+* Parameters
+* Constraints
+* Test oracles
+
+Test oracles are defined as methods in a test class and associated with test cases
+using `@Given` annotations. In this section it will be discussed how to define
+parameters and constraints.
+
+==== Defining a parameter
+When you can list actual values of a parameter and it's sufficient, you can
+(and should) use "Simple" parameter model. Following is an example.
+
+[source, java]
+----
+
+        @ParameterSource
+        public Simple.Factory<Integer> depositAmount() {
+          return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+        }
+----
+
+The annotation `@ParameterSource` tells JCUnit that it is a method
+that supplies actual values of parameter `depositAmount` (method name).
+`@From` annotations reference methods defined in a class that implements
+`Config.Factory` and is referred to by `@ConfiguredWith` annotation.
+
+A method annotated with ```@ParameterSource``` must return a factory of a
+parameter class. And the parameter object created by the returned factory
+should hold actual values to be used in the generated test suite.
+
+When you want to use a simple parameter, it can be done just by doing
+
+[source, java]
+----
+
+          return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+----
+
+The values ```100```, ```200```, ```300```, ..., passed to ```(Arrays.)asList``` are values
+that you can use the parameter ```depositAmount```.
+
+
+==== Defining a constraint and a condition
+
+To define a constraint, you can do following.
+
+[source, java]
+----
+        @Condition(constraint = true)
+        public boolean overdraftNotHappens(
+            @From("scenario") List<String> scenario,
+            @From("depositAmount") int amountOfDeposit,
+            @From("withdrawAmount") int amountOfWithdraw,
+            @From("transferAmount") int amountOfTransfer
+        ) {
+          return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
+        }
+
+----
+
+
+When you want to make it a non-constraint-condition, you can omit the
+attribute `constraint` or explicitly set the value to `false`.
+
+
+[source, java]
+----
+        @Condition(constraint = false)
+        public boolean overdraftNotHappens(
+----
+
+NOTE: Unlike previous versions, you will not need to use ```@Uses```
+annotations anymore because the factors used in your test method are already
+declared by parameter definitions.
+
+== The Test Suite Generation Pipeline
+
+The test suite generation pipeline of JCUnit was completely redesigned.
+
+In the new JCUnit style, users will define "parameters" using models,
+such as FSM or Regex, and constraints over them first, and then they will
+be converted into factors and constraints.
+
+One parameter can be turned into multiple factors. For instance, from a
+regex `A(B|C){0,3}` parameter can be turned into 10 factors and 9
+constraints that look like following.
+
+----
+    REGEX:regex1:alt-5:[(VOID), [B], [C]]
+    REGEX:regex1:alt-6:[(VOID), [B], [C]]
+    ...
+    REGEX:regex1:cat-14:[[[A], Reference:<REGEX:regex1:rep-13>]]
+
+    constraint([REGEX:regex1:rep-13]->REGEX:regex1:alt-5)
+    constraint([REGEX:regex1:cat-8]->REGEX:regex1:alt-6)
+    ...
+    constraint([REGEX:regex1:cat-14]->REGEX:regex1:rep-13)
+----
+
+After all the parameters and constraints are converted to factors and
+constraints, factors and constraints are grouped based on how constraints
+are referring to factors so that each group can be processed independently.
+
+=== The Pipeline Overview
+
+Following is a diagram that illustrates the entire flow of JCUnit8 pipeline
+from user input, parameters and constraints, to the system output, the
+generated test suite.
+
+.Pipeline Overview
+
+image::ThePipeline/Slide1.jpg[align="center"]
+
+Users sometimes want to define constraints that involve non-simple parameters.
+For instance, if you define a parameter to describe a sequence of operations
+using a regular expression model, maybe you want to exclude test cases where
+overdrafts happen. To make it possible to generate tests from such a model,
+JCUnit first converts eah non-simple parameter which involves a constraint
+into a simple parameter. This conversion is done by a sub-pipeline called
+"Engine".
+
+The box "Engine" will be discussed later in more detail.
+
+=== The "Engine"
+
+The "Engine" stage is a main component of the entire test suite generation
+pipeline. It takes 'preprocessed' parameters and constraints and generates
+a covering array of required strength any of whose element does not violate
+any of given constraints.
+
+This stage is not designed to handle parameters that are involved in any
+constraints. It is because that we speculated that, if such a parameter is
+included, the factors and constraints will not be partitioned efficiently
+and covering array generation will take impractically long time.
+
+To address this concerning, the pipeline designed to 'preprocess' the
+non-simple parameters referenced by constraints to convert into simple ones
+by applying "Engine" process for each parameter as if it is an independent
+parameter space beforehand. (see "Overview")
+
+image::ThePipeline/Slide2.jpg[align="center"]
+.Engine
+
+After parameters and constraints are encoded into factors and constraints
+that can be handled by implementations of ```com.github.dakusui.jcunit8.pipeline.stages.Generator```,
+they will then be 'partitioned'.
+
+In 'partition' step, factors will be grouped by constraints that involve
+them, so that each group can be processed independently.
+
+After all the groups are processed and therefore a small covering array is
+generated for each group, those groups will be joined. After all joining
+processes have finishes, you will have final covering array whose each tuple's
+values can be decoded to actual values of parameters.
+
+== New covering array engine: "IPO-G+"
+
+In JCUnit8, a new covering array generator that can handle
+constraints, [IPO-G+](main/java/com/github/dakusui/jcunit8/pipeline/stages/generators/IpoG.java), was introduced.
+
+Idea of the algorithm is simple. In conventional IPO-G algorithm, which is
+shown below, new values are assigned at some points annotated with (*1) - (*4).
+The IPO-G+ algorithm only searches for assignments which can become
+valid at these points.
 
 [source]
-.Output of Example.java
 ----
-Exception in thread "main" java.lang.IllegalArgumentException: value:"JohnDoe" violated precondition:value (isNotNull&&length >[0]&&containsString[" "])
-&&                               -> false
-  isNotNull("JohnDoe")           -> true
-  transformAndCheck              -> true
-    length("JohnDoe")            -> 7
-    >[0](7)                      -> true
-  containsString[" "]("JohnDoe") -> false
-at com.github.dakusui.pcond.provider.impls.DefaultAssertionProvider.checkValue...
-	at ...
-----
-
-You can see the violated condition and how it is violated in the stacktrace.
-
-=== Writing the code
-
-To verify a value with `pcond`, you can call an entry point method of `pcond` with your value and a predicate to be checked.
-
-[source]
-----
-entryPointMethod(aValue, predicate);
-----
-
-Checking methods are defined in the entry point classes, which are `Assertions`, `Postconditions`, and `Preconditions`.
-It is recommended to import them statically at the beginning of your class.
-
-You can give your own lambda as a predicate to the method, however it will result in non-user friendly string such as following.
-
-[source]
-----
-Exception in thread "main" java.lang.IllegalArgumentException: value:"JohnDoe" violated precondition:value java.util.function.Predicate$$Lambda$78/2047329716@46f7f36a
+      Algorithm: IPOG-Test (int t , ParameterSet ps ) {
+        1.  initialize test set ts to be an empty set
+        2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
+            and Pn
+        3.  add into test set ts a test for each combination of values of the first
+            t parameters (*1)
+        4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
+        5.     let π be the set of t -way combinations of values involving parameter
+               Pi and t -1 parameters among the first i – 1 parameters (*2)
+        6.     // horizontal extension for parameter Pi
+        7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
+        8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+                   ..., vi-1 , vi ) so that τ’ covers the most number of
+                   combinations of values in π (*3)
+        9.         remove from π the combinations of values covered by τ’
+        10.    }
+        11.    // vertical extension for parameter P i
+        12.    for (each combination σ in set π ) {
+        13.      if (there exists a test that already covers σ ) {
+        14.          remove σ from π
+        15.      } else {
+        16.          change an existing test, if possible, or otherwise add a new test
+                     to cover σ and remove it from π (*4)
+        17.      }
+        18.    }
+        19.  }
+        20.  return ts;
+       }
+      See http://barbie.uta.edu/~fduan/ACTS/IPOG_%20A%20General%20Strategy%20for%20T-Way%20Software%20Testing.pdf
 ----
 
-This is still better than nothing, however, probably it will be much better if you can see what a condition the value "JohnDoe" violated and how it did without visiting the source code.
-In order to make `pcond` print such a message on a failure, you need to give a "printable" predicate, which we will be describing here.
 
-==== Building a "Printable" Predicate
+Checking if given assignments can become valid and iterating valid assignments
+are done by following method.
 
-`pcond` offers a set of method to create a printable predicate in `Predicates` class.
-It also offers a way to construct a conjuntion, disjunction, and negation of given printable predicates.
 
-Following is an example.
-
+[source, java]
 ----
-and(isNotNull(), transform(length()).check(gt(0)), containsString(" "))
-----
-
-`isNotNull` is a method that returns a predicate which returns `true` if a value given to `test` method is not `null`.
-And its `toString` method is overridden so that it returns a string `isNotNull`.
-
-`and` is another method that returns a printable predicate.
-The method accepts predicates and constructs a new printable predicate that is a conjunction of them.
-
-`transform` and `check` structure needs a bit more explanation than others.
-
-----
-transform(length()).check(gt(0))
+  public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
+      Tuple tuple,
+      List<Factor> allFactors,
+      List<Constraint> allConstraints
+  ) {
 ----
 
-This line constructs a printable predicate which returns true if a length of a given string is greater than (`gt`) 0.
+This method streams assignments of factors, involved and allowed by given
+constraints, not given by `tuple`.
 
-NOTE: This is a bit artificial example to illustrate the usage of the `transform` and `check` structure.
-You can achieve the same thing with `Predicates.isEmptyString()` and it will be simpler and faster.
+NOTE: Right now performance of this algorithm is being optimized and
+validated. And it might be re-desinged based on findings from the optimization
+and validation.
 
-First the method `transfom` accepts, preferably a printable, function.
-In this case a function returned by `length` method, which is defined in `Functions` class, is passed to the method.
-Now it returns a factory for a printable predicate.
-The `check` method of the factory returns a new predicate that checks a transformed value by the first function.
-With this `transform` and `check` approach, you can build various printable predicates from preset ones.
+=== Limitations
 
-==== Examining a value
+* If you have multiple test methods in your test class from an IDE such as IntelliJ, you cannot run only one of them.
+JCUnit has a helper class to work around the situation. Please refer to [Issue-125](https://github.com/dakusui/jcunit/issues/125).
 
-Depending on the context, where you are going to examine a given value, an appropriate message and exception to be thrown on a failure can be different.
-`pcond` provides methods that offer such messages and exceptions.
-You can simply call methods with the value and the condition you are going to examine.
-Followings are methods for it and classes in which they are defined.
-
-`requireXyz` (`Preconditions`):: Methods for checking "preconditions", which a user of your product needs to satisfy.
-On a failure, a `RuntimeException` such as `NullPointerException` etc. will be thrown depending on the actual method.
-`Xyz` can be `NonNull`, `Argument`, or `State`.
-`ensureXyz` (`Postconditions`):: Methods for checking "postconditions" , which your product needs to satisfy for its user.
-These methods also throw `RuntimeException` s depending on a actual prefix `Xyz` .
-`Xyz` can be `NonNull` or `State`.
-`validate` (`Validations`):: This is also used for checking "preconditions".
-However, unlike `requireXyz` methods, it throws an `ApplicationException`, which is a checked exception (not a `RuntimeException`).
-This method should be used in a situation where a "recoverable" failure happens.
-`assert xyz` (`Assertions`):: This should be used for checking "internal" error, where you want to disable the check in production code.
-`xyz` can be `precondition`, `postcondition`, `invariant` and `that`.
-The usege of the first three is self-explanatory.
-`that` is used for the other purposes.
-In case you want to use `assert` for any other purposes than them, use `that`.
-
-To check your user's fault, use `requireXyz` or `validate`.
-When there is a simple and easy way to check the condition, use `requireXyz`.
-Otherwise, use `validate` to allow your user to handle the error.
-To check your own fault, use `ensureXyz` or `assert xyz`.
-If the check should be done even in the production, i.e. it can be broken by your user, use `ensureXyz`.
-Otherwise, use `assert xyz`.
-Because the check can only be broken by your own fault (bug), which should not exist in your production code.
-
-Among all of those, `assert xyz` has a quite outstanding characteristic, where it can be completely disabled by `-da` option to your JVM and does not have any performance overhead at all if it is disabled.
-
-=== Reading the output
-
-Look at the first line.
-There's a message:
-
-----
-value:"JohnDoe" violated precondition:value ((isNotNull&&!isEmpty)&&containsString[" "])
-----
-
-This is describing the value that was examined and the condition violated by it.
-
-The next several lines explain how a given value violated a condition to be satisfied.
-
-----
-&&                               -> false
-  isNotNull("JohnDoe")           -> true
-  transformAndCheck              -> true
-    length("JohnDoe")            -> 7
-    >[0](7)                      -> true
-  containsString[" "]("JohnDoe") -> false
-----
-
-See the last line, this means the given string `JohnDoe` made a condition `containsString[" "]` `false`, and it made the entire check fail.
-`pcond` is designed to shortcut an evaluation as soon as a value of a disjunctive or conjunctive predicate becomes fixed.
-That is, if you have an `or` condition, and the first predicate under it becomes `true`, the rest will not be evaluated at all.
-So the last line in the message always shows the direct reason why the check failed.
-
-Thus, you can read the output above as "The check failed because the value `\"JohnDoe\"` `containsString[" "]` was `false`.
-"
-
-== Build dependencies
-
-- `gem` needs to be installed in advance.
+=== TODOs
+* Validations
+* Default value of '@ConfigureWith' annotation: If the test class is implementing
+`Config.Factory` interface, it might be good idea to use it as a value for `@ConfigureWith` annotation when it is absent.
+* IPO-G+ performance improvements.
+* FSM feature has already been implemented, but not yet tested in 0.8.x line.
+* Make the pipeline execute concurrently its internal processes where possible.
 
 == References
 
-- [[[DbC]]] Wikipedia article on Design by Contract, https://en.wikipedia.org/wiki/Design_by_contract
-- [[[v4j]]] Valid4j, http://www.valid4j.org
-- [[[GuavaPreconditions]]] PreconditionsExplained, https://github.com/google/guava/wiki/PreconditionsExplained
+- [[JCUnitWiki]] JCUnit Wiki, https://github.com/dakusui/jcunit/wiki
+- [[JCUnitBlog]] JCUnit blog; Japanese; 日本語, http://jcunit.hatenablog.jp/
+- [[TestDesignAsCode]] "Test Design as Code" (A paper on this product; Presented at IEEE International Conference on Software Testing 2017), http://ieeexplore.ieee.org/document/7928008/
+
+== Copyright and license
+
+Copyright 2013 Hiroshi Ukai.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this work except in compliance with the License.
+You may obtain a copy of the License in the LICENSE file, or at:
+
+  [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.

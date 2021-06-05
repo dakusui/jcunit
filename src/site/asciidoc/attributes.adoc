@@ -1,1 +1,2 @@
-:jcunit-version: 1.0.0-SNAPSHOT
+include::versions.adoc[]
+:imagesdir: ../resources/images
