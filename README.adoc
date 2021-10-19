@@ -17,21 +17,15 @@ older versions.
 ### Installation and how to use it.
 Please use following dependencies to use **JCUnit8**.
 
-```xml
-
-    <dependency>
-      <groupId>com.github.dakusui</groupId>
-      <artifactId>jcunit</artifactId>
-      <version>[0.8.12,)</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-```
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>com.github.dakusui</groupId>
+  <artifactId>pcond</artifactId>
+  <version>{pcond-version}</version>
+</dependency>
+----
 
 * **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
 * **NOTE:** Source code is found here:[0.8.x-develop branch](https://github.com/dakusui/jcunit/tree/0.8.x-develop)
