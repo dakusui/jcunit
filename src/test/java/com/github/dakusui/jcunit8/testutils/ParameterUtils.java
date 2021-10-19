@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.runners.helpers;
+package com.github.dakusui.jcunit8.testutils;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 

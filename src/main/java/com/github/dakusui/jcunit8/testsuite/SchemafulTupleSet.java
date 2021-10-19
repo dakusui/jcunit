@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
-import com.github.dakusui.jcunit8.exceptions.FrameworkException;
+import com.github.dakusui.jcunit.exceptions.FrameworkException;
 
 import java.util.*;
 

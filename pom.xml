@@ -24,7 +24,7 @@
         <developerConnection>scm:git:git@github.com:dakusui/jcunit.git
         </developerConnection>
         <url>http://dakusui.github.io/jcunit</url>
-        <tag>jcunit-0.8.x</tag>
+        <tag>jcunit-0.10.x</tag>
     </scm>
 
     <developers>

@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.runners.junit4;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.Utils;
-import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
+import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
-import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunit.exceptions.FrameworkException.unexpectedByDesign;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 

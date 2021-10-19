@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.exceptions;
+package com.github.dakusui.jcunit.exceptions;
 
 import java.util.function.Function;
 import java.util.function.Predicate;

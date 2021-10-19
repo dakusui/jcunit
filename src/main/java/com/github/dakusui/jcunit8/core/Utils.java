@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.exceptions.FrameworkException;
+import com.github.dakusui.jcunit.exceptions.FrameworkException;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -15,8 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.jcunit.core.reflect.ReflectionUtils.getMethod;
-import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunit.core.utils.ReflectionUtils.getMethod;
+import static com.github.dakusui.jcunit.exceptions.FrameworkException.unexpectedByDesign;
 import static java.util.Collections.singletonList;
 
 public enum Utils {

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.exceptions;
+package com.github.dakusui.jcunit.exceptions;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;

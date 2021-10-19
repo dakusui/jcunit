@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.pipeline.stages;
 
-import com.github.dakusui.jcunit8.exceptions.FrameworkException;
+import com.github.dakusui.jcunit.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.*;
 
 import java.util.List;

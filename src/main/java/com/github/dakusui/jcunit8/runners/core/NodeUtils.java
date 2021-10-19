@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.runners.core;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.exceptions.FrameworkException;
+import com.github.dakusui.jcunit.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.core.Utils.createInstanceOf;
-import static com.github.dakusui.jcunit8.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunit.exceptions.FrameworkException.unexpectedByDesign;
 import static java.util.stream.Collectors.toList;
 
 public enum NodeUtils {

@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.examples.config;
 
 
 import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
+import com.github.dakusui.jcunit8.testutils.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;

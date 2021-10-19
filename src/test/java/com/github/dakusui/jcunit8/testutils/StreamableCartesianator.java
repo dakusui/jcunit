@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.core;
+package com.github.dakusui.jcunit8.testutils;
 
 import com.github.dakusui.combinatoradix.Cartesianator;
 
