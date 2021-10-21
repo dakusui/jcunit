@@ -31,7 +31,7 @@ Please use following dependencies to use **JCUnit8**.
 ----
 <dependency>
   <groupId>com.github.dakusui</groupId>
-  <artifactId>pcond</artifactId>
+  <artifactId>jcunit</artifactId>
   <version>{jcunit-version}</version>
 </dependency>
 ----
