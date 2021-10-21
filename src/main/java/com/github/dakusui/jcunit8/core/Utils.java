@@ -123,7 +123,7 @@ public enum Utils {
   }
 
   private static String className(Class klass, String work) {
-    String canonicalName = klass.getCanonicalName();
+    String canonicalName = klass == null ? "" : klass.getCanonicalName();
     if (canonicalName != null)
       return canonicalName;
     return className(klass.getEnclosingClass(), work + "$");

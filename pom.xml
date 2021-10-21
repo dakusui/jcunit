@@ -6,8 +6,7 @@
     <artifactId>jcunit</artifactId>
     <packaging>jar</packaging>
     <version>1.0.0-SNAPSHOT</version>
-    <description>A Small Java Library for Design by Contract style programming
-        with printable preconditions.
+    <description>Model-based Testing Powered by CIT, Modeling with Java
     </description>
 
     <name>jcunit</name>
