@@ -42,6 +42,10 @@ import static com.github.dakusui.jcunit.exceptions.FrameworkException.unexpected
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Use {@link com.github.dakusui.jcunitx.runners.junit5.JCUnitX} instead.
+ */
+@Deprecated
 public class JCUnit8 extends org.junit.runners.Parameterized {
   private final List<Runner> runners;
   private final TestSuite    testSuite;

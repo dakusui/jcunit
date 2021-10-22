@@ -72,6 +72,7 @@
         <maven-release-plugin.version>2.5</maven-release-plugin.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
         <opentest4j.version>1.2.0</opentest4j.version>
+        <pcond.version>2.0.3</pcond.version>
         <thincrest.version>3.6.0</thincrest.version>
         <github.global.server>github</github.global.server>
         <env.GEM_PATH>${project.basedir}/generated/build/gems</env.GEM_PATH>
@@ -88,7 +89,7 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit5.version}</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -124,6 +125,11 @@
             <groupId>com.github.dakusui</groupId>
             <artifactId>combinatoradix</artifactId>
             <version>${combinatoradix.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>pcond</artifactId>
+            <version>${pcond.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>

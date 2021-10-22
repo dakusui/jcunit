@@ -1,20 +1,20 @@
 package com.github.dakusui.jcunit8.examples.bankaccount;
 
-class BankAccount {
-  static BankAccount open() {
+public class BankAccount {
+  public static BankAccount open() {
     return new BankAccount();
   }
 
   private int balance;
 
-  void deposit(int amount) {
+  public void deposit(int amount) {
     if (amount <= 0) {
       throw new IllegalArgumentException();
     }
     balance += amount;
   }
 
-  void withdraw(int amount) {
+  public void withdraw(int amount) {
     if (amount <= 0) {
       throw new IllegalArgumentException();
     }
@@ -23,7 +23,7 @@ class BankAccount {
     balance -= amount;
   }
 
-  void transferTo(BankAccount another, int amount) {
+  public void transferTo(BankAccount another, int amount) {
     if (amount <= 0) {
       throw new IllegalArgumentException();
     }
@@ -31,7 +31,7 @@ class BankAccount {
     another.deposit(amount);
   }
 
-  int getBalance() {
+  public int getBalance() {
     return this.balance;
   }
 

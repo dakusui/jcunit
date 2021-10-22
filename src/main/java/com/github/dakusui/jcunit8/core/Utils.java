@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
+import org.junit.Before;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
