@@ -6,6 +6,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 
 import java.util.*;
 
+import static com.github.dakusui.pcond.Preconditions.requireNonNull;
 import static java.util.Arrays.asList;
 
 public class RegexComposer {
@@ -28,9 +29,7 @@ public class RegexComposer {
   private List<String> splitOnWhiteSpaces(List<Object> in) {
     List<String> ret = new LinkedList<>();
     for (Object each : in) {
-      Checks.checkcond(each instanceof String);
-      //noinspection ConstantConditions
-      String eachString = (String) each;
+      String eachString = (String) requireNonNull(each);
       if (!eachString.contains(" ")) {
         ret.add(eachString);
       } else {
@@ -88,11 +87,10 @@ public class RegexComposer {
 
     @Override
     public void visit(Expr.Alt expr) {
-      //noinspection ConstantConditions
       Object values = tuple.get(composeKey(expr));
       if (Generator.VOID.equals(values))
         return;
-      for (Object each : (List) values) {
+      for (Object each : (List<?>) values) {
         if (each instanceof Reference) {
           this.exprs.get(((Reference) each).key).accept(this);
         } else {

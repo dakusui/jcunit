@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;

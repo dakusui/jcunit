@@ -1,8 +1,11 @@
 package com.github.dakusui.jcunitx.examples.bankaccount;
 
+import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.jcunit8.examples.bankaccount.BankAccount;
-import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
-import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
+import com.github.dakusui.jcunit8.models.scenario.ActionSequence;
+import com.github.dakusui.jcunit8.models.scenario.ParameterizedAction;
+import com.github.dakusui.jcunit8.models.scenario.Scenario;
+import com.github.dakusui.jcunit8.testutils.ParameterUtils;
 import com.github.dakusui.jcunitx.runners.annotations.*;
 import com.github.dakusui.jcunitx.runners.junit5.JCUnitX;
 import org.junit.jupiter.api.Test;
@@ -10,57 +13,41 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static com.github.dakusui.jcunit8.testutils.ParameterUtils.simple;
+import static com.github.dakusui.pcond.TestAssertions.assertThat;
+import static com.github.dakusui.pcond.functions.Predicates.equalTo;
 
 @ExtendWith(JCUnitX.class)
-@Constraints({"depositUsed", "withdrawUsed"})
+@Constraints({ "depositUsed", "withdrawUsed" })
 public class BankAccountExample {
 
   private final BankAccount anotherAccount = BankAccount.open();
   private       BankAccount myAccount;
 
-  private static int calculateBalance(List<String> scenario,
-      int amountOfDeposit,
-      int amountOfWithdraw,
-      int amountOfTransfer) {
+  private static int calculateExpectedBalance(ActionSequence scenario) {
     int balance = 0;
-    for (String op : scenario) {
-      if ("deposit".equals(op)) {
-        balance += amountOfDeposit;
-      } else if ("withdraw".equals(op)) {
-        balance -= amountOfWithdraw;
-      } else if ("transfer".equals(op)) {
-        balance -= amountOfTransfer;
-      }
-      if (balance < 0) {
+    for (ParameterizedAction op : scenario) {
+      if ("deposit".equals(op.name()))
+        balance += op.<Integer>arg(0);
+      else if ("withdraw".equals(op.name()))
+        balance -= op.<Integer>arg(0);
+      else if ("transfer".equals(op.name()))
+        balance -= op.<Integer>arg(0);
+
+      if (balance < 0)
         return balance;
-      }
     }
     return balance;
   }
 
   @ParameterSource
-  public Regex.Factory<String> scenario() {
-    return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
+  public Scenario.Factory scenario() {
+    return ParameterUtils.scenario("open  deposit(deposit|withdraw|transfer){0,2} getBalance")
+        .addParameter("deposit", simple(100, 200, 300, 400, 500, 600, -1))
+        .addParameter("withdraw", simple(100, 200, 300, 400, 500, 600, -1))
+        .addParameter("transfer", simple(100, 200, 300, 400, 500, 600, -1));
   }
 
-  @ParameterSource
-  public Simple.Factory<Integer> depositAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-  }
-
-  @ParameterSource
-  public Simple.Factory<Integer> withdrawAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-  }
-
-  @ParameterSource
-  public Simple.Factory<Integer> transferAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-  }
-
-  @Condition
   public boolean depositUsed(
       @From("scenario") List<String> scenario,
       @From("depositAmount") int amount
@@ -88,99 +75,50 @@ public class BankAccountExample {
 
   @Condition
   public boolean transferUsed(
-      @From("scenario") List<String> scenario,
-      @From("transferAmount") int amount
+      @From("scenario") ActionSequence scenario
   ) {
-    //noinspection SimplifiableIfStatement
-    if (!scenario.contains("transfer")) {
-      return amount == -1;
-    } else {
-      return amount != -1;
-    }
+    return scenario.stream()
+        .map(Named::name)
+        .anyMatch(each -> each.equals("transfer"));
   }
 
   @Condition
   public boolean overdraftNotHappens(
-      @From("scenario") List<String> scenario,
-      @From("depositAmount") int amountOfDeposit,
-      @From("withdrawAmount") int amountOfWithdraw,
-      @From("transferAmount") int amountOfTransfer
+      @From("scenario") ActionSequence scenario
   ) {
-    return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
+    return calculateExpectedBalance(scenario) >= 0;
   }
 
   @Test
   @Given("overdraftNotHappens")
-  public void whenPerformScenario$thenBalanceIsCorrect(
-      @From("scenario") List<String> scenario,
-      @From("depositAmount") int amountOfDeposit,
-      @From("withdrawAmount") int amountOfWithdraw,
-      @From("transferAmount") int amountOfTransfer
-  ) {
+  public void whenPerformScenario$thenBalanceIsCorrect(@From("scenario") ActionSequence scenario) {
     int balance = -1;
-    for (String operation : scenario) {
-      balance = perform(operation, amountOfDeposit, amountOfWithdraw, amountOfTransfer);
-    }
-    assertEquals(calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer), balance);
+    scenario.perform();
+    //for (String operation : scenario) {
+    // balance = perform(operation, amountOfDeposit, amountOfWithdraw, amountOfTransfer);
+    //}
+    assertThat(
+        balance,
+        equalTo(calculateExpectedBalance(scenario)));
   }
 
-  @Test
-  @Given("overdraftNotHappens")
-  public void printScenario(
-      @From("scenario") List<String> scenario,
-      @From("depositAmount") int amountOfDeposit,
-      @From("withdrawAmount") int amountOfWithdraw,
-      @From("transferAmount") int amountOfTransfer
-  ) {
-    System.out.println(scenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer);
+  @Perform("open")
+  public void open() {
+    this.myAccount = BankAccount.open();
   }
 
-  public static class Context {
-
+  @Perform("deposit")
+  public void deposit(@From(".0") int amount) {
+    this.myAccount.deposit(amount);
   }
 
-  public Context open(Context context) {
-    return new Context();
+  @Perform
+  public void withdraw(@From(".0") int amount) {
+    this.myAccount.withdraw(amount);
   }
 
-  public Context deposit(Context context) {
-    return new Context();
-  }
-
-  public Context withdraw(Context context) {
-    return new Context();
-  }
-
-  public Context transfer(Context context) {
-    return new Context();
-  }
-
-  private int perform(
-      String operation,
-      int amountOfDeposit,
-      int amountOfWithdraw,
-      int amountOfTransfer
-  ) {
-    int ret = -1;
-    switch (operation) {
-    case "open":
-      myAccount = BankAccount.open();
-      break;
-    case "deposit":
-      myAccount.deposit(amountOfDeposit);
-      break;
-    case "withdraw":
-      myAccount.withdraw(amountOfWithdraw);
-      break;
-    case "transfer":
-      myAccount.transferTo(anotherAccount, amountOfTransfer);
-      break;
-    case "getBalance":
-      ret = myAccount.getBalance();
-      break;
-    default:
-      throw new AssertionError();
-    }
-    return ret;
+  @Perform
+  public void transfer(@From(".0") int amount) {
+    this.myAccount.transferTo(this.anotherAccount, amount);
   }
 }

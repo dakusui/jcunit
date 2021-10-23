@@ -1,12 +1,11 @@
 package com.github.dakusui.jcunit8.examples.beforesandafters;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.testutils.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 
 @RunWith(JCUnit8.class)

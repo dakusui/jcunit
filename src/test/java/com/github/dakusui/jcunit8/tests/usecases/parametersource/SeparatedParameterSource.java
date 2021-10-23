@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.usecases.parametersource;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 
 import static java.util.Arrays.asList;

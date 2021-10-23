@@ -163,7 +163,6 @@
             <groupId>com.github.dakusui</groupId>
             <artifactId>actionunit</artifactId>
             <version>5.2.3</version>
-            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <artifactId>processstreamer</artifactId>

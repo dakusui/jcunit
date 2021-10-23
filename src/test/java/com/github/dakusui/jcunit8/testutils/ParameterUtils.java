@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.models.Parameter;
+import com.github.dakusui.jcunit8.models.scenario.Scenario;
 
 import java.util.function.Function;
 
@@ -20,5 +21,9 @@ public enum ParameterUtils {
 
   public static Parameter.Regex.Factory<String> regex(String regex) {
     return regex(regex, Function.identity());
+  }
+
+  public static Scenario.Factory scenario(String regex) {
+    return new Scenario.Factory(regex);
   }
 }

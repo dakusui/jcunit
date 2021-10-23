@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.examples.quadratic;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
+import com.github.dakusui.jcunit8.models.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import com.github.dakusui.jcunitx.runners.annotations.Condition;
 import com.github.dakusui.jcunitx.runners.annotations.Constraints;

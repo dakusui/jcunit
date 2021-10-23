@@ -1,6 +1,7 @@
-package com.github.dakusui.jcunit8.factorspace;
+package com.github.dakusui.jcunit8.models;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.Collection;
 import java.util.Collections;

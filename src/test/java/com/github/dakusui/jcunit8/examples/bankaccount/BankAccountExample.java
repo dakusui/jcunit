@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.examples.bankaccount;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
-import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
+import com.github.dakusui.jcunit8.models.Parameter.Regex;
+import com.github.dakusui.jcunit8.models.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;

@@ -4,7 +4,7 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Cartesian;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;

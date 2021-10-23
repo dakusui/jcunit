@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.tests.components.regex;
 import com.github.dakusui.jcunit.core.utils.StringUtils;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;

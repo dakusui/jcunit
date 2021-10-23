@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.testsuite;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.models.ParameterSpace;
 
 import java.util.*;
 import java.util.stream.Collectors;

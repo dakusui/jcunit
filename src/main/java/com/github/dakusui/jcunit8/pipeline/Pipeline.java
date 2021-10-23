@@ -5,6 +5,8 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.models.Parameter;
+import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;

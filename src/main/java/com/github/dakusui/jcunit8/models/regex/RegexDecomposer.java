@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.factorspace.regex;
+package com.github.dakusui.jcunit8.models.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.regex.Expr;

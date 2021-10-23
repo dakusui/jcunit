@@ -2,6 +2,8 @@ package com.github.dakusui.jcunit8.testutils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.models.Parameter;
+import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;

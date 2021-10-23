@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit8.pipeline;
 
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.models.Parameter;
+import com.github.dakusui.jcunit8.models.ParameterSpace;
 
 import java.util.List;
 import java.util.Set;

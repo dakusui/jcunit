@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
@@ -116,7 +116,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.factorspace.Parameter<?>> parameters, List<Constraint> constraints) {
+  private static ParameterSpace buildParameterSpace(List<com.github.dakusui.jcunit8.models.Parameter<?>> parameters, List<Constraint> constraints) {
     return new ParameterSpace.Builder()
         .addAllParameters(parameters)
         .addAllConstraints(constraints)
@@ -127,8 +127,8 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     return Pipeline.Standard.create().execute(config, parameterSpace, testScenario);
   }
 
-  private static SortedMap<String, com.github.dakusui.jcunit8.factorspace.Parameter<?>> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
-    return new TreeMap<String, com.github.dakusui.jcunit8.factorspace.Parameter<?>>() {
+  private static SortedMap<String, com.github.dakusui.jcunit8.models.Parameter<?>> buildParameterMap(TestClass parameterSpaceDefinitionTestClass) {
+    return new TreeMap<String, com.github.dakusui.jcunit8.models.Parameter<?>>() {
       {
         parameterSpaceDefinitionTestClass.getAnnotatedMethods(ParameterSource.class).forEach(
             frameworkMethod -> put(frameworkMethod.getName(),
@@ -140,10 +140,10 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static Function<Object, com.github.dakusui.jcunit8.factorspace.Parameter.Factory<?>> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
+  private static Function<Object, com.github.dakusui.jcunit8.models.Parameter.Factory<?>> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
     return (Object o) -> {
       try {
-        return (com.github.dakusui.jcunit8.factorspace.Parameter.Factory<?>) method.invokeExplosively(o);
+        return (com.github.dakusui.jcunit8.models.Parameter.Factory<?>) method.invokeExplosively(o);
       } catch (Throwable throwable) {
         throw unexpectedByDesign(throwable);
       }

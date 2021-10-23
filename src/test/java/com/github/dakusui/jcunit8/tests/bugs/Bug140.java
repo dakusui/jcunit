@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.bugs;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testutils.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
