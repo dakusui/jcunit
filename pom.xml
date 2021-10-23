@@ -44,6 +44,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <actionunit.version>5.2.3</actionunit.version>
         <asciidoclet.version>1.5.6</asciidoclet.version>
         <asciidoctor.maven.plugin.version>2.0.0-RC.1
         </asciidoctor.maven.plugin.version>
@@ -71,6 +72,7 @@
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-release-plugin.version>2.5</maven-release-plugin.version>
         <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+        <mockito-core.version>1.10.19</mockito-core.version>
         <opentest4j.version>1.2.0</opentest4j.version>
         <pcond.version>2.0.3</pcond.version>
         <thincrest.version>3.6.0</thincrest.version>
@@ -123,6 +125,17 @@
         </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>
+            <artifactId>actionunit</artifactId>
+            <version>${actionunit.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>processstreamer</artifactId>
+                    <groupId>com.github.dakusui</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
             <artifactId>combinatoradix</artifactId>
             <version>${combinatoradix.version}</version>
         </dependency>
@@ -140,40 +153,9 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
+            <version>${mockito-core.version}</version>
             <scope>test</scope>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.13.2</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.dakusui</groupId>
-            <artifactId>actionunit</artifactId>
-            <version>5.2.3</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>processstreamer</artifactId>
-                    <groupId>com.github.dakusui</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.github.dakusui</groupId>
-            <artifactId>processstreamer</artifactId>
-            <version>1.0.1</version>
         </dependency>
     </dependencies>
 
