@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.List;
@@ -11,10 +11,10 @@ public interface TestCase {
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple testInput, List<Constraint> violatedConstraints) {
+    TestCase createTestCase(KeyValuePairs testInput, List<Constraint> violatedConstraints) {
       return new TestCase() {
         @Override
-        public Tuple getTestInput() {
+        public KeyValuePairs getTestInput() {
           return testInput;
         }
 
@@ -37,7 +37,7 @@ public interface TestCase {
 
   }
 
-  Tuple getTestInput();
+  KeyValuePairs getTestInput();
 
   Category getCategory();
 

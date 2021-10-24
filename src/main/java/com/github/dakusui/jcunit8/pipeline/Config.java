@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.pipeline;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Encoder;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
 
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -31,9 +31,9 @@ public interface Config {
 
   Function<FactorSpace, List<FactorSpace>> partitioner();
 
-  Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement);
+  Function<FactorSpace, SchemafulRowSet> generator(ParameterSpace parameterSpace, Requirement requirement);
 
-  BinaryOperator<SchemafulTupleSet> joiner();
+  BinaryOperator<SchemafulRowSet> joiner();
 
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
@@ -100,8 +100,8 @@ public interface Config {
     }
 
     @Override
-    public Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement) {
-      return (FactorSpace factorSpace) -> new SchemafulTupleSet.Builder(
+    public Function<FactorSpace, SchemafulRowSet> generator(ParameterSpace parameterSpace, Requirement requirement) {
+      return (FactorSpace factorSpace) -> new SchemafulRowSet.Builder(
           factorSpace.getFactors().stream(
           ).map(
               Factor::getName
@@ -118,7 +118,7 @@ public interface Config {
     }
 
     @Override
-    public BinaryOperator<SchemafulTupleSet> joiner() {
+    public BinaryOperator<SchemafulRowSet> joiner() {
       return joiner;
     }
 
@@ -144,7 +144,7 @@ public interface Config {
                               (Object o) -> factorSpace.getConstraints()
                                   .stream()
                                   .filter((Constraint constraint) -> singletonList(factor.getName()).equals(constraint.involvedKeys()))
-                                  .allMatch((Constraint constraint) -> constraint.test(new Tuple.Builder().put(factor.getName(), o).build()))
+                                  .allMatch((Constraint constraint) -> constraint.test(new KeyValuePairs.Builder().put(factor.getName(), o).buildTuple()))
                           )
                           .collect(toList()).toArray()
                   ))

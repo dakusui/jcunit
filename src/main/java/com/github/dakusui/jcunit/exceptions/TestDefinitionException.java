@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.exceptions;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class TestDefinitionException extends BaseException {
     throw new TestDefinitionException(format("Constraints '%s' did not become true.", constraints));
   }
 
-  public static TestDefinitionException failedToCover(String factorName, List<Object> factorLevels, Tuple tuple) {
+  public static TestDefinitionException failedToCover(String factorName, List<Object> factorLevels, KeyValuePairs tuple) {
     throw new TestDefinitionException(format("Factor '%s' doesn't have any valid level '%s' for tuple '%s'", factorName, factorLevels, tuple));
   }
 

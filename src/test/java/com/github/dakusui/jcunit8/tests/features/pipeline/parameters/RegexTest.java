@@ -1,10 +1,11 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testutils.*;
 import org.junit.Test;
@@ -36,8 +37,8 @@ public class RegexTest extends PipelineTestBase {
 
   @Test
   public void givenRegex$whenGenerateWithIpoG$thenNonEmptyTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
-        SchemafulTupleSet.fromTuples(
+    SchemafulRowSetUtils.validateSchemafulRow(
+        SchemafulRowSet.fromRows(
             new IpoGplus(
                 Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
                 requirement(),
@@ -107,7 +108,7 @@ public class RegexTest extends PipelineTestBase {
 
   @Test
   public void whenEngine$thenSchemafulTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
+    SchemafulRowSetUtils.validateSchemafulRow(
         engine(
             singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
             emptyList()),
@@ -117,7 +118,7 @@ public class RegexTest extends PipelineTestBase {
                 (Integer value) -> value >= 1 + 2 + 4 + 4 && value < 1 + 2 + 4 + 8
             ),
             allSatisfy(
-                (Tuple tuple) -> {
+                (Row tuple) -> {
                   Object value = tuple.get("regex1");
                   if (!(value instanceof List))
                     return false;

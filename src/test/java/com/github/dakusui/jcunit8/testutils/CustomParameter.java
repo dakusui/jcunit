@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.models.Parameter;
@@ -24,12 +24,12 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   }
 
   @Override
-  public ValuePair composeValue(Tuple tuple) {
+  public ValuePair composeValue(KeyValuePairs tuple) {
     return new ValuePair(getValue(tuple, "a"), getValue(tuple, "b"));
   }
 
   @Override
-  public Optional<Tuple> decomposeValue(ValuePair value) {
+  public Optional<KeyValuePairs> decomposeValue(ValuePair value) {
     throw new UnsupportedOperationException();
   }
 
@@ -45,7 +45,7 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
     return String.format("CUSTOM:%s:%s", name, keyName);
   }
 
-  private String getValue(Tuple tuple, String keyName) {
+  private String getValue(KeyValuePairs tuple, String keyName) {
     return (String) tuple.get(composeKey(keyName));
   }
 
@@ -58,7 +58,7 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
       }
 
       @Override
-      public boolean test(Tuple tuple) {
+      public boolean test(KeyValuePairs tuple) {
         return !Objects.equals(getValue(tuple, "a"), getValue(tuple, "b"));
       }
 

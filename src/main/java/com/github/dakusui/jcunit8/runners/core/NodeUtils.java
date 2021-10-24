@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.runners.core;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
@@ -28,7 +28,7 @@ public enum NodeUtils {
   public static TuplePredicate buildPredicate(String[] values, SortedMap<String, TuplePredicate> predicates_) {
     class Builder implements Node.Visitor {
       private final SortedMap<String, TuplePredicate> predicates   = predicates_;
-      private Predicate<Tuple>                        result;
+      private Predicate<KeyValuePairs>                result;
       private final SortedSet<String>                 involvedKeys = new TreeSet<>();
 
       @SuppressWarnings("unchecked")
@@ -42,16 +42,16 @@ public enum NodeUtils {
           result = tuple -> predicate.test(appendArgs(tuple, leaf));
       }
 
-      private Tuple appendArgs(Tuple tuple, Node.Leaf leaf) {
-        return new Tuple.Builder() {{
+      private KeyValuePairs appendArgs(KeyValuePairs tuple, Node.Leaf leaf) {
+        return new KeyValuePairs.Builder() {{
           putAll(tuple);
           for (int i = 0; i < leaf.args().length; i++) {
             put(String.format("@arg[%s]", i), expandFactorValueIfNecessary(tuple, leaf.args()[i]));
           }
-        }}.build();
+        }}.buildTuple();
       }
 
-      private Object expandFactorValueIfNecessary(Tuple tuple, String arg) {
+      private Object expandFactorValueIfNecessary(KeyValuePairs tuple, String arg) {
         if (arg.startsWith("@"))
           return tuple.get(arg.substring(1));
         return arg;
@@ -61,7 +61,7 @@ public enum NodeUtils {
       public void visitAnd(Node.And and) {
         and.children().forEach(
             node -> {
-              Predicate<Tuple> previous = result;
+              Predicate<KeyValuePairs> previous = result;
               node.accept(this);
               if (previous != null) {
                 result = previous.and(result);
@@ -73,7 +73,7 @@ public enum NodeUtils {
       public void visitOr(Node.Or or) {
         or.children().forEach(
             node -> {
-              Predicate<Tuple> previous = result;
+              Predicate<KeyValuePairs> previous = result;
               node.accept(this);
               if (previous != null) {
                 result = previous.or(result);
@@ -171,7 +171,7 @@ public enum NodeUtils {
     int varargsIndex = method.isVarArgs() ?
         frameworkMethod.getMethod().getParameterCount() - 1 :
         -1;
-    Predicate<Tuple> predicate = (Tuple tuple) -> {
+    Predicate<KeyValuePairs> predicate = (KeyValuePairs tuple) -> {
       try {
         return (boolean) frameworkMethod.invokeExplosively(
             testObject,
@@ -223,7 +223,7 @@ public enum NodeUtils {
           }
 
           @Override
-          public boolean test(Tuple tuple) {
+          public boolean test(KeyValuePairs tuple) {
             return predicate.test(tuple);
           }
 

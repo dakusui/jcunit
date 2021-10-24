@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
@@ -174,7 +174,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         InternalUtils.createRunBeforesForTestInput(
             statement,
             this.testSuite.getScenario().preSuiteProcedures(),
-            Tuple.builder().put("@suite", this.testSuite).build()
+            KeyValuePairs.builder().put("@suite", this.testSuite).buildTuple()
         );
   }
 
@@ -185,7 +185,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         InternalUtils.createRunAftersForTestInput(
             statement,
             this.testSuite.getScenario().postSuiteProcedures(),
-            Tuple.builder().put("@suite", this.testSuite).build()
+            KeyValuePairs.builder().put("@suite", this.testSuite).buildTuple()
         );
   }
 
@@ -302,7 +302,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       Description description = describeChild(child);
 
       TestCase testCase = this.testSuite.get(this.id);
-      Tuple testInput = composeTestInput(testCase.getTestInput());
+      KeyValuePairs testInput = composeTestInput(testCase.getTestInput());
       if (child.shouldInvoke().test(testInput)) {
         runLeaf(oracleBlock(child, testInput), description, notifier);
       } else {
@@ -351,26 +351,26 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       }
     }
 
-    private Tuple composeTestInput(Tuple tuple) {
+    private KeyValuePairs composeTestInput(KeyValuePairs tuple) {
       try {
-        return Tuple.builder()
+        return KeyValuePairs.builder()
             .putAll(tuple)
             .put("@ins", getTestClass().getOnlyConstructor().newInstance())
             .put("@suite", testSuite)
-            .build();
+            .buildTuple();
       } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
         throw Checks.wrap(e);
       }
     }
 
-    private Statement oracleBlock(TestOracle testOracle, Tuple testInput) {
+    private Statement oracleBlock(TestOracle testOracle, KeyValuePairs testInput) {
       Statement statement = oracleInvoker(testOracle, testInput);
       statement = withBeforesForTestOracle(testInput, statement);
       statement = withAftersForTestOracle(testInput, statement);
       return statement;
     }
 
-    private Statement oracleInvoker(TestOracle oracle, Tuple testInput) {
+    private Statement oracleInvoker(TestOracle oracle, KeyValuePairs testInput) {
       return new Statement() {
         @Override
         public void evaluate() {
@@ -379,21 +379,21 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       };
     }
 
-    private Statement withBeforesForTestOracle(Tuple testInput, Statement statement) {
+    private Statement withBeforesForTestOracle(KeyValuePairs testInput, Statement statement) {
       List<TupleConsumer> befores = testSuite.getScenario().preOracleProcedures();
       return befores.isEmpty() ?
           statement :
           new Statement() {
             @Override
             public void evaluate() throws Throwable {
-              for (Consumer<Tuple> before : befores)
+              for (Consumer<KeyValuePairs> before : befores)
                 before.accept(testInput);
               statement.evaluate();
             }
           };
     }
 
-    private Statement withAftersForTestOracle(Tuple testInput, Statement statement) {
+    private Statement withAftersForTestOracle(KeyValuePairs testInput, Statement statement) {
       List<TupleConsumer> afters = testSuite.getScenario().postOracleProcedures();
       return afters.isEmpty() ?
           statement :
@@ -401,7 +401,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
             @Override
             public void evaluate() throws Throwable {
               statement.evaluate();
-              for (Consumer<Tuple> after : afters)
+              for (Consumer<KeyValuePairs> after : afters)
                 after.accept(testInput);
             }
           };

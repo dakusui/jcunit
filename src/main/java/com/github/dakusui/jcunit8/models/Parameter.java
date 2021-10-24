@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.models;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit.regex.RegexComposer;
@@ -31,9 +31,9 @@ public interface Parameter<T> {
 
   FactorSpace toFactorSpace();
 
-  T composeValue(Tuple tuple);
+  T composeValue(KeyValuePairs tuple);
 
-  Optional<Tuple> decomposeValue(T value);
+  Optional<KeyValuePairs> decomposeValue(T value);
 
   List<T> getKnownValues();
 
@@ -85,13 +85,13 @@ public interface Parameter<T> {
 
       @SuppressWarnings("unchecked")
       @Override
-      public T composeValue(Tuple tuple) {
+      public T composeValue(KeyValuePairs tuple) {
         return (T) tuple.get(getName());
       }
 
       @Override
-      public Optional<Tuple> decomposeValue(T value) {
-        return Optional.of(Tuple.builder().put(name, value).build());
+      public Optional<KeyValuePairs> decomposeValue(T value) {
+        return Optional.of(KeyValuePairs.builder().put(name, value).buildTuple());
       }
 
       @Override
@@ -132,7 +132,7 @@ public interface Parameter<T> {
         this.factorSpace = translator.decompose();
       }
 
-      public Optional<Tuple> decomposeValue(List<U> value) {
+      public Optional<KeyValuePairs> decomposeValue(List<U> value) {
         return _decomposeValue(
             value,
             this.factorSpace.stream(),
@@ -142,7 +142,7 @@ public interface Parameter<T> {
       }
 
       @Override
-      public List<U> composeValue(Tuple tuple) {
+      public List<U> composeValue(KeyValuePairs tuple) {
         return composeStringValueFrom(tuple).stream().map(func).collect(toList());
       }
 
@@ -156,7 +156,7 @@ public interface Parameter<T> {
         return factorSpace.getConstraints();
       }
 
-      protected List<String> composeStringValueFrom(Tuple tuple) {
+      protected List<String> composeStringValueFrom(KeyValuePairs tuple) {
         return regexComposer.compose(tuple);
       }
     }
@@ -198,9 +198,9 @@ public interface Parameter<T> {
       this.knownValues = unmodifiableList(requireNonNull(knownValues));
     }
 
-    static <V> Optional<Tuple> _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
+    static <V> Optional<KeyValuePairs> _decomposeValue(V value, Stream<KeyValuePairs> tuples, Function<KeyValuePairs, V> valueComposer, Predicate<KeyValuePairs> constraints) {
       return tuples.filter(
-          (Tuple tuple) -> value.equals(valueComposer.apply(tuple))
+          (KeyValuePairs tuple) -> value.equals(valueComposer.apply(tuple))
       ).filter(
           constraints
       ).findFirst(

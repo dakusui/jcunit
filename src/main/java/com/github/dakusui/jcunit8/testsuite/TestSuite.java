@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.models.ParameterSpace;
@@ -36,23 +37,23 @@ public interface TestSuite extends List<TestCase> {
       this.testScenario = testScenario;
     }
 
-    public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
+    public Builder<T> addAllToSeedTuples(Collection<? extends Row> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.SEED, each)).forEach(testCases::add);
       return this;
     }
 
-    public Builder<T> addAllToRegularTuples(Collection<? extends Tuple> collection) {
+    public Builder<T> addAllToRegularTuples(Collection<? extends KeyValuePairs> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each)).forEach(testCases::add);
       return this;
     }
 
-    public Builder<T> addAllToNegativeTuples(Collection<? extends Tuple> collection) {
+    public Builder<T> addAllToNegativeTuples(Collection<? extends KeyValuePairs> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each)).forEach(testCases::add);
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple) {
-      Tuple tuple = TupleUtils.copy(testCaseTuple);
+    private TestCase toTestCase(TestCase.Category category, KeyValuePairs testCaseRow) {
+      KeyValuePairs tuple = TupleUtils.copy(testCaseRow);
       return category.createTestCase(
           tuple,
           this.parameterSpace.getConstraints().stream()

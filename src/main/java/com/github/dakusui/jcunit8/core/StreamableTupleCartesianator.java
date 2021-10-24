@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.combinatoradix.CartesianEnumeratorAdaptor;
 import com.github.dakusui.combinatoradix.Domains;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 
 import java.util.AbstractList;
@@ -10,23 +10,23 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tuple, String, Object> {
+public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<KeyValuePairs, String, Object> {
   public StreamableTupleCartesianator(List<Factor> factors) {
     super(buildDomains(factors));
   }
 
-  public Cursor<Tuple> cursor(Tuple at) {
+  public Cursor<KeyValuePairs> cursor(KeyValuePairs at) {
     return new Cursor.ForTuple(indexOf(at), this);
   }
 
-  public Stream<Tuple> stream() {
+  public Stream<KeyValuePairs> stream() {
     return StreamSupport.stream(this.spliterator(), false);
   }
 
-  public List<Tuple> asList() {
-    return new AbstractList<Tuple>() {
+  public List<KeyValuePairs> asList() {
+    return new AbstractList<KeyValuePairs>() {
       @Override
-      public Tuple get(int index) {
+      public KeyValuePairs get(int index) {
         return StreamableTupleCartesianator.this.get(index);
       }
 
@@ -38,8 +38,8 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tup
   }
 
   @Override
-  protected Tuple createMap() {
-    return new Tuple.Builder().build();
+  protected KeyValuePairs createMap() {
+    return new KeyValuePairs.Builder().buildTuple();
   }
 
   private static Domains<String, Object> buildDomains(List<Factor> factors) {

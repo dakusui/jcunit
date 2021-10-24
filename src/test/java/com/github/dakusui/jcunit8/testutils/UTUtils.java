@@ -37,7 +37,7 @@ public enum UTUtils {
     );
   }
 
-  public static <E, C extends Collection<E>> Predicate<C> allSatisfy(Predicate<E> predicate) {
+  public static <E, C extends Collection<? extends E>> Predicate<C> allSatisfy(Predicate<E> predicate) {
     return oracle(
         format("All elements should satisfy '%s'", predicate),
         (C collection) -> collection.stream().allMatch(predicate)

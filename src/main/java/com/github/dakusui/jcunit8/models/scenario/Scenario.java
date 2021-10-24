@@ -1,8 +1,7 @@
 package com.github.dakusui.jcunit8.models.scenario;
 
-import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.models.Parameter;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import static java.util.stream.Collectors.toList;
 
 public interface Scenario extends Parameter.Regex<ParameterizedAction> {
   @Override
-  ActionSequence composeValue(Tuple tuple);
+  ActionSequence composeValue(KeyValuePairs tuple);
 
   class Impl extends Regex.Impl<ParameterizedAction> implements Scenario {
     private final Supplier<Object> driverObjectSupplier;
@@ -24,7 +23,7 @@ public interface Scenario extends Parameter.Regex<ParameterizedAction> {
     }
 
     @Override
-    public ActionSequence composeValue(Tuple tuple) {
+    public ActionSequence composeValue(KeyValuePairs tuple) {
       return new ActionSequence.Impl(
           composeStringValueFrom(tuple).stream()
               .map(func)

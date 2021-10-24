@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.stages;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.testutils.CustomParameter;
@@ -65,7 +65,7 @@ public class PreprocessTest extends PipelineTestBase {
                 simpleParameterFactory("default", "value1").create("simple1"),
                 simpleParameterFactory("default", "value2").create("simple2")
             ),
-            singletonList(Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> true, "simple1"))
+            singletonList(Constraint.create("alwaysTrue[simple1]", (KeyValuePairs tuple) -> true, "simple1"))
         ),
         UTUtils.matcherFromPredicates(
             hasParameters(2),
@@ -124,7 +124,7 @@ public class PreprocessTest extends PipelineTestBase {
                 customParameterFactory().create("custom1"),
                 customParameterFactory().create("custom2")
             ),
-            singletonList(Constraint.create("alwaysTrue[custom1]", (Tuple tuple) -> true, "custom1"))
+            singletonList(Constraint.create("alwaysTrue[custom1]", (KeyValuePairs tuple) -> true, "custom1"))
         ),
         UTUtils.matcher(
             ////
@@ -162,7 +162,7 @@ public class PreprocessTest extends PipelineTestBase {
                 customParameterFactory().create("custom1"),
                 customParameterFactory().create("custom2")
             ),
-            singletonList(Constraint.create("alwaysTrue[custom1,custom2]", (Tuple tuple) -> true, "custom1", "custom2"))
+            singletonList(Constraint.create("alwaysTrue[custom1,custom2]", (KeyValuePairs tuple) -> true, "custom1", "custom2"))
         ),
         UTUtils.matcher(
             ////

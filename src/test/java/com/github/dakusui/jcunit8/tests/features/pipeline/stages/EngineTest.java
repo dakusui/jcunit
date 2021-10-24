@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.tests.features.pipeline.stages;
 
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
-import com.github.dakusui.jcunit8.testutils.SchemafulTupleSetUtils;
+import com.github.dakusui.jcunit8.testutils.SchemafulRowSetUtils;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import static java.util.Collections.singletonList;
 public class EngineTest extends PipelineTestBase {
   @Test
   public void givenOneFactorWithNoConstraint$whenEngine$thenTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
+    SchemafulRowSetUtils.validateSchemafulRow(
         engine(
             singletonList(simpleParameterFactory("V1", "V2").create("simple1")),
             emptyList()
@@ -32,7 +32,7 @@ public class EngineTest extends PipelineTestBase {
 
   @Test
   public void givenTwoFactorsWithNoConstraint$whenEngine$thenTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
+    SchemafulRowSetUtils.validateSchemafulRow(
         engine(
             asList(
                 simpleParameterFactory("V1", "V2").create("simple1"),
@@ -51,7 +51,7 @@ public class EngineTest extends PipelineTestBase {
 
   @Test
   public void given3FactorsWithNoConstraint$whenEngine$thenTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
+    SchemafulRowSetUtils.validateSchemafulRow(
         engine(
             asList(
                 simpleParameterFactory("V1", "V2").create("simple1"),
@@ -79,15 +79,12 @@ public class EngineTest extends PipelineTestBase {
         "simple1=E1",
         tuple -> !Objects.equals(tuple.get("simple1"), "E1"),
         singletonList("simple1"));
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
+    SchemafulRowSetUtils.validateSchemafulRow(
         engine(
             singletonList(simpleParameterFactory("V1", "V2", "E1").create("simple1")),
-            singletonList(constraint)
-        ),
+            singletonList(constraint)),
         UTUtils.matcherFromPredicates(
-            UTUtils.allSatisfy(constraint)
-        )
-    );
+            UTUtils.allSatisfy(constraint)));
   }
 
 }

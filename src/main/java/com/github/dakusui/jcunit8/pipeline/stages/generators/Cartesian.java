@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.pipeline.stages.generators;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -15,15 +16,12 @@ public class Cartesian extends Generator.Base {
   }
 
   @Override
-  protected List<Tuple> generateCore() {
-    return factorSpace.stream(
-    ).filter(
-        (Tuple tuple) -> factorSpace.getConstraints().stream()
-            .allMatch(
-                (Constraint constraint) -> constraint.test(tuple)
-            )
-    ).collect(
-        Collectors.toList()
-    );
+  protected List<Row> generateCore() {
+    return factorSpace.stream()
+        .filter((KeyValuePairs tuple) -> factorSpace.getConstraints()
+            .stream()
+            .allMatch((Constraint constraint) -> constraint.test(tuple)))
+        .map(Row::from)
+        .collect(Collectors.toList());
   }
 }

@@ -1,7 +1,8 @@
 package com.github.dakusui.jcunit8.pipeline.stages.generators;
 
 import com.github.dakusui.combinatoradix.Cartesianator;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -14,22 +15,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.Collectors.toList;
 
 public class Negative extends Generator.Base {
-  private final List<Tuple> regularTestCases;
-  private final List<Tuple> seeds;
+  private final List<Row> regularTestCases;
+  private final List<Row> seeds;
 
-  public Negative(List<Tuple> regularTestCases, List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
+  public Negative(List<Row> regularTestCases, List<Row> seeds, FactorSpace factorSpace, Requirement requirement) {
     super(factorSpace, requirement);
     this.regularTestCases = regularTestCases;
     this.seeds = seeds;
   }
 
   @Override
-  public List<Tuple> generateCore() {
+  public List<Row> generateCore() {
     return generateNegativeTests(this.regularTestCases, factorSpace, seeds);
   }
 
-  private static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace, List<Tuple> seeds) {
-    return new LinkedList<Tuple>() {{
+  private static List<Row> generateNegativeTests(List<Row> rows, FactorSpace factorSpace, List<Row> seeds) {
+    return new LinkedList<Row>() {{
       //noinspection SimplifiableConditionalExpression
       factorSpace.getConstraints(
       ).stream(
@@ -40,7 +41,7 @@ public class Negative extends Generator.Base {
               //   If there exists any seed which violates one and only one constraint,
               // a (negative) test case to violate the constraint doesn't need to be generated.
               //   Such a constraint is filtered out here.
-              (Tuple seed) -> factorSpace.getConstraints(
+              (KeyValuePairs seed) -> factorSpace.getConstraints(
               ).stream(
               ).allMatch(
                   (Constraint constraint) ->
@@ -58,7 +59,7 @@ public class Negative extends Generator.Base {
                       factorSpace.getConstraints()
                   ),
                   composeFactorMap(factorSpace),
-                  tuples
+                  rows
               ).ifPresent(
                   this::add
               )
@@ -78,13 +79,13 @@ public class Negative extends Generator.Base {
     }};
   }
 
-  private static Optional<Tuple> createNegativeTestForConstraint(Constraint target, List<Constraint> rest, Map<String, List<Object>> parameters, List<Tuple> tuples) {
+  private static Optional<Row> createNegativeTestForConstraint(Constraint target, List<Constraint> rest, Map<String, List<Object>> parameters, List<Row> tuples) {
     long leastCollateralConstraints = rest.size();
-    Optional<Tuple> ret = Optional.empty();
+    Optional<KeyValuePairs> ret = Optional.empty();
     OUTER:
-    for (Tuple base : tuples) {
+    for (KeyValuePairs base : tuples) {
       for (List<Object> each : createCartesianator(target, parameters)) {
-        Tuple modified = modifyTupleWithValues(base, composeValues(target.involvedKeys(), each));
+        KeyValuePairs modified = modifyTupleWithValues(base, composeValues(target.involvedKeys(), each));
         if (target.test(modified))
           continue;
         long numCollaterals = rest.stream().filter(constraint -> !constraint.test(modified)).count();
@@ -99,23 +100,23 @@ public class Negative extends Generator.Base {
         break OUTER;
       }
     }
-    return ret;
+    return ret.map(Row::from);
   }
 
-  private static Tuple composeValues(List<String> involvedKeys, List<Object> values) {
-    return new Tuple.Impl() {{
+  private static KeyValuePairs composeValues(List<String> involvedKeys, List<Object> values) {
+    return new KeyValuePairs.Impl() {{
       AtomicInteger i = new AtomicInteger(0);
       involvedKeys.forEach((String eachKey) -> put(eachKey, values.get(i.getAndIncrement())));
     }};
   }
 
-  private static Tuple modifyTupleWithValues(Tuple in, Tuple values) {
-    return new Tuple.Builder()
+  private static KeyValuePairs modifyTupleWithValues(KeyValuePairs in, KeyValuePairs values) {
+    return new KeyValuePairs.Builder()
         .putAll(in)
         .putAll(new HashMap<String, Object>() {{
           values.keySet().forEach(eachKey -> put(eachKey, values.get(eachKey)));
         }})
-        .build();
+        .buildTuple();
   }
 
   private static Cartesianator<Object> createCartesianator(final Constraint target, final Map<String, List<Object>> parameters) {

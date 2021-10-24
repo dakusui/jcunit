@@ -1,15 +1,15 @@
 package com.github.dakusui.jcunit8.factorspace;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.core.Utils;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-public interface TuplePredicate extends Predicate<Tuple> {
+public interface TuplePredicate extends Predicate<KeyValuePairs> {
   String getName();
 
-  boolean test(Tuple tuple);
+  boolean test(KeyValuePairs tuple);
 
   List<String> involvedKeys();
 
@@ -20,7 +20,7 @@ public interface TuplePredicate extends Predicate<Tuple> {
     );
   }
 
-  static TuplePredicate of(String name, List<String> involvedKeys, Predicate<Tuple> predicate) {
+  static TuplePredicate of(String name, List<String> involvedKeys, Predicate<KeyValuePairs> predicate) {
     return new TuplePredicate() {
       @Override
       public String getName() {
@@ -28,7 +28,7 @@ public interface TuplePredicate extends Predicate<Tuple> {
       }
 
       @Override
-      public boolean test(Tuple tuple) {
+      public boolean test(KeyValuePairs tuple) {
         return predicate.test(tuple);
       }
 

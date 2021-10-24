@@ -1,8 +1,7 @@
 package com.github.dakusui.jcunit8.core;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
-import org.junit.Before;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -63,10 +62,10 @@ public enum Utils {
     return ret;
   }
 
-  public static Tuple project(List<String> keys, Tuple from) {
-    Tuple.Builder builder = new Tuple.Builder();
+  public static KeyValuePairs project(List<String> keys, KeyValuePairs from) {
+    KeyValuePairs.Builder builder = new KeyValuePairs.Builder();
     keys.forEach((String key) -> builder.put(key, from.get(key)));
-    return builder.build();
+    return builder.buildTuple();
   }
 
   public static TestClass createTestClassMock(final TestClass testClass) {

@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.pipeline;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
@@ -10,7 +11,7 @@ import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
 import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
@@ -41,7 +42,7 @@ public interface Pipeline {
       validateSeeds(config.getRequirement().seeds(), parameterSpace);
       TestSuite.Builder<?> builder = new TestSuite.Builder<>(parameterSpace, testScenario);
       builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
-      List<Tuple> regularTestTuples = engine(config, parameterSpace);
+      List<Row> regularTestTuples = engine(config, parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestTuples);
       if (config.getRequirement().generateNegativeTests())
         builder = builder.addAllToNegativeTuples(
@@ -56,9 +57,9 @@ public interface Pipeline {
       return builder.build();
     }
 
-    private void validateSeeds(List<Tuple> seeds, ParameterSpace parameterSpace) {
-      List<Function<Tuple, String>> checks = asList(
-          (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
+    private void validateSeeds(List<Row> seeds, ParameterSpace parameterSpace) {
+      List<Function<KeyValuePairs, String>> checks = asList(
+          (KeyValuePairs tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
               String.format("Unknown parameter(s) were found: %s in tuple: %s",
                   new LinkedList<String>() {{
                     addAll(tuple.keySet());
@@ -67,7 +68,7 @@ public interface Pipeline {
                   tuple
               ) :
               null,
-          (Tuple tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
+          (KeyValuePairs tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
               String.format("Parameter(s) were not found: %s in tuple: %s",
                   new LinkedList<String>() {{
                     addAll(parameterSpace.getParameterNames());
@@ -106,7 +107,7 @@ public interface Pipeline {
           .build();
     }
 
-    public SchemafulTupleSet engine(Config config, ParameterSpace parameterSpace) {
+    public SchemafulRowSet engine(Config config, ParameterSpace parameterSpace) {
       return config.partitioner().apply(
           config.encoder().apply(
               parameterSpace
@@ -117,14 +118,14 @@ public interface Pipeline {
           .map(config.generator(parameterSpace, config.getRequirement()))
           .reduce(config.joiner())
           .map(
-              (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
+              (SchemafulRowSet tuples) -> new SchemafulRowSet.Builder(parameterSpace.getParameterNames()).addAll(
                   tuples.stream()
-                      .map((Tuple tuple) -> {
-                        Tuple.Builder builder = new Tuple.Builder();
+                      .map((KeyValuePairs tuple) -> {
+                        KeyValuePairs.Builder builder = new KeyValuePairs.Builder();
                         for (String parameterName : parameterSpace.getParameterNames()) {
                           builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));
                         }
-                        return builder.build();
+                        return builder.buildRow();
                       })
                       .collect(toList())
               ).build()
@@ -153,10 +154,10 @@ public interface Pipeline {
       );
     }
 
-    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, List<Tuple> encodedSeeds, Requirement requirement) {
+    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Row> rowsForRegularTests, List<Row> encodedSeeds, Requirement requirement) {
       return generateNegativeTests ?
-          new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, requirement) :
-          new Passthrough(tuplesForRegularTests, factorSpace, requirement);
+          new Negative(rowsForRegularTests, encodedSeeds, factorSpace, requirement) :
+          new Passthrough(rowsForRegularTests, factorSpace, requirement);
     }
 
     private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {

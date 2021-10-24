@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.models.regex;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Reference;
 import com.github.dakusui.jcunit.regex.RegexTranslator;
@@ -75,7 +75,7 @@ public class RegexDecomposer extends RegexTranslator {
         }
 
         @Override
-        public boolean test(Tuple in) {
+        public boolean test(KeyValuePairs in) {
           for (String eachReferrer : referrers) {
             Object referrerValue = in.get(eachReferrer);
             if (!Generator.VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {

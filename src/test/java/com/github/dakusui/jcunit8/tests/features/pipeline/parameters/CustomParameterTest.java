@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
 import com.github.dakusui.jcunit8.testutils.*;
 import org.junit.Test;
 
@@ -29,8 +29,8 @@ public class CustomParameterTest extends PipelineTestBase {
 
   @Test
   public void givenOneCustomParameter$whenGenerateWithIpoG$thenTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
-        SchemafulTupleSet.fromTuples(
+    SchemafulRowSetUtils.validateSchemafulRow(
+        SchemafulRowSet.fromRows(
             new IpoGplus(
                 customParameterFactory().create("custom1").toFactorSpace(),
                 requirement(),
@@ -117,7 +117,7 @@ public class CustomParameterTest extends PipelineTestBase {
 
   @Test
   public void givenCustomParameter$whenEngine$thenSchemafulTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
+    SchemafulRowSetUtils.validateSchemafulRow(
         engine(
             singletonList(customParameterFactory().create("custom1")),
             emptyList()
@@ -132,7 +132,7 @@ public class CustomParameterTest extends PipelineTestBase {
 
   @Test
   public void given1Simple1CustomParameters$whenEngine$thenSchemafulTupleSetGenerated() {
-    SchemafulTupleSetUtils.validateSchemafulTupleSet(
+    SchemafulRowSetUtils.validateSchemafulRow(
         engine(
             asList(customParameterFactory().create("custom1"), simpleParameterFactoryWithDefaultValues().create("simple1")),
             emptyList()

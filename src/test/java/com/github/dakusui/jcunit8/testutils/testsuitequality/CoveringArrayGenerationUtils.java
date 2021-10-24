@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.testutils.testsuitequality;
 import com.github.dakusui.combinatoradix.Combinator;
 import com.github.dakusui.crest.matcherbuilders.primitives.AsBoolean;
 import com.github.dakusui.crest.utils.printable.Printable;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.testutils.StreamableCartesianator;
@@ -35,9 +35,9 @@ public enum CoveringArrayGenerationUtils {
   }
 
 
-  public static List<Tuple> coveredTuples(int strength, Collection<Tuple> in) {
+  public static List<KeyValuePairs> coveredTuples(int strength, Collection<KeyValuePairs> in) {
     return Utils.unique(
-        in.stream().flatMap((Tuple i) -> subtuplesOf(i, strength).stream()).collect(toList())
+        in.stream().flatMap((KeyValuePairs i) -> subtuplesOf(i, strength).stream()).collect(toList())
     );
   }
 
@@ -53,7 +53,7 @@ public enum CoveringArrayGenerationUtils {
   /*
    * Returns an example if any.
    */
-  public static Optional<Tuple> findAllowedSuperTupleFor(Tuple tuple, ParameterSpace parameterSpace) {
+  public static Optional<? extends KeyValuePairs> findAllowedSuperTupleFor(KeyValuePairs tuple, ParameterSpace parameterSpace) {
     List<String> allKeysUsedByConstraintsButNotInTuple = parameterSpace.getConstraints().stream(
     ).flatMap(
         constraint -> constraint.involvedKeys().stream()
@@ -76,14 +76,14 @@ public enum CoveringArrayGenerationUtils {
     ).stream(
     ).map(
         values -> {
-          Tuple.Builder builder = Tuple.builder();
+          KeyValuePairs.Builder builder = KeyValuePairs.builder();
           for (int i = 0; i < allKeysUsedByConstraintsButNotInTuple.size(); i++) {
             builder.put(allKeysUsedByConstraintsButNotInTuple.get(i), values.get(i));
           }
           tuple.keySet().forEach(
               key -> builder.put(key, tuple.get(key))
           );
-          return builder.build();
+          return builder.buildTuple();
         }
     ).filter(
         t -> parameterSpace.getConstraints().stream().allMatch(each -> each.test(t))
@@ -95,7 +95,7 @@ public enum CoveringArrayGenerationUtils {
     return Parameter.Simple.Factory.of(asList(levels)).create(name);
   }
 
-  public static List<Tuple> allPossibleTuplesInFactors(int strength, List<Factor> factors) {
+  public static List<KeyValuePairs> allPossibleTuplesInFactors(int strength, List<Factor> factors) {
     return allPossibleTuples(
         strength,
         factors.stream().map(
@@ -105,11 +105,11 @@ public enum CoveringArrayGenerationUtils {
         ));
   }
 
-  public static List<Tuple> allPossibleTuples(int strength, List<Parameter<?>> parameters) {
+  public static List<KeyValuePairs> allPossibleTuples(int strength, List<Parameter<?>> parameters) {
     return allPossibleTuples(strength, parameters.toArray(new Parameter[0]));
   }
 
-  public static List<Tuple> allPossibleTuples(int strength, Parameter<?>... parameters) {
+  public static List<KeyValuePairs> allPossibleTuples(int strength, Parameter<?>... parameters) {
     return StreamSupport.stream(
         new Combinator<>(
             asList(parameters), strength
@@ -119,10 +119,10 @@ public enum CoveringArrayGenerationUtils {
             convertParameters(chosenParameters)
         ).stream(
         ).map(
-            chosenValues -> new Tuple.Builder() {{
+            chosenValues -> new KeyValuePairs.Builder() {{
               for (int i = 0; i < chosenParameters.size(); i++)
                 put(chosenParameters.get(i).getName(), chosenValues.get(i));
-            }}.build()
+            }}.buildTuple()
         )
     ).distinct(
     ).collect(
@@ -150,7 +150,7 @@ public enum CoveringArrayGenerationUtils {
     return asList(constraints);
   }
 
-  public static Constraint c(Predicate<Tuple> constraint, String... involvedKeys) {
+  public static Constraint c(Predicate<KeyValuePairs> constraint, String... involvedKeys) {
     return Constraint.create(String.format("c%s", Arrays.toString(involvedKeys)), constraint, involvedKeys);
   }
 
@@ -165,7 +165,7 @@ public enum CoveringArrayGenerationUtils {
     )).isTrue();
   }
 
-  public static void assertCoveringArray(List<Tuple> coveringArray, FactorSpace factorSpace, int strength) {
+  public static void assertCoveringArray(List<KeyValuePairs> coveringArray, FactorSpace factorSpace, int strength) {
     //    System.out.println("== " + coveringArray.size() + " ==");
     //    coveringArray.forEach(System.out::println);
     System.out.println("Verifying covering array: numFactors=" + factorSpace + ", strength=" + strength);
@@ -174,10 +174,10 @@ public enum CoveringArrayGenerationUtils {
       assertThat(
           coveringArray,
           asListOf(
-              Tuple.class,
+              KeyValuePairs.class,
               Printable.function(
                   "coveredTuples",
-                  (List<Tuple> ca) -> coveredTuples(strength, ca)
+                  (List<KeyValuePairs> ca) -> coveredTuples(strength, ca)
               )
           ).containsAll(
               allPossibleTuplesInFactors(
@@ -191,8 +191,8 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static class TestSuiteBuilder {
-    private final List<Tuple>      seeds       = new LinkedList<>();
-    private final List<Parameter<?>>  parameters  = new LinkedList<>();
+    private final List<KeyValuePairs> seeds      = new LinkedList<>();
+    private final List<Parameter<?>>  parameters = new LinkedList<>();
     private final List<Constraint> constraints = new LinkedList<>();
 
     private int strength;
@@ -206,12 +206,12 @@ public enum CoveringArrayGenerationUtils {
       return this;
     }
 
-    TestSuiteBuilder addSeed(Tuple tuple) {
+    TestSuiteBuilder addSeed(KeyValuePairs tuple) {
       this.seeds.add(tuple);
       return this;
     }
 
-    TestSuiteBuilder addConstraint(String name, Predicate<Tuple> constraint, String... args) {
+    TestSuiteBuilder addConstraint(String name, Predicate<KeyValuePairs> constraint, String... args) {
       this.constraints.add(Constraint.create(name, constraint, args));
       return this;
     }

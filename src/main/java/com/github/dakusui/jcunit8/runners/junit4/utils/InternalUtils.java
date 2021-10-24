@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4.utils;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
@@ -66,7 +66,7 @@ public enum InternalUtils {
     );
   }
 
-  public static Object invokeExplosivelyWithArgumentsFromTestInput(FrameworkMethod method, Tuple testInput) throws Throwable {
+  public static Object invokeExplosivelyWithArgumentsFromTestInput(FrameworkMethod method, KeyValuePairs testInput) throws Throwable {
     return method.invokeExplosively(
         testInput.get("@ins"),
         validateArguments(
@@ -81,7 +81,7 @@ public enum InternalUtils {
     );
   }
 
-  public static RunAfters createRunAftersForTestInput(Statement statement, List<TupleConsumer> afters, Tuple testInput) {
+  public static RunAfters createRunAftersForTestInput(Statement statement, List<TupleConsumer> afters, KeyValuePairs testInput) {
     return new RunAfters(
         statement,
         afters.stream().map(
@@ -92,7 +92,7 @@ public enum InternalUtils {
     };
   }
 
-  public static RunBefores createRunBeforesForTestInput(Statement statement, List<TupleConsumer> tupleConsumers, Tuple testInput) {
+  public static RunBefores createRunBeforesForTestInput(Statement statement, List<TupleConsumer> tupleConsumers, KeyValuePairs testInput) {
     return new RunBefores(
         statement,
         tupleConsumers.stream().map(
@@ -102,10 +102,10 @@ public enum InternalUtils {
     );
   }
 
-  public static Function<TupleConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(Tuple testInput) {
+  public static Function<TupleConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(KeyValuePairs testInput) {
     return each -> {
       try {
-        return new FrameworkMethod(InternalUtils.class.getMethod("frameworkMethodInvokingArgumentsFromTestCase", Tuple.class)) {
+        return new FrameworkMethod(InternalUtils.class.getMethod("frameworkMethodInvokingArgumentsFromTestCase", KeyValuePairs.class)) {
           public Object invokeExplosively(final Object target, final Object... params)
               throws Throwable {
             each.accept(testInput);
@@ -154,7 +154,7 @@ public enum InternalUtils {
       }
 
       @Override
-      public void accept(Tuple testInput) {
+      public void accept(KeyValuePairs testInput) {
         try {
           InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, testInput);
         } catch (Throwable throwable) {
@@ -172,15 +172,15 @@ public enum InternalUtils {
       }
 
       @Override
-      public Predicate<Tuple> shouldInvoke() {
+      public Predicate<KeyValuePairs> shouldInvoke() {
         return InternalUtils.shouldInvoke(method, predicates);
       }
 
       @Override
-      public Function<Tuple, Result> when() {
-        return new Function<Tuple, Result>() {
+      public Function<KeyValuePairs, Result> when() {
+        return new Function<KeyValuePairs, Result>() {
           @Override
-          public Result apply(Tuple tuple) {
+          public Result apply(KeyValuePairs tuple) {
             try {
               return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, tuple));
             } catch (Throwable throwable) {
@@ -223,7 +223,7 @@ public enum InternalUtils {
     };
   }
 
-  public static Predicate<Tuple> shouldInvoke(FrameworkMethod method, SortedMap<String, TuplePredicate> predicates) {
+  public static Predicate<KeyValuePairs> shouldInvoke(FrameworkMethod method, SortedMap<String, TuplePredicate> predicates) {
     return tuple -> {
       //noinspection SimplifiableIfStatement
       if (method.getAnnotation(Given.class) == null)

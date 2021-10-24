@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.models;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.Collection;
@@ -12,32 +13,30 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 public interface ParameterSpace {
+  static List<Row> encodeSeedTuples(ParameterSpace parameterSpace, List<Row> seeds) {
+    return seeds.stream()
+        .map(parameterSpace::encodeTuple)
+        .collect(toList()
+    );
+  }
+
   List<String> getParameterNames();
 
   <P> Parameter<P> getParameter(String name);
 
   List<Constraint> getConstraints();
 
-  default Tuple encodeTuple(Tuple tuple) {
-    Tuple.Builder builder = Tuple.builder();
+  default Row encodeTuple(Row tuple) {
+    KeyValuePairs.Builder builder = KeyValuePairs.builder();
     getParameterNames().forEach(
         each -> getParameter(each).decomposeValue(tuple.get(each)).ifPresent(builder::putAll)
     );
-    return builder.build();
-  }
-
-  static List<Tuple> encodeSeedTuples(ParameterSpace parameterSpace, List<Tuple> seeds) {
-    return seeds.stream(
-    ).map(
-        parameterSpace::encodeTuple
-    ).collect(
-        toList()
-    );
+    return builder.buildRow();
   }
 
   class Builder {
-    List<Parameter<?>>  parameters  = new LinkedList<>();
-    List<Constraint> constraints = new LinkedList<>();
+    List<Parameter<?>> parameters  = new LinkedList<>();
+    List<Constraint>   constraints = new LinkedList<>();
 
     public Builder addParameter(Parameter<?> parameter) {
       this.parameters.add(parameter);

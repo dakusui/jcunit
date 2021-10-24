@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.IOException;
@@ -77,9 +77,9 @@ public interface TestOracle extends TupleConsumer {
     }
   }
 
-  Predicate<Tuple> shouldInvoke();
+  Predicate<KeyValuePairs> shouldInvoke();
 
-  Function<Tuple, Result> when();
+  Function<KeyValuePairs, Result> when();
 
   Predicate<Result> then();
 
@@ -88,7 +88,7 @@ public interface TestOracle extends TupleConsumer {
   }
 
   @Override
-  default void accept(Tuple testInput) {
+  default void accept(KeyValuePairs testInput) {
     assertion().assertThat(when().apply(testInput), then());
   }
 

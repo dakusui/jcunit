@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
@@ -18,7 +18,7 @@ import static java.util.Arrays.asList;
 
 @RunWith(JCUnit8.class)
 public class SeedFeatureTestBase {
-  static final List<Tuple> testCases = Collections.synchronizedList(new LinkedList<>());
+  static final List<KeyValuePairs> testCases = Collections.synchronizedList(new LinkedList<>());
 
   @ParameterSource
   public Parameter.Simple.Factory<Integer> a() {
@@ -43,11 +43,11 @@ public class SeedFeatureTestBase {
   ) {
     String msg = String.format("a=%d,b=%d,c=%d%n", a, b, c);
     System.out.print(msg);
-    testCases.add(Tuple.builder()
+    testCases.add(KeyValuePairs.builder()
         .put("a", a)
         .put("b", b)
         .put("c", c)
-        .build());
+        .buildTuple());
   }
 
   @ConfigureWith(TestConfig.SeedNone$NegativeTestEnabled.class)
