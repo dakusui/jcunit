@@ -9,7 +9,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Inherited
 @Retention(RUNTIME)
 @Target(METHOD)
-public @interface Perform {
+public @interface ForAction {
   /**
    * A name of scenario to be performed by a method this annotation is attached to.
    */

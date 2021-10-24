@@ -8,7 +8,6 @@ import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.models.regex.RegexDecomposer;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,8 +15,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import com.github.dakusui.jcunit8.models.regex.RegexDecomposer;
 
-import static com.github.dakusui.actionunit.core.ActionSupport.sequential;
 import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;

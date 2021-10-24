@@ -2,11 +2,16 @@ package com.github.dakusui.jcunit8.models.scenario;
 
 import com.github.dakusui.actionunit.actions.Named;
 import com.github.dakusui.actionunit.core.Action;
-import com.github.dakusui.actionunit.core.ActionSupport;
-import com.github.dakusui.actionunit.core.Context;
-import com.github.dakusui.actionunit.core.context.ContextConsumer;
+import com.github.dakusui.jcunitx.core.KeyValuePair;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import static com.github.dakusui.actionunit.core.ActionSupport.leaf;
 
 public interface ParameterizedAction extends Named {
+  String OUTPUT_VAR_NAME = "out";
+
   <T> T arg(int argIndex);
 
   int numArgs();
@@ -18,11 +23,11 @@ public interface ParameterizedAction extends Named {
 
     public Impl(String name, DriverMethodInvoker driverMethodInvoker, Object... args) {
       this.name = name;
-      this.action = ActionSupport.leaf(new ContextConsumer() {
-        @Override
-        public void accept(Context context) {
-          context.assignTo("out", driverMethodInvoker.invoke());
-        }
+      this.action = leaf(context -> {
+        if (!context.defined(OUTPUT_VAR_NAME))
+          context.assignTo(OUTPUT_VAR_NAME, new LinkedList<>());
+        context.<List<KeyValuePair<?>>>valueOf(OUTPUT_VAR_NAME)
+            .add(KeyValuePair.create(name, driverMethodInvoker.invoke()));
       });
       this.args = args;
     }
