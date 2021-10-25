@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.core.tuples.Row;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairsUtils;
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
 
 import java.util.*;
@@ -97,7 +97,7 @@ public interface SchemafulRowSet extends List<Row> {
           checkIfStrengthIsInRange(strength, attributeNames);
           TupleSet.Builder builder = new TupleSet.Builder();
           for (KeyValuePairs each : this) {
-            builder.addAll(TupleUtils.subtuplesOf(each, strength));
+            builder.addAll(KeyValuePairsUtils.subtuplesOf(each, strength));
           }
           return builder.build();
         }

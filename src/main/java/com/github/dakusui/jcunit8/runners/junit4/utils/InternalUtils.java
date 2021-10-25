@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.runners.junit4.utils;
 
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
@@ -8,8 +9,8 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
+import com.github.dakusui.jcunit8.testsuite.RowConsumer;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
-import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
 import org.junit.*;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
@@ -31,7 +32,7 @@ import static java.util.stream.Collectors.toList;
 
 public enum InternalUtils {
   ;
-  private static final Map<Class, Class> PRIMITIVE_TO_WRAPPER = Collections.unmodifiableMap(new HashMap<Class, Class>() {{
+  private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER = Collections.unmodifiableMap(new HashMap<Class<?>, Class<?>>() {{
     put(boolean.class, Boolean.class);
     put(byte.class, Byte.class);
     put(char.class, Character.class);
@@ -75,13 +76,12 @@ public enum InternalUtils {
             getParameterAnnotationsFrom(method, From.class).stream()
                 .map(From::value)
                 .map(testInput::get)
-                .collect(toList())
                 .toArray()
         )
     );
   }
 
-  public static RunAfters createRunAftersForTestInput(Statement statement, List<TupleConsumer> afters, KeyValuePairs testInput) {
+  public static RunAfters createRunAftersForTestInput(Statement statement, List<RowConsumer> afters, Row testInput) {
     return new RunAfters(
         statement,
         afters.stream().map(
@@ -92,22 +92,21 @@ public enum InternalUtils {
     };
   }
 
-  public static RunBefores createRunBeforesForTestInput(Statement statement, List<TupleConsumer> tupleConsumers, KeyValuePairs testInput) {
+  public static RunBefores createRunBeforesForTestInput(Statement statement, List<RowConsumer> rowConsumers, Row testInput) {
     return new RunBefores(
         statement,
-        tupleConsumers.stream().map(
+        rowConsumers.stream().map(
             frameworkMethodInvokingArgumentsFromTestCase(testInput)
         ).collect(toList()),
         null
     );
   }
 
-  public static Function<TupleConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(KeyValuePairs testInput) {
+  public static Function<RowConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(Row testInput) {
     return each -> {
       try {
-        return new FrameworkMethod(InternalUtils.class.getMethod("frameworkMethodInvokingArgumentsFromTestCase", KeyValuePairs.class)) {
-          public Object invokeExplosively(final Object target, final Object... params)
-              throws Throwable {
+        return new FrameworkMethod(InternalUtils.class.getMethod("frameworkMethodInvokingArgumentsFromTestCase", Row.class)) {
+          public Object invokeExplosively(final Object target, final Object... params) {
             each.accept(testInput);
             return null;
           }
@@ -118,8 +117,7 @@ public enum InternalUtils {
     };
   }
 
-  @SuppressWarnings("unchecked")
-  static public Object[] validateArguments(FrameworkMethod method, Class[] parameterClasses, Object[] argumentValues) {
+  static public Object[] validateArguments(FrameworkMethod method, Class<?>[] parameterClasses, Object[] argumentValues) {
     // we can assume parameterClasses.length == argumentValues.length
     for (int i = 0; i < argumentValues.length; i++) {
       if (parameterClasses[i].isPrimitive()) {
@@ -146,15 +144,15 @@ public enum InternalUtils {
     );
   }
 
-  public static TupleConsumer toTupleConsumer(FrameworkMethod method) {
-    return new TupleConsumer() {
+  public static RowConsumer toTupleConsumer(FrameworkMethod method) {
+    return new RowConsumer() {
       @Override
       public String getName() {
         return method.getName();
       }
 
       @Override
-      public void accept(KeyValuePairs testInput) {
+      public void accept(Row testInput) {
         try {
           InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, testInput);
         } catch (Throwable throwable) {

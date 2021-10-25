@@ -1,8 +1,7 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairsUtils;
 import com.github.dakusui.jcunit.core.tuples.Row;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.models.ParameterSpace;
 
@@ -30,7 +29,7 @@ public interface TestSuite extends List<TestCase> {
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
-    private final TestScenario testScenario;
+    private final TestScenario   testScenario;
 
     public Builder(ParameterSpace parameterSpace, TestScenario testScenario) {
       this.parameterSpace = requireNonNull(parameterSpace);
@@ -42,41 +41,35 @@ public interface TestSuite extends List<TestCase> {
       return this;
     }
 
-    public Builder<T> addAllToRegularTuples(Collection<? extends KeyValuePairs> collection) {
+    public Builder<T> addAllToRegularTuples(Collection<? extends Row> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each)).forEach(testCases::add);
       return this;
     }
 
-    public Builder<T> addAllToNegativeTuples(Collection<? extends KeyValuePairs> collection) {
+    public Builder<T> addAllToNegativeTuples(Collection<? extends Row> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each)).forEach(testCases::add);
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, KeyValuePairs testCaseRow) {
-      KeyValuePairs tuple = TupleUtils.copy(testCaseRow);
+    private TestCase toTestCase(TestCase.Category category, Row testCaseRow) {
+      Row row = KeyValuePairsUtils.copy(testCaseRow);
       return category.createTestCase(
-          tuple,
+          row,
           this.parameterSpace.getConstraints().stream()
-              .filter((Constraint constraint) -> !constraint.test(tuple))
+              .filter((Constraint constraint) -> !constraint.test(row))
               .collect(Collectors.toList()));
     }
 
     public TestSuite build() {
       class Impl extends AbstractList<TestCase> implements TestSuite {
-        private final List<TestCase> testCases;
+        private final List<TestCase> testCases  = new ArrayList<TestCase>(Builder.this.testCases.size()) {{
+          Builder.this.testCases.stream()
+              .filter(testCase -> stream()
+                  .noneMatch(registered -> registered.getTestInput().equals(testCase.getTestInput())))
+              .forEach(this::add);
+        }};
 
-        private Impl(
-        ) {
-          this.testCases = new ArrayList<TestCase>(Builder.this.testCases.size()) {{
-            Builder.this.testCases.stream(
-            ).filter(
-                testCase -> stream().noneMatch(
-                    registered -> registered.getTestInput().equals(testCase.getTestInput())
-                )
-            ).forEach(
-                this::add
-            );
-          }};
+        private Impl() {
         }
 
         @Override

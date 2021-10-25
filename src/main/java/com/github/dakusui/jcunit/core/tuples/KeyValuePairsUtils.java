@@ -7,7 +7,7 @@ import java.util.*;
 
 import static java.util.Objects.requireNonNull;
 
-public enum TupleUtils {
+public enum KeyValuePairsUtils {
   ;
 
   public static Set<KeyValuePairs> subtuplesOf(
@@ -60,7 +60,12 @@ public enum TupleUtils {
     return builder.buildTuple();
   }
 
-  public static KeyValuePairs copy(KeyValuePairs tuple) {
-    return new KeyValuePairs.Builder().putAll(requireNonNull(tuple)).buildTuple();
+  @SuppressWarnings("unchecked")
+  public static <P extends KeyValuePairs> P copy(P tuple) {
+    if (tuple instanceof Tuple)
+      return (P) new KeyValuePairs.Builder().putAll(requireNonNull(tuple)).buildTuple();
+    else if (tuple instanceof Row)
+      return (P) new KeyValuePairs.Builder().putAll(requireNonNull(tuple)).buildRow();
+    throw new IllegalArgumentException();
   }
 }

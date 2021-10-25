@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.*;
+import static com.github.dakusui.jcunit.core.tuples.KeyValuePairsUtils.*;
 import static com.github.dakusui.jcunit.core.utils.Checks.checkcond;
 import static com.github.dakusui.jcunit8.core.Utils.memoize;
 import static com.github.dakusui.jcunit8.core.Utils.sizeOfIntersection;

@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.pipeline.stages.generators;
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit.core.tuples.KeyValuePairsUtils;
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.core.StreamableCombinator;
@@ -49,9 +49,9 @@ public class IpoGplus extends Generator.Base {
                     constraint -> constraint.test(tuple)
                 )
         ).map(
-            tuple -> TupleUtils.project(tuple, factorSpace.getFactorNames())
+            tuple -> KeyValuePairsUtils.project(tuple, factorSpace.getFactorNames())
         ).flatMap(
-            tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream()
+            tuple -> KeyValuePairsUtils.subtuplesOf(tuple, requirement.strength()).stream()
         ).collect(
             toList()
         )
@@ -86,7 +86,7 @@ public class IpoGplus extends Generator.Base {
    * @param t  strength
    */
   private static long countCoveredTuplesBy(KeyValuePairs τ$, final TupleSet π, int t) {
-    return TupleUtils.subtuplesOf(τ$, t).stream()
+    return KeyValuePairsUtils.subtuplesOf(τ$, t).stream()
         .filter(π::contains)
         .count();
   }
@@ -430,7 +430,7 @@ public class IpoGplus extends Generator.Base {
         τ.put(Pi.getName(), vi);
         /*  9.         remove from π the combinations of values covered by τ’
          */
-        π.removeAll(TupleUtils.subtuplesOf(τ, t));
+        π.removeAll(KeyValuePairsUtils.subtuplesOf(τ, t));
       }
 
       /* 10.

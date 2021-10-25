@@ -3,17 +3,17 @@ package com.github.dakusui.jcunit8.testsuite;
 import java.util.List;
 
 public interface TestScenario {
-  List<TupleConsumer> preSuiteProcedures();
+  List<RowConsumer> preSuiteProcedures();
 
-  List<TupleConsumer> preTestInputProcedures();
+  List<RowConsumer> preTestInputProcedures();
 
-  List<TupleConsumer> preOracleProcedures();
+  List<RowConsumer> preOracleProcedures();
 
   List<TestOracle> oracles();
 
-  List<TupleConsumer> postOracleProcedures();
+  List<RowConsumer> postOracleProcedures();
 
-  List<TupleConsumer> postTestInputProcedures();
+  List<RowConsumer> postTestInputProcedures();
 
-  List<TupleConsumer> postSuiteProcedures();
+  List<RowConsumer> postSuiteProcedures();
 }

@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TestScenario;
-import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
+import com.github.dakusui.jcunit8.testsuite.RowConsumer;
 import org.junit.*;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -26,17 +26,17 @@ public enum TestScenarioFactoryForJUnit4 {
     SortedMap<String, TuplePredicate> predicates = NodeUtils.allTestPredicates(testClass);
     return new TestScenario() {
       @Override
-      public List<TupleConsumer> preSuiteProcedures() {
+      public List<RowConsumer> preSuiteProcedures() {
         return toTupleConsumer(testClass, BeforeClass.class);
       }
 
       @Override
-      public List<TupleConsumer> preTestInputProcedures() {
+      public List<RowConsumer> preTestInputProcedures() {
         return toTupleConsumer(testClass, BeforeTestCase.class);
       }
 
       @Override
-      public List<TupleConsumer> preOracleProcedures() {
+      public List<RowConsumer> preOracleProcedures() {
         return toTupleConsumer(testClass, Before.class);
       }
 
@@ -51,23 +51,23 @@ public enum TestScenarioFactoryForJUnit4 {
       }
 
       @Override
-      public List<TupleConsumer> postOracleProcedures() {
+      public List<RowConsumer> postOracleProcedures() {
         return toTupleConsumer(testClass, After.class);
       }
 
       @Override
-      public List<TupleConsumer> postTestInputProcedures() {
+      public List<RowConsumer> postTestInputProcedures() {
         return toTupleConsumer(testClass, AfterTestCase.class);
       }
 
       @Override
-      public List<TupleConsumer> postSuiteProcedures() {
+      public List<RowConsumer> postSuiteProcedures() {
         return toTupleConsumer(testClass, AfterClass.class);
       }
     };
   }
 
-  private static List<TupleConsumer> toTupleConsumer(TestClass testClass, Class<? extends Annotation> annotationClass) {
+  private static List<RowConsumer> toTupleConsumer(TestClass testClass, Class<? extends Annotation> annotationClass) {
     return testClass.getAnnotatedMethods(annotationClass).stream(
     ).map(
         InternalUtils::toTupleConsumer

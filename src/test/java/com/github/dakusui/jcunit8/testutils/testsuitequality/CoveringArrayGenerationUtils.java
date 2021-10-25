@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
 import static com.github.dakusui.crest.Crest.*;
-import static com.github.dakusui.jcunit.core.tuples.TupleUtils.subtuplesOf;
+import static com.github.dakusui.jcunit.core.tuples.KeyValuePairsUtils.subtuplesOf;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 

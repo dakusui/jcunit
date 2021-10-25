@@ -1,9 +1,10 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
+import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
@@ -37,8 +38,8 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static com.github.dakusui.jcunit.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunit8.core.Utils.createTestClassMock;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
@@ -150,46 +151,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  /**
-   * Mock {@code Parameterized} runner of JUnit 4.12.
-   */
-  @Override
-  protected TestClass createTestClass(Class<?> testClass) {
-    return createTestClassMock(super.createTestClass(testClass));
-  }
-
-  @Override
-  protected List<Runner> getChildren() {
-    return this.runners;
-  }
-
-  @Override
-  protected void collectInitializationErrors(List<Throwable> errors) {
-    this.applyValidators(errors);
-  }
-
-  protected Statement withBeforeClasses(Statement statement) {
-    return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
-        statement :
-        InternalUtils.createRunBeforesForTestInput(
-            statement,
-            this.testSuite.getScenario().preSuiteProcedures(),
-            KeyValuePairs.builder().put("@suite", this.testSuite).buildTuple()
-        );
-  }
-
-
-  protected Statement withAfterClasses(Statement statement) {
-    return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
-        statement :
-        InternalUtils.createRunAftersForTestInput(
-            statement,
-            this.testSuite.getScenario().postSuiteProcedures(),
-            KeyValuePairs.builder().put("@suite", this.testSuite).buildTuple()
-        );
-  }
-
-
   public static TestSuite buildTestSuite(
       TestClass testClass,
       TestClass parameterSpaceDefinitionTestClass,
@@ -214,6 +175,44 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         ),
         TestScenarioFactoryForJUnit4.create(testClass)
     );
+  }
+
+  /**
+   * Mock {@code Parameterized} runner of JUnit 4.12.
+   */
+  @Override
+  protected TestClass createTestClass(Class<?> testClass) {
+    return createTestClassMock(super.createTestClass(testClass));
+  }
+
+  @Override
+  protected List<Runner> getChildren() {
+    return this.runners;
+  }
+
+  @Override
+  protected void collectInitializationErrors(List<Throwable> errors) {
+    this.applyValidators(errors);
+  }
+
+  protected Statement withBeforeClasses(Statement statement) {
+    return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
+        statement :
+        InternalUtils.createRunBeforesForTestInput(
+            statement,
+            this.testSuite.getScenario().preSuiteProcedures(),
+            KeyValuePairs.builder().put("@suite", this.testSuite).buildRow()
+        );
+  }
+
+  protected Statement withAfterClasses(Statement statement) {
+    return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
+        statement :
+        InternalUtils.createRunAftersForTestInput(
+            statement,
+            this.testSuite.getScenario().postSuiteProcedures(),
+            KeyValuePairs.builder().put("@suite", this.testSuite).buildRow()
+        );
   }
 
   private List<Runner> createRunners(TestSuite testSuite) {
@@ -302,7 +301,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       Description description = describeChild(child);
 
       TestCase testCase = this.testSuite.get(this.id);
-      KeyValuePairs testInput = composeTestInput(testCase.getTestInput());
+      Row testInput = composeTestInput(testCase.getTestInput());
       if (child.shouldInvoke().test(testInput)) {
         runLeaf(oracleBlock(child, testInput), description, notifier);
       } else {
@@ -351,26 +350,26 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       }
     }
 
-    private KeyValuePairs composeTestInput(KeyValuePairs tuple) {
+    private Row composeTestInput(KeyValuePairs tuple) {
       try {
         return KeyValuePairs.builder()
             .putAll(tuple)
             .put("@ins", getTestClass().getOnlyConstructor().newInstance())
             .put("@suite", testSuite)
-            .buildTuple();
+            .buildRow();
       } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
         throw Checks.wrap(e);
       }
     }
 
-    private Statement oracleBlock(TestOracle testOracle, KeyValuePairs testInput) {
+    private Statement oracleBlock(TestOracle testOracle, Row testInput) {
       Statement statement = oracleInvoker(testOracle, testInput);
       statement = withBeforesForTestOracle(testInput, statement);
       statement = withAftersForTestOracle(testInput, statement);
       return statement;
     }
 
-    private Statement oracleInvoker(TestOracle oracle, KeyValuePairs testInput) {
+    private Statement oracleInvoker(TestOracle oracle, Row testInput) {
       return new Statement() {
         @Override
         public void evaluate() {
@@ -379,29 +378,29 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       };
     }
 
-    private Statement withBeforesForTestOracle(KeyValuePairs testInput, Statement statement) {
-      List<TupleConsumer> befores = testSuite.getScenario().preOracleProcedures();
+    private Statement withBeforesForTestOracle(Row testInput, Statement statement) {
+      List<RowConsumer> befores = testSuite.getScenario().preOracleProcedures();
       return befores.isEmpty() ?
           statement :
           new Statement() {
             @Override
             public void evaluate() throws Throwable {
-              for (Consumer<KeyValuePairs> before : befores)
+              for (Consumer<Row> before : befores)
                 before.accept(testInput);
               statement.evaluate();
             }
           };
     }
 
-    private Statement withAftersForTestOracle(KeyValuePairs testInput, Statement statement) {
-      List<TupleConsumer> afters = testSuite.getScenario().postOracleProcedures();
+    private Statement withAftersForTestOracle(Row testInput, Statement statement) {
+      List<RowConsumer> afters = testSuite.getScenario().postOracleProcedures();
       return afters.isEmpty() ?
           statement :
           new Statement() {
             @Override
             public void evaluate() throws Throwable {
               statement.evaluate();
-              for (Consumer<KeyValuePairs> after : afters)
+              for (Consumer<Row> after : afters)
                 after.accept(testInput);
             }
           };

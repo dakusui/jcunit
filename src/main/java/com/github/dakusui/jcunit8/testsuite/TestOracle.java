@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.util.Formatter;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface TestOracle extends TupleConsumer {
+public interface TestOracle extends RowConsumer {
   interface Result extends Formattable {
     enum Exit {
       RETURNING_VALUE {
@@ -88,7 +89,7 @@ public interface TestOracle extends TupleConsumer {
   }
 
   @Override
-  default void accept(KeyValuePairs testInput) {
+  default void accept(Row testInput) {
     assertion().assertThat(when().apply(testInput), then());
   }
 
