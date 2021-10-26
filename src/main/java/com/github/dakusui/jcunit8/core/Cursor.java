@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.combinatoradix.Enumerator;
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +39,7 @@ public interface Cursor<E> extends Iterable<E> {
     }
   }
 
-  class ForTuple extends Base<KeyValuePairs> {
+  class ForTuple extends Base<Tuple> {
     private final StreamableTupleCartesianator enumerator;
 
     ForTuple(long startFrom, StreamableTupleCartesianator enumerator) {
@@ -47,10 +48,10 @@ public interface Cursor<E> extends Iterable<E> {
     }
 
     @Override
-    public Iterator<KeyValuePairs> iterator() {
+    public Iterator<Tuple> iterator() {
       // TODO avoid using 'int'
       // return this.enumerator.asList().subList((int) startFrom, (int) this.enumerator.size()).iterator();
-      return new Iterator<KeyValuePairs>() {
+      return new Iterator<Tuple>() {
         long i = startFrom;
 
         @Override
@@ -59,7 +60,7 @@ public interface Cursor<E> extends Iterable<E> {
         }
 
         @Override
-        public KeyValuePairs next() {
+        public Tuple next() {
           try {
             return enumerator.get(i);
           } finally {

@@ -1,9 +1,6 @@
 package com.github.dakusui.jcunit8.pipeline.stages.generators;
 
-import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
-import com.github.dakusui.jcunit.core.tuples.Row;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.tuples.KeyValuePairsUtils;
+import com.github.dakusui.jcunit.core.tuples.*;
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.core.StreamableCombinator;
@@ -15,7 +12,6 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.factorspace.FactorUtils;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
-import com.github.dakusui.jcunit8.testsuite.TupleSet;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -241,7 +237,7 @@ public class IpoGplus extends Generator.Base {
     return _streamAssignmentsAllowedByConstraints(request, allConstraints, factorsUnderConstraintsInRequest, session);
   }
 
-  public static Function<List<Factor>, Stream<KeyValuePairs>> streamTuplesUnderConstraints(List<Constraint> allConstraints) {
+  public static Function<List<Factor>, Stream<Tuple>> streamTuplesUnderConstraints(List<Constraint> allConstraints) {
     return factorsUnderConstraintsInRequest -> new StreamableTupleCartesianator(
         factorsUnderConstraintsInRequest
     ).stream(
@@ -277,7 +273,7 @@ public class IpoGplus extends Generator.Base {
       List<Factor> factorsUnderConstraintsInRequest,
       Session session
   ) {
-    Optional<KeyValuePairs> firstTuple = session.findFirstTupleUnderConstraints.apply(allConstraints).apply(factorsUnderConstraintsInRequest);
+    Optional<Tuple> firstTuple = session.findFirstTupleUnderConstraints.apply(allConstraints).apply(factorsUnderConstraintsInRequest);
     if (firstTuple.isPresent()) {
       StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
           factorsUnderConstraintsInRequest
@@ -294,11 +290,11 @@ public class IpoGplus extends Generator.Base {
     return Stream.empty();
   }
 
-  private static Function<List<Constraint>, Function<List<Factor>, Optional<KeyValuePairs>>> functionToFindFirstTupleUnderConstraints() {
+  private static Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>> functionToFindFirstTupleUnderConstraints() {
     return Utils.memoize(IpoGplus::findFirstTupleUnderConstraints);
   }
 
-  private static Function<List<Factor>, Optional<KeyValuePairs>> findFirstTupleUnderConstraints(List<Constraint> allConstraints) {
+  private static Function<List<Factor>, Optional<Tuple>> findFirstTupleUnderConstraints(List<Constraint> allConstraints) {
     return (List<Factor> factorsUnderConstrains) ->
         streamTuplesUnderConstraints(allConstraints).apply(factorsUnderConstrains).findFirst();
   }
@@ -505,10 +501,8 @@ public class IpoGplus extends Generator.Base {
      *
      */
     return new TupleSet.Builder().addAll(
-            new StreamableCombinator<>(
-                alreadyProcessedFactors,
-                strength
-            ).stream()
+            new StreamableCombinator<>(alreadyProcessedFactors, strength)
+                .stream()
                 .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
                 .filter((KeyValuePairs tuple) -> !precovered.contains(tuple))
                 .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*2)
@@ -521,7 +515,7 @@ public class IpoGplus extends Generator.Base {
     /**
      * A curried function to find first tuple under constraints, which is memoized.
      */
-    private final Function<List<Constraint>, Function<List<Factor>, Optional<KeyValuePairs>>>
+    private final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
                                 findFirstTupleUnderConstraints = Utils.memoize(functionToFindFirstTupleUnderConstraints());
 
     private Map<String, Object> chooseAssignmentsFor(List<Factor> dontCareFactors) {

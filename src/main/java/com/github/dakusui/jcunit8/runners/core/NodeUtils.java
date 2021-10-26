@@ -137,7 +137,7 @@ public enum NodeUtils {
     )));
   }
 
-  private static Class getParameterSpaceDefinitionClass(TestClass testClass) {
+  private static Class<?> getParameterSpaceDefinitionClass(TestClass testClass) {
     ConfigureWith configureWith = testClass.getAnnotation(ConfigureWith.class);
     configureWith = configureWith == null ?
         ConfigureWith.DEFAULT_INSTANCE :
@@ -147,7 +147,7 @@ public enum NodeUtils {
         configureWith.parameterSpace();
   }
 
-  private static Stream<TuplePredicate> streamTestPredicatesIn(Class parameterSpaceDefinitionClass) {
+  private static Stream<TuplePredicate> streamTestPredicatesIn(Class<?> parameterSpaceDefinitionClass) {
     TestClass wrapper = new TestClass(parameterSpaceDefinitionClass);
     Object testObject = createInstanceOf(wrapper);
     return wrapper.getAnnotatedMethods(Condition.class).stream(
@@ -176,7 +176,7 @@ public enum NodeUtils {
             testObject,
             involvedKeys.stream()
                 .map(new Function<String, Object>() {
-                  AtomicInteger cur = new AtomicInteger(0);
+                  final AtomicInteger cur = new AtomicInteger(0);
 
                   @Override
                   public Object apply(String key) {
@@ -191,13 +191,12 @@ public enum NodeUtils {
                     return tuple.get(key(cur.getAndIncrement()));
                   }
 
-                  @SuppressWarnings("unchecked")
                   private Object getVarArgs() {
-                    List work = new LinkedList();
+                    List<Object> work = new LinkedList<>();
                     while (tuple.containsKey(key(cur.get()))) {
                       work.add(getArg());
                     }
-                    return work.toArray(new String[work.size()]);
+                    return work.toArray(new Object[0]);
                   }
 
                   private boolean isVarArgs(int argIndex) {

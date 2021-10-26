@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
+import com.github.dakusui.jcunit.core.tuples.CoveringArray;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.Collections;
@@ -36,7 +36,7 @@ public abstract class PipelineTestBase {
     return new Pipeline.Standard().preprocess(buildConfig(), new ParameterSpace.Builder().addAllParameters(parameters).addAllConstraints(constraints).build());
   }
 
-  protected SchemafulRowSet engine(List<Parameter<?>> parameters, List<Constraint> constraints) {
+  protected CoveringArray engine(List<Parameter<?>> parameters, List<Constraint> constraints) {
     return new Pipeline.Standard().engine(buildConfig(), new ParameterSpace.Builder().addAllParameters(parameters).addAllConstraints(constraints).build());
   }
 

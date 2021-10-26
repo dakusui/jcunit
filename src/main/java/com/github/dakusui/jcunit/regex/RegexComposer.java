@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 
 import java.util.*;
@@ -19,7 +20,7 @@ public class RegexComposer {
     this.exprs = createMap(this.topLevel);
   }
 
-  public List<String> compose(KeyValuePairs tuple) {
+  public List<String> compose(Tuple tuple) {
     ComposerVisitor visitor = new ComposerVisitor(tuple, this.exprs);
     this.topLevel.accept(visitor);
     return splitOnWhiteSpaces(visitor.out);

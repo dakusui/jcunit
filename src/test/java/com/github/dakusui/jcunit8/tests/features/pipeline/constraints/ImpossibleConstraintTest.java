@@ -7,7 +7,7 @@ import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Cartesian;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
-import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
+import com.github.dakusui.jcunit.core.tuples.CoveringArray;
 import com.github.dakusui.jcunit8.testutils.ParameterSpaceUtils;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
 import com.github.dakusui.jcunit8.testutils.SchemafulRowSetUtils;
@@ -95,7 +95,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
   public void givenImpossibleConstraint$whenGenerateWithIpoGplus$thenEmptyTupleSetGenerated() {
     FactorSpace factorSpace = buildSimpleFactorSpaceWithImpossibleConstraint();
     SchemafulRowSetUtils.validateSchemafulRow(
-        new SchemafulRowSet.Builder(
+        new CoveringArray.Builder(
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
         ).addAll(
             new IpoGplus(
@@ -114,7 +114,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
   public void givenImpossibleConstraint$whenGenerateWithCartesian$thenExceptionThrown() {
     FactorSpace factorSpace = buildSimpleFactorSpaceWithImpossibleConstraint();
     SchemafulRowSetUtils.validateSchemafulRow(
-        new SchemafulRowSet.Builder(
+        new CoveringArray.Builder(
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
         ).addAll(
             new Cartesian(

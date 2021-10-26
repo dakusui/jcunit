@@ -1,11 +1,10 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
-import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.models.Parameter;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
-import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
+import com.github.dakusui.jcunit.core.tuples.CoveringArray;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testutils.*;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class RegexTest extends PipelineTestBase {
   @Test
   public void givenRegex$whenGenerateWithIpoG$thenNonEmptyTupleSetGenerated() {
     SchemafulRowSetUtils.validateSchemafulRow(
-        SchemafulRowSet.fromRows(
+        CoveringArray.fromRows(
             new IpoGplus(
                 Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
                 requirement(),

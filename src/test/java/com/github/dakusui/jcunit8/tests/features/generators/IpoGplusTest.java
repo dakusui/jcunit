@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.tests.features.generators;
 
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -10,7 +11,10 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -29,6 +33,7 @@ public class IpoGplusTest {
       public String getName() {
         return String.format("alwaysFalse:%s", involvedKeys());
       }
+
       @Override
       public boolean test(KeyValuePairs testObject) {
         return false;
@@ -100,64 +105,6 @@ public class IpoGplusTest {
   }
 
   public static class AssignmentsAllowedByPartiallyInvolvedConstraints {
-    static class Fixture {
-      static final Fixture simple                         = new Fixture(
-          new KeyValuePairs.Builder().put("a", 1).put("b", 1).buildTuple(),
-          new LinkedList<Factor>() {{
-            add(Factor.create("a", asList(1, 2, 3).toArray()));
-            add(Factor.create("b", asList(1, 2, 3).toArray()));
-            add(Factor.create("c", asList(1, 2, 3).toArray()));
-          }},
-          new LinkedList<Constraint>() {{
-            add(Constraint.create(
-                "a+b+c<=4[a,b,c]",
-                (KeyValuePairs tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
-                "a", "b", "c"
-            ));
-          }}
-      );
-      static final Fixture twoFreeFactors                 = new Fixture(
-          new KeyValuePairs.Builder().put("a", 1).buildTuple(),
-          new LinkedList<Factor>() {{
-            add(Factor.create("a", asList(1, 2, 3).toArray()));
-            add(Factor.create("b", asList(1, 2, 3).toArray()));
-            add(Factor.create("c", asList(1, 2, 3).toArray()));
-          }},
-          new LinkedList<Constraint>() {{
-            add(Constraint.create(
-                "a+b+c<=4[a,b,c]",
-                (KeyValuePairs tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
-                "a", "b", "c"
-            ));
-          }}
-      );
-      static final Fixture violatesFullyCoveredConstraint = new Fixture(
-          new KeyValuePairs.Builder().put("a", 1).put("b", 1).buildTuple(),
-          new LinkedList<Factor>() {{
-            add(Factor.create("a", asList(1, 2, 3).toArray()));
-            add(Factor.create("b", asList(1, 2, 3).toArray()));
-            add(Factor.create("c", asList(1, 2, 3).toArray()));
-          }},
-          new LinkedList<Constraint>() {{
-            add(Constraint.create(
-                "a!=b",
-                (KeyValuePairs tuple) -> ((int) tuple.get("a")) != ((int) tuple.get("b")),
-                "a", "b")
-            );
-          }}
-      );
-
-      final         KeyValuePairs tuple;
-      private final List<Factor>  factors;
-      private final List<Constraint> constraints;
-
-      Fixture(KeyValuePairs tuple, List<Factor> factors, List<Constraint> constraints) {
-        this.tuple = tuple;
-        this.factors = factors;
-        this.constraints = constraints;
-      }
-    }
-
     @Test
     public void givenSimpleExample$whenAssignmentsAllowedByAllPartiallyInvolvedConstraints() {
       Fixture fixture = Fixture.simple;
@@ -189,14 +136,9 @@ public class IpoGplusTest {
           tuple -> (Integer) tuple.get("b") > (Integer) tuple.get("c"),
           "b", "c"
       );
-      Function<List<Factor>, Stream<KeyValuePairs>> func = Utils.memoize(IpoGplus.streamTuplesUnderConstraints(
-          Collections.singletonList(
-              constraint
-          )
-      ));
-      Optional<KeyValuePairs> cursor = func.apply(
-          factors
-      ).findFirst();
+      Function<List<Factor>, Stream<Tuple>> func = Utils.memoize(
+          IpoGplus.streamTuplesUnderConstraints(singletonList(constraint)));
+      Optional<Tuple> cursor = func.apply(factors).findFirst();
 
       assertTrue(cursor.isPresent());
       assertEquals(
@@ -277,6 +219,64 @@ public class IpoGplusTest {
           emptyList(),
           assignments
       );
+    }
+
+    static class Fixture {
+      static final Fixture simple                         = new Fixture(
+          new KeyValuePairs.Builder().put("a", 1).put("b", 1).buildTuple(),
+          new LinkedList<Factor>() {{
+            add(Factor.create("a", asList(1, 2, 3).toArray()));
+            add(Factor.create("b", asList(1, 2, 3).toArray()));
+            add(Factor.create("c", asList(1, 2, 3).toArray()));
+          }},
+          new LinkedList<Constraint>() {{
+            add(Constraint.create(
+                "a+b+c<=4[a,b,c]",
+                (KeyValuePairs tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
+                "a", "b", "c"
+            ));
+          }}
+      );
+      static final Fixture twoFreeFactors                 = new Fixture(
+          new KeyValuePairs.Builder().put("a", 1).buildTuple(),
+          new LinkedList<Factor>() {{
+            add(Factor.create("a", asList(1, 2, 3).toArray()));
+            add(Factor.create("b", asList(1, 2, 3).toArray()));
+            add(Factor.create("c", asList(1, 2, 3).toArray()));
+          }},
+          new LinkedList<Constraint>() {{
+            add(Constraint.create(
+                "a+b+c<=4[a,b,c]",
+                (KeyValuePairs tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
+                "a", "b", "c"
+            ));
+          }}
+      );
+      static final Fixture violatesFullyCoveredConstraint = new Fixture(
+          new KeyValuePairs.Builder().put("a", 1).put("b", 1).buildTuple(),
+          new LinkedList<Factor>() {{
+            add(Factor.create("a", asList(1, 2, 3).toArray()));
+            add(Factor.create("b", asList(1, 2, 3).toArray()));
+            add(Factor.create("c", asList(1, 2, 3).toArray()));
+          }},
+          new LinkedList<Constraint>() {{
+            add(Constraint.create(
+                "a!=b",
+                (KeyValuePairs tuple) -> ((int) tuple.get("a")) != ((int) tuple.get("b")),
+                "a", "b")
+            );
+          }}
+      );
+
+      final         KeyValuePairs    tuple;
+      private final List<Factor>     factors;
+      private final List<Constraint> constraints;
+
+      Fixture(KeyValuePairs tuple, List<Factor> factors, List<Constraint> constraints) {
+        this.tuple = tuple;
+        this.factors = factors;
+        this.constraints = constraints;
+      }
     }
   }
 
@@ -364,7 +364,7 @@ public class IpoGplusTest {
   }
 
   public static class ReplaceDontCareValues {
-    List<Factor>           factors     = asList(
+    List<Factor>                           factors     = asList(
         Factor.create("a", new Object[] { 1, 2, 3 }),
         Factor.create("b", new Object[] { 1, 2, 3 }),
         Factor.create("c", new Object[] { 1, 2, 3 })

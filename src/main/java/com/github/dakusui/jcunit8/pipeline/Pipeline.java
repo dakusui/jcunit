@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.pipeline;
 
 import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
 import com.github.dakusui.jcunit.core.tuples.Row;
+import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit.exceptions.TestDefinitionException;
@@ -11,7 +12,7 @@ import com.github.dakusui.jcunit8.models.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;
-import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
+import com.github.dakusui.jcunit.core.tuples.CoveringArray;
 import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
@@ -107,7 +108,7 @@ public interface Pipeline {
           .build();
     }
 
-    public SchemafulRowSet engine(Config config, ParameterSpace parameterSpace) {
+    public CoveringArray engine(Config config, ParameterSpace parameterSpace) {
       return config.partitioner().apply(
           config.encoder().apply(
               parameterSpace
@@ -118,9 +119,10 @@ public interface Pipeline {
           .map(config.generator(parameterSpace, config.getRequirement()))
           .reduce(config.joiner())
           .map(
-              (SchemafulRowSet tuples) -> new SchemafulRowSet.Builder(parameterSpace.getParameterNames()).addAll(
+              (CoveringArray tuples) -> new CoveringArray.Builder(parameterSpace.getParameterNames()).addAll(
                   tuples.stream()
-                      .map((KeyValuePairs tuple) -> {
+                      .map((Function<KeyValuePairs, Tuple>) Tuple::from)
+                      .map((Tuple tuple) -> {
                         KeyValuePairs.Builder builder = new KeyValuePairs.Builder();
                         for (String parameterName : parameterSpace.getParameterNames()) {
                           builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));

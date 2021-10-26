@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit.core.tuples.Row;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
-import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
+import com.github.dakusui.jcunit.core.tuples.CoveringArray;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -94,8 +94,8 @@ public class JoinerTest {
 
   private static List<Row> performJoin(Joiner joiner, List<Row> lhs, List<Row> rhs) {
     return joiner.apply(
-        SchemafulRowSet.fromRows(lhs),
-        SchemafulRowSet.fromRows(rhs));
+        CoveringArray.fromRows(lhs),
+        CoveringArray.fromRows(rhs));
   }
 
   private static void validateJoinedArray(List<Row> joined, List<Row> lhs, List<Row> rhs) {

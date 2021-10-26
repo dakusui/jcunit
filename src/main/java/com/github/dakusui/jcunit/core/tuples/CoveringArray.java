@@ -1,8 +1,5 @@
-package com.github.dakusui.jcunit8.testsuite;
+package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
-import com.github.dakusui.jcunit.core.tuples.Row;
-import com.github.dakusui.jcunit.core.tuples.KeyValuePairsUtils;
 import com.github.dakusui.jcunit.exceptions.FrameworkException;
 
 import java.util.*;
@@ -13,19 +10,8 @@ import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStren
  * A list of tuples all of whose entries have the same attribute names. An implementation
  * of this interface must also guarantee that it doesn't have the same element.
  */
-public interface SchemafulRowSet extends List<Row> {
-  List<String> getAttributeNames();
-  int width();
-
-  /**
-   * Returns all t-way tuples in this {@code SchemafulTupleSet} where t is {@code strength}.
-   *
-   * @param strength Strength of t-way tuples to be returned.
-   * @return A set of sub-tuples of this.
-   */
-  TupleSet subtuplesOf(int strength);
-
-  static SchemafulRowSet fromRows(List<Row> rows) {
+public interface CoveringArray extends List<Row> {
+  static CoveringArray fromRows(List<Row> rows) {
     Objects.requireNonNull(rows);
     FrameworkException.check(rows, tuples -> !tuples.isEmpty());
     return new Builder(new ArrayList<>(rows.get(0).keySet()))
@@ -33,19 +19,30 @@ public interface SchemafulRowSet extends List<Row> {
         .build();
   }
 
-  static SchemafulRowSet empty(List<String> attributeNames) {
+  static CoveringArray empty(List<String> attributeNames) {
     return new Builder(attributeNames).build();
   }
 
+  List<String> getAttributeNames();
+
+  int width();
+
+  /**
+   * Returns all t-way tuples in this {@code CoveringArray} where t is {@code strength}.
+   *
+   * @param strength Strength of t-way tuples to be returned.
+   * @return A set of sub-tuples of this.
+   */
+  TupleSet subtuplesOf(int strength);
+
   class Builder {
     private final LinkedHashSet<String> attributeNames;
-    private final List<Row>   tuples;
+    private final List<Row>             rows;
 
     public Builder(List<String> attributeNames) {
-      this.attributeNames = new LinkedHashSet<String>() {{
-        addAll(attributeNames);
-      }};
-      this.tuples = new LinkedList<>();
+      this.attributeNames = new LinkedHashSet<>();
+      this.attributeNames.addAll(attributeNames);
+      this.rows = new LinkedList<>();
     }
 
     public Builder add(Row row) {
@@ -53,7 +50,7 @@ public interface SchemafulRowSet extends List<Row> {
       // Make sure all the tuples in this suite object have the same set of attribute
       // names.
       FrameworkException.check(row, (KeyValuePairs t) -> attributeNames.equals(row.keySet()));
-      this.tuples.add(row);
+      this.rows.add(row);
       return this;
     }
 
@@ -62,24 +59,24 @@ public interface SchemafulRowSet extends List<Row> {
       return this;
     }
 
-    public SchemafulRowSet build() {
-      class Impl extends AbstractList<Row> implements SchemafulRowSet {
-        private final List<Row> tuples;
-        private final List<String>        attributeNames;
+    public CoveringArray build() {
+      class Impl extends AbstractList<Row> implements CoveringArray {
+        private final List<Row>    rows;
+        private final List<String> attributeNames;
 
-        private Impl(List<String> attributeNames, List<Row> tuples) {
-          this.tuples = tuples;
+        private Impl(List<String> attributeNames, List<Row> rows) {
+          this.rows = rows;
           this.attributeNames = Collections.unmodifiableList(attributeNames);
         }
 
         @Override
         public Row get(int index) {
-          return tuples.get(index);
+          return rows.get(index);
         }
 
         @Override
         public int size() {
-          return tuples.size();
+          return rows.size();
         }
 
         @Override
@@ -104,7 +101,7 @@ public interface SchemafulRowSet extends List<Row> {
       }
       return new Impl(
           new ArrayList<>(this.attributeNames),
-          this.tuples);
+          this.rows);
     }
   }
 

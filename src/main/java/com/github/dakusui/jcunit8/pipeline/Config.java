@@ -9,7 +9,7 @@ import com.github.dakusui.jcunit8.pipeline.stages.Encoder;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.Joiner;
 import com.github.dakusui.jcunit8.pipeline.stages.Partitioner;
-import com.github.dakusui.jcunit8.testsuite.SchemafulRowSet;
+import com.github.dakusui.jcunit.core.tuples.CoveringArray;
 
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -31,9 +31,9 @@ public interface Config {
 
   Function<FactorSpace, List<FactorSpace>> partitioner();
 
-  Function<FactorSpace, SchemafulRowSet> generator(ParameterSpace parameterSpace, Requirement requirement);
+  Function<FactorSpace, CoveringArray> generator(ParameterSpace parameterSpace, Requirement requirement);
 
-  BinaryOperator<SchemafulRowSet> joiner();
+  BinaryOperator<CoveringArray> joiner();
 
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
@@ -100,8 +100,8 @@ public interface Config {
     }
 
     @Override
-    public Function<FactorSpace, SchemafulRowSet> generator(ParameterSpace parameterSpace, Requirement requirement) {
-      return (FactorSpace factorSpace) -> new SchemafulRowSet.Builder(
+    public Function<FactorSpace, CoveringArray> generator(ParameterSpace parameterSpace, Requirement requirement) {
+      return (FactorSpace factorSpace) -> new CoveringArray.Builder(
           factorSpace.getFactors().stream(
           ).map(
               Factor::getName
@@ -118,7 +118,7 @@ public interface Config {
     }
 
     @Override
-    public BinaryOperator<SchemafulRowSet> joiner() {
+    public BinaryOperator<CoveringArray> joiner() {
       return joiner;
     }
 

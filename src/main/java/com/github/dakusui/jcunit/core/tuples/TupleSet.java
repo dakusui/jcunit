@@ -1,6 +1,4 @@
-package com.github.dakusui.jcunit8.testsuite;
-
-import com.github.dakusui.jcunit.core.tuples.KeyValuePairs;
+package com.github.dakusui.jcunit.core.tuples;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
