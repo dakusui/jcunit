@@ -1,0 +1,33 @@
+= Design Your Test as Code: The JCUnit
+
+[frame=none,cols="1,8"]
+|===
+a|image::src/site/resources/images/JCunit-logo-compact.png[JCnit] | is an open source model-based testing framework powered by combinatorial interaction testing technique.
+|===
+
+[source, xml]
+.Maven Coordinate for JCUnit
+----
+<dependency>
+    <groupId>com.github.dakusui</groupId>
+    <artifactId>jcunit</artifactId>
+    <version>{jcunit-version}</version>
+</dependency>
+----
+
+* https://dakusui.github.io/jcunit/[Quick Start Guide for JCUnit]
+* http://ieeexplore.ieee.org/document/7928008/[Test Design as Code: JCUnit]; A paper on this product; Presented at IEEE International Conference on Software Testing 2017
+* https://ieeexplore.ieee.org/document/8728961[Reduce Test Cost by Reusing Test Oracles through Combinatorial Join]; A paper about a technique this product utilizes for building a covering array; Presented at 2019 IEEE International Conference on Software Testing, Verification and Validation Workshops (ICSTW)
+* http://jcunit.hatenablog.jp/[JCUnit blog; Japanese; 日本語]
+
+== Copyright and license
+
+Copyright 2013 Hiroshi Ukai.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except in compliance with the License.
+You may obtain a copy of the License in the LICENSE file, or at:
+
+- http://www.apache.org/licenses/LICENSE-2.0[http://www.apache.org/licenses/LICENSE-2.0]
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
