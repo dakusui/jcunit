@@ -1,4 +1,5 @@
 target/
+generated/
 src/site/wiki
 .jcunit
 .settings
