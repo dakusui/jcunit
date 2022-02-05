@@ -1,8 +1,10 @@
-= Design Your Test as Code: The JCUnit
+= Design Your Test as Code: The JCUnit 0.10.x
 
 [frame=none,cols="1,8"]
 |===
-a|image::src/site/resources/images/JCunit-logo-compact.png[JCnit] | is an open source model-based testing framework powered by combinatorial interaction testing technique.
+a|image::src/site/resources/images/JCunit-logo-compact.png[JCnit] | is an open source model-based testing (MBT) framework powered by combinatorial interaction testing (CIT) technique.
+It supports various models to provide a uniformed testing style.
+It employs CIT to balance the coverage and test suite size.
 |===
 
 [source, xml]
@@ -15,10 +17,121 @@ a|image::src/site/resources/images/JCunit-logo-compact.png[JCnit] | is an open s
 </dependency>
 ----
 
-* https://dakusui.github.io/jcunit/[Quick Start Guide for JCUnit]
+JCUnit `0.10.x` is under development.
+The most recent stable major version of JCUnit is `0.8.x`.
+Please check
+
+- https://github.com/dakusui/jcunit/tree/0.8.x-develop[0.8.x-develop branch]
+- https://mvnrepository.com/artifact/com.github.dakusui/jcunit[MVNrepository]
+
+== JCUnit 0.10.x: Key Features to Come
+
+`0.10.x` will be the last version line previous to `1.0.x`, which is intended for the public usage and broader audience.
+
+The project board is found https://github.com/dakusui/jcunit/projects/1[here].
+
+* Enhanced Regex Support (https://github.com/dakusui/jcunit/issues/152[#152], https://github.com/dakusui/jcunit/issues/155[#155])
+* `JUnit5` support (https://github.com/dakusui/jcunit/issues/142[#142])
+* Temporary removal of FSM support (It will be brought back in `1.0.x`, https://github.com/dakusui/jcunit/issues/169[#169]).
+* Simplified Internal Structure for integrating external CIT tools (Stretch goal, https://github.com/dakusui/jcunit/issues/175[#175]).
+* Fault Localizer (Stretch goal, https://github.com/dakusui/jcunit/issues/144[#144])
+
+== References
+
+=== JCUnit Project
+* https://dakusui.github.io/jcunit/[Quick Start Guide for JCUnit] (t.b.d.)
+* https://github.com/dakusui/jcunit/projects/1[JCUnit 0.10.x Project Board]
+
+=== Publications
 * http://ieeexplore.ieee.org/document/7928008/[Test Design as Code: JCUnit]; A paper on this product; Presented at IEEE International Conference on Software Testing 2017
 * https://ieeexplore.ieee.org/document/8728961[Reduce Test Cost by Reusing Test Oracles through Combinatorial Join]; A paper about a technique this product utilizes for building a covering array; Presented at 2019 IEEE International Conference on Software Testing, Verification and Validation Workshops (ICSTW)
 * http://jcunit.hatenablog.jp/[JCUnit blog; Japanese; 日本語]
+
+== Build Instructions
+
+The JCUnit requires Java SE 8 to build.
+Please don't forget installing and using it for building.
+This is intentional decision to make the testing compatible for as many product as possible.
+
+- https://docs.oracle.com/javase/8/[Java Platform, Standard Edition (Java SE) 8]
+- https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=hotspot[AdoptOpenJDK]
+
+.Build
+[source, bash]
+----
+$ mvn clean compile
+----
+
+.Conduct Unit Test
+[source, bash]
+----
+$ mvn clean compile test
+----
+
+.Generating Site
+[source, bash]
+----
+$ mvn clean package site
+----
+
+Generates the site under `target/site` in the following structure.
+
+----
+target/
+  site/
+    apidocs/     - JavaDoc
+    jacoco/      - JaCoCo report (code coverage)
+    pit-reports/ - PIT report (mutation coverage)
+----
+
+The mutation testing is configured to cover only small amount of classes to save build time.
+To configure the coverage, refer to <<mutationTesting>>.
+
+.Deploying Site
+[source, bash]
+----
+$ mvn clean package site
+----
+=== Misc
+
+.Conduct Mutation Test
+----
+$ mvn clean compile test org.pitest:pitest-maven:mutationCoverage
+----
+[[mutationTesting]]
+
+Currently, this may take very long time (&ge; 2 hours), if you include all the classes of this product.
+By default, the `pom.xml` is configured to exercise the mutation testing over small number of classes so that you customize the intended coverage.
+
+Under the plugin configuration for `org.pitest:pitest-maven`, you can find a following element.
+
+.`pom.xml` configuration for `org.pitest:pitest-maven` plugin
+[source, xml]
+----
+    <targetClasses>
+        <param>com.github.dakusui.jcunit8.exceptions.*</param>
+    </targetClasses>
+----
+[[pitest-maven-config]]
+
+To cover all the JCUnit classes, you can modify it like following.
+
+.`pom.xml` configuration for `org.pitest:pitest-maven` plugin
+[source, xml]
+----
+    <targetClasses>
+        <param>com.github.dakusui.*</param>
+    </targetClasses>
+----
+
+After a successful execution, it generates a pitest report under a directory `target/pit-reports/\{yyyyMMddHHmmss\}`.
+
+.Build Javadoc
+[source, bash]
+----
+$ mvn clean javadoc:javadoc
+----
+This generates JavaDoc under `target/site/apidocs`.
 
 == Copyright and license
 

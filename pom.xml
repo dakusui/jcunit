@@ -5,7 +5,7 @@
     <groupId>com.github.dakusui</groupId>
     <artifactId>jcunit</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.10.0-SNAPSHOT</version>
     <description>Model-based Testing Powered by CIT, Modeling with Java
     </description>
 
@@ -56,7 +56,7 @@
         <junit4.version>4.12</junit4.version>
         <junit5.version>5.8.1</junit5.version>
         <junit.launcher.version>1.8.1</junit.launcher.version>
-        <pitest-maven.version>1.5.0</pitest-maven.version>
+        <pitest-maven.version>1.7.3</pitest-maven.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
         <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
@@ -316,7 +316,7 @@
                         <jvmArg>-Dunderpitest=yes</jvmArg>
                     </jvmArgs>
                     <targetClasses>
-                        <param>com.github.dakusui.pcond.*</param>
+                        <param>com.github.dakusui.jcunit8.exceptions.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>*Test</param>
