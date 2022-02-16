@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.examples.quadraticequation;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
@@ -13,8 +14,12 @@ import org.mockito.internal.matchers.LessThan;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+/**
+ * This is an "example" class, intended to be executed by a "real" test class.
+ */
+@SuppressWarnings("NewClassNamingConvention")
 @RunWith(JCUnit8.class)
-public class QuadraticEquationExample {
+public class QuadraticEquationExample extends JUnit4_13Workaround {
   @ParameterSource
   public Simple.Factory<Integer> a() {
     return Simple.Factory.of(asList(-1, 0, 1, 2, 4));
@@ -97,4 +102,5 @@ public class QuadraticEquationExample {
     System.out.printf("a=%d, b=%d, c=%d%n", a, b, c);
     return (-b - Math.sqrt(b * b - 4 * c * a)) / (2 * a);
   }
+
 }

@@ -10,6 +10,10 @@ import org.junit.runner.RunWith;
 
 import static java.util.Arrays.asList;
 
+/**
+ * This is an "example" class, intended to be executed by a "real" test class.
+ */
+@SuppressWarnings("NewClassNamingConvention")
 @RunWith(JCUnit8.class)
 public class InvalidConditionMethods {
   @ParameterSource
