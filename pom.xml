@@ -25,7 +25,7 @@
         </connection>
         <developerConnection>scm:git:git@github.com:dakusui/${project.name}.git
         </developerConnection>
-        <url>http://dakusui.github.io/${project.name}</url>
+        <url>https://github.com/dakusui/${project.name}</url>
         <tag>${project.name}-${project.version}</tag>
     </scm>
 
@@ -53,7 +53,7 @@
         <combinatoradix.version>0.9.2</combinatoradix.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <jruby.version>9.2.12.0</jruby.version>
-        <junit4.version>4.13.1</junit4.version>
+        <junit4.version>4.12</junit4.version>
         <junit5.version>5.8.1</junit5.version>
         <junit.launcher.version>1.8.1</junit.launcher.version>
         <pitest-maven.version>1.7.3</pitest-maven.version>
@@ -439,7 +439,7 @@
                         </goals>
                         <configuration>
                             <backend>html5</backend>
-                            <outputDirectory>target/site</outputDirectory>
+                            <outputDirectory>target/site/asciidoc</outputDirectory>
                             <attributes>
                                 <imagesdir>.</imagesdir>
                                 <toc>left</toc>

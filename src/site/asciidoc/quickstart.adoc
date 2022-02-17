@@ -3,7 +3,7 @@
 include::attributes.adoc[]]
 
 image::../resources/images/JCunit-logo.png[JCUnit]
-is a model based testing tool powered by combinatorial testing techniques.
+is a model based testing tool powered by combinatorial interaction testing techniques.
 
 :toc:
 
@@ -13,7 +13,7 @@ Users who need to use older ones, please refer to
 - https://github.com/dakusui/jcunit/wiki/0.8.x[JCUnit-0.8.x] or
 - https://github.com/dakusui/jcunit/wiki/0.7.x[JCUnit-0.7.x].
 
-In this document, the new version is called "JCUnit8" to tell it from older ones when necessary.
+In this document, the new version is called "JCUnitX" to tell it from older ones when necessary.
 
 == About 0.10.x
 

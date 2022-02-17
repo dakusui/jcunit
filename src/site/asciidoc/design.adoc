@@ -1,0 +1,26 @@
+= Design of JCUnit
+
+
+== The Pipeline
+
+JCUnit has a pipeline, which converts user-defined parameters into an executable test suite.
+Basic idea of it is following:
+First, it converts the user-defined (human-understandable, high-level) parameters into factors and constraints, which can be processed by covering array generation engines.
+Then, a covering array is generated from them.
+Finally, the covering array is converted back to a test suite expressed in the human-understandable and high-level notation.
+
+However, the inside the pipeline, it has several branches and stages in order to implement popular features of CIT tools (such as seeding and negative testing) or to achieve scalability along with the number of parameters and complexity of constraints.
+
+=== Overview
+
+(t.b.d.)
+
+
+.Pipeline Overview
+image:./design/ThePipeline/Slide1.png[]
+
+
+=== The "Engine" Pipeline
+
+.Engine Pipeline
+image:./design/ThePipeline/Slide2.png[]
