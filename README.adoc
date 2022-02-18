@@ -5,6 +5,7 @@
 a|image::src/site/resources/images/JCunit-logo-compact.png[JCnit] | is an open source model-based testing (MBT) framework powered by combinatorial interaction testing (CIT) technique.
 It supports various models to provide a uniformed testing style.
 It employs CIT to balance the coverage and test suite size.
+The documentation is found http://dakusui.github.io/jcunit/[here].
 |===
 
 [source, xml]
@@ -16,13 +17,12 @@ It employs CIT to balance the coverage and test suite size.
     <version>{jcunit-version}</version>
 </dependency>
 ----
-
 JCUnit `0.10.x` is under development.
 The most recent stable major version of JCUnit is `0.8.x`.
 Please check
 
-- https://github.com/dakusui/jcunit/tree/0.8.x-develop[0.8.x-develop branch]
 - https://mvnrepository.com/artifact/com.github.dakusui/jcunit[MVNrepository]
+- https://github.com/dakusui/jcunit/tree/0.8.x-develop[0.8.x-develop branch]
 
 == JCUnit 0.10.x: Key Features to Come
 
