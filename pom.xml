@@ -378,6 +378,21 @@
                             </arguments>
                         </configuration>
                     </execution>
+                    <execution><!-- Run our version calculation script -->
+                        <id>publish-gh-pages</id>
+                        <phase>site-deploy</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>
+                                    ${basedir}/src/main/build_tools/publish-gh-pages.sh
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -555,7 +570,7 @@
         </repository>
         <site>
             <id>${project.name}</id>
-            <url>file:///tmp/${project.name}</url>
+            <url>file:///${user.dir}/target/site-staging</url>
         </site>
     </distributionManagement>
 
