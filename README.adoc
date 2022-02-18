@@ -5,6 +5,7 @@
 a|image::src/site/resources/images/JCunit-logo-compact.png[JCnit] | is an open source model-based testing (MBT) framework powered by combinatorial interaction testing (CIT) technique.
 It supports various models to provide a uniformed testing style.
 It employs CIT to balance the coverage and test suite size.
+The documentation is found http://dakusui.github.io/jcunit/[here].
 |===
 
 [source, xml]
@@ -16,13 +17,12 @@ It employs CIT to balance the coverage and test suite size.
     <version>{jcunit-version}</version>
 </dependency>
 ----
-
 JCUnit `0.10.x` is under development.
 The most recent stable major version of JCUnit is `0.8.x`.
 Please check
 
-- https://github.com/dakusui/jcunit/tree/0.8.x-develop[0.8.x-develop branch]
 - https://mvnrepository.com/artifact/com.github.dakusui/jcunit[MVNrepository]
+- https://github.com/dakusui/jcunit/tree/0.8.x-develop[0.8.x-develop branch]
 
 == JCUnit 0.10.x: Key Features to Come
 
@@ -57,7 +57,7 @@ We have published some key ideas of JCUnit as academic papers and a blog.
 ==== Publications
 * http://ieeexplore.ieee.org/document/7928008/[Test Design as Code: JCUnit]; A paper on this product; Presented at IEEE International Conference on Software Testing 2017
 * https://ieeexplore.ieee.org/document/8728961[Reduce Test Cost by Reusing Test Oracles through Combinatorial Join]; A paper about a technique this product utilizes for building a covering array; Presented at 2019 IEEE International Conference on Software Testing, Verification and Validation Workshops (ICSTW)
-* "Accelerating covering array generation by combinatorial join for industry scale software testing"; A paper about a technique to construct a covering array from existing ones;
+* https://peerj.com/articles/cs-720/[Accelerating covering array generation by combinatorial join for industry scale software testing]; A paper about a technique to construct a covering array from existing ones;
 * http://jcunit.hatenablog.jp/[JCUnit blog; Japanese; 日本語]
 
 ==== JCUnit Project
@@ -149,6 +149,18 @@ After a successful execution, it generates a pitest report under a directory `ta
 $ mvn clean javadoc:javadoc
 ----
 This generates JavaDoc under `target/site/apidocs`.
+
+.Build the Site
+[source, bash]
+----
+$ mvn clean package site site-deploy
+----
+
+.Publish the Site
+[source, bash]
+----
+$ mvn clean package site site-deploy
+----
 
 == Copyright and license
 
