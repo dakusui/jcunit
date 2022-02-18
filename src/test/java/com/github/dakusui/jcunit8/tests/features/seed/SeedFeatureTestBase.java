@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit8.tests.features.seed;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -17,7 +18,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 @RunWith(JCUnit8.class)
-public class SeedFeatureTestBase {
+public abstract class SeedFeatureTestBase extends JUnit4_13Workaround {
   static final List<Tuple> testCases = Collections.synchronizedList(new LinkedList<>());
 
   @ParameterSource

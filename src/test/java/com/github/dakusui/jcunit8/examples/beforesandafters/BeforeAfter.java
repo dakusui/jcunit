@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit8.examples.beforesandafters;
 import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
@@ -13,8 +14,10 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
+// This is an example supposed to be executed by another class during the "test" lifecycle of maven.
+@SuppressWarnings("NewClassNamingConvention")
 @RunWith(JCUnit8.class)
-public class BeforeAfter {
+public class BeforeAfter extends JUnit4_13Workaround {
   @ParameterSource
   public Parameter.Factory a() {
     return ParameterUtils.simple("A1", "A2");

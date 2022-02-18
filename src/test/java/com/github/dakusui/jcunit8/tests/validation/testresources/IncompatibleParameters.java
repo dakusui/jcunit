@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.tests.validation.testresources;
 
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
@@ -10,8 +11,12 @@ import org.junit.runner.RunWith;
 import static java.util.Collections.singletonList;
 
 public class IncompatibleParameters {
+  /**
+   * This is an "example" class, intended to be executed by a "real" test class.
+   */
+  @SuppressWarnings("NewClassNamingConvention")
   @RunWith(JCUnit8.class)
-  public static class IncompatibleType {
+  public static class IncompatibleType extends JUnit4_13Workaround {
     @ParameterSource
     public Simple.Factory<Integer> a() {
       return Simple.Factory.of(singletonList(100));
@@ -23,8 +28,12 @@ public class IncompatibleParameters {
     }
   }
 
+  /**
+   * This is an "example" class, intended to be executed by a "real" test class.
+   */
+  @SuppressWarnings("NewClassNamingConvention")
   @RunWith(JCUnit8.class)
-  public static class CompatibleNullValue {
+  public static class CompatibleNullValue extends JUnit4_13Workaround {
     @ParameterSource
     public Simple.Factory<Integer> a() {
       return Simple.Factory.of(singletonList(null));
@@ -36,8 +45,12 @@ public class IncompatibleParameters {
     }
   }
 
+  /**
+   * This is an "example" class, intended to be executed by a "real" test class.
+   */
+  @SuppressWarnings("NewClassNamingConvention")
   @RunWith(JCUnit8.class)
-  public static class IncompatiblePrimitiveType {
+  public static class IncompatiblePrimitiveType extends JUnit4_13Workaround {
     @ParameterSource
     public Simple.Factory<Integer> a() {
       return Simple.Factory.of(singletonList(1));
@@ -50,8 +63,12 @@ public class IncompatibleParameters {
   }
 
 
+  /**
+   * This is an "example" class, intended to be executed by a "real" test class.
+   */
+  @SuppressWarnings("NewClassNamingConvention")
   @RunWith(JCUnit8.class)
-  public static class IncompatibleNullValue {
+  public static class IncompatibleNullValue extends JUnit4_13Workaround {
     @ParameterSource
     public Simple.Factory<Integer> a() {
       return Simple.Factory.of(singletonList(null));

@@ -4,6 +4,7 @@ import com.github.dakusui.jcunit8.factorspace.Parameter;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -11,9 +12,11 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+// This is an example supposed to be executed by another class during the "test" lifecycle of maven.
+@SuppressWarnings("NewClassNamingConvention")
 @RunWith(JCUnit8.class)
 @ConfigureWith(Bug140.ConfigFactory.class)
-public class Bug140 {
+public class Bug140 extends JUnit4_13Workaround {
   public static class ConfigFactory extends com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory.Base {
     public ConfigFactory() {
     }

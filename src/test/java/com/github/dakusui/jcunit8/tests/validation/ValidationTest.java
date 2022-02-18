@@ -85,10 +85,10 @@ public class ValidationTest {
         JUnit4TestUtils.runClasses(InvalidParameterSourceMethods.class),
         allOf(
             asBoolean("wasSuccessful").isFalse().$(),
-            asInteger("getFailureCount").equalTo(3).$(),
+            asInteger("getFailureCount").equalTo(1).$(),
             asString(exceptionMessageAt(0)).containsString("'a' must not have any parameter").$(),
-            asString(exceptionMessageAt(1)).containsString("'b' must be public").$(),
-            asString(exceptionMessageAt(2)).containsString("'c' must not be static ").$()
+            asString(exceptionMessageAt(0)).containsString("'b' must be public").$(),
+            asString(exceptionMessageAt(0)).containsString("'c' must not be static ").$()
         ));
   }
 
@@ -98,9 +98,9 @@ public class ValidationTest {
         JUnit4TestUtils.runClasses(UndefinedConstraint.class),
         allOf(
             asBoolean("wasSuccessful").isFalse().$(),
-            asInteger("getFailureCount").equalTo(2).$(),
+            asInteger("getFailureCount").equalTo(1).$(),
             asString(exceptionMessageAt(0)).containsString("'undefinedConstraint' was not found").$(),
-            asString(exceptionMessageAt(1)).containsString("'malformedConstraint!' is not a valid condition name").$()
+            asString(exceptionMessageAt(0)).containsString("'malformedConstraint!' is not a valid condition name").$()
         )
     );
   }
@@ -111,16 +111,16 @@ public class ValidationTest {
         JUnit4TestUtils.runClasses(InvalidConditionMethods.class),
         allOf(
             asBoolean("wasSuccessful").isFalse().$(),
-            asInteger("getRunCount").equalTo(3).$(),
-            asInteger("getFailureCount").equalTo(3).$(),
+            asInteger("getRunCount").equalTo(1).$(),
+            asInteger("getFailureCount").equalTo(1).$(),
             asString(function(
                 "1st failure", (Result result) -> result.getFailures().get(0).getMessage()
             )).containsString("'nonPublic' must be public").$(),
             asString(function(
-                "2nd failure", (Result result) -> result.getFailures().get(1).getMessage()
+                "2nd failure", (Result result) -> result.getFailures().get(0).getMessage()
             )).containsString("'staticMethod' must not be static").$(),
             asString(function(
-                "3rd failure", (Result result) -> result.getFailures().get(2).getMessage()
+                "3rd failure", (Result result) -> result.getFailures().get(0).getMessage()
             )).containsString("'wrongType' must return").$()
         ));
   }

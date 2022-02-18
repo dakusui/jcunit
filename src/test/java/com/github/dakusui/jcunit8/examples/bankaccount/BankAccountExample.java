@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit8.examples.bankaccount;
 import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
 import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
+import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
@@ -15,8 +16,10 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 
+// This is an example supposed to be executed by another class during the "test" lifecycle of maven.
+@SuppressWarnings("NewClassNamingConvention")
 @RunWith(JCUnit8.class)
-public class BankAccountExample {
+public class BankAccountExample extends JUnit4_13Workaround {
 
   private BankAccount myAccount;
   private BankAccount anotherAccount = BankAccount.open();
