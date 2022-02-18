@@ -8,8 +8,12 @@ import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 /**
  * This is an "example" class, intended to be executed by a "real" test class.
