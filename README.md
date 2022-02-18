@@ -36,7 +36,7 @@ Please use following dependencies to use **JCUnit8**.
 * **NOTE:** Please use JCUnit with JUnit 4.12 (or later). Otherwise JCUnit will not be able to execute tests for failing to instantiate parameterized runner.
 * **NOTE:** Source code is found here:[0.8.x-develop branch](https://github.com/dakusui/jcunit/tree/0.8.x-develop)
 
-# New features
+## New features
 Followings are major new features that have been introduced to JCUnit in 0.8.x.
 
 * Annotation Renewal
@@ -402,6 +402,7 @@ validated. And it might be re-desinged based on findings from the optimization
 and validation.
 
 ### Limitations
+* If you are using JUnit 4.13.1 or later, JCUnit-based test usually fails and you need a workaround. Please refer to [Issue-185](https://github.com/dakusui/jcunit/issues/185).
 * If you have multiple test methods in your test class from an IDE such as IntelliJ, you cannot run only one of them.
  JCUnit has a helper class to work around the situation. Please refer to [Issue-125](https://github.com/dakusui/jcunit/issues/125).
 
