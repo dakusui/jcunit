@@ -37,6 +37,11 @@ The project board is found https://github.com/dakusui/jcunit/projects/1[here].
 * **Simplified Internal Structure for integrating external CIT tools:** (Stretch goal, https://github.com/dakusui/jcunit/issues/175[#175]).
 * **Fault Localizer:** (Stretch goal, https://github.com/dakusui/jcunit/issues/144[#144])
 
+== Limitations
+
+- https://github.com/dakusui/jcunit/issues/185[Issue-185: JCUnit test fails with 4.13.1]: This is coming from a design change introduced in JUnit's side. A workaround is described in the ticket.
+- https://github.com/dakusui/jcunit/issues/125[Issue-125: Provide a way to execute a test method for a test case or all the generated test cases]: If you have multiple test methods in your test class from an IDE such as IntelliJ, you cannot run only one of them. JCUnit has a helper class to work around the situation.
+
 == References
 
 === PICT
@@ -153,7 +158,7 @@ This generates JavaDoc under `target/site/apidocs`.
 .Build the Site
 [source, bash]
 ----
-$ mvn clean package site site-deploy
+$ mvn clean package site
 ----
 
 .Publish the Site
