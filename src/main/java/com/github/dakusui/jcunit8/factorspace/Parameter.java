@@ -161,9 +161,9 @@ public interface Parameter<T> {
       public Impl(String name, String regex, List<List<String>> knownValues) {
         super(name, knownValues);
         Expr expr = new Parser().parse(regex);
-        RegexDecomposer translator = new RegexDecomposer(name, expr);
+        RegexDecomposer decomposer = new RegexDecomposer(name, expr);
         this.regexComposer = new RegexComposer(name, expr);
-        this.factorSpace = translator.decompose();
+        this.factorSpace = decomposer.decompose();
       }
 
       public Optional<Tuple> decomposeValue(List<String> value) {

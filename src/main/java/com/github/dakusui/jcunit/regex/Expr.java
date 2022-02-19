@@ -196,20 +196,18 @@ public interface Expr {
       return new Leaf(counter, value);
     }
 
-    @SuppressWarnings("unchecked")
-    Expr cat(List exps) {
-      return new Cat(this.counter, (List<Expr>) exps.stream().map(in -> {
-        if (in instanceof Expr) {
+    Expr cat(List<Expr> exps) {
+      return new Cat(this.counter, exps.stream().map(in -> {
+        if (in != null) {
           return in;
         }
         return new Leaf(counter, in);
       }).collect(toList()));
     }
 
-    @SuppressWarnings("unchecked")
-    Expr alt(List exps) {
-      return new Alt(counter, (List<Expr>) exps.stream().map(in -> {
-        if (in instanceof Expr) {
+    Expr alt(List<Expr> exps) {
+      return new Alt(counter, exps.stream().map(in -> {
+        if (in != null) {
           return in;
         }
         return new Leaf(counter, in);
