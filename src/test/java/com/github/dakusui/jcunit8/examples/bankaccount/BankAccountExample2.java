@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 // This is an example supposed to be executed by another class during the "test" lifecycle of maven.
 @SuppressWarnings("NewClassNamingConvention")
 @RunWith(JCUnit8.class)
-public class BankAccountExample extends JUnit4_13Workaround {
+public class BankAccountExample2 extends JUnit4_13Workaround {
 
   private       BankAccount myAccount;
   private final BankAccount anotherAccount = BankAccount.open();

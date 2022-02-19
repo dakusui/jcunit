@@ -96,7 +96,7 @@ public class ParserTest extends PipelineTestBase {
   @SuppressWarnings("unchecked")
   @Test
   public void printGeneratedList() {
-    Parameter.Regex<String> parameter = Parameter.Regex.Factory.of(input()).create("input");
+    Parameter.Regex parameter = Parameter.Regex.Factory.of(input()).create("input");
 
     TestSuite builtTestSuite = generateTestSuite(parameter);
     Set<String> generatedStringsFromRegex = new HashSet<>();
@@ -104,7 +104,7 @@ public class ParserTest extends PipelineTestBase {
       generatedStringsFromRegex.add(
           StringUtils.join(
               "",
-              (List) each.getTestInput().get("input")
+              (List<String>) each.getTestInput().get("input")
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher());

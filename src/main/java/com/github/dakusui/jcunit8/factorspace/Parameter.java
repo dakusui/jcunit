@@ -7,6 +7,7 @@ import com.github.dakusui.jcunit.regex.RegexComposer;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -151,23 +152,21 @@ public interface Parameter<T> {
     }
   }
 
-  interface Regex<T> extends Parameter<List<T>> {
-    class Impl<U> extends Parameter.Base<List<U>> implements Regex<U> {
+  interface Regex extends Parameter<List<String>> {
+    class Impl extends Parameter.Base<List<String>> implements Regex {
 
       private final FactorSpace         factorSpace;
       private final RegexComposer       regexComposer;
-      private final Function<String, U> func;
 
-      public Impl(String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
+      public Impl(String name, String regex, List<List<String>> knownValues) {
         super(name, knownValues);
         Expr expr = new Parser().parse(regex);
         RegexDecomposer translator = new RegexDecomposer(name, expr);
-        this.func = func;
         this.regexComposer = new RegexComposer(name, expr);
         this.factorSpace = translator.decompose();
       }
 
-      public Optional<Tuple> decomposeValue(List<U> value) {
+      public Optional<Tuple> decomposeValue(List<String> value) {
         return _decomposeValue(
             value,
             this.factorSpace.stream(),
@@ -177,8 +176,8 @@ public interface Parameter<T> {
       }
 
       @Override
-      public List<U> composeValue(Tuple tuple) {
-        return composeStringValueFrom(tuple).stream().map(func).collect(toList());
+      public List<String> composeValue(Tuple tuple) {
+        return new ArrayList<>(composeStringValueFrom(tuple));
       }
 
       @Override
@@ -196,30 +195,24 @@ public interface Parameter<T> {
       }
     }
 
-    class Factory<T> extends Parameter.Factory.Base<List<T>> {
+    class Factory<T> extends Parameter.Factory.Base<List<String>> {
       private final String              regex;
-      private final Function<String, T> func;
 
       @Override
-      public Regex<T> create(String name) {
-        return create(name, regex, knownValues, func);
-      }
-
-      public static <T> Factory<T> of(String regex, Function<String, T> func) {
-        return new Factory<>(regex, func);
+      public Regex create(String name) {
+        return create(name, regex, knownValues);
       }
 
       public static Factory<String> of(String regex) {
-        return new Factory<>(regex, s -> s);
+        return new Factory<>(regex);
       }
 
-      private Factory(String regex, Function<String, T> func) {
+      private Factory(String regex) {
         this.regex = requireNonNull(regex);
-        this.func = requireNonNull(func);
       }
 
-      private static <U> Regex<U> create(String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
-        return new Impl<>(name, regex, knownValues, func);
+      private static <U> Regex create(String name, String regex, List<List<String>> knownValues) {
+        return new Impl(name, regex, knownValues);
       }
     }
   }
