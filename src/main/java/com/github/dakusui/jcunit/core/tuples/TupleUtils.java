@@ -10,15 +10,15 @@ import static java.util.Objects.requireNonNull;
 public enum TupleUtils {
   ;
 
-  public static Set<Tuple> subtuplesOf(
-      Tuple tuple, int strength) {
+  public static Set<Aarray> subtuplesOf(
+      Aarray tuple, int strength) {
     Checks.checknotnull(tuple);
     Checks.checkcond(strength >= 0 && strength <= tuple.size());
-    Set<Tuple> ret = new LinkedHashSet<>();
+    Set<Aarray> ret = new LinkedHashSet<>();
     Combinator<String> c = new Combinator<>(
         new LinkedList<>(tuple.keySet()), strength);
     for (List<String> keys : c) {
-      Tuple cur = new Tuple.Impl();
+      Aarray cur = new Aarray.Impl();
       for (String k : keys) {
         cur.put(k, tuple.get(k));
       }
@@ -27,9 +27,9 @@ public enum TupleUtils {
     return ret;
   }
 
-  public static Set<Tuple> subtuplesOf(Tuple tuple) {
+  public static Set<Aarray> subtuplesOf(Aarray tuple) {
     Checks.checknotnull(tuple);
-    Set<Tuple> ret = new LinkedHashSet<>();
+    Set<Aarray> ret = new LinkedHashSet<>();
     int sz = tuple.size();
     for (int i = 0; i <= sz; i++) {
       ret.addAll(subtuplesOf(tuple, sz - i));
@@ -37,30 +37,30 @@ public enum TupleUtils {
     return ret;
   }
 
-  public static Set<Tuple> connectingSubtuplesOf(Tuple lhs, Tuple rhs, int strength) {
+  public static Set<Aarray> connectingSubtuplesOf(Aarray lhs, Aarray rhs, int strength) {
     Checks.checkcond(strength >= 0);
     Checks.checkcond(strength <= lhs.size() + rhs.size());
     Checks.checkcond(Collections.disjoint(lhs.keySet(), rhs.keySet()));
-    Set<Tuple> ret = new LinkedHashSet<>();
+    Set<Aarray> ret = new LinkedHashSet<>();
     for (int i = 1; i < strength; i++) {
       if (i > lhs.size())
         break;
       if (i < strength - rhs.size())
         continue;
-      for (Tuple eachFromLhs : subtuplesOf(lhs, i))
-        for (Tuple eachFromRhs : subtuplesOf(rhs, strength - i))
-          ret.add(Tuple.builder().putAll(eachFromLhs).putAll(eachFromRhs).build());
+      for (Aarray eachFromLhs : subtuplesOf(lhs, i))
+        for (Aarray eachFromRhs : subtuplesOf(rhs, strength - i))
+          ret.add(Aarray.builder().putAll(eachFromLhs).putAll(eachFromRhs).build());
     }
     return ret;
   }
 
-  public static Tuple project(Tuple tuple, List<String> factorNames) {
-    Tuple.Builder builder = new Tuple.Builder();
+  public static Aarray project(Aarray tuple, List<String> factorNames) {
+    Aarray.Builder builder = new Aarray.Builder();
     factorNames.stream().filter(tuple::containsKey).forEach(each -> builder.put(each, tuple.get(each)));
     return builder.build();
   }
 
-  public static Tuple copy(Tuple tuple) {
-    return new Tuple.Builder().putAll(requireNonNull(tuple)).build();
+  public static Aarray copy(Aarray tuple) {
+    return new Aarray.Builder().putAll(requireNonNull(tuple)).build();
   }
 }

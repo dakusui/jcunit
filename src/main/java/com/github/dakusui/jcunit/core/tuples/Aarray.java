@@ -10,7 +10,12 @@ import java.util.TreeMap;
 
 import static java.util.Arrays.asList;
 
-public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
+/**
+ * An associative-array for JCUnit's internal data structure.
+ *
+ * This class was re-named from `Tuple` to `Aarray`, because the class was used both for tuples and rows.
+ */
+public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
   class Builder {
     LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
 
@@ -32,19 +37,19 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
       return this;
     }
 
-    public Tuple build() {
-      Tuple ret = new Impl();
+    public Aarray build() {
+      Aarray ret = new Impl();
       for (String k : this.attrs.keySet()) {
         ret.put(k, this.attrs.get(k));
       }
-      Tuple sorted = new Sorted();
+      Aarray sorted = new Sorted();
       sorted.putAll(ret);
       ret = sorted;
       return ret;
     }
   }
 
-  boolean isSubtupleOf(Tuple another);
+  boolean isSubtupleOf(Aarray another);
 
   static Builder builder() {
     return new Builder();
@@ -53,7 +58,7 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
   enum Utils {
     ;
 
-    static boolean isSubtupleOf(Tuple a, Tuple b) {
+    static boolean isSubtupleOf(Aarray a, Aarray b) {
       Checks.checknotnull(a);
       Checks.checknotnull(b);
       if (!b.keySet().containsAll(a.keySet())) {
@@ -69,16 +74,16 @@ public interface Tuple extends Map<String, Object>, Cloneable, Serializable {
 
   }
 
-  class Impl extends LinkedHashMap<String, Object> implements Tuple {
+  class Impl extends LinkedHashMap<String, Object> implements Aarray {
     @Override
-    public boolean isSubtupleOf(Tuple another) {
+    public boolean isSubtupleOf(Aarray another) {
       return Utils.isSubtupleOf(this, another);
     }
   }
 
-  class Sorted extends TreeMap<String, Object> implements Tuple {
+  class Sorted extends TreeMap<String, Object> implements Aarray {
     @Override
-    public boolean isSubtupleOf(Tuple another) {
+    public boolean isSubtupleOf(Aarray another) {
       return Utils.isSubtupleOf(this, another);
     }
   }

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.metamodel;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.Collection;
@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
  * It consists of parameters and constraints over them.
  */
 public interface ParameterSpace {
-  static List<Tuple> encodeSeedTuples(ParameterSpace parameterSpace, List<Tuple> seeds) {
+  static List<Aarray> encodeSeedTuples(ParameterSpace parameterSpace, List<Aarray> seeds) {
     return seeds.stream(
     ).map(
         parameterSpace::encodeTuple
@@ -37,8 +37,8 @@ public interface ParameterSpace {
    * @param tuple An input key-value pairs
    * @return An encoded tuple
    */
-  default Tuple encodeTuple(Tuple tuple) {
-    Tuple.Builder builder = Tuple.builder();
+  default Aarray encodeTuple(Aarray tuple) {
+    Aarray.Builder builder = Aarray.builder();
     getParameterNames()
         .forEach(each -> getParameter(each).decomposeValue(tuple.get(each)).ifPresent(builder::putAll));
     return builder.build();

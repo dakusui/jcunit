@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.metamodel.parameters;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.metamodel.Parameter;
@@ -38,13 +38,13 @@ public interface Simple<T> extends Parameter<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public T composeValue(Tuple tuple) {
+    public T composeValue(Aarray tuple) {
       return (T) tuple.get(getName());
     }
 
     @Override
-    public Optional<Tuple> decomposeValue(T value) {
-      return Optional.of(Tuple.builder().put(name, value).build());
+    public Optional<Aarray> decomposeValue(T value) {
+      return Optional.of(Aarray.builder().put(name, value).build());
     }
 
     @Override

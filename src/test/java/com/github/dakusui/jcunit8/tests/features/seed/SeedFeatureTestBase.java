@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 
 @RunWith(JCUnit8.class)
 public abstract class SeedFeatureTestBase extends JUnit4_13Workaround {
-  static final List<Tuple> testCases = Collections.synchronizedList(new LinkedList<>());
+  static final List<Aarray> testCases = Collections.synchronizedList(new LinkedList<>());
 
   @ParameterSource
   public Simple.Factory<Integer> a() {
@@ -44,7 +44,7 @@ public abstract class SeedFeatureTestBase extends JUnit4_13Workaround {
   ) {
     String msg = String.format("a=%d,b=%d,c=%d%n", a, b, c);
     System.out.print(msg);
-    testCases.add(Tuple.builder()
+    testCases.add(Aarray.builder()
         .put("a", a)
         .put("b", b)
         .put("c", c)

@@ -1,16 +1,10 @@
 package com.github.dakusui.jcunit8.metamodel;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.regex.Expr;
-import com.github.dakusui.jcunit.regex.Parser;
-import com.github.dakusui.jcunit.regex.RegexComposer;
-import com.github.dakusui.jcunit8.core.Utils;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.factorspace.regex.RegexDecomposer;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -46,14 +40,14 @@ public interface Parameter<T> {
    * @param tuple an internal representation of a value of this parameter.
    * @return A value of this parameter.
    */
-  T composeValue(Tuple tuple);
+  T composeValue(Aarray tuple);
 
   /**
    * Decomposes a value into a key-value pair set.
    * @param value
    * @return
    */
-  Optional<Tuple> decomposeValue(T value);
+  Optional<Aarray> decomposeValue(T value);
 
   /**
    * Returns a list of "known values" of this parameter.
@@ -102,8 +96,8 @@ public interface Parameter<T> {
       this.knownValues = unmodifiableList(requireNonNull(knownValues));
     }
 
-    protected static <V> Optional<Tuple> _decomposeValue(V value, Stream<Tuple> tuples, Function<Tuple, V> valueComposer, Predicate<Tuple> constraints) {
-      return tuples.filter((Tuple tuple) -> value.equals(valueComposer.apply(tuple)))
+    protected static <V> Optional<Aarray> _decomposeValue(V value, Stream<Aarray> tuples, Function<Aarray, V> valueComposer, Predicate<Aarray> constraints) {
+      return tuples.filter((Aarray tuple) -> value.equals(valueComposer.apply(tuple)))
           .filter(constraints)
           .findFirst();
     }

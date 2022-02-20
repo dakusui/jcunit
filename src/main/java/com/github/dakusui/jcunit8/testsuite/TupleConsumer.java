@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.util.Formattable;
 import java.util.Formatter;
 import java.util.function.Consumer;
 
-public interface TupleConsumer extends Consumer<Tuple>, Formattable {
+public interface TupleConsumer extends Consumer<Aarray>, Formattable {
   String getName();
 
   @Override

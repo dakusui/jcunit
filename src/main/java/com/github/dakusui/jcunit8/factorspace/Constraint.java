@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.factorspace;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.core.Utils;
 
 import java.util.List;
@@ -10,7 +10,7 @@ import static com.github.dakusui.jcunit8.core.Utils.project;
 import static java.util.Arrays.asList;
 
 public interface Constraint extends TuplePredicate {
-  static Constraint create(String name, Predicate<Tuple> predicate, List<String> args) {
+  static Constraint create(String name, Predicate<Aarray> predicate, List<String> args) {
     return new Constraint() {
       @Override
       public String getName() {
@@ -18,7 +18,7 @@ public interface Constraint extends TuplePredicate {
       }
 
       @Override
-      public boolean test(Tuple tuple) {
+      public boolean test(Aarray tuple) {
         return predicate.test(project(args, tuple));
       }
 
@@ -34,7 +34,7 @@ public interface Constraint extends TuplePredicate {
     };
   }
 
-  static Constraint create(String name, Predicate<Tuple> predicate, String... args) {
+  static Constraint create(String name, Predicate<Aarray> predicate, String... args) {
     return create(name, predicate, asList(args));
   }
 }

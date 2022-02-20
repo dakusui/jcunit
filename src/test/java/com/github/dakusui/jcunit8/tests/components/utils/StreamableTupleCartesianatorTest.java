@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.components.utils;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class StreamableTupleCartesianatorTest {
             Factor.create("I", new Object[] { "i1", "i2" })
         )
     ).cursor(
-        Tuple.builder()
+        Aarray.builder()
             .put("F", "f1")
             .put("G", "g2")
             .put("H", "h1")

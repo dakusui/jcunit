@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.metamodel.Parameter;
 import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
@@ -93,7 +93,7 @@ public abstract class PipelineTestBase {
             Factor.create("simple3", new Object[] { "default", "value" })
         ),
         Collections.singletonList(
-            Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
+            Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
         )
     );
   }

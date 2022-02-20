@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 
@@ -12,7 +12,7 @@ import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStren
  * A list of tuples all of whose entries have the same attribute names. An implementation
  * of this interface must also guarantee that it doesn't have the same element.
  */
-public interface SchemafulTupleSet extends List<Tuple> {
+public interface SchemafulTupleSet extends List<Aarray> {
   List<String> getAttributeNames();
   int width();
 
@@ -24,7 +24,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
    */
   TupleSet subtuplesOf(int strength);
 
-  static SchemafulTupleSet fromTuples(List<Tuple> tuples_) {
+  static SchemafulTupleSet fromTuples(List<Aarray> tuples_) {
     Objects.requireNonNull(tuples_);
     FrameworkException.check(tuples_, tuples -> !tuples.isEmpty());
     return new Builder(new ArrayList<>(tuples_.get(0).keySet()))
@@ -38,7 +38,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
 
   class Builder {
     private final LinkedHashSet<String> attributeNames;
-    private final List<Tuple>           tuples;
+    private final List<Aarray>          tuples;
 
     public Builder(List<String> attributeNames) {
       this.attributeNames = new LinkedHashSet<String>() {{
@@ -47,32 +47,32 @@ public interface SchemafulTupleSet extends List<Tuple> {
       this.tuples = new LinkedList<>();
     }
 
-    public Builder add(Tuple tuple) {
+    public Builder add(Aarray tuple) {
       ////
       // Make sure all the tuples in this suite object have the same set of attribute
       // names.
-      FrameworkException.check(tuple, (Tuple t) -> attributeNames.equals(tuple.keySet()));
+      FrameworkException.check(tuple, (Aarray t) -> attributeNames.equals(tuple.keySet()));
       this.tuples.add(tuple);
       return this;
     }
 
-    public Builder addAll(List<Tuple> tuples) {
+    public Builder addAll(List<Aarray> tuples) {
       tuples.forEach(this::add);
       return this;
     }
 
     public SchemafulTupleSet build() {
-      class Impl extends AbstractList<Tuple> implements SchemafulTupleSet {
-        private final List<Tuple>  tuples;
+      class Impl extends AbstractList<Aarray> implements SchemafulTupleSet {
+        private final List<Aarray> tuples;
         private final List<String> attributeNames;
 
-        private Impl(List<String> attributeNames, List<Tuple> tuples) {
+        private Impl(List<String> attributeNames, List<Aarray> tuples) {
           this.tuples = tuples;
           this.attributeNames = Collections.unmodifiableList(attributeNames);
         }
 
         @Override
-        public Tuple get(int index) {
+        public Aarray get(int index) {
           return tuples.get(index);
         }
 
@@ -95,7 +95,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
         public TupleSet subtuplesOf(int strength) {
           checkIfStrengthIsInRange(strength, attributeNames);
           TupleSet.Builder builder = new TupleSet.Builder();
-          for (Tuple each : this) {
+          for (Aarray each : this) {
             builder.addAll(TupleUtils.subtuplesOf(each, strength));
           }
           return builder.build();

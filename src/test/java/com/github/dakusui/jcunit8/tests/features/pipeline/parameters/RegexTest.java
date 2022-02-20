@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.metamodel.parameters.Regex;
 import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
@@ -118,7 +118,7 @@ public class RegexTest extends PipelineTestBase {
                 (Integer value) -> value >= 1 + 2 + 4 + 4 && value < 1 + 2 + 4 + 8
             ),
             allSatisfy(
-                (Tuple tuple) -> {
+                (Aarray tuple) -> {
                   Object value = tuple.get("regex1");
                   if (!(value instanceof List))
                     return false;

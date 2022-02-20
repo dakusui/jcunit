@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.pipeline;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
@@ -42,7 +42,7 @@ public interface Pipeline {
       validateSeeds(config.getRequirement().seeds(), parameterSpace);
       TestSuite.Builder<?> builder = new TestSuite.Builder<>(parameterSpace, testScenario);
       builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
-      List<Tuple> regularTestTuples = engine(config, parameterSpace);
+      List<Aarray> regularTestTuples = engine(config, parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestTuples);
       if (config.getRequirement().generateNegativeTests())
         builder = builder.addAllToNegativeTuples(
@@ -57,9 +57,9 @@ public interface Pipeline {
       return builder.build();
     }
 
-    private void validateSeeds(List<Tuple> seeds, ParameterSpace parameterSpace) {
-      List<Function<Tuple, String>> checks = asList(
-          (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
+    private void validateSeeds(List<Aarray> seeds, ParameterSpace parameterSpace) {
+      List<Function<Aarray, String>> checks = asList(
+          (Aarray tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
               String.format("Unknown parameter(s) were found: %s in tuple: %s",
                   new LinkedList<String>() {{
                     addAll(tuple.keySet());
@@ -68,7 +68,7 @@ public interface Pipeline {
                   tuple
               ) :
               null,
-          (Tuple tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
+          (Aarray tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
               String.format("Parameter(s) were not found: %s in tuple: %s",
                   new LinkedList<String>() {{
                     addAll(parameterSpace.getParameterNames());
@@ -120,8 +120,8 @@ public interface Pipeline {
           .map(
               (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
                   tuples.stream()
-                      .map((Tuple tuple) -> {
-                        Tuple.Builder builder = new Tuple.Builder();
+                      .map((Aarray tuple) -> {
+                        Aarray.Builder builder = new Aarray.Builder();
                         for (String parameterName : parameterSpace.getParameterNames()) {
                           builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));
                         }
@@ -154,7 +154,7 @@ public interface Pipeline {
       );
     }
 
-    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, List<Tuple> encodedSeeds, Requirement requirement) {
+    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Aarray> tuplesForRegularTests, List<Aarray> encodedSeeds, Requirement requirement) {
       return generateNegativeTests ?
           new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, requirement) :
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);

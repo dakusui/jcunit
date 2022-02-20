@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
 import com.github.dakusui.crest.utils.printable.Functions;
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
@@ -119,7 +119,7 @@ public class SeedTest {
     );
   }
 
-  private List<Tuple> generateTestCasesByRunningTestClass(Class klass) {
+  private List<Aarray> generateTestCasesByRunningTestClass(Class klass) {
     synchronized (SeedFeatureTestBase.testCases) {
       SeedFeatureTestBase.testCases.clear();
       Assert.assertTrue(JUnitCore.runClasses(klass).wasSuccessful());

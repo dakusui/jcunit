@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.constraints;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -34,7 +34,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(
@@ -53,7 +53,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(
@@ -72,7 +72,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create("alwaysTrue[simple1]", (Tuple tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(

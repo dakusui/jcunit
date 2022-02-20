@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.pipeline;
 
-import com.github.dakusui.jcunit.core.tuples.Tuple;
+import com.github.dakusui.jcunit.core.tuples.Aarray;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -13,12 +13,12 @@ public interface Requirement {
 
   boolean generateNegativeTests();
 
-  List<Tuple> seeds();
+  List<Aarray> seeds();
 
   class Builder {
     private int strength = 2;
-    private boolean negativeTestGeneration;
-    private final List<Tuple> seeds = new LinkedList<>();
+    private boolean            negativeTestGeneration;
+    private final List<Aarray> seeds = new LinkedList<>();
 
     public Builder withStrength(int strength) {
       this.strength = strength;
@@ -30,7 +30,7 @@ public interface Requirement {
       return this;
     }
 
-    public Builder addSeed(Tuple seed) {
+    public Builder addSeed(Aarray seed) {
       this.seeds.add(requireNonNull(seed));
       return this;
     }
@@ -48,7 +48,7 @@ public interface Requirement {
         }
 
         @Override
-        public List<Tuple> seeds() {
+        public List<Aarray> seeds() {
           return Collections.unmodifiableList(seeds);
         }
       };
