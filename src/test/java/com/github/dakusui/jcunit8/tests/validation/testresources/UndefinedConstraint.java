@@ -1,19 +1,14 @@
 package com.github.dakusui.jcunit8.tests.validation.testresources;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
-import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-
-import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 
 /**
  * This is an "example" class, intended to be executed by a "real" test class.
@@ -23,8 +18,8 @@ import static java.util.Collections.emptyList;
 public class UndefinedConstraint extends InvalidTestClass {
   @SuppressWarnings("unused")
   @ParameterSource
-  public Parameter.Simple.Factory<Integer> a() {
-    return Parameter.Simple.Factory.of(asList(1,2,3));
+  public Simple.Factory<Integer> a() {
+    return Simple.Factory.of(asList(1,2,3));
   }
 
   @SuppressWarnings("unused")

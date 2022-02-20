@@ -1,10 +1,12 @@
 package com.github.dakusui.jcunit.regex;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 
@@ -19,6 +21,12 @@ public class RegexComposer {
     this.exprs = createMap(this.topLevel);
   }
 
+  /**
+   * A method to compose a sequence of `String`s that matches the expression given as `topLevel` from `tuple`.
+   *
+   * @param tuple An internal representation of a sequence matching the `topLevel` expression (`Expr`).
+   * @return A sequence matching requested `Expr`.
+   */
   public List<String> compose(Tuple tuple) {
     ComposerVisitor visitor = new ComposerVisitor(tuple, this.exprs);
     this.topLevel.accept(visitor);
@@ -28,8 +36,6 @@ public class RegexComposer {
   private List<String> splitOnWhiteSpaces(List<Object> in) {
     List<String> ret = new LinkedList<>();
     for (Object each : in) {
-      Checks.checkcond(each instanceof String);
-      //noinspection ConstantConditions
       String eachString = (String) each;
       if (!eachString.contains(" ")) {
         ret.add(eachString);
@@ -41,7 +47,7 @@ public class RegexComposer {
   }
 
   private Map<String, Expr> createMap(Expr top) {
-    final Map<String, Expr> ret = new HashMap<String, Expr>();
+    final Map<String, Expr> ret = new HashMap<>();
     top.accept(new Expr.Visitor() {
       @Override
       public void visit(Expr.Alt exp) {
@@ -79,7 +85,7 @@ public class RegexComposer {
   private class ComposerVisitor implements Expr.Visitor {
     private final Tuple             tuple;
     private final Map<String, Expr> exprs;
-    public List<Object> out = new LinkedList<Object>();
+    public        List<Object>      out = new LinkedList<>();
 
     private ComposerVisitor(Tuple tuple, Map<String, Expr> exprs) {
       this.tuple = tuple;
@@ -88,11 +94,11 @@ public class RegexComposer {
 
     @Override
     public void visit(Expr.Alt expr) {
-      //noinspection ConstantConditions
       Object values = tuple.get(composeKey(expr));
       if (Generator.VOID.equals(values))
         return;
-      for (Object each : (List) values) {
+      //noinspection unchecked
+      for (Object each : (List<Object>) values) {
         if (each instanceof Reference) {
           this.exprs.get(((Reference) each).key).accept(this);
         } else {

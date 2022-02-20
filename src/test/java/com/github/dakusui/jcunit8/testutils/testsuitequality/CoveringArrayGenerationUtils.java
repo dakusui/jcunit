@@ -7,6 +7,9 @@ import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.core.StreamableCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.metamodel.Parameter;
+import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -90,7 +93,7 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static Parameter<Object> p(String name, Object... levels) {
-    return Parameter.Simple.Factory.of(asList(levels)).create(name);
+    return Simple.Factory.of(asList(levels)).create(name);
   }
 
   public static List<Tuple> allPossibleTuplesInFactors(int strength, List<Factor> factors) {

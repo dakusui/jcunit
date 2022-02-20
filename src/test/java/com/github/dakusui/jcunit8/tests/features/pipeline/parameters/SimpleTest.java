@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
 import com.github.dakusui.jcunit8.testutils.TestSuiteUtils;
@@ -14,8 +14,8 @@ public class SimpleTest extends PipelineTestBase {
   @Test
   public void test() {
     for (TestCase each : generateTestSuite(
-        Parameter.Simple.Factory.of(asList("A1", "A2", "A3")).create("A"),
-        Parameter.Simple.Factory.of(asList("B1", "B2", "B3")).create("B")
+        Simple.Factory.of(asList("A1", "A2", "A3")).create("A"),
+        Simple.Factory.of(asList("B1", "B2", "B3")).create("B")
     )) {
       System.out.println(each.getTestInput());
     }

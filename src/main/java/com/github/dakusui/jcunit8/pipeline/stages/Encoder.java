@@ -2,6 +2,9 @@ package com.github.dakusui.jcunit8.pipeline.stages;
 
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.metamodel.Parameter;
+import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 
 import java.util.List;
 import java.util.function.Function;
@@ -20,7 +23,7 @@ public interface Encoder extends Function<ParameterSpace, FactorSpace> {
     @Override
     public FactorSpace apply(ParameterSpace parameterSpace) {
       streamParameters(parameterSpace).forEach(
-          parameter -> FrameworkException.check(parameter, eachParameter -> eachParameter instanceof Parameter.Simple ||
+          parameter -> FrameworkException.check(parameter, eachParameter -> eachParameter instanceof Simple ||
               parameterSpace.getConstraints().stream()
                   .noneMatch(constraint -> constraint.involvedKeys().contains(eachParameter.getName())))
       );

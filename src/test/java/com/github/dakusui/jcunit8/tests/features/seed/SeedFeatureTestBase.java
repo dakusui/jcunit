@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.tests.features.seed;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
@@ -22,18 +22,18 @@ public abstract class SeedFeatureTestBase extends JUnit4_13Workaround {
   static final List<Tuple> testCases = Collections.synchronizedList(new LinkedList<>());
 
   @ParameterSource
-  public Parameter.Simple.Factory<Integer> a() {
-    return Parameter.Simple.Factory.of(asList(0, 1));
+  public Simple.Factory<Integer> a() {
+    return Simple.Factory.of(asList(0, 1));
   }
 
   @ParameterSource
-  public Parameter.Simple.Factory<Integer> b() {
-    return Parameter.Simple.Factory.of(asList(0, 1));
+  public Simple.Factory<Integer> b() {
+    return Simple.Factory.of(asList(0, 1));
   }
 
   @ParameterSource
-  public Parameter.Simple.Factory<Integer> c() {
-    return Parameter.Simple.Factory.of(asList(0, 1));
+  public Simple.Factory<Integer> c() {
+    return Simple.Factory.of(asList(0, 1));
   }
 
   @Test

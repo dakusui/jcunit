@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.errorhandling;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -15,7 +15,7 @@ public class FailOnParameterFactoryCreation extends JUnit4_13Workaround {
   public static final String INTENTIONAL_EXCEPTION_MESSAGE = "Intentional exception";
 
   @ParameterSource
-  public Parameter.Simple.Factory<Integer> a() throws Throwable {
+  public Simple.Factory<Integer> a() throws Throwable {
     throw new RuntimeException(INTENTIONAL_EXCEPTION_MESSAGE);
   }
 

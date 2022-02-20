@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.examples.executionsequence;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.Parameter;
 import com.github.dakusui.jcunit8.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;

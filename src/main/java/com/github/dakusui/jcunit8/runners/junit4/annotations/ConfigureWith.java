@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4.annotations;
 
+import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 
 import java.lang.annotation.Annotation;
@@ -38,7 +39,7 @@ public @interface ConfigureWith {
    * attached is used to create a parameter space Object.
    *
    * @return A class that defines parameter space or {@code Object.class}.
-   * @see com.github.dakusui.jcunit8.factorspace.ParameterSpace
+   * @see ParameterSpace
    * @see ParameterSource
    * @see Condition
    */

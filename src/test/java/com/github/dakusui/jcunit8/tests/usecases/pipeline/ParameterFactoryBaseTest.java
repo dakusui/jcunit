@@ -1,7 +1,8 @@
 package com.github.dakusui.jcunit8.tests.usecases.pipeline;
 
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.Parameter;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -16,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 public class ParameterFactoryBaseTest extends Parameter.Factory.Base<String> {
   @Override
   public Parameter<String> create(String name) {
-    return new Parameter.Simple.Impl<>(name, this.knownValues);
+    return new Simple.Impl<>(name, this.knownValues);
   }
 
   @Test

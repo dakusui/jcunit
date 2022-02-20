@@ -5,6 +5,9 @@ import com.github.dakusui.jcunit.exceptions.InvalidTestException;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
 import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.metamodel.Parameter;
+import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;
@@ -158,7 +161,7 @@ public interface Pipeline {
     }
 
     private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
-      if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
+      if (!(parameter instanceof Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         List<Object> values = Stream
             .concat(
                 parameter.getKnownValues().stream(),
@@ -167,7 +170,7 @@ public interface Pipeline {
                     .stream().map(tuple -> tuple.get(parameter.getName())
                 ) // Extraction
             ).collect(toList());
-        return Parameter.Simple.Factory.of(
+        return Simple.Factory.of(
             Utils.unique(
                 values
             ))

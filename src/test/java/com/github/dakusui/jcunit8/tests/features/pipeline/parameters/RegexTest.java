@@ -2,7 +2,8 @@ package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.parameters.Regex;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
@@ -22,7 +23,7 @@ public class RegexTest extends PipelineTestBase {
   public void whenBuildFactorSpace() {
     //noinspection PointlessArithmeticExpression
     FactorSpaceUtils.validateFactorSpace(
-        Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
+        Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
         UTUtils.matcher(
             FactorSpaceUtils.sizeOfFactorsIs(
                 "==10[(3times + 1) + (2times + 1) + (1time + 1) + (0time + 1)]",
@@ -39,7 +40,7 @@ public class RegexTest extends PipelineTestBase {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         SchemafulTupleSet.fromTuples(
             new IpoGplus(
-                Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
+                Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
                 requirement(),
                 emptyList()
             ).generate()),
@@ -55,7 +56,7 @@ public class RegexTest extends PipelineTestBase {
   public void givenRegex$whenBuildTestSuite$thenNonEmptyTestSuiteBuilt() {
     TestSuiteUtils.validateTestSuite(
         generateTestSuite(
-            Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")
+            Regex.Factory.of("A(B|C){0,3}").create("regex1")
         ),
         UTUtils.matcherFromPredicates(
             sizeIs(
@@ -80,10 +81,10 @@ public class RegexTest extends PipelineTestBase {
   @Test
   public void whenPreprocess$thenNonSimpleParameterInvolvedInConstraintWillBeRemoved() {
     ParameterSpaceUtils.validateParameterSpace(
-        preprocess(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
+        preprocess(Regex.Factory.of("A(B|C){0,3}").create("regex1")),
         UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),
-            ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Regex.class),
+            ParameterSpaceUtils.parametersAreAllInstancesOf(Regex.class),
             ParameterSpaceUtils.hasConstraints(0)
         ));
   }
@@ -92,7 +93,7 @@ public class RegexTest extends PipelineTestBase {
   public void whenPreprocessWithConstraints$thenNonSimpleParameterInvolvedInConstraintWillBeRemoved() {
     ParameterSpaceUtils.validateParameterSpace(
         preprocess(
-            singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
+            singletonList(Regex.Factory.of("A(B|C){0,3}").create("regex1")),
             singletonList(Constraint.create(
                 "alwaysTrue[regex1]",
                 tuple -> true,
@@ -100,7 +101,7 @@ public class RegexTest extends PipelineTestBase {
             ))),
         UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),
-            ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Simple.class),
+            ParameterSpaceUtils.parametersAreAllInstancesOf(Simple.class),
             ParameterSpaceUtils.hasConstraints(1)
         ));
   }
@@ -109,7 +110,7 @@ public class RegexTest extends PipelineTestBase {
   public void whenEngine$thenSchemafulTupleSetGenerated() {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
         engine(
-            singletonList(Parameter.Regex.Factory.of("A(B|C){0,3}").create("regex1")),
+            singletonList(Regex.Factory.of("A(B|C){0,3}").create("regex1")),
             emptyList()),
         UTUtils.matcherFromPredicates(
             sizeIs(
@@ -134,7 +135,7 @@ public class RegexTest extends PipelineTestBase {
             ////
             // Currently, inner 'choice' operator ('|') is expanded only once,
             // even if there is a 'repetition' operator ('{n,m}') outside.
-            singletonList(Parameter.Regex.Factory.of("A((B|C)D){0,3}").create("regex1")),
+            singletonList(Regex.Factory.of("A((B|C)D){0,3}").create("regex1")),
             emptyList()
         ),
         UTUtils.matcher(

@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit8.pipeline;
 
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
-import com.github.dakusui.jcunit8.factorspace.ParameterSpace;
+import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 
 import java.util.List;
 import java.util.Set;
@@ -28,7 +28,7 @@ public class PipelineException extends FrameworkException {
 
   static void checkIfNoNonSimpleParameterIsInvolvedByAnyConstraint(ParameterSpace parameterSpace) {
     Set<String> nonSimpleParameters = parameterSpace.getParameterNames().stream()
-        .filter(s -> !(parameterSpace.getParameter(s) instanceof Parameter.Simple))
+        .filter(s -> !(parameterSpace.getParameter(s) instanceof Simple))
         .collect(Collectors.toSet());
     Predicate<Constraint> checkNoNonSimpleParameterInvolved =
         (Constraint constraint) -> disjoint(nonSimpleParameters, constraint.involvedKeys());

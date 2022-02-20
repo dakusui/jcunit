@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.testutils.testsuitequality;
 import com.github.dakusui.crest.utils.printable.Printable;
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import com.github.dakusui.jcunit8.testutils.UTUtils;

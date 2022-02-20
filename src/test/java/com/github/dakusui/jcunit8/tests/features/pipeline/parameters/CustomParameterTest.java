@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.Parameter;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
 import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
 import com.github.dakusui.jcunit8.testutils.*;
@@ -88,7 +88,7 @@ public class CustomParameterTest extends PipelineTestBase {
         ),
         UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(2),
-            ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Simple.class),
+            ParameterSpaceUtils.parametersAreAllInstancesOf(Simple.class),
             ParameterSpaceUtils.hasConstraints(1)
         )
     );
@@ -108,7 +108,7 @@ public class CustomParameterTest extends PipelineTestBase {
             )),
         UTUtils.matcher(
             ParameterSpaceUtils.hasParameters(1),
-            ParameterSpaceUtils.parametersAreAllInstancesOf(Parameter.Simple.class),
+            ParameterSpaceUtils.parametersAreAllInstancesOf(Simple.class),
             ParameterSpaceUtils.sizeOfParameterKnownValuesSatisfies("custom1", value -> value > 0),
             ParameterSpaceUtils.hasConstraints(1)
         )

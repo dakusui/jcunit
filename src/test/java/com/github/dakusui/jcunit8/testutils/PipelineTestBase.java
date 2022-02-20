@@ -2,6 +2,9 @@ package com.github.dakusui.jcunit8.testutils;
 
 import com.github.dakusui.jcunit.core.tuples.Tuple;
 import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.metamodel.Parameter;
+import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -62,7 +65,7 @@ public abstract class PipelineTestBase {
   }
 
   protected Parameter.Factory<String> simpleParameterFactory(String... values) {
-    return Parameter.Simple.Factory.of(asList(values));
+    return Simple.Factory.of(asList(values));
   }
 
   protected Parameter.Factory<String> simpleParameterFactoryWithDefaultValues() {
