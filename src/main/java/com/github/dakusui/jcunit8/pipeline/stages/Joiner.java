@@ -176,7 +176,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       Aarray inConcern = project(aTuple, tuples.getAttributeNames());
       return tuples.stream(
       ).filter(
-          inConcern::isSubtupleOf
+          inConcern::isContainedBy
       ).collect(
           toList()
       );

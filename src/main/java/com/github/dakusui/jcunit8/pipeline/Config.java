@@ -112,7 +112,7 @@ public interface Config {
           generatorFactory.create(
               factorSpace,
               requirement,
-              ParameterSpace.encodeSeedTuples(parameterSpace, requirement.seeds())
+              ParameterSpace.encodeSeeds(parameterSpace, requirement.seeds())
           ).generate()
       ).build();
     }

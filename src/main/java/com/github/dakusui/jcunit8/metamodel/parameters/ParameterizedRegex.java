@@ -45,7 +45,7 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.El
     }
 
     public Optional<Aarray> decomposeValue(List<Element> value) {
-      return _decomposeValue(
+      return Regex._decomposeValue(
           value,
           this.factorSpace.stream(),
           this.regexComposer::compose,

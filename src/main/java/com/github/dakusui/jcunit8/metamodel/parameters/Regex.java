@@ -14,10 +14,19 @@ import com.github.dakusui.jcunit8.metamodel.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
 public interface Regex extends Parameter<List<String>> {
+  static <V> Optional<Aarray> _decomposeValue(V value, Stream<Aarray> tuples, Function<Aarray, V> valueComposer, Predicate<Aarray> constraints) {
+    return tuples.filter((Aarray tuple) -> value.equals(valueComposer.apply(tuple)))
+        .filter(constraints)
+        .findFirst();
+  }
+
   class Impl extends Base<List<String>> implements Regex {
 
     private final FactorSpace   factorSpace;

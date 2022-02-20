@@ -191,7 +191,7 @@ public class IpoGplus extends Generator.Base {
          *            to cover σ and remove it from π (*4)
          * 17.      }
          */
-        if (ts.stream().anyMatch(σ::isSubtupleOf)) {
+        if (ts.stream().anyMatch(σ::isContainedBy)) {
           π.remove(σ);
         } else {
           Aarray chosenTest = streamIncompleteTestsToCoverGivenTuple(

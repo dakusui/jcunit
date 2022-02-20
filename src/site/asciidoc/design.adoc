@@ -22,5 +22,49 @@ image:./design/ThePipeline/Slide1.png[]
 
 === The "Engine" Pipeline
 
+The "Engine" pipeline is responsible for generating a human-understandable test suite from a given human-understandable parameter model.
+
 .Engine Pipeline
 image:./design/ThePipeline/Slide2.png[]
+
+It is a broad concern in the model-based testing to address a problem called "state-space explosion".
+To address this the approach, the JCUnit applies a technique called "Combinatorial Interaction Testing" to generate a small test with a good coverage over the testing domain.
+
+This inner pipeline mainly consists of five stages, "Encode", "Partition", "Generation", "Join", and "Decode".
+
+The high-level (human-understandable) parameter model is encoded into a model based on factors and constraints only in the first stage called "Encode".
+The encoded factors and parameters are partitioned for the sake of scalability and flexibility.
+For each partitioned group of factors and constraints, "Generation" stage, where CIT engine is executed to generate a mathematical object called a "covering array", is executed.
+
+Then, covering arrays are connected by the "Join" stage.
+As of today, the only practical way to construct a new covering array from existing ones without relying on covering array generation engine is a technique called "Combinatorial Join".
+We use this technique in this stage.
+
+Finally, the connected covering array is converted into the human-readable form by "Decode" stage.
+
+In this section, we walk through the stages in the"Engine" pipeline, one by one.
+
+==== Encode
+
+(t.b.d.)
+
+==== Partition
+
+(t.b.d.)
+
+==== Generation
+
+(t.b.d.)
+
+==== Join
+
+(t.b.d.)
+
+==== Decode
+
+(t.b.d.)
+
+== References
+
+(t.b.d.)
+

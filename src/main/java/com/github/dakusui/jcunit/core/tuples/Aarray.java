@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
+import static com.github.dakusui.pcond.Assertions.that;
+import static com.github.dakusui.pcond.functions.Predicates.isNotNull;
 import static java.util.Arrays.asList;
 
 /**
@@ -49,7 +51,7 @@ public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
     }
   }
 
-  boolean isSubtupleOf(Aarray another);
+  boolean isContainedBy(Aarray another);
 
   static Builder builder() {
     return new Builder();
@@ -58,9 +60,9 @@ public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
   enum Utils {
     ;
 
-    static boolean isSubtupleOf(Aarray a, Aarray b) {
-      Checks.checknotnull(a);
-      Checks.checknotnull(b);
+    static boolean isSubAarrayOf(Aarray a, Aarray b) {
+      assert that(a, isNotNull());
+      assert that(b, isNotNull());
       if (!b.keySet().containsAll(a.keySet())) {
         return false;
       }
@@ -76,15 +78,15 @@ public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
 
   class Impl extends LinkedHashMap<String, Object> implements Aarray {
     @Override
-    public boolean isSubtupleOf(Aarray another) {
-      return Utils.isSubtupleOf(this, another);
+    public boolean isContainedBy(Aarray another) {
+      return Utils.isSubAarrayOf(this, another);
     }
   }
 
   class Sorted extends TreeMap<String, Object> implements Aarray {
     @Override
-    public boolean isSubtupleOf(Aarray another) {
-      return Utils.isSubtupleOf(this, another);
+    public boolean isContainedBy(Aarray another) {
+      return Utils.isSubAarrayOf(this, another);
     }
   }
 }

@@ -109,6 +109,6 @@ public class JoinerTest {
   }
 
   private static boolean containsAll(Aarray j, Aarray t) {
-    return t.isSubtupleOf(j);
+    return t.isContainedBy(j);
   }
 }

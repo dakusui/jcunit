@@ -14,33 +14,58 @@ import static java.util.stream.Collectors.toList;
 /**
  * A test input parameter space.
  * It consists of parameters and constraints over them.
+ *
+ * This interface represents user-facing
  */
 public interface ParameterSpace {
-  static List<Aarray> encodeSeedTuples(ParameterSpace parameterSpace, List<Aarray> seeds) {
-    return seeds.stream(
-    ).map(
-        parameterSpace::encodeTuple
-    ).collect(
-        toList()
-    );
+  /**
+   * Encodes the given {@code seeds} into its internal representation.
+   * **NOTE:** that the {@code seeds} need to be complete, that means all the parameters in a seed must have a concrete value.
+   * This is a limitation of the current version of JCUnit, because in the CIT area "seeding" is done for the
+   *
+   * @param parameterSpace The parameter space in which the {@code seeds} are defined.
+   * @param seeds "
+   * @return A list of encoded seeds.
+   */
+  static List<Aarray> encodeSeeds(ParameterSpace parameterSpace, List<Aarray> seeds) {
+    return seeds.stream()
+        .map(parameterSpace::encodeSeed)
+        .collect(toList());
   }
 
+  /**
+   * Returns the list of parameter names.
+   *
+   * @return The list of parameter names.
+   */
   List<String> getParameterNames();
 
+  /**
+   * Returns a parameter specified by the {@code name}.
+   *
+   * @param name The name of the parameter
+   * @param <P> The type of the parameter values.
+   * @return A parameter specified by {@code name}
+   */
   <P> Parameter<P> getParameter(String name);
 
+  /**
+   * Returns a list of constraints defined over the parameters in this space.
+   *
+   * @return The list of constraints.
+   */
   List<Constraint> getConstraints();
 
   /**
    * This corresponds to the "Encode" stage in the "Engine" pipeline.
    *
-   * @param tuple An input key-value pairs
-   * @return An encoded tuple
+   * @param seed A seed
+   * @return An encoded seed
    */
-  default Aarray encodeTuple(Aarray tuple) {
+  default Aarray encodeSeed(Aarray seed) {
     Aarray.Builder builder = Aarray.builder();
     getParameterNames()
-        .forEach(each -> getParameter(each).decomposeValue(tuple.get(each)).ifPresent(builder::putAll));
+        .forEach(each -> getParameter(each).decomposeValue(seed.get(each)).ifPresent(builder::putAll));
     return builder.build();
   }
 
