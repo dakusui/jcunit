@@ -228,7 +228,7 @@ The decoding procedure is provided as a part of each meta-model implementation.
 - [[CombinatorialJoin]] https://ieeexplore.ieee.org/document/8728961[Reduce Test Cost by Reusing Test Oracles through Combinatorial Join]
 - [[WP-CombinatorialJoin]] https://peerj.com/articles/cs-720.pdf[Accelerating covering array generation by combinatorial join for industry scale software testing]
 
-=== JUCnit Tickets
+=== JCUnit Tickets
 - [[JCUnit-Issue-179]] https://github.com/dakusui/jcunit/issues/179[#179: Integrate PICT as a covering array generation engine]
 - [[JCUnit-Issue-188]] https://github.com/dakusui/jcunit/issues/188[#188: Make it possible to specify whether a negative test should be generated for each constraint]
 - [[JCUnit-Issue-189]] https://github.com/dakusui/jcunit/issues/189[#189: Make non-simple-parameter-under-constraint simplifying feature switchable based on cost]
