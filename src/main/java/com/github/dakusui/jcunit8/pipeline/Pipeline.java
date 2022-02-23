@@ -163,8 +163,8 @@ public interface Pipeline {
       if (!(parameter instanceof Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         // Extraction
         return Simple.Factory.of(Stream.concat(
-            parameter.getKnownValues().stream(),
-                    engineOneParameter(parameter, config))
+                    parameter.getKnownValues().stream(),
+                    streamParameterValuesGeneratedByEngine(parameter, config))
                 .distinct()
                 .collect(toList()))
             .create(parameter.getName());
@@ -172,7 +172,7 @@ public interface Pipeline {
       return parameter;
     }
 
-    private Stream<Object> engineOneParameter(Parameter<?> parameter, Config config) {
+    private Stream<Object> streamParameterValuesGeneratedByEngine(Parameter<?> parameter, Config config) {
       return engine(config, new ParameterSpace.Builder().addParameter(parameter).build())
           .stream()
           .map(row -> row.get(parameter.getName()));

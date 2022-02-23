@@ -30,7 +30,7 @@ public class CustomParameterTest extends PipelineTestBase {
   @Test
   public void givenOneCustomParameter$whenGenerateWithIpoG$thenTupleSetGenerated() {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
-        SchemafulAArraySet.fromTuples(
+        SchemafulAArraySet.fromRows(
             new IpoGplus(
                 customParameterFactory().create("custom1").toFactorSpace(),
                 requirement(),

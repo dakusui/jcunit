@@ -93,8 +93,8 @@ public class JoinerTest {
 
   private static List<AArray> performJoin(Joiner joiner, List<AArray> lhs, List<AArray> rhs) {
     return joiner.apply(
-        SchemafulAArraySet.fromTuples(lhs),
-        SchemafulAArraySet.fromTuples(rhs));
+        SchemafulAArraySet.fromRows(lhs),
+        SchemafulAArraySet.fromRows(rhs));
   }
 
   private static void validateJoinedArray(List<AArray> joined, List<AArray> lhs, List<AArray> rhs) {

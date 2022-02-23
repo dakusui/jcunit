@@ -38,7 +38,7 @@ public class RegexTest extends PipelineTestBase {
   @Test
   public void givenRegex$whenGenerateWithIpoG$thenNonEmptyTupleSetGenerated() {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
-        SchemafulAArraySet.fromTuples(
+        SchemafulAArraySet.fromRows(
             new IpoGplus(
                 Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
                 requirement(),

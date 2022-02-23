@@ -44,7 +44,7 @@ public interface Encoder extends Function<ParameterSpace, FactorSpace> {
       );
     }
 
-    private Stream<Parameter> streamParameters(ParameterSpace parameterSpace) {
+    private Stream<Parameter<?>> streamParameters(ParameterSpace parameterSpace) {
       return parameterSpace.getParameterNames().stream()
           .map(parameterSpace::getParameter);
     }
