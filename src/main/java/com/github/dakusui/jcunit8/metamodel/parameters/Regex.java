@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.metamodel.parameters;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Parser;
 import com.github.dakusui.jcunit.regex.RegexComposer;
@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 import static java.util.Objects.requireNonNull;
 
 public interface Regex extends Parameter<List<String>> {
-  static <V> Optional<Aarray> _decomposeValue(V value, Stream<Aarray> tuples, Function<Aarray, V> valueComposer, Predicate<Aarray> constraints) {
-    return tuples.filter((Aarray tuple) -> value.equals(valueComposer.apply(tuple)))
+  static <V> Optional<AArray> _decomposeValue(V value, Stream<AArray> tuples, Function<AArray, V> valueComposer, Predicate<AArray> constraints) {
+    return tuples.filter((AArray tuple) -> value.equals(valueComposer.apply(tuple)))
         .filter(constraints)
         .findFirst();
   }
@@ -40,7 +40,7 @@ public interface Regex extends Parameter<List<String>> {
       this.factorSpace = decomposer.decompose();
     }
 
-    public Optional<Aarray> decomposeValue(List<String> value) {
+    public Optional<AArray> decomposeValue(List<String> value) {
       return _decomposeValue(
           value,
           this.factorSpace.stream(),
@@ -50,7 +50,7 @@ public interface Regex extends Parameter<List<String>> {
     }
 
     @Override
-    public List<String> composeValue(Aarray tuple) {
+    public List<String> composeValue(AArray tuple) {
       return new ArrayList<>(composeStringValueFrom(tuple));
     }
 
@@ -64,7 +64,7 @@ public interface Regex extends Parameter<List<String>> {
       return factorSpace.getConstraints();
     }
 
-    private List<String> composeStringValueFrom(Aarray tuple) {
+    private List<String> composeStringValueFrom(AArray tuple) {
       return regexComposer.compose(tuple);
     }
   }

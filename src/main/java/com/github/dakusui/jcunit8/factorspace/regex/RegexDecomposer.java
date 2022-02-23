@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.factorspace.regex;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.regex.Expr;
 import com.github.dakusui.jcunit.regex.Reference;
 import com.github.dakusui.jcunit.regex.RegexTranslator;
@@ -75,7 +75,7 @@ public class RegexDecomposer extends RegexTranslator {
         }
 
         @Override
-        public boolean test(Aarray in) {
+        public boolean test(AArray in) {
           for (String eachReferrer : referrers) {
             Object referrerValue = in.get(eachReferrer);
             if (!Generator.VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {

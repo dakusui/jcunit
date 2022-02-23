@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.examples.seed;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
@@ -14,7 +14,7 @@ public class BankAccountExampleWithSeeds extends BankAccountExample {
       return defaultValues.withNegativeTestGeneration(
           false
       ).addSeed(
-         Aarray.builder().putRegex(
+         AArray.builder().putRegex(
               "scenario", "open", "deposit", "withdraw", "getBalance"
           ).put(
               "depositAmount", 300

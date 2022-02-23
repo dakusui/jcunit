@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.metamodel;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.Collection;
@@ -27,7 +27,7 @@ public interface ParameterSpace {
    * @param seeds "
    * @return A list of encoded seeds.
    */
-  static List<Aarray> encodeSeeds(ParameterSpace parameterSpace, List<Aarray> seeds) {
+  static List<AArray> encodeSeeds(ParameterSpace parameterSpace, List<AArray> seeds) {
     return seeds.stream()
         .map(parameterSpace::encodeSeed)
         .collect(toList());
@@ -62,8 +62,8 @@ public interface ParameterSpace {
    * @param seed A seed
    * @return An encoded seed
    */
-  default Aarray encodeSeed(Aarray seed) {
-    Aarray.Builder builder = Aarray.builder();
+  default AArray encodeSeed(AArray seed) {
+    AArray.Builder builder = AArray.builder();
     getParameterNames()
         .forEach(each -> getParameter(each).decomposeValue(seed.get(each)).ifPresent(builder::putAll));
     return builder.build();

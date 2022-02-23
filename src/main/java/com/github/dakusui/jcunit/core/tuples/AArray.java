@@ -1,7 +1,5 @@
 package com.github.dakusui.jcunit.core.tuples;
 
-import com.github.dakusui.jcunit.core.utils.Checks;
-
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -17,7 +15,7 @@ import static java.util.Arrays.asList;
  *
  * This class was re-named from `Tuple` to `Aarray`, because the class was used both for tuples and rows.
  */
-public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
+public interface AArray extends Map<String, Object>, Cloneable, Serializable {
   class Builder {
     LinkedHashMap<String, Object> attrs = new LinkedHashMap<>();
 
@@ -39,19 +37,19 @@ public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
       return this;
     }
 
-    public Aarray build() {
-      Aarray ret = new Impl();
+    public AArray build() {
+      AArray ret = new Impl();
       for (String k : this.attrs.keySet()) {
         ret.put(k, this.attrs.get(k));
       }
-      Aarray sorted = new Sorted();
+      AArray sorted = new Sorted();
       sorted.putAll(ret);
       ret = sorted;
       return ret;
     }
   }
 
-  boolean isContainedBy(Aarray another);
+  boolean isContainedBy(AArray another);
 
   static Builder builder() {
     return new Builder();
@@ -60,7 +58,7 @@ public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
   enum Utils {
     ;
 
-    static boolean isSubAarrayOf(Aarray a, Aarray b) {
+    static boolean isSubAarrayOf(AArray a, AArray b) {
       assert that(a, isNotNull());
       assert that(b, isNotNull());
       if (!b.keySet().containsAll(a.keySet())) {
@@ -76,16 +74,16 @@ public interface Aarray extends Map<String, Object>, Cloneable, Serializable {
 
   }
 
-  class Impl extends LinkedHashMap<String, Object> implements Aarray {
+  class Impl extends LinkedHashMap<String, Object> implements AArray {
     @Override
-    public boolean isContainedBy(Aarray another) {
+    public boolean isContainedBy(AArray another) {
       return Utils.isSubAarrayOf(this, another);
     }
   }
 
-  class Sorted extends TreeMap<String, Object> implements Aarray {
+  class Sorted extends TreeMap<String, Object> implements AArray {
     @Override
-    public boolean isContainedBy(Aarray another) {
+    public boolean isContainedBy(AArray another) {
       return Utils.isSubAarrayOf(this, another);
     }
   }

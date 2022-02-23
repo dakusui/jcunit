@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.pipeline.stages.generators;
 
 import com.github.dakusui.combinatoradix.Cartesianator;
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -14,22 +14,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.stream.Collectors.toList;
 
 public class Negative extends Generator.Base {
-  private final List<Aarray> regularTestCases;
-  private final List<Aarray> seeds;
+  private final List<AArray> regularTestCases;
+  private final List<AArray> seeds;
 
-  public Negative(List<Aarray> regularTestCases, List<Aarray> seeds, FactorSpace factorSpace, Requirement requirement) {
+  public Negative(List<AArray> regularTestCases, List<AArray> seeds, FactorSpace factorSpace, Requirement requirement) {
     super(factorSpace, requirement);
     this.regularTestCases = regularTestCases;
     this.seeds = seeds;
   }
 
   @Override
-  public List<Aarray> generateCore() {
+  public List<AArray> generateCore() {
     return generateNegativeTests(this.regularTestCases, factorSpace, seeds);
   }
 
-  private static List<Aarray> generateNegativeTests(List<Aarray> tuples, FactorSpace factorSpace, List<Aarray> seeds) {
-    return new LinkedList<Aarray>() {{
+  private static List<AArray> generateNegativeTests(List<AArray> tuples, FactorSpace factorSpace, List<AArray> seeds) {
+    return new LinkedList<AArray>() {{
       //noinspection SimplifiableConditionalExpression
       factorSpace.getConstraints(
       ).stream(
@@ -40,7 +40,7 @@ public class Negative extends Generator.Base {
               //   If there exists any seed which violates one and only one constraint,
               // a (negative) test case to violate the constraint doesn't need to be generated.
               //   Such a constraint is filtered out here.
-              (Aarray seed) -> factorSpace.getConstraints(
+              (AArray seed) -> factorSpace.getConstraints(
               ).stream(
               ).allMatch(
                   (Constraint constraint) ->
@@ -78,13 +78,13 @@ public class Negative extends Generator.Base {
     }};
   }
 
-  private static Optional<Aarray> createNegativeTestForConstraint(Constraint target, List<Constraint> rest, Map<String, List<Object>> parameters, List<Aarray> tuples) {
+  private static Optional<AArray> createNegativeTestForConstraint(Constraint target, List<Constraint> rest, Map<String, List<Object>> parameters, List<AArray> tuples) {
     long leastCollateralConstraints = rest.size();
-    Optional<Aarray> ret = Optional.empty();
+    Optional<AArray> ret = Optional.empty();
     OUTER:
-    for (Aarray base : tuples) {
+    for (AArray base : tuples) {
       for (List<Object> each : createCartesianator(target, parameters)) {
-        Aarray modified = modifyTupleWithValues(base, composeValues(target.involvedKeys(), each));
+        AArray modified = modifyTupleWithValues(base, composeValues(target.involvedKeys(), each));
         if (target.test(modified))
           continue;
         long numCollaterals = rest.stream().filter(constraint -> !constraint.test(modified)).count();
@@ -102,15 +102,15 @@ public class Negative extends Generator.Base {
     return ret;
   }
 
-  private static Aarray composeValues(List<String> involvedKeys, List<Object> values) {
-    return new Aarray.Impl() {{
+  private static AArray composeValues(List<String> involvedKeys, List<Object> values) {
+    return new AArray.Impl() {{
       AtomicInteger i = new AtomicInteger(0);
       involvedKeys.forEach((String eachKey) -> put(eachKey, values.get(i.getAndIncrement())));
     }};
   }
 
-  private static Aarray modifyTupleWithValues(Aarray in, Aarray values) {
-    return new Aarray.Builder()
+  private static AArray modifyTupleWithValues(AArray in, AArray values) {
+    return new AArray.Builder()
         .putAll(in)
         .putAll(new HashMap<String, Object>() {{
           values.keySet().forEach(eachKey -> put(eachKey, values.get(eachKey)));

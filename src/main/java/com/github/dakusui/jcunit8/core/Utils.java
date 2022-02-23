@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.core;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import org.junit.runners.Parameterized;
 import org.junit.runners.model.FrameworkMethod;
@@ -62,8 +62,8 @@ public enum Utils {
     return ret;
   }
 
-  public static Aarray project(List<String> keys, Aarray from) {
-    Aarray.Builder builder = new Aarray.Builder();
+  public static AArray project(List<String> keys, AArray from) {
+    AArray.Builder builder = new AArray.Builder();
     keys.forEach((String key) -> builder.put(key, from.get(key)));
     return builder.build();
   }

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.*;
 import com.github.dakusui.jcunit8.metamodel.Parameter;
 import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
@@ -8,7 +8,7 @@ import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.Config;
 import com.github.dakusui.jcunit8.pipeline.Pipeline;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulAArraySet;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
 import java.util.Collections;
@@ -37,7 +37,7 @@ public abstract class PipelineTestBase {
     return new Pipeline.Standard().preprocess(buildConfig(), new ParameterSpace.Builder().addAllParameters(parameters).addAllConstraints(constraints).build());
   }
 
-  protected SchemafulTupleSet engine(List<Parameter<?>> parameters, List<Constraint> constraints) {
+  protected SchemafulAArraySet engine(List<Parameter<?>> parameters, List<Constraint> constraints) {
     return new Pipeline.Standard().engine(buildConfig(), new ParameterSpace.Builder().addAllParameters(parameters).addAllConstraints(constraints).build());
   }
 
@@ -93,7 +93,7 @@ public abstract class PipelineTestBase {
             Factor.create("simple3", new Object[] { "default", "value" })
         ),
         Collections.singletonList(
-            Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
+            Constraint.create("alwaysTrue[simple1]", (AArray tuple) -> false, "simple1") // Never becomes true
         )
     );
   }

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.core.utils.Checks;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
@@ -170,7 +170,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         InternalUtils.createRunBeforesForTestInput(
             statement,
             this.testSuite.getScenario().preSuiteProcedures(),
-            Aarray.builder().put("@suite", this.testSuite).build()
+            AArray.builder().put("@suite", this.testSuite).build()
         );
   }
 
@@ -181,7 +181,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         InternalUtils.createRunAftersForTestInput(
             statement,
             this.testSuite.getScenario().postSuiteProcedures(),
-            Aarray.builder().put("@suite", this.testSuite).build()
+            AArray.builder().put("@suite", this.testSuite).build()
         );
   }
 
@@ -298,7 +298,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       Description description = describeChild(child);
 
       TestCase testCase = this.testSuite.get(this.id);
-      Aarray testInput = composeTestInput(testCase.getTestInput());
+      AArray testInput = composeTestInput(testCase.getTestInput());
       if (child.shouldInvoke().test(testInput)) {
         runLeaf(oracleBlock(child, testInput), description, notifier);
       } else {
@@ -347,9 +347,9 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       }
     }
 
-    private Aarray composeTestInput(Aarray tuple) {
+    private AArray composeTestInput(AArray tuple) {
       try {
-        return Aarray.builder()
+        return AArray.builder()
             .putAll(tuple)
             .put("@ins", getTestClass().getOnlyConstructor().newInstance())
             .put("@suite", testSuite)
@@ -359,14 +359,14 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       }
     }
 
-    private Statement oracleBlock(TestOracle testOracle, Aarray testInput) {
+    private Statement oracleBlock(TestOracle testOracle, AArray testInput) {
       Statement statement = oracleInvoker(testOracle, testInput);
       statement = withBeforesForTestOracle(testInput, statement);
       statement = withAftersForTestOracle(testInput, statement);
       return statement;
     }
 
-    private Statement oracleInvoker(TestOracle oracle, Aarray testInput) {
+    private Statement oracleInvoker(TestOracle oracle, AArray testInput) {
       return new Statement() {
         @Override
         public void evaluate() {
@@ -375,21 +375,21 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
       };
     }
 
-    private Statement withBeforesForTestOracle(Aarray testInput, Statement statement) {
+    private Statement withBeforesForTestOracle(AArray testInput, Statement statement) {
       List<TupleConsumer> befores = testSuite.getScenario().preOracleProcedures();
       return befores.isEmpty() ?
           statement :
           new Statement() {
             @Override
             public void evaluate() throws Throwable {
-              for (Consumer<Aarray> before : befores)
+              for (Consumer<AArray> before : befores)
                 before.accept(testInput);
               statement.evaluate();
             }
           };
     }
 
-    private Statement withAftersForTestOracle(Aarray testInput, Statement statement) {
+    private Statement withAftersForTestOracle(AArray testInput, Statement statement) {
       List<TupleConsumer> afters = testSuite.getScenario().postOracleProcedures();
       return afters.isEmpty() ?
           statement :
@@ -397,7 +397,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
             @Override
             public void evaluate() throws Throwable {
               statement.evaluate();
-              for (Consumer<Aarray> after : afters)
+              for (Consumer<AArray> after : afters)
                 after.accept(testInput);
             }
           };

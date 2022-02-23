@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.validation.testresources.seedfeature;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.pipeline.stages.ConfigFactory;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
@@ -17,7 +17,7 @@ public class MissingParameter extends SeedBase {
       return defaultValues.withNegativeTestGeneration(
           false
       ).addSeed(
-          Aarray.builder(
+          AArray.builder(
           ).put(
               "parameter1", "hello"
           ).build()

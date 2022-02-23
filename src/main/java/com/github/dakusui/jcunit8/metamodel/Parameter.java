@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.metamodel;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
@@ -38,7 +38,7 @@ public interface Parameter<T> {
    * @param tuple an internal representation of a value of this parameter.
    * @return A value of this parameter.
    */
-  T composeValue(Aarray tuple);
+  T composeValue(AArray tuple);
 
   /**
    * Decomposes a value into an associative-array.
@@ -47,7 +47,7 @@ public interface Parameter<T> {
    * @return An associative-array that represents the `value`.
    */
   // TODO: Perhaps, we do not need to return `Optional` from this method, but we can just return the `Aarray`.
-  Optional<Aarray> decomposeValue(T value);
+  Optional<AArray> decomposeValue(T value);
 
   /**
    * Returns a list of "known values" of this parameter.

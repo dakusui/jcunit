@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.combinatoradix.Enumerator;
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +38,7 @@ public interface Cursor<E> extends Iterable<E> {
     }
   }
 
-  class ForTuple extends Base<Aarray> {
+  class ForTuple extends Base<AArray> {
     private final StreamableTupleCartesianator enumerator;
 
     ForTuple(long startFrom, StreamableTupleCartesianator enumerator) {
@@ -47,10 +47,10 @@ public interface Cursor<E> extends Iterable<E> {
     }
 
     @Override
-    public Iterator<Aarray> iterator() {
+    public Iterator<AArray> iterator() {
       // TODO avoid using 'int'
       // return this.enumerator.asList().subList((int) startFrom, (int) this.enumerator.size()).iterator();
-      return new Iterator<Aarray>() {
+      return new Iterator<AArray>() {
         long i = startFrom;
 
         @Override
@@ -59,7 +59,7 @@ public interface Cursor<E> extends Iterable<E> {
         }
 
         @Override
-        public Aarray next() {
+        public AArray next() {
           try {
             return enumerator.get(i);
           } finally {

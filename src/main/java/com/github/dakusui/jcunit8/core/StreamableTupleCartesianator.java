@@ -2,7 +2,7 @@ package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.combinatoradix.CartesianEnumeratorAdaptor;
 import com.github.dakusui.combinatoradix.Domains;
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 
 import java.util.AbstractList;
@@ -10,23 +10,23 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Aarray, String, Object> {
+public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<AArray, String, Object> {
   public StreamableTupleCartesianator(List<Factor> factors) {
     super(buildDomains(factors));
   }
 
-  public Cursor<Aarray> cursor(Aarray at) {
+  public Cursor<AArray> cursor(AArray at) {
     return new Cursor.ForTuple(indexOf(at), this);
   }
 
-  public Stream<Aarray> stream() {
+  public Stream<AArray> stream() {
     return StreamSupport.stream(this.spliterator(), false);
   }
 
-  public List<Aarray> asList() {
-    return new AbstractList<Aarray>() {
+  public List<AArray> asList() {
+    return new AbstractList<AArray>() {
       @Override
-      public Aarray get(int index) {
+      public AArray get(int index) {
         return StreamableTupleCartesianator.this.get(index);
       }
 
@@ -38,8 +38,8 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Aar
   }
 
   @Override
-  protected Aarray createMap() {
-    return new Aarray.Builder().build();
+  protected AArray createMap() {
+    return new AArray.Builder().build();
   }
 
   private static Domains<String, Object> buildDomains(List<Factor> factors) {

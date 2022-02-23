@@ -1,13 +1,13 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.constraints;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Cartesian;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulAArraySet;
 import com.github.dakusui.jcunit8.testutils.ParameterSpaceUtils;
 import com.github.dakusui.jcunit8.testutils.PipelineTestBase;
 import com.github.dakusui.jcunit8.testutils.SchemafulTupleSetUtils;
@@ -34,7 +34,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (AArray tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(
@@ -53,7 +53,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (AArray tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(
@@ -72,7 +72,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
                 simpleParameterFactoryWithDefaultValues().create("simple3")
             ),
             Collections.singletonList(
-                Constraint.create("alwaysTrue[simple1]", (Aarray tuple) -> false, "simple1") // Never becomes true
+                Constraint.create("alwaysTrue[simple1]", (AArray tuple) -> false, "simple1") // Never becomes true
             )
         ),
         matcher(
@@ -95,7 +95,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
   public void givenImpossibleConstraint$whenGenerateWithIpoGplus$thenEmptyTupleSetGenerated() {
     FactorSpace factorSpace = buildSimpleFactorSpaceWithImpossibleConstraint();
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
-        new SchemafulTupleSet.Builder(
+        new SchemafulAArraySet.Builder(
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
         ).addAll(
             new IpoGplus(
@@ -114,7 +114,7 @@ public class ImpossibleConstraintTest extends PipelineTestBase {
   public void givenImpossibleConstraint$whenGenerateWithCartesian$thenExceptionThrown() {
     FactorSpace factorSpace = buildSimpleFactorSpaceWithImpossibleConstraint();
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
-        new SchemafulTupleSet.Builder(
+        new SchemafulAArraySet.Builder(
             factorSpace.getFactors().stream().map(Factor::getName).collect(Collectors.toList())
         ).addAll(
             new Cartesian(

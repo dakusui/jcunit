@@ -1,17 +1,18 @@
 package com.github.dakusui.jcunit8.pipeline;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.exceptions.InvalidTestException;
-import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.exceptions.TestDefinitionException;
-import com.github.dakusui.jcunit8.factorspace.*;
+import com.github.dakusui.jcunit8.factorspace.Constraint;
+import com.github.dakusui.jcunit8.factorspace.Factor;
+import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.metamodel.Parameter;
 import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
 import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.Passthrough;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulAArraySet;
 import com.github.dakusui.jcunit8.testsuite.TestScenario;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 
@@ -33,6 +34,10 @@ public interface Pipeline {
   TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenarioFactory);
 
   class Standard implements Pipeline {
+    public static Pipeline create() {
+      return new Standard();
+    }
+
     @Override
     public TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
       return generateTestSuite(config, preprocess(config, parameterSpace), testScenario);
@@ -42,7 +47,7 @@ public interface Pipeline {
       validateSeeds(config.getRequirement().seeds(), parameterSpace);
       TestSuite.Builder<?> builder = new TestSuite.Builder<>(parameterSpace, testScenario);
       builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
-      List<Aarray> regularTestTuples = engine(config, parameterSpace);
+      List<AArray> regularTestTuples = engine(config, parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestTuples);
       if (config.getRequirement().generateNegativeTests())
         builder = builder.addAllToNegativeTuples(
@@ -51,40 +56,34 @@ public interface Pipeline {
                 toFactorSpaceForNegativeTestGeneration(parameterSpace),
                 regularTestTuples,
                 config.getRequirement().seeds(),
-                config.getRequirement()
-            ).generate()
-        );
+                config.getRequirement())
+                .generate());
       return builder.build();
     }
 
-    private void validateSeeds(List<Aarray> seeds, ParameterSpace parameterSpace) {
-      List<Function<Aarray, String>> checks = asList(
-          (Aarray tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
+    private void validateSeeds(List<AArray> seeds, ParameterSpace parameterSpace) {
+      List<Function<AArray, String>> checks = asList(
+          (AArray tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
               String.format("Unknown parameter(s) were found: %s in tuple: %s",
                   new LinkedList<String>() {{
                     addAll(tuple.keySet());
                     removeAll(parameterSpace.getParameterNames());
                   }},
-                  tuple
-              ) :
+                  tuple) :
               null,
-          (Aarray tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
+          (AArray tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
               String.format("Parameter(s) were not found: %s in tuple: %s",
                   new LinkedList<String>() {{
                     addAll(parameterSpace.getParameterNames());
                     removeAll(tuple.keySet());
                   }},
-                  tuple
-              ) :
+                  tuple) :
               null
       );
-      List<String> errors = seeds.stream(
-      ).flatMap(
-          seed -> checks.stream(
-          ).map(each -> each.apply(seed))
-      ).filter(
-          Objects::nonNull
-      ).collect(toList());
+      List<String> errors = seeds.stream()
+          .flatMap(seed -> checks.stream().map(each -> each.apply(seed)))
+          .filter(Objects::nonNull)
+          .collect(toList());
       if (!errors.isEmpty())
         throw new InvalidTestException(
             String.format(
@@ -96,43 +95,43 @@ public interface Pipeline {
     public ParameterSpace preprocess(Config config, ParameterSpace parameterSpace) {
       return new ParameterSpace.Builder()
           .addAllParameters(
-              parameterSpace.getParameterNames().stream()
+              parameterSpace.getParameterNames()
+                  .stream()
                   .map((String parameterName) -> toSimpleParameterIfNecessary(
                       config,
                       parameterSpace.getParameter(parameterName),
-                      parameterSpace.getConstraints()
-                  ))
+                      parameterSpace.getConstraints()))
                   .collect(toList()))
           .addAllConstraints(parameterSpace.getConstraints())
           .build();
     }
 
-    public SchemafulTupleSet engine(Config config, ParameterSpace parameterSpace) {
-      return config.partitioner().apply(
-          config.encoder().apply(
-              parameterSpace
-          )
-      ).stream()
+    public SchemafulAArraySet engine(Config config, ParameterSpace parameterSpace) {
+      return config.partitioner().apply(config.encoder().apply(parameterSpace))
+          .stream()
           .map(config.optimizer())
           .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
           .map(config.generator(parameterSpace, config.getRequirement()))
           .reduce(config.joiner())
-          .map(
-              (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
-                  tuples.stream()
-                      .map((Aarray tuple) -> {
-                        Aarray.Builder builder = new Aarray.Builder();
-                        for (String parameterName : parameterSpace.getParameterNames()) {
-                          builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));
-                        }
-                        return builder.build();
-                      })
-                      .collect(toList())
-              ).build()
-          )
+          .map((SchemafulAArraySet rows) -> decode(parameterSpace, rows))
           .orElseThrow(TestDefinitionException::noParameterFound);
     }
 
+    private SchemafulAArraySet decode(ParameterSpace parameterSpace, SchemafulAArraySet rows) {
+      return new SchemafulAArraySet.Builder(parameterSpace.getParameterNames()).addAll(
+              rows.stream()
+                  .map((AArray encodedRow) -> decodeRow(parameterSpace, encodedRow))
+                  .collect(toList()))
+          .build();
+    }
+
+    private AArray decodeRow(ParameterSpace parameterSpace, AArray encodedRow) {
+      AArray.Builder builder = new AArray.Builder();
+      for (String parameterName : parameterSpace.getParameterNames()) {
+        builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(encodedRow));
+      }
+      return builder.build();
+    }
 
     /**
      * This method should be used for a parameter space that does not contain a
@@ -154,7 +153,7 @@ public interface Pipeline {
       );
     }
 
-    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Aarray> tuplesForRegularTests, List<Aarray> encodedSeeds, Requirement requirement) {
+    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<AArray> tuplesForRegularTests, List<AArray> encodedSeeds, Requirement requirement) {
       return generateNegativeTests ?
           new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, requirement) :
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
@@ -162,26 +161,26 @@ public interface Pipeline {
 
     private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
-        List<Object> values = Stream
-            .concat(
-                parameter.getKnownValues().stream(),
-                engine(
-                    config, new ParameterSpace.Builder().addParameter(parameter).build())
-                    .stream().map(tuple -> tuple.get(parameter.getName())
-                ) // Extraction
-            ).collect(toList());
-        return Simple.Factory.of(
-            Utils.unique(
-                values
-            ))
+        // Extraction
+        return Simple.Factory.of(Stream.concat(
+            parameter.getKnownValues().stream(),
+                    engineOneParameter(parameter, config))
+                .distinct()
+                .collect(toList()))
             .create(parameter.getName());
       }
       return parameter;
     }
+
+    private Stream<Object> engineOneParameter(Parameter<?> parameter, Config config) {
+      return engine(config, new ParameterSpace.Builder().addParameter(parameter).build())
+          .stream()
+          .map(row -> row.get(parameter.getName()));
+    }
+
     /**
      * Checks is a parameter is referenced by any constraint in a given list or it
      * has any known actual values.
-     * <p>
      * <p>
      * The reason why we check if it has known levels at the same time is like this.
      * We can state that a conventional constraint requires some combinations are
@@ -199,10 +198,6 @@ public interface Pipeline {
 
     private boolean isReferencedBy(Parameter<?> parameter, List<Constraint> constraints) {
       return constraints.stream().anyMatch(each -> each.involvedKeys().contains(parameter.getName()));
-    }
-
-    public static Pipeline create() {
-      return new Standard();
     }
   }
 }

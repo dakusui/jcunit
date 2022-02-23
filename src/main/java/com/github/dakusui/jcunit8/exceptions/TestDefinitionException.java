@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.exceptions;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class TestDefinitionException extends BaseException {
     throw new TestDefinitionException(format("Constraints '%s' did not become true.", constraints));
   }
 
-  public static TestDefinitionException failedToCover(String factorName, List<Object> factorLevels, Aarray tuple) {
+  public static TestDefinitionException failedToCover(String factorName, List<Object> factorLevels, AArray tuple) {
     throw new TestDefinitionException(format("Factor '%s' doesn't have any valid level '%s' for tuple '%s'", factorName, factorLevels, tuple));
   }
 

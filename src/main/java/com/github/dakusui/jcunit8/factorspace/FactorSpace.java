@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.factorspace;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
 
 import java.util.ArrayList;
@@ -48,7 +48,7 @@ public interface FactorSpace {
 
   Factor getFactor(String name);
 
-  default Stream<Aarray> stream() {
+  default Stream<AArray> stream() {
     return new StreamableTupleCartesianator(getFactors()).stream();
   }
 

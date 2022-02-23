@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.testutils.testsuitequality;
 
 import com.github.dakusui.crest.utils.printable.Printable;
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.metamodel.Parameter;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
@@ -116,7 +116,7 @@ public class CombinatorialCoverageTest {
     assertThat(
         testSuite,
         allOf(
-            asListOf(Aarray.class,
+            asListOf(AArray.class,
                 Printable.function(
                     "coveredTuples",
                     (TestSuite suite) -> CoveringArrayGenerationUtils.coveredTuples(
@@ -132,16 +132,16 @@ public class CombinatorialCoverageTest {
             ).check(
                 Printable.function(
                     "tuplesNotCoveredByTestSuite",
-                    (List<Aarray> coveredTuples) -> CoveringArrayGenerationUtils.subtract(CoveringArrayGenerationUtils.allPossibleTuples(strength, parameters), coveredTuples)
+                    (List<AArray> coveredTuples) -> CoveringArrayGenerationUtils.subtract(CoveringArrayGenerationUtils.allPossibleTuples(strength, parameters), coveredTuples)
                 ),
                 Printable.predicate(
                     "areAllViolation",
-                    (List<Aarray> missingTuples) -> missingTuples.stream().noneMatch(
+                    (List<AArray> missingTuples) -> missingTuples.stream().noneMatch(
                         tuple -> CoveringArrayGenerationUtils.findAllowedSuperTupleFor(tuple, testSuite.getParameterSpace()).isPresent()
                     )
                 )
             ).any(),
-            asListOf(Aarray.class,
+            asListOf(AArray.class,
                 Printable.function(
                     "toTuple",
                     (TestSuite suite) -> suite.stream().map(

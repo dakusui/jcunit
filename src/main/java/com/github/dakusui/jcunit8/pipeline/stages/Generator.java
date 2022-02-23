@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.pipeline.stages;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.FactorSpace;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
@@ -26,7 +26,7 @@ public interface Generator {
     }
   };
 
-  List<Aarray> generate();
+  List<AArray> generate();
 
   abstract class Base implements Generator {
     protected final FactorSpace factorSpace;
@@ -37,7 +37,7 @@ public interface Generator {
       this.requirement = requirement;
     }
 
-    public final List<Aarray> generate() {
+    public final List<AArray> generate() {
       this.validate();
       if (this.factorSpace.getFactors().stream().anyMatch(each -> each.getLevels().isEmpty()))
         return Collections.emptyList();
@@ -47,15 +47,15 @@ public interface Generator {
     protected void validate() {
     }
 
-    protected abstract List<Aarray> generateCore();
+    protected abstract List<AArray> generateCore();
   }
 
   interface Factory {
-    Generator create(FactorSpace factorSpace, Requirement requirement, List<Aarray> encodedSeeds);
+    Generator create(FactorSpace factorSpace, Requirement requirement, List<AArray> encodedSeeds);
 
     class Standard implements Factory {
       @Override
-      public Generator create(FactorSpace factorSpace, Requirement requirement, List<Aarray> encodedSeeds) {
+      public Generator create(FactorSpace factorSpace, Requirement requirement, List<AArray> encodedSeeds) {
         if (requirement.strength() < factorSpace.getFactors().size()) {
           return new IpoGplus(factorSpace, requirement, encodedSeeds);
         }

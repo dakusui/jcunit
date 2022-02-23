@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testutils;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.factorspace.Factor;
 import com.github.dakusui.jcunit8.metamodel.Parameter;
@@ -24,12 +24,12 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   }
 
   @Override
-  public ValuePair composeValue(Aarray tuple) {
+  public ValuePair composeValue(AArray tuple) {
     return new ValuePair(getValue(tuple, "a"), getValue(tuple, "b"));
   }
 
   @Override
-  public Optional<Aarray> decomposeValue(ValuePair value) {
+  public Optional<AArray> decomposeValue(ValuePair value) {
     throw new UnsupportedOperationException();
   }
 
@@ -45,7 +45,7 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
     return String.format("CUSTOM:%s:%s", name, keyName);
   }
 
-  private String getValue(Aarray tuple, String keyName) {
+  private String getValue(AArray tuple, String keyName) {
     return (String) tuple.get(composeKey(keyName));
   }
 
@@ -58,7 +58,7 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
       }
 
       @Override
-      public boolean test(Aarray tuple) {
+      public boolean test(AArray tuple) {
         return !Objects.equals(getValue(tuple, "a"), getValue(tuple, "b"));
       }
 

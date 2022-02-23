@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.core.utils.Checks;
 
 import java.io.IOException;
@@ -77,9 +77,9 @@ public interface TestOracle extends TupleConsumer {
     }
   }
 
-  Predicate<Aarray> shouldInvoke();
+  Predicate<AArray> shouldInvoke();
 
-  Function<Aarray, Result> when();
+  Function<AArray, Result> when();
 
   Predicate<Result> then();
 
@@ -88,7 +88,7 @@ public interface TestOracle extends TupleConsumer {
   }
 
   @Override
-  default void accept(Aarray testInput) {
+  default void accept(AArray testInput) {
     assertion().assertThat(when().apply(testInput), then());
   }
 

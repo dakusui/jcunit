@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit.regex;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.pipeline.stages.Generator;
 
 import java.util.HashMap;
@@ -27,7 +27,7 @@ public class RegexComposer {
    * @param tuple An internal representation of a sequence matching the `topLevel` expression (`Expr`).
    * @return A sequence matching requested `Expr`.
    */
-  public List<String> compose(Aarray tuple) {
+  public List<String> compose(AArray tuple) {
     ComposerVisitor visitor = new ComposerVisitor(tuple, this.exprs);
     this.topLevel.accept(visitor);
     return splitOnWhiteSpaces(visitor.out);
@@ -83,11 +83,11 @@ public class RegexComposer {
   }
 
   private class ComposerVisitor implements Expr.Visitor {
-    private final Aarray            tuple;
+    private final AArray            tuple;
     private final Map<String, Expr> exprs;
     public        List<Object>      out = new LinkedList<>();
 
-    private ComposerVisitor(Aarray tuple, Map<String, Expr> exprs) {
+    private ComposerVisitor(AArray tuple, Map<String, Expr> exprs) {
       this.tuple = tuple;
       this.exprs = exprs;
     }

@@ -1,25 +1,25 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public interface TupleSet extends Set<Aarray> {
+public interface TupleSet extends Set<AArray> {
   TupleSet cartesianProduct(TupleSet tupleSet);
 
-  class Impl extends LinkedHashSet<Aarray> implements TupleSet {
-    public Impl(Collection<Aarray> tuples) {
+  class Impl extends LinkedHashSet<AArray> implements TupleSet {
+    public Impl(Collection<AArray> tuples) {
       this.addAll(tuples);
     }
 
     @Override
     public TupleSet cartesianProduct(TupleSet rhs) {
       TupleSet.Builder builder = new TupleSet.Builder();
-      for (Aarray eachFromLhs : this) {
-        for (Aarray eachFromRhs : rhs) {
-          builder.add(new Aarray.Builder().putAll(eachFromLhs).putAll(eachFromRhs).build());
+      for (AArray eachFromLhs : this) {
+        for (AArray eachFromRhs : rhs) {
+          builder.add(new AArray.Builder().putAll(eachFromLhs).putAll(eachFromRhs).build());
         }
       }
       return builder.build();
@@ -27,18 +27,18 @@ public interface TupleSet extends Set<Aarray> {
   }
 
   class Builder {
-    private final Set<Aarray> work;
+    private final Set<AArray> work;
 
     public Builder() {
       this.work = new LinkedHashSet<>();
     }
 
-    public Builder addAll(Collection<Aarray> tuples) {
+    public Builder addAll(Collection<AArray> tuples) {
       this.work.addAll(tuples);
       return this;
     }
 
-    public Builder add(Aarray tuple) {
+    public Builder add(AArray tuple) {
       this.work.add(tuple);
       return this;
     }

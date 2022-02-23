@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.testsuite;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.metamodel.ParameterSpace;
@@ -36,23 +36,23 @@ public interface TestSuite extends List<TestCase> {
       this.testScenario = testScenario;
     }
 
-    public Builder<T> addAllToSeedTuples(Collection<? extends Aarray> collection) {
+    public Builder<T> addAllToSeedTuples(Collection<? extends AArray> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.SEED, each)).forEach(testCases::add);
       return this;
     }
 
-    public Builder<T> addAllToRegularTuples(Collection<? extends Aarray> collection) {
+    public Builder<T> addAllToRegularTuples(Collection<? extends AArray> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each)).forEach(testCases::add);
       return this;
     }
 
-    public Builder<T> addAllToNegativeTuples(Collection<? extends Aarray> collection) {
+    public Builder<T> addAllToNegativeTuples(Collection<? extends AArray> collection) {
       collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each)).forEach(testCases::add);
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, Aarray testCaseTuple) {
-      Aarray tuple = TupleUtils.copy(testCaseTuple);
+    private TestCase toTestCase(TestCase.Category category, AArray testCaseTuple) {
+      AArray tuple = TupleUtils.copy(testCaseTuple);
       return category.createTestCase(
           tuple,
           this.parameterSpace.getConstraints().stream()

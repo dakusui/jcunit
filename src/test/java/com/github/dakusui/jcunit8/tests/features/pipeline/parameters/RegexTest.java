@@ -1,11 +1,11 @@
 package com.github.dakusui.jcunit8.tests.features.pipeline.parameters;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
 import com.github.dakusui.jcunit8.metamodel.parameters.Regex;
 import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.pipeline.stages.generators.IpoGplus;
-import com.github.dakusui.jcunit8.testsuite.SchemafulTupleSet;
+import com.github.dakusui.jcunit8.testsuite.SchemafulAArraySet;
 import com.github.dakusui.jcunit8.testsuite.TestCase;
 import com.github.dakusui.jcunit8.testutils.*;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class RegexTest extends PipelineTestBase {
   @Test
   public void givenRegex$whenGenerateWithIpoG$thenNonEmptyTupleSetGenerated() {
     SchemafulTupleSetUtils.validateSchemafulTupleSet(
-        SchemafulTupleSet.fromTuples(
+        SchemafulAArraySet.fromTuples(
             new IpoGplus(
                 Regex.Factory.of("A(B|C){0,3}").create("regex1").toFactorSpace(),
                 requirement(),
@@ -118,7 +118,7 @@ public class RegexTest extends PipelineTestBase {
                 (Integer value) -> value >= 1 + 2 + 4 + 4 && value < 1 + 2 + 4 + 8
             ),
             allSatisfy(
-                (Aarray tuple) -> {
+                (AArray tuple) -> {
                   Object value = tuple.get("regex1");
                   if (!(value instanceof List))
                     return false;

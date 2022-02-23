@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.tests.features.generators;
 
-import com.github.dakusui.jcunit.core.tuples.Aarray;
+import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.core.StreamableTupleCartesianator;
 import com.github.dakusui.jcunit8.core.Utils;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
@@ -30,7 +30,7 @@ public class IpoGplusTest {
         return String.format("alwaysFalse:%s", involvedKeys());
       }
       @Override
-      public boolean test(Aarray testObject) {
+      public boolean test(AArray testObject) {
         return false;
       }
 
@@ -46,7 +46,7 @@ public class IpoGplusTest {
       }
 
       @Override
-      public boolean test(Aarray testObject) {
+      public boolean test(AArray testObject) {
         return false;
       }
 
@@ -62,7 +62,7 @@ public class IpoGplusTest {
       }
 
       @Override
-      public boolean test(Aarray testObject) {
+      public boolean test(AArray testObject) {
         return false;
       }
 
@@ -102,7 +102,7 @@ public class IpoGplusTest {
   public static class AssignmentsAllowedByPartiallyInvolvedConstraints {
     static class Fixture {
       static final Fixture simple                         = new Fixture(
-          new Aarray.Builder().put("a", 1).put("b", 1).build(),
+          new AArray.Builder().put("a", 1).put("b", 1).build(),
           new LinkedList<Factor>() {{
             add(Factor.create("a", asList(1, 2, 3).toArray()));
             add(Factor.create("b", asList(1, 2, 3).toArray()));
@@ -111,13 +111,13 @@ public class IpoGplusTest {
           new LinkedList<Constraint>() {{
             add(Constraint.create(
                 "a+b+c<=4[a,b,c]",
-                (Aarray tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
+                (AArray tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
                 "a", "b", "c"
             ));
           }}
       );
       static final Fixture twoFreeFactors                 = new Fixture(
-          new Aarray.Builder().put("a", 1).build(),
+          new AArray.Builder().put("a", 1).build(),
           new LinkedList<Factor>() {{
             add(Factor.create("a", asList(1, 2, 3).toArray()));
             add(Factor.create("b", asList(1, 2, 3).toArray()));
@@ -126,13 +126,13 @@ public class IpoGplusTest {
           new LinkedList<Constraint>() {{
             add(Constraint.create(
                 "a+b+c<=4[a,b,c]",
-                (Aarray tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
+                (AArray tuple) -> ((int) tuple.get("a")) + ((int) tuple.get("b")) + ((int) tuple.get("c")) <= 4,
                 "a", "b", "c"
             ));
           }}
       );
       static final Fixture violatesFullyCoveredConstraint = new Fixture(
-          new Aarray.Builder().put("a", 1).put("b", 1).build(),
+          new AArray.Builder().put("a", 1).put("b", 1).build(),
           new LinkedList<Factor>() {{
             add(Factor.create("a", asList(1, 2, 3).toArray()));
             add(Factor.create("b", asList(1, 2, 3).toArray()));
@@ -141,17 +141,17 @@ public class IpoGplusTest {
           new LinkedList<Constraint>() {{
             add(Constraint.create(
                 "a!=b",
-                (Aarray tuple) -> ((int) tuple.get("a")) != ((int) tuple.get("b")),
+                (AArray tuple) -> ((int) tuple.get("a")) != ((int) tuple.get("b")),
                 "a", "b")
             );
           }}
       );
 
-      final         Aarray       tuple;
+      final         AArray       tuple;
       private final List<Factor> factors;
       private final List<Constraint> constraints;
 
-      Fixture(Aarray tuple, List<Factor> factors, List<Constraint> constraints) {
+      Fixture(AArray tuple, List<Factor> factors, List<Constraint> constraints) {
         this.tuple = tuple;
         this.factors = factors;
         this.constraints = constraints;
@@ -161,7 +161,7 @@ public class IpoGplusTest {
     @Test
     public void givenSimpleExample$whenAssignmentsAllowedByAllPartiallyInvolvedConstraints() {
       Fixture fixture = Fixture.simple;
-      List<Aarray> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
+      List<AArray> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
           fixture.constraints,
@@ -170,8 +170,8 @@ public class IpoGplusTest {
 
       assertEquals(
           asList(
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 2).build()
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 2).build()
           ),
           assignments
       );
@@ -189,21 +189,21 @@ public class IpoGplusTest {
           tuple -> (Integer) tuple.get("b") > (Integer) tuple.get("c"),
           "b", "c"
       );
-      Function<List<Factor>, Stream<Aarray>> func = Utils.memoize(IpoGplus.streamTuplesUnderConstraints(
+      Function<List<Factor>, Stream<AArray>> func = Utils.memoize(IpoGplus.streamTuplesUnderConstraints(
           Collections.singletonList(
               constraint
           )
       ));
-      Optional<Aarray> cursor = func.apply(
+      Optional<AArray> cursor = func.apply(
           factors
       ).findFirst();
 
       assertTrue(cursor.isPresent());
       assertEquals(
           asList(
-              new Aarray.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 3).put("c", 2).build()
+              new AArray.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 3).put("c", 2).build()
           ),
           new StreamableTupleCartesianator(
               factors
@@ -218,9 +218,9 @@ public class IpoGplusTest {
       );
       assertEquals(
           asList(
-              new Aarray.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 3).put("c", 2).build()
+              new AArray.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 3).put("c", 2).build()
           ),
           new StreamableTupleCartesianator(
               factors
@@ -246,7 +246,7 @@ public class IpoGplusTest {
     @Test
     public void givenTwoFreeFactors$whenAssignmentsAllowedByAllPartiallyInvolvedConstraints() {
       Fixture fixture = Fixture.twoFreeFactors;
-      List<Aarray> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
+      List<AArray> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
           fixture.constraints,
@@ -255,9 +255,9 @@ public class IpoGplusTest {
 
       assertEquals(
           asList(
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
-              new Aarray.Builder().put("a", 1).put("b", 2).put("c", 1).build()
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
+              new AArray.Builder().put("a", 1).put("b", 2).put("c", 1).build()
           ),
           assignments
       );
@@ -266,7 +266,7 @@ public class IpoGplusTest {
     @Test
     public void givenTupleViolatingFullyCoveredConstraint$whenAssignmentsAllowedByAllPartiallyInvolvedConstraints() {
       Fixture fixture = Fixture.violatesFullyCoveredConstraint;
-      List<Aarray> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
+      List<AArray> assignments = IpoGplus.streamAssignmentsAllowedByConstraints(
           fixture.tuple,
           fixture.factors,
           fixture.constraints,
@@ -283,7 +283,7 @@ public class IpoGplusTest {
   public static class SatisfiesAllOf {
     @Test
     public void givenEmptyConstraintList$whenSatisfiesAllOf$thenTrue() {
-      assertTrue(IpoGplus.satisfiesAllOf(emptyList()).test(new Aarray.Builder().build()));
+      assertTrue(IpoGplus.satisfiesAllOf(emptyList()).test(new AArray.Builder().build()));
     }
 
     @Test
@@ -296,7 +296,7 @@ public class IpoGplusTest {
             }
 
             @Override
-            public boolean test(Aarray tuple) {
+            public boolean test(AArray tuple) {
               return true;
             }
 
@@ -312,7 +312,7 @@ public class IpoGplusTest {
             }
 
             @Override
-            public boolean test(Aarray tuple) {
+            public boolean test(AArray tuple) {
               return true;
             }
 
@@ -321,7 +321,7 @@ public class IpoGplusTest {
               return emptyList();
             }
           }
-      )).test(new Aarray.Builder().build()));
+      )).test(new AArray.Builder().build()));
     }
 
     @Test
@@ -334,7 +334,7 @@ public class IpoGplusTest {
             }
 
             @Override
-            public boolean test(Aarray tuple) {
+            public boolean test(AArray tuple) {
               return true;
             }
 
@@ -350,7 +350,7 @@ public class IpoGplusTest {
             }
 
             @Override
-            public boolean test(Aarray tuple) {
+            public boolean test(AArray tuple) {
               return false;
             }
 
@@ -359,7 +359,7 @@ public class IpoGplusTest {
               return emptyList();
             }
           }
-      )).test(new Aarray.Builder().build()));
+      )).test(new AArray.Builder().build()));
     }
   }
 
@@ -377,7 +377,7 @@ public class IpoGplusTest {
           }
 
           @Override
-          public boolean test(Aarray tuple) {
+          public boolean test(AArray tuple) {
             int a = (int) tuple.get("a");
             int b = (int) tuple.get("b");
             int c = (int) tuple.get("c");
@@ -390,7 +390,7 @@ public class IpoGplusTest {
           }
         }
     );
-    Function<Aarray, Aarray> func        = IpoGplus.replaceDontCareValuesWithActualLevels(
+    Function<AArray, AArray> func        = IpoGplus.replaceDontCareValuesWithActualLevels(
         factors,
         constraints,
         new IpoGplus.Session()
@@ -399,12 +399,12 @@ public class IpoGplusTest {
     @Test
     public void given$whenReplaceDontCareValuesWithActualLevels$then() {
       assertEquals(
-          new Aarray.Builder()
+          new AArray.Builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", 2)
               .build(),
-          func.apply(new Aarray.Builder()
+          func.apply(new AArray.Builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", 2)
@@ -415,12 +415,12 @@ public class IpoGplusTest {
     @Test
     public void givenCisDontCare$whenReplaceDontCareValuesWithActualLevels$then() {
       assertEquals(
-          new Aarray.Builder()
+          new AArray.Builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", 1)
               .build(),
-          func.apply(new Aarray.Builder()
+          func.apply(new AArray.Builder()
               .put("a", 1)
               .put("b", 2)
               .put("c", DontCare)
@@ -431,12 +431,12 @@ public class IpoGplusTest {
     @Test
     public void givenBandCareDontCare$whenReplaceDontCareValuesWithActualLevels$then() {
       assertEquals(
-          new Aarray.Builder()
+          new AArray.Builder()
               .put("a", 1)
               .put("b", 1)
               .put("c", 1)
               .build(),
-          func.apply(new Aarray.Builder()
+          func.apply(new AArray.Builder()
               .put("a", 1)
               .put("b", DontCare)
               .put("c", DontCare)
@@ -447,12 +447,12 @@ public class IpoGplusTest {
     @Test
     public void givenABandCareDontCare$whenReplaceDontCareValuesWithActualLevels$thenWorksFine() {
       assertEquals(
-          new Aarray.Builder()
+          new AArray.Builder()
               .put("a", 1)
               .put("b", 1)
               .put("c", 1)
               .build(),
-          func.apply(new Aarray.Builder()
+          func.apply(new AArray.Builder()
               .put("a", DontCare)
               .put("b", DontCare)
               .put("c", DontCare)
@@ -462,16 +462,16 @@ public class IpoGplusTest {
 
     @Test
     public void givenCisDontCareDontCare$whenAssignmentsForDontCaresUnderConstraints$thenWorksFine() {
-      Aarray tuple = new Aarray.Builder()
+      AArray tuple = new AArray.Builder()
           .put("a", 1)
           .put("b", 1)
           .put("c", DontCare)
           .build();
       assertEquals(
           asList(
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 3).build()
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 3).build()
           ),
           IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
@@ -484,19 +484,19 @@ public class IpoGplusTest {
 
     @Test
     public void givenBandCareDontCareDontCare$whenAssignmentsForDontCaresUnderConstraints$thenWorksFine() {
-      Aarray tuple = new Aarray.Builder()
+      AArray tuple = new AArray.Builder()
           .put("a", 1)
           .put("b", DontCare)
           .put("c", DontCare)
           .build();
       assertEquals(
           asList(
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
-              new Aarray.Builder().put("a", 1).put("b", 1).put("c", 3).build(),
-              new Aarray.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
-              new Aarray.Builder().put("a", 1).put("b", 2).put("c", 2).build(),
-              new Aarray.Builder().put("a", 1).put("b", 3).put("c", 1).build()
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 2).build(),
+              new AArray.Builder().put("a", 1).put("b", 1).put("c", 3).build(),
+              new AArray.Builder().put("a", 1).put("b", 2).put("c", 1).build(),
+              new AArray.Builder().put("a", 1).put("b", 2).put("c", 2).build(),
+              new AArray.Builder().put("a", 1).put("b", 3).put("c", 1).build()
           ),
           IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
               tuple,
@@ -522,7 +522,7 @@ public class IpoGplusTest {
             }
 
             @Override
-            public boolean test(Aarray tuple) {
+            public boolean test(AArray tuple) {
               int a = (int) tuple.get("a");
               int b = (int) tuple.get("b");
               int c = (int) tuple.get("c");
@@ -535,19 +535,19 @@ public class IpoGplusTest {
             }
           }
       );
-      Aarray tuple = new Aarray.Builder()
+      AArray tuple = new AArray.Builder()
           .put("a", 4)
           .put("b", DontCare)
           .put("c", 4)
           .build();
-      List<Aarray> result = IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
+      List<AArray> result = IpoGplus.streamAssignmentsForDontCaresUnderConstraints(
           tuple,
           factors,
           constraints,
           new IpoGplus.Session()
       ).collect(toList());
       assertEquals(
-          singletonList(new Aarray.Builder().put("a", 4).put("c", 4).put("b", 8).build()),
+          singletonList(new AArray.Builder().put("a", 4).put("c", 4).put("b", 8).build()),
           result
       );
     }
@@ -608,14 +608,14 @@ public class IpoGplusTest {
 
   @SuppressWarnings("NonAsciiCharacters")
   public static class TupleTest {
-    List<Aarray> ts = new LinkedList<Aarray>() {{
-      add(new Aarray.Builder().put("a", 1).put("b", 1).put("c", DontCare).build());
-      add(new Aarray.Builder().put("a", 1).put("b", 2).build());
+    List<AArray> ts = new LinkedList<AArray>() {{
+      add(new AArray.Builder().put("a", 1).put("b", 1).put("c", DontCare).build());
+      add(new AArray.Builder().put("a", 1).put("b", 2).build());
     }};
 
     @Test
     public void givenMatchingDontCareFactor$whenIncompleteTestsToCoverGivenTuple$thenChosen() {
-      Aarray σ = new Aarray.Builder().put("b", 1).put("c", 1).build();
+      AArray σ = new AArray.Builder().put("b", 1).put("c", 1).build();
       assertEquals(
           singletonList(ts.get(0)),
           IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
@@ -624,7 +624,7 @@ public class IpoGplusTest {
 
     @Test
     public void givenMatchingAbsentFactor$whenIncompleteTestsToCoverGivenTuple$thenChosen() {
-      Aarray σ = new Aarray.Builder().put("b", 2).put("c", 1).build();
+      AArray σ = new AArray.Builder().put("b", 2).put("c", 1).build();
       assertEquals(
           singletonList(ts.get(1)),
           IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())
@@ -633,7 +633,7 @@ public class IpoGplusTest {
 
     @Test
     public void givenNoMatching$whenIncompleteTestsToCoverGivenTuple$thenNotChosen() {
-      Aarray σ = new Aarray.Builder().put("b", 3).build();
+      AArray σ = new AArray.Builder().put("b", 3).build();
       assertEquals(
           emptyList(),
           IpoGplus.streamIncompleteTestsToCoverGivenTuple(ts, σ).collect(toList())

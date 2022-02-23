@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.examples.bankaccount2;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
-import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
+import com.github.dakusui.jcunit8.metamodel.parameters.Regex;
+import com.github.dakusui.jcunit8.metamodel.parameters.Simple;
 import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -22,7 +22,7 @@ public class BankAccountExample2 {
   private final BankAccount2 anotherAccount = BankAccount2.open();
 
   @ParameterSource
-  public Regex.Factory<String> scenario() {
+  public Regex.Factory scenario() {
     return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
   }
 
