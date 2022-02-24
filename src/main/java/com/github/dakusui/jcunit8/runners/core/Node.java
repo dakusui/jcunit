@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A node to construct a composite condition and predicate.
+ */
 public interface Node {
   void accept(Visitor visitor);
 

@@ -8,8 +8,11 @@ import java.util.List;
 import static java.lang.String.format;
 
 /**
- * Indicates user's artifact (Typically test classes, annotated with
- * {@literal @}{@code RunWith(JCUnit.class)}), is invalid.
+ * Hello world.
+ *
+ * @formatter:off
+ * Indicates user's artifact (Typically test classes, annotated with `@RunWith(JCUnit8.class)`), is invalid.
+ * @formatter:on
  */
 public class TestDefinitionException extends BaseException {
   private TestDefinitionException(String message) {
@@ -36,7 +39,7 @@ public class TestDefinitionException extends BaseException {
     throw new TestDefinitionException(String.format("Method parameter not annotated with @From is found at '%s'", methodName));
   }
 
-  public static  TestDefinitionException noParameterFound() {
+  public static TestDefinitionException noParameterFound() {
     throw new TestDefinitionException("No parameter is found.");
   }
 }

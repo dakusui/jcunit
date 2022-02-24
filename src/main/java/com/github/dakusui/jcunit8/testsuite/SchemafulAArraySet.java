@@ -2,16 +2,30 @@ package com.github.dakusui.jcunit8.testsuite;
 
 import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.core.tuples.TupleUtils;
+import com.github.dakusui.jcunit8.core.TupleSet;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
+import com.github.dakusui.pcond.functions.Functions;
 
 import java.util.*;
 
 import static com.github.dakusui.jcunit8.pipeline.PipelineException.checkIfStrengthIsInRange;
+import static com.github.dakusui.pcond.Assertions.that;
+import static com.github.dakusui.pcond.functions.Functions.chain;
+import static com.github.dakusui.pcond.functions.Predicates.*;
 import static java.util.Collections.unmodifiableList;
 
 /**
+ * @formatter:off
  * A list of tuples all of whose entries have the same attribute names. An implementation
  * of this interface must also guarantee that it doesn't have the same element.
+ *
+ * [ditaa]
+ * ----
+ * +-----+     +-----+
+ * |hello|<>-->|world|
+ * +-----+     +-----+
+ * ----
+ * @formatter:on
  */
 public interface SchemafulAArraySet extends List<AArray> {
   static SchemafulAArraySet fromRows(List<AArray> rows) {
@@ -40,19 +54,31 @@ public interface SchemafulAArraySet extends List<AArray> {
 
   class Builder {
     private final List<String> attributeNames;
-    private final List<AArray> arrays;
+    private final List<AArray> rows;
 
     public Builder(List<String> attributeNames) {
+      assert that(attributeNames, allOf(
+          isNotNull(),
+          transform(Functions.size()).check(equalTo(toSet(attributeNames).size()))
+      ));
       this.attributeNames = unmodifiableList(attributeNames);
-      this.arrays = new LinkedList<>();
+      this.rows = new LinkedList<>();
+    }
+
+    private static HashSet<String> toSet(final List<String> list) {
+      return new HashSet<String>() {{
+        this.addAll(list);
+      }};
     }
 
     public Builder add(AArray row) {
       ////
       // Make sure all the tuples in this suite object have the same set of attribute
       // names.
-      //assert that(row.keySet(), transform(collectionToList()).check(isEqualTo(attributeNames)));
-      this.arrays.add(row);
+      assert that(row, allOf(
+          isNotNull(),
+          transform(chain("keySet")).check(isEqualTo(toSet(attributeNames)))));
+      this.rows.add(row);
       return this;
     }
 
@@ -103,7 +129,7 @@ public interface SchemafulAArraySet extends List<AArray> {
       }
       return new Impl(
           new ArrayList<>(this.attributeNames),
-          this.arrays);
+          this.rows);
     }
   }
 

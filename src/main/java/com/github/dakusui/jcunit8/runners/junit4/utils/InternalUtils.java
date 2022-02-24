@@ -2,14 +2,13 @@ package com.github.dakusui.jcunit8.runners.junit4.utils;
 
 import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit.core.utils.Checks;
-import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
-import com.github.dakusui.jcunit8.runners.core.NodeUtils;
+import com.github.dakusui.jcunit8.runners.core.TestInputPredicate;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
-import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
+import com.github.dakusui.jcunit8.testsuite.TestInputConsumer;
 import org.junit.*;
 import org.junit.internal.runners.statements.RunAfters;
 import org.junit.internal.runners.statements.RunBefores;
@@ -24,6 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
+import static com.github.dakusui.jcunit8.runners.core.NodeUtils.buildPredicate;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
 import static java.util.Collections.unmodifiableMap;
@@ -81,7 +81,7 @@ public enum InternalUtils {
     );
   }
 
-  public static RunAfters createRunAftersForTestInput(Statement statement, List<TupleConsumer> afters, AArray testInput) {
+  public static RunAfters createRunAftersForTestInput(Statement statement, List<TestInputConsumer> afters, AArray testInput) {
     return new RunAfters(
         statement,
         afters.stream().map(
@@ -92,17 +92,17 @@ public enum InternalUtils {
     };
   }
 
-  public static RunBefores createRunBeforesForTestInput(Statement statement, List<TupleConsumer> tupleConsumers, AArray testInput) {
+  public static RunBefores createRunBeforesForTestInput(Statement statement, List<TestInputConsumer> testInputConsumers, AArray testInput) {
     return new RunBefores(
         statement,
-        tupleConsumers.stream()
+        testInputConsumers.stream()
             .map(frameworkMethodInvokingArgumentsFromTestCase(testInput))
             .collect(toList()),
         null
     );
   }
 
-  public static Function<TupleConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(AArray testInput) {
+  public static Function<TestInputConsumer, FrameworkMethod> frameworkMethodInvokingArgumentsFromTestCase(AArray testInput) {
     return each -> {
       try {
         return new FrameworkMethod(InternalUtils.class.getMethod("frameworkMethodInvokingArgumentsFromTestCase", AArray.class)) {
@@ -145,8 +145,8 @@ public enum InternalUtils {
     );
   }
 
-  public static TupleConsumer toTupleConsumer(FrameworkMethod method) {
-    return new TupleConsumer() {
+  public static TestInputConsumer toTupleConsumer(FrameworkMethod method) {
+    return new TestInputConsumer() {
       @Override
       public String getName() {
         return method.getName();
@@ -163,7 +163,7 @@ public enum InternalUtils {
     };
   }
 
-  public static TestOracle toTestOracle(FrameworkMethod method, SortedMap<String, TuplePredicate> predicates) {
+  public static TestOracle toTestOracle(FrameworkMethod method, SortedMap<String, TestInputPredicate> predicates) {
     return new TestOracle() {
       @Override
       public String getName() {
@@ -222,17 +222,12 @@ public enum InternalUtils {
     };
   }
 
-  public static Predicate<AArray> shouldInvoke(FrameworkMethod method, SortedMap<String, TuplePredicate> predicates) {
-    return tuple -> {
+  public static Predicate<AArray> shouldInvoke(FrameworkMethod method, SortedMap<String, TestInputPredicate> predicates) {
+    return row -> {
       //noinspection SimplifiableIfStatement
       if (method.getAnnotation(Given.class) == null)
         return true;
-      return NodeUtils.buildPredicate(
-          method.getAnnotation(Given.class).value(),
-          predicates
-      ).test(
-          tuple
-      );
+      return buildPredicate(method.getAnnotation(Given.class).value(), predicates).test(row);
     };
   }
 
@@ -242,19 +237,14 @@ public enum InternalUtils {
         .map((Function<Annotation[], List<? extends Annotation>>) Arrays::asList)
         .map(
             (List<? extends Annotation> annotations) ->
-                (A) annotations.stream(
+                (A) annotations.stream()
+                    .filter((Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass()))
+                    .findFirst()
+                    .orElseThrow(() -> parameterWithoutAnnotation(formatFrameworkMethodName(method))))
+        .collect(toList());
+  }
 
-                ).filter(
-                    (Annotation eachAnnotation) -> annotationClass.isAssignableFrom(eachAnnotation.getClass())
-                ).findFirst(
-
-                ).orElseThrow(
-                    () -> parameterWithoutAnnotation(
-                        format(
-                            "%s.%s",
-                            method.getDeclaringClass().getCanonicalName(),
-                            method.getName()
-                        )))
-        ).collect(toList());
+  private static String formatFrameworkMethodName(FrameworkMethod method) {
+    return format("%s.%s", method.getDeclaringClass().getCanonicalName(), method.getName());
   }
 }

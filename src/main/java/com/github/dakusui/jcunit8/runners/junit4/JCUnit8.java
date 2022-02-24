@@ -197,7 +197,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
   protected Statement withAfterClasses(Statement statement) {
-    return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
+    return this.testSuite.getScenario().postSuiteProcedures().isEmpty() ?
         statement :
         InternalUtils.createRunAftersForTestInput(
             statement,
@@ -207,19 +207,17 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
   }
 
   private List<Runner> createRunners(TestSuite testSuite) {
-    return IntStream.range(
-        0, testSuite.size()
-    ).mapToObj(
-        i -> {
-          try {
-            return new TestCaseRunner(this.getTestClass().getJavaClass(), i, testSuite);
-          } catch (InitializationError initializationError) {
-            throw Checks.wrap(initializationError);
-          }
-        }
-    ).collect(
-        toList()
-    );
+    return IntStream.range(0, testSuite.size())
+        .mapToObj(i -> createTestCaseRunner(testSuite, i))
+        .collect(toList());
+  }
+
+  private TestCaseRunner createTestCaseRunner(TestSuite testSuite, int i) {
+    try {
+      return new TestCaseRunner(this.getTestClass().getJavaClass(), i, testSuite);
+    } catch (InitializationError initializationError) {
+      throw Checks.wrap(initializationError);
+    }
   }
 
   private void applyValidators(List<Throwable> errors) {
@@ -370,7 +368,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     }
 
     private Statement withBeforesForTestOracle(AArray testInput, Statement statement) {
-      List<TupleConsumer> befores = testSuite.getScenario().preOracleProcedures();
+      List<TestInputConsumer> befores = testSuite.getScenario().preOracleProcedures();
       return befores.isEmpty() ?
           statement :
           new Statement() {
@@ -384,7 +382,7 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     }
 
     private Statement withAftersForTestOracle(AArray testInput, Statement statement) {
-      List<TupleConsumer> afters = testSuite.getScenario().postOracleProcedures();
+      List<TestInputConsumer> afters = testSuite.getScenario().postOracleProcedures();
       return afters.isEmpty() ?
           statement :
           new Statement() {

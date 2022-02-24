@@ -1,13 +1,13 @@
 package com.github.dakusui.jcunit8.runners.junit4;
 
-import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.core.NodeUtils;
+import com.github.dakusui.jcunit8.runners.core.TestInputPredicate;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.AfterTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.BeforeTestCase;
 import com.github.dakusui.jcunit8.runners.junit4.utils.InternalUtils;
+import com.github.dakusui.jcunit8.testsuite.TestInputConsumer;
 import com.github.dakusui.jcunit8.testsuite.TestOracle;
 import com.github.dakusui.jcunit8.testsuite.TestScenario;
-import com.github.dakusui.jcunit8.testsuite.TupleConsumer;
 import org.junit.*;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.TestClass;
@@ -23,56 +23,52 @@ public enum TestScenarioFactoryForJUnit4 {
   ;
 
   public static TestScenario create(TestClass testClass) {
-    SortedMap<String, TuplePredicate> predicates = NodeUtils.allTestPredicates(testClass);
+    SortedMap<String, TestInputPredicate> predicates = NodeUtils.allTestPredicates(testClass);
     return new TestScenario() {
       @Override
-      public List<TupleConsumer> preSuiteProcedures() {
-        return toTupleConsumer(testClass, BeforeClass.class);
+      public List<TestInputConsumer> preSuiteProcedures() {
+        return toTestInputConsumer(testClass, BeforeClass.class);
       }
 
       @Override
-      public List<TupleConsumer> preTestInputProcedures() {
-        return toTupleConsumer(testClass, BeforeTestCase.class);
+      public List<TestInputConsumer> preTestInputProcedures() {
+        return toTestInputConsumer(testClass, BeforeTestCase.class);
       }
 
       @Override
-      public List<TupleConsumer> preOracleProcedures() {
-        return toTupleConsumer(testClass, Before.class);
+      public List<TestInputConsumer> preOracleProcedures() {
+        return toTestInputConsumer(testClass, Before.class);
       }
 
       @Override
       public List<TestOracle> oracles() {
-        return testClass.getAnnotatedMethods(Test.class).stream(
-        ).map(
-            (FrameworkMethod method) -> toTestOracle(method, predicates)
-        ).collect(
-            toList()
-        );
+        return testClass.getAnnotatedMethods(Test.class)
+            .stream()
+            .map((FrameworkMethod method) -> toTestOracle(method, predicates))
+            .collect(toList());
       }
 
       @Override
-      public List<TupleConsumer> postOracleProcedures() {
-        return toTupleConsumer(testClass, After.class);
+      public List<TestInputConsumer> postOracleProcedures() {
+        return toTestInputConsumer(testClass, After.class);
       }
 
       @Override
-      public List<TupleConsumer> postTestInputProcedures() {
-        return toTupleConsumer(testClass, AfterTestCase.class);
+      public List<TestInputConsumer> postTestInputProcedures() {
+        return toTestInputConsumer(testClass, AfterTestCase.class);
       }
 
       @Override
-      public List<TupleConsumer> postSuiteProcedures() {
-        return toTupleConsumer(testClass, AfterClass.class);
+      public List<TestInputConsumer> postSuiteProcedures() {
+        return toTestInputConsumer(testClass, AfterClass.class);
       }
     };
   }
 
-  private static List<TupleConsumer> toTupleConsumer(TestClass testClass, Class<? extends Annotation> annotationClass) {
-    return testClass.getAnnotatedMethods(annotationClass).stream(
-    ).map(
-        InternalUtils::toTupleConsumer
-    ).collect(
-        toList()
-    );
+  private static List<TestInputConsumer> toTestInputConsumer(TestClass testClass, Class<? extends Annotation> annotationClass) {
+    return testClass.getAnnotatedMethods(annotationClass)
+        .stream()
+        .map(InternalUtils::toTupleConsumer)
+        .collect(toList());
   }
 }

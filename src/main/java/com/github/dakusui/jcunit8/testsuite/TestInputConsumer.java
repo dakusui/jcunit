@@ -8,7 +8,7 @@ import java.util.Formattable;
 import java.util.Formatter;
 import java.util.function.Consumer;
 
-public interface TupleConsumer extends Consumer<AArray>, Formattable {
+public interface TestInputConsumer extends Consumer<AArray>, Formattable {
   String getName();
 
   @Override

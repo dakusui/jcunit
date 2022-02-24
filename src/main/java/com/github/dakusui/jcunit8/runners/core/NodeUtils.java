@@ -3,7 +3,6 @@ package com.github.dakusui.jcunit8.runners.core;
 import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.factorspace.Constraint;
-import com.github.dakusui.jcunit8.factorspace.TuplePredicate;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.ConfigureWith;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
@@ -25,16 +24,15 @@ import static java.util.stream.Collectors.toList;
 public enum NodeUtils {
   ;
 
-  public static TuplePredicate buildPredicate(String[] values, SortedMap<String, TuplePredicate> predicates_) {
+  public static TestInputPredicate buildPredicate(String[] values, SortedMap<String, TestInputPredicate> predicates_) {
     class Builder implements Node.Visitor {
-      private final SortedMap<String, TuplePredicate> predicates   = predicates_;
-      private Predicate<AArray>                       result;
-      private final SortedSet<String>                 involvedKeys = new TreeSet<>();
+      private final SortedMap<String, TestInputPredicate> predicates   = predicates_;
+      private Predicate<AArray>                           result;
+      private final SortedSet<String>                     involvedKeys = new TreeSet<>();
 
-      @SuppressWarnings("unchecked")
       @Override
       public void visitLeaf(Node.Leaf leaf) {
-        TuplePredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
+        TestInputPredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
         involvedKeys.addAll(predicate.involvedKeys());
         if (leaf.args().length == 0)
           result = predicate;
@@ -87,7 +85,7 @@ public enum NodeUtils {
         result = result.negate();
       }
 
-      private Optional<TuplePredicate> lookupTestPredicate(String name) {
+      private Optional<TestInputPredicate> lookupTestPredicate(String name) {
         return this.predicates.containsKey(name) ?
             Optional.of(this.predicates.get(name)) :
             Optional.empty();
@@ -95,7 +93,7 @@ public enum NodeUtils {
     }
     Builder builder = new Builder();
     parse(values).accept(builder);
-    return TuplePredicate.of(
+    return TestInputPredicate.of(
         Arrays.toString(values),
         new ArrayList<>(builder.involvedKeys),
         builder.result
@@ -116,7 +114,7 @@ public enum NodeUtils {
     };
   }
 
-  public static SortedMap<String, TuplePredicate> allTestPredicates(TestClass testClass) {
+  public static SortedMap<String, TestInputPredicate> allTestPredicates(TestClass testClass) {
     ////
     // TestClass <>--------------> parameterSpace class
     //                               constraints
@@ -133,12 +131,12 @@ public enum NodeUtils {
             )
         )
     ).collect(Collectors.toMap(
-        TuplePredicate::getName,
+        TestInputPredicate::getName,
         each -> each
     )));
   }
 
-  private static Class getParameterSpaceDefinitionClass(TestClass testClass) {
+  private static Class<?> getParameterSpaceDefinitionClass(TestClass testClass) {
     ConfigureWith configureWith = testClass.getAnnotation(ConfigureWith.class);
     configureWith = configureWith == null ?
         ConfigureWith.DEFAULT_INSTANCE :
@@ -148,7 +146,7 @@ public enum NodeUtils {
         configureWith.parameterSpace();
   }
 
-  private static Stream<TuplePredicate> streamTestPredicatesIn(Class parameterSpaceDefinitionClass) {
+  private static Stream<TestInputPredicate> streamTestPredicatesIn(Class<?> parameterSpaceDefinitionClass) {
     TestClass wrapper = new TestClass(parameterSpaceDefinitionClass);
     Object testObject = createInstanceOf(wrapper);
     return wrapper.getAnnotatedMethods(Condition.class).stream(
@@ -157,7 +155,7 @@ public enum NodeUtils {
     );
   }
 
-  public static TuplePredicate createTestPredicate(Object testObject, FrameworkMethod frameworkMethod) {
+  public static TestInputPredicate createTestPredicate(Object testObject, FrameworkMethod frameworkMethod) {
     Method method = frameworkMethod.getMethod();
     //noinspection RedundantTypeArguments (to suppress a compilation error)
     List<String> involvedKeys = Stream.of(method.getParameterAnnotations())
@@ -177,7 +175,7 @@ public enum NodeUtils {
             testObject,
             involvedKeys.stream()
                 .map(new Function<String, Object>() {
-                  AtomicInteger cur = new AtomicInteger(0);
+                  final AtomicInteger cur = new AtomicInteger(0);
 
                   @Override
                   public Object apply(String key) {
@@ -192,13 +190,12 @@ public enum NodeUtils {
                     return tuple.get(key(cur.getAndIncrement()));
                   }
 
-                  @SuppressWarnings("unchecked")
                   private Object getVarArgs() {
-                    List work = new LinkedList();
+                    List<Object> work = new LinkedList<>();
                     while (tuple.containsKey(key(cur.get()))) {
                       work.add(getArg());
                     }
-                    return work.toArray(new String[work.size()]);
+                    return work.toArray();
                   }
 
                   private boolean isVarArgs(int argIndex) {
@@ -216,7 +213,7 @@ public enum NodeUtils {
     };
     return frameworkMethod.getAnnotation(Condition.class).constraint() ?
         Constraint.create(frameworkMethod.getName(), predicate, involvedKeys) :
-        new TuplePredicate() {
+        new TestInputPredicate() {
           @Override
           public String getName() {
             return frameworkMethod.getName();

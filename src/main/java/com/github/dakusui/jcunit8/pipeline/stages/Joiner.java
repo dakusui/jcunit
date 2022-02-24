@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.core.StreamableCombinator;
 import com.github.dakusui.jcunit8.exceptions.FrameworkException;
 import com.github.dakusui.jcunit8.pipeline.Requirement;
 import com.github.dakusui.jcunit8.testsuite.SchemafulAArraySet;
-import com.github.dakusui.jcunit8.testsuite.TupleSet;
+import com.github.dakusui.jcunit8.core.TupleSet;
 
 import java.util.*;
 import java.util.function.BinaryOperator;

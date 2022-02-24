@@ -2,6 +2,7 @@ package com.github.dakusui.jcunit8.factorspace;
 
 import com.github.dakusui.jcunit.core.tuples.AArray;
 import com.github.dakusui.jcunit8.core.Utils;
+import com.github.dakusui.jcunit8.runners.core.TestInputPredicate;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -9,7 +10,7 @@ import java.util.function.Predicate;
 import static com.github.dakusui.jcunit8.core.Utils.project;
 import static java.util.Arrays.asList;
 
-public interface Constraint extends TuplePredicate {
+public interface Constraint extends TestInputPredicate {
   static Constraint create(String name, Predicate<AArray> predicate, List<String> args) {
     return new Constraint() {
       @Override

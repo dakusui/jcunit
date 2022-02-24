@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.testsuite;
+package com.github.dakusui.jcunit8.core;
 
 import com.github.dakusui.jcunit.core.tuples.AArray;
 

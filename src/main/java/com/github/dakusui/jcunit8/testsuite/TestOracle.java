@@ -9,7 +9,7 @@ import java.util.Formatter;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface TestOracle extends TupleConsumer {
+public interface TestOracle extends TestInputConsumer {
   interface Result extends Formattable {
     enum Exit {
       RETURNING_VALUE {

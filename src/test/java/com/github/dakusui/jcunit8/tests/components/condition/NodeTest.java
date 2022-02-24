@@ -23,8 +23,7 @@ public class NodeTest {
   public void givenTokens$whenAllLeaves$thenCorrectlyTokenized() {
     assertThat(
         NodeUtils.allLeaves(new String[] { "a", "b&&!c" }),
-        equalTo(asList("a", "b", "c"))
-    );
+        equalTo(asList("a", "b", "c")));
   }
 
   @Test
@@ -32,13 +31,7 @@ public class NodeTest {
     assertThat(
         print(NodeUtils.allTestPredicates(new TestClass(QuadraticEquationExample.class)).values()),
         allOf(
-            hasItem(
-                instanceOf(Constraint.class)
-            ),
-            everyItem(
-                instanceOf(Constraint.class)
-            )
-        )
-    );
+            hasItem(instanceOf(Constraint.class)),
+            everyItem(instanceOf(Constraint.class))));
   }
 }

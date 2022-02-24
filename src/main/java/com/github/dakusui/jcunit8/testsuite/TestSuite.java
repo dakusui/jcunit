@@ -29,7 +29,7 @@ public interface TestSuite extends List<TestCase> {
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
-    private final TestScenario testScenario;
+    private final TestScenario   testScenario;
 
     public Builder(ParameterSpace parameterSpace, TestScenario testScenario) {
       this.parameterSpace = requireNonNull(parameterSpace);
@@ -67,14 +67,9 @@ public interface TestSuite extends List<TestCase> {
         private Impl(
         ) {
           this.testCases = new ArrayList<TestCase>(Builder.this.testCases.size()) {{
-            Builder.this.testCases.stream(
-            ).filter(
-                testCase -> stream().noneMatch(
-                    registered -> registered.getTestInput().equals(testCase.getTestInput())
-                )
-            ).forEach(
-                this::add
-            );
+            Builder.this.testCases.stream()
+                .filter(testCase -> stream().noneMatch(registered -> registered.getTestInput().equals(testCase.getTestInput())))
+                .forEach(this::add);
           }};
         }
 
