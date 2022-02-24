@@ -26,12 +26,13 @@ import java.util.stream.Stream;
 import static com.github.dakusui.jcunit8.exceptions.TestDefinitionException.parameterWithoutAnnotation;
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 public enum InternalUtils {
   ;
-  private static final Map<Class, Class> PRIMITIVE_TO_WRAPPER = Collections.unmodifiableMap(new HashMap<Class, Class>() {{
+  private static final Map<Class<?>, Class<?>> PRIMITIVE_TO_WRAPPER = unmodifiableMap(new HashMap<Class<?>, Class<?>>() {{
     put(boolean.class, Boolean.class);
     put(byte.class, Byte.class);
     put(char.class, Character.class);
@@ -75,7 +76,6 @@ public enum InternalUtils {
             getParameterAnnotationsFrom(method, From.class).stream()
                 .map(From::value)
                 .map(testInput::get)
-                .collect(toList())
                 .toArray()
         )
     );
@@ -95,9 +95,9 @@ public enum InternalUtils {
   public static RunBefores createRunBeforesForTestInput(Statement statement, List<TupleConsumer> tupleConsumers, AArray testInput) {
     return new RunBefores(
         statement,
-        tupleConsumers.stream().map(
-            frameworkMethodInvokingArgumentsFromTestCase(testInput)
-        ).collect(toList()),
+        tupleConsumers.stream()
+            .map(frameworkMethodInvokingArgumentsFromTestCase(testInput))
+            .collect(toList()),
         null
     );
   }
@@ -106,8 +106,7 @@ public enum InternalUtils {
     return each -> {
       try {
         return new FrameworkMethod(InternalUtils.class.getMethod("frameworkMethodInvokingArgumentsFromTestCase", AArray.class)) {
-          public Object invokeExplosively(final Object target, final Object... params)
-              throws Throwable {
+          public Object invokeExplosively(final Object target, final Object... params) {
             each.accept(testInput);
             return null;
           }
@@ -119,7 +118,7 @@ public enum InternalUtils {
   }
 
   @SuppressWarnings("unchecked")
-  static public Object[] validateArguments(FrameworkMethod method, Class[] parameterClasses, Object[] argumentValues) {
+  static public Object[] validateArguments(FrameworkMethod method, Class<?>[] parameterClasses, Object[] argumentValues) {
     // we can assume parameterClasses.length == argumentValues.length
     for (int i = 0; i < argumentValues.length; i++) {
       if (parameterClasses[i].isPrimitive()) {

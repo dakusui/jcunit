@@ -146,6 +146,28 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
+  public static TestSuite buildTestSuite(
+      TestClass testClass,
+      TestClass parameterSpaceDefinitionTestClass,
+      ConfigFactory configFactory
+  ) {
+    Collection<String> involvedParameterNames = InternalUtils.involvedParameters(testClass);
+    return buildTestSuite(
+        configFactory.create(),
+        buildParameterSpace(
+            new ArrayList<>(buildParameterMap(parameterSpaceDefinitionTestClass).values())
+                .stream()
+                .filter(parameter -> involvedParameterNames.contains(parameter.getName()))
+                .collect(toList()),
+            NodeUtils.allTestPredicates(testClass).values().stream()
+                .filter(each -> each instanceof Constraint)
+                .map(Constraint.class::cast)
+                .collect(toList())
+        ),
+        TestScenarioFactoryForJUnit4.create(testClass)
+    );
+  }
+
   /**
    * Mock {@code Parameterized} runner of JUnit 4.12.
    */
@@ -174,7 +196,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
         );
   }
 
-
   protected Statement withAfterClasses(Statement statement) {
     return this.testSuite.getScenario().preSuiteProcedures().isEmpty() ?
         statement :
@@ -183,33 +204,6 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
             this.testSuite.getScenario().postSuiteProcedures(),
             AArray.builder().put("@suite", this.testSuite).build()
         );
-  }
-
-
-  public static TestSuite buildTestSuite(
-      TestClass testClass,
-      TestClass parameterSpaceDefinitionTestClass,
-      ConfigFactory configFactory
-  ) {
-    Collection<String> involvedParameterNames = InternalUtils.involvedParameters(testClass);
-    return buildTestSuite(
-        configFactory.create(),
-        buildParameterSpace(
-            new ArrayList<>(
-                buildParameterMap(parameterSpaceDefinitionTestClass).values()
-            ).stream(
-            ).filter(
-                parameter -> involvedParameterNames.contains(parameter.getName())
-            ).collect(
-                toList()
-            ),
-            NodeUtils.allTestPredicates(testClass).values().stream()
-                .filter(each -> each instanceof Constraint)
-                .map(Constraint.class::cast)
-                .collect(toList())
-        ),
-        TestScenarioFactoryForJUnit4.create(testClass)
-    );
   }
 
   private List<Runner> createRunners(TestSuite testSuite) {

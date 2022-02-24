@@ -51,9 +51,7 @@ public interface SchemafulAArraySet extends List<AArray> {
       ////
       // Make sure all the tuples in this suite object have the same set of attribute
       // names.
-      FrameworkException.check(row, (AArray t) -> attributeNames.equals(new ArrayList<String>() {{
-        this.addAll(row.keySet());
-      }}));
+      //assert that(row.keySet(), transform(collectionToList()).check(isEqualTo(attributeNames)));
       this.arrays.add(row);
       return this;
     }
