@@ -15,7 +15,6 @@ import static com.github.dakusui.pcond.functions.Predicates.*;
 import static java.util.Collections.unmodifiableList;
 
 /**
- * @formatter:off
  * A list of tuples all of whose entries have the same attribute names. An implementation
  * of this interface must also guarantee that it doesn't have the same element.
  *
@@ -25,7 +24,6 @@ import static java.util.Collections.unmodifiableList;
  * |hello|<>-->|world|
  * +-----+     +-----+
  * ----
- * @formatter:on
  */
 public interface SchemafulAArraySet extends List<AArray> {
   static SchemafulAArraySet fromRows(List<AArray> rows) {

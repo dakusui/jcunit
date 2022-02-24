@@ -3,6 +3,7 @@
 :doctype: book
 
 = Design of JCUnit
+
 == The Pipeline
 
 JCUnit has a pipeline, which converts testing model containing user-defined parameters into an executable test suite.

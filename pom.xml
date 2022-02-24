@@ -214,11 +214,16 @@
                             <artifactId>asciidoclet</artifactId>
                             <version>${asciidoclet.version}</version>
                         </docletArtifact>
+                        <javadocDirectory>${basedir}/src/main/javadoc
+                        </javadocDirectory>
+                        <docfilessubdirs>true
+                        </docfilessubdirs>
                         <overview>src/main/javadoc/overview.adoc</overview>
                         <additionalparam>
                             --base-dir ${project.basedir}
                             --attribute "name=${project.name}"
                             --attribute "version=${project.version}"
+                            --attribute "javadoc-basedir=${basedir}/src/main/javadoc"
                             --require asciidoctor-diagram
                             --gem-path ${env.GEM_PATH}
                             --attribute data-uri
@@ -349,6 +354,21 @@
                 <version>${exec-maven-plugin.version}</version>
                 <executions>
                     <execution><!-- Run our version calculation script -->
+                        <id>clean-up-asciidoctor-files</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>
+                                    ${basedir}/src/main/build_tools/clean-up-asciidoctor-files.sh
+                                </argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution><!-- Run our version calculation script -->
                         <id>package-info.java generation</id>
                         <phase>generate-sources</phase>
                         <goals>
@@ -454,7 +474,8 @@
                         </goals>
                         <configuration>
                             <backend>html5</backend>
-                            <outputDirectory>target/site/asciidoc</outputDirectory>
+                            <outputDirectory>target/site/asciidoc
+                            </outputDirectory>
                             <attributes>
                                 <imagesdir>.</imagesdir>
                                 <toc>left</toc>

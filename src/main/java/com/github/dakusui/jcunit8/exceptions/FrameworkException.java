@@ -6,6 +6,13 @@ import java.util.function.Supplier;
 
 /**
  * An exception that indicates a bug in JCUnit's framework.
+ *
+ * [ditaa]
+ * ----
+ * +-----+      +-----+
+ * |hello|<>--->|world|
+ * +-----+      +-----+
+ * ----
  */
 public class FrameworkException extends BaseException {
   protected FrameworkException(String format) {

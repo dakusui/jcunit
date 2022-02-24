@@ -10,15 +10,26 @@ import static java.lang.String.format;
 /**
  * Hello world.
  *
- * @formatter:off
- * Indicates user's artifact (Typically test classes, annotated with `@RunWith(JCUnit8.class)`), is invalid.
- * @formatter:on
+ * Indicates user's artifact (Typically a test class, annotated with `@RunWith(JCUnit8.class)`), is invalid.
+ *
+ * [ditaa]
+ * ----
+ * +-----+      +-----+
+ * |hello|<>--->|world|
+ * +-----+      +-----+
+ * ----
  */
 public class TestDefinitionException extends BaseException {
   private TestDefinitionException(String message) {
     super(message);
   }
 
+  /**
+   * Creates an instance of this class.
+   *
+   * @param message An error message
+   * @param e A nested exception
+   */
   private TestDefinitionException(String message, Throwable e) {
     super(message, e);
   }

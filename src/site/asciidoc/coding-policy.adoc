@@ -1,0 +1,2 @@
+- **Please disable JavaDoc formatting:** We are using "asciidoclet", which renders asciidoc formatted content in JavaDoc.
+Automatic code formatting will break ascii arts in the JavaDoc.
