@@ -321,7 +321,7 @@
                         <jvmArg>-Dunderpitest=yes</jvmArg>
                     </jvmArgs>
                     <targetClasses>
-                        <param>com.github.dakusui.jcunit8.exceptions.*</param>
+                        <param>com.github.dakusui.jcunitx.exceptions.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>*Test</param>

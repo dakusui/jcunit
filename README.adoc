@@ -128,10 +128,10 @@ By default, the `pom.xml` is configured to exercise the mutation testing over sm
 Under the plugin configuration for `org.pitest:pitest-maven`, you can find a following element.
 
 .`pom.xml` configuration for `org.pitest:pitest-maven` plugin
-[source, xml]
+[source,xml]
 ----
     <targetClasses>
-        <param>com.github.dakusui.jcunit8.exceptions.*</param>
+        <param>com.github.dakusui.jcunitx.exceptions.*</param>
     </targetClasses>
 ----
 [[pitest-maven-config]]

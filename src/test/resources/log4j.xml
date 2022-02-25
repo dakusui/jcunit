@@ -16,7 +16,7 @@
                    value="%-5p [%-10t]: %16c{2}%3L:%m%n"/>
         </layout>
     </appender>
-    <logger name="com.github.dakusui.jcunit8">
+    <logger name="com.github.dakusui.jcunitx">
         <level value="trace"/>
         <appender-ref ref="stderr"/>
     </logger>

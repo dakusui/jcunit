@@ -64,7 +64,7 @@ When the parameter is not a simple one, but a custom one (e.g., Regex), the para
 
 [source,java]
 ----
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.Condition;
 
 public class ExampleTest {
   @ParameterSource
