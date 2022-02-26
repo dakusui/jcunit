@@ -1,7 +1,10 @@
-package com.github.dakusui.jcunitx.regex;
+package com.github.dakusui.jcunitx.metamodel.parameters.regex;
 
 import com.github.dakusui.jcunitx.core.AArray;
 import com.github.dakusui.jcunitx.pipeline.stages.Generator;
+import com.github.dakusui.jcunitx.regex.Expr;
+import com.github.dakusui.jcunitx.regex.Reference;
+import com.github.dakusui.jcunitx.regex.RegexTranslator;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunitx.tests.features.generators;
 
 import com.github.dakusui.jcunitx.core.AArray;
-import com.github.dakusui.jcunitx.core.StreamableTupleCartesianator;
+import com.github.dakusui.jcunitx.core.StreamableRowCartesianator;
 import com.github.dakusui.jcunitx.utils.Utils;
 import com.github.dakusui.jcunitx.factorspace.Constraint;
 import com.github.dakusui.jcunitx.factorspace.Factor;
@@ -205,7 +205,7 @@ public class IpoGplusTest {
               new AArray.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
               new AArray.Builder().put("a", 1).put("b", 3).put("c", 2).build()
           ),
-          new StreamableTupleCartesianator(
+          new StreamableRowCartesianator(
               factors
           ).cursor(
               cursor.get()
@@ -222,7 +222,7 @@ public class IpoGplusTest {
               new AArray.Builder().put("a", 1).put("b", 3).put("c", 1).build(),
               new AArray.Builder().put("a", 1).put("b", 3).put("c", 2).build()
           ),
-          new StreamableTupleCartesianator(
+          new StreamableRowCartesianator(
               factors
           ).cursor(
               cursor.get()

@@ -3,7 +3,7 @@ package com.github.dakusui.jcunitx.pipeline.stages.generators;
 import com.github.dakusui.jcunitx.core.AArray;
 import com.github.dakusui.jcunitx.utils.TupleUtils;
 import com.github.dakusui.jcunitx.core.StreamableCombinator;
-import com.github.dakusui.jcunitx.core.StreamableTupleCartesianator;
+import com.github.dakusui.jcunitx.core.StreamableRowCartesianator;
 import com.github.dakusui.jcunitx.core.TupleSet;
 import com.github.dakusui.jcunitx.utils.Utils;
 import com.github.dakusui.jcunitx.exceptions.FrameworkException;
@@ -164,7 +164,7 @@ public class IpoGplus extends Generator.Base {
     }};
     return new StreamableCombinator<>(FactorUtils.toFactorNames(factors), strength)
         .stream()
-        .flatMap((List<String> chosenFactorNames) -> new StreamableTupleCartesianator(projectFactorValues(chosenFactorNames, factorValues)).stream());
+        .flatMap((List<String> chosenFactorNames) -> new StreamableRowCartesianator(projectFactorValues(chosenFactorNames, factorValues)).stream());
   }
 
   private static List<Factor> projectFactorValues(List<String> chosenFactorNames, Map<String, Factor> factorValues) {
@@ -210,7 +210,7 @@ public class IpoGplus extends Generator.Base {
     List<Factor> dontCareFactors = dontCareFactors(in, allFactors);
     if (allConstraints.isEmpty())
       return Stream.of(new AArray.Builder().putAll(removeDontCares(in)).putAll(session.chooseAssignmentsFor(dontCareFactors)).build());
-    return new StreamableTupleCartesianator(dontCareFactors).stream()
+    return new StreamableRowCartesianator(dontCareFactors).stream()
         .flatMap(tuple -> streamAssignmentsAllowedByConstraints(
             new AArray.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
             allFactors,
@@ -236,7 +236,7 @@ public class IpoGplus extends Generator.Base {
   }
 
   public static Function<List<Factor>, Stream<AArray>> streamTuplesUnderConstraints(List<Constraint> allConstraints) {
-    return factorsUnderConstraintsInRequest -> new StreamableTupleCartesianator(
+    return factorsUnderConstraintsInRequest -> new StreamableRowCartesianator(
         factorsUnderConstraintsInRequest
     ).stream(
     ).filter(
@@ -273,7 +273,7 @@ public class IpoGplus extends Generator.Base {
   ) {
     Optional<AArray> firstTuple = session.findFirstTupleUnderConstraints.apply(allConstraints).apply(factorsUnderConstraintsInRequest);
     if (firstTuple.isPresent()) {
-      StreamableTupleCartesianator cartesianator = new StreamableTupleCartesianator(
+      StreamableRowCartesianator cartesianator = new StreamableRowCartesianator(
           factorsUnderConstraintsInRequest
       );
       return cartesianator
@@ -502,7 +502,7 @@ public class IpoGplus extends Generator.Base {
                 alreadyProcessedFactors,
                 strength
             ).stream()
-                .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
+                .flatMap((List<Factor> factors) -> new StreamableRowCartesianator(factors).stream())
                 .filter((AArray tuple) -> !precovered.contains(tuple))
                 .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*2)
                 .collect(toList()))

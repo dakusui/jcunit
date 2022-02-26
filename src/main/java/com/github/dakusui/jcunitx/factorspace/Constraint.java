@@ -19,8 +19,8 @@ public interface Constraint extends TestInputPredicate {
       }
 
       @Override
-      public boolean test(AArray tuple) {
-        return predicate.test(project(args, tuple));
+      public boolean test(AArray row) {
+        return predicate.test(project(args, row));
       }
 
       @Override

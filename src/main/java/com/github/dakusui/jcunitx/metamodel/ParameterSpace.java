@@ -9,13 +9,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
 /**
  * A test input parameter space.
  * It consists of parameters and constraints over them.
  *
- * This interface represents user-facing
+ * This interface defines the user-facing model of the system under test.
  */
 public interface ParameterSpace {
   /**
@@ -24,7 +25,7 @@ public interface ParameterSpace {
    * This is a limitation of the current version of JCUnit, because in the CIT area "seeding" is done for the
    *
    * @param parameterSpace The parameter space in which the {@code seeds} are defined.
-   * @param seeds "
+   * @param seeds          A set of test cases from which the final test suite is generated.
    * @return A list of encoded seeds.
    */
   static List<AArray> encodeSeeds(ParameterSpace parameterSpace, List<AArray> seeds) {
@@ -44,7 +45,7 @@ public interface ParameterSpace {
    * Returns a parameter specified by the {@code name}.
    *
    * @param name The name of the parameter
-   * @param <P> The type of the parameter values.
+   * @param <P>  The type of the parameter values.
    * @return A parameter specified by {@code name}
    */
   <P> Parameter<P> getParameter(String name);
@@ -103,23 +104,23 @@ public interface ParameterSpace {
         @SuppressWarnings("unchecked")
         @Override
         public <P> Parameter<P> getParameter(String name) {
-          return (Parameter<P>) (parameters.stream(
+          return (Parameter<P>) (parameters.stream()
+              .filter(parameter -> parameter.getName().equals(name))
+              .findFirst()
+              .orElseThrow(() -> new RuntimeException(undefinedParameterMessage(name))));
+        }
 
-          ).filter(
-              parameter -> parameter.getName().equals(name)
-          ).findFirst(
-          ).orElseThrow(
-              () -> new RuntimeException(format(
-                  "Parameter '%s' was requested but not found. Existing parameters are %s",
-                  name,
-                  getParameterNames()
-              ))
-          ));
+        private String undefinedParameterMessage(String name) {
+          return format(
+              "Parameter '%s' was requested but not found. Existing parameters are %s",
+              name,
+              getParameterNames()
+          );
         }
 
         @Override
         public List<Constraint> getConstraints() {
-          return Collections.unmodifiableList(constraints);
+          return unmodifiableList(constraints);
         }
 
         @Override

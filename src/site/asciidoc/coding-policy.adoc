@@ -1,2 +1,7 @@
 - **Please disable JavaDoc formatting:** We are using "asciidoclet", which renders asciidoc formatted content in JavaDoc.
-Automatic code formatting will break ascii arts in the JavaDoc.
+Automatic code formatting may break ascii arts in the JavaDoc.
+Also, please at least make sure that the `<p/>` element is not inserted automatically (See <<JavaDocSetting>>).
+
+.JavaDocSetting
+[[JavaDocSetting]]
+image:coding-policy/javadoc-setting.png[]

@@ -3,7 +3,7 @@ package com.github.dakusui.jcunitx.metamodel.parameters;
 import com.github.dakusui.jcunitx.core.AArray;
 import com.github.dakusui.jcunitx.regex.Expr;
 import com.github.dakusui.jcunitx.regex.Parser;
-import com.github.dakusui.jcunitx.regex.RegexComposer;
+import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexComposer;
 import com.github.dakusui.jcunitx.utils.Utils;
 import com.github.dakusui.jcunitx.factorspace.Constraint;
 import com.github.dakusui.jcunitx.factorspace.Factor;
@@ -43,15 +43,15 @@ public interface Regex extends Parameter<List<String>> {
     public Optional<AArray> decomposeValue(List<String> value) {
       return _decomposeValue(
           value,
-          this.factorSpace.stream(),
+          this.factorSpace.streamAllPossibleRows(),
           this.regexComposer::compose,
           Utils.conjunct(this.factorSpace.getConstraints())
       );
     }
 
     @Override
-    public List<String> composeValue(AArray tuple) {
-      return new ArrayList<>(composeStringValueFrom(tuple));
+    public List<String> composeValue(AArray aarray) {
+      return new ArrayList<>(composeStringSequenceFrom(aarray));
     }
 
     @Override
@@ -64,8 +64,8 @@ public interface Regex extends Parameter<List<String>> {
       return factorSpace.getConstraints();
     }
 
-    private List<String> composeStringValueFrom(AArray tuple) {
-      return regexComposer.compose(tuple);
+    private List<String> composeStringSequenceFrom(AArray aarray) {
+      return regexComposer.compose(aarray);
     }
   }
 

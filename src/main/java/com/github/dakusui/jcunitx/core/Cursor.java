@@ -37,10 +37,10 @@ public interface Cursor<E> extends Iterable<E> {
     }
   }
 
-  class ForTuple extends Base<AArray> {
-    private final StreamableTupleCartesianator enumerator;
+  class ForRow extends Base<AArray> {
+    private final StreamableRowCartesianator enumerator;
 
-    ForTuple(long startFrom, StreamableTupleCartesianator enumerator) {
+    ForRow(long startFrom, StreamableRowCartesianator enumerator) {
       super(startFrom);
       this.enumerator = enumerator;
     }

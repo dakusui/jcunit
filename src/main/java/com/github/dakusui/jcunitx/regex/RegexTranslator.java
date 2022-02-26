@@ -25,7 +25,7 @@ public abstract class RegexTranslator implements Expr.Visitor {
     this.terms = new LinkedHashMap<>();
   }
 
-  static String composeKey(String prefix, String id) {
+  public static String composeKey(String prefix, String id) {
     return format("REGEX:%s:%s", prefix, id);
   }
 

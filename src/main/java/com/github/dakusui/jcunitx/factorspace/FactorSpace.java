@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunitx.factorspace;
 
 import com.github.dakusui.jcunitx.core.AArray;
-import com.github.dakusui.jcunitx.core.StreamableTupleCartesianator;
+import com.github.dakusui.jcunitx.core.StreamableRowCartesianator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,8 +48,8 @@ public interface FactorSpace {
 
   Factor getFactor(String name);
 
-  default Stream<AArray> stream() {
-    return new StreamableTupleCartesianator(getFactors()).stream();
+  default Stream<AArray> streamAllPossibleRows() {
+    return new StreamableRowCartesianator(getFactors()).stream();
   }
 
   default List<String> getFactorNames() {

@@ -9,13 +9,16 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<AArray, String, Object> {
-  public StreamableTupleCartesianator(List<Factor> factors) {
+/**
+ * A utility class to stream all possible rows from the given factors.
+ */
+public class StreamableRowCartesianator extends CartesianEnumeratorAdaptor<AArray, String, Object> {
+  public StreamableRowCartesianator(List<Factor> factors) {
     super(buildDomains(factors));
   }
 
   public Cursor<AArray> cursor(AArray at) {
-    return new Cursor.ForTuple(indexOf(at), this);
+    return new Cursor.ForRow(indexOf(at), this);
   }
 
   public Stream<AArray> stream() {
@@ -26,12 +29,12 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<AAr
     return new AbstractList<AArray>() {
       @Override
       public AArray get(int index) {
-        return StreamableTupleCartesianator.this.get(index);
+        return StreamableRowCartesianator.this.get(index);
       }
 
       @Override
       public int size() {
-        return (int) StreamableTupleCartesianator.this.size();
+        return (int) StreamableRowCartesianator.this.size();
       }
     };
   }

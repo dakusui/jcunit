@@ -7,7 +7,8 @@ import com.github.dakusui.jcunitx.pipeline.Requirement;
 import com.github.dakusui.jcunitx.pipeline.stages.Generator;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 public class Cartesian extends Generator.Base {
   public Cartesian(FactorSpace factorSpace, Requirement requirement) {
@@ -16,14 +17,14 @@ public class Cartesian extends Generator.Base {
 
   @Override
   protected List<AArray> generateCore() {
-    return factorSpace.stream(
-    ).filter(
-        (AArray tuple) -> factorSpace.getConstraints().stream()
-            .allMatch(
-                (Constraint constraint) -> constraint.test(tuple)
-            )
-    ).collect(
-        Collectors.toList()
-    );
+    return factorSpace.streamAllPossibleRows()
+        .filter((AArray row) -> satisfiesAllConstraints(row, factorSpace))
+        .collect(toList());
+  }
+
+  private boolean satisfiesAllConstraints(AArray row, FactorSpace factorSpace) {
+    return factorSpace.getConstraints()
+        .stream()
+        .allMatch((Constraint constraint) -> constraint.test(row));
   }
 }

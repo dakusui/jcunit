@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunitx.examples.bankaccount2;
 
+import com.github.dakusui.jcunitx.metamodel.parameters.ParameterizedRegex;
 import com.github.dakusui.jcunitx.metamodel.parameters.Regex;
 import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
@@ -22,8 +23,11 @@ public class BankAccountExample2 {
   private final BankAccount2 anotherAccount = BankAccount2.open();
 
   @ParameterSource
-  public Regex.Factory scenario() {
-    return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
+  public ParameterizedRegex.Factory scenario() {
+    return ParameterizedRegex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
+        .parameters("open", Simple.Factory.of(asList("Steve Smith", "Scot Tiger")))
+        .parameters("deposit", Simple.Factory.of(asList(0, 1, 1_000_000)));
+
   }
 
   @ParameterSource
