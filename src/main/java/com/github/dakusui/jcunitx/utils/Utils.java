@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.dakusui.jcunitx.utils.ReflectionUtils.getMethod;
 import static com.github.dakusui.jcunitx.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunitx.utils.ReflectionUtils.getMethod;
 import static java.util.Collections.singletonList;
 
 /**
@@ -154,6 +154,14 @@ public enum Utils {
     }
   }
 
+  /**
+   * Returns a conjunction of given predicates.
+   *
+   * @param predicates Predicates from which a conjunction predicate is created.
+   * @param <T>        A type of predicate that accepts `E`.
+   * @param <E>        A type element the `predicates` accepts
+   * @return A conjuntion predicate.
+   */
   public static <T extends Predicate<E>, E> Predicate<E> conjunct(Iterable<T> predicates) {
     Predicate<E> ret = tuple -> true;
     for (Predicate<E> each : predicates) {

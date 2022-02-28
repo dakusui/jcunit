@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public interface FactorSpace {
   static FactorSpace create(List<? extends Factor> factors, List<Constraint> constraints) {
@@ -54,5 +55,19 @@ public interface FactorSpace {
 
   default List<String> getFactorNames() {
     return FactorUtils.toFactorNames(this.getFactors());
+  }
+
+  /**
+   * Returns a new factor space that contains all the factor and constraints in this
+   * factor space and those passed to this method.
+   *
+   * @param factors Factors to be added.
+   * @param constraints Constraints to be added
+   * @return A new factor space.
+   */
+  default FactorSpace extend(List<Factor> factors, List<Constraint> constraints) {
+    return create(
+        Stream.concat(this.getFactors().stream(), factors.stream()).collect(toList()),
+        Stream.concat(this.getConstraints().stream(), constraints.stream()).collect(toList()));
   }
 }

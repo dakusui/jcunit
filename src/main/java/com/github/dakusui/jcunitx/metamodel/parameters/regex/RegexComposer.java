@@ -25,13 +25,13 @@ public class RegexComposer {
   }
 
   /**
-   * A method to compose a sequence of `String`s that matches the expression given as `topLevel` from `tuple`.
+   * A method to compose a sequence of `String`s that matches the expression given as `topLevel` from `row`.
    *
-   * @param tuple An internal representation of a sequence matching the `topLevel` expression (`Expr`).
+   * @param row An internal representation of a sequence matching the `topLevel` expression (`Expr`).
    * @return A sequence matching requested `Expr`.
    */
-  public List<String> compose(AArray tuple) {
-    ComposerVisitor visitor = new ComposerVisitor(tuple, this.exprs);
+  public List<String> compose(AArray row) {
+    ComposerVisitor visitor = new ComposerVisitor(row, this.exprs);
     this.topLevel.accept(visitor);
     return splitOnWhiteSpaces(visitor.out);
   }
