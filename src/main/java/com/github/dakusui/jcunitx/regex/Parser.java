@@ -32,7 +32,7 @@ public class Parser {
    *
    * See RegexComposer, too.
    */
-  private static final Pattern      LEAF_PATTERN       = Pattern.compile("^[A-Za-z_]([A-Za-z_0-9 ]*[A-Za-z_0-9])?");
+  private static final Pattern      LEAF_PATTERN       = Pattern.compile("^\\s*[A-Za-z_]([A-Za-z_0-9 ]*[A-Za-z_0-9])?");
   private final        Expr.Factory exprFactory;
 
   public Parser() {

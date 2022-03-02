@@ -2,6 +2,7 @@ package com.github.dakusui.jcunitx.examples.bankaccount2;
 
 import com.github.dakusui.jcunitx.metamodel.parameters.CallSequenceRegexParameter;
 import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
+import com.github.dakusui.jcunitx.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
@@ -18,14 +19,34 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JCUnit8.class)
 public class BankAccountExample2 {
 
-  private       BankAccount2 myAccount;
   private final BankAccount2 anotherAccount = BankAccount2.open();
+  private       BankAccount2 myAccount;
+
+  private static int calculateBalance(List<String> scenario,
+      int amountOfDeposit,
+      int amountOfWithdraw,
+      int amountOfTransfer) {
+    int balance = 0;
+    for (String op : scenario) {
+      if ("deposit".equals(op)) {
+        balance += amountOfDeposit;
+      } else if ("withdraw".equals(op)) {
+        balance -= amountOfWithdraw;
+      } else if ("transfer".equals(op)) {
+        balance -= amountOfTransfer;
+      }
+      if (balance < 0) {
+        return balance;
+      }
+    }
+    return balance;
+  }
 
   @ParameterSource
   public CallSequenceRegexParameter.Descriptor scenario() {
     return CallSequenceRegexParameter.Descriptor.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
-        .parameters("open", SimpleParameter.Descriptor.of(asList("Steve Smith", "Scot Tiger")))
-        .parameters("deposit", SimpleParameter.Descriptor.of(asList(0, 1, 1_000_000)));
+        .parameters("open", ParameterUtils.simple(asList("Steve Smith", "Scot Tiger")).create(""))
+        .parameters("deposit", ParameterUtils.simple(asList(0, 1, 1_000_000)).create(""));
 
   }
 
@@ -91,26 +112,6 @@ public class BankAccountExample2 {
       @From("transferAmount") int amountOfTransfer
   ) {
     return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
-  }
-
-  private static int calculateBalance(List<String> scenario,
-      int amountOfDeposit,
-      int amountOfWithdraw,
-      int amountOfTransfer) {
-    int balance = 0;
-    for (String op : scenario) {
-      if ("deposit".equals(op)) {
-        balance += amountOfDeposit;
-      } else if ("withdraw".equals(op)) {
-        balance -= amountOfWithdraw;
-      } else if ("transfer".equals(op)) {
-        balance -= amountOfTransfer;
-      }
-      if (balance < 0) {
-        return balance;
-      }
-    }
-    return balance;
   }
 
   @Test

@@ -18,7 +18,6 @@ import static com.github.dakusui.pcond.Preconditions.require;
 import static com.github.dakusui.pcond.functions.Functions.size;
 import static com.github.dakusui.pcond.functions.Predicates.isEqualTo;
 import static com.github.dakusui.pcond.functions.Predicates.transform;
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
@@ -41,7 +40,7 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
     private final FactorSpace   factorSpace;
     private final RegexComposer regexComposer;
 
-    public Impl(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Descriptor<?>, List<String>> arguments) {
+    public Impl(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter<?>, List<String>> arguments) {
       super(name, knownValues);
       Expr expr = new Parser().parse(regex);
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
@@ -50,7 +49,6 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
       this.factorSpace = decomposer.decompose().extend(
           arguments.keySet()
               .stream()
-              .map(each -> each.create(format("p%02d", i.getAndIncrement())))
               .map(Parameter::toFactorSpace)
               .peek(each -> require(each.getFactors(), transform(size()).check(isEqualTo(1))))
               .map(each -> each.getFactors().get(0))
@@ -93,12 +91,12 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
    * A factory class for `ParameterizedRegex` parameter.
    */
   class Descriptor extends Parameter.Descriptor.Base<List<MethodCallDescriptor>> {
-    private final String                                     regex;
+    private final String                          regex;
     /**
      * Stores parameters for arguments as keys.
      * Method names that are referencing a method is stored as a list in the value side.
      */
-    private final Map<Parameter.Descriptor<?>, List<String>> arguments = new HashMap<>();
+    private final Map<Parameter<?>, List<String>> arguments = new HashMap<>();
 
     private Descriptor(String regex) {
       this.regex = requireNonNull(regex);
@@ -108,7 +106,7 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
       return new Descriptor(regex);
     }
 
-    private static CallSequenceRegexParameter create(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Descriptor<?>, List<String>> arguments) {
+    private static CallSequenceRegexParameter create(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter<?>, List<String>> arguments) {
       return new Impl(name, regex, knownValues, arguments);
     }
 
@@ -123,8 +121,8 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
      * @param parameters Parameters passed to a method specified by `element`.
      * @return This object
      */
-    public Descriptor parameters(String methodName, Parameter.Descriptor<?>... parameters) {
-      for (Parameter.Descriptor<?> each : parameters) {
+    public Descriptor parameters(String methodName, Parameter<?>... parameters) {
+      for (Parameter<?> each : parameters) {
         this.arguments.putIfAbsent(each, new LinkedList<>());
         this.arguments.get(each).add(methodName);
       }
