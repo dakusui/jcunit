@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.tests.validation.testresources;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.ParameterSource;
@@ -19,13 +19,13 @@ public class ParameterSourceOverloaded extends InvalidTestClass {
  * This method is hidden and errors should be reported.
  */
   @ParameterSource
-  public Simple.Factory<Integer> a() {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, 4));
+  public SimpleParameter.Descriptor<Integer> a() {
+    return SimpleParameter.Descriptor.of(asList(-1, 0, 1, 2, 4));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> a(int a) {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, 4));
+  public SimpleParameter.Descriptor<Integer> a(int a) {
+    return SimpleParameter.Descriptor.of(asList(-1, 0, 1, 2, 4));
   }
 
   @SuppressWarnings("unused")

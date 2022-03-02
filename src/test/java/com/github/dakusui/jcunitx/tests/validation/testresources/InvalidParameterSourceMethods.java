@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.tests.validation.testresources;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.ParameterSource;
@@ -17,20 +17,20 @@ import static java.util.Arrays.asList;
 public class InvalidParameterSourceMethods extends InvalidTestClass  {
   @SuppressWarnings("unused")
   @ParameterSource
-  public Simple.Factory<Integer> a(int a) {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, a));
+  public SimpleParameter.Descriptor<Integer> a(int a) {
+    return SimpleParameter.Descriptor.of(asList(-1, 0, 1, 2, a));
   }
 
   @SuppressWarnings("unused")
   @ParameterSource
-  private Simple.Factory<Integer> b() {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, 4));
+  private SimpleParameter.Descriptor<Integer> b() {
+    return SimpleParameter.Descriptor.of(asList(-1, 0, 1, 2, 4));
   }
 
   @SuppressWarnings("unused")
   @ParameterSource
-  public static Simple.Factory<Integer> c() {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, 4));
+  public static SimpleParameter.Descriptor<Integer> c() {
+    return SimpleParameter.Descriptor.of(asList(-1, 0, 1, 2, 4));
   }
 
   @SuppressWarnings("unused")

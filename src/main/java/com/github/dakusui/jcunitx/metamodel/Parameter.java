@@ -65,7 +65,7 @@ public interface Parameter<T> {
    *
    * @param <T> The type of the parameter values (user-facing values) created by this factory.
    */
-  interface Factory<T> {
+  interface Descriptor<T> {
     /**
      * Add an `actualValue` to this factory.
      * The implementation should register the value to the list of `known values` of the parameter.
@@ -74,10 +74,10 @@ public interface Parameter<T> {
      * @param <F>         The type of the implementation of this interface
      * @return This object.
      */
-    <F extends Factory<T>> F addActualValue(T actualValue);
+    <F extends Descriptor<T>> F addActualValue(T actualValue);
 
     @SuppressWarnings("unchecked")
-    default <F extends Factory<T>> F addActualValues(List<T> actualValues) {
+    default <F extends Descriptor<T>> F addActualValues(List<T> actualValues) {
       actualValues.forEach(this::addActualValue);
       return (F) this;
     }
@@ -96,12 +96,12 @@ public interface Parameter<T> {
      *
      * @param <T> The type of the parameter values.
      */
-    abstract class Base<T> implements Factory<T> {
+    abstract class Base<T> implements Descriptor<T> {
       protected final List<T> knownValues = new LinkedList<>();
 
       @SuppressWarnings("unchecked")
       @Override
-      public <F extends Factory<T>> F addActualValue(T actualValue) {
+      public <F extends Descriptor<T>> F addActualValue(T actualValue) {
         knownValues.add(actualValue);
         return (F) this;
       }

@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunitx.examples.bankaccount;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Regex;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.RegexParameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.Condition;
@@ -25,23 +25,23 @@ public class BankAccountExample extends JUnit4_13Workaround {
   private final BankAccount anotherAccount = BankAccount.open();
 
   @ParameterSource
-  public Regex.Factory scenario() {
-    return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
+  public RegexParameter.Descriptor scenario() {
+    return RegexParameter.Descriptor.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> depositAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  public SimpleParameter.Descriptor<Integer> depositAmount() {
+    return SimpleParameter.Descriptor.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> withdrawAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  public SimpleParameter.Descriptor<Integer> withdrawAmount() {
+    return SimpleParameter.Descriptor.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> transferAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  public SimpleParameter.Descriptor<Integer> transferAmount() {
+    return SimpleParameter.Descriptor.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @Condition(constraint = true)

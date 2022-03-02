@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunitx.runners.helpers;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Regex;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.RegexParameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 
 import static java.util.Arrays.asList;
 
@@ -9,11 +9,11 @@ public enum ParameterUtils {
   ;
 
   @SafeVarargs
-  public static <T> Simple.Factory<T> simple(T... values) {
-    return Simple.Factory.of(asList(values));
+  public static <T> SimpleParameter.Descriptor<T> simple(T... values) {
+    return SimpleParameter.Descriptor.of(asList(values));
   }
 
-  public static Regex.Factory regex(String regex) {
-    return Regex.Factory.of(regex);
+  public static RegexParameter.Descriptor regex(String regex) {
+    return RegexParameter.Descriptor.of(regex);
   }
 }

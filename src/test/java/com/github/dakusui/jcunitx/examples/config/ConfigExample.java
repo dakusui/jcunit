@@ -15,32 +15,32 @@ import org.junit.runner.RunWith;
 @RunWith(JCUnit8.class)
 public class ConfigExample extends JUnit4_13Workaround {
   @ParameterSource
-  public Parameter.Factory<String> platform() {
+  public Parameter.Descriptor<String> platform() {
     return ParameterUtils.simple("Linux", "MacOSX", "Windows");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> java() {
+  public Parameter.Descriptor<String> java() {
     return ParameterUtils.simple("JavaSE7", "JavaSE8", "OpenJDK7");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> browser() {
+  public Parameter.Descriptor<String> browser() {
     return ParameterUtils.simple("Safari", "Firefox", "Chrome", "InternetExplorer");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> dbms() {
+  public Parameter.Descriptor<String> dbms() {
     return ParameterUtils.simple("PostgreSQL", "MySQL", "SQLServer");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> applicationServer() {
+  public Parameter.Descriptor<String> applicationServer() {
     return ParameterUtils.simple("Jetty", "Tomcat");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> webServer() {
+  public Parameter.Descriptor<String> webServer() {
     return ParameterUtils.simple("Apache HTTP server", "IIS");
   }
 

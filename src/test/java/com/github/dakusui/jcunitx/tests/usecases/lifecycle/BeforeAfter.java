@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.tests.usecases.lifecycle;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
@@ -20,18 +20,18 @@ public class BeforeAfter extends JUnit4_13Workaround {
   static final List<String> log = Collections.synchronizedList(new LinkedList<>());
 
   @ParameterSource
-  public Simple.Factory<Integer> a() {
-    return Simple.Factory.of(asList(1, 2, 3));
+  public SimpleParameter.Descriptor<Integer> a() {
+    return SimpleParameter.Descriptor.of(asList(1, 2, 3));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> b() {
-    return Simple.Factory.of(asList(1, 2, 3));
+  public SimpleParameter.Descriptor<Integer> b() {
+    return SimpleParameter.Descriptor.of(asList(1, 2, 3));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> c() {
-    return Simple.Factory.of(asList(1, 2, 3));
+  public SimpleParameter.Descriptor<Integer> c() {
+    return SimpleParameter.Descriptor.of(asList(1, 2, 3));
   }
 
 

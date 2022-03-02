@@ -6,13 +6,13 @@ import com.github.dakusui.jcunitx.runners.junit4.annotations.ParameterSource;
 
 public interface BankAccountDriver extends RegexScenario {
   @ParameterSource
-  Parameter.Factory<String> accountName();
+  Parameter.Descriptor<String> accountName();
 
   @ParameterSource
-  Parameter.Factory<String> recipientAccountName();
+  Parameter.Descriptor<String> recipientAccountName();
 
   @ParameterSource
-  Parameter.Factory<Integer> amount();
+  Parameter.Descriptor<Integer> amount();
 
   @Handle
   BankAccount openAccount(@From("accountName") String name);

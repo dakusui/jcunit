@@ -10,12 +10,9 @@ import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexDecomposer;
 import com.github.dakusui.jcunitx.regex.Expr;
 import com.github.dakusui.jcunitx.regex.Parser;
 import com.github.dakusui.jcunitx.utils.Utils;
-import com.github.dakusui.pcond.functions.Functions;
-import com.github.dakusui.pcond.functions.Predicates;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import static com.github.dakusui.pcond.Preconditions.require;
 import static com.github.dakusui.pcond.functions.Functions.size;
@@ -29,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * `ParameterizedRegex` is a meta-model designed to model a sequence of method calls.
  */
-public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.MethodCallDescriptor>> {
+public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceRegexParameter.MethodCallDescriptor>> {
   /**
    * A class to model a single method call.
    */
@@ -39,12 +36,12 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
     List<Object> arguments();
   }
 
-  class Impl extends Base<List<MethodCallDescriptor>> implements ParameterizedRegex {
+  class Impl extends Base<List<MethodCallDescriptor>> implements CallSequenceRegexParameter {
 
     private final FactorSpace   factorSpace;
     private final RegexComposer regexComposer;
 
-    public Impl(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Factory<?>, List<String>> arguments) {
+    public Impl(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Descriptor<?>, List<String>> arguments) {
       super(name, knownValues);
       Expr expr = new Parser().parse(regex);
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
@@ -63,7 +60,7 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
     }
 
     public Optional<AArray> decomposeValue(List<MethodCallDescriptor> value) {
-      return Regex._decomposeValue(
+      return RegexParameter._decomposeValue(
           value,
           this.factorSpace.streamAllPossibleRows(),
           this.regexComposer::compose,
@@ -95,23 +92,23 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
   /**
    * A factory class for `ParameterizedRegex` parameter.
    */
-  class Factory extends Parameter.Factory.Base<List<MethodCallDescriptor>> {
-    private final String                                  regex;
+  class Descriptor extends Parameter.Descriptor.Base<List<MethodCallDescriptor>> {
+    private final String                                     regex;
     /**
      * Stores parameters for arguments as keys.
      * Method names that are referencing a method is stored as a list in the value side.
      */
-    private final Map<Parameter.Factory<?>, List<String>> arguments = new HashMap<>();
+    private final Map<Parameter.Descriptor<?>, List<String>> arguments = new HashMap<>();
 
-    private Factory(String regex) {
+    private Descriptor(String regex) {
       this.regex = requireNonNull(regex);
     }
 
-    public static Factory of(String regex) {
-      return new Factory(regex);
+    public static Descriptor of(String regex) {
+      return new Descriptor(regex);
     }
 
-    private static ParameterizedRegex create(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Factory<?>, List<String>> arguments) {
+    private static CallSequenceRegexParameter create(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Descriptor<?>, List<String>> arguments) {
       return new Impl(name, regex, knownValues, arguments);
     }
 
@@ -126,20 +123,20 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
      * @param parameters Parameters passed to a method specified by `element`.
      * @return This object
      */
-    public Factory parameters(String methodName, Parameter.Factory<?>... parameters) {
-      for (Parameter.Factory<?> each : parameters) {
+    public Descriptor parameters(String methodName, Parameter.Descriptor<?>... parameters) {
+      for (Parameter.Descriptor<?> each : parameters) {
         this.arguments.putIfAbsent(each, new LinkedList<>());
         this.arguments.get(each).add(methodName);
       }
       return this;
     }
 
-    public Factory constraints(Constraint... constraints) {
+    public Descriptor constraints(Constraint... constraints) {
       return this;
     }
 
     @Override
-    public ParameterizedRegex create(String name) {
+    public CallSequenceRegexParameter create(String name) {
       return create(name, this.regex, this.knownValues, this.arguments);
     }
   }

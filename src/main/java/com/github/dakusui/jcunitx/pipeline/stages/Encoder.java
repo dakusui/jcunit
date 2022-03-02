@@ -4,7 +4,7 @@ import com.github.dakusui.jcunitx.exceptions.FrameworkException;
 import com.github.dakusui.jcunitx.factorspace.*;
 import com.github.dakusui.jcunitx.metamodel.Parameter;
 import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 
 import java.util.List;
 import java.util.function.Function;
@@ -23,7 +23,7 @@ public interface Encoder extends Function<ParameterSpace, FactorSpace> {
     @Override
     public FactorSpace apply(ParameterSpace parameterSpace) {
       streamParameters(parameterSpace).forEach(
-          parameter -> FrameworkException.check(parameter, eachParameter -> eachParameter instanceof Simple ||
+          parameter -> FrameworkException.check(parameter, eachParameter -> eachParameter instanceof SimpleParameter ||
               parameterSpace.getConstraints().stream()
                   .noneMatch(constraint -> constraint.involvedKeys().contains(eachParameter.getName())))
       );

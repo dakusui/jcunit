@@ -41,7 +41,7 @@ public class Issue13 {
    * Onlinebanking_Neuemission_MSB, Onlinebanking_Tablet_PC, Infobroker, commerzbank_de_pib
    */
   @ParameterSource
-  public Parameter.Factory<String> eingangskanal() {
+  public Parameter.Descriptor<String> eingangskanal() {
     return ParameterUtils.simple(
         "EVA_Anlageberatung", "EVA_Order", "EVA_Sonderweg", "EVA_Sparplan", "EVA_Neuemission",
         "EVA_Direkteinstieg", "HOST_T19000", "HOST_T19001", "HOST_T19901", "HOST_T19750",
@@ -57,7 +57,7 @@ public class Issue13 {
    * Zertifikat, Optionsschein, Xetra_Gold_ETC, EMISID
    */
   @ParameterSource
-  public Parameter.Factory<String> finanzinstrument() {
+  public Parameter.Descriptor<String> finanzinstrument() {
     return ParameterUtils.simple(
         "Aktie", "Unstrukturierte_Anleihe", "strukturierte_Anleihe", "Inv.Fonds", "OIF",
         "Zertifikat", "Optionsschein", "Xetra_Gold_ETC", "EMISID"
@@ -71,7 +71,7 @@ public class Issue13 {
    * Sekundaermarkt, n/a
    */
   @ParameterSource
-  public Parameter.Factory<String> produktzyklus() {
+  public Parameter.Descriptor<String> produktzyklus() {
     return ParameterUtils.simple(
         "Neuemission_Information", "Neuemission_offen", "Neuemission_geschlossen", "Neuemission_abgerechnet",
         "Sekundaermarkt", "n/a"
@@ -82,7 +82,7 @@ public class Issue13 {
    * Dienstleistungsart: Anlageberatung, beratungsfreies_Geschaeft, n/a
    */
   @ParameterSource
-  public Parameter.Factory<String> dienstleistungsart() {
+  public Parameter.Descriptor<String> dienstleistungsart() {
     return ParameterUtils.simple(
         "Anlageberatung", "beratungsfreies_Geschaeft", "n/a"
     );
@@ -94,7 +94,7 @@ public class Issue13 {
    * aenderung, Streichung, Storno, Berichtigungsauftrag, n/a
    */
   @ParameterSource
-  public Parameter.Factory<String> orderart() {
+  public Parameter.Descriptor<String> orderart() {
     return ParameterUtils.simple(
         "Kauf(Beratungsdatum_gueltig)", "Kauf_(ohne_Beratungsdatum)", "Verkauf",
         "aenderung", "Streichung", "Storno", "Berichtigungsauftrag", "n/a"
@@ -105,7 +105,7 @@ public class Issue13 {
    * Initiator: Kunde, Bank, n/a
    */
   @ParameterSource
-  public Parameter.Factory<String> initiator() {
+  public Parameter.Descriptor<String> initiator() {
     return ParameterUtils.simple(
         "Kunde", "Bank", "n/a"
     );
@@ -115,7 +115,7 @@ public class Issue13 {
    * Auftragserteilung: telefonisch, persoenlich, schriftlich, Haustuergeschaeft, n/a
    */
   @ParameterSource
-  public Parameter.Factory<String> auftragserteilung() {
+  public Parameter.Descriptor<String> auftragserteilung() {
     return ParameterUtils.simple(
         "telefonisch", "persoenlich", "schriftlich", "Haustuergeschaeft", "n/a"
     );
@@ -128,7 +128,7 @@ public class Issue13 {
    * Nachtraeglicher_KID-Versand, n/a
    */
   @ParameterSource
-  public Parameter.Factory<String> bereitstellungsdokumente() {
+  public Parameter.Descriptor<String> bereitstellungsdokumente() {
     return ParameterUtils.simple(
         "Beratungsprotokoll_Kunde", "Beratungsprotokoll_Interessent", "Beratungsprotokoll_Potenzial",
         "Nachtraeglicher_KID-Versand", "n/a"
@@ -143,7 +143,7 @@ public class Issue13 {
    * n/a
    */
   @ParameterSource
-  public Parameter.Factory<String> udalStatus() {
+  public Parameter.Descriptor<String> udalStatus() {
     return ParameterUtils.simple(
         "Normalbetrieb", "Back_up-Betrieb", "PRIIP", "ohne_KID", "WKN_nicht_vorhanden",
         "WKN_inaktiv/geloescht", "defektes_Dokument", "Virus", "non-PRIIP_auf_Blackliste",
@@ -158,7 +158,7 @@ public class Issue13 {
    * KID_von_PC_PM, KID_von_DOTi, KID_von_externem_Hersteller
    */
   @ParameterSource
-  public Parameter.Factory<String> abruf_Infoblaetter() {
+  public Parameter.Descriptor<String> abruf_Infoblaetter() {
     return ParameterUtils.simple(
         "WA_von_FWW", "PIB_von_DOTi", "PIB_von_C&M-FIC", "PIB_von_PC_PM",
         "KID_von_PC_PM", "KID_von_DOTi", "KID_von_externem_Hersteller"

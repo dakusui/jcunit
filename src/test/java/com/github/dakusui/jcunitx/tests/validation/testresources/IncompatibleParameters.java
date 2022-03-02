@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.tests.validation.testresources;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
@@ -18,8 +18,8 @@ public class IncompatibleParameters {
   @RunWith(JCUnit8.class)
   public static class IncompatibleType extends JUnit4_13Workaround {
     @ParameterSource
-    public Simple.Factory<Integer> a() {
-      return Simple.Factory.of(singletonList(100));
+    public SimpleParameter.Descriptor<Integer> a() {
+      return SimpleParameter.Descriptor.of(singletonList(100));
     }
 
     @SuppressWarnings("unused") // 'a' is used by test
@@ -35,8 +35,8 @@ public class IncompatibleParameters {
   @RunWith(JCUnit8.class)
   public static class CompatibleNullValue extends JUnit4_13Workaround {
     @ParameterSource
-    public Simple.Factory<Integer> a() {
-      return Simple.Factory.of(singletonList(null));
+    public SimpleParameter.Descriptor<Integer> a() {
+      return SimpleParameter.Descriptor.of(singletonList(null));
     }
 
     @SuppressWarnings("unused") // 'a' is used by test
@@ -52,8 +52,8 @@ public class IncompatibleParameters {
   @RunWith(JCUnit8.class)
   public static class IncompatiblePrimitiveType extends JUnit4_13Workaround {
     @ParameterSource
-    public Simple.Factory<Integer> a() {
-      return Simple.Factory.of(singletonList(1));
+    public SimpleParameter.Descriptor<Integer> a() {
+      return SimpleParameter.Descriptor.of(singletonList(1));
     }
 
     @SuppressWarnings("unused") // 'a' is used by test
@@ -70,8 +70,8 @@ public class IncompatibleParameters {
   @RunWith(JCUnit8.class)
   public static class IncompatibleNullValue extends JUnit4_13Workaround {
     @ParameterSource
-    public Simple.Factory<Integer> a() {
-      return Simple.Factory.of(singletonList(null));
+    public SimpleParameter.Descriptor<Integer> a() {
+      return SimpleParameter.Descriptor.of(singletonList(null));
     }
 
     @SuppressWarnings("unused") // 'a' is used by test

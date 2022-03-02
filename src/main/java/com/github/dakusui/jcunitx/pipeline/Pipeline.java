@@ -8,7 +8,7 @@ import com.github.dakusui.jcunitx.factorspace.Factor;
 import com.github.dakusui.jcunitx.factorspace.FactorSpace;
 import com.github.dakusui.jcunitx.metamodel.Parameter;
 import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.pipeline.stages.Generator;
 import com.github.dakusui.jcunitx.pipeline.stages.generators.Negative;
 import com.github.dakusui.jcunitx.pipeline.stages.generators.Passthrough;
@@ -160,9 +160,9 @@ public interface Pipeline {
     }
 
     private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
-      if (!(parameter instanceof Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
+      if (!(parameter instanceof SimpleParameter) && isInvolvedByAnyConstraint(parameter, constraints)) {
         // Extraction
-        return Simple.Factory.of(Stream.concat(
+        return SimpleParameter.Descriptor.of(Stream.concat(
                     parameter.getKnownValues().stream(),
                     streamParameterValuesGeneratedByEngine(parameter, config))
                 .distinct()

@@ -4,7 +4,7 @@ import com.github.dakusui.jcunitx.core.AArray;
 import com.github.dakusui.jcunitx.factorspace.*;
 import com.github.dakusui.jcunitx.metamodel.Parameter;
 import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.pipeline.Config;
 import com.github.dakusui.jcunitx.pipeline.Pipeline;
 import com.github.dakusui.jcunitx.pipeline.Requirement;
@@ -55,8 +55,8 @@ public abstract class PipelineTestBase {
     return buildConfig().partitioner().apply(input);
   }
 
-  protected Parameter.Factory<CustomParameter.ValuePair> customParameterFactory() {
-    return new Parameter.Factory.Base<CustomParameter.ValuePair>() {
+  protected Parameter.Descriptor<CustomParameter.ValuePair> customParameterFactory() {
+    return new Parameter.Descriptor.Base<CustomParameter.ValuePair>() {
       @Override
       public Parameter<CustomParameter.ValuePair> create(String name) {
         return new CustomParameter(name, asList("hello", "world", "everyone"));
@@ -64,11 +64,11 @@ public abstract class PipelineTestBase {
     };
   }
 
-  protected Parameter.Factory<String> simpleParameterFactory(String... values) {
-    return Simple.Factory.of(asList(values));
+  protected Parameter.Descriptor<String> simpleParameterFactory(String... values) {
+    return SimpleParameter.Descriptor.of(asList(values));
   }
 
-  protected Parameter.Factory<String> simpleParameterFactoryWithDefaultValues() {
+  protected Parameter.Descriptor<String> simpleParameterFactoryWithDefaultValues() {
     return simpleParameterFactory("default", "values");
   }
 

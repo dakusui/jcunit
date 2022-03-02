@@ -2,7 +2,7 @@ package com.github.dakusui.jcunitx.tests.features.pipeline.stages;
 
 import com.github.dakusui.jcunitx.core.AArray;
 import com.github.dakusui.jcunitx.factorspace.Constraint;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.testutils.CustomParameter;
 import com.github.dakusui.jcunitx.testutils.PipelineTestBase;
 import com.github.dakusui.jcunitx.testutils.UTUtils;
@@ -19,7 +19,7 @@ public class PreprocessTest extends PipelineTestBase {
         preprocess(simpleParameterFactory("default", "value").create("simple1")),
         UTUtils.matcherFromPredicates(
             hasParameters(1),
-            parametersAreAllInstancesOf(Simple.class),
+            parametersAreAllInstancesOf(SimpleParameter.class),
             knownValuesOfParameterAre("simple1", "default", "value"),
             hasConstraints(0)
         ));
@@ -34,7 +34,7 @@ public class PreprocessTest extends PipelineTestBase {
         ),
         UTUtils.matcherFromPredicates(
             hasParameters(2),
-            parametersAreAllInstancesOf(Simple.class),
+            parametersAreAllInstancesOf(SimpleParameter.class),
             knownValuesOfParameterAre("simple1", "default", "value1"),
             knownValuesOfParameterAre("simple2", "default", "value2"),
             hasConstraints(0)
@@ -51,7 +51,7 @@ public class PreprocessTest extends PipelineTestBase {
         ),
         UTUtils.matcherFromPredicates(
             hasParameters(1),
-            parametersAreAllInstancesOf(Simple.class),
+            parametersAreAllInstancesOf(SimpleParameter.class),
             knownValuesOfParameterAre("simple1", "default", "value1"),
             hasConstraints(1)
         ));
@@ -69,7 +69,7 @@ public class PreprocessTest extends PipelineTestBase {
         ),
         UTUtils.matcherFromPredicates(
             hasParameters(2),
-            parametersAreAllInstancesOf(Simple.class),
+            parametersAreAllInstancesOf(SimpleParameter.class),
             knownValuesOfParameterAre("simple1", "default", "value1"),
             knownValuesOfParameterAre("simple2", "default", "value2"),
             hasConstraints(1)
@@ -100,7 +100,7 @@ public class PreprocessTest extends PipelineTestBase {
             // Non simple parameter involved in a constraint should be converted
             // into simple parameter
             hasParameters(1),
-            parametersAreAllInstancesOf(Simple.class),
+            parametersAreAllInstancesOf(SimpleParameter.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
                 UTUtils.oracle(">0",
@@ -132,7 +132,7 @@ public class PreprocessTest extends PipelineTestBase {
             // into simple parameter, while parameter(s) not involved in any constraints
             // should be passed through.
             hasParameters(2),
-            parameterIsInstanceOf("custom1", Simple.class),
+            parameterIsInstanceOf("custom1", SimpleParameter.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
                 UTUtils.oracle(">0",
@@ -169,7 +169,7 @@ public class PreprocessTest extends PipelineTestBase {
             // Non simple parameter involved in a constraint should be converted
             // into simple parameter
             hasParameters(2),
-            parameterIsInstanceOf("custom1", Simple.class),
+            parameterIsInstanceOf("custom1", SimpleParameter.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom1",
                 UTUtils.oracle(">0",
@@ -181,7 +181,7 @@ public class PreprocessTest extends PipelineTestBase {
                     "Instance of ValuePair",
                     t -> t instanceof CustomParameter.ValuePair
                 )),
-            parameterIsInstanceOf("custom2", Simple.class),
+            parameterIsInstanceOf("custom2", SimpleParameter.class),
             sizeOfParameterKnownValuesSatisfies(
                 "custom2",
                 UTUtils.oracle(">0",

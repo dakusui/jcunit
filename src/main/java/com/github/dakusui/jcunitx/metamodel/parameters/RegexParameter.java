@@ -20,14 +20,14 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
-public interface Regex extends Parameter<List<String>> {
+public interface RegexParameter extends Parameter<List<String>> {
   static <V> Optional<AArray> _decomposeValue(V value, Stream<AArray> tuples, Function<AArray, V> valueComposer, Predicate<AArray> constraints) {
     return tuples.filter((AArray tuple) -> value.equals(valueComposer.apply(tuple)))
         .filter(constraints)
         .findFirst();
   }
 
-  class Impl extends Base<List<String>> implements Regex {
+  class Impl extends Base<List<String>> implements RegexParameter {
 
     private final FactorSpace   factorSpace;
     private final RegexComposer regexComposer;
@@ -69,23 +69,23 @@ public interface Regex extends Parameter<List<String>> {
     }
   }
 
-  class Factory extends Parameter.Factory.Base<List<String>> {
+  class Descriptor extends Parameter.Descriptor.Base<List<String>> {
     private final String regex;
 
-    private Factory(String regex) {
+    private Descriptor(String regex) {
       this.regex = requireNonNull(regex);
     }
 
-    public static Factory of(String regex) {
-      return new Factory(regex);
+    public static Descriptor of(String regex) {
+      return new Descriptor(regex);
     }
 
-    private static Regex create(String name, String regex, List<List<String>> knownValues) {
+    private static RegexParameter create(String name, String regex, List<List<String>> knownValues) {
       return new Impl(name, regex, knownValues);
     }
 
     @Override
-    public Regex create(String name) {
+    public RegexParameter create(String name) {
       return create(name, regex, knownValues);
     }
   }

@@ -3,7 +3,7 @@ package com.github.dakusui.jcunitx.pipeline;
 import com.github.dakusui.jcunitx.exceptions.FrameworkException;
 import com.github.dakusui.jcunitx.factorspace.Constraint;
 import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 
 import java.util.List;
 import java.util.Set;
@@ -28,7 +28,7 @@ public class PipelineException extends FrameworkException {
 
   static void checkIfNoNonSimpleParameterIsInvolvedByAnyConstraint(ParameterSpace parameterSpace) {
     Set<String> nonSimpleParameters = parameterSpace.getParameterNames().stream()
-        .filter(s -> !(parameterSpace.getParameter(s) instanceof Simple))
+        .filter(s -> !(parameterSpace.getParameter(s) instanceof SimpleParameter))
         .collect(Collectors.toSet());
     Predicate<Constraint> checkNoNonSimpleParameterInvolved =
         (Constraint constraint) -> disjoint(nonSimpleParameters, constraint.involvedKeys());

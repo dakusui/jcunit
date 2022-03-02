@@ -19,32 +19,32 @@ import static java.util.stream.Collectors.toList;
 @RunWith(JCUnit8.class)
 public class BeforeAfter extends JUnit4_13Workaround {
   @ParameterSource
-  public Parameter.Factory a() {
+  public Parameter.Descriptor a() {
     return ParameterUtils.simple("A1", "A2");
   }
 
   @ParameterSource
-  public Parameter.Factory b() {
+  public Parameter.Descriptor b() {
     return ParameterUtils.simple("B1", "B2");
   }
 
   @ParameterSource
-  public Parameter.Factory c() {
+  public Parameter.Descriptor c() {
     return ParameterUtils.simple("C1", "C2");
   }
 
   @ParameterSource
-  public Parameter.Factory d() {
+  public Parameter.Descriptor d() {
     return ParameterUtils.simple("D1", "D2");
   }
 
   @ParameterSource
-  public Parameter.Factory e() {
+  public Parameter.Descriptor e() {
     return ParameterUtils.simple("E1", "E2");
   }
 
   @ParameterSource
-  public Parameter.Factory f() {
+  public Parameter.Descriptor f() {
     return ParameterUtils.simple("F1", "F2");
   }
 

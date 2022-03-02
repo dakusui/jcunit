@@ -17,8 +17,8 @@ import static java.util.Collections.singletonList;
  *
  * @param <T> The type of values.
  */
-public interface Simple<T> extends Parameter<T> {
-  class Impl<T> extends Base<T> implements Simple<T> {
+public interface SimpleParameter<T> extends Parameter<T> {
+  class Impl<T> extends Base<T> implements SimpleParameter<T> {
     final Factor factor;
 
     public Impl(String name, List<T> allLevels) {
@@ -53,13 +53,13 @@ public interface Simple<T> extends Parameter<T> {
     }
   }
 
-  class Factory<T> extends Parameter.Factory.Base<T> {
+  class Descriptor<T> extends Parameter.Descriptor.Base<T> {
 
-    private Factory() {
+    private Descriptor() {
     }
 
-    public static <U> Factory<U> of(List<U> actualValues) {
-      return new Factory<U>().addActualValues(actualValues);
+    public static <U> Descriptor<U> of(List<U> actualValues) {
+      return new Descriptor<U>().addActualValues(actualValues);
     }
 
     @Override

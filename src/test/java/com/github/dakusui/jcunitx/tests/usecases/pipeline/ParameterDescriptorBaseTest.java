@@ -2,7 +2,7 @@ package com.github.dakusui.jcunitx.tests.usecases.pipeline;
 
 import com.github.dakusui.jcunitx.factorspace.FactorSpace;
 import com.github.dakusui.jcunitx.metamodel.Parameter;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
@@ -14,10 +14,10 @@ import static org.junit.Assert.assertNotNull;
  * By extending Parameter.Factory.Base, this test is making sure that the class
  * is compilable when it is extended by a user.
  */
-public class ParameterFactoryBaseTest extends Parameter.Factory.Base<String> {
+public class ParameterDescriptorBaseTest extends Parameter.Descriptor.Base<String> {
   @Override
   public Parameter<String> create(String name) {
-    return new Simple.Impl<>(name, this.knownValues);
+    return new SimpleParameter.Impl<>(name, this.knownValues);
   }
 
   @Test

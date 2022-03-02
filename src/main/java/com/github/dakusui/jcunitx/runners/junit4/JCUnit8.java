@@ -138,10 +138,10 @@ public class JCUnit8 extends org.junit.runners.Parameterized {
     };
   }
 
-  private static Function<Object, com.github.dakusui.jcunitx.metamodel.Parameter.Factory<?>> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
+  private static Function<Object, com.github.dakusui.jcunitx.metamodel.Parameter.Descriptor<?>> buildParameterFactoryCreatorFrom(FrameworkMethod method) {
     return (Object o) -> {
       try {
-        return (com.github.dakusui.jcunitx.metamodel.Parameter.Factory<?>) method.invokeExplosively(o);
+        return (com.github.dakusui.jcunitx.metamodel.Parameter.Descriptor<?>) method.invokeExplosively(o);
       } catch (Throwable throwable) {
         throw unexpectedByDesign(throwable);
       }

@@ -18,17 +18,17 @@ import java.util.Arrays;
 @RunWith(JCUnit8.class)
 public class ParameterizedConstraintExample extends JUnit4_13Workaround {
   @ParameterSource
-  public Parameter.Factory<?> a() {
+  public Parameter.Descriptor<?> a() {
     return ParameterUtils.simple(1, 2, 3);
   }
 
   @ParameterSource
-  public Parameter.Factory<?> b() {
+  public Parameter.Descriptor<?> b() {
     return ParameterUtils.simple(1, 2, 3);
   }
 
   @ParameterSource
-  public Parameter.Factory<?> c() {
+  public Parameter.Descriptor<?> c() {
     return ParameterUtils.simple(1, 2, 3);
   }
 

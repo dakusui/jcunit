@@ -14,12 +14,12 @@ import org.junit.runner.RunWith;
 @RunWith(JCUnit8.class)
 public class UnusedParameter extends JUnit4_13Workaround {
   @ParameterSource
-  public Parameter.Factory used() {
+  public Parameter.Descriptor used() {
     return ParameterUtils.simple(true, false);
   }
 
   @ParameterSource
-  public Parameter.Factory notReferednced() {
+  public Parameter.Descriptor notReferednced() {
     return ParameterUtils.simple("Z1", "Z2");
   }
 

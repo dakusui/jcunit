@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.examples.quadraticequation;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.JUnit4_13Workaround;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.Condition;
@@ -21,18 +21,18 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @RunWith(JCUnit8.class)
 public class QuadraticEquationExample extends JUnit4_13Workaround {
   @ParameterSource
-  public Simple.Factory<Integer> a() {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, 4));
+  public SimpleParameter.Descriptor<Integer> a() {
+    return SimpleParameter.Descriptor.of(asList(-1, 0, 1, 2, 4));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> b() {
-    return Simple.Factory.of(asList(-2, -1, 0, 1, 2, 4, 8));
+  public SimpleParameter.Descriptor<Integer> b() {
+    return SimpleParameter.Descriptor.of(asList(-2, -1, 0, 1, 2, 4, 8));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> c() {
-    return Simple.Factory.of(asList(-1, 0, 1, 2, 4));
+  public SimpleParameter.Descriptor<Integer> c() {
+    return SimpleParameter.Descriptor.of(asList(-1, 0, 1, 2, 4));
   }
 
   @Condition(constraint = true)

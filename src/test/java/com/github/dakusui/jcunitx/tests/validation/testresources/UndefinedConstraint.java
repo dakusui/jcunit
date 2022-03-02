@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.tests.validation.testresources;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.Given;
@@ -18,8 +18,8 @@ import static java.util.Arrays.asList;
 public class UndefinedConstraint extends InvalidTestClass {
   @SuppressWarnings("unused")
   @ParameterSource
-  public Simple.Factory<Integer> a() {
-    return Simple.Factory.of(asList(1, 2, 3));
+  public SimpleParameter.Descriptor<Integer> a() {
+    return SimpleParameter.Descriptor.of(asList(1, 2, 3));
   }
 
   @SuppressWarnings("unused")

@@ -3,7 +3,7 @@ package com.github.dakusui.jcunitx.tests.components.regex;
 import com.github.dakusui.jcunitx.utils.StringUtils;
 import com.github.dakusui.jcunitx.regex.Expr;
 import com.github.dakusui.jcunitx.regex.Parser;
-import com.github.dakusui.jcunitx.metamodel.parameters.Regex;
+import com.github.dakusui.jcunitx.metamodel.parameters.RegexParameter;
 import com.github.dakusui.jcunitx.testsuite.TestCase;
 import com.github.dakusui.jcunitx.testsuite.TestSuite;
 import com.github.dakusui.jcunitx.testutils.PipelineTestBase;
@@ -96,7 +96,7 @@ public class ParserTest extends PipelineTestBase {
   @SuppressWarnings("unchecked")
   @Test
   public void printGeneratedList() {
-    Regex parameter = Regex.Factory.of(input()).create("input");
+    RegexParameter parameter = RegexParameter.Descriptor.of(input()).create("input");
 
     TestSuite builtTestSuite = generateTestSuite(parameter);
     Set<String> generatedStringsFromRegex = new HashSet<>();

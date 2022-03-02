@@ -47,32 +47,32 @@ import java.util.List;
 @RunWith(JCUnit8.class)
 public class Issue11 {
   @ParameterSource
-  public Parameter.Factory<String> platform() {
+  public Parameter.Descriptor<String> platform() {
     return ParameterUtils.simple("x86", "ia16", "amd64");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> cpu() {
+  public Parameter.Descriptor<String> cpu() {
     return ParameterUtils.simple("single", "dual", "quad");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> ram() {
+  public Parameter.Descriptor<String> ram() {
     return ParameterUtils.simple("128MB", "1GB", "4GB", "64GB");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> hdd() {
+  public Parameter.Descriptor<String> hdd() {
     return ParameterUtils.simple("SCSI", "IDE");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> os() {
+  public Parameter.Descriptor<String> os() {
     return ParameterUtils.simple("NT4", "Win2K", "WinXP", "Win2K3");
   }
 
   @ParameterSource
-  public Parameter.Factory<String> ie() {
+  public Parameter.Descriptor<String> ie() {
     return ParameterUtils.simple("4.0", "5.0", "5.5", "6.0");
   }
 

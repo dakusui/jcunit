@@ -1,8 +1,7 @@
 package com.github.dakusui.jcunitx.examples.bankaccount2;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.ParameterizedRegex;
-import com.github.dakusui.jcunitx.metamodel.parameters.Regex;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.CallSequenceRegexParameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
@@ -23,26 +22,26 @@ public class BankAccountExample2 {
   private final BankAccount2 anotherAccount = BankAccount2.open();
 
   @ParameterSource
-  public ParameterizedRegex.Factory scenario() {
-    return ParameterizedRegex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
-        .parameters("open", Simple.Factory.of(asList("Steve Smith", "Scot Tiger")))
-        .parameters("deposit", Simple.Factory.of(asList(0, 1, 1_000_000)));
+  public CallSequenceRegexParameter.Descriptor scenario() {
+    return CallSequenceRegexParameter.Descriptor.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
+        .parameters("open", SimpleParameter.Descriptor.of(asList("Steve Smith", "Scot Tiger")))
+        .parameters("deposit", SimpleParameter.Descriptor.of(asList(0, 1, 1_000_000)));
 
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> depositAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  public SimpleParameter.Descriptor<Integer> depositAmount() {
+    return SimpleParameter.Descriptor.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> withdrawAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  public SimpleParameter.Descriptor<Integer> withdrawAmount() {
+    return SimpleParameter.Descriptor.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @ParameterSource
-  public Simple.Factory<Integer> transferAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
+  public SimpleParameter.Descriptor<Integer> transferAmount() {
+    return SimpleParameter.Descriptor.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
   @Condition(constraint = true)

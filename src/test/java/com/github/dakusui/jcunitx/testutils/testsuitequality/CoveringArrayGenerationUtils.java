@@ -9,7 +9,7 @@ import com.github.dakusui.jcunitx.utils.Utils;
 import com.github.dakusui.jcunitx.factorspace.*;
 import com.github.dakusui.jcunitx.metamodel.Parameter;
 import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
-import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.pipeline.Config;
 import com.github.dakusui.jcunitx.pipeline.Pipeline;
 import com.github.dakusui.jcunitx.pipeline.Requirement;
@@ -93,7 +93,7 @@ public enum CoveringArrayGenerationUtils {
   }
 
   public static Parameter<Object> p(String name, Object... levels) {
-    return Simple.Factory.of(asList(levels)).create(name);
+    return SimpleParameter.Descriptor.of(asList(levels)).create(name);
   }
 
   public static List<AArray> allPossibleTuplesInFactors(int strength, List<Factor> factors) {
