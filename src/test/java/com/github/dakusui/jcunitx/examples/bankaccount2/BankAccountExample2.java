@@ -3,6 +3,7 @@ package com.github.dakusui.jcunitx.examples.bankaccount2;
 import com.github.dakusui.jcunitx.metamodel.parameters.ParameterizedRegex;
 import com.github.dakusui.jcunitx.metamodel.parameters.Regex;
 import com.github.dakusui.jcunitx.metamodel.parameters.Simple;
+import com.github.dakusui.jcunitx.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.Condition;
 import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
@@ -25,8 +26,8 @@ public class BankAccountExample2 {
   @ParameterSource
   public ParameterizedRegex.Factory scenario() {
     return ParameterizedRegex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
-        .parameters("open", Simple.Factory.of(asList("Steve Smith", "Scot Tiger")))
-        .parameters("deposit", Simple.Factory.of(asList(0, 1, 1_000_000)));
+        .parameters("open", ParameterUtils.simple(asList("Steve Smith", "Scot Tiger")).create(""))
+        .parameters("deposit", ParameterUtils.simple(asList(0, 1, 1_000_000)).create(""));
 
   }
 

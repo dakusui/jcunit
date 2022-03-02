@@ -44,7 +44,7 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
     private final FactorSpace   factorSpace;
     private final RegexComposer regexComposer;
 
-    public Impl(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Factory<?>, List<String>> arguments) {
+    public Impl(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter<?>, List<String>> arguments) {
       super(name, knownValues);
       Expr expr = new Parser().parse(regex);
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
@@ -53,7 +53,6 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
       this.factorSpace = decomposer.decompose().extend(
           arguments.keySet()
               .stream()
-              .map(each -> each.create(format("p%02d", i.getAndIncrement())))
               .map(Parameter::toFactorSpace)
               .peek(each -> require(each.getFactors(), transform(size()).check(isEqualTo(1))))
               .map(each -> each.getFactors().get(0))
@@ -101,7 +100,7 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
      * Stores parameters for arguments as keys.
      * Method names that are referencing a method is stored as a list in the value side.
      */
-    private final Map<Parameter.Factory<?>, List<String>> arguments = new HashMap<>();
+    private final Map<Parameter<?>, List<String>> arguments = new HashMap<>();
 
     private Factory(String regex) {
       this.regex = requireNonNull(regex);
@@ -111,7 +110,7 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
       return new Factory(regex);
     }
 
-    private static ParameterizedRegex create(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter.Factory<?>, List<String>> arguments) {
+    private static ParameterizedRegex create(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter<?>, List<String>> arguments) {
       return new Impl(name, regex, knownValues, arguments);
     }
 
@@ -126,8 +125,8 @@ public interface ParameterizedRegex extends Parameter<List<ParameterizedRegex.Me
      * @param parameters Parameters passed to a method specified by `element`.
      * @return This object
      */
-    public Factory parameters(String methodName, Parameter.Factory<?>... parameters) {
-      for (Parameter.Factory<?> each : parameters) {
+    public Factory parameters(String methodName, Parameter<?>... parameters) {
+      for (Parameter<?> each : parameters) {
         this.arguments.putIfAbsent(each, new LinkedList<>());
         this.arguments.get(each).add(methodName);
       }
