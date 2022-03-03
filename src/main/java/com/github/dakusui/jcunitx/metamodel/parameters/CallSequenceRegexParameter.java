@@ -40,14 +40,14 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
     private final FactorSpace   factorSpace;
     private final RegexComposer regexComposer;
 
-    public Impl(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter<?>, List<String>> arguments) {
-      super(name, knownValues);
-      Expr expr = new Parser().parse(regex);
+    public Impl(String name, CallSequenceRegexParameter.Descriptor descriptor) {
+      super(name, descriptor);
+      Expr expr = new Parser().parse(descriptor.regex());
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
       this.regexComposer = new RegexComposer(name, expr);
       AtomicInteger i = new AtomicInteger(0);
       this.factorSpace = decomposer.decompose().extend(
-          arguments.keySet()
+          descriptor.arguments().keySet()
               .stream()
               .map(Parameter::toFactorSpace)
               .peek(each -> require(each.getFactors(), transform(size()).check(isEqualTo(1))))
@@ -106,8 +106,8 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
       return new Descriptor(regex);
     }
 
-    private static CallSequenceRegexParameter create(String name, String regex, List<List<MethodCallDescriptor>> knownValues, Map<Parameter<?>, List<String>> arguments) {
-      return new Impl(name, regex, knownValues, arguments);
+    private static CallSequenceRegexParameter create(String name, Descriptor descriptor) {
+      return new Impl(name, descriptor);
     }
 
     /**
@@ -135,7 +135,15 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
 
     @Override
     public CallSequenceRegexParameter create(String name) {
-      return create(name, this.regex, this.knownValues, this.arguments);
+      return create(name, this);
+    }
+
+    public String regex() {
+      return this.regex;
+    }
+
+    public Map<Parameter<?>, List<String>> arguments() {
+      return this.arguments;
     }
   }
 }

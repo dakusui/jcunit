@@ -1,15 +1,15 @@
 package com.github.dakusui.jcunitx.metamodel.parameters;
 
 import com.github.dakusui.jcunitx.core.AArray;
-import com.github.dakusui.jcunitx.regex.Expr;
-import com.github.dakusui.jcunitx.regex.Parser;
-import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexComposer;
-import com.github.dakusui.jcunitx.utils.Utils;
 import com.github.dakusui.jcunitx.factorspace.Constraint;
 import com.github.dakusui.jcunitx.factorspace.Factor;
 import com.github.dakusui.jcunitx.factorspace.FactorSpace;
-import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexDecomposer;
 import com.github.dakusui.jcunitx.metamodel.Parameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexComposer;
+import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexDecomposer;
+import com.github.dakusui.jcunitx.regex.Expr;
+import com.github.dakusui.jcunitx.regex.Parser;
+import com.github.dakusui.jcunitx.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +32,9 @@ public interface RegexParameter extends Parameter<List<String>> {
     private final FactorSpace   factorSpace;
     private final RegexComposer regexComposer;
 
-    public Impl(String name, String regex, List<List<String>> knownValues) {
-      super(name, knownValues);
-      Expr expr = new Parser().parse(regex);
+    public Impl(String name, RegexParameter.Descriptor descriptor) {
+      super(name, descriptor);
+      Expr expr = new Parser().parse(descriptor.regex());
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
       this.regexComposer = new RegexComposer(name, expr);
       this.factorSpace = decomposer.decompose();
@@ -81,12 +81,16 @@ public interface RegexParameter extends Parameter<List<String>> {
     }
 
     private static RegexParameter create(String name, String regex, List<List<String>> knownValues) {
-      return new Impl(name, regex, knownValues);
+      return new Impl(name, new Descriptor(regex).addActualValues(knownValues));
     }
 
     @Override
     public RegexParameter create(String name) {
       return create(name, regex, knownValues);
+    }
+
+    public String regex() {
+      return this.regex;
     }
   }
 }

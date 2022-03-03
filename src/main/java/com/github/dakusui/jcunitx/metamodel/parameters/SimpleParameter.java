@@ -21,9 +21,9 @@ public interface SimpleParameter<T> extends Parameter<T> {
   class Impl<T> extends Base<T> implements SimpleParameter<T> {
     final Factor factor;
 
-    public Impl(String name, List<T> allLevels) {
-      super(name, allLevels);
-      this.factor = Factor.create(name, allLevels.toArray());
+    public Impl(String name, SimpleParameter.Descriptor<T> descriptor) {
+      super(name, descriptor);
+      this.factor = Factor.create(name, descriptor.knwonValues().toArray());
     }
 
     @Override
@@ -64,7 +64,7 @@ public interface SimpleParameter<T> extends Parameter<T> {
 
     @Override
     public Parameter<T> create(String name) {
-      return new Impl<>(name, this.knownValues);
+      return new Impl<>(name, this);
     }
   }
 }

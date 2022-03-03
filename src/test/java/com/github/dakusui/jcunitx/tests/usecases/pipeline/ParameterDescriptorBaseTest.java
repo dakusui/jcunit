@@ -5,6 +5,7 @@ import com.github.dakusui.jcunitx.metamodel.Parameter;
 import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import org.junit.Test;
 
+import static com.github.dakusui.jcunitx.runners.helpers.ParameterUtils.simple;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 public class ParameterDescriptorBaseTest extends Parameter.Descriptor.Base<String> {
   @Override
   public Parameter<String> create(String name) {
-    return new SimpleParameter.Impl<>(name, this.knownValues);
+    return new SimpleParameter.Impl<String>(name, simple(this.knownValues.toArray(new String[0])));
   }
 
   @Test

@@ -4,6 +4,7 @@ import com.github.dakusui.jcunitx.core.AArray;
 import com.github.dakusui.jcunitx.factorspace.Constraint;
 import com.github.dakusui.jcunitx.factorspace.Factor;
 import com.github.dakusui.jcunitx.metamodel.Parameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.core.TestInputPredicate;
 
 import java.util.ArrayList;
@@ -19,7 +20,12 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   private final ArrayList<String> values;
 
   public CustomParameter(String name, List<String> values) {
-    super(name, emptyList());
+    super(name, new Descriptor.Base<ValuePair>() {
+      @Override
+      public Parameter<ValuePair> create(String name) {
+        return null;
+      }
+    });
     this.values = new ArrayList<>(values);
   }
 

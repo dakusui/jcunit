@@ -7,9 +7,9 @@ import com.github.dakusui.jcunitx.factorspace.FactorSpace;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -60,6 +60,8 @@ public interface Parameter<T> {
    */
   List<T> getKnownValues();
 
+  Descriptor<T> descriptor();
+
   /**
    * A factory interface for `Parameter`.
    *
@@ -91,6 +93,8 @@ public interface Parameter<T> {
      */
     Parameter<T> create(String name);
 
+    List<T> knwonValues();
+
     /**
      * A base implementation class for {@code Parameter.Factory}.
      *
@@ -104,6 +108,11 @@ public interface Parameter<T> {
       public <F extends Descriptor<T>> F addActualValue(T actualValue) {
         knownValues.add(actualValue);
         return (F) this;
+      }
+
+      @Override
+      public List<T> knwonValues() {
+        return this.knownValues;
       }
     }
   }
@@ -122,18 +131,13 @@ public interface Parameter<T> {
     /**
      * Known values of this parameter.
      */
-    private final List<T> knownValues;
+    private final Descriptor<T> descriptor;
 
-    /**
-     * Creates an instance of this class.
-     *
-     * @param name        A name of this parameter.
-     * @param knownValues Known values of this parameter.
-     */
-    protected Base(String name, List<T> knownValues) {
+    protected Base(String name, Parameter.Descriptor<T> descriptor) {
       this.name = requireNonNull(name);
-      this.knownValues = unmodifiableList(requireNonNull(knownValues));
+      this.descriptor = requireNonNull(descriptor);
     }
+
 
     @Override
     public String getName() {
@@ -147,7 +151,12 @@ public interface Parameter<T> {
 
     @Override
     public List<T> getKnownValues() {
-      return this.knownValues;
+      return this.descriptor.knwonValues();
+    }
+
+    @Override
+    public Descriptor<T> descriptor() {
+      return this.descriptor;
     }
 
     /**
