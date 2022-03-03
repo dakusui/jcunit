@@ -18,7 +18,7 @@ import static org.junit.Assert.assertNotNull;
 public class ParameterDescriptorBaseTest extends Parameter.Descriptor.Base<String> {
   @Override
   public Parameter<String> create(String name) {
-    return new SimpleParameter.Impl<String>(name, simple(this.knownValues.toArray(new String[0])));
+    return new SimpleParameter.Impl<>(name, simple(this.knownValues.toArray(new String[0])));
   }
 
   @Test

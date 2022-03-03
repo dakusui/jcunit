@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunitx.examples.bankaccount2;
 
-import com.github.dakusui.jcunitx.metamodel.parameters.CallSequenceRegexParameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.EnhancedRegexParameter;
 import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
 import com.github.dakusui.jcunitx.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunitx.runners.junit4.JCUnit8;
@@ -43,10 +43,10 @@ public class BankAccountExample2 {
   }
 
   @ParameterSource
-  public CallSequenceRegexParameter.Descriptor scenario() {
-    return CallSequenceRegexParameter.Descriptor.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
-        .parameters("open", ParameterUtils.simple(asList("Steve Smith", "Scot Tiger")).create(""))
-        .parameters("deposit", ParameterUtils.simple(asList(0, 1, 1_000_000)).create(""));
+  public EnhancedRegexParameter.Descriptor scenario() {
+    return EnhancedRegexParameter.Descriptor.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
+        .call("open", ParameterUtils.simple(asList("Steve Smith", "Scot Tiger")).create(""))
+        .call("deposit", ParameterUtils.simple(asList(0, 1, 1_000_000)).create(""));
 
   }
 

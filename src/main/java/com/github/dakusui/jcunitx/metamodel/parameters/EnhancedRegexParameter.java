@@ -9,10 +9,12 @@ import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexComposer;
 import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexDecomposer;
 import com.github.dakusui.jcunitx.regex.Expr;
 import com.github.dakusui.jcunitx.regex.Parser;
+import com.github.dakusui.jcunitx.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunitx.utils.Utils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static com.github.dakusui.pcond.Preconditions.require;
 import static com.github.dakusui.pcond.functions.Functions.size;
@@ -25,7 +27,32 @@ import static java.util.stream.Collectors.toList;
 /**
  * `ParameterizedRegex` is a meta-model designed to model a sequence of method calls.
  */
-public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceRegexParameter.MethodCallDescriptor>> {
+public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexParameter.MethodCallDescriptor>> {
+  @SafeVarargs
+  static <T> Parameter<Function<Context, T>> parameter(String parameterName, Function<Context, T>... args) {
+    return ParameterUtils.simple(args).create(parameterName);
+  }
+
+  static <T> Function<Context, T> immediateValue(T value) {
+    return c -> value;
+  }
+
+  static <T> Function<Context, T> valueFrom(String methodName) {
+    return valueFrom(methodName, -1);
+  }
+
+  static <T> Function<Context, T> valueFrom(String methodName, int index) {
+    return c -> c.<T>resultOf(methodName, index).orElseThrow(RuntimeException::new);
+  }
+
+  static <T> Function<Context, T> argumentValueFrom(String methodName, int index, int argumentIndex) {
+    return c -> null;
+  }
+
+  interface Context {
+    <T> Optional<T> resultOf(String methodName, int index);
+  }
+
   /**
    * A class to model a single method call.
    */
@@ -35,12 +62,12 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
     List<Object> arguments();
   }
 
-  class Impl extends Base<List<MethodCallDescriptor>> implements CallSequenceRegexParameter {
+  class Impl extends Base<List<MethodCallDescriptor>> implements EnhancedRegexParameter {
 
     private final FactorSpace   factorSpace;
     private final RegexComposer regexComposer;
 
-    public Impl(String name, CallSequenceRegexParameter.Descriptor descriptor) {
+    public Impl(String name, EnhancedRegexParameter.Descriptor descriptor) {
       super(name, descriptor);
       Expr expr = new Parser().parse(descriptor.regex());
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
@@ -106,7 +133,7 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
       return new Descriptor(regex);
     }
 
-    private static CallSequenceRegexParameter create(String name, Descriptor descriptor) {
+    private static EnhancedRegexParameter create(String name, Descriptor descriptor) {
       return new Impl(name, descriptor);
     }
 
@@ -121,7 +148,7 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
      * @param parameters Parameters passed to a method specified by `element`.
      * @return This object
      */
-    public Descriptor parameters(String methodName, Parameter<?>... parameters) {
+    public Descriptor call(String methodName, Parameter<?>... parameters) {
       for (Parameter<?> each : parameters) {
         this.arguments.putIfAbsent(each, new LinkedList<>());
         this.arguments.get(each).add(methodName);
@@ -134,7 +161,7 @@ public interface CallSequenceRegexParameter extends Parameter<List<CallSequenceR
     }
 
     @Override
-    public CallSequenceRegexParameter create(String name) {
+    public EnhancedRegexParameter create(String name) {
       return create(name, this);
     }
 
