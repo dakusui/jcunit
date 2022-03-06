@@ -11,16 +11,19 @@ import com.github.dakusui.jcunitx.regex.Expr;
 import com.github.dakusui.jcunitx.regex.Parser;
 import com.github.dakusui.jcunitx.runners.helpers.ParameterUtils;
 import com.github.dakusui.jcunitx.utils.Utils;
+import com.github.dakusui.pcond.functions.Printables;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import static com.github.dakusui.jcunitx.utils.AssertionUtils.isKeyOf;
 import static com.github.dakusui.pcond.Preconditions.require;
-import static com.github.dakusui.pcond.functions.Functions.size;
-import static com.github.dakusui.pcond.functions.Predicates.isEqualTo;
-import static com.github.dakusui.pcond.functions.Predicates.transform;
+import static com.github.dakusui.pcond.Preconditions.requireArgument;
+import static com.github.dakusui.pcond.functions.Predicates.*;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -33,8 +36,20 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
     return ParameterUtils.simple(args).create(parameterName);
   }
 
+  static <T extends Enum<T>> Function<Context, T>[] valuesFromEnum(Class<T> enumClass) {
+    return immediateValues(enumClass.getEnumConstants());
+  }
+
+  @SuppressWarnings("unchecked")
+  @SafeVarargs
+  static <T> Function<Context, T>[] immediateValues(T... values) {
+    return Arrays.stream(values)
+        .map(EnhancedRegexParameter::immediateValue)
+        .toArray(Function[]::new);
+  }
+
   static <T> Function<Context, T> immediateValue(T value) {
-    return c -> value;
+    return Printables.function(() -> String.format("immediateValue:'%s'", value), c -> value);
   }
 
   static <T> Function<Context, T> valueFrom(String methodName) {
@@ -42,7 +57,9 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
   }
 
   static <T> Function<Context, T> valueFrom(String methodName, int index) {
-    return c -> c.<T>resultOf(methodName, index).orElseThrow(RuntimeException::new);
+    return Printables.function(
+        () -> String.format("valueFrom:%s[%s]", methodName, index),
+        c -> c.<T>resultOf(methodName, index).orElseThrow(RuntimeException::new));
   }
 
   static <T> Function<Context, T> argumentValueFrom(String methodName, int index, int argumentIndex) {
@@ -74,14 +91,15 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
       this.regexComposer = new RegexComposer(name, expr);
       AtomicInteger i = new AtomicInteger(0);
       this.factorSpace = decomposer.decompose().extend(
-          descriptor.arguments().keySet()
+          descriptor.methodName()
               .stream()
-              .map(Parameter::toFactorSpace)
-              .peek(each -> require(each.getFactors(), transform(size()).check(isEqualTo(1))))
-              .map(each -> each.getFactors().get(0))
+              .map(descriptor::parametersFor)
+              .flatMap(
+                  each -> each.stream()
+                      .map(Parameter::toFactorSpace)
+                      .map(p -> p.getFactors().get(0)))
               .collect(toList()),
-          emptyList()
-      );
+          descriptor.constraints());
     }
 
     public Optional<AArray> decomposeValue(List<MethodCallDescriptor> value) {
@@ -119,26 +137,27 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
    */
   class Descriptor extends Parameter.Descriptor.Base<List<MethodCallDescriptor>> {
     private final String                          regex;
-    /**
-     * Stores parameters for arguments as keys.
-     * Method names that are referencing a method is stored as a list in the value side.
-     */
-    private final Map<Parameter<?>, List<String>> arguments = new HashMap<>();
+    private final Map<String, List<Parameter<?>>> parameterDefinitions = new HashMap<>();
+    private final List<Constraint>                constraints          = new LinkedList<>();
+    private       int                             asteriskMax;
+    private       int                             plusMax;
 
     private Descriptor(String regex) {
       this.regex = requireNonNull(regex);
+      this.asterisk(2).plus(2);
     }
 
     public static Descriptor of(String regex) {
       return new Descriptor(regex);
     }
 
-    private static EnhancedRegexParameter create(String name, Descriptor descriptor) {
-      return new Impl(name, descriptor);
+    @Override
+    public EnhancedRegexParameter create(String name) {
+      return create(name, this);
     }
 
     /**
-     * A method to specify parameter factories for a method call specified by `element`.
+     * A method to specify parameters for a method call specified by `element`.
      * `element` can be in the following format.
      *
      * - `elementName`: All the occurrences of the element whose name is `elementName`.
@@ -149,28 +168,52 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
      * @return This object
      */
     public Descriptor call(String methodName, Parameter<?>... parameters) {
-      for (Parameter<?> each : parameters) {
-        this.arguments.putIfAbsent(each, new LinkedList<>());
-        this.arguments.get(each).add(methodName);
-      }
+      this.parameterDefinitions.put(methodName, unmodifiableList(asList(parameters)));
       return this;
     }
 
     public Descriptor constraints(Constraint... constraints) {
+      this.constraints.addAll(asList(constraints));
       return this;
     }
 
-    @Override
-    public EnhancedRegexParameter create(String name) {
-      return create(name, this);
+    public Descriptor plus(int max) {
+      this.plusMax = require(max, greaterThanOrEqualTo(1));
+      return this;
+    }
+
+    public Descriptor asterisk(int max) {
+      this.asteriskMax = require(max, greaterThanOrEqualTo(0));
+      return this;
     }
 
     public String regex() {
       return this.regex;
     }
 
-    public Map<Parameter<?>, List<String>> arguments() {
-      return this.arguments;
+    public int plusMax() {
+      return this.plusMax;
+    }
+
+    public int asteriskMax() {
+      return this.asteriskMax;
+    }
+
+    public List<Parameter<?>> parametersFor(String methodName) {
+      requireArgument(methodName, allOf(isNotNull(), isKeyOf(this.parameterDefinitions)));
+      return this.parameterDefinitions.get(methodName);
+    }
+
+    public List<String> methodName() {
+      return this.parameterDefinitions.keySet().stream().sorted().collect(toList());
+    }
+
+    public List<Constraint> constraints() {
+      return unmodifiableList(this.constraints);
+    }
+
+    private static EnhancedRegexParameter create(String name, Descriptor descriptor) {
+      return new Impl(name, descriptor);
     }
   }
 }

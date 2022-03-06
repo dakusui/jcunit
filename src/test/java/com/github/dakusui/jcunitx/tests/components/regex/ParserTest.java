@@ -62,7 +62,8 @@ public class ParserTest extends PipelineTestBase {
         /*26*/ "((A{0,1})|B|(C{0,1}D{0,1}));,A,B,C,CD,D;(*(+(*A{0,1})B(*C{0,1}D{0,1})))", // limitation. see above
         /*27*/ "A|B|C;A,B,C;(+ABC)",
         /*28*/ "(A)|(B)|(C);A,B,C;(+(*A)(*B)(*C))",
-        /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*git clone  URL(*dir){0,1})",
+        //                                                          On the checking, elements are concatenated with "", not " ".
+        /*29*/ "git clone  URL(dir){0,1};gitcloneURL,gitcloneURLdir;(*gitcloneURL(*dir){0,1})",
         /*30*/ "(A|B){0,2};,AA,BB,AB,A,B,BA;(*(+AB){0,2})",
         /*31*/ "(A|B){1,3};ABA,AA,BB,A,AAA,AB,AAB,B,BAA,BBB,BA;(*(+AB){1,3})",
     };

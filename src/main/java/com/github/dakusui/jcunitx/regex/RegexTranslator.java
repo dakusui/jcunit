@@ -1,21 +1,18 @@
 package com.github.dakusui.jcunitx.regex;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 
 public abstract class RegexTranslator implements Expr.Visitor {
   /**
    * A mapping from factor names to terms held by composite (alt/cat) expressions.
    */
   public final    Map<String, List<Value>> terms;
-  private final   String                   prefix;
   protected final Expr                     topLevelExpression;
+  private final   String                   prefix;
   protected       Context                  context;
 
   public RegexTranslator(Expr topLevelExpression, String prefix) {
@@ -104,7 +101,9 @@ public abstract class RegexTranslator implements Expr.Visitor {
   }
 
   private List<Object> resolveImmediate(Value value) {
-    return asList(((Immediate) value).value.toString().split(" "));
+    return Arrays.stream(((Immediate) value).value.toString().split(" +"))
+        .filter(each -> !"".equals(each))
+        .collect(toList());
   }
 
   private List<Object> resolve(List<Object> values, Value value) {

@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 public interface TestInputPredicate extends Predicate<AArray> {
   String getName();
 
-  boolean test(AArray tuple);
+  boolean test(AArray in);
 
   List<String> involvedKeys();
 

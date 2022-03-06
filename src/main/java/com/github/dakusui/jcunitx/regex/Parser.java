@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunitx.regex;
 
-import com.github.dakusui.jcunitx.utils.StringUtils;
 import com.github.dakusui.jcunitx.exceptions.InvalidTestException;
+import com.github.dakusui.jcunitx.utils.StringUtils;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,10 +10,10 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.github.dakusui.jcunitx.utils.Checks.checkcond;
-import static com.github.dakusui.jcunitx.utils.Checks.checknotnull;
 import static com.github.dakusui.jcunitx.regex.Parser.Type.ALT;
 import static com.github.dakusui.jcunitx.regex.Parser.Type.CAT;
+import static com.github.dakusui.jcunitx.utils.Checks.checkcond;
+import static com.github.dakusui.jcunitx.utils.Checks.checknotnull;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
@@ -39,64 +39,11 @@ public class Parser {
     this.exprFactory = new Expr.Factory();
   }
 
-  public Expr parse(String regex) {
-    return parse(preprocess(regex));
-  }
-
-  enum Type {
-    CAT("*"),
-    /**
-     * Alternative
-     */
-    ALT("+"),
-    ;
-
-    final String value;
-
-    Type(String value) {
-      this.value = value;
-    }
-
-    public String asString() {
-      return "(" + this.value;
-    }
-
-    public String toString() {
-      return asString();
-    }
-  }
-
   public static List<String> preprocess(String input) {
     List<String> ret = new LinkedList<>();
     List<String> read = new LinkedList<>();
     preprocess(read, ret, tokenizer(input), true);
     return ret;
-  }
-
-  private enum SymbolType {
-    OPEN,
-    WORD,
-    CHOICE,
-    CLOSE;
-
-    static SymbolType determine(String cur) {
-      checknotnull(cur);
-      if ("(".equals(cur)) {
-        return OPEN;
-      } else if ("|".equals(cur)) {
-        return CHOICE;
-      } else if (")".equals(cur)) {
-        return CLOSE;
-      }
-      return WORD;
-    }
-  }
-
-  private enum PreprocessingState {
-    I, I_R, I_T,
-    ALT_I, ALT_R, ALT_T,
-    CAT_R, CAT_T,
-    T
   }
 
   @SuppressWarnings("ConstantConditions")
@@ -274,6 +221,12 @@ public class Parser {
         return new String[] { work, input.substring(work.length()).trim() };
         */
         //return new String[] { m.group(0), input.substring(m.group(0).length()).trim() };
+        //String matchedPart = m.group(0);
+        if (m.group(0).contains(" ")) {
+          String rest = input.replaceFirst("^[^ \t]*\\s+", "");
+          String head = input.substring(0, input.length() - rest.length());
+          return new String[] { head.trim(), rest };
+        }
         return new String[] { m.group(0), input.substring(m.group(0).length()) };
       }
     }
@@ -285,6 +238,21 @@ public class Parser {
     }
 
     throw new InvalidTestException(format("Syntax error: Unparsable: '%s' did neither match '%s' nor '%s'", input, LEAF_PATTERN, QUANTIFIER_PATTERN));
+  }
+
+  private static String head(List<String> tokens) {
+    if (tokens.isEmpty()) {
+      return null;
+    }
+    return tokens.get(0);
+  }
+
+  private static List<String> tail(List<String> tokens) {
+    return tokens.subList(1, tokens.size());
+  }
+
+  public Expr parse(String regex) {
+    return parse(preprocess(regex));
   }
 
   private Expr parse(List<String> tokens) {
@@ -351,15 +319,53 @@ public class Parser {
     return new Context(this.exprFactory.cat(work), tokens);
   }
 
-  private static String head(List<String> tokens) {
-    if (tokens.isEmpty()) {
-      return null;
+  enum Type {
+    CAT("*"),
+    /**
+     * Alternative
+     */
+    ALT("+"),
+    ;
+
+    final String value;
+
+    Type(String value) {
+      this.value = value;
     }
-    return tokens.get(0);
+
+    public String asString() {
+      return "(" + this.value;
+    }
+
+    public String toString() {
+      return asString();
+    }
   }
 
-  private static List<String> tail(List<String> tokens) {
-    return tokens.subList(1, tokens.size());
+  private enum SymbolType {
+    OPEN,
+    WORD,
+    CHOICE,
+    CLOSE;
+
+    static SymbolType determine(String cur) {
+      checknotnull(cur);
+      if ("(".equals(cur)) {
+        return OPEN;
+      } else if ("|".equals(cur)) {
+        return CHOICE;
+      } else if (")".equals(cur)) {
+        return CLOSE;
+      }
+      return WORD;
+    }
+  }
+
+  private enum PreprocessingState {
+    I, I_R, I_T,
+    ALT_I, ALT_R, ALT_T,
+    CAT_R, CAT_T,
+    T
   }
 
   static class Context {
