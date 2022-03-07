@@ -36,7 +36,7 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
     return ParameterUtils.simple(args).create(parameterName);
   }
 
-  static <T extends Enum<T>> Function<Context, T>[] valuesFromEnum(Class<T> enumClass) {
+  static <T extends Enum<T>> Function<Context, T>[] immediateValuesFromEnum(Class<T> enumClass) {
     return immediateValues(enumClass.getEnumConstants());
   }
 

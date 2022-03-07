@@ -62,11 +62,18 @@ public class EnhancedRegexParameterTest {
 
   @Test
   public void test() {
-    EnhancedRegexParameter regex = EnhancedRegexParameter.Descriptor.of("(open write{0,2}close){1,2} open readLine")
-        .call("open",
-            parameter("filename", immediateValue("output.txt")),
-            parameter("mode", valuesFromEnum(FileHandle.Mode.class)))
-        .call("write", parameter("data", immediateValues("hello", "こんにちは")))
+    EnhancedRegexParameter regex = EnhancedRegexParameter.Descriptor.of("(openForWrite write{0,2} close){1,2} openForRead readLine{0,2} close")
+        .call("openForWrite",
+            parameter("filename", immediateValue("data.txt")),
+            parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class)))
+        .call("write",
+            parameter("fileHandle", valueFrom("openForWrite")),
+            parameter("data", immediateValues("hello", "こんにちは")))
+        .call("openForRead",
+            parameter("filename", immediateValue("data.txt")),
+            parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class)))
+        .call("readLine",
+            parameter("fileHandle", valueFrom("openForRead")))
         .constraints(useIdenticalValuesFor("open[0].filename", "open[1].filename"))
         .create("regexExample");
     printFactorSpace(regex.toFactorSpace());
