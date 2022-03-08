@@ -64,17 +64,17 @@ public class EnhancedRegexParameterTest {
   public void test() {
     EnhancedRegexParameter regex = EnhancedRegexParameter.Descriptor.of("(openForWrite write{0,2} close){1,2} openForRead readLine{0,2} close")
         .call("openForWrite",
-            parameter("filename", immediateValue("data.txt")),
+            parameter("filename", immediateValue("data.txt"), immediateValue("データ.txt")),
             parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class)))
         .call("write",
             parameter("fileHandle", valueFrom("openForWrite")),
             parameter("data", immediateValues("hello", "こんにちは")))
         .call("openForRead",
-            parameter("filename", immediateValue("data.txt")),
+            parameter("filename", immediateValue("data.txt"), immediateValue("データ.txt")),
             parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class)))
         .call("readLine",
             parameter("fileHandle", valueFrom("openForRead")))
-        .constraints(useIdenticalValuesFor("open[0].filename", "open[1].filename"))
+        .constraints(useIdenticalValuesFor("openForWrite.filename", "openForRead.filename"))
         .create("regexExample");
     printFactorSpace(regex.toFactorSpace());
   }
