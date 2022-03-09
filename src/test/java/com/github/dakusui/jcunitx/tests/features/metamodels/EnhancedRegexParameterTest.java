@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.dakusui.jcunitx.metamodel.parameters.EnhancedRegexParameter.*;
+import static com.github.dakusui.jcunitx.tests.features.metamodels.EnhancedRegexParameterTest.FileHandle.Mode.*;
 import static com.github.dakusui.pcond.Assertions.that;
 import static com.github.dakusui.pcond.functions.Predicates.allOf;
 import static com.github.dakusui.pcond.functions.Predicates.isNotNull;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.function.Function.identity;
 
 public class EnhancedRegexParameterTest {
@@ -60,21 +62,41 @@ public class EnhancedRegexParameterTest {
     };
   }
 
+  private static Constraint isWritingMode(final String modeParameterName) {
+    return new Constraint() {
+      @Override
+      public String getName() {
+        return "isWritingMode";
+      }
+
+      @Override
+      public boolean test(AArray in) {
+        return asList(FOR_APPEND, FOR_WRITE, FOR_WRITE_CREATE_WHEN_ABSENT).contains((FileHandle.Mode) in.get("mode"));
+      }
+
+      @Override
+      public List<String> involvedKeys() {
+        return singletonList(modeParameterName);
+      }
+    };
+  }
+
   @Test
   public void test() {
     EnhancedRegexParameter regex = EnhancedRegexParameter.Descriptor.of("(openForWrite write{0,2} close){1,2} openForRead readLine{0,2} close")
-        .call("openForWrite",
-            parameter("filename", immediateValue("data.txt"), immediateValue("データ.txt")),
-            parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class)))
-        .call("write",
+        .describe(method("openForWrite")
+            .parameter("filename", immediateValue("data.txt"), immediateValue("データ.txt"))
+            .parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class))
+            .constraint(isWritingMode("mode"))
+            .$())
+        .describe("write", asList(
             parameter("fileHandle", valueFrom("openForWrite")),
-            parameter("data", immediateValues("hello", "こんにちは")))
-        .call("openForRead",
+            parameter("data", immediateValues("hello", "こんにちは"))))
+        .describe("openForRead", asList(
             parameter("filename", immediateValue("data.txt"), immediateValue("データ.txt")),
-            parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class)))
-        .call("readLine",
-            parameter("fileHandle", valueFrom("openForRead")))
-        .constraints(useIdenticalValuesFor("openForWrite.filename", "openForRead.filename"))
+            parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class))))
+        .describe("readLine", singletonList(
+            parameter("fileHandle", valueFrom("openForRead"))))
         .create("regexExample");
     printFactorSpace(regex.toFactorSpace());
   }

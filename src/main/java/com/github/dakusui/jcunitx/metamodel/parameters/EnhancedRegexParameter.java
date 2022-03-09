@@ -14,14 +14,12 @@ import com.github.dakusui.jcunitx.utils.Utils;
 import com.github.dakusui.pcond.functions.Printables;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunitx.utils.AssertionUtils.isKeyOf;
 import static com.github.dakusui.pcond.Preconditions.require;
 import static com.github.dakusui.pcond.Preconditions.requireArgument;
 import static com.github.dakusui.pcond.functions.Predicates.*;
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
@@ -32,42 +30,123 @@ import static java.util.stream.Collectors.toList;
  */
 public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexParameter.MethodCallDescriptor>> {
   @SafeVarargs
-  static <T> Parameter<Function<Context, T>> parameter(String parameterName, Function<Context, T>... args) {
+  static <T> Parameter<Function<ExecutionContext, T>> parameter(String parameterName, Function<ExecutionContext, T>... args) {
     return ParameterUtils.simple(args).create(parameterName);
   }
 
-  static <T extends Enum<T>> Function<Context, T>[] immediateValuesFromEnum(Class<T> enumClass) {
+  static <T extends Enum<T>> Function<ExecutionContext, T>[] immediateValuesFromEnum(Class<T> enumClass) {
     return immediateValues(enumClass.getEnumConstants());
   }
 
   @SuppressWarnings("unchecked")
   @SafeVarargs
-  static <T> Function<Context, T>[] immediateValues(T... values) {
+  static <T> Function<ExecutionContext, T>[] immediateValues(T... values) {
     return Arrays.stream(values)
         .map(EnhancedRegexParameter::immediateValue)
         .toArray(Function[]::new);
   }
 
-  static <T> Function<Context, T> immediateValue(T value) {
+  static <T> Function<ExecutionContext, T> immediateValue(T value) {
     return Printables.function(() -> String.format("immediateValue:'%s'", value), c -> value);
   }
 
-  static <T> Function<Context, T> valueFrom(String methodName) {
+  static <T> Function<ExecutionContext, T> valueFrom(String methodName) {
     return valueFrom(methodName, -1);
   }
 
-  static <T> Function<Context, T> valueFrom(String methodName, int index) {
+  static <T> Function<ExecutionContext, T> valueFrom(String methodName, int index) {
     return Printables.function(
         () -> String.format("valueFrom:%s[%s]", methodName, index),
         c -> c.<T>resultOf(methodName, index).orElseThrow(RuntimeException::new));
   }
 
-  static <T> Function<Context, T> argumentValueFrom(String methodName, int index, int argumentIndex) {
+  static <T> Function<ExecutionContext, T> argumentValueFrom(String methodName, int index, int argumentIndex) {
     return c -> null;
   }
 
-  interface Context {
-    <T> Optional<T> resultOf(String methodName, int index);
+  static MethodDescriptor.Builder method(String methodName) {
+    return new MethodDescriptor.Builder(methodName);
+  }
+
+  /**
+   * An interface to define how calls of a method should be.
+   * That is, it specifies a name of a method and "parameters" of it.
+   * Note that a parameter defines all the possible values for a variable passed to a method.
+   */
+  interface MethodDescriptor {
+    String name();
+
+    List<Parameter<?>> parameters();
+
+    List<Constraint> constraints();
+
+    class Builder {
+      private final List<Parameter<?>> parameters  = new LinkedList<>();
+      private final List<Constraint>   constraints = new LinkedList<>();
+      private final String             methodName;
+
+      public Builder(String methodName) {
+        this.methodName = requireNonNull(methodName);
+      }
+
+      @SafeVarargs
+      public final <T> Builder parameter(String parameterName, Function<ExecutionContext, T>... values) {
+        return this.parameter(EnhancedRegexParameter.parameter(parameterName, values));
+      }
+
+      public <T> Builder parameter(Parameter<? extends Function<? extends ExecutionContext, T>> parameter) {
+        parameters.add(requireNonNull(parameter));
+        return this;
+      }
+
+      @SuppressWarnings({ "unchecked", "rawtypes" })
+      @SafeVarargs
+      public final Builder parameters(Parameter<Function<ExecutionContext, ?>>... parameters) {
+        Builder ret = this;
+        for (Parameter<Function<ExecutionContext, ?>> each : parameters) {
+          ret = ret.parameter(((Parameter) each));
+        }
+        return ret;
+      }
+
+      public Builder constraint(Constraint constraint) {
+        this.constraints.add(requireNonNull(constraint));
+        return this;
+      }
+
+      public Builder constraints(Constraint... constraints) {
+        Builder ret = this;
+        for (Constraint each : constraints) {
+          ret = ret.constraint(each);
+        }
+        return ret;
+      }
+
+      public MethodDescriptor build() {
+        final String name = this.methodName;
+        final List<Parameter<?>> parameters = unmodifiableList(this.parameters);
+        return new MethodDescriptor() {
+          @Override
+          public String name() {
+            return name;
+          }
+
+          @Override
+          public List<Parameter<?>> parameters() {
+            return parameters;
+          }
+
+          @Override
+          public List<Constraint> constraints() {
+            return constraints;
+          }
+        };
+      }
+
+      public MethodDescriptor $() {
+        return build();
+      }
+    }
   }
 
   /**
@@ -89,9 +168,8 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
       Expr expr = new Parser().parse(descriptor.regex());
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
       this.regexComposer = new RegexComposer(name, expr);
-      AtomicInteger i = new AtomicInteger(0);
       this.factorSpace = decomposer.decompose().extend(
-          descriptor.methodName()
+          descriptor.methodNames()
               .stream()
               .map(descriptor::parametersFor)
               .flatMap(
@@ -99,7 +177,10 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
                       .map(Parameter::toFactorSpace)
                       .map(p -> p.getFactors().get(0)))
               .collect(toList()),
-          descriptor.constraints());
+          descriptor.methodNames()
+              .stream().map(descriptor::constraintsFor)
+              .flatMap(Collection::stream)
+              .collect(toList()));
     }
 
     public Optional<AArray> decomposeValue(List<MethodCallDescriptor> value) {
@@ -136,11 +217,10 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
    * A factory class for `ParameterizedRegex` parameter.
    */
   class Descriptor extends Parameter.Descriptor.Base<List<MethodCallDescriptor>> {
-    private final String                          regex;
-    private final Map<String, List<Parameter<?>>> parameterDefinitions = new HashMap<>();
-    private final List<Constraint>                constraints          = new LinkedList<>();
-    private       int                             asteriskMax;
-    private       int                             plusMax;
+    private final String                        regex;
+    private final Map<String, MethodDescriptor> methodDescriptors = new HashMap<>();
+    private       int                           asteriskMax;
+    private       int                           plusMax;
 
     private Descriptor(String regex) {
       this.regex = requireNonNull(regex);
@@ -149,6 +229,10 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
 
     public static Descriptor of(String regex) {
       return new Descriptor(regex);
+    }
+
+    private static EnhancedRegexParameter create(String name, Descriptor descriptor) {
+      return new Impl(name, descriptor);
     }
 
     @Override
@@ -167,13 +251,17 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
      * @param parameters Parameters passed to a method specified by `element`.
      * @return This object
      */
-    public Descriptor call(String methodName, Parameter<?>... parameters) {
-      this.parameterDefinitions.put(methodName, unmodifiableList(asList(parameters)));
-      return this;
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Descriptor describe(String methodName, List<Parameter<? extends Function<? extends ExecutionContext, ?>>> parameters) {
+      MethodDescriptor.Builder b = new MethodDescriptor.Builder(methodName);
+      for (Parameter<? extends Function<? extends ExecutionContext, ?>> each : parameters) {
+        b.parameter((Parameter) each);
+      }
+      return this.describe(b.$());
     }
 
-    public Descriptor constraints(Constraint... constraints) {
-      this.constraints.addAll(asList(constraints));
+    public Descriptor describe(MethodDescriptor methodDescriptor) {
+      this.methodDescriptors.put(methodDescriptor.name(), requireNonNull(methodDescriptor));
       return this;
     }
 
@@ -199,21 +287,19 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
       return this.asteriskMax;
     }
 
+    public List<String> methodNames() {
+      return this.methodDescriptors.keySet().stream().sorted().collect(toList());
+    }
+
     public List<Parameter<?>> parametersFor(String methodName) {
-      requireArgument(methodName, allOf(isNotNull(), isKeyOf(this.parameterDefinitions)));
-      return this.parameterDefinitions.get(methodName);
+      requireArgument(methodName, allOf(isNotNull(), isKeyOf(this.methodDescriptors)));
+      return this.methodDescriptors.get(methodName).parameters();
     }
 
-    public List<String> methodName() {
-      return this.parameterDefinitions.keySet().stream().sorted().collect(toList());
-    }
 
-    public List<Constraint> constraints() {
-      return unmodifiableList(this.constraints);
-    }
-
-    private static EnhancedRegexParameter create(String name, Descriptor descriptor) {
-      return new Impl(name, descriptor);
+    public List<Constraint> constraintsFor(String methodName) {
+      requireArgument(methodName, allOf(isNotNull(), isKeyOf(this.methodDescriptors)));
+      return this.methodDescriptors.get(methodName).constraints();
     }
   }
 }

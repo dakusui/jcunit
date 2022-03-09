@@ -13,7 +13,9 @@ import org.junit.runner.RunWith;
 
 import java.util.List;
 
+import static com.github.dakusui.jcunitx.metamodel.parameters.EnhancedRegexParameter.immediateValues;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JCUnit8.class)
@@ -45,8 +47,8 @@ public class BankAccountExample2 {
   @ParameterSource
   public EnhancedRegexParameter.Descriptor scenario() {
     return EnhancedRegexParameter.Descriptor.of("open deposit(deposit|withdraw|transfer){0,2}getBalance")
-        .call("open", ParameterUtils.simple(asList("Steve Smith", "Scot Tiger")).create(""))
-        .call("deposit", ParameterUtils.simple(asList(0, 1, 1_000_000)).create(""));
+        .describe("open", singletonList(ParameterUtils.simple(immediateValues("Steve Smith", "Scot Tiger")).create("")))
+        .describe("deposit", singletonList(ParameterUtils.simple(immediateValues(0, 1, 1_000_000)).create("")));
 
   }
 

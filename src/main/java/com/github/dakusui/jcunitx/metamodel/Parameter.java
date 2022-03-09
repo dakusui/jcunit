@@ -7,7 +7,6 @@ import com.github.dakusui.jcunitx.factorspace.FactorSpace;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
@@ -93,7 +92,7 @@ public interface Parameter<T> {
      */
     Parameter<T> create(String name);
 
-    List<T> knwonValues();
+    List<T> knownValues();
 
     /**
      * A base implementation class for {@code Parameter.Factory}.
@@ -111,7 +110,7 @@ public interface Parameter<T> {
       }
 
       @Override
-      public List<T> knwonValues() {
+      public List<T> knownValues() {
         return this.knownValues;
       }
     }
@@ -151,7 +150,7 @@ public interface Parameter<T> {
 
     @Override
     public List<T> getKnownValues() {
-      return this.descriptor.knwonValues();
+      return this.descriptor.knownValues();
     }
 
     @Override

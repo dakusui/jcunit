@@ -23,7 +23,7 @@ public interface SimpleParameter<T> extends Parameter<T> {
 
     public Impl(String name, SimpleParameter.Descriptor<T> descriptor) {
       super(name, descriptor);
-      this.factor = Factor.create(name, descriptor.knwonValues().toArray());
+      this.factor = Factor.create(name, descriptor.knownValues().toArray());
     }
 
     @Override
