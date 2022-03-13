@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunitx.utils.AssertionUtils.isKeyOf;
+import static com.github.dakusui.pcond.Assertions.that;
 import static com.github.dakusui.pcond.Preconditions.require;
 import static com.github.dakusui.pcond.Preconditions.requireArgument;
 import static com.github.dakusui.pcond.functions.Predicates.*;
@@ -168,7 +169,8 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
       Expr expr = new Parser().parse(descriptor.regex());
       RegexDecomposer decomposer = new RegexDecomposer(name, expr);
       this.regexComposer = new RegexComposer(name, expr);
-      this.factorSpace = decomposer.decompose().extend(
+      FactorSpace decomposed = decomposer.decompose();
+      this.factorSpace = decomposed.extend(
           descriptor.methodNames()
               .stream()
               .map(descriptor::parametersFor)
@@ -207,9 +209,36 @@ public interface EnhancedRegexParameter extends Parameter<List<EnhancedRegexPara
       return factorSpace.getConstraints();
     }
 
+    /**
+     * NAME:
+     *     REGEX:regexExample:cat-8
+     * LEVELS:
+     *     (VOID)
+     *     [[openForWrite], Reference:<REGEX:regexExample:rep-4>, [], [close], [openForWrite], Reference:<REGEX:regexExample:rep-4>, [], [close]]
+     * NAME:
+     *     REGEX:regexExample:rep-9
+     * LEVELS:
+     *     [(VOID), [Reference:<REGEX:regexExample:cat-7>], [Reference:<REGEX:regexExample:cat-8>]]
+     * NAME:
+     *     REGEX:regexExample:rep-14
+     * LEVELS
+     *     (VOID),
+     *     [Reference:<REGEX:regexExample:empty-0>],
+     *     [readLine],
+     *     [Reference:<REGEX:regexExample:cat-13>]
+     */
     private List<MethodCallDescriptor> composeMethodCallDescriptorSequenceFrom(AArray aarray) {
       // TODO regexComposer.compose(tuple);
       return emptyList();
+    }
+
+    private static List<Factor> expandParameterFor(Factor factor, String methodName, Parameter<?> parameter) {
+      assert that(parameter, isInstanceOf(SimpleParameter.class));
+      return null;
+    }
+
+    private static Parameter<?> renameParameterFor(Factor factor, String methodName, Parameter<?> parameter) {
+      return parameter.descriptor().create(factor.getName() + ":" + methodName + "." + parameter.getName());
     }
   }
 

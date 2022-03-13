@@ -83,7 +83,7 @@ public class EnhancedRegexParameterTest {
 
   @Test
   public void test() {
-    EnhancedRegexParameter regex = EnhancedRegexParameter.Descriptor.of("(openForWrite write{0,2} close){1,2} openForRead readLine{0,2} close")
+    EnhancedRegexParameter regex = EnhancedRegexParameter.Descriptor.of("(openForWrite write{0,2}((flush close)|close)){1,2} openForRead readLine{0,2} close")
         .describe(method("openForWrite")
             .parameter("filename", immediateValue("data.txt"), immediateValue("データ.txt"))
             .parameter("mode", immediateValuesFromEnum(FileHandle.Mode.class))

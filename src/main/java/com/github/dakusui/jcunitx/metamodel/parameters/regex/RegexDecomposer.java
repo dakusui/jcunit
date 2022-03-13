@@ -28,7 +28,7 @@ import static java.util.Objects.requireNonNull;
  * .Factors
  * ----
  * name: <REGEX:top:alt-4>:(VOID), [world], [WORLD]
- * name: <REGEX:top:rep-6>:(VOID), [(EMPTY)], [everyone]]
+ * name: <REGEX:top:rep-6>:(VOID), [(EMPTY)], [everyone]
  * name: <REGEX:top:cat-7>:[[hello], Reference:<REGEX:top:alt-4>, Reference:<REGEX:top:rep-6>]
  * ----
  *
