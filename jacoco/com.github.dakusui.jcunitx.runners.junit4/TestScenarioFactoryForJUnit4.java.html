@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestScenarioFactoryForJUnit4.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.runners.junit4</a> &gt; <span class="el_source">TestScenarioFactoryForJUnit4.java</span></div><h1>TestScenarioFactoryForJUnit4.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.runners.junit4;
+
+import com.github.dakusui.jcunitx.runners.core.NodeUtils;
+import com.github.dakusui.jcunitx.runners.core.TestInputPredicate;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.AfterTestCase;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.BeforeTestCase;
+import com.github.dakusui.jcunitx.runners.junit4.utils.InternalUtils;
+import com.github.dakusui.jcunitx.testsuite.TestInputConsumer;
+import com.github.dakusui.jcunitx.testsuite.TestOracle;
+import com.github.dakusui.jcunitx.testsuite.TestScenario;
+import org.junit.*;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
+
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.SortedMap;
+
+import static com.github.dakusui.jcunitx.runners.junit4.utils.InternalUtils.toTestOracle;
+import static java.util.stream.Collectors.toList;
+
+<span class="fc" id="L22">public enum TestScenarioFactoryForJUnit4 {</span>
+  ;
+
+  public static TestScenario create(TestClass testClass) {
+<span class="fc" id="L26">    SortedMap&lt;String, TestInputPredicate&gt; predicates = NodeUtils.allTestPredicates(testClass);</span>
+<span class="fc" id="L27">    return new TestScenario() {</span>
+      @Override
+      public List&lt;TestInputConsumer&gt; preSuiteProcedures() {
+<span class="fc" id="L30">        return toTestInputConsumer(testClass, BeforeClass.class);</span>
+      }
+
+      @Override
+      public List&lt;TestInputConsumer&gt; preTestInputProcedures() {
+<span class="fc" id="L35">        return toTestInputConsumer(testClass, BeforeTestCase.class);</span>
+      }
+
+      @Override
+      public List&lt;TestInputConsumer&gt; preOracleProcedures() {
+<span class="fc" id="L40">        return toTestInputConsumer(testClass, Before.class);</span>
+      }
+
+      @Override
+      public List&lt;TestOracle&gt; oracles() {
+<span class="fc" id="L45">        return testClass.getAnnotatedMethods(Test.class)</span>
+<span class="fc" id="L46">            .stream()</span>
+<span class="fc" id="L47">            .map((FrameworkMethod method) -&gt; toTestOracle(method, predicates))</span>
+<span class="fc" id="L48">            .collect(toList());</span>
+      }
+
+      @Override
+      public List&lt;TestInputConsumer&gt; postOracleProcedures() {
+<span class="fc" id="L53">        return toTestInputConsumer(testClass, After.class);</span>
+      }
+
+      @Override
+      public List&lt;TestInputConsumer&gt; postTestInputProcedures() {
+<span class="fc" id="L58">        return toTestInputConsumer(testClass, AfterTestCase.class);</span>
+      }
+
+      @Override
+      public List&lt;TestInputConsumer&gt; postSuiteProcedures() {
+<span class="fc" id="L63">        return toTestInputConsumer(testClass, AfterClass.class);</span>
+      }
+    };
+  }
+
+  private static List&lt;TestInputConsumer&gt; toTestInputConsumer(TestClass testClass, Class&lt;? extends Annotation&gt; annotationClass) {
+<span class="fc" id="L69">    return testClass.getAnnotatedMethods(annotationClass)</span>
+<span class="fc" id="L70">        .stream()</span>
+<span class="fc" id="L71">        .map(InternalUtils::toTupleConsumer)</span>
+<span class="fc" id="L72">        .collect(toList());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

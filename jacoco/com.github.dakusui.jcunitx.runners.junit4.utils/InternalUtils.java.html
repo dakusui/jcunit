@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InternalUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.runners.junit4.utils</a> &gt; <span class="el_source">InternalUtils.java</span></div><h1>InternalUtils.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.runners.junit4.utils;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.utils.Checks;
+import com.github.dakusui.jcunitx.runners.core.TestInputPredicate;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.AfterTestCase;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.BeforeTestCase;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.Given;
+import com.github.dakusui.jcunitx.testsuite.TestOracle;
+import com.github.dakusui.jcunitx.testsuite.TestInputConsumer;
+import org.junit.*;
+import org.junit.internal.runners.statements.RunAfters;
+import org.junit.internal.runners.statements.RunBefores;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
+
+import java.lang.annotation.Annotation;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.jcunitx.exceptions.TestDefinitionException.parameterWithoutAnnotation;
+import static com.github.dakusui.jcunitx.runners.core.NodeUtils.buildPredicate;
+import static java.lang.String.format;
+import static java.util.Arrays.stream;
+import static java.util.Collections.unmodifiableMap;
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
+
+<span class="fc" id="L33">public enum InternalUtils {</span>
+  ;
+<span class="fc" id="L35">  private static final Map&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt; PRIMITIVE_TO_WRAPPER = unmodifiableMap(new HashMap&lt;Class&lt;?&gt;, Class&lt;?&gt;&gt;() {{</span>
+<span class="fc" id="L36">    put(boolean.class, Boolean.class);</span>
+<span class="fc" id="L37">    put(byte.class, Byte.class);</span>
+<span class="fc" id="L38">    put(char.class, Character.class);</span>
+<span class="fc" id="L39">    put(double.class, Double.class);</span>
+<span class="fc" id="L40">    put(float.class, Float.class);</span>
+<span class="fc" id="L41">    put(int.class, Integer.class);</span>
+<span class="fc" id="L42">    put(long.class, Long.class);</span>
+<span class="fc" id="L43">    put(short.class, Short.class);</span>
+<span class="fc" id="L44">    put(void.class, Void.class);</span>
+<span class="fc" id="L45">  }});</span>
+
+  public static List&lt;String&gt; involvedParameters(TestClass testClass) {
+<span class="fc" id="L48">    return Stream.of(</span>
+        BeforeClass.class,
+        BeforeTestCase.class,
+        Before.class,
+        Test.class,
+        After.class,
+        AfterTestCase.class,
+        AfterClass.class
+<span class="fc" id="L56">    ).flatMap(</span>
+<span class="fc" id="L57">        annotationClass -&gt; testClass.getAnnotatedMethods(annotationClass).stream()</span>
+<span class="fc" id="L58">    ).flatMap(</span>
+<span class="fc" id="L59">        method -&gt; getParameterAnnotationsFrom(method, From.class).stream()</span>
+<span class="fc" id="L60">    ).map(</span>
+        From.class::cast
+<span class="fc" id="L62">    ).map(</span>
+        From::value
+<span class="fc" id="L64">    ).distinct(</span>
+<span class="fc" id="L65">    ).collect(</span>
+<span class="fc" id="L66">        toList()</span>
+    );
+  }
+
+  public static Object invokeExplosivelyWithArgumentsFromTestInput(FrameworkMethod method, AArray testInput) throws Throwable {
+<span class="fc" id="L71">    return method.invokeExplosively(</span>
+<span class="fc" id="L72">        testInput.get(&quot;@ins&quot;),</span>
+<span class="fc" id="L73">        validateArguments(</span>
+            method,
+<span class="fc" id="L75">            method.getMethod().getParameterTypes(),</span>
+<span class="fc" id="L76">            getParameterAnnotationsFrom(method, From.class).stream()</span>
+<span class="fc" id="L77">                .map(From::value)</span>
+<span class="fc" id="L78">                .map(testInput::get)</span>
+<span class="fc" id="L79">                .toArray()</span>
+        )
+    );
+  }
+
+  public static RunAfters createRunAftersForTestInput(Statement statement, List&lt;TestInputConsumer&gt; afters, AArray testInput) {
+<span class="fc" id="L85">    return new RunAfters(</span>
+        statement,
+<span class="fc" id="L87">        afters.stream().map(</span>
+<span class="fc" id="L88">            frameworkMethodInvokingArgumentsFromTestCase(testInput)</span>
+<span class="fc" id="L89">        ).collect(toList())</span>
+<span class="fc" id="L90">        , null) {</span>
+
+    };
+  }
+
+  public static RunBefores createRunBeforesForTestInput(Statement statement, List&lt;TestInputConsumer&gt; testInputConsumers, AArray testInput) {
+<span class="fc" id="L96">    return new RunBefores(</span>
+        statement,
+<span class="fc" id="L98">        testInputConsumers.stream()</span>
+<span class="fc" id="L99">            .map(frameworkMethodInvokingArgumentsFromTestCase(testInput))</span>
+<span class="fc" id="L100">            .collect(toList()),</span>
+        null
+    );
+  }
+
+  public static Function&lt;TestInputConsumer, FrameworkMethod&gt; frameworkMethodInvokingArgumentsFromTestCase(AArray testInput) {
+<span class="fc" id="L106">    return each -&gt; {</span>
+      try {
+<span class="fc" id="L108">        return new FrameworkMethod(InternalUtils.class.getMethod(&quot;frameworkMethodInvokingArgumentsFromTestCase&quot;, AArray.class)) {</span>
+          public Object invokeExplosively(final Object target, final Object... params) {
+<span class="fc" id="L110">            each.accept(testInput);</span>
+<span class="fc" id="L111">            return null;</span>
+          }
+        };
+<span class="nc" id="L114">      } catch (NoSuchMethodException | SecurityException e) {</span>
+<span class="nc" id="L115">        throw Checks.wrap(e);</span>
+      }
+    };
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  static public Object[] validateArguments(FrameworkMethod method, Class&lt;?&gt;[] parameterClasses, Object[] argumentValues) {
+    // we can assume parameterClasses.length == argumentValues.length
+<span class="fc bfc" id="L123" title="All 2 branches covered.">    for (int i = 0; i &lt; argumentValues.length; i++) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">      if (parameterClasses[i].isPrimitive()) {</span>
+<span class="fc bfc" id="L125" title="All 4 branches covered.">        if (argumentValues[i] == null || !PRIMITIVE_TO_WRAPPER.get(parameterClasses[i]).isAssignableFrom(argumentValues[i].getClass())) {</span>
+<span class="fc" id="L126">          throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));</span>
+        }
+      } else {
+<span class="fc bfc" id="L129" title="All 4 branches covered.">        if (argumentValues[i] != null &amp;&amp; !parameterClasses[i].isAssignableFrom(argumentValues[i].getClass())) {</span>
+<span class="fc" id="L130">          throw new IllegalArgumentException(composeErrorMessageForTypeMismatch(argumentValues[i], method, i));</span>
+        }
+      }
+    }
+<span class="fc" id="L134">    return argumentValues;</span>
+  }
+
+  static String composeErrorMessageForTypeMismatch(Object argumentValue, FrameworkMethod method, int parameterIndex) {
+<span class="fc" id="L138">    return String.format(&quot;'%s' is not compatible with parameter %s of '%s(%s)'&quot;,</span>
+        argumentValue,
+<span class="fc" id="L140">        parameterIndex,</span>
+<span class="fc" id="L141">        method.getName(),</span>
+<span class="fc" id="L142">        stream(method.getMethod().getParameterTypes())</span>
+<span class="fc" id="L143">            .map(Class::getSimpleName)</span>
+<span class="fc" id="L144">            .collect(joining(&quot;,&quot;))</span>
+    );
+  }
+
+  public static TestInputConsumer toTupleConsumer(FrameworkMethod method) {
+<span class="fc" id="L149">    return new TestInputConsumer() {</span>
+      @Override
+      public String getName() {
+<span class="nc" id="L152">        return method.getName();</span>
+      }
+
+      @Override
+      public void accept(AArray testInput) {
+        try {
+<span class="fc" id="L158">          InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, testInput);</span>
+<span class="nc" id="L159">        } catch (Throwable throwable) {</span>
+<span class="nc" id="L160">          throw Checks.wrap(throwable);</span>
+<span class="fc" id="L161">        }</span>
+<span class="fc" id="L162">      }</span>
+    };
+  }
+
+  public static TestOracle toTestOracle(FrameworkMethod method, SortedMap&lt;String, TestInputPredicate&gt; predicates) {
+<span class="fc" id="L167">    return new TestOracle() {</span>
+      @Override
+      public String getName() {
+<span class="fc" id="L170">        return method.getName();</span>
+      }
+
+      @Override
+      public Predicate&lt;AArray&gt; shouldInvoke() {
+<span class="fc" id="L175">        return InternalUtils.shouldInvoke(method, predicates);</span>
+      }
+
+      @Override
+      public Function&lt;AArray, Result&gt; when() {
+<span class="fc" id="L180">        return new Function&lt;AArray, Result&gt;() {</span>
+          @Override
+          public Result apply(AArray tuple) {
+            try {
+<span class="fc" id="L184">              return Result.returned(InternalUtils.invokeExplosivelyWithArgumentsFromTestInput(method, tuple));</span>
+<span class="fc" id="L185">            } catch (Throwable throwable) {</span>
+<span class="fc" id="L186">              return Result.thrown(throwable);</span>
+            }
+          }
+
+          @Override
+          public String toString() {
+<span class="nc" id="L192">            return method.getName();</span>
+          }
+        };
+      }
+
+      @Override
+      public Predicate&lt;Result&gt; then() {
+<span class="fc" id="L199">        return new Predicate&lt;Result&gt;() {</span>
+          @Override
+          public boolean test(Result result) {
+<span class="fc" id="L202">            Class&lt;? extends Throwable&gt; expectedExceptionClass = method.getAnnotation(Test.class).expected();</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">            if (expectedExceptionClass.equals(Test.None.class)) {</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">              if (Objects.equals(result.exitedWith(), Result.Exit.RETURNING_VALUE))</span>
+<span class="fc" id="L205">                return true;</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">              if (result.value() instanceof Error)</span>
+<span class="fc" id="L207">                throw (Error) result.value();</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">              if (result.value() instanceof RuntimeException)</span>
+<span class="fc" id="L209">                throw (RuntimeException) result.value();</span>
+<span class="nc" id="L210">              return false;</span>
+            } else {
+<span class="nc" id="L212">              return expectedExceptionClass.isAssignableFrom(result.value());</span>
+            }
+          }
+
+          @Override
+          public String toString() {
+<span class="nc" id="L218">            return String.format(&quot;thrown%s&quot;, method.getAnnotation(Test.class).expected().getSimpleName());</span>
+          }
+        };
+      }
+    };
+  }
+
+  public static Predicate&lt;AArray&gt; shouldInvoke(FrameworkMethod method, SortedMap&lt;String, TestInputPredicate&gt; predicates) {
+<span class="fc" id="L226">    return row -&gt; {</span>
+      //noinspection SimplifiableIfStatement
+<span class="fc bfc" id="L228" title="All 2 branches covered.">      if (method.getAnnotation(Given.class) == null)</span>
+<span class="fc" id="L229">        return true;</span>
+<span class="fc" id="L230">      return buildPredicate(method.getAnnotation(Given.class).value(), predicates).test(row);</span>
+    };
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;A extends Annotation&gt; List&lt;A&gt; getParameterAnnotationsFrom(FrameworkMethod method, Class&lt;A&gt; annotationClass) {
+<span class="fc" id="L236">    return Stream.of(method.getMethod().getParameterAnnotations())</span>
+<span class="fc" id="L237">        .map((Function&lt;Annotation[], List&lt;? extends Annotation&gt;&gt;) Arrays::asList)</span>
+<span class="fc" id="L238">        .map(</span>
+            (List&lt;? extends Annotation&gt; annotations) -&gt;
+<span class="fc" id="L240">                (A) annotations.stream()</span>
+<span class="fc" id="L241">                    .filter((Annotation eachAnnotation) -&gt; annotationClass.isAssignableFrom(eachAnnotation.getClass()))</span>
+<span class="fc" id="L242">                    .findFirst()</span>
+<span class="pc" id="L243">                    .orElseThrow(() -&gt; parameterWithoutAnnotation(formatFrameworkMethodName(method))))</span>
+<span class="fc" id="L244">        .collect(toList());</span>
+  }
+
+  private static String formatFrameworkMethodName(FrameworkMethod method) {
+<span class="fc" id="L248">    return format(&quot;%s.%s&quot;, method.getDeclaringClass().getCanonicalName(), method.getName());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

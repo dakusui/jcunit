@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Given.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.runners.junit4.annotations</a> &gt; <span class="el_source">Given.java</span></div><h1>Given.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.runners.junit4.annotations;
+
+import com.github.dakusui.jcunitx.runners.core.NodeUtils;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
+import org.junit.validator.AnnotationValidator;
+import org.junit.validator.ValidateWith;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
+import static java.lang.String.format;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+@Retention(RUNTIME)
+@Target(value = ElementType.METHOD)
+@ValidateWith(Given.Validator.class)
+public @interface Given {
+  String ALL_CONSTRAINTS = &quot;*&quot;;
+
+  /**
+   * Returns an array of method names within the same class this annotation is
+   * attached to.
+   *
+   * @return Names of all methods to that this annotation is attached.
+   */
+  String[] value() default { ALL_CONSTRAINTS };
+
+<span class="fc" id="L33">  class Validator extends AnnotationValidator {</span>
+    @Override
+    public List&lt;Exception&gt; validateAnnotatedMethod(FrameworkMethod method) {
+<span class="fc" id="L36">      return validate(method.getAnnotation(Given.class), new TestClass(method.getDeclaringClass()));</span>
+    }
+
+    static List&lt;Exception&gt; validate(Given instance, TestClass testClass) {
+<span class="fc" id="L40">      return new LinkedList&lt;Exception&gt;() {{</span>
+<span class="fc" id="L41">        NodeUtils.allLeaves(instance.value())</span>
+<span class="fc" id="L42">            .forEach((String s) -&gt; {</span>
+              // &quot;matches(helloWorld)@[a]&quot;
+<span class="fc bfc" id="L44" title="All 2 branches covered.">              if (!s.matches(&quot;[A-Za-z_$][A-Za-z0-9_$]*&quot;))</span>
+<span class="fc" id="L45">                add(new Exception(format(&quot;'%s' is not a valid condition name&quot;, s)));</span>
+              else {
+<span class="fc" id="L47">                if (testClass.getAnnotatedMethods(Condition.class).stream()</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">                    .noneMatch(frameworkMethod -&gt; Objects.equals(frameworkMethod.getName(), s)))</span>
+<span class="fc" id="L49">                  add(new Exception(format(&quot;'%s' was not found in '%s'&quot;, s, testClass.getJavaClass().getSimpleName())));</span>
+              }
+<span class="fc" id="L51">            });</span>
+<span class="fc" id="L52">      }};</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

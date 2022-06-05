@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Config.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.pipeline</a> &gt; <span class="el_source">Config.java</span></div><h1>Config.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.pipeline;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
+import com.github.dakusui.jcunitx.pipeline.stages.Encoder;
+import com.github.dakusui.jcunitx.pipeline.stages.Generator;
+import com.github.dakusui.jcunitx.pipeline.stages.Joiner;
+import com.github.dakusui.jcunitx.pipeline.stages.Partitioner;
+import com.github.dakusui.jcunitx.testsuite.SchemafulAArraySet;
+
+import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+
+import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+
+public interface Config {
+  Requirement getRequirement();
+
+  /**
+   * Returns a function that encodes a parameter space into internal factor spaces.
+   *
+   * @return A function that encodes a parameter space.
+   */
+  Function&lt;ParameterSpace, FactorSpace&gt; encoder();
+
+  Function&lt;FactorSpace, List&lt;FactorSpace&gt;&gt; partitioner();
+
+  Function&lt;FactorSpace, SchemafulAArraySet&gt; generator(ParameterSpace parameterSpace, Requirement requirement);
+
+  BinaryOperator&lt;SchemafulAArraySet&gt; joiner();
+
+  Function&lt;? super FactorSpace, ? extends FactorSpace&gt; optimizer();
+
+  class Builder {
+    private final Requirement       requirement;
+    private       Generator.Factory generatorFactory;
+    private       Joiner            joiner;
+    private       Partitioner       partitioner;
+
+    public static Builder forTuple(Requirement requirement) {
+<span class="fc" id="L47">      return new Builder(requirement);</span>
+    }
+
+<span class="fc" id="L50">    public Builder(Requirement requirement) {</span>
+<span class="fc" id="L51">      this.requirement = requirement;</span>
+<span class="fc" id="L52">      this.withJoiner(new Joiner.Standard(requirement))</span>
+<span class="fc" id="L53">          .withPartitioner(new Partitioner.Standard(requirement))</span>
+<span class="fc" id="L54">          .withGeneratorFactory(new Generator.Factory.Standard());</span>
+<span class="fc" id="L55">    }</span>
+
+    public Builder withGeneratorFactory(Generator.Factory generatorFactory) {
+<span class="fc" id="L58">      this.generatorFactory = generatorFactory;</span>
+<span class="fc" id="L59">      return this;</span>
+    }
+
+    public Builder withJoiner(Joiner joiner) {
+<span class="fc" id="L63">      this.joiner = joiner;</span>
+<span class="fc" id="L64">      return this;</span>
+    }
+
+    public Builder withPartitioner(Partitioner partitioner) {
+<span class="fc" id="L68">      this.partitioner = partitioner;</span>
+<span class="fc" id="L69">      return this;</span>
+    }
+
+    public Config build() {
+<span class="fc" id="L73">      return new Impl(requirement, generatorFactory, joiner, partitioner);</span>
+    }
+  }
+
+  class Impl implements Config {
+    private final Generator.Factory generatorFactory;
+    private final Joiner            joiner;
+    private final Partitioner       partitioner;
+    private final Requirement       requirement;
+    private final Encoder           encoder;
+
+<span class="fc" id="L84">    public Impl(Requirement requirement, Generator.Factory generatorFactory, Joiner joiner, Partitioner partitioner) {</span>
+<span class="fc" id="L85">      this.generatorFactory = requireNonNull(generatorFactory);</span>
+<span class="fc" id="L86">      this.encoder = new Encoder.Standard();</span>
+<span class="fc" id="L87">      this.joiner = requireNonNull(joiner);</span>
+<span class="fc" id="L88">      this.partitioner = requireNonNull(partitioner);</span>
+<span class="fc" id="L89">      this.requirement = requireNonNull(requirement);</span>
+<span class="fc" id="L90">    }</span>
+
+    @Override
+    public Function&lt;ParameterSpace, FactorSpace&gt; encoder() {
+<span class="fc" id="L94">      return this.encoder;</span>
+    }
+
+    @Override
+    public Function&lt;FactorSpace, List&lt;FactorSpace&gt;&gt; partitioner() {
+<span class="fc" id="L99">      return partitioner;</span>
+    }
+
+    @Override
+    public Function&lt;FactorSpace, SchemafulAArraySet&gt; generator(ParameterSpace parameterSpace, Requirement requirement) {
+<span class="fc" id="L104">      return (FactorSpace factorSpace) -&gt; new SchemafulAArraySet.Builder(</span>
+<span class="fc" id="L105">          factorSpace.getFactors().stream(</span>
+<span class="fc" id="L106">          ).map(</span>
+              Factor::getName
+<span class="fc" id="L108">          ).collect(</span>
+<span class="fc" id="L109">              toList()</span>
+          )
+<span class="fc" id="L111">      ).addAll(</span>
+<span class="fc" id="L112">          generatorFactory.create(</span>
+              factorSpace,
+              requirement,
+<span class="fc" id="L115">              ParameterSpace.encodeSeeds(parameterSpace, requirement.seeds())</span>
+<span class="fc" id="L116">          ).generate()</span>
+<span class="fc" id="L117">      ).build();</span>
+    }
+
+    @Override
+    public BinaryOperator&lt;SchemafulAArraySet&gt; joiner() {
+<span class="fc" id="L122">      return joiner;</span>
+    }
+
+    @Override
+    public Requirement getRequirement() {
+<span class="fc" id="L127">      return requirement;</span>
+    }
+
+    /**
+     * Returns a function that removes levels that cannot be valid because single
+     * parameter constraints invalidate them.
+     */
+    @Override
+    public Function&lt;? super FactorSpace, ? extends FactorSpace&gt; optimizer() {
+<span class="fc" id="L136">      return (FactorSpace factorSpace) -&gt; FactorSpace.create(</span>
+<span class="fc" id="L137">          factorSpace.getFactors().stream()</span>
+<span class="fc" id="L138">              .map(</span>
+<span class="fc" id="L139">                  (Factor factor) -&gt; Factor.create(</span>
+<span class="fc" id="L140">                      factor.getName(),</span>
+<span class="fc" id="L141">                      factor.getLevels()</span>
+<span class="fc" id="L142">                          .stream()</span>
+<span class="fc" id="L143">                          .filter(</span>
+<span class="fc" id="L144">                              (Object o) -&gt; factorSpace.getConstraints()</span>
+<span class="fc" id="L145">                                  .stream()</span>
+<span class="fc" id="L146">                                  .filter((Constraint constraint) -&gt; singletonList(factor.getName()).equals(constraint.involvedKeys()))</span>
+<span class="fc" id="L147">                                  .allMatch((Constraint constraint) -&gt; constraint.test(new AArray.Builder().put(factor.getName(), o).build()))</span>
+                          )
+<span class="fc" id="L149">                          .collect(toList()).toArray()</span>
+                  ))
+<span class="fc" id="L151">              .collect(toList()),</span>
+<span class="fc" id="L152">          factorSpace.getConstraints().stream()</span>
+<span class="fc" id="L153">              .filter(</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">                  (Constraint constraint) -&gt; constraint.involvedKeys().size() &gt; 1</span>
+              )
+<span class="fc" id="L156">              .collect(toList())</span>
+      );
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Checks.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.utils</a> &gt; <span class="el_source">Checks.java</span></div><h1>Checks.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.utils;
+
+import com.github.dakusui.jcunitx.exceptions.InvalidTestException;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.joining;
+
+/**
+ * This class provides static methods each of which tests a given object/condition
+ * and throws an appropriate exception in case it is {@code null} or {@code false}.
+ * &lt;p/&gt;
+ * The methods of this class are similar to ones in {@code Precondition} class of Guava.
+ * &lt;p/&gt;
+ * This utility class is introduced because JCUnit should create dependencies on
+ * external libraries as less as possible in order not to prevent users from using
+ * any version of any libraries,
+ */
+<span class="fc" id="L21">public enum Checks {</span>
+  ;
+
+  /**
+   * Checks if the given {@code obj} is {@code null} or not.
+   * If it is, a {@code NullPointerException} will be thrown.
+   * &lt;p/&gt;
+   * A call of this method is equivalent to {@code checknotnull(obj, null)}.
+   *
+   * @param obj A variable to be checked.
+   * @param &lt;T&gt; The type of {@code obj}
+   * @return {@code obj} itself
+   */
+  public static &lt;T&gt; T checknotnull(T obj) {
+<span class="fc" id="L35">    checknotnull(obj, null);</span>
+<span class="fc" id="L36">    return obj;</span>
+  }
+
+  /**
+   * Checks if the given {@code obj} is {@code null} or not.
+   * If it is, a {@code NullPointerException} will be thrown.
+   * &lt;p/&gt;
+   * A message given to the thrown exception will be composed as follows.
+   * &lt;p/&gt;
+   * If {@code msgOrFmt} is non-null value,
+   * &lt;pre&gt;
+   *   String.describeExpectation(msgOrFmt, args)
+   * &lt;/pre&gt;
+   * If {@code msgOrFmt} is {@code null} and {@code args}'s length is greater than 0,
+   * the exception message will be created automatically but become
+   * less understandable.
+   * &lt;p/&gt;
+   * And if {@code msgOrFmt} is {@code null} and {@code args}'s length is 0, no message
+   * will be set to the exception.
+   * &lt;p/&gt;
+   * This method should be used for values which shouldn't be {@code null} unless
+   * there is a framework bug.
+   *
+   * @param obj      A variable to be checked.
+   * @param &lt;T&gt;      The type of {@code obj}
+   * @param msgOrFmt The string used for the first parameter of {@code String.describeExpectation}.
+   * @param args     The arguments used for the second and the latter parameters of {@code String.describeExpectation}.
+   * @return {@code obj} itself
+   */
+  public static &lt;T&gt; T checknotnull(T obj, String msgOrFmt, Object... args) {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">    if (obj == null) {</span>
+<span class="nc" id="L67">      throw new NullPointerException(composeMessage(msgOrFmt, args));</span>
+    }
+<span class="fc" id="L69">    return obj;</span>
+  }
+
+  public static void checkcond(boolean b) {
+<span class="fc" id="L73">    checkcond(b, null);</span>
+<span class="fc" id="L74">  }</span>
+
+  public static void checkcond(boolean b, String msgOrFmt, Object... args) {
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">    if (!b) {</span>
+<span class="nc" id="L78">      throw new IllegalStateException(composeMessage(msgOrFmt, args));</span>
+    }
+<span class="fc" id="L80">  }</span>
+
+  /**
+   * Wraps a given exception wrapping by a {@code JCUnitException}, which
+   * is a runtime exception.
+   *
+   * @param e        An exception to be re-thrown.
+   * @param msgOrFmt A message or a message describeExpectation.
+   * @param args     Arguments to be embedded in {@code msg}.
+   */
+  public static RuntimeException wrap(Throwable e, String msgOrFmt, Object... args) {
+<span class="nc" id="L91">    throw new InvalidTestException(composeMessage(msgOrFmt, args), e);</span>
+  }
+
+  /**
+   * Wraps a given exception wrapping by a {@code JCUnitException}, which
+   * is a runtime exception.
+   *
+   * @param e An exception to be re-thrown.
+   */
+  public static RuntimeException wrap(Throwable e) {
+<span class="nc" id="L101">    throw wrap(e, e.getMessage());</span>
+  }
+
+  public static String composeMessage(String msgOrFmt, Object... args) {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">    if (msgOrFmt != null)</span>
+<span class="nc" id="L106">      return format(msgOrFmt, args);</span>
+<span class="nc" id="L107">    return format(&quot;Message:'%s'&quot;, Arrays.stream(args).map(Objects::toString).collect(joining(&quot;,&quot;)));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestDefinitionException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.exceptions</a> &gt; <span class="el_source">TestDefinitionException.java</span></div><h1>TestDefinitionException.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.exceptions;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+
+import java.util.List;
+
+import static java.lang.String.format;
+
+/**
+ * Hello world.
+ *
+ * Indicates user's artifact (Typically a test class, annotated with `@RunWith(JCUnit8.class)`), is invalid.
+ *
+ * [ditaa]
+ * ----
+ * +-----+      +-----+
+ * |hello|&lt;&gt;---&gt;|world|
+ * +-----+      +-----+
+ * ----
+ */
+public class TestDefinitionException extends BaseException {
+  private TestDefinitionException(String message) {
+<span class="fc" id="L24">    super(message);</span>
+<span class="fc" id="L25">  }</span>
+
+  /**
+   * Creates an instance of this class.
+   *
+   * @param message An error message
+   * @param e A nested exception
+   */
+  private TestDefinitionException(String message, Throwable e) {
+<span class="nc" id="L34">    super(message, e);</span>
+<span class="nc" id="L35">  }</span>
+
+  public static TestDefinitionException wrap(Throwable t) {
+<span class="nc" id="L38">    throw new TestDefinitionException(format(&quot;Test definition is not valid: %s&quot;, t.getMessage()), t);</span>
+  }
+
+  public static TestDefinitionException impossibleConstraint(List&lt;Constraint&gt; constraints) {
+<span class="nc" id="L42">    throw new TestDefinitionException(format(&quot;Constraints '%s' did not become true.&quot;, constraints));</span>
+  }
+
+  public static TestDefinitionException failedToCover(String factorName, List&lt;Object&gt; factorLevels, AArray tuple) {
+<span class="nc" id="L46">    throw new TestDefinitionException(format(&quot;Factor '%s' doesn't have any valid level '%s' for tuple '%s'&quot;, factorName, factorLevels, tuple));</span>
+  }
+
+  public static TestDefinitionException parameterWithoutAnnotation(String methodName) {
+<span class="fc" id="L50">    throw new TestDefinitionException(String.format(&quot;Method parameter not annotated with @From is found at '%s'&quot;, methodName));</span>
+  }
+
+  public static TestDefinitionException noParameterFound() {
+<span class="fc" id="L54">    throw new TestDefinitionException(&quot;No parameter is found.&quot;);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

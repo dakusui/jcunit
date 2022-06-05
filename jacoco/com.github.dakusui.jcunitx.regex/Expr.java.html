@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Expr.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.regex</a> &gt; <span class="el_source">Expr.java</span></div><h1>Expr.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.regex;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+
+public interface Expr {
+  void accept(Visitor visitor);
+
+  String id();
+
+<span class="fc" id="L15">  enum Utils {</span>
+    ;
+
+    static String str(Object value) {
+<span class="pc bpc" id="L19" title="1 of 2 branches missed.">      return value == null ?</span>
+          null :
+<span class="fc" id="L21">          value.toString();</span>
+    }
+  }
+
+  abstract class Base implements Expr {
+    private final String id;
+
+<span class="fc" id="L28">    Base(AtomicInteger counter) {</span>
+<span class="fc" id="L29">      this.id = composeId(counter);</span>
+<span class="fc" id="L30">    }</span>
+
+    String composeId(AtomicInteger counter) {
+<span class="fc" id="L33">      return format(&quot;%s-%d&quot;, composeName(), counter.getAndIncrement());</span>
+    }
+
+    String composeName() {
+<span class="fc" id="L37">      return this.getClass().getSimpleName().toLowerCase();</span>
+    }
+
+    public String id() {
+<span class="fc" id="L41">      return id;</span>
+    }
+  }
+
+  class Empty extends Base implements Expr {
+<span class="fc" id="L46">    static Empty INSTANCE = new Empty(new AtomicInteger(0));</span>
+
+    Empty(AtomicInteger counter) {
+<span class="fc" id="L49">      super(counter);</span>
+<span class="fc" id="L50">    }</span>
+
+    @Override
+    public void accept(Visitor visitor) {
+<span class="fc" id="L54">      visitor.visit(this);</span>
+<span class="fc" id="L55">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L59">      return &quot;&quot;;</span>
+    }
+  }
+
+  class Leaf extends Base implements Expr {
+    private final Object value;
+
+    Leaf(AtomicInteger counter, Object value) {
+<span class="fc" id="L67">      super(counter);</span>
+<span class="fc" id="L68">      this.value = value;</span>
+<span class="fc" id="L69">    }</span>
+
+    public void accept(Visitor visitor) {
+<span class="fc" id="L72">      visitor.visit(this);</span>
+<span class="fc" id="L73">    }</span>
+
+    public Object value() {
+<span class="fc" id="L76">      return this.value;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L81">      return Utils.str(this.value());</span>
+    }
+  }
+
+  /**
+   * Concatenation of elements.
+   */
+  class Cat extends Composite implements Expr {
+    Cat(AtomicInteger counter, List&lt;Expr&gt; children) {
+<span class="fc" id="L90">      super(counter, children);</span>
+<span class="fc" id="L91">    }</span>
+
+    public void accept(Visitor visitor) {
+<span class="fc" id="L94">      visitor.visit(this);</span>
+<span class="fc" id="L95">    }</span>
+  }
+
+  /**
+   * Alternative of elements.
+   */
+  class Alt extends Composite implements Expr {
+    Alt(AtomicInteger counter, List&lt;Expr&gt; children) {
+<span class="fc" id="L103">      super(counter, children);</span>
+<span class="fc" id="L104">    }</span>
+
+    public void accept(Visitor visitor) {
+<span class="fc" id="L107">      visitor.visit(this);</span>
+<span class="fc" id="L108">    }</span>
+  }
+
+
+  /**
+   * Repetition of elements
+   */
+  class Rep extends Alt {
+<span class="fc" id="L116">    private static final Expr EMPTY = Empty.INSTANCE;</span>
+    private final        int  min;
+    private final        int  max;
+
+    Rep(AtomicInteger counter, Expr child, int min, int max) {
+<span class="fc" id="L121">      super(counter, createChildren(counter, child, min, max));</span>
+<span class="fc" id="L122">      this.min = min;</span>
+<span class="fc" id="L123">      this.max = max;</span>
+<span class="fc" id="L124">    }</span>
+
+    public String name() {
+<span class="fc" id="L127">      return format(&quot;%s{%s,%s}&quot;, super.name(), this.min, this.max);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L132">      return name();</span>
+    }
+
+    private static List&lt;Expr&gt; createChildren(AtomicInteger counter, Expr child, int min, int max) {
+<span class="fc" id="L136">      List&lt;Expr&gt; ret = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">      for (int i = min; i &lt;= max; i++) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (i == 0) {</span>
+<span class="fc" id="L139">          ret.add(EMPTY);</span>
+        } else {
+<span class="fc" id="L141">          List&lt;Expr&gt; work = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">          for (int j = 0; j &lt; min; j++) {</span>
+<span class="fc" id="L143">            work.add(child);</span>
+          }
+<span class="fc bfc" id="L145" title="All 2 branches covered.">          for (int j = min; j &lt; i; j++) {</span>
+<span class="fc" id="L146">            work.add(cloneIfAlt(counter, child));</span>
+          }
+<span class="fc" id="L148">          ret.add(</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">              work.size() == 1 ?</span>
+<span class="fc" id="L150">                  work.get(0) :</span>
+                  new Cat(counter, work)
+          );
+        }
+      }
+<span class="fc" id="L155">      return ret;</span>
+    }
+
+    private static Expr cloneIfAlt(final AtomicInteger counter, Expr cur) {
+<span class="fc bfc" id="L159" title="All 2 branches covered.">      if (cur instanceof Alt) {</span>
+<span class="fc" id="L160">        return new Alt(counter, ((Alt) cur).getChildren().stream().map(in -&gt; cloneIfAlt(counter, in)).collect(toList()));</span>
+      }
+<span class="fc" id="L162">      return cur;</span>
+    }
+  }
+
+  abstract class Composite extends Base implements Expr {
+    private final List&lt;Expr&gt; children;
+
+    Composite(AtomicInteger counter, List&lt;Expr&gt; children) {
+<span class="fc" id="L170">      super(counter);</span>
+<span class="fc" id="L171">      this.children = children;</span>
+<span class="fc" id="L172">    }</span>
+
+    public List&lt;Expr&gt; getChildren() {
+<span class="fc" id="L175">      return this.children;</span>
+    }
+
+    public String toString() {
+<span class="nc" id="L179">      return format(&quot;%s:%s&quot;, name(), this.getChildren());</span>
+    }
+
+    public String name() {
+<span class="fc" id="L183">      return this.getClass().getSimpleName().toLowerCase();</span>
+    }
+  }
+
+  interface Visitor {
+    void visit(Alt exp);
+
+    void visit(Cat exp);
+
+    void visit(Leaf leaf);
+
+    void visit(Empty empty);
+  }
+
+  class Factory {
+    private final AtomicInteger counter;
+
+<span class="fc" id="L200">    public Factory() {</span>
+<span class="fc" id="L201">      this.counter = new AtomicInteger(1);</span>
+<span class="fc" id="L202">    }</span>
+
+    Expr leaf(Object value) {
+<span class="fc" id="L205">      return new Leaf(counter, value);</span>
+    }
+
+    Expr cat(List&lt;Expr&gt; exps) {
+<span class="fc" id="L209">      return new Cat(this.counter, exps.stream().map(in -&gt; {</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        if (in != null) {</span>
+<span class="fc" id="L211">          return in;</span>
+        }
+<span class="nc" id="L213">        return new Leaf(counter, in);</span>
+<span class="fc" id="L214">      }).collect(toList()));</span>
+    }
+
+    Expr alt(List&lt;Expr&gt; exps) {
+<span class="fc" id="L218">      return new Alt(counter, exps.stream().map(in -&gt; {</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        if (in != null) {</span>
+<span class="fc" id="L220">          return in;</span>
+        }
+<span class="nc" id="L222">        return new Leaf(counter, in);</span>
+<span class="fc" id="L223">      }).collect(toList()));</span>
+    }
+
+    Expr rep(Object exp, int min, int max) {
+<span class="pc bpc" id="L227" title="1 of 2 branches missed.">      return new Rep(counter, exp instanceof Expr ? (Expr) exp : new Leaf(counter, exp), min, max);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

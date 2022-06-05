@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AArray.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.core</a> &gt; <span class="el_source">AArray.java</span></div><h1>AArray.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.core;
+
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
+
+import static com.github.dakusui.pcond.Assertions.that;
+import static com.github.dakusui.pcond.functions.Predicates.isNotNull;
+import static java.util.Arrays.asList;
+
+/**
+ * An associative-array for JCUnit's internal data structure.
+ *
+ * This class was re-named from `Tuple` to `Aarray`, because the class was used both for tuples and rows.
+ */
+public interface AArray extends Map&lt;String, Object&gt;, Cloneable, Serializable {
+<span class="fc" id="L19">  class Builder {</span>
+<span class="fc" id="L20">    LinkedHashMap&lt;String, Object&gt; attrs = new LinkedHashMap&lt;&gt;();</span>
+
+    public Builder put(String k, Object v) {
+<span class="fc" id="L23">      this.attrs.put(k, v);</span>
+<span class="fc" id="L24">      return this;</span>
+    }
+
+    public Builder putAll(Map&lt;String, Object&gt; map) {
+<span class="fc" id="L28">      this.attrs.putAll(map);</span>
+<span class="fc" id="L29">      return this;</span>
+    }
+
+    public Builder putRegex(String k, String... elements) {
+<span class="fc" id="L33">      this.attrs.put(</span>
+          k,
+<span class="fc" id="L35">          asList(elements)</span>
+      );
+<span class="fc" id="L37">      return this;</span>
+    }
+
+    public AArray build() {
+<span class="fc" id="L41">      AArray ret = new Impl();</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">      for (String k : this.attrs.keySet()) {</span>
+<span class="fc" id="L43">        ret.put(k, this.attrs.get(k));</span>
+<span class="fc" id="L44">      }</span>
+<span class="fc" id="L45">      AArray sorted = new Sorted();</span>
+<span class="fc" id="L46">      sorted.putAll(ret);</span>
+<span class="fc" id="L47">      ret = sorted;</span>
+<span class="fc" id="L48">      return ret;</span>
+    }
+  }
+
+  boolean isContainedBy(AArray another);
+
+  static Builder builder() {
+<span class="fc" id="L55">    return new Builder();</span>
+  }
+
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">  enum Utils {</span>
+    ;
+
+    static boolean isSubAarrayOf(AArray a, AArray b) {
+<span class="pc bpc" id="L62" title="2 of 4 branches missed.">      assert that(a, isNotNull());</span>
+<span class="pc bpc" id="L63" title="2 of 4 branches missed.">      assert that(b, isNotNull());</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">      if (!b.keySet().containsAll(a.keySet())) {</span>
+<span class="nc" id="L65">        return false;</span>
+      }
+<span class="fc bfc" id="L67" title="All 2 branches covered.">      for (String k : a.keySet()) {</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">        if (!Objects.equals(a.get(k), b.get(k))) {</span>
+<span class="fc" id="L69">          return false;</span>
+        }
+<span class="fc" id="L71">      }</span>
+<span class="fc" id="L72">      return true;</span>
+    }
+
+  }
+
+<span class="fc" id="L77">  class Impl extends LinkedHashMap&lt;String, Object&gt; implements AArray {</span>
+    @Override
+    public boolean isContainedBy(AArray another) {
+<span class="nc" id="L80">      return Utils.isSubAarrayOf(this, another);</span>
+    }
+  }
+
+<span class="fc" id="L84">  class Sorted extends TreeMap&lt;String, Object&gt; implements AArray {</span>
+    @Override
+    public boolean isContainedBy(AArray another) {
+<span class="fc" id="L87">      return Utils.isSubAarrayOf(this, another);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

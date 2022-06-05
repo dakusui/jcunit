@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegexTranslator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.regex</a> &gt; <span class="el_source">RegexTranslator.java</span></div><h1>RegexTranslator.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.regex;
+
+import java.util.*;
+
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
+
+public abstract class RegexTranslator implements Expr.Visitor {
+  /**
+   * A mapping from factor names to terms held by composite (alt/cat) expressions.
+   */
+  public final    Map&lt;String, List&lt;Value&gt;&gt; terms;
+  protected final Expr                     topLevelExpression;
+  private final   String                   prefix;
+  protected       Context                  context;
+
+<span class="fc" id="L18">  public RegexTranslator(Expr topLevelExpression, String prefix) {</span>
+<span class="fc" id="L19">    this.topLevelExpression = topLevelExpression;</span>
+<span class="fc" id="L20">    this.prefix = prefix;</span>
+<span class="fc" id="L21">    this.context = new Context.Impl(this.prefix, null);</span>
+<span class="fc" id="L22">    this.terms = new LinkedHashMap&lt;&gt;();</span>
+<span class="fc" id="L23">  }</span>
+
+  public static String composeKey(String prefix, String id) {
+<span class="fc" id="L26">    return format(&quot;REGEX:%s:%s&quot;, prefix, id);</span>
+  }
+
+  @Override
+  public void visit(Expr.Alt expr) {
+<span class="fc" id="L31">    Context original = this.context;</span>
+<span class="fc" id="L32">    original.add(expr);</span>
+<span class="fc" id="L33">    this.context = createContext(expr.id());</span>
+    try {
+<span class="fc bfc" id="L35" title="All 2 branches covered.">      for (Expr each : expr.getChildren()) {</span>
+<span class="fc" id="L36">        each.accept(this);</span>
+<span class="fc" id="L37">      }</span>
+    } finally {
+<span class="fc" id="L39">      this.terms.put(composeKey(this.prefix, this.context.name()), this.context.values());</span>
+<span class="fc" id="L40">      this.context = original;</span>
+    }
+<span class="fc" id="L42">  }</span>
+
+  @Override
+  public void visit(Expr.Cat expr) {
+<span class="fc" id="L46">    Context original = this.context;</span>
+<span class="fc" id="L47">    original.add(expr);</span>
+<span class="fc" id="L48">    this.context = createContext(expr.id());</span>
+    try {
+<span class="fc bfc" id="L50" title="All 2 branches covered.">      for (Expr each : expr.getChildren()) {</span>
+<span class="fc" id="L51">        each.accept(this);</span>
+<span class="fc" id="L52">      }</span>
+    } finally {
+<span class="fc" id="L54">      this.terms.put(composeKey(this.prefix, this.context.name()), this.context.values());</span>
+<span class="fc" id="L55">      this.context = original;</span>
+    }
+<span class="fc" id="L57">  }</span>
+
+  @Override
+  public void visit(Expr.Leaf leaf) {
+<span class="fc" id="L61">    this.context.add(leaf);</span>
+<span class="fc" id="L62">  }</span>
+
+  @Override
+  public void visit(Expr.Empty empty) {
+<span class="fc" id="L66">    this.context.add(empty);</span>
+<span class="fc" id="L67">  }</span>
+
+  protected boolean isTopLevel(String eachKey) {
+<span class="fc" id="L70">    return composeKey(this.prefix, this.topLevelExpression.id()).equals(eachKey);</span>
+  }
+
+  private Context createContext(String factorName) {
+<span class="fc" id="L74">    return new Context.Impl(this.prefix, factorName);</span>
+  }
+
+  protected boolean isAlt(String key) {
+<span class="fc bfc" id="L78" title="All 2 branches covered.">    return key.startsWith(&quot;REGEX:&quot; + this.prefix + &quot;:alt-&quot;) ||</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        key.startsWith(&quot;REGEX:&quot; + this.prefix + &quot;:rep-&quot;);</span>
+  }
+
+  protected boolean isReferencedByAltDirectlyOrIndirectly(final String key) {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">    for (Map.Entry&lt;String, List&lt;Value&gt;&gt; each : this.terms.entrySet()) {</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">      if (isAlt(each.getKey())) {</span>
+<span class="fc bfc" id="L85" title="All 6 branches covered.">        if (each.getValue().stream().anyMatch(in -&gt; in instanceof Reference &amp;&amp; ((Reference) in).key.equals(key))) {</span>
+<span class="fc" id="L86">          return true;</span>
+        }
+      }
+<span class="fc" id="L89">    }</span>
+<span class="fc" id="L90">    return false;</span>
+  }
+
+  protected List&lt;Object&gt; resolveIfImmediate(Value value) {
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    if (value instanceof Immediate)</span>
+<span class="fc" id="L95">      return resolveImmediate(value);</span>
+<span class="fc" id="L96">    return singletonList(value);</span>
+  }
+
+  protected List&lt;Object&gt; resolve(Value value) {
+<span class="fc" id="L100">    return resolve(new LinkedList&lt;&gt;(), value);</span>
+  }
+
+  private List&lt;Object&gt; resolveImmediate(Value value) {
+<span class="fc" id="L104">    return Arrays.stream(((Immediate) value).value.toString().split(&quot; +&quot;))</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        .filter(each -&gt; !&quot;&quot;.equals(each))</span>
+<span class="fc" id="L106">        .collect(toList());</span>
+  }
+
+  private List&lt;Object&gt; resolve(List&lt;Object&gt; values, Value value) {
+<span class="fc bfc" id="L110" title="All 2 branches covered.">    if (value instanceof Immediate) {</span>
+<span class="fc" id="L111">      values.add(resolveImmediate(value));</span>
+    } else {
+<span class="fc" id="L113">      String key = ((Reference) value).key;</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">      if (isCat(key)) {</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        for (Value each : this.terms.get(key)) {</span>
+<span class="fc" id="L116">          resolve(values, each);</span>
+<span class="fc" id="L117">        }</span>
+      } else {
+<span class="fc" id="L119">        values.add(value);</span>
+      }
+    }
+<span class="fc" id="L122">    return values;</span>
+  }
+
+  private boolean isCat(String key) {
+<span class="fc" id="L126">    return key.startsWith(&quot;REGEX:&quot; + this.prefix + &quot;:cat-&quot;);</span>
+  }
+
+  interface Context {
+    void add(Expr value);
+
+    List&lt;Value&gt; values();
+
+    String name();
+
+    class Impl implements Context {
+      final List&lt;Value&gt; seq;
+
+      final         String name;
+      private final String prefix;
+
+<span class="fc" id="L142">      Impl(String prefix, String name) {</span>
+<span class="fc" id="L143">        this.prefix = prefix;</span>
+<span class="fc" id="L144">        this.name = name;</span>
+<span class="fc" id="L145">        this.seq = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L146">      }</span>
+
+      Value toValue(Expr expr) {
+        Value value;
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        if (expr instanceof Expr.Leaf) {</span>
+<span class="fc" id="L151">          value = new Immediate(((Expr.Leaf) expr).value());</span>
+        } else {
+<span class="fc" id="L153">          value = new Reference(composeKey(this.prefix, expr.id()));</span>
+        }
+<span class="fc" id="L155">        return value;</span>
+      }
+
+      @Override
+      public List&lt;Value&gt; values() {
+<span class="fc" id="L160">        return this.seq;</span>
+      }
+
+      public String name() {
+<span class="fc" id="L164">        return this.name;</span>
+      }
+
+      public void add(Expr expr) {
+<span class="fc" id="L168">        this.seq.add(toValue(expr));</span>
+<span class="fc" id="L169">      }</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

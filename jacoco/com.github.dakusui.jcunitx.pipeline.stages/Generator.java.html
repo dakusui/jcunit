@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Generator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.pipeline.stages</a> &gt; <span class="el_source">Generator.java</span></div><h1>Generator.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.pipeline.stages;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.utils.Utils;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.pipeline.Requirement;
+import com.github.dakusui.jcunitx.pipeline.stages.generators.Cartesian;
+import com.github.dakusui.jcunitx.pipeline.stages.generators.IpoGplus;
+
+import java.util.Collections;
+import java.util.List;
+
+/**
+ */
+public interface Generator {
+<span class="fc" id="L16">  Object DontCare = new Object() {</span>
+    @Override
+    public final String toString() {
+<span class="nc" id="L19">      return &quot;D/C&quot;;</span>
+    }
+  };
+<span class="fc" id="L22">  Object VOID     = new Object() {</span>
+    @Override
+    public final String toString() {
+<span class="fc" id="L25">      return &quot;(VOID)&quot;;</span>
+    }
+  };
+
+  List&lt;AArray&gt; generate();
+
+  abstract class Base implements Generator {
+    protected final FactorSpace factorSpace;
+    protected final Requirement requirement;
+
+<span class="fc" id="L35">    protected Base(FactorSpace factorSpace, Requirement requirement) {</span>
+<span class="fc" id="L36">      this.factorSpace = factorSpace;</span>
+<span class="fc" id="L37">      this.requirement = requirement;</span>
+<span class="fc" id="L38">    }</span>
+
+    public final List&lt;AArray&gt; generate() {
+<span class="fc" id="L41">      this.validate();</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">      if (this.factorSpace.getFactors().stream().anyMatch(each -&gt; each.getLevels().isEmpty()))</span>
+<span class="fc" id="L43">        return Collections.emptyList();</span>
+<span class="fc" id="L44">      return Utils.unique(generateCore());</span>
+    }
+
+    protected void validate() {
+<span class="fc" id="L48">    }</span>
+
+    protected abstract List&lt;AArray&gt; generateCore();
+  }
+
+  interface Factory {
+    Generator create(FactorSpace factorSpace, Requirement requirement, List&lt;AArray&gt; encodedSeeds);
+
+<span class="fc" id="L56">    class Standard implements Factory {</span>
+      @Override
+      public Generator create(FactorSpace factorSpace, Requirement requirement, List&lt;AArray&gt; encodedSeeds) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (requirement.strength() &lt; factorSpace.getFactors().size()) {</span>
+<span class="fc" id="L60">          return new IpoGplus(factorSpace, requirement, encodedSeeds);</span>
+        }
+<span class="fc" id="L62">        return new Cartesian(factorSpace, requirement);</span>
+      }
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

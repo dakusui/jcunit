@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleParameter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.metamodel.parameters</a> &gt; <span class="el_source">SimpleParameter.java</span></div><h1>SimpleParameter.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.metamodel.parameters;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.metamodel.Parameter;
+
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+
+/**
+ * A simple parameter, which holds several possible values defined by &quot;equivalence partitioning&quot;.
+ * This directly corresponds to an entity called &quot;factor&quot; in the combinatorial interaction testing terminology.
+ *
+ * @param &lt;T&gt; The type of values.
+ */
+public interface SimpleParameter&lt;T&gt; extends Parameter&lt;T&gt; {
+  class Impl&lt;T&gt; extends Base&lt;T&gt; implements SimpleParameter&lt;T&gt; {
+    final Factor factor;
+
+    public Impl(String name, SimpleParameter.Descriptor&lt;T&gt; descriptor) {
+<span class="fc" id="L25">      super(name, descriptor);</span>
+<span class="fc" id="L26">      this.factor = Factor.create(name, descriptor.knownValues().toArray());</span>
+<span class="fc" id="L27">    }</span>
+
+    @Override
+    protected List&lt;Factor&gt; decompose() {
+<span class="fc" id="L31">      return singletonList(factor);</span>
+    }
+
+    @Override
+    protected List&lt;Constraint&gt; generateConstraints() {
+<span class="fc" id="L36">      return emptyList();</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    @Override
+    public T composeValue(AArray tuple) {
+<span class="fc" id="L42">      return (T) tuple.get(getName());</span>
+    }
+
+    @Override
+    public Optional&lt;AArray&gt; decomposeValue(T value) {
+<span class="fc" id="L47">      return Optional.of(AArray.builder().put(name, value).build());</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L52">      return String.format(&quot;Simple:%s:%s&quot;, factor.getName(), factor.getLevels());</span>
+    }
+  }
+
+  class Descriptor&lt;T&gt; extends Parameter.Descriptor.Base&lt;T&gt; {
+
+    private Descriptor() {
+    }
+
+    public static &lt;U&gt; Descriptor&lt;U&gt; of(List&lt;U&gt; actualValues) {
+<span class="fc" id="L62">      return new Descriptor&lt;U&gt;().addActualValues(actualValues);</span>
+    }
+
+    @Override
+    public Parameter&lt;T&gt; create(String name) {
+<span class="fc" id="L67">      return new Impl&lt;&gt;(name, this);</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

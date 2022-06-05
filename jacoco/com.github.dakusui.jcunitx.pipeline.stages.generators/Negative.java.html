@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Negative.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.pipeline.stages.generators</a> &gt; <span class="el_source">Negative.java</span></div><h1>Negative.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.pipeline.stages.generators;
+
+import com.github.dakusui.combinatoradix.Cartesianator;
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.pipeline.Requirement;
+import com.github.dakusui.jcunitx.pipeline.stages.Generator;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.util.stream.Collectors.toList;
+
+public class Negative extends Generator.Base {
+  private final List&lt;AArray&gt; regularTestCases;
+  private final List&lt;AArray&gt; seeds;
+
+  public Negative(List&lt;AArray&gt; regularTestCases, List&lt;AArray&gt; seeds, FactorSpace factorSpace, Requirement requirement) {
+<span class="fc" id="L21">    super(factorSpace, requirement);</span>
+<span class="fc" id="L22">    this.regularTestCases = regularTestCases;</span>
+<span class="fc" id="L23">    this.seeds = seeds;</span>
+<span class="fc" id="L24">  }</span>
+
+  @Override
+  public List&lt;AArray&gt; generateCore() {
+<span class="fc" id="L28">    return generateNegativeTests(this.regularTestCases, factorSpace, seeds);</span>
+  }
+
+  private static List&lt;AArray&gt; generateNegativeTests(List&lt;AArray&gt; tuples, FactorSpace factorSpace, List&lt;AArray&gt; seeds) {
+<span class="fc" id="L32">    return new LinkedList&lt;AArray&gt;() {{</span>
+      //noinspection SimplifiableConditionalExpression
+<span class="fc" id="L34">      factorSpace.getConstraints(</span>
+<span class="fc" id="L35">      ).stream(</span>
+<span class="fc" id="L36">      ).filter(</span>
+<span class="fc" id="L37">          (Constraint each) -&gt; seeds.stream(</span>
+<span class="fc" id="L38">          ).filter(</span>
+              ////
+              //   If there exists any seed which violates one and only one constraint,
+              // a (negative) test case to violate the constraint doesn't need to be generated.
+              //   Such a constraint is filtered out here.
+<span class="fc" id="L43">              (AArray seed) -&gt; factorSpace.getConstraints(</span>
+<span class="fc" id="L44">              ).stream(</span>
+<span class="fc" id="L45">              ).allMatch(</span>
+                  (Constraint constraint) -&gt;
+<span class="fc bfc" id="L47" title="All 2 branches covered.">                      each == constraint ?</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">                          !constraint.test(seed) : // Violates each constraint</span>
+<span class="fc" id="L49">                          constraint.test(seed)    // But not violate any others</span>
+              )
+<span class="fc bfc" id="L51" title="All 2 branches covered.">          ).collect(toList()).size() != 1</span>
+<span class="fc" id="L52">      ).forEach(</span>
+          (Constraint each) -&gt;
+<span class="fc" id="L54">              createNegativeTestForConstraint(</span>
+                  each,
+<span class="fc" id="L56">                  exclude(</span>
+                      each,
+<span class="fc" id="L58">                      factorSpace.getConstraints()</span>
+                  ),
+<span class="fc" id="L60">                  composeFactorMap(factorSpace),</span>
+                  tuples
+<span class="fc" id="L62">              ).ifPresent(</span>
+                  this::add
+              )
+      );
+<span class="fc" id="L66">    }};</span>
+  }
+
+  private static List&lt;Constraint&gt; exclude(Constraint target, List&lt;Constraint&gt; all) {
+<span class="fc" id="L70">    return new LinkedList&lt;Constraint&gt;(all) {{</span>
+<span class="fc" id="L71">      remove(target);</span>
+<span class="fc" id="L72">    }};</span>
+  }
+
+  private static Map&lt;String, List&lt;Object&gt;&gt; composeFactorMap(FactorSpace factorSpace) {
+<span class="fc" id="L76">    return new LinkedHashMap&lt;String, List&lt;Object&gt;&gt;() {{</span>
+<span class="fc" id="L77">      factorSpace.getFactors().forEach((Factor each) -&gt; put(each.getName(), each.getLevels()));</span>
+<span class="fc" id="L78">    }};</span>
+  }
+
+  private static Optional&lt;AArray&gt; createNegativeTestForConstraint(Constraint target, List&lt;Constraint&gt; rest, Map&lt;String, List&lt;Object&gt;&gt; parameters, List&lt;AArray&gt; tuples) {
+<span class="fc" id="L82">    long leastCollateralConstraints = rest.size();</span>
+<span class="fc" id="L83">    Optional&lt;AArray&gt; ret = Optional.empty();</span>
+    OUTER:
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">    for (AArray base : tuples) {</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">      for (List&lt;Object&gt; each : createCartesianator(target, parameters)) {</span>
+<span class="fc" id="L87">        AArray modified = modifyTupleWithValues(base, composeValues(target.involvedKeys(), each));</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (target.test(modified))</span>
+<span class="fc" id="L89">          continue;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        long numCollaterals = rest.stream().filter(constraint -&gt; !constraint.test(modified)).count();</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (numCollaterals != 0) {</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">          if (numCollaterals &lt; leastCollateralConstraints) {</span>
+<span class="nc" id="L93">            leastCollateralConstraints = numCollaterals;</span>
+<span class="nc" id="L94">            ret = Optional.of(modified);</span>
+          }
+          continue;
+        }
+<span class="fc" id="L98">        ret = Optional.of(modified);</span>
+<span class="fc" id="L99">        break OUTER;</span>
+      }
+<span class="nc" id="L101">    }</span>
+<span class="fc" id="L102">    return ret;</span>
+  }
+
+  private static AArray composeValues(List&lt;String&gt; involvedKeys, List&lt;Object&gt; values) {
+<span class="fc" id="L106">    return new AArray.Impl() {{</span>
+<span class="fc" id="L107">      AtomicInteger i = new AtomicInteger(0);</span>
+<span class="fc" id="L108">      involvedKeys.forEach((String eachKey) -&gt; put(eachKey, values.get(i.getAndIncrement())));</span>
+<span class="fc" id="L109">    }};</span>
+  }
+
+  private static AArray modifyTupleWithValues(AArray in, AArray values) {
+<span class="fc" id="L113">    return new AArray.Builder()</span>
+<span class="fc" id="L114">        .putAll(in)</span>
+<span class="fc" id="L115">        .putAll(new HashMap&lt;String, Object&gt;() {{</span>
+<span class="fc" id="L116">          values.keySet().forEach(eachKey -&gt; put(eachKey, values.get(eachKey)));</span>
+<span class="fc" id="L117">        }})</span>
+<span class="fc" id="L118">        .build();</span>
+  }
+
+  private static Cartesianator&lt;Object&gt; createCartesianator(final Constraint target, final Map&lt;String, List&lt;Object&gt;&gt; parameters) {
+<span class="fc" id="L122">    return new Cartesianator&lt;Object&gt;(target.involvedKeys().stream().map(parameters::get).collect(toList())) {</span>
+    };
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

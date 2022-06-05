@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FrameworkException.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.exceptions</a> &gt; <span class="el_source">FrameworkException.java</span></div><h1>FrameworkException.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.exceptions;
+
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
+/**
+ * An exception that indicates a bug in JCUnit's framework.
+ *
+ * [ditaa]
+ * ----
+ * +-----+      +-----+
+ * |hello|&lt;&gt;---&gt;|world|
+ * +-----+      +-----+
+ * ----
+ */
+public class FrameworkException extends BaseException {
+  protected FrameworkException(String format) {
+<span class="nc" id="L19">    super(format);</span>
+<span class="nc" id="L20">  }</span>
+
+  protected FrameworkException(String format, Throwable t) {
+<span class="nc" id="L23">    super(format, t);</span>
+<span class="nc" id="L24">  }</span>
+
+  @SuppressWarnings(&quot;WeakerAccess&quot;)
+  public static void checkCondition(boolean b, Function&lt;String, ? extends FrameworkException&gt; exceptionFactory, Supplier&lt;String&gt; messageSupplier) {
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">    if (!b)</span>
+<span class="nc" id="L29">      throw exceptionFactory.apply(messageSupplier.get());</span>
+<span class="fc" id="L30">  }</span>
+
+  public static &lt;T&gt; T check(T value, Predicate&lt;T&gt; check) {
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">    if (check.test(value))</span>
+<span class="fc" id="L34">      return value;</span>
+<span class="nc" id="L35">    throw new FrameworkException(&quot;Unexpected by design&quot;);</span>
+  }
+
+  public static &lt;T&gt; T check(T value, Predicate&lt;T&gt; check, Supplier&lt;String&gt; messageSupplier) {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">    if (check.test(value))</span>
+<span class="nc" id="L40">      return value;</span>
+<span class="nc" id="L41">    throw new FrameworkException(messageSupplier.get());</span>
+  }
+
+  public static void checkCondition(boolean b, Function&lt;String, ? extends FrameworkException&gt; exceptionFactory) {
+<span class="pc" id="L45">    checkCondition(b, exceptionFactory, () -&gt; &quot;Unexpected by design&quot;);</span>
+<span class="fc" id="L46">  }</span>
+
+  public static void checkCondition(boolean b) {
+<span class="fc" id="L49">    checkCondition(b, FrameworkException::unexpectedByDesign);</span>
+<span class="fc" id="L50">  }</span>
+
+  public static FrameworkException unexpectedByDesign() {
+<span class="nc" id="L53">    throw new FrameworkException(&quot;Unexpected by design&quot;);</span>
+  }
+
+  public static FrameworkException unexpectedByDesign(Throwable t) {
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">    if (t instanceof Error)</span>
+<span class="nc" id="L58">      throw (Error) t;</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    if (t instanceof RuntimeException)</span>
+<span class="fc" id="L60">      throw (RuntimeException) t;</span>
+<span class="nc" id="L61">    throw new FrameworkException(String.format(&quot;Unexpected by design:%s&quot;, t.getMessage()), t);</span>
+  }
+
+  public static FrameworkException unexpectedByDesign(String message) {
+<span class="nc" id="L65">    throw new FrameworkException(String.format(&quot;Unexpected by design:%s&quot;, message));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

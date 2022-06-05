@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParameterSource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.runners.junit4.annotations</a> &gt; <span class="el_source">ParameterSource.java</span></div><h1>ParameterSource.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.runners.junit4.annotations;
+
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.validator.AnnotationValidator;
+import org.junit.validator.ValidateWith;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.LinkedList;
+import java.util.List;
+
+@Retention(RetentionPolicy.RUNTIME)
+@ValidateWith(ParameterSource.Validator.class)
+public @interface ParameterSource {
+<span class="fc" id="L15">  class Validator extends AnnotationValidator {</span>
+    public List&lt;Exception&gt; validateAnnotatedMethod(FrameworkMethod method) {
+<span class="fc" id="L17">      return new LinkedList&lt;Exception&gt;() {{</span>
+<span class="fc bfc" id="L18" title="All 2 branches covered.">        if (!method.isPublic())</span>
+<span class="fc" id="L19">          add(new Exception(</span>
+<span class="fc" id="L20">              String.format(&quot;'%s' must be public but not.&quot;, method.getName())</span>
+          ));
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (method.getMethod().getParameterCount() &gt; 0) {</span>
+<span class="fc" id="L23">          add(new Exception(</span>
+<span class="fc" id="L24">              String.format(&quot;'%s' must not have any parameter but has one or more.&quot;, method.getName())</span>
+          ));
+        }
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        if (method.isStatic()) {</span>
+<span class="fc" id="L28">          add(new Exception(</span>
+<span class="fc" id="L29">              String.format(&quot;'%s' must not be static but is.&quot;, method.getName())</span>
+          ));
+        }
+<span class="fc" id="L32">      }};</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

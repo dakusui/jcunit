@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestInputPredicate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.runners.core</a> &gt; <span class="el_source">TestInputPredicate.java</span></div><h1>TestInputPredicate.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.runners.core;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.utils.Utils;
+
+import java.util.List;
+import java.util.function.Predicate;
+
+public interface TestInputPredicate extends Predicate&lt;AArray&gt; {
+  String getName();
+
+  boolean test(AArray in);
+
+  List&lt;String&gt; involvedKeys();
+
+  static String toString(TestInputPredicate predicate) {
+<span class="fc" id="L17">    return String.format(</span>
+        &quot;%s:%s&quot;,
+<span class="fc" id="L19">        Utils.className(predicate.getClass()), predicate.involvedKeys()</span>
+    );
+  }
+
+  static TestInputPredicate of(String name, List&lt;String&gt; involvedKeys, Predicate&lt;AArray&gt; predicate) {
+<span class="fc" id="L24">    return new TestInputPredicate() {</span>
+      @Override
+      public String getName() {
+<span class="nc" id="L27">        return name;</span>
+      }
+
+      @Override
+      public boolean test(AArray tuple) {
+<span class="fc" id="L32">        return predicate.test(tuple);</span>
+      }
+
+      @Override
+      public List&lt;String&gt; involvedKeys() {
+<span class="nc" id="L37">        return involvedKeys;</span>
+      }
+    };
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

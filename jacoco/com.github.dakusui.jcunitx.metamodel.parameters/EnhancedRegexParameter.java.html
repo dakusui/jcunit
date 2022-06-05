@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnhancedRegexParameter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.metamodel.parameters</a> &gt; <span class="el_source">EnhancedRegexParameter.java</span></div><h1>EnhancedRegexParameter.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.metamodel.parameters;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.metamodel.Parameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexComposer;
+import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexDecomposer;
+import com.github.dakusui.jcunitx.regex.Expr;
+import com.github.dakusui.jcunitx.regex.Parser;
+import com.github.dakusui.jcunitx.runners.helpers.ParameterUtils;
+import com.github.dakusui.jcunitx.utils.Utils;
+import com.github.dakusui.pcond.functions.Printables;
+
+import java.util.*;
+import java.util.function.Function;
+
+import static com.github.dakusui.jcunitx.utils.AssertionUtils.isKeyOf;
+import static com.github.dakusui.pcond.Assertions.that;
+import static com.github.dakusui.pcond.Preconditions.require;
+import static com.github.dakusui.pcond.Preconditions.requireArgument;
+import static com.github.dakusui.pcond.functions.Predicates.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+
+/**
+ * `ParameterizedRegex` is a meta-model designed to model a sequence of method calls.
+ */
+public interface EnhancedRegexParameter extends Parameter&lt;List&lt;EnhancedRegexParameter.MethodCallDescriptor&gt;&gt; {
+  @SafeVarargs
+  static &lt;T&gt; Parameter&lt;Function&lt;ExecutionContext, T&gt;&gt; parameter(String parameterName, Function&lt;ExecutionContext, T&gt;... args) {
+<span class="fc" id="L35">    return ParameterUtils.simple(args).create(parameterName);</span>
+  }
+
+  static &lt;T extends Enum&lt;T&gt;&gt; Function&lt;ExecutionContext, T&gt;[] immediateValuesFromEnum(Class&lt;T&gt; enumClass) {
+<span class="fc" id="L39">    return immediateValues(enumClass.getEnumConstants());</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @SafeVarargs
+  static &lt;T&gt; Function&lt;ExecutionContext, T&gt;[] immediateValues(T... values) {
+<span class="fc" id="L45">    return Arrays.stream(values)</span>
+<span class="fc" id="L46">        .map(EnhancedRegexParameter::immediateValue)</span>
+<span class="fc" id="L47">        .toArray(Function[]::new);</span>
+  }
+
+  static &lt;T&gt; Function&lt;ExecutionContext, T&gt; immediateValue(T value) {
+<span class="pc" id="L51">    return Printables.function(() -&gt; String.format(&quot;immediateValue:'%s'&quot;, value), c -&gt; value);</span>
+  }
+
+  static &lt;T&gt; Function&lt;ExecutionContext, T&gt; valueFrom(String methodName) {
+<span class="fc" id="L55">    return valueFrom(methodName, -1);</span>
+  }
+
+  static &lt;T&gt; Function&lt;ExecutionContext, T&gt; valueFrom(String methodName, int index) {
+<span class="fc" id="L59">    return Printables.function(</span>
+<span class="fc" id="L60">        () -&gt; String.format(&quot;valueFrom:%s[%s]&quot;, methodName, index),</span>
+<span class="nc" id="L61">        c -&gt; c.&lt;T&gt;resultOf(methodName, index).orElseThrow(RuntimeException::new));</span>
+  }
+
+  static &lt;T&gt; Function&lt;ExecutionContext, T&gt; argumentValueFrom(String methodName, int index, int argumentIndex) {
+<span class="nc" id="L65">    return c -&gt; null;</span>
+  }
+
+  static MethodDescriptor.Builder method(String methodName) {
+<span class="fc" id="L69">    return new MethodDescriptor.Builder(methodName);</span>
+  }
+
+  /**
+   * An interface to define how calls of a method should be.
+   * That is, it specifies a name of a method and &quot;parameters&quot; of it.
+   * Note that a parameter defines all the possible values for a variable passed to a method.
+   */
+  interface MethodDescriptor {
+    String name();
+
+    List&lt;Parameter&lt;?&gt;&gt; parameters();
+
+    List&lt;Constraint&gt; constraints();
+
+    class Builder {
+<span class="fc" id="L85">      private final List&lt;Parameter&lt;?&gt;&gt; parameters  = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L86">      private final List&lt;Constraint&gt;   constraints = new LinkedList&lt;&gt;();</span>
+      private final String             methodName;
+
+<span class="fc" id="L89">      public Builder(String methodName) {</span>
+<span class="fc" id="L90">        this.methodName = requireNonNull(methodName);</span>
+<span class="fc" id="L91">      }</span>
+
+      @SafeVarargs
+      public final &lt;T&gt; Builder parameter(String parameterName, Function&lt;ExecutionContext, T&gt;... values) {
+<span class="fc" id="L95">        return this.parameter(EnhancedRegexParameter.parameter(parameterName, values));</span>
+      }
+
+      public &lt;T&gt; Builder parameter(Parameter&lt;? extends Function&lt;? extends ExecutionContext, T&gt;&gt; parameter) {
+<span class="fc" id="L99">        parameters.add(requireNonNull(parameter));</span>
+<span class="fc" id="L100">        return this;</span>
+      }
+
+      @SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+      @SafeVarargs
+      public final Builder parameters(Parameter&lt;Function&lt;ExecutionContext, ?&gt;&gt;... parameters) {
+<span class="nc" id="L106">        Builder ret = this;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (Parameter&lt;Function&lt;ExecutionContext, ?&gt;&gt; each : parameters) {</span>
+<span class="nc" id="L108">          ret = ret.parameter(((Parameter) each));</span>
+        }
+<span class="nc" id="L110">        return ret;</span>
+      }
+
+      public Builder constraint(Constraint constraint) {
+<span class="fc" id="L114">        this.constraints.add(requireNonNull(constraint));</span>
+<span class="fc" id="L115">        return this;</span>
+      }
+
+      public Builder constraints(Constraint... constraints) {
+<span class="nc" id="L119">        Builder ret = this;</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        for (Constraint each : constraints) {</span>
+<span class="nc" id="L121">          ret = ret.constraint(each);</span>
+        }
+<span class="nc" id="L123">        return ret;</span>
+      }
+
+      public MethodDescriptor build() {
+<span class="fc" id="L127">        final String name = this.methodName;</span>
+<span class="fc" id="L128">        final List&lt;Parameter&lt;?&gt;&gt; parameters = unmodifiableList(this.parameters);</span>
+<span class="fc" id="L129">        return new MethodDescriptor() {</span>
+          @Override
+          public String name() {
+<span class="fc" id="L132">            return name;</span>
+          }
+
+          @Override
+          public List&lt;Parameter&lt;?&gt;&gt; parameters() {
+<span class="fc" id="L137">            return parameters;</span>
+          }
+
+          @Override
+          public List&lt;Constraint&gt; constraints() {
+<span class="fc" id="L142">            return constraints;</span>
+          }
+        };
+      }
+
+      public MethodDescriptor $() {
+<span class="fc" id="L148">        return build();</span>
+      }
+    }
+  }
+
+  /**
+   * A class to model a single method call.
+   */
+  interface MethodCallDescriptor {
+    String methodName();
+
+    List&lt;Object&gt; arguments();
+  }
+
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">  class Impl extends Base&lt;List&lt;MethodCallDescriptor&gt;&gt; implements EnhancedRegexParameter {</span>
+
+    private final FactorSpace   factorSpace;
+    private final RegexComposer regexComposer;
+
+    public Impl(String name, EnhancedRegexParameter.Descriptor descriptor) {
+<span class="fc" id="L168">      super(name, descriptor);</span>
+<span class="fc" id="L169">      Expr expr = new Parser().parse(descriptor.regex());</span>
+<span class="fc" id="L170">      RegexDecomposer decomposer = new RegexDecomposer(name, expr);</span>
+<span class="fc" id="L171">      this.regexComposer = new RegexComposer(name, expr);</span>
+<span class="fc" id="L172">      FactorSpace decomposed = decomposer.decompose();</span>
+<span class="fc" id="L173">      this.factorSpace = decomposed.extend(</span>
+<span class="fc" id="L174">          descriptor.methodNames()</span>
+<span class="fc" id="L175">              .stream()</span>
+<span class="fc" id="L176">              .map(descriptor::parametersFor)</span>
+<span class="fc" id="L177">              .flatMap(</span>
+<span class="fc" id="L178">                  each -&gt; each.stream()</span>
+<span class="fc" id="L179">                      .map(Parameter::toFactorSpace)</span>
+<span class="fc" id="L180">                      .map(p -&gt; p.getFactors().get(0)))</span>
+<span class="fc" id="L181">              .collect(toList()),</span>
+<span class="fc" id="L182">          descriptor.methodNames()</span>
+<span class="fc" id="L183">              .stream().map(descriptor::constraintsFor)</span>
+<span class="fc" id="L184">              .flatMap(Collection::stream)</span>
+<span class="fc" id="L185">              .collect(toList()));</span>
+<span class="fc" id="L186">    }</span>
+
+    public Optional&lt;AArray&gt; decomposeValue(List&lt;MethodCallDescriptor&gt; value) {
+<span class="nc" id="L189">      return RegexParameter._decomposeValue(</span>
+          value,
+<span class="nc" id="L191">          this.factorSpace.streamAllPossibleRows(),</span>
+          this.regexComposer::compose,
+<span class="nc" id="L193">          Utils.conjunct(this.factorSpace.getConstraints())</span>
+      );
+    }
+
+    @Override
+    public List&lt;MethodCallDescriptor&gt; composeValue(AArray tuple) {
+<span class="nc" id="L199">      return new ArrayList&lt;&gt;(composeMethodCallDescriptorSequenceFrom(tuple));</span>
+    }
+
+    @Override
+    protected List&lt;Factor&gt; decompose() {
+<span class="fc" id="L204">      return factorSpace.getFactors();</span>
+    }
+
+    @Override
+    protected List&lt;Constraint&gt; generateConstraints() {
+<span class="fc" id="L209">      return factorSpace.getConstraints();</span>
+    }
+
+    /**
+     * NAME:
+     *     REGEX:regexExample:cat-8
+     * LEVELS:
+     *     (VOID)
+     *     [[openForWrite], Reference:&lt;REGEX:regexExample:rep-4&gt;, [], [close], [openForWrite], Reference:&lt;REGEX:regexExample:rep-4&gt;, [], [close]]
+     * NAME:
+     *     REGEX:regexExample:rep-9
+     * LEVELS:
+     *     [(VOID), [Reference:&lt;REGEX:regexExample:cat-7&gt;], [Reference:&lt;REGEX:regexExample:cat-8&gt;]]
+     * NAME:
+     *     REGEX:regexExample:rep-14
+     * LEVELS
+     *     (VOID),
+     *     [Reference:&lt;REGEX:regexExample:empty-0&gt;],
+     *     [readLine],
+     *     [Reference:&lt;REGEX:regexExample:cat-13&gt;]
+     */
+    private List&lt;MethodCallDescriptor&gt; composeMethodCallDescriptorSequenceFrom(AArray aarray) {
+      // TODO regexComposer.compose(tuple);
+<span class="nc" id="L232">      return emptyList();</span>
+    }
+
+    private static List&lt;Factor&gt; expandParameterFor(Factor factor, String methodName, Parameter&lt;?&gt; parameter) {
+<span class="nc bnc" id="L236" title="All 4 branches missed.">      assert that(parameter, isInstanceOf(SimpleParameter.class));</span>
+<span class="nc" id="L237">      return null;</span>
+    }
+
+    private static Parameter&lt;?&gt; renameParameterFor(Factor factor, String methodName, Parameter&lt;?&gt; parameter) {
+<span class="nc" id="L241">      return parameter.descriptor().create(factor.getName() + &quot;:&quot; + methodName + &quot;.&quot; + parameter.getName());</span>
+    }
+  }
+
+  /**
+   * A factory class for `ParameterizedRegex` parameter.
+   */
+  class Descriptor extends Parameter.Descriptor.Base&lt;List&lt;MethodCallDescriptor&gt;&gt; {
+    private final String                        regex;
+<span class="fc" id="L250">    private final Map&lt;String, MethodDescriptor&gt; methodDescriptors = new HashMap&lt;&gt;();</span>
+    private       int                           asteriskMax;
+    private       int                           plusMax;
+
+<span class="fc" id="L254">    private Descriptor(String regex) {</span>
+<span class="fc" id="L255">      this.regex = requireNonNull(regex);</span>
+<span class="fc" id="L256">      this.asterisk(2).plus(2);</span>
+<span class="fc" id="L257">    }</span>
+
+    public static Descriptor of(String regex) {
+<span class="fc" id="L260">      return new Descriptor(regex);</span>
+    }
+
+    private static EnhancedRegexParameter create(String name, Descriptor descriptor) {
+<span class="fc" id="L264">      return new Impl(name, descriptor);</span>
+    }
+
+    @Override
+    public EnhancedRegexParameter create(String name) {
+<span class="fc" id="L269">      return create(name, this);</span>
+    }
+
+    /**
+     * A method to specify parameters for a method call specified by `element`.
+     * `element` can be in the following format.
+     *
+     * - `elementName`: All the occurrences of the element whose name is `elementName`.
+     * - `elementName[0]`, `elementName[1]`, ..., `elementName[i]` ,... `elementName[n-1]`: The *i*th occurrence of the element whose name is `elementName`.
+     *
+     * @param methodName A string to specify element. By default, used as a name of method.
+     * @param parameters Parameters passed to a method specified by `element`.
+     * @return This object
+     */
+    @SuppressWarnings({ &quot;unchecked&quot;, &quot;rawtypes&quot; })
+    public Descriptor describe(String methodName, List&lt;Parameter&lt;? extends Function&lt;? extends ExecutionContext, ?&gt;&gt;&gt; parameters) {
+<span class="fc" id="L285">      MethodDescriptor.Builder b = new MethodDescriptor.Builder(methodName);</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">      for (Parameter&lt;? extends Function&lt;? extends ExecutionContext, ?&gt;&gt; each : parameters) {</span>
+<span class="fc" id="L287">        b.parameter((Parameter) each);</span>
+<span class="fc" id="L288">      }</span>
+<span class="fc" id="L289">      return this.describe(b.$());</span>
+    }
+
+    public Descriptor describe(MethodDescriptor methodDescriptor) {
+<span class="fc" id="L293">      this.methodDescriptors.put(methodDescriptor.name(), requireNonNull(methodDescriptor));</span>
+<span class="fc" id="L294">      return this;</span>
+    }
+
+    public Descriptor plus(int max) {
+<span class="fc" id="L298">      this.plusMax = require(max, greaterThanOrEqualTo(1));</span>
+<span class="fc" id="L299">      return this;</span>
+    }
+
+    public Descriptor asterisk(int max) {
+<span class="fc" id="L303">      this.asteriskMax = require(max, greaterThanOrEqualTo(0));</span>
+<span class="fc" id="L304">      return this;</span>
+    }
+
+    public String regex() {
+<span class="fc" id="L308">      return this.regex;</span>
+    }
+
+    public int plusMax() {
+<span class="nc" id="L312">      return this.plusMax;</span>
+    }
+
+    public int asteriskMax() {
+<span class="nc" id="L316">      return this.asteriskMax;</span>
+    }
+
+    public List&lt;String&gt; methodNames() {
+<span class="fc" id="L320">      return this.methodDescriptors.keySet().stream().sorted().collect(toList());</span>
+    }
+
+    public List&lt;Parameter&lt;?&gt;&gt; parametersFor(String methodName) {
+<span class="fc" id="L324">      requireArgument(methodName, allOf(isNotNull(), isKeyOf(this.methodDescriptors)));</span>
+<span class="fc" id="L325">      return this.methodDescriptors.get(methodName).parameters();</span>
+    }
+
+
+    public List&lt;Constraint&gt; constraintsFor(String methodName) {
+<span class="fc" id="L330">      requireArgument(methodName, allOf(isNotNull(), isKeyOf(this.methodDescriptors)));</span>
+<span class="fc" id="L331">      return this.methodDescriptors.get(methodName).constraints();</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

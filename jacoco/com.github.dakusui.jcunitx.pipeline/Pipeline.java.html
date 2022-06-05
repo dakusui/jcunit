@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Pipeline.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.pipeline</a> &gt; <span class="el_source">Pipeline.java</span></div><h1>Pipeline.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.pipeline;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.exceptions.InvalidTestException;
+import com.github.dakusui.jcunitx.exceptions.TestDefinitionException;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.metamodel.Parameter;
+import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
+import com.github.dakusui.jcunitx.metamodel.parameters.SimpleParameter;
+import com.github.dakusui.jcunitx.pipeline.stages.Generator;
+import com.github.dakusui.jcunitx.pipeline.stages.generators.Negative;
+import com.github.dakusui.jcunitx.pipeline.stages.generators.Passthrough;
+import com.github.dakusui.jcunitx.testsuite.SchemafulAArraySet;
+import com.github.dakusui.jcunitx.testsuite.TestScenario;
+import com.github.dakusui.jcunitx.testsuite.TestSuite;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+
+/**
+ * A pipeline object.
+ */
+public interface Pipeline {
+  TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenarioFactory);
+
+<span class="fc" id="L36">  class Standard implements Pipeline {</span>
+    public static Pipeline create() {
+<span class="fc" id="L38">      return new Standard();</span>
+    }
+
+    @Override
+    public TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
+<span class="fc" id="L43">      return generateTestSuite(config, preprocess(config, parameterSpace), testScenario);</span>
+    }
+
+    public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
+<span class="fc" id="L47">      validateSeeds(config.getRequirement().seeds(), parameterSpace);</span>
+<span class="fc" id="L48">      TestSuite.Builder&lt;?&gt; builder = new TestSuite.Builder&lt;&gt;(parameterSpace, testScenario);</span>
+<span class="fc" id="L49">      builder = builder.addAllToSeedTuples(config.getRequirement().seeds());</span>
+<span class="fc" id="L50">      List&lt;AArray&gt; regularTestTuples = engine(config, parameterSpace);</span>
+<span class="fc" id="L51">      builder = builder.addAllToRegularTuples(regularTestTuples);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">      if (config.getRequirement().generateNegativeTests())</span>
+<span class="fc" id="L53">        builder = builder.addAllToNegativeTuples(</span>
+<span class="fc" id="L54">            negativeTestGenerator(</span>
+<span class="fc" id="L55">                config.getRequirement().generateNegativeTests(),</span>
+<span class="fc" id="L56">                toFactorSpaceForNegativeTestGeneration(parameterSpace),</span>
+                regularTestTuples,
+<span class="fc" id="L58">                config.getRequirement().seeds(),</span>
+<span class="fc" id="L59">                config.getRequirement())</span>
+<span class="fc" id="L60">                .generate());</span>
+<span class="fc" id="L61">      return builder.build();</span>
+    }
+
+    private void validateSeeds(List&lt;AArray&gt; seeds, ParameterSpace parameterSpace) {
+<span class="fc" id="L65">      List&lt;Function&lt;AArray, String&gt;&gt; checks = asList(</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">          (AArray tuple) -&gt; !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?</span>
+<span class="fc" id="L67">              String.format(&quot;Unknown parameter(s) were found: %s in tuple: %s&quot;,</span>
+<span class="fc" id="L68">                  new LinkedList&lt;String&gt;() {{</span>
+<span class="fc" id="L69">                    addAll(tuple.keySet());</span>
+<span class="fc" id="L70">                    removeAll(parameterSpace.getParameterNames());</span>
+<span class="fc" id="L71">                  }},</span>
+                  tuple) :
+              null,
+<span class="fc bfc" id="L74" title="All 2 branches covered.">          (AArray tuple) -&gt; !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?</span>
+<span class="fc" id="L75">              String.format(&quot;Parameter(s) were not found: %s in tuple: %s&quot;,</span>
+<span class="fc" id="L76">                  new LinkedList&lt;String&gt;() {{</span>
+<span class="fc" id="L77">                    addAll(parameterSpace.getParameterNames());</span>
+<span class="fc" id="L78">                    removeAll(tuple.keySet());</span>
+<span class="fc" id="L79">                  }},</span>
+                  tuple) :
+              null
+      );
+<span class="fc" id="L83">      List&lt;String&gt; errors = seeds.stream()</span>
+<span class="fc" id="L84">          .flatMap(seed -&gt; checks.stream().map(each -&gt; each.apply(seed)))</span>
+<span class="fc" id="L85">          .filter(Objects::nonNull)</span>
+<span class="fc" id="L86">          .collect(toList());</span>
+<span class="fc bfc" id="L87" title="All 2 branches covered.">      if (!errors.isEmpty())</span>
+<span class="fc" id="L88">        throw new InvalidTestException(</span>
+<span class="fc" id="L89">            String.format(</span>
+                &quot;Error(s) are found in seeds: %s&quot;,
+                errors
+            ));
+<span class="fc" id="L93">    }</span>
+
+    public ParameterSpace preprocess(Config config, ParameterSpace parameterSpace) {
+<span class="fc" id="L96">      return new ParameterSpace.Builder()</span>
+<span class="fc" id="L97">          .addAllParameters(</span>
+<span class="fc" id="L98">              parameterSpace.getParameterNames()</span>
+<span class="fc" id="L99">                  .stream()</span>
+<span class="fc" id="L100">                  .map((String parameterName) -&gt; toSimpleParameterIfNecessary(</span>
+                      config,
+<span class="fc" id="L102">                      parameterSpace.getParameter(parameterName),</span>
+<span class="fc" id="L103">                      parameterSpace.getConstraints()))</span>
+<span class="fc" id="L104">                  .collect(toList()))</span>
+<span class="fc" id="L105">          .addAllConstraints(parameterSpace.getConstraints())</span>
+<span class="fc" id="L106">          .build();</span>
+    }
+
+    public SchemafulAArraySet engine(Config config, ParameterSpace parameterSpace) {
+<span class="fc" id="L110">      return config.partitioner().apply(config.encoder().apply(parameterSpace))</span>
+<span class="fc" id="L111">          .stream()</span>
+<span class="fc" id="L112">          .map(config.optimizer())</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">          .filter((Predicate&lt;FactorSpace&gt;) factorSpace -&gt; !factorSpace.getFactors().isEmpty())</span>
+<span class="fc" id="L114">          .map(config.generator(parameterSpace, config.getRequirement()))</span>
+<span class="fc" id="L115">          .reduce(config.joiner())</span>
+<span class="fc" id="L116">          .map((SchemafulAArraySet rows) -&gt; decode(parameterSpace, rows))</span>
+<span class="fc" id="L117">          .orElseThrow(TestDefinitionException::noParameterFound);</span>
+    }
+
+    private SchemafulAArraySet decode(ParameterSpace parameterSpace, SchemafulAArraySet rows) {
+<span class="fc" id="L121">      return new SchemafulAArraySet.Builder(parameterSpace.getParameterNames()).addAll(</span>
+<span class="fc" id="L122">              rows.stream()</span>
+<span class="fc" id="L123">                  .map((AArray encodedRow) -&gt; decodeRow(parameterSpace, encodedRow))</span>
+<span class="fc" id="L124">                  .collect(toList()))</span>
+<span class="fc" id="L125">          .build();</span>
+    }
+
+    private AArray decodeRow(ParameterSpace parameterSpace, AArray encodedRow) {
+<span class="fc" id="L129">      AArray.Builder builder = new AArray.Builder();</span>
+<span class="fc bfc" id="L130" title="All 2 branches covered.">      for (String parameterName : parameterSpace.getParameterNames()) {</span>
+<span class="fc" id="L131">        builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(encodedRow));</span>
+<span class="fc" id="L132">      }</span>
+<span class="fc" id="L133">      return builder.build();</span>
+    }
+
+    /**
+     * This method should be used for a parameter space that does not contain a
+     * constraint involving a non-simple parameter.
+     */
+    private FactorSpace toFactorSpaceForNegativeTestGeneration(ParameterSpace parameterSpace) {
+<span class="fc" id="L141">      PipelineException.checkIfNoNonSimpleParameterIsInvolvedByAnyConstraint(parameterSpace);</span>
+<span class="fc" id="L142">      return FactorSpace.create(</span>
+<span class="fc" id="L143">          parameterSpace.getParameterNames().stream()</span>
+<span class="fc" id="L144">              .map((String s) -&gt; {</span>
+<span class="fc" id="L145">                Parameter&lt;Object&gt; parameter = parameterSpace.getParameter(s);</span>
+<span class="fc" id="L146">                return Factor.create(</span>
+                    s,
+<span class="fc" id="L148">                    parameter.getKnownValues().toArray()</span>
+                );
+              })
+<span class="fc" id="L151">              .collect(toList()),</span>
+<span class="fc" id="L152">          new ArrayList&lt;&gt;(parameterSpace.getConstraints())</span>
+      );
+    }
+
+    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List&lt;AArray&gt; tuplesForRegularTests, List&lt;AArray&gt; encodedSeeds, Requirement requirement) {
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">      return generateNegativeTests ?</span>
+          new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, requirement) :
+          new Passthrough(tuplesForRegularTests, factorSpace, requirement);
+    }
+
+    private Parameter&lt;?&gt; toSimpleParameterIfNecessary(Config config, Parameter&lt;?&gt; parameter, List&lt;Constraint&gt; constraints) {
+<span class="fc bfc" id="L163" title="All 4 branches covered.">      if (!(parameter instanceof SimpleParameter) &amp;&amp; isInvolvedByAnyConstraint(parameter, constraints)) {</span>
+        // Extraction
+<span class="fc" id="L165">        return SimpleParameter.Descriptor.of(Stream.concat(</span>
+<span class="fc" id="L166">                    parameter.getKnownValues().stream(),</span>
+<span class="fc" id="L167">                    streamParameterValuesGeneratedByEngine(parameter, config))</span>
+<span class="fc" id="L168">                .distinct()</span>
+<span class="fc" id="L169">                .collect(toList()))</span>
+<span class="fc" id="L170">            .create(parameter.getName());</span>
+      }
+<span class="fc" id="L172">      return parameter;</span>
+    }
+
+    private Stream&lt;Object&gt; streamParameterValuesGeneratedByEngine(Parameter&lt;?&gt; parameter, Config config) {
+<span class="fc" id="L176">      return engine(config, new ParameterSpace.Builder().addParameter(parameter).build())</span>
+<span class="fc" id="L177">          .stream()</span>
+<span class="fc" id="L178">          .map(row -&gt; row.get(parameter.getName()));</span>
+    }
+
+    /**
+     * Checks is a parameter is referenced by any constraint in a given list or it
+     * has any known actual values.
+     * &lt;p&gt;
+     * The reason why we check if it has known levels at the same time is like this.
+     * We can state that a conventional constraint requires some combinations are
+     * absent from the final test suite. On the other hans, a 'known level' requires
+     * it to be presented in a final test suite (seeds). Then we can state that
+     * known levels are 'presence constraints' while conventional ones are 'absence
+     * constraints'.
+     *
+     * @param parameter   A parameter to be checked.
+     * @param constraints A list of constraints to be checked with the {@code parameter}.
+     */
+    private boolean isInvolvedByAnyConstraint(Parameter&lt;?&gt; parameter, List&lt;Constraint&gt; constraints) {
+<span class="pc bpc" id="L196" title="1 of 4 branches missed.">      return isReferencedBy(parameter, constraints) || !parameter.getKnownValues().isEmpty();</span>
+    }
+
+    private boolean isReferencedBy(Parameter&lt;?&gt; parameter, List&lt;Constraint&gt; constraints) {
+<span class="fc" id="L200">      return constraints.stream().anyMatch(each -&gt; each.involvedKeys().contains(parameter.getName()));</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

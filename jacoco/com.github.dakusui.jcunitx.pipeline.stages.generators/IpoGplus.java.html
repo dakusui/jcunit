@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IpoGplus.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.pipeline.stages.generators</a> &gt; <span class="el_source">IpoGplus.java</span></div><h1>IpoGplus.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.pipeline.stages.generators;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.utils.TupleUtils;
+import com.github.dakusui.jcunitx.core.StreamableCombinator;
+import com.github.dakusui.jcunitx.core.StreamableRowCartesianator;
+import com.github.dakusui.jcunitx.core.TupleSet;
+import com.github.dakusui.jcunitx.utils.Utils;
+import com.github.dakusui.jcunitx.exceptions.FrameworkException;
+import com.github.dakusui.jcunitx.exceptions.TestDefinitionException;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.factorspace.FactorUtils;
+import com.github.dakusui.jcunitx.pipeline.Requirement;
+import com.github.dakusui.jcunitx.pipeline.stages.Generator;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.Collections.disjoint;
+import static java.util.Collections.emptyList;
+import static java.util.Comparator.comparingInt;
+import static java.util.stream.Collectors.toList;
+
+@SuppressWarnings(&quot;NonAsciiCharacters&quot;)
+public class IpoGplus extends Generator.Base {
+  private final Session  session;
+  private final TupleSet precovered;
+
+  public IpoGplus(FactorSpace factorSpace, Requirement requirement, List&lt;AArray&gt; seeds) {
+<span class="fc" id="L35">    super(factorSpace, requirement);</span>
+<span class="fc" id="L36">    this.session = new Session();</span>
+<span class="fc" id="L37">    this.precovered = new TupleSet.Builder().addAll(</span>
+<span class="fc" id="L38">            seeds.stream()</span>
+<span class="fc" id="L39">                .filter(tuple -&gt; tuple.keySet().containsAll(factorSpace.getFactorNames()))</span>
+<span class="fc" id="L40">                .filter(</span>
+                    ////
+                    // tuples covered by negative tests should not be considered
+                    // covered.
+<span class="fc" id="L44">                    tuple -&gt; factorSpace.getConstraints().stream()</span>
+<span class="fc" id="L45">                        .allMatch(</span>
+<span class="fc" id="L46">                            constraint -&gt; constraint.test(tuple)</span>
+                        ))
+<span class="fc" id="L48">                .map(tuple -&gt; TupleUtils.project(tuple, factorSpace.getFactorNames()))</span>
+<span class="fc" id="L49">                .flatMap(tuple -&gt; TupleUtils.subtuplesOf(tuple, requirement.strength()).stream())</span>
+<span class="fc" id="L50">                .collect(toList()))</span>
+<span class="fc" id="L51">        .build();</span>
+<span class="fc" id="L52">  }</span>
+
+  /*
+   *  8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+   *             ..., vi-1 , vi ) so that τ’ covers the most number of
+   *             combinations of values in π (*3)
+   */
+  private static Optional&lt;Object&gt; chooseLevelThatCoversMostTuples(AArray τ, Factor fi, TupleSet π, int t, List&lt;Factor&gt; allFactors, List&lt;Constraint&gt; allConstraints, Session session) {
+<span class="fc" id="L60">    return fi.getLevels().stream()</span>
+<span class="fc" id="L61">        .map((Object eachLevel) -&gt; modifyTupleWith(τ, fi.getName(), eachLevel))</span>
+<span class="fc" id="L62">        .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*3)</span>
+<span class="fc" id="L63">        .max(</span>
+            (AArray t1, AArray t2) -&gt;
+<span class="fc" id="L65">                (int) (countCoveredTuplesBy(t1, π, t) - countCoveredTuplesBy(t2, π, t))</span>
+        )
+<span class="fc" id="L67">        .map((AArray tuple) -&gt; tuple.get(fi.getName()));</span>
+  }
+
+  private static AArray modifyTupleWith(AArray τ, String factorName, Object o1) {
+<span class="fc" id="L71">    return new AArray.Builder().putAll(τ).put(factorName, o1).build();</span>
+  }
+
+  /**
+   * Counts number of tuples in {@code π} covered by {@code τ$}.
+   *
+   * @param τ$ A tuple to cover tuples in π.
+   * @param π  A set of tuples to be covered by {@code τ$}.
+   * @param t  strength
+   */
+  private static long countCoveredTuplesBy(AArray τ$, final TupleSet π, int t) {
+<span class="fc" id="L82">    return TupleUtils.subtuplesOf(τ$, t).stream()</span>
+<span class="fc" id="L83">        .filter(π::contains)</span>
+<span class="fc" id="L84">        .count();</span>
+  }
+
+  /**
+   * &lt;pre&gt;
+   * 16. change an existing test, if possible, or otherwise add a new test
+   *     to cover σ
+   * &lt;/pre&gt;
+   */
+  private static AArray createTupleFrom(List&lt;String&gt; factorNames, AArray σ) {
+<span class="fc" id="L94">    AArray.Builder builder = new AArray.Builder();</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">    for (String each : factorNames) {</span>
+<span class="fc" id="L96">      builder.put(each, DontCare);</span>
+<span class="fc" id="L97">    }</span>
+<span class="fc" id="L98">    builder.putAll(σ);</span>
+<span class="fc" id="L99">    return builder.build();</span>
+  }
+
+  public static Function&lt;AArray, AArray&gt; replaceDontCareValuesWithActualLevels(final List&lt;Factor&gt; allFactors, List&lt;Constraint&gt; allConstraints, Session session) {
+<span class="fc" id="L103">    return new Function&lt;AArray, AArray&gt;() {</span>
+<span class="fc" id="L104">      final int maxReadAheadSize = allFactors.stream()</span>
+<span class="fc" id="L105">          .map(factor -&gt; factor.getLevels().size())</span>
+<span class="fc" id="L106">          .max(comparingInt(o -&gt; o))</span>
+<span class="fc" id="L107">          .orElseThrow(FrameworkException::unexpectedByDesign);</span>
+<span class="fc" id="L108">      int i = 0;</span>
+
+      @Override
+      public AArray apply(AArray in) {
+<span class="fc" id="L112">        List&lt;Factor&gt; dontCareFactors = dontCareFactors(in, allFactors);</span>
+<span class="fc bfc" id="L113" title="All 2 branches covered.">        if (dontCareFactors.isEmpty())</span>
+<span class="fc" id="L114">          return in;</span>
+<span class="fc" id="L115">        i = i % maxReadAheadSize;</span>
+<span class="fc" id="L116">        return new AArray.Builder()</span>
+<span class="fc" id="L117">            .putAll(in)</span>
+<span class="fc" id="L118">            .putAll(</span>
+<span class="fc" id="L119">                chooseAssignment(</span>
+<span class="fc" id="L120">                    streamAssignmentsForDontCaresUnderConstraints(</span>
+                        in,
+                        allFactors,
+                        allConstraints,
+                        session
+                    ), // (*a)
+                    i++
+<span class="pc" id="L127">                ).orElseThrow(() -&gt; TestDefinitionException.impossibleConstraint(allConstraints))</span>
+<span class="fc" id="L128">            ).build();</span>
+      }
+
+      private Optional&lt;AArray&gt; chooseAssignment(Stream&lt;AArray&gt; tupleStream, int index) {
+<span class="fc" id="L132">        List&lt;AArray&gt; work = tupleStream.limit(index + 1).collect(toList());</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        return work.isEmpty() ?</span>
+<span class="pc" id="L134">            Optional.empty() :</span>
+<span class="fc" id="L135">            Optional.of(work.get(index % work.size()));</span>
+      }
+
+    };
+  }
+
+  private static List&lt;Factor&gt; dontCareFactors(AArray tuple, List&lt;Factor&gt; factors) {
+<span class="fc" id="L142">    return factors.stream()</span>
+<span class="fc" id="L143">        .filter(</span>
+            (Factor eachFactor) -&gt;
+<span class="fc bfc" id="L145" title="All 4 branches covered.">                tuple.containsKey(eachFactor.getName()) &amp;&amp; tuple.get(eachFactor.getName()) == DontCare</span>
+        )
+<span class="fc" id="L147">        .collect(toList());</span>
+  }
+
+  private static AArray removeDontCares(AArray in) {
+<span class="fc" id="L151">    AArray.Builder builder = new AArray.Builder();</span>
+<span class="fc" id="L152">    in.keySet().stream()</span>
+<span class="fc bfc" id="L153" title="All 2 branches covered.">        .filter(s -&gt; !DontCare.equals(in.get(s)))</span>
+<span class="fc" id="L154">        .forEach(s -&gt; builder.put(s, in.get(s)));</span>
+<span class="fc" id="L155">    return builder.build();</span>
+  }
+
+  public static Stream&lt;AArray&gt; streamAllPossibleTuples(List&lt;Factor&gt; factors, int strength) throws FrameworkException {
+<span class="fc" id="L159">    FrameworkException.checkCondition(</span>
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        factors.size() &gt;= strength</span>
+    );
+<span class="fc" id="L162">    Map&lt;String, Factor&gt; factorValues = new HashMap&lt;String, Factor&gt;() {{</span>
+<span class="fc" id="L163">      factors.forEach(factor -&gt; put(factor.getName(), factor));</span>
+<span class="fc" id="L164">    }};</span>
+<span class="fc" id="L165">    return new StreamableCombinator&lt;&gt;(FactorUtils.toFactorNames(factors), strength)</span>
+<span class="fc" id="L166">        .stream()</span>
+<span class="fc" id="L167">        .flatMap((List&lt;String&gt; chosenFactorNames) -&gt; new StreamableRowCartesianator(projectFactorValues(chosenFactorNames, factorValues)).stream());</span>
+  }
+
+  private static List&lt;Factor&gt; projectFactorValues(List&lt;String&gt; chosenFactorNames, Map&lt;String, Factor&gt; factorValues) {
+<span class="fc" id="L171">    return chosenFactorNames.stream()</span>
+<span class="fc" id="L172">        .map(factorValues::get)</span>
+<span class="fc" id="L173">        .collect(toList());</span>
+  }
+
+  /**
+   * Chooses a test from {@code ts} to cover {@code σ}.
+   * Returns {@code null} if no test in ts can cover σ.
+   * &lt;pre&gt;
+   * 16.        change an existing test, if possible, or otherwise add a new test
+   *            to cover σ and remove it from π
+   * &lt;/pre&gt;
+   * σ is a partial tuple.
+   * ts is a list of partial test cases,  each of which has same keys.
+   * We already know that ts doesn't contain any test that covers σ.
+   * This method chooses tests from ts by
+   *
+   * @param ts A set of (incomplete) tests.
+   * @param σ  A tuple to be covered.
+   * @return A stream of possible incomplete tests that cover σ.
+   */
+  @SuppressWarnings(&quot;NonAsciiCharacters&quot;)
+  public static Stream&lt;AArray&gt; streamIncompleteTestsToCoverGivenTuple(List&lt;AArray&gt; ts, final AArray σ) {
+<span class="fc" id="L194">    return ts.stream()</span>
+<span class="fc" id="L195">        .filter((AArray each) -&gt; σ.keySet().stream()</span>
+<span class="fc" id="L196">            .allMatch(eachFactorNameIn_σ -&gt; {</span>
+<span class="fc bfc" id="L197" title="All 2 branches covered.">              if (!each.containsKey(eachFactorNameIn_σ))</span>
+<span class="fc" id="L198">                return true;</span>
+<span class="fc" id="L199">              Object eachLevel = each.get(eachFactorNameIn_σ);</span>
+<span class="fc bfc" id="L200" title="All 4 branches covered.">              return Objects.equals(eachLevel, DontCare) || Objects.equals(eachLevel, σ.get(eachFactorNameIn_σ));</span>
+            }));
+  }
+
+  public static Stream&lt;AArray&gt; streamAssignmentsForDontCaresUnderConstraints(
+      AArray in,
+      List&lt;Factor&gt; allFactors,
+      List&lt;Constraint&gt; allConstraints,
+      Session session
+  ) {
+<span class="fc" id="L210">    List&lt;Factor&gt; dontCareFactors = dontCareFactors(in, allFactors);</span>
+<span class="fc bfc" id="L211" title="All 2 branches covered.">    if (allConstraints.isEmpty())</span>
+<span class="fc" id="L212">      return Stream.of(new AArray.Builder().putAll(removeDontCares(in)).putAll(session.chooseAssignmentsFor(dontCareFactors)).build());</span>
+<span class="fc" id="L213">    return new StreamableRowCartesianator(dontCareFactors).stream()</span>
+<span class="fc" id="L214">        .flatMap(tuple -&gt; streamAssignmentsAllowedByConstraints(</span>
+<span class="fc" id="L215">            new AArray.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),</span>
+            allFactors,
+            allConstraints,
+            session
+        ));
+  }
+
+  public static Stream&lt;AArray&gt; streamAssignmentsAllowedByConstraints(
+      AArray request,
+      List&lt;Factor&gt; allFactors,
+      List&lt;Constraint&gt; allConstraints,
+      Session session
+  ) {
+<span class="fc" id="L228">    List&lt;Factor&gt; factorsUnderConstraintsInRequest = factorsUnderConstrains(allFactors, allConstraints).stream(</span>
+<span class="fc" id="L229">    ).map(</span>
+<span class="pc bpc" id="L230" title="1 of 4 branches missed.">        factor -&gt; (!request.containsKey(factor.getName()) || request.get(factor.getName()) == DontCare) ?</span>
+            factor :
+<span class="fc" id="L232">            Factor.create(factor.getName(), new Object[] { request.get(factor.getName()) })</span>
+<span class="fc" id="L233">    ).collect(toList());</span>
+
+<span class="fc" id="L235">    return _streamAssignmentsAllowedByConstraints(request, allConstraints, factorsUnderConstraintsInRequest, session);</span>
+  }
+
+  public static Function&lt;List&lt;Factor&gt;, Stream&lt;AArray&gt;&gt; streamTuplesUnderConstraints(List&lt;Constraint&gt; allConstraints) {
+<span class="fc" id="L239">    return factorsUnderConstraintsInRequest -&gt; new StreamableRowCartesianator(</span>
+        factorsUnderConstraintsInRequest
+<span class="fc" id="L241">    ).stream(</span>
+<span class="fc" id="L242">    ).filter(</span>
+<span class="fc" id="L243">        satisfies(allConstraints)</span>
+    );
+  }
+
+  public static Predicate&lt;AArray&gt; satisfiesAllOf(List&lt;Constraint&gt; predicates) {
+<span class="fc" id="L248">    return predicates.stream()</span>
+<span class="fc" id="L249">        .map((Function&lt;Constraint, Predicate&lt;AArray&gt;&gt;) constraint -&gt; constraint)</span>
+<span class="fc" id="L250">        .reduce(Predicate::and)</span>
+<span class="fc" id="L251">        .orElse(tuple -&gt; true);</span>
+  }
+
+  public static List&lt;Constraint&gt; getFullyInvolvedConstraints(Collection&lt;String&gt; assignedFactorNames, List&lt;Constraint&gt; allConstraints) {
+<span class="fc" id="L255">    return allConstraints.stream()</span>
+<span class="fc" id="L256">        .filter((Constraint eachConstraint) -&gt; assignedFactorNames.containsAll(eachConstraint.involvedKeys()))</span>
+<span class="fc" id="L257">        .collect(toList());</span>
+  }
+
+  public static List&lt;Constraint&gt; getPartiallyInvolvedConstraints(Collection&lt;String&gt; assignedFactorNames, List&lt;Constraint&gt; allConstraints) {
+<span class="fc" id="L261">    return allConstraints.stream()</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">        .filter((Constraint eachConstraint) -&gt; !assignedFactorNames.containsAll(eachConstraint.involvedKeys()))</span>
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">        .filter((Constraint eachConstraint) -&gt; !disjoint(eachConstraint.involvedKeys(), assignedFactorNames))</span>
+<span class="fc" id="L264">        .collect(toList());</span>
+
+  }
+
+  private static Stream&lt;AArray&gt; _streamAssignmentsAllowedByConstraints(
+      AArray request,
+      List&lt;Constraint&gt; allConstraints,
+      List&lt;Factor&gt; factorsUnderConstraintsInRequest,
+      Session session
+  ) {
+<span class="fc" id="L274">    Optional&lt;AArray&gt; firstTuple = session.findFirstTupleUnderConstraints.apply(allConstraints).apply(factorsUnderConstraintsInRequest);</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">    if (firstTuple.isPresent()) {</span>
+<span class="fc" id="L276">      StreamableRowCartesianator cartesianator = new StreamableRowCartesianator(</span>
+          factorsUnderConstraintsInRequest
+      );
+<span class="fc" id="L279">      return cartesianator</span>
+<span class="fc" id="L280">          .cursor(firstTuple.get())</span>
+<span class="fc" id="L281">          .stream(</span>
+<span class="fc" id="L282">          ).filter(</span>
+<span class="fc" id="L283">              satisfiesAllOf(allConstraints)</span>
+<span class="fc" id="L284">          ).map(</span>
+<span class="fc" id="L285">              tuple -&gt; AArray.builder().putAll(request).putAll(tuple).build()</span>
+          );
+    }
+<span class="fc" id="L288">    return Stream.empty();</span>
+  }
+
+  private static Function&lt;List&lt;Constraint&gt;, Function&lt;List&lt;Factor&gt;, Optional&lt;AArray&gt;&gt;&gt; functionToFindFirstTupleUnderConstraints() {
+<span class="fc" id="L292">    return Utils.memoize(IpoGplus::findFirstTupleUnderConstraints);</span>
+  }
+
+  private static Function&lt;List&lt;Factor&gt;, Optional&lt;AArray&gt;&gt; findFirstTupleUnderConstraints(List&lt;Constraint&gt; allConstraints) {
+<span class="fc" id="L296">    return (List&lt;Factor&gt; factorsUnderConstrains) -&gt;</span>
+<span class="fc" id="L297">        streamTuplesUnderConstraints(allConstraints).apply(factorsUnderConstrains).findFirst();</span>
+  }
+
+  private static Predicate&lt;AArray&gt; satisfies(List&lt;Constraint&gt; allConstraints) {
+<span class="fc" id="L301">    return tuple -&gt; allConstraints.stream().allMatch(constraint -&gt; constraint.test(tuple));</span>
+  }
+
+  private static List&lt;Factor&gt; factorsUnderConstrains(List&lt;Factor&gt; allFactors, List&lt;Constraint&gt; allConstraints) {
+<span class="fc" id="L305">    return allFactors.stream(</span>
+<span class="fc" id="L306">    ).filter(</span>
+<span class="fc" id="L307">        factor -&gt; allConstraints.stream().anyMatch(constraint -&gt; constraint.involvedKeys().contains(factor.getName()))</span>
+<span class="fc" id="L308">    ).collect(</span>
+<span class="fc" id="L309">        toList()</span>
+    );
+  }
+
+  private static Predicate&lt;AArray&gt; isAllowedTuple(List&lt;Factor&gt; allFactors, List&lt;Constraint&gt; allConstraints, Session session) {
+<span class="fc" id="L314">    return (AArray tuple) -&gt; streamAssignmentsAllowedByConstraints(</span>
+        tuple,
+        allFactors,
+        allConstraints,
+        session
+<span class="fc" id="L319">    ).findFirst().isPresent();</span>
+  }
+
+  /**
+   * &lt;pre&gt;
+   *   Algorithm: IPOG-Test (int t , ParameterSet ps ) {
+   *     1.  initialize test set ts to be an empty set
+   *     2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
+   *         and Pn
+   *     3.  add into test set ts a test for each combination of values of the first
+   *         t parameters (*1)
+   *     4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
+   *     5.     let π be the set of t-way combinations of values involving parameter
+   *            Pi and t -1 parameters among the first i – 1 parameters (*2)
+   *     6.     // horizontal extension for parameter Pi
+   *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
+   *     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+   *                ..., vi-1 , vi ) so that τ’ covers the most number of
+   *                combinations of values in π (*3)
+   *     9.         remove from π the combinations of values covered by τ’
+   *     10.    }
+   *     11.    // vertical extension for parameter P i
+   *     12.    for (each combination σ in set π ) {
+   *     13.      if (there exists a test that already covers σ ) {
+   *     14.          remove σ from π
+   *     15.      } else {
+   *     16.          change an existing test, if possible, or otherwise add a new test
+   *                  to cover σ and remove it from π (*4) (*a)
+   *     17.      }
+   *     18.    }
+   *     19.  }
+   *     20.  return ts;
+   *    }
+   *   See http://barbie.uta.edu/~fduan/ACTS/IPOG_%20A%20General%20Strategy%20for%20T-Way%20Software%20Testing.pdf
+   *
+   *   Constraint handling consideration (if an impossible constraint is given)
+   *   (*1)  If one or more impossible constraints are involved in first t parameters,
+   *         ts can become empty. This method should return an empty set immediately.
+   *   (*2)  If one or more impossible constraints are involved in first i-1 parameters,
+   *         π will become empty.
+   *   (*3)
+   *   (*4)
+   * &lt;/pre&gt;
+   */
+  @Override
+  public List&lt;AArray&gt; generateCore() {
+<span class="fc bfc" id="L365" title="All 2 branches covered.">    if (this.factorSpace.getFactors().size() == this.requirement.strength()) {</span>
+<span class="fc" id="L366">      return streamAllPossibleTuples(this.factorSpace.getFactors(), this.requirement.strength())</span>
+<span class="fc" id="L367">          .filter(satisfiesAllOf(this.factorSpace.getConstraints())) // OVERRIDING</span>
+<span class="fc" id="L368">          .collect(toList());</span>
+    }
+
+    /*
+     *   Algorithm: IPOG-Test (int t , ParameterSet ps ) {
+     *     1.  initialize test set ts to be an empty set
+     *     2.  denote the parameters in ps , in an arbitrary order, as P1 , P2, ...,
+     *         and Pn
+     *     3.  add into test set ts a test for each combination of values of the first
+     *         t parameters (*1)
+     */
+<span class="fc" id="L379">    int t = this.requirement.strength();</span>
+<span class="fc" id="L380">    List&lt;Factor&gt; allFactors = this.factorSpace.getFactors().stream()</span>
+<span class="fc" id="L381">        .sorted(comparingInt(o -&gt; -o.getLevels().size()))</span>
+<span class="fc" id="L382">        .collect(toList());</span>
+<span class="fc" id="L383">    List&lt;Constraint&gt; allConstraints = this.factorSpace.getConstraints();</span>
+<span class="fc" id="L384">    List&lt;AArray&gt; ts = streamAllPossibleTuples(allFactors.subList(0, t), t)</span>
+<span class="fc" id="L385">        .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*1)</span>
+<span class="fc bfc" id="L386" title="All 2 branches covered.">        .filter(tuple -&gt; !this.precovered.contains(tuple))</span>
+<span class="fc" id="L387">        .collect(toList());</span>
+<span class="fc bfc" id="L388" title="All 2 branches covered.">    if (ts.isEmpty())</span>
+<span class="fc" id="L389">      return emptyList();</span>
+<span class="fc" id="L390">    List&lt;Factor&gt; processedFactors = new LinkedList&lt;&gt;(allFactors.subList(0, t));</span>
+<span class="fc" id="L391">    int n = allFactors.size();</span>
+    /*
+     *     4.  for (int i = t + 1 ; i ≤ n ; i ++ ){
+     *         * t; strength
+     *         * 0-origin
+     */
+    TupleSet π;
+<span class="fc bfc" id="L398" title="All 2 branches covered.">    for (int i = t + 1; i &lt;= n; i++) {</span>
+      /*     5.    let π be the set of t -way combinations of values involving parameter
+       *            Pi and t -1 parameters among the first i – 1 parameters (*2)
+       */
+<span class="fc" id="L402">      Factor Pi = allFactors.get(i - 1);</span>
+<span class="fc" id="L403">      processedFactors.add(Pi);</span>
+<span class="fc" id="L404">      π = prepare_π(processedFactors, allFactors, allConstraints, t);</span>
+      /*     6.     // horizontal extension for parameter Pi
+       *     7.     for (each test τ = (v 1 , v 2 , ..., v i-1 ) in test set ts ) {
+       */
+<span class="fc bfc" id="L408" title="All 2 branches covered.">      for (AArray τ : ts) {</span>
+        /*     8.         choose a value vi of Pi and replace τ with τ’ = (v 1 , v 2 ,
+         *                ..., vi-1 , vi ) so that τ’ covers the most number of
+         *                combinations of values in π (*3)
+         */
+<span class="fc" id="L413">        Object vi = chooseLevelThatCoversMostTuples(</span>
+            τ, Pi, π, t,
+            allFactors,
+            allConstraints,
+            session
+<span class="fc" id="L418">        ).orElseThrow(</span>
+            ////
+            // (*3) This cannot happen
+<span class="nc" id="L421">            () -&gt; TestDefinitionException.failedToCover(Pi.getName(), Pi.getLevels(), τ)</span>
+        );
+<span class="fc" id="L423">        τ.put(Pi.getName(), vi);</span>
+        /*  9.         remove from π the combinations of values covered by τ’
+         */
+<span class="fc" id="L426">        π.removeAll(TupleUtils.subtuplesOf(τ, t));</span>
+<span class="fc" id="L427">      }</span>
+
+      /* 10.
+       * 11.    // vertical extension for parameter P i
+       * 12.    for (each combination σ in set π ) {
+       */
+<span class="fc bfc" id="L433" title="All 2 branches covered.">      for (AArray σ : new LinkedList&lt;&gt;(π)) {</span>
+        /* 13.      if (there exists a test that already covers σ ) {
+         * 14.          remove σ from π
+         * 15.      } else {
+         * 16.        change an existing test, if possible, or otherwise add a new test
+         *            to cover σ and remove it from π (*4)
+         * 17.      }
+         */
+<span class="pc bpc" id="L441" title="1 of 2 branches missed.">        if (ts.stream().anyMatch(σ::isContainedBy)) {</span>
+<span class="nc" id="L442">          π.remove(σ);</span>
+        } else {
+<span class="fc" id="L444">          AArray chosenTest = streamIncompleteTestsToCoverGivenTuple(</span>
+              ts, σ
+<span class="fc" id="L446">          ).filter(</span>
+<span class="fc" id="L447">              (AArray tuple) -&gt; isAllowedTuple(allFactors, allConstraints, this.session).test(</span>
+<span class="fc" id="L448">                  AArray.builder().putAll(removeDontCares(tuple)).putAll(σ).build()</span>
+              ) // (*4)
+<span class="fc" id="L450">          ).findFirst(</span>
+<span class="fc" id="L451">          ).orElseGet(</span>
+<span class="fc" id="L452">              () -&gt; createTupleFrom(</span>
+<span class="fc" id="L453">                  FactorUtils.toFactorNames(processedFactors),</span>
+                  σ
+              )
+          );
+          /*
+           * &lt;pre&gt;
+           * 16. change an existing test, if possible, or otherwise add a new test
+           *     to cover σ (*a)
+           * &lt;/pre&gt;
+           */
+<span class="fc" id="L463">          chosenTest.putAll(σ);</span>
+<span class="fc bfc" id="L464" title="All 2 branches covered.">          if (!ts.contains(chosenTest))</span>
+<span class="fc" id="L465">            ts.add(chosenTest);</span>
+<span class="fc" id="L466">          π.remove(σ);</span>
+        }
+<span class="fc" id="L468">      }</span>
+<span class="fc" id="L469">      ts = ts.stream()</span>
+<span class="fc" id="L470">          .map(</span>
+<span class="fc" id="L471">              replaceDontCareValuesWithActualLevels(</span>
+                  allFactors,
+                  allConstraints,
+                  session
+              )
+<span class="fc" id="L476">          ).collect(toList());</span>
+    }
+<span class="fc" id="L478">    return ts;</span>
+  }
+
+  @SuppressWarnings(&quot;WeakerAccess&quot;)
+  protected void validate() {
+<span class="fc" id="L483">    FrameworkException.checkCondition(</span>
+<span class="pc bpc" id="L484" title="1 of 2 branches missed.">        this.factorSpace.getFactors().size() &gt;= requirement.strength(),</span>
+        FrameworkException::unexpectedByDesign,
+<span class="nc" id="L486">        () -&gt; String.format(</span>
+            &quot;Required strength (%d) &gt; Only %d factors are given: %s&quot;,
+<span class="nc" id="L488">            this.requirement.strength(),</span>
+<span class="nc" id="L489">            this.factorSpace.getFactors().size(),</span>
+<span class="nc" id="L490">            this.factorSpace.getFactorNames()</span>
+        )
+    );
+<span class="fc" id="L493">  }</span>
+
+  private TupleSet prepare_π(List&lt;Factor&gt; alreadyProcessedFactors, List&lt;Factor&gt; allFactors, List&lt;Constraint&gt; allConstraints, int strength) {
+    /*     5.     let π be the set of t -way combinations of values involving parameter
+     *            Pi and t -1 parameters among the first i – 1 parameters (*2)
+     *
+     */
+<span class="fc" id="L500">    return new TupleSet.Builder().addAll(</span>
+            new StreamableCombinator&lt;&gt;(
+                alreadyProcessedFactors,
+                strength
+<span class="fc" id="L504">            ).stream()</span>
+<span class="fc" id="L505">                .flatMap((List&lt;Factor&gt; factors) -&gt; new StreamableRowCartesianator(factors).stream())</span>
+<span class="fc bfc" id="L506" title="All 2 branches covered.">                .filter((AArray tuple) -&gt; !precovered.contains(tuple))</span>
+<span class="fc" id="L507">                .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*2)</span>
+<span class="fc" id="L508">                .collect(toList()))</span>
+<span class="fc" id="L509">        .build();</span>
+  }
+
+<span class="fc" id="L512">  public static class Session {</span>
+<span class="fc" id="L513">    private final AtomicInteger optimizer                      = new AtomicInteger(0);</span>
+    /**
+     * A curried function to find first tuple under constraints, which is memoized.
+     */
+<span class="fc" id="L517">    private final Function&lt;List&lt;Constraint&gt;, Function&lt;List&lt;Factor&gt;, Optional&lt;AArray&gt;&gt;&gt;</span>
+<span class="fc" id="L518">                                findFirstTupleUnderConstraints = Utils.memoize(functionToFindFirstTupleUnderConstraints());</span>
+
+    private Map&lt;String, Object&gt; chooseAssignmentsFor(List&lt;Factor&gt; dontCareFactors) {
+<span class="fc" id="L521">      return new HashMap&lt;String, Object&gt;() {{</span>
+<span class="fc" id="L522">        dontCareFactors.forEach(factor -&gt; put(factor.getName(), factor.getLevels().get(optimizer.getAndIncrement() % factor.getLevels().size())));</span>
+<span class="fc" id="L523">      }};</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TupleUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.utils</a> &gt; <span class="el_source">TupleUtils.java</span></div><h1>TupleUtils.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.utils;
+
+import com.github.dakusui.combinatoradix.Combinator;
+import com.github.dakusui.jcunitx.core.AArray;
+
+import java.util.*;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.pcond.Assertions.that;
+import static com.github.dakusui.pcond.core.refl.MethodQuery.classMethod;
+import static com.github.dakusui.pcond.functions.Functions.parameter;
+import static com.github.dakusui.pcond.functions.Predicates.*;
+import static java.util.Objects.requireNonNull;
+
+<span class="pc bpc" id="L15" title="1 of 2 branches missed.">public enum TupleUtils {</span>
+  ;
+
+  public static Set&lt;AArray&gt; subtuplesOf(AArray aarray, int strength) {
+<span class="fc" id="L19">    Checks.checknotnull(aarray);</span>
+<span class="pc bpc" id="L20" title="2 of 4 branches missed.">    Checks.checkcond(strength &gt;= 0 &amp;&amp; strength &lt;= aarray.size());</span>
+<span class="fc" id="L21">    Set&lt;AArray&gt; ret = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc" id="L22">    Combinator&lt;String&gt; c = new Combinator&lt;&gt;(</span>
+<span class="fc" id="L23">        new LinkedList&lt;&gt;(aarray.keySet()), strength);</span>
+<span class="fc bfc" id="L24" title="All 2 branches covered.">    for (List&lt;String&gt; keys : c) {</span>
+<span class="fc" id="L25">      AArray cur = new AArray.Impl();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">      for (String k : keys) {</span>
+<span class="fc" id="L27">        cur.put(k, aarray.get(k));</span>
+<span class="fc" id="L28">      }</span>
+<span class="fc" id="L29">      ret.add(cur);</span>
+<span class="fc" id="L30">    }</span>
+<span class="fc" id="L31">    return ret;</span>
+  }
+
+  public static Set&lt;AArray&gt; subtuplesOf(AArray aarray) {
+<span class="nc" id="L35">    Checks.checknotnull(aarray);</span>
+<span class="nc" id="L36">    Set&lt;AArray&gt; ret = new LinkedHashSet&lt;&gt;();</span>
+<span class="nc" id="L37">    int sz = aarray.size();</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">    for (int i = 0; i &lt;= sz; i++) {</span>
+<span class="nc" id="L39">      ret.addAll(subtuplesOf(aarray, sz - i));</span>
+    }
+<span class="nc" id="L41">    return ret;</span>
+  }
+
+  public static Set&lt;AArray&gt; connectingSubtuplesOf(AArray lhs, AArray rhs, int strength) {
+<span class="pc bpc" id="L45" title="2 of 4 branches missed.">    assert that(strength, allOf(</span>
+<span class="fc" id="L46">        greaterThanOrEqualTo(0),</span>
+<span class="fc" id="L47">        lessThanOrEqualTo(lhs.size() + rhs.size())));</span>
+<span class="pc bpc" id="L48" title="2 of 4 branches missed.">    assert that(lhs.keySet(), disjointWith(rhs.keySet()));</span>
+<span class="fc" id="L49">    Set&lt;AArray&gt; ret = new LinkedHashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    for (int i = 1; i &lt; strength; i++) {</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">      if (i &gt; lhs.size())</span>
+<span class="nc" id="L52">        break;</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">      if (i &lt; strength - rhs.size())</span>
+<span class="nc" id="L54">        continue;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">      for (AArray eachFromLhs : subtuplesOf(lhs, i))</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (AArray eachFromRhs : subtuplesOf(rhs, strength - i))</span>
+<span class="fc" id="L57">          ret.add(AArray.builder().putAll(eachFromLhs).putAll(eachFromRhs).build());</span>
+    }
+<span class="fc" id="L59">    return ret;</span>
+  }
+
+  public static AArray project(AArray tuple, List&lt;String&gt; factorNames) {
+<span class="fc" id="L63">    AArray.Builder builder = new AArray.Builder();</span>
+<span class="fc" id="L64">    factorNames.stream().filter(tuple::containsKey).forEach(each -&gt; builder.put(each, tuple.get(each)));</span>
+<span class="fc" id="L65">    return builder.build();</span>
+  }
+
+  public static AArray copy(AArray tuple) {
+<span class="fc" id="L69">    return new AArray.Builder().putAll(requireNonNull(tuple)).build();</span>
+  }
+
+
+  private static Predicate&lt;Set&lt;String&gt;&gt; disjointWith(Set&lt;String&gt; rhs) {
+<span class="fc" id="L74">    return callp(classMethod(Collections.class, &quot;disjoint&quot;, parameter(), rhs));</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

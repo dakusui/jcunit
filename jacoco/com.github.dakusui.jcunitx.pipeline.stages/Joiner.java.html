@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Joiner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.pipeline.stages</a> &gt; <span class="el_source">Joiner.java</span></div><h1>Joiner.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.pipeline.stages;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.core.StreamableCombinator;
+import com.github.dakusui.jcunitx.exceptions.FrameworkException;
+import com.github.dakusui.jcunitx.pipeline.Requirement;
+import com.github.dakusui.jcunitx.testsuite.SchemafulAArraySet;
+import com.github.dakusui.jcunitx.core.TupleSet;
+
+import java.util.*;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.jcunitx.utils.TupleUtils.*;
+import static com.github.dakusui.jcunitx.utils.Checks.checkcond;
+import static com.github.dakusui.jcunitx.utils.Utils.memoize;
+import static com.github.dakusui.jcunitx.utils.Utils.sizeOfIntersection;
+import static com.github.dakusui.jcunitx.pipeline.stages.Joiner.JoinerUtils.connect;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+import static java.util.stream.Collectors.toList;
+
+public interface Joiner extends BinaryOperator&lt;SchemafulAArraySet&gt; {
+  abstract class Base implements Joiner {
+    private final Requirement requirement;
+
+<span class="fc" id="L29">    protected Base(Requirement requirement) {</span>
+<span class="fc" id="L30">      this.requirement = requirement;</span>
+<span class="fc" id="L31">    }</span>
+
+    @Override
+    public SchemafulAArraySet apply(SchemafulAArraySet lhs, SchemafulAArraySet rhs) {
+<span class="fc" id="L35">      FrameworkException.checkCondition(Collections.disjoint(lhs.getAttributeNames(), rhs.getAttributeNames()));</span>
+<span class="pc bpc" id="L36" title="2 of 4 branches missed.">      if (lhs.isEmpty() || rhs.isEmpty())</span>
+<span class="nc" id="L37">        return emptyTupleSet(lhs, rhs);</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">      if (lhs.size() &gt; rhs.size())</span>
+<span class="nc" id="L39">        return doJoin(lhs, rhs);</span>
+<span class="fc" id="L40">      return doJoin(rhs, lhs);</span>
+    }
+
+    private SchemafulAArraySet emptyTupleSet(SchemafulAArraySet lhs, SchemafulAArraySet rhs) {
+<span class="nc" id="L44">      return SchemafulAArraySet.empty(new LinkedList&lt;String&gt;() {{</span>
+<span class="nc" id="L45">        addAll(lhs.getAttributeNames());</span>
+<span class="nc" id="L46">        addAll(rhs.getAttributeNames());</span>
+<span class="nc" id="L47">      }});</span>
+    }
+
+    protected Requirement requirement() {
+<span class="fc" id="L51">      return this.requirement;</span>
+    }
+
+    protected abstract SchemafulAArraySet doJoin(SchemafulAArraySet lhs, SchemafulAArraySet rhs);
+  }
+
+  class Standard extends Base {
+
+    public Standard(Requirement requirement) {
+<span class="fc" id="L60">      super(requirement);</span>
+<span class="fc" id="L61">    }</span>
+
+    @Override
+    protected SchemafulAArraySet doJoin(SchemafulAArraySet lhs, SchemafulAArraySet rhs) {
+<span class="fc" id="L65">      class Session {</span>
+<span class="fc" id="L66">        final private Function&lt;AArray, List&lt;AArray&gt;&gt;                                     coveredByLhs          = memoize(</span>
+<span class="fc" id="L67">            tuple -&gt; findCoveringTuplesIn(project(tuple, lhs.getAttributeNames()), lhs)</span>
+        );
+<span class="fc" id="L69">        final private Function&lt;AArray, List&lt;AArray&gt;&gt;                                     coveredByRhs          = memoize(</span>
+<span class="fc" id="L70">            tuple -&gt; findCoveringTuplesIn(project(tuple, rhs.getAttributeNames()), rhs)</span>
+        );
+<span class="fc" id="L72">        final private Function&lt;Integer, Function&lt;AArray, Function&lt;AArray, Set&lt;AArray&gt;&gt;&gt;&gt; connectingSubtuplesOf =</span>
+<span class="fc" id="L73">            memoize(</span>
+<span class="fc" id="L74">                strength -&gt; memoize(</span>
+<span class="fc" id="L75">                    lhsTuple -&gt; memoize(</span>
+<span class="fc" id="L76">                        rhsTuple -&gt; connectingSubtuplesOf(lhsTuple, rhsTuple, strength)</span>
+                    )
+                )
+            );
+
+        private Optional&lt;AArray&gt; findBestCombinationFor(AArray tupleToCover, List&lt;AArray&gt; alreadyUsed, TupleSet remainingTuplesToBeCovered) {
+<span class="fc" id="L82">          int most = 0;</span>
+<span class="fc" id="L83">          AArray bestLhs = null, bestRhs = null;</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">          for (AArray lhsTuple : this.coveredByLhs.apply(tupleToCover)) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            for (AArray rhsTuple : this.coveredByRhs.apply(tupleToCover)) {</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">              if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))</span>
+<span class="nc" id="L87">                continue;</span>
+<span class="fc" id="L88">              int numCovered = sizeOfIntersection(</span>
+<span class="fc" id="L89">                  this.connectingSubtuplesOf.apply(requirement().strength()).apply(lhsTuple).apply(rhsTuple),</span>
+                  remainingTuplesToBeCovered);
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">              if (numCovered &gt; most) {</span>
+<span class="fc" id="L92">                most = numCovered;</span>
+<span class="fc" id="L93">                bestLhs = lhsTuple;</span>
+<span class="fc" id="L94">                bestRhs = rhsTuple;</span>
+              }
+<span class="fc" id="L96">            }</span>
+<span class="fc" id="L97">          }</span>
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">          return most == 0 ?</span>
+<span class="pc" id="L99">              Optional.empty() :</span>
+<span class="fc" id="L100">              Optional.of(connect(bestLhs, bestRhs));</span>
+        }
+
+        private Optional&lt;AArray&gt; findBestRhsFor(AArray lhsTuple, List&lt;AArray&gt; rhs, List&lt;AArray&gt; alreadyUsed, TupleSet remainingTuplesToBeCovered) {
+<span class="fc" id="L104">          int most = 0;</span>
+<span class="fc" id="L105">          AArray bestRhs = null;</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">          for (AArray rhsTuple : rhs) {</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">            if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))</span>
+<span class="nc" id="L108">              continue;</span>
+<span class="fc" id="L109">            int numCovered = sizeOfIntersection(</span>
+<span class="fc" id="L110">                this.connectingSubtuplesOf.apply(requirement().strength()).apply(lhsTuple).apply(rhsTuple),</span>
+                remainingTuplesToBeCovered
+            );
+<span class="fc bfc" id="L113" title="All 2 branches covered.">            if (numCovered &gt; most) {</span>
+<span class="fc" id="L114">              most = numCovered;</span>
+<span class="fc" id="L115">              bestRhs = rhsTuple;</span>
+            }
+<span class="fc" id="L117">          }</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">          return most == 0 ?</span>
+<span class="pc" id="L119">              Optional.empty() :</span>
+<span class="fc" id="L120">              Optional.of(bestRhs);</span>
+        }
+      }
+
+<span class="fc" id="L124">      Session session = new Session();</span>
+
+<span class="fc" id="L126">      TupleSet remainingTuplesToBeCovered = computeTuplesToBeCovered(lhs, rhs, this.requirement().strength());</span>
+<span class="fc" id="L127">      List&lt;AArray&gt; work = new LinkedList&lt;&gt;();</span>
+      ////
+      // If there are tuples in lhs not used in work, they should be added to the
+      // list. Otherwise t-way tuples covered by them will not be covered by the
+      // final result. Same thing can be said in rhs.
+      //
+      // Modified HG (horizontal growth) procedure
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">      checkcond(lhs.size() &gt;= rhs.size());</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">      for (int i = 0; i &lt; lhs.size(); i++) {</span>
+<span class="fc" id="L136">        AArray lhsTuple = lhs.get(i);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        AArray rhsTuple = i &lt; rhs.size() ?</span>
+<span class="fc" id="L138">            rhs.get(i) :</span>
+<span class="fc" id="L139">            session.findBestRhsFor(lhsTuple, rhs, work, remainingTuplesToBeCovered).orElse(</span>
+<span class="fc" id="L140">                rhs.get(i % rhs.size())</span>
+            );
+<span class="fc" id="L142">        AArray tuple = connect(lhsTuple, rhsTuple);</span>
+<span class="fc" id="L143">        work.add(tuple);</span>
+<span class="fc" id="L144">        remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(lhsTuple, rhsTuple, this.requirement().strength()));</span>
+      }
+      ////
+      // Modified VG (vertical growth) procedure
+<span class="fc bfc" id="L148" title="All 2 branches covered.">      while (!remainingTuplesToBeCovered.isEmpty()) {</span>
+<span class="fc" id="L149">        AArray bestTuple = session.findBestCombinationFor(</span>
+<span class="fc" id="L150">            remainingTuplesToBeCovered.stream().findFirst().orElseThrow(</span>
+                IllegalStateException::new
+            ),
+            work,
+            remainingTuplesToBeCovered
+<span class="fc" id="L155">        ).orElseThrow(</span>
+            IllegalStateException::new
+        );
+
+<span class="fc" id="L159">        work.add(bestTuple);</span>
+<span class="fc" id="L160">        remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(</span>
+<span class="fc" id="L161">            project(bestTuple, lhs.getAttributeNames()),</span>
+<span class="fc" id="L162">            project(bestTuple, rhs.getAttributeNames()),</span>
+<span class="fc" id="L163">            requirement().strength()</span>
+        ));
+<span class="fc" id="L165">      }</span>
+<span class="fc" id="L166">      return new SchemafulAArraySet.Builder(</span>
+<span class="fc" id="L167">          Stream.concat(</span>
+<span class="fc" id="L168">              lhs.getAttributeNames().stream(),</span>
+<span class="fc" id="L169">              rhs.getAttributeNames().stream()</span>
+<span class="fc" id="L170">          ).collect(toList()))</span>
+<span class="fc" id="L171">          .addAll(work)</span>
+<span class="fc" id="L172">          .build();</span>
+    }
+
+    private List&lt;AArray&gt; findCoveringTuplesIn(AArray aTuple, SchemafulAArraySet tuples) {
+<span class="fc" id="L176">      AArray inConcern = project(aTuple, tuples.getAttributeNames());</span>
+<span class="fc" id="L177">      return tuples.stream(</span>
+<span class="fc" id="L178">      ).filter(</span>
+          inConcern::isContainedBy
+<span class="fc" id="L180">      ).collect(</span>
+<span class="fc" id="L181">          toList()</span>
+      );
+    }
+
+    private static TupleSet computeTuplesToBeCovered(SchemafulAArraySet lhs, SchemafulAArraySet rhs, int strength) {
+<span class="fc" id="L186">      TupleSet.Builder builder = new TupleSet.Builder();</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">      for (int i = 1; i &lt; strength; i++) {</span>
+<span class="fc" id="L188">        TupleSet lhsTupleSet = lhs.subtuplesOf(strength - i);</span>
+<span class="fc" id="L189">        TupleSet rhsTupleSet = rhs.subtuplesOf(i);</span>
+<span class="fc" id="L190">        builder.addAll(lhsTupleSet.cartesianProduct(rhsTupleSet));</span>
+      }
+<span class="fc" id="L192">      return builder.build();</span>
+    }
+  }
+
+  class WeakenProduct extends Base {
+
+    public WeakenProduct(Requirement requirement) {
+<span class="fc" id="L199">      super(requirement);</span>
+<span class="fc" id="L200">    }</span>
+
+    @Override
+    protected SchemafulAArraySet doJoin(SchemafulAArraySet lhs, SchemafulAArraySet rhs) {
+<span class="pc bpc" id="L204" title="2 of 4 branches missed.">      if (rhs.isEmpty() || lhs.isEmpty())</span>
+<span class="nc" id="L205">        return lhs;</span>
+
+<span class="fc" id="L207">      SchemafulAArraySet.Builder b = new SchemafulAArraySet.Builder(new ArrayList&lt;String&gt;() {{</span>
+<span class="fc" id="L208">        addAll(lhs.getAttributeNames());</span>
+<span class="fc" id="L209">        addAll(rhs.getAttributeNames());</span>
+<span class="fc" id="L210">      }});</span>
+<span class="fc" id="L211">      Set&lt;AArray&gt; leftoverWorkForLhs = new LinkedHashSet&lt;&gt;(lhs.size());</span>
+<span class="fc" id="L212">      Set&lt;AArray&gt; leftoverWorkForRhs = new LinkedHashSet&lt;&gt;(lhs.size());</span>
+<span class="fc" id="L213">      leftoverWorkForLhs.addAll(lhs);</span>
+<span class="fc" id="L214">      leftoverWorkForRhs.addAll(rhs);</span>
+<span class="fc" id="L215">      LinkedHashSet&lt;AArray&gt; work = new LinkedHashSet&lt;&gt;();</span>
+      {
+<span class="fc" id="L217">        Function&lt;Function&lt;SchemafulAArraySet, Function&lt;Integer, Set&lt;AArray&gt;&gt;&gt;, Function&lt;SchemafulAArraySet, Function&lt;Integer, SchemafulAArraySet&gt;&gt;&gt; weakener</span>
+<span class="fc" id="L218">            = memoize(tupletsFinder -&gt; memoize(in -&gt; memoize(strength -&gt; JoinerUtils.weakenTo(in, strength, tupletsFinder))));</span>
+<span class="fc" id="L219">        Function&lt;SchemafulAArraySet, Function&lt;Integer, Set&lt;AArray&gt;&gt;&gt; tupletsFinder</span>
+<span class="fc" id="L220">            = memoize(in -&gt; memoize(strength -&gt; JoinerUtils.tupletsCoveredBy(in, strength)));</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">        for (int i = 1; i &lt; requirement().strength(); i++) {</span>
+<span class="fc" id="L222">          SchemafulAArraySet weakenedLhs = weakener.apply(tupletsFinder).apply(lhs).apply(i);</span>
+<span class="fc" id="L223">          SchemafulAArraySet weakenedRhs = weakener.apply(tupletsFinder).apply(rhs).apply(requirement().strength() - i);</span>
+<span class="fc" id="L224">          addConnectedTuples(work, weakenedLhs, weakenedRhs);</span>
+<span class="fc" id="L225">          leftoverWorkForLhs.removeAll(weakenedLhs);</span>
+<span class="fc" id="L226">          leftoverWorkForRhs.removeAll(weakenedRhs);</span>
+        }
+      }
+
+<span class="fc" id="L230">      ensureLeftoversArePresent(work,</span>
+          leftoverWorkForLhs, leftoverWorkForRhs,
+<span class="fc" id="L232">          lhs.get(0), rhs.get(0));</span>
+<span class="fc" id="L233">      b.addAll(new ArrayList&lt;&gt;(work));</span>
+<span class="fc" id="L234">      return b.build();</span>
+    }
+
+    void addConnectedTuples(LinkedHashSet&lt;AArray&gt; work, SchemafulAArraySet weakenedLhs, SchemafulAArraySet weakenedRhs) {
+<span class="fc" id="L238">      work.addAll(</span>
+<span class="fc" id="L239">          JoinerUtils.cartesianProduct(</span>
+              weakenedLhs,
+              weakenedRhs));
+<span class="fc" id="L242">    }</span>
+
+    private void ensureLeftoversArePresent(
+        LinkedHashSet&lt;AArray&gt; b,
+        Set&lt;AArray&gt; leftoverWorkForLhs, Set&lt;AArray&gt; leftoverWorkForRhs,
+        AArray firstTupleInLhs,
+        AArray firstTupleInRhs) {
+<span class="pc bpc" id="L249" title="2 of 4 branches missed.">      if (leftoverWorkForLhs.isEmpty() &amp;&amp; leftoverWorkForRhs.isEmpty()) {</span>
+<span class="fc" id="L250">        return;</span>
+      }
+<span class="nc bnc" id="L252" title="All 2 branches missed.">      if (leftoverWorkForLhs.size() &gt; leftoverWorkForRhs.size())</span>
+<span class="nc" id="L253">        ensureLeftoversArePresent_(</span>
+            b,
+            leftoverWorkForLhs, leftoverWorkForRhs, firstTupleInRhs);
+      else
+<span class="nc" id="L257">        ensureLeftoversArePresent_(</span>
+            b,
+            leftoverWorkForRhs, leftoverWorkForLhs, firstTupleInLhs);
+<span class="nc" id="L260">    }</span>
+
+    private void ensureLeftoversArePresent_(
+        LinkedHashSet&lt;AArray&gt; b,
+        Set&lt;AArray&gt; biggerLeftover, Set&lt;AArray&gt; nonBiggerLeftover,
+        AArray firstTupleInNonBigger) {
+<span class="nc" id="L266">      int max = max(biggerLeftover.size(), nonBiggerLeftover.size());</span>
+<span class="nc" id="L267">      int min = min(biggerLeftover.size(), nonBiggerLeftover.size());</span>
+<span class="nc" id="L268">      List&lt;AArray&gt; leftOverFromBigger = new ArrayList&lt;AArray&gt;() {{</span>
+<span class="nc" id="L269">        addAll(biggerLeftover);</span>
+<span class="nc" id="L270">      }};</span>
+<span class="nc" id="L271">      List&lt;AArray&gt; leftOverFromNonBigger = new ArrayList&lt;AArray&gt;() {{</span>
+<span class="nc" id="L272">        addAll(nonBiggerLeftover);</span>
+<span class="nc" id="L273">      }};</span>
+<span class="nc bnc" id="L274" title="All 2 branches missed.">      for (int i = 0; i &lt; max; i++) {</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        if (i &lt; min)</span>
+<span class="nc" id="L276">          b.add(connect(leftOverFromBigger.get(i), leftOverFromNonBigger.get(i)));</span>
+        else
+<span class="nc" id="L278">          b.add(connect(leftOverFromBigger.get(i), firstTupleInNonBigger));</span>
+      }
+<span class="nc" id="L280">    }</span>
+  }
+
+  public static class WeakenProduct2 extends WeakenProduct {
+    private final Function&lt;Integer, Function&lt;List&lt;String&gt;, Function&lt;List&lt;String&gt;, Set&lt;List&lt;String&gt;&gt;&gt;&gt;&gt; composeColumnSelections;
+<span class="fc" id="L285">    Set&lt;AArray&gt; coveredCrossingTuplets = new HashSet&lt;&gt;();</span>
+
+    public WeakenProduct2(Requirement requirement) {
+<span class="fc" id="L288">      super(requirement);</span>
+<span class="fc" id="L289">      this.composeColumnSelections = memoize((Integer i) -&gt; memoize((List&lt;String&gt; l) -&gt; memoize((List&lt;String&gt; r) -&gt; composeColumnSelections(i, l, r))));</span>
+<span class="fc" id="L290">    }</span>
+
+    void addConnectedTuples(LinkedHashSet&lt;AArray&gt; work, SchemafulAArraySet weakenedLhs, SchemafulAArraySet weakenedRhs) {
+<span class="fc bfc" id="L293" title="All 2 branches covered.">      for (AArray eachFromLhs : weakenedLhs) {</span>
+<span class="fc bfc" id="L294" title="All 2 branches covered.">        for (AArray eachFromRhs : weakenedRhs) {</span>
+<span class="fc" id="L295">          int numTupletsBeforeAdding = coveredCrossingTuplets.size();</span>
+<span class="fc" id="L296">          coveredCrossingTuplets.addAll(crossingTuplets(eachFromLhs, eachFromRhs, requirement().strength()));</span>
+<span class="pc bpc" id="L297" title="1 of 2 branches missed.">          if (coveredCrossingTuplets.size() &gt; numTupletsBeforeAdding)</span>
+<span class="fc" id="L298">            work.add(connect(eachFromLhs, eachFromRhs));</span>
+<span class="fc" id="L299">        }</span>
+<span class="fc" id="L300">      }</span>
+<span class="fc" id="L301">    }</span>
+
+    private Collection&lt;? extends AArray&gt; crossingTuplets(AArray eachFromLhs, AArray eachFromRhs, int strength) {
+<span class="fc" id="L304">      AArray connected = connect(eachFromLhs, eachFromRhs);</span>
+<span class="fc" id="L305">      return composeColumnSelections</span>
+<span class="fc" id="L306">          .apply(strength)</span>
+<span class="fc" id="L307">          .apply(new ArrayList&lt;&gt;(eachFromLhs.keySet()))</span>
+<span class="fc" id="L308">          .apply(new ArrayList&lt;&gt;(eachFromRhs.keySet()))</span>
+<span class="fc" id="L309">          .stream()</span>
+<span class="fc" id="L310">          .map(each -&gt; project(connected, each))</span>
+<span class="fc" id="L311">          .collect(Collectors.toList());</span>
+    }
+
+    private Set&lt;List&lt;String&gt;&gt; composeColumnSelections(int strength, List&lt;String&gt; lhsColumns, List&lt;String&gt; rhsColumns) {
+<span class="fc" id="L315">      Set&lt;List&lt;String&gt;&gt; columnSelections = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L316" title="All 2 branches covered.">      for (int i = 1; i &lt;= strength - 1; i++) {</span>
+<span class="fc" id="L317">        StreamableCombinator&lt;String&gt; lhs = new StreamableCombinator&lt;&gt;(lhsColumns, i);</span>
+
+<span class="fc" id="L319">        int finalI = i;</span>
+<span class="fc" id="L320">        lhs.stream()</span>
+<span class="fc" id="L321">            .flatMap((Function&lt;List&lt;String&gt;, Stream&lt;List&lt;String&gt;&gt;&gt;) fromLhs -&gt;</span>
+<span class="fc" id="L322">                new StreamableCombinator&lt;&gt;(rhsColumns, finalI)</span>
+<span class="fc" id="L323">                    .stream()</span>
+<span class="fc" id="L324">                    .map(fromRhs -&gt; new LinkedList&lt;String&gt;() {{</span>
+<span class="fc" id="L325">                      addAll(fromLhs);</span>
+<span class="fc" id="L326">                      addAll(fromRhs);</span>
+<span class="fc" id="L327">                    }}))</span>
+<span class="fc" id="L328">            .forEach(columnSelections::add);</span>
+      }
+<span class="fc" id="L330">      return columnSelections;</span>
+    }
+  }
+
+<span class="fc" id="L334">  enum JoinerUtils {</span>
+    ;
+
+    static AArray connect(AArray tuple1, AArray tuple2) {
+<span class="fc" id="L338">      return new AArray.Builder().putAll(tuple1).putAll(tuple2).build();</span>
+    }
+
+    private static SchemafulAArraySet weakenTo(SchemafulAArraySet in, int strength, Function&lt;SchemafulAArraySet, Function&lt;Integer, Set&lt;AArray&gt;&gt;&gt; coveredTupletsFinder) {
+<span class="fc" id="L342">      SchemafulAArraySet.Builder b = new SchemafulAArraySet.Builder(in.getAttributeNames());</span>
+<span class="fc" id="L343">      Set&lt;AArray&gt; tupletsToBeCovered = coveredTupletsFinder.apply(in).apply(strength);</span>
+<span class="pc bpc" id="L344" title="1 of 2 branches missed.">      for (AArray each : in) {</span>
+<span class="fc" id="L345">        int before = tupletsToBeCovered.size();</span>
+<span class="fc" id="L346">        tupletsToBeCovered.removeAll(subtuplesOf(each, strength));</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">        if (tupletsToBeCovered.size() &lt; before)</span>
+<span class="fc" id="L348">          b.add(each);</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">        if (tupletsToBeCovered.isEmpty())</span>
+<span class="fc" id="L350">          break;</span>
+<span class="fc" id="L351">      }</span>
+<span class="fc" id="L352">      return b.build();</span>
+    }
+
+    private static Set&lt;AArray&gt; tupletsCoveredBy(SchemafulAArraySet in, int strength) {
+<span class="fc" id="L356">      Set&lt;AArray&gt; ret = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L357">      in.forEach(tuple -&gt; ret.addAll(subtuplesOf(tuple, strength)));</span>
+<span class="fc" id="L358">      return ret;</span>
+    }
+
+    private static List&lt;AArray&gt; cartesianProduct(List&lt;AArray&gt; lhs, List&lt;AArray&gt; rhs) {
+<span class="fc" id="L362">      return lhs.stream()</span>
+<span class="fc" id="L363">          .flatMap((Function&lt;AArray, Stream&lt;AArray&gt;&gt;) l -&gt; rhs.stream()</span>
+<span class="fc" id="L364">              .map(r -&gt; connect(l, r)))</span>
+<span class="fc" id="L365">          .collect(toList());</span>
+    }
+  }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegexParameter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.metamodel.parameters</a> &gt; <span class="el_source">RegexParameter.java</span></div><h1>RegexParameter.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.metamodel.parameters;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.metamodel.Parameter;
+import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexComposer;
+import com.github.dakusui.jcunitx.metamodel.parameters.regex.RegexDecomposer;
+import com.github.dakusui.jcunitx.regex.Expr;
+import com.github.dakusui.jcunitx.regex.Parser;
+import com.github.dakusui.jcunitx.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.Objects.requireNonNull;
+
+public interface RegexParameter extends Parameter&lt;List&lt;String&gt;&gt; {
+  static &lt;V&gt; Optional&lt;AArray&gt; _decomposeValue(V value, Stream&lt;AArray&gt; tuples, Function&lt;AArray, V&gt; valueComposer, Predicate&lt;AArray&gt; constraints) {
+<span class="fc" id="L25">    return tuples.filter((AArray tuple) -&gt; value.equals(valueComposer.apply(tuple)))</span>
+<span class="fc" id="L26">        .filter(constraints)</span>
+<span class="fc" id="L27">        .findFirst();</span>
+  }
+
+  class Impl extends Base&lt;List&lt;String&gt;&gt; implements RegexParameter {
+
+    private final FactorSpace   factorSpace;
+    private final RegexComposer regexComposer;
+
+    public Impl(String name, RegexParameter.Descriptor descriptor) {
+<span class="fc" id="L36">      super(name, descriptor);</span>
+<span class="fc" id="L37">      Expr expr = new Parser().parse(descriptor.regex());</span>
+<span class="fc" id="L38">      RegexDecomposer decomposer = new RegexDecomposer(name, expr);</span>
+<span class="fc" id="L39">      this.regexComposer = new RegexComposer(name, expr);</span>
+<span class="fc" id="L40">      this.factorSpace = decomposer.decompose();</span>
+<span class="fc" id="L41">    }</span>
+
+    public Optional&lt;AArray&gt; decomposeValue(List&lt;String&gt; value) {
+<span class="fc" id="L44">      return _decomposeValue(</span>
+          value,
+<span class="fc" id="L46">          this.factorSpace.streamAllPossibleRows(),</span>
+          this.regexComposer::compose,
+<span class="fc" id="L48">          Utils.conjunct(this.factorSpace.getConstraints())</span>
+      );
+    }
+
+    @Override
+    public List&lt;String&gt; composeValue(AArray aarray) {
+<span class="fc" id="L54">      return new ArrayList&lt;&gt;(composeStringSequenceFrom(aarray));</span>
+    }
+
+    @Override
+    protected List&lt;Factor&gt; decompose() {
+<span class="fc" id="L59">      return factorSpace.getFactors();</span>
+    }
+
+    @Override
+    protected List&lt;Constraint&gt; generateConstraints() {
+<span class="fc" id="L64">      return factorSpace.getConstraints();</span>
+    }
+
+    private List&lt;String&gt; composeStringSequenceFrom(AArray aarray) {
+<span class="fc" id="L68">      return regexComposer.compose(aarray);</span>
+    }
+  }
+
+  class Descriptor extends Parameter.Descriptor.Base&lt;List&lt;String&gt;&gt; {
+    private final String regex;
+
+<span class="fc" id="L75">    private Descriptor(String regex) {</span>
+<span class="fc" id="L76">      this.regex = requireNonNull(regex);</span>
+<span class="fc" id="L77">    }</span>
+
+    public static Descriptor of(String regex) {
+<span class="fc" id="L80">      return new Descriptor(regex);</span>
+    }
+
+    private static RegexParameter create(String name, String regex, List&lt;List&lt;String&gt;&gt; knownValues) {
+<span class="fc" id="L84">      return new Impl(name, new Descriptor(regex).addActualValues(knownValues));</span>
+    }
+
+    @Override
+    public RegexParameter create(String name) {
+<span class="fc" id="L89">      return create(name, regex, knownValues);</span>
+    }
+
+    public String regex() {
+<span class="fc" id="L93">      return this.regex;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

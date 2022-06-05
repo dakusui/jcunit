@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Parameter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.metamodel</a> &gt; <span class="el_source">Parameter.java</span></div><h1>Parameter.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.metamodel;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.requireNonNull;
+
+/**
+ * A class that models a test input parameter or parameters.
+ *
+ * @param &lt;T&gt; Type of values held by this class.
+ */
+public interface Parameter&lt;T&gt; {
+  /**
+   * Returns a name of this parameter.
+   *
+   * @return A name of this parameter.
+   */
+  String getName();
+
+  /**
+   * Encodes this parameter into factors and constraints.
+   *
+   * @return Encoded factors and constraints.
+   */
+  FactorSpace toFactorSpace();
+
+  /**
+   * Compose a value of this parameter from a tuple.
+   *
+   * @param tuple an internal representation of a value of this parameter.
+   * @return A value of this parameter.
+   */
+  T composeValue(AArray tuple);
+
+  /**
+   * Decomposes a value into an associative-array.
+   *
+   * @param value A value to be decomposed.
+   * @return An associative-array that represents the `value`.
+   */
+  // TODO: Perhaps, we do not need to return `Optional` from this method, but we can just return the `Aarray`.
+  Optional&lt;AArray&gt; decomposeValue(T value);
+
+  /**
+   * Returns a list of &quot;known values&quot; of this parameter.
+   * In case `Simple` parameter model, the values given on its construction are returned.
+   * For non-simple parameters, those are the ones the user directly specifies.
+   * To implement &quot;seeding&quot; feature such values are important, because users are interested in the user level representation,
+   * but not in the internal representation.
+   *
+   * @return A list of known values of this parameter.
+   */
+  List&lt;T&gt; getKnownValues();
+
+  Descriptor&lt;T&gt; descriptor();
+
+  /**
+   * A factory interface for `Parameter`.
+   *
+   * @param &lt;T&gt; The type of the parameter values (user-facing values) created by this factory.
+   */
+  interface Descriptor&lt;T&gt; {
+    /**
+     * Add an `actualValue` to this factory.
+     * The implementation should register the value to the list of `known values` of the parameter.
+     *
+     * @param actualValue An actual value to be added to this factory.
+     * @param &lt;F&gt;         The type of the implementation of this interface
+     * @return This object.
+     */
+    &lt;F extends Descriptor&lt;T&gt;&gt; F addActualValue(T actualValue);
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    default &lt;F extends Descriptor&lt;T&gt;&gt; F addActualValues(List&lt;T&gt; actualValues) {
+<span class="fc" id="L82">      actualValues.forEach(this::addActualValue);</span>
+<span class="fc" id="L83">      return (F) this;</span>
+    }
+
+    /**
+     * Create the parameter.
+     * This is a builder method of this class.
+     *
+     * @param name The name of the parameter with which the parameter is created.
+     * @return The new parameter.
+     */
+    Parameter&lt;T&gt; create(String name);
+
+    List&lt;T&gt; knownValues();
+
+    /**
+     * A base implementation class for {@code Parameter.Factory}.
+     *
+     * @param &lt;T&gt; The type of the parameter values.
+     */
+<span class="fc" id="L102">    abstract class Base&lt;T&gt; implements Descriptor&lt;T&gt; {</span>
+<span class="fc" id="L103">      protected final List&lt;T&gt; knownValues = new LinkedList&lt;&gt;();</span>
+
+      @SuppressWarnings(&quot;unchecked&quot;)
+      @Override
+      public &lt;F extends Descriptor&lt;T&gt;&gt; F addActualValue(T actualValue) {
+<span class="fc" id="L108">        knownValues.add(actualValue);</span>
+<span class="fc" id="L109">        return (F) this;</span>
+      }
+
+      @Override
+      public List&lt;T&gt; knownValues() {
+<span class="fc" id="L114">        return this.knownValues;</span>
+      }
+    }
+  }
+
+  /**
+   * A base class for parameters.
+   *
+   * @param &lt;T&gt; The type of the parameter values
+   */
+  abstract class Base&lt;T&gt; implements Parameter&lt;T&gt; {
+    /**
+     * The name of this parameter.
+     */
+    protected final String name;
+
+    /**
+     * Known values of this parameter.
+     */
+    private final Descriptor&lt;T&gt; descriptor;
+
+<span class="fc" id="L135">    protected Base(String name, Parameter.Descriptor&lt;T&gt; descriptor) {</span>
+<span class="fc" id="L136">      this.name = requireNonNull(name);</span>
+<span class="fc" id="L137">      this.descriptor = requireNonNull(descriptor);</span>
+<span class="fc" id="L138">    }</span>
+
+
+    @Override
+    public String getName() {
+<span class="fc" id="L143">      return this.name;</span>
+    }
+
+    @Override
+    public FactorSpace toFactorSpace() {
+<span class="fc" id="L148">      return FactorSpace.create(decompose(), generateConstraints());</span>
+    }
+
+    @Override
+    public List&lt;T&gt; getKnownValues() {
+<span class="fc" id="L153">      return this.descriptor.knownValues();</span>
+    }
+
+    @Override
+    public Descriptor&lt;T&gt; descriptor() {
+<span class="nc" id="L158">      return this.descriptor;</span>
+    }
+
+    /**
+     * Decomposes (or encodes) this parameter into factors, which covering array generation engines can handle.
+     *
+     * @return The list of factors.
+     */
+    protected abstract List&lt;Factor&gt; decompose();
+
+    /**
+     * Generates constraints over factors.
+     *
+     * @return The list of generated constraints.
+     */
+    protected abstract List&lt;Constraint&gt; generateConstraints();
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

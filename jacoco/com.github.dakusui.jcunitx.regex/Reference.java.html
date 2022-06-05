@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Reference.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.regex</a> &gt; <span class="el_source">Reference.java</span></div><h1>Reference.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.regex;
+
+import static com.github.dakusui.jcunitx.utils.Checks.checknotnull;
+import static java.lang.String.format;
+
+public class Reference implements Value {
+  public final String key;
+
+<span class="fc" id="L9">  Reference(String key) {</span>
+<span class="fc" id="L10">    this.key = checknotnull(key);</span>
+<span class="fc" id="L11">  }</span>
+
+  @Override
+  public int hashCode() {
+<span class="fc" id="L15">    return this.key.hashCode();</span>
+  }
+
+  @Override
+  public boolean equals(Object another) {
+<span class="fc bfc" id="L20" title="All 2 branches covered.">    return another instanceof Reference</span>
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        &amp;&amp; this.key.equals(((Reference) another).key);</span>
+  }
+
+  @Override
+  public String toString() {
+<span class="fc" id="L26">    return format(&quot;Reference:&lt;%s&gt;&quot;, this.key);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

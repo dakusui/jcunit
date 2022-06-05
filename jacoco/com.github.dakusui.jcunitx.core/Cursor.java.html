@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Cursor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.core</a> &gt; <span class="el_source">Cursor.java</span></div><h1>Cursor.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.core;
+
+import com.github.dakusui.combinatoradix.Enumerator;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+public interface Cursor&lt;E&gt; extends Iterable&lt;E&gt; {
+  Stream&lt;E&gt; stream();
+
+  abstract class Base&lt;E&gt; implements Cursor&lt;E&gt; {
+    final long startFrom;
+
+<span class="fc" id="L16">    Base(long startFrom) {</span>
+
+<span class="fc" id="L18">      this.startFrom = startFrom;</span>
+<span class="fc" id="L19">    }</span>
+
+    public Stream&lt;E&gt; stream() {
+<span class="fc" id="L22">      return StreamSupport.stream(this.spliterator(), false);</span>
+    }
+  }
+
+  class Impl&lt;T&gt; extends Base&lt;List&lt;T&gt;&gt; {
+    final Enumerator&lt;T&gt; enumerator;
+
+    public Impl(long startFrom, Enumerator&lt;T&gt; enumerator) {
+<span class="nc" id="L30">      super(startFrom);</span>
+<span class="nc" id="L31">      this.enumerator = enumerator;</span>
+<span class="nc" id="L32">    }</span>
+
+    @Override
+    public java.util.Iterator&lt;List&lt;T&gt;&gt; iterator() {
+<span class="nc" id="L36">      return new Enumerator.Iterator&lt;&gt;(startFrom, enumerator);</span>
+    }
+  }
+
+  class ForRow extends Base&lt;AArray&gt; {
+    private final StreamableRowCartesianator enumerator;
+
+    ForRow(long startFrom, StreamableRowCartesianator enumerator) {
+<span class="fc" id="L44">      super(startFrom);</span>
+<span class="fc" id="L45">      this.enumerator = enumerator;</span>
+<span class="fc" id="L46">    }</span>
+
+    @Override
+    public Iterator&lt;AArray&gt; iterator() {
+      // TODO avoid using 'int'
+      // return this.enumerator.asList().subList((int) startFrom, (int) this.enumerator.size()).iterator();
+<span class="fc" id="L52">      return new Iterator&lt;AArray&gt;() {</span>
+<span class="fc" id="L53">        long i = startFrom;</span>
+
+        @Override
+        public boolean hasNext() {
+<span class="fc bfc" id="L57" title="All 2 branches covered.">          return i &lt; enumerator.size();</span>
+        }
+
+        @Override
+        public AArray next() {
+          try {
+<span class="fc" id="L63">            return enumerator.get(i);</span>
+          } finally {
+<span class="fc" id="L65">            i++;</span>
+          }
+        }
+      };    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

@@ -1,0 +1,17 @@
+com.github.dakusui.jcunitx.core
+com.github.dakusui.jcunitx.exceptions
+com.github.dakusui.jcunitx.factorspace
+com.github.dakusui.jcunitx.metamodel
+com.github.dakusui.jcunitx.metamodel.parameters
+com.github.dakusui.jcunitx.metamodel.parameters.regex
+com.github.dakusui.jcunitx.pipeline
+com.github.dakusui.jcunitx.pipeline.stages
+com.github.dakusui.jcunitx.pipeline.stages.generators
+com.github.dakusui.jcunitx.regex
+com.github.dakusui.jcunitx.runners.core
+com.github.dakusui.jcunitx.runners.helpers
+com.github.dakusui.jcunitx.runners.junit4
+com.github.dakusui.jcunitx.runners.junit4.annotations
+com.github.dakusui.jcunitx.runners.junit4.utils
+com.github.dakusui.jcunitx.testsuite
+com.github.dakusui.jcunitx.utils

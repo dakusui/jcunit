@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Partitioner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.pipeline.stages</a> &gt; <span class="el_source">Partitioner.java</span></div><h1>Partitioner.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.pipeline.stages;
+
+import com.github.dakusui.jcunitx.utils.Utils;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.factorspace.Factor;
+import com.github.dakusui.jcunitx.factorspace.FactorSpace;
+import com.github.dakusui.jcunitx.pipeline.Requirement;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+
+/**
+ * The size of any element in the list this stage produces must not be less than
+ * the strength returned by {@link Requirement#strength()}.
+ */
+public interface Partitioner extends Function&lt;FactorSpace, List&lt;FactorSpace&gt;&gt; {
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">  class Standard implements Partitioner {</span>
+    private final Requirement requirement;
+
+<span class="fc" id="L28">    public Standard(Requirement requirement) {</span>
+<span class="fc" id="L29">      this.requirement = requireNonNull(requirement);</span>
+<span class="fc" id="L30">    }</span>
+
+    @Override
+    public List&lt;FactorSpace&gt; apply(FactorSpace factorSpace) {
+<span class="fc" id="L34">      List&lt;Constraint&gt; constraints = new LinkedList&lt;&gt;(factorSpace.getConstraints());</span>
+<span class="fc" id="L35">      List&lt;List&lt;Constraint&gt;&gt; groupedConstraints = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">      while (!constraints.isEmpty()) {</span>
+<span class="fc" id="L37">        groupedConstraints.add(new LinkedList&lt;Constraint&gt;() {</span>
+          {
+<span class="fc" id="L39">            add(constraints.remove(0));</span>
+<span class="fc" id="L40">            addAll(findConnectedConstraints(get(0), constraints));</span>
+<span class="fc" id="L41">          }</span>
+        });
+      }
+
+<span class="fc" id="L45">      List&lt;FactorSpace&gt; ret = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L46">      List&lt;Factor&gt; factors = new ArrayList&lt;&gt;(factorSpace.getFactors());</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">      for (List&lt;Constraint&gt; eachConstraintGroup : groupedConstraints) {</span>
+<span class="fc" id="L48">        List&lt;String&gt; involvedKeys = Utils.unique(eachConstraintGroup.stream().flatMap(constraint -&gt; constraint.involvedKeys().stream()).collect(toList()));</span>
+<span class="fc" id="L49">        List&lt;Factor&gt; involvedFactors = factors.stream().filter(factor -&gt; involvedKeys.contains(factor.getName())).collect(toList());</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">        if (involvedFactors.isEmpty())</span>
+<span class="nc" id="L51">          continue;</span>
+<span class="fc" id="L52">        ret.add(FactorSpace.create(</span>
+            involvedFactors,
+            eachConstraintGroup
+        ));
+<span class="fc" id="L56">        factors.removeAll(involvedFactors);</span>
+<span class="fc" id="L57">      }</span>
+
+<span class="fc" id="L59">      ret.add(FactorSpace.create(</span>
+          factors,
+<span class="fc" id="L61">          factorSpace.getConstraints().stream()</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">              .filter(constraint -&gt; !Collections.disjoint(</span>
+<span class="fc" id="L63">                  constraint.involvedKeys(),</span>
+<span class="fc" id="L64">                  factors.stream()</span>
+<span class="fc" id="L65">                      .map(Factor::getName)</span>
+<span class="fc" id="L66">                      .collect(toList())</span>
+              ))
+<span class="fc" id="L68">              .collect(toList())</span>
+      ));
+<span class="fc" id="L70">      return pack(requirement.strength(), ret);</span>
+    }
+
+    private static List&lt;FactorSpace&gt; pack(int requiredStrength, List&lt;FactorSpace&gt; factorSpaces) {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">      if (factorSpaces.size() &lt;= 1)</span>
+<span class="fc" id="L75">        return factorSpaces;</span>
+<span class="fc" id="L76">      List&lt;FactorSpace&gt; work = new LinkedList&lt;FactorSpace&gt;() {{</span>
+<span class="fc" id="L77">        addAll(factorSpaces.stream().sorted(Comparator.comparingInt(o -&gt; o.getFactors().size())).collect(Collectors.toList()));</span>
+<span class="fc" id="L78">      }};</span>
+<span class="fc" id="L79">      FactorSpace cur = work.get(0);</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">      if (cur.getFactors().size() &gt;= requiredStrength)</span>
+<span class="fc" id="L81">        return work;</span>
+<span class="fc" id="L82">      List&lt;FactorSpace&gt; ret = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">      for (FactorSpace each : work.subList(1, work.size())) {</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (cur.getFactors().size() &lt; requiredStrength)</span>
+<span class="fc" id="L85">          cur = add(cur, each);</span>
+        else {
+<span class="nc" id="L87">          ret.add(requireNonNull(cur));</span>
+<span class="nc" id="L88">          cur = each;</span>
+        }
+<span class="fc" id="L90">      }</span>
+<span class="fc" id="L91">      ret.add(requireNonNull(cur));</span>
+<span class="fc" id="L92">      return ret;</span>
+    }
+
+    private static FactorSpace add(FactorSpace a, FactorSpace b) {
+<span class="fc" id="L96">      return FactorSpace.create(</span>
+<span class="fc" id="L97">          new ArrayList&lt;Factor&gt;(a.getFactors().size() + b.getFactors().size()) {{</span>
+<span class="fc" id="L98">            addAll(a.getFactors());</span>
+<span class="fc" id="L99">            addAll(b.getFactors());</span>
+<span class="fc" id="L100">          }},</span>
+<span class="fc" id="L101">          new ArrayList&lt;Constraint&gt;(a.getConstraints().size() + b.getFactors().size()) {{</span>
+<span class="fc" id="L102">            addAll(a.getConstraints());</span>
+<span class="fc" id="L103">            addAll(b.getConstraints());</span>
+<span class="fc" id="L104">          }}</span>
+      );
+    }
+
+    private static List&lt;Constraint&gt; findConnectedConstraints(Constraint constraint, List&lt;Constraint&gt; in) {
+<span class="pc bpc" id="L109" title="2 of 4 branches missed.">      assert !in.contains(constraint);</span>
+<span class="fc" id="L110">      List&lt;Constraint&gt; work = findDirectlyConnectedConstraints(constraint, in);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">      for (Constraint each : new ArrayList&lt;&gt;(work)) {</span>
+<span class="fc" id="L112">        work.addAll(findConnectedConstraints(each, in));</span>
+<span class="fc" id="L113">      }</span>
+<span class="fc" id="L114">      return work;</span>
+    }
+
+    private static List&lt;Constraint&gt; findDirectlyConnectedConstraints(Constraint constraint, List&lt;Constraint&gt; in) {
+<span class="fc" id="L118">      List&lt;Constraint&gt; ret = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">      for (Constraint each : new ArrayList&lt;&gt;(in)) {</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">        if (!Collections.disjoint(constraint.involvedKeys(), each.involvedKeys())) {</span>
+<span class="fc" id="L121">          ret.add(each);</span>
+<span class="fc" id="L122">          in.remove(each);</span>
+        }
+<span class="fc" id="L124">      }</span>
+<span class="fc" id="L125">      return ret;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

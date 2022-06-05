@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NodeUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.runners.core</a> &gt; <span class="el_source">NodeUtils.java</span></div><h1>NodeUtils.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.runners.core;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.exceptions.FrameworkException;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.Condition;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.ConfigureWith;
+import com.github.dakusui.jcunitx.runners.junit4.annotations.From;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
+
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.github.dakusui.jcunitx.utils.Utils.createInstanceOf;
+import static com.github.dakusui.jcunitx.exceptions.FrameworkException.unexpectedByDesign;
+import static java.util.stream.Collectors.toList;
+
+<span class="fc" id="L24">public enum NodeUtils {</span>
+  ;
+
+  public static TestInputPredicate buildPredicate(String[] values, SortedMap&lt;String, TestInputPredicate&gt; predicates_) {
+<span class="fc" id="L28">    class Builder implements Node.Visitor {</span>
+<span class="fc" id="L29">      private final SortedMap&lt;String, TestInputPredicate&gt; predicates   = predicates_;</span>
+      private Predicate&lt;AArray&gt;                           result;
+<span class="fc" id="L31">      private final SortedSet&lt;String&gt;                     involvedKeys = new TreeSet&lt;&gt;();</span>
+
+      @Override
+      public void visitLeaf(Node.Leaf leaf) {
+<span class="fc" id="L35">        TestInputPredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);</span>
+<span class="fc" id="L36">        involvedKeys.addAll(predicate.involvedKeys());</span>
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (leaf.args().length == 0)</span>
+<span class="fc" id="L38">          result = predicate;</span>
+        else
+<span class="fc" id="L40">          result = tuple -&gt; predicate.test(appendArgs(tuple, leaf));</span>
+<span class="fc" id="L41">      }</span>
+
+      private AArray appendArgs(AArray tuple, Node.Leaf leaf) {
+<span class="fc" id="L44">        return new AArray.Builder() {{</span>
+<span class="fc" id="L45">          putAll(tuple);</span>
+<span class="fc bfc" id="L46" title="All 2 branches covered.">          for (int i = 0; i &lt; leaf.args().length; i++) {</span>
+<span class="fc" id="L47">            put(String.format(&quot;@arg[%s]&quot;, i), expandFactorValueIfNecessary(tuple, leaf.args()[i]));</span>
+          }
+<span class="fc" id="L49">        }}.build();</span>
+      }
+
+      private Object expandFactorValueIfNecessary(AArray tuple, String arg) {
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (arg.startsWith(&quot;@&quot;))</span>
+<span class="fc" id="L54">          return tuple.get(arg.substring(1));</span>
+<span class="fc" id="L55">        return arg;</span>
+      }
+
+      @Override
+      public void visitAnd(Node.And and) {
+<span class="fc" id="L60">        and.children().forEach(</span>
+            node -&gt; {
+<span class="fc" id="L62">              Predicate&lt;AArray&gt; previous = result;</span>
+<span class="fc" id="L63">              node.accept(this);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">              if (previous != null) {</span>
+<span class="fc" id="L65">                result = previous.and(result);</span>
+              }
+<span class="fc" id="L67">            });</span>
+<span class="fc" id="L68">      }</span>
+
+      @Override
+      public void visitOr(Node.Or or) {
+<span class="fc" id="L72">        or.children().forEach(</span>
+            node -&gt; {
+<span class="fc" id="L74">              Predicate&lt;AArray&gt; previous = result;</span>
+<span class="fc" id="L75">              node.accept(this);</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">              if (previous != null) {</span>
+<span class="nc" id="L77">                result = previous.or(result);</span>
+              }
+<span class="fc" id="L79">            });</span>
+<span class="fc" id="L80">      }</span>
+
+      @Override
+      public void visitNot(Node.Not not) {
+<span class="nc" id="L84">        not.target().accept(this);</span>
+<span class="nc" id="L85">        result = result.negate();</span>
+<span class="nc" id="L86">      }</span>
+
+      private Optional&lt;TestInputPredicate&gt; lookupTestPredicate(String name) {
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        return this.predicates.containsKey(name) ?</span>
+<span class="fc" id="L90">            Optional.of(this.predicates.get(name)) :</span>
+<span class="nc" id="L91">            Optional.empty();</span>
+      }
+    }
+<span class="fc" id="L94">    Builder builder = new Builder();</span>
+<span class="fc" id="L95">    parse(values).accept(builder);</span>
+<span class="fc" id="L96">    return TestInputPredicate.of(</span>
+<span class="fc" id="L97">        Arrays.toString(values),</span>
+<span class="fc" id="L98">        new ArrayList&lt;&gt;(builder.involvedKeys),</span>
+<span class="fc" id="L99">        builder.result</span>
+    );
+  }
+
+  public static List&lt;String&gt; allLeaves(String[] values) {
+<span class="fc" id="L104">    return new LinkedList&lt;String&gt;() {</span>
+      {
+<span class="fc" id="L106">        parse(values).accept(</span>
+<span class="fc" id="L107">            new Node.Visitor.Base() {</span>
+              @Override
+              public void visitLeaf(Node.Leaf leaf) {
+<span class="fc" id="L110">                add(leaf.id());</span>
+<span class="fc" id="L111">              }</span>
+            });
+<span class="fc" id="L113">      }</span>
+    };
+  }
+
+  public static SortedMap&lt;String, TestInputPredicate&gt; allTestPredicates(TestClass testClass) {
+    ////
+    // TestClass &lt;&gt;--------------&gt; parameterSpace class
+    //                               constraints
+    //   non-constraint-condition    non-constraint-condition?
+    // TestClass
+    //   constraints
+    //   non-constraint-condition
+<span class="fc bfc" id="L125" title="All 2 branches covered.">    return new TreeMap&lt;&gt;((Objects.equals(testClass.getJavaClass(), getParameterSpaceDefinitionClass(testClass)) ?</span>
+<span class="fc" id="L126">        streamTestPredicatesIn(testClass.getJavaClass()) :</span>
+<span class="fc" id="L127">        Stream.concat(</span>
+<span class="fc" id="L128">            streamTestPredicatesIn(getParameterSpaceDefinitionClass(testClass)),</span>
+<span class="fc" id="L129">            streamTestPredicatesIn(testClass.getJavaClass()).filter(</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">                each -&gt; !(each instanceof Constraint)</span>
+            )
+        )
+<span class="fc" id="L133">    ).collect(Collectors.toMap(</span>
+        TestInputPredicate::getName,
+<span class="fc" id="L135">        each -&gt; each</span>
+    )));
+  }
+
+  private static Class&lt;?&gt; getParameterSpaceDefinitionClass(TestClass testClass) {
+<span class="fc" id="L140">    ConfigureWith configureWith = testClass.getAnnotation(ConfigureWith.class);</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">    configureWith = configureWith == null ?</span>
+        ConfigureWith.DEFAULT_INSTANCE :
+        configureWith;
+<span class="fc bfc" id="L144" title="All 2 branches covered.">    return Objects.equals(configureWith.parameterSpace(), Object.class) ?</span>
+<span class="fc" id="L145">        testClass.getJavaClass() :</span>
+<span class="fc" id="L146">        configureWith.parameterSpace();</span>
+  }
+
+  private static Stream&lt;TestInputPredicate&gt; streamTestPredicatesIn(Class&lt;?&gt; parameterSpaceDefinitionClass) {
+<span class="fc" id="L150">    TestClass wrapper = new TestClass(parameterSpaceDefinitionClass);</span>
+<span class="fc" id="L151">    Object testObject = createInstanceOf(wrapper);</span>
+<span class="fc" id="L152">    return wrapper.getAnnotatedMethods(Condition.class).stream(</span>
+<span class="fc" id="L153">    ).map(</span>
+<span class="fc" id="L154">        frameworkMethod -&gt; createTestPredicate(testObject, frameworkMethod)</span>
+    );
+  }
+
+  public static TestInputPredicate createTestPredicate(Object testObject, FrameworkMethod frameworkMethod) {
+<span class="fc" id="L159">    Method method = frameworkMethod.getMethod();</span>
+    //noinspection RedundantTypeArguments (to suppress a compilation error)
+<span class="fc" id="L161">    List&lt;String&gt; involvedKeys = Stream.of(method.getParameterAnnotations())</span>
+<span class="fc" id="L162">        .map(annotations -&gt; Stream.of(annotations)</span>
+<span class="fc" id="L163">            .filter(annotation -&gt; annotation instanceof From)</span>
+<span class="fc" id="L164">            .map(From.class::cast)</span>
+<span class="fc" id="L165">            .map(From::value)</span>
+<span class="fc" id="L166">            .findFirst()</span>
+<span class="fc" id="L167">            .&lt;FrameworkException&gt;orElseThrow(FrameworkException::unexpectedByDesign))</span>
+<span class="fc" id="L168">        .collect(toList());</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">    int varargsIndex = method.isVarArgs() ?</span>
+<span class="fc" id="L170">        frameworkMethod.getMethod().getParameterCount() - 1 :</span>
+        -1;
+<span class="fc" id="L172">    Predicate&lt;AArray&gt; predicate = (AArray tuple) -&gt; {</span>
+      try {
+<span class="fc" id="L174">        return (boolean) frameworkMethod.invokeExplosively(</span>
+            testObject,
+<span class="fc" id="L176">            involvedKeys.stream()</span>
+<span class="fc" id="L177">                .map(new Function&lt;String, Object&gt;() {</span>
+<span class="fc" id="L178">                  final AtomicInteger cur = new AtomicInteger(0);</span>
+
+                  @Override
+                  public Object apply(String key) {
+<span class="fc bfc" id="L182" title="All 2 branches covered.">                    if (key.equals(&quot;@arg&quot;))</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">                      return isVarArgs(cur.get()) ?</span>
+<span class="fc" id="L184">                          getVarArgs() :</span>
+<span class="fc" id="L185">                          getArg();</span>
+<span class="fc" id="L186">                    return tuple.get(key);</span>
+                  }
+
+                  private Object getArg() {
+<span class="fc" id="L190">                    return tuple.get(key(cur.getAndIncrement()));</span>
+                  }
+
+                  private Object getVarArgs() {
+<span class="fc" id="L194">                    List&lt;Object&gt; work = new LinkedList&lt;&gt;();</span>
+<span class="fc bfc" id="L195" title="All 2 branches covered.">                    while (tuple.containsKey(key(cur.get()))) {</span>
+<span class="fc" id="L196">                      work.add(getArg());</span>
+                    }
+<span class="fc" id="L198">                    return work.toArray();</span>
+                  }
+
+                  private boolean isVarArgs(int argIndex) {
+<span class="fc bfc" id="L202" title="All 2 branches covered.">                    return argIndex == varargsIndex;</span>
+                  }
+
+                  private String key(int i) {
+<span class="fc" id="L206">                    return String.format(&quot;@arg[%d]&quot;, i);</span>
+                  }
+                })
+<span class="fc" id="L209">                .toArray());</span>
+<span class="nc" id="L210">      } catch (Throwable e) {</span>
+<span class="nc" id="L211">        throw unexpectedByDesign(e);</span>
+      }
+    };
+<span class="fc bfc" id="L214" title="All 2 branches covered.">    return frameworkMethod.getAnnotation(Condition.class).constraint() ?</span>
+<span class="fc" id="L215">        Constraint.create(frameworkMethod.getName(), predicate, involvedKeys) :</span>
+<span class="fc" id="L216">        new TestInputPredicate() {</span>
+          @Override
+          public String getName() {
+<span class="fc" id="L219">            return frameworkMethod.getName();</span>
+          }
+
+          @Override
+          public boolean test(AArray tuple) {
+<span class="fc" id="L224">            return predicate.test(tuple);</span>
+          }
+
+          @Override
+          public List&lt;String&gt; involvedKeys() {
+<span class="fc" id="L229">            return involvedKeys;</span>
+          }
+        };
+  }
+
+  public static Node parse(String[] values) {
+<span class="fc" id="L235">    return new Node.Or.Impl(Stream.of(values)</span>
+<span class="fc" id="L236">        .map(NodeUtils::parseLine)</span>
+<span class="fc" id="L237">        .collect(toList()));</span>
+  }
+
+  public static Node parseLine(String value) {
+<span class="fc" id="L241">    return new Node.And.Impl(</span>
+<span class="fc" id="L242">        Stream.of(value.split(&quot;&amp;&amp;&quot;))</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">            .map(s -&gt; s.startsWith(&quot;!&quot;) ?</span>
+<span class="fc" id="L244">                new Node.Not.Impl(new Node.Leaf.Impl(s.substring(1))) :</span>
+                new Node.Leaf.Impl(s)
+            )
+<span class="fc" id="L247">            .collect(toList())</span>
+    );
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

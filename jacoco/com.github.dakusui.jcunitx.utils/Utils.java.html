@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Utils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.utils</a> &gt; <span class="el_source">Utils.java</span></div><h1>Utils.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.utils;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.exceptions.FrameworkException;
+import org.junit.runners.Parameterized;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.TestClass;
+
+import java.io.PrintStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import static com.github.dakusui.jcunitx.exceptions.FrameworkException.unexpectedByDesign;
+import static com.github.dakusui.jcunitx.utils.ReflectionUtils.getMethod;
+import static java.util.Collections.singletonList;
+
+/**
+ * A utility class of JCUnit.
+ *
+ * In case there is a good library and I want to use the functionality of it in JCUnit, I
+ * usually mimic it here (except {@code Preconditions} of Guava, it's in {@code Checks})
+ * instead of adding dependency on it.
+ *
+ * This is because JCUnit's nature which should be able to be used for any other software
+ * (at least as much as possible, I want to make it so).
+ */
+<span class="fc" id="L33">public enum Utils {</span>
+  ;
+
+<span class="fc" id="L36">  public static PrintStream out = System.out;</span>
+
+  public static &lt;T&gt; Function&lt;T, T&gt; printer() {
+<span class="fc" id="L39">    return printer(Object::toString);</span>
+  }
+
+  public static &lt;T&gt; Function&lt;T, T&gt; printer(Function&lt;T, String&gt; formatter) {
+<span class="fc" id="L43">    return t -&gt; {</span>
+<span class="fc" id="L44">      System.out.println(formatter.apply(t));</span>
+<span class="fc" id="L45">      return t;</span>
+    };
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;T&gt; T print(T data) {
+<span class="fc" id="L51">    return (T) printer().apply(data);</span>
+  }
+
+  public static &lt;T&gt; List&lt;T&gt; unique(List&lt;T&gt; in) {
+<span class="fc" id="L55">    return new ArrayList&lt;&gt;(new LinkedHashSet&lt;&gt;(in));</span>
+  }
+
+  public static &lt;T&gt; int sizeOfIntersection(Set&lt;T&gt; a, Set&lt;T&gt; b) {
+    Set&lt;T&gt; lhs;
+    Set&lt;T&gt; rhs;
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">    if (a.size() &gt; b.size()) {</span>
+<span class="nc" id="L62">      lhs = b;</span>
+<span class="nc" id="L63">      rhs = a;</span>
+    } else {
+<span class="fc" id="L65">      lhs = a;</span>
+<span class="fc" id="L66">      rhs = b;</span>
+    }
+<span class="fc" id="L68">    int ret = 0;</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">    for (T each : lhs) {</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">      if (rhs.contains(each))</span>
+<span class="fc" id="L71">        ret++;</span>
+<span class="fc" id="L72">    }</span>
+<span class="fc" id="L73">    return ret;</span>
+  }
+
+  public static AArray project(List&lt;String&gt; keys, AArray from) {
+<span class="fc" id="L77">    AArray.Builder builder = new AArray.Builder();</span>
+<span class="fc" id="L78">    keys.forEach((String key) -&gt; builder.put(key, from.get(key)));</span>
+<span class="fc" id="L79">    return builder.build();</span>
+  }
+
+  public static TestClass createTestClassMock(final TestClass testClass) {
+<span class="fc" id="L83">    return new TestClass(testClass.getJavaClass()) {</span>
+      @Override
+      public List&lt;FrameworkMethod&gt; getAnnotatedMethods(final Class&lt;? extends Annotation&gt; annClass) {
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (Parameterized.Parameters.class.equals(annClass)) {</span>
+<span class="nc" id="L87">          return singletonList(createDummyFrameworkMethod());</span>
+        }
+<span class="fc" id="L89">        return super.getAnnotatedMethods(annClass);</span>
+      }
+
+      private FrameworkMethod createDummyFrameworkMethod() {
+<span class="nc" id="L93">        return new FrameworkMethod(getDummyMethod()) {</span>
+          public boolean isStatic() {
+<span class="nc" id="L95">            return true;</span>
+          }
+
+          @Override
+          public Object invokeExplosively(Object target, Object... params) {
+<span class="nc" id="L100">            return new Object[] {};</span>
+          }
+
+          @SuppressWarnings(&quot;unchecked&quot;)
+          @Override
+          public &lt;T extends Annotation&gt; T getAnnotation(Class&lt;T&gt; annotationType) {
+<span class="nc" id="L106">            FrameworkException.checkCondition(Parameterized.Parameters.class.equals(annotationType));</span>
+<span class="nc" id="L107">            return (T) new Parameterized.Parameters() {</span>
+              @Override
+              public Class&lt;? extends Annotation&gt; annotationType() {
+<span class="nc" id="L110">                return Parameterized.Parameters.class;</span>
+              }
+
+              @Override
+              public String name() {
+<span class="nc" id="L115">                return &quot;{index}&quot;;</span>
+              }
+            };
+          }
+        };
+      }
+
+      private Method getDummyMethod() {
+<span class="nc" id="L123">        return getToStringMethod(Object.class);</span>
+      }
+    };
+  }
+
+  private static Method getToStringMethod(Class&lt;?&gt; klass) {
+<span class="nc" id="L129">    return getMethod(klass, &quot;toString&quot;);</span>
+  }
+
+  public static String className(Class&lt;?&gt; klass) {
+<span class="fc" id="L133">    return className(klass, &quot;&quot;);</span>
+  }
+
+  private static String className(Class&lt;?&gt; klass, String work) {
+<span class="fc" id="L137">    String canonicalName = klass.getCanonicalName();</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">    if (canonicalName != null)</span>
+<span class="fc" id="L139">      return canonicalName;</span>
+<span class="fc" id="L140">    return className(klass.getEnclosingClass(), work + &quot;$&quot;);</span>
+  }
+
+  /**
+   * Creates and returns an instance of a class represented by {@code TestClass}.
+   *
+   * @param testClass Must be validated beforehand.
+   * @return created instance.
+   */
+  public static Object createInstanceOf(TestClass testClass) {
+    try {
+<span class="fc" id="L151">      return testClass.getOnlyConstructor().newInstance();</span>
+<span class="nc" id="L152">    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {</span>
+<span class="nc" id="L153">      throw unexpectedByDesign(e);</span>
+    }
+  }
+
+  /**
+   * Returns a conjunction of given predicates.
+   *
+   * @param predicates Predicates from which a conjunction predicate is created.
+   * @param &lt;T&gt;        A type of predicate that accepts `E`.
+   * @param &lt;E&gt;        A type element the `predicates` accepts
+   * @return A conjuntion predicate.
+   */
+  public static &lt;T extends Predicate&lt;E&gt;, E&gt; Predicate&lt;E&gt; conjunct(Iterable&lt;T&gt; predicates) {
+<span class="fc" id="L166">    Predicate&lt;E&gt; ret = tuple -&gt; true;</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">    for (Predicate&lt;E&gt; each : predicates) {</span>
+<span class="fc" id="L168">      ret = ret.and(each);</span>
+<span class="fc" id="L169">    }</span>
+<span class="fc" id="L170">    return ret;</span>
+  }
+
+  public static &lt;T, R&gt; Function&lt;T, R&gt; memoize(Function&lt;T, R&gt; function) {
+<span class="fc" id="L174">    Map&lt;T, R&gt; memo = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L175">    return t -&gt; memo.computeIfAbsent(t, function);</span>
+  }
+
+  public static &lt;T&gt; T[] concatenate(T[] a, T[] b) {
+<span class="nc" id="L179">    int aLen = a.length;</span>
+<span class="nc" id="L180">    int bLen = b.length;</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L183">    T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);</span>
+<span class="nc" id="L184">    System.arraycopy(a, 0, c, 0, aLen);</span>
+<span class="nc" id="L185">    System.arraycopy(b, 0, c, aLen, bLen);</span>
+
+<span class="nc" id="L187">    return c;</span>
+  }
+
+  @SafeVarargs
+  public static &lt;T&gt; List&lt;T&gt; concatenate(List&lt;T&gt; a, T... b) {
+<span class="fc" id="L192">    List&lt;T&gt; ret = new LinkedList&lt;&gt;(a);</span>
+<span class="fc" id="L193">    ret.addAll(Arrays.asList(b));</span>
+<span class="fc" id="L194">    return ret;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

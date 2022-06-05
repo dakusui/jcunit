@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Parser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.regex</a> &gt; <span class="el_source">Parser.java</span></div><h1>Parser.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.regex;
+
+import com.github.dakusui.jcunitx.exceptions.InvalidTestException;
+import com.github.dakusui.jcunitx.utils.StringUtils;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.github.dakusui.jcunitx.regex.Parser.Type.ALT;
+import static com.github.dakusui.jcunitx.regex.Parser.Type.CAT;
+import static com.github.dakusui.jcunitx.utils.Checks.checkcond;
+import static com.github.dakusui.jcunitx.utils.Checks.checknotnull;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
+
+/**
+ * A parser that interprets a regular expression and generates a `Expr` object, in which
+ * the regular expression's structure is stored.
+ */
+public class Parser {
+<span class="fc" id="L25">  private static final Pattern      QUANTIFIER_PATTERN = Pattern.compile(&quot;^\\{([0-9]+),([0-9]+)}&quot;);</span>
+  /*
+   * We can implement the same mechanism by considering a white space a 'concatenation operator',
+   * but it increases number of factors and constraints generated. And it results
+   * in poorer performance.
+   * Instead, treat white spaces within a word just as part of the word, and after reverse
+   * regex generation finishes, JCUnit will split into pieces.
+   *
+   * See RegexComposer, too.
+   */
+<span class="fc" id="L35">  private static final Pattern      LEAF_PATTERN       = Pattern.compile(&quot;^\\s*[A-Za-z_]([A-Za-z_0-9 ]*[A-Za-z_0-9])?&quot;);</span>
+  private final        Expr.Factory exprFactory;
+
+<span class="fc" id="L38">  public Parser() {</span>
+<span class="fc" id="L39">    this.exprFactory = new Expr.Factory();</span>
+<span class="fc" id="L40">  }</span>
+
+  public static List&lt;String&gt; preprocess(String input) {
+<span class="fc" id="L43">    List&lt;String&gt; ret = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L44">    List&lt;String&gt; read = new LinkedList&lt;&gt;();</span>
+<span class="fc" id="L45">    preprocess(read, ret, tokenizer(input), true);</span>
+<span class="fc" id="L46">    return ret;</span>
+  }
+
+  @SuppressWarnings(&quot;ConstantConditions&quot;)
+  private static void preprocess(List&lt;String&gt; read, List&lt;String&gt; output, Iterator&lt;String&gt; input, boolean topLevel) {
+<span class="fc" id="L51">    Type type = null;</span>
+<span class="fc" id="L52">    List&lt;String&gt; work = new LinkedList&lt;&gt;();</span>
+    try {
+<span class="fc" id="L54">      PreprocessingState state = PreprocessingState.I;</span>
+<span class="fc bfc" id="L55" title="All 4 branches covered.">      while (input.hasNext() &amp;&amp; state != PreprocessingState.T) {</span>
+<span class="fc" id="L56">        String cur = input.next();</span>
+<span class="fc" id="L57">        read.add(cur);</span>
+<span class="fc" id="L58">        SymbolType symbolType = SymbolType.determine(cur);</span>
+<span class="pc bpc" id="L59" title="3 of 8 branches missed.">        switch (state) {</span>
+        case I:
+<span class="pc bpc" id="L61" title="1 of 3 branches missed.">          switch (symbolType) {</span>
+          case OPEN:
+<span class="fc" id="L63">            preprocess(read, work, input, false);</span>
+<span class="fc" id="L64">            state = PreprocessingState.I_T;</span>
+<span class="fc" id="L65">            break;</span>
+          case WORD:
+<span class="fc" id="L67">            work.add(cur);</span>
+<span class="fc" id="L68">            state = PreprocessingState.I_T;</span>
+<span class="fc" id="L69">            break;</span>
+          default:
+<span class="nc" id="L71">            throw syntaxError(cur, read);</span>
+          }
+          break;
+        case I_T:
+<span class="pc bpc" id="L75" title="1 of 5 branches missed.">          switch (symbolType) {</span>
+          case CHOICE:
+<span class="fc" id="L77">            state = PreprocessingState.ALT_I;</span>
+<span class="fc" id="L78">            type = ALT;</span>
+<span class="fc" id="L79">            break;</span>
+          case WORD:
+<span class="fc" id="L81">            state = PreprocessingState.CAT_T;</span>
+<span class="fc" id="L82">            type = CAT;</span>
+<span class="fc" id="L83">            work.add(cur);</span>
+<span class="fc" id="L84">            break;</span>
+          case OPEN:
+<span class="fc" id="L86">            state = PreprocessingState.CAT_T;</span>
+<span class="fc" id="L87">            type = CAT;</span>
+<span class="fc" id="L88">            preprocess(read, work, input, false);</span>
+<span class="fc" id="L89">            break;</span>
+          case CLOSE:
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">            if (!topLevel) {</span>
+<span class="fc" id="L92">              state = PreprocessingState.T;</span>
+<span class="fc" id="L93">              break;</span>
+            }
+          default:
+<span class="nc" id="L96">            throw syntaxError(cur, read);</span>
+          }
+          break;
+        case ALT_I:
+<span class="pc bpc" id="L100" title="1 of 3 branches missed.">          switch (symbolType) {</span>
+          case OPEN:
+<span class="fc" id="L102">            preprocess(read, work, input, false);</span>
+<span class="fc" id="L103">            state = PreprocessingState.ALT_T;</span>
+<span class="fc" id="L104">            break;</span>
+          case WORD:
+<span class="fc" id="L106">            work.add(cur);</span>
+<span class="fc" id="L107">            state = PreprocessingState.ALT_T;</span>
+<span class="fc" id="L108">            break;</span>
+          default:
+<span class="nc" id="L110">            throw syntaxError(cur, read);</span>
+          }
+          break;
+        case ALT_T:
+<span class="pc bpc" id="L114" title="1 of 3 branches missed.">          switch (symbolType) {</span>
+          case CHOICE:
+<span class="fc" id="L116">            state = PreprocessingState.ALT_I;</span>
+<span class="fc" id="L117">            break;</span>
+          case CLOSE:
+<span class="fc" id="L119">            state = PreprocessingState.T;</span>
+<span class="fc" id="L120">            break;</span>
+          default:
+<span class="nc" id="L122">            throw syntaxError(cur, read);</span>
+          }
+          break;
+        case CAT_T:
+<span class="pc bpc" id="L126" title="1 of 4 branches missed.">          switch (symbolType) {</span>
+          case OPEN:
+            // Re-assigning the same value for the clarity's sake.
+<span class="fc" id="L129">            state = PreprocessingState.CAT_T;</span>
+<span class="fc" id="L130">            preprocess(read, work, input, false);</span>
+<span class="fc" id="L131">            break;</span>
+          case WORD:
+<span class="fc" id="L133">            work.add(cur);</span>
+<span class="fc" id="L134">            break;</span>
+          case CLOSE:
+<span class="fc" id="L136">            state = PreprocessingState.T;</span>
+<span class="fc" id="L137">            break;</span>
+          default:
+<span class="nc" id="L139">            throw syntaxError(cur, read);</span>
+          }
+          break;
+        case CAT_R:
+<span class="nc bnc" id="L143" title="All 2 branches missed.">          if (symbolType == SymbolType.CLOSE) {</span>
+<span class="nc" id="L144">            state = PreprocessingState.CAT_T;</span>
+          } else {
+<span class="nc" id="L146">            throw syntaxError(cur, read);</span>
+          }
+          break;
+        case T:
+<span class="nc" id="L150">          throw syntaxError(cur, read);</span>
+        }
+<span class="fc" id="L152">      }</span>
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">      if (topLevel &amp;&amp; input.hasNext()) {</span>
+<span class="nc" id="L154">        throw syntaxError(input.next(), work);</span>
+      }
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">      if (!asList(PreprocessingState.I_T, PreprocessingState.T, PreprocessingState.ALT_T, PreprocessingState.CAT_T).contains(state)) {</span>
+<span class="nc" id="L157">        throw inputShouldNotEndHere(state);</span>
+      }
+    } finally {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">      work.add(0, (type == null ? CAT : type).toString());</span>
+<span class="fc" id="L161">      work.add(&quot;)&quot;);</span>
+<span class="fc" id="L162">      output.addAll(work);</span>
+    }
+<span class="fc" id="L164">  }</span>
+
+  private static RuntimeException syntaxError(String token, List&lt;String&gt; work) {
+<span class="nc" id="L167">    throw new InvalidTestException(</span>
+<span class="nc" id="L168">        format(</span>
+            &quot;token '%s' should not come after: '%s'&quot;,
+            token,
+<span class="nc" id="L171">            StringUtils.join(&quot;&quot;, work.subList(0, Math.max(0, work.size() - 1))))</span>
+    );
+  }
+
+  private static RuntimeException inputShouldNotEndHere(PreprocessingState state) {
+<span class="nc" id="L176">    throw new InvalidTestException(format(&quot;Input should not end here: '%s'&quot;, state));</span>
+  }
+
+  private static Iterator&lt;String&gt; tokenizer(final String input) {
+<span class="fc" id="L180">    return new Iterator&lt;String&gt;() {</span>
+<span class="fc" id="L181">      String[] nextToken = nextToken(input);</span>
+
+      @Override
+      public boolean hasNext() {
+<span class="fc bfc" id="L185" title="All 2 branches covered.">        return nextToken != null;</span>
+      }
+
+      @Override
+      public String next() {
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        if (!hasNext())</span>
+<span class="nc" id="L191">          throw new NoSuchElementException();</span>
+        try {
+<span class="fc" id="L193">          return nextToken[0];</span>
+        } finally {
+<span class="fc" id="L195">          nextToken = nextToken(nextToken[1]);</span>
+        }
+      }
+
+      @Override
+      public void remove() {
+<span class="nc" id="L201">        throw new UnsupportedOperationException();</span>
+      }
+    };
+  }
+
+  private static String[] nextToken(String input) {
+<span class="fc bfc" id="L207" title="All 2 branches covered.">    if (input.isEmpty())</span>
+<span class="fc" id="L208">      return null;</span>
+<span class="fc" id="L209">    char first = input.charAt(0);</span>
+<span class="fc bfc" id="L210" title="All 6 branches covered.">    if (first == '(' || first == ')' || first == '|') {</span>
+<span class="fc" id="L211">      return new String[] { input.substring(0, 1), input.substring(1) };</span>
+    }
+    {
+<span class="fc" id="L214">      Matcher m = LEAF_PATTERN.matcher(input);</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">      if (m.find()) {</span>
+        /*
+        String matchedPart = m.group(0);
+        String work = matchedPart.contains(&quot; &quot;) ?
+            matchedPart.substring(0, matchedPart.indexOf(&quot; &quot;)) :
+            matchedPart;
+        return new String[] { work, input.substring(work.length()).trim() };
+        */
+        //return new String[] { m.group(0), input.substring(m.group(0).length()).trim() };
+        //String matchedPart = m.group(0);
+<span class="fc bfc" id="L225" title="All 2 branches covered.">        if (m.group(0).contains(&quot; &quot;)) {</span>
+<span class="fc" id="L226">          String rest = input.replaceFirst(&quot;^[^ \t]*\\s+&quot;, &quot;&quot;);</span>
+<span class="fc" id="L227">          String head = input.substring(0, input.length() - rest.length());</span>
+<span class="fc" id="L228">          return new String[] { head.trim(), rest };</span>
+        }
+<span class="fc" id="L230">        return new String[] { m.group(0), input.substring(m.group(0).length()) };</span>
+      }
+    }
+    {
+<span class="fc" id="L234">      Matcher m = QUANTIFIER_PATTERN.matcher(input);</span>
+<span class="pc bpc" id="L235" title="1 of 2 branches missed.">      if (m.find()) {</span>
+<span class="fc" id="L236">        return new String[] { m.group(0), input.substring(m.group(0).length()) };</span>
+      }
+    }
+
+<span class="nc" id="L240">    throw new InvalidTestException(format(&quot;Syntax error: Unparsable: '%s' did neither match '%s' nor '%s'&quot;, input, LEAF_PATTERN, QUANTIFIER_PATTERN));</span>
+  }
+
+  private static String head(List&lt;String&gt; tokens) {
+<span class="fc bfc" id="L244" title="All 2 branches covered.">    if (tokens.isEmpty()) {</span>
+<span class="fc" id="L245">      return null;</span>
+    }
+<span class="fc" id="L247">    return tokens.get(0);</span>
+  }
+
+  private static List&lt;String&gt; tail(List&lt;String&gt; tokens) {
+<span class="fc" id="L251">    return tokens.subList(1, tokens.size());</span>
+  }
+
+  public Expr parse(String regex) {
+<span class="fc" id="L255">    return parse(preprocess(regex));</span>
+  }
+
+  private Expr parse(List&lt;String&gt; tokens) {
+<span class="fc" id="L259">    Context result = readTerm(tokens);</span>
+<span class="fc" id="L260">    checkcond(result.tokens.isEmpty(), &quot;Syntax error: unparsed=%s&quot;, result.tokens);</span>
+<span class="fc" id="L261">    return result.expr;</span>
+  }
+
+  private Context readTerm(List&lt;String&gt; tokens) {
+<span class="fc" id="L265">    String head = head(tokens);</span>
+    Context ret;
+<span class="fc bfc" id="L267" title="All 2 branches covered.">    if (ALT.asString().equals(head)) {</span>
+<span class="fc" id="L268">      ret = readAlt(tail(tokens));</span>
+<span class="fc bfc" id="L269" title="All 2 branches covered.">    } else if (CAT.asString().equals(head)) {</span>
+<span class="fc" id="L270">      ret = readCat(tail(tokens));</span>
+    } else {
+<span class="fc" id="L272">      ret = readLeaf(tokens);</span>
+    }
+    String nextHead;
+<span class="pc bpc" id="L275" title="1 of 4 branches missed.">    if (ret.tokens != null &amp;&amp; (nextHead = head(ret.tokens)) != null) {</span>
+      Matcher m;
+<span class="fc bfc" id="L277" title="All 2 branches covered.">      if ((m = QUANTIFIER_PATTERN.matcher(nextHead)).find()) {</span>
+<span class="fc" id="L278">        ret = new Context(</span>
+<span class="fc" id="L279">            this.exprFactory.rep(ret.expr, Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2))),</span>
+<span class="fc" id="L280">            tail(ret.tokens));</span>
+      }
+    }
+<span class="fc" id="L283">    return ret;</span>
+  }
+
+  private Context readLeaf(List&lt;String&gt; tokens) {
+<span class="fc" id="L287">    String head = head(tokens);</span>
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">    if (head == null)</span>
+<span class="nc" id="L289">      return Context.LAST;</span>
+<span class="fc" id="L290">    return new Context(this.exprFactory.leaf(head), tail(tokens));</span>
+  }
+
+  private Context readAlt(List&lt;String&gt; tokens) {
+<span class="fc" id="L294">    List&lt;Expr&gt; work = new LinkedList&lt;&gt;();</span>
+<span class="pc bpc" id="L295" title="1 of 2 branches missed.">    for (Context context = readTerm(tokens); context.hasNext(); context = readTerm(tokens)) {</span>
+<span class="fc" id="L296">      work.add(context.expr);</span>
+<span class="fc" id="L297">      tokens = context.tokens;</span>
+<span class="fc bfc" id="L298" title="All 2 branches covered.">      if (&quot;)&quot;.equals(head(tokens))) {</span>
+<span class="fc" id="L299">        tokens = tail(tokens);</span>
+<span class="fc" id="L300">        break;</span>
+      }
+    }
+<span class="pc bpc" id="L303" title="1 of 2 branches missed.">    if (work.size() == 1) {</span>
+<span class="nc" id="L304">      return new Context(work.get(0), tokens);</span>
+    }
+<span class="fc" id="L306">    return new Context(this.exprFactory.alt(work), tokens);</span>
+  }
+
+  private Context readCat(List&lt;String&gt; tokens) {
+<span class="fc" id="L310">    List&lt;Expr&gt; work = new LinkedList&lt;&gt;();</span>
+<span class="pc bpc" id="L311" title="1 of 2 branches missed.">    for (Context context = readTerm(tokens); context.hasNext(); context = readTerm(tokens)) {</span>
+<span class="fc" id="L312">      work.add(context.expr);</span>
+<span class="fc" id="L313">      tokens = context.tokens;</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">      if (&quot;)&quot;.equals(head(tokens))) {</span>
+<span class="fc" id="L315">        tokens = tail(tokens);</span>
+<span class="fc" id="L316">        break;</span>
+      }
+    }
+<span class="fc" id="L319">    return new Context(this.exprFactory.cat(work), tokens);</span>
+  }
+
+<span class="fc" id="L322">  enum Type {</span>
+<span class="fc" id="L323">    CAT(&quot;*&quot;),</span>
+    /**
+     * Alternative
+     */
+<span class="fc" id="L327">    ALT(&quot;+&quot;),</span>
+    ;
+
+    final String value;
+
+<span class="fc" id="L332">    Type(String value) {</span>
+<span class="fc" id="L333">      this.value = value;</span>
+<span class="fc" id="L334">    }</span>
+
+    public String asString() {
+<span class="fc" id="L337">      return &quot;(&quot; + this.value;</span>
+    }
+
+    public String toString() {
+<span class="fc" id="L341">      return asString();</span>
+    }
+  }
+
+<span class="fc" id="L345">  private enum SymbolType {</span>
+<span class="fc" id="L346">    OPEN,</span>
+<span class="fc" id="L347">    WORD,</span>
+<span class="fc" id="L348">    CHOICE,</span>
+<span class="fc" id="L349">    CLOSE;</span>
+
+    static SymbolType determine(String cur) {
+<span class="fc" id="L352">      checknotnull(cur);</span>
+<span class="fc bfc" id="L353" title="All 2 branches covered.">      if (&quot;(&quot;.equals(cur)) {</span>
+<span class="fc" id="L354">        return OPEN;</span>
+<span class="fc bfc" id="L355" title="All 2 branches covered.">      } else if (&quot;|&quot;.equals(cur)) {</span>
+<span class="fc" id="L356">        return CHOICE;</span>
+<span class="fc bfc" id="L357" title="All 2 branches covered.">      } else if (&quot;)&quot;.equals(cur)) {</span>
+<span class="fc" id="L358">        return CLOSE;</span>
+      }
+<span class="fc" id="L360">      return WORD;</span>
+    }
+  }
+
+<span class="fc" id="L364">  private enum PreprocessingState {</span>
+<span class="fc" id="L365">    I, I_R, I_T,</span>
+<span class="fc" id="L366">    ALT_I, ALT_R, ALT_T,</span>
+<span class="fc" id="L367">    CAT_R, CAT_T,</span>
+<span class="fc" id="L368">    T</span>
+  }
+
+  static class Context {
+<span class="fc" id="L372">    static final Context      LAST = new Context(null, null);</span>
+    final        Expr         expr;
+    final        List&lt;String&gt; tokens;
+
+<span class="fc" id="L376">    Context(Expr expr, List&lt;String&gt; tokens) {</span>
+<span class="fc" id="L377">      this.expr = expr;</span>
+<span class="fc" id="L378">      this.tokens = tokens;</span>
+<span class="fc" id="L379">    }</span>
+
+    boolean hasNext() {
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">      return this.expr != null;</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

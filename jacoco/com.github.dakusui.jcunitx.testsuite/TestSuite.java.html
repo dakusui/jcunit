@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TestSuite.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jcunit</a> &gt; <a href="index.source.html" class="el_package">com.github.dakusui.jcunitx.testsuite</a> &gt; <span class="el_source">TestSuite.java</span></div><h1>TestSuite.java</h1><pre class="source lang-java linenums">package com.github.dakusui.jcunitx.testsuite;
+
+import com.github.dakusui.jcunitx.core.AArray;
+import com.github.dakusui.jcunitx.utils.TupleUtils;
+import com.github.dakusui.jcunitx.factorspace.Constraint;
+import com.github.dakusui.jcunitx.metamodel.ParameterSpace;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.requireNonNull;
+
+/**
+ * As a result of tuple suite generation, tuples that are identical if they are
+ * converted back to parameter space can be created.
+ * &lt;p&gt;
+ * This class eliminates those tuples on its construction.
+ */
+public interface TestSuite extends List&lt;TestCase&gt; {
+  /**
+   * Returns a parameter space from which this instance is created.
+   *
+   * @return parameter space
+   */
+  ParameterSpace getParameterSpace();
+
+  TestScenario getScenario();
+
+  class Builder&lt;T&gt; {
+    private final ParameterSpace parameterSpace;
+<span class="fc" id="L31">    private final List&lt;TestCase&gt; testCases = new LinkedList&lt;&gt;();</span>
+    private final TestScenario   testScenario;
+
+<span class="fc" id="L34">    public Builder(ParameterSpace parameterSpace, TestScenario testScenario) {</span>
+<span class="fc" id="L35">      this.parameterSpace = requireNonNull(parameterSpace);</span>
+<span class="fc" id="L36">      this.testScenario = testScenario;</span>
+<span class="fc" id="L37">    }</span>
+
+    public Builder&lt;T&gt; addAllToSeedTuples(Collection&lt;? extends AArray&gt; collection) {
+<span class="fc" id="L40">      collection.stream().map(each -&gt; toTestCase(TestCase.Category.SEED, each)).forEach(testCases::add);</span>
+<span class="fc" id="L41">      return this;</span>
+    }
+
+    public Builder&lt;T&gt; addAllToRegularTuples(Collection&lt;? extends AArray&gt; collection) {
+<span class="fc" id="L45">      collection.stream().map(each -&gt; toTestCase(TestCase.Category.REGULAR, each)).forEach(testCases::add);</span>
+<span class="fc" id="L46">      return this;</span>
+    }
+
+    public Builder&lt;T&gt; addAllToNegativeTuples(Collection&lt;? extends AArray&gt; collection) {
+<span class="fc" id="L50">      collection.stream().map(each -&gt; toTestCase(TestCase.Category.NEGATIVE, each)).forEach(testCases::add);</span>
+<span class="fc" id="L51">      return this;</span>
+    }
+
+    private TestCase toTestCase(TestCase.Category category, AArray testCaseTuple) {
+<span class="fc" id="L55">      AArray tuple = TupleUtils.copy(testCaseTuple);</span>
+<span class="fc" id="L56">      return category.createTestCase(</span>
+          tuple,
+<span class="fc" id="L58">          this.parameterSpace.getConstraints().stream()</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">              .filter((Constraint constraint) -&gt; !constraint.test(tuple))</span>
+<span class="fc" id="L60">              .collect(Collectors.toList()));</span>
+    }
+
+    public TestSuite build() {
+      class Impl extends AbstractList&lt;TestCase&gt; implements TestSuite {
+        private final List&lt;TestCase&gt; testCases;
+
+        private Impl(
+<span class="fc" id="L68">        ) {</span>
+<span class="fc" id="L69">          this.testCases = new ArrayList&lt;TestCase&gt;(Builder.this.testCases.size()) {{</span>
+<span class="fc" id="L70">            Builder.this.testCases.stream()</span>
+<span class="fc" id="L71">                .filter(testCase -&gt; stream().noneMatch(registered -&gt; registered.getTestInput().equals(testCase.getTestInput())))</span>
+<span class="fc" id="L72">                .forEach(this::add);</span>
+<span class="fc" id="L73">          }};</span>
+<span class="fc" id="L74">        }</span>
+
+        @Override
+        public TestCase get(int index) {
+<span class="fc" id="L78">          return this.testCases.get(index);</span>
+        }
+
+        @Override
+        public int size() {
+<span class="fc" id="L83">          return this.testCases.size();</span>
+        }
+
+        @Override
+        public ParameterSpace getParameterSpace() {
+<span class="fc" id="L88">          return parameterSpace;</span>
+        }
+
+        @Override
+        public TestScenario getScenario() {
+<span class="fc" id="L93">          return testScenario;</span>
+        }
+      }
+<span class="fc" id="L96">      return new Impl();</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

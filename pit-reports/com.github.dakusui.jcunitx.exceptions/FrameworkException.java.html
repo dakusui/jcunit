@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>FrameworkException.java</h1>
+
+<table class="src">
+
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package com.github.dakusui.jcunitx.exceptions;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Function;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Predicate;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.util.function.Supplier;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>/**</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * An exception that indicates a bug in JCUnit&#39;s framework.</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> *</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * [ditaa]</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * ----</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * +-----+      +-----+</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * |hello|&#60;&#62;---&#62;|world|</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * +-----+      +-----+</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> * ----</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''> */</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>public class FrameworkException extends BaseException {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  protected FrameworkException(String format) {</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    super(format);</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_20'/>
+20
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_20'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_22'/>
+22
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_22'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  protected FrameworkException(String format, Throwable t) {</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    super(format, t);</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_25'/>
+25
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_25'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_26'/>
+26
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_26'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  @SuppressWarnings(&#34;WeakerAccess&#34;)</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_27'/>
+27
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_27'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static void checkCondition(boolean b, Function&#60;String, ? extends FrameworkException&#62; exceptionFactory, Supplier&#60;String&#62; messageSupplier) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_28'/>
+28
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_28'>1</a>
+<span>
+1. checkCondition : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    if (!b)</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_29'/>
+29
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_29'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>      throw exceptionFactory.apply(messageSupplier.get());</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_30'/>
+30
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_30'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_31'/>
+31
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_31'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_32'/>
+32
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_32'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static &#60;T&#62; T check(T value, Predicate&#60;T&#62; check) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_33'/>
+33
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_33'>1</a>
+<span>
+1. check : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    if (check.test(value))</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_34'/>
+34
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_34'>1</a>
+<span>
+1. check : replaced return value with null for com/github/dakusui/jcunitx/exceptions/FrameworkException::check &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>      return value;</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_35'/>
+35
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_35'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    throw new FrameworkException(&#34;Unexpected by design&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_36'/>
+36
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_36'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_37'/>
+37
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_37'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_38'/>
+38
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_38'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static &#60;T&#62; T check(T value, Predicate&#60;T&#62; check, Supplier&#60;String&#62; messageSupplier) {</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_39'/>
+39
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_39'>1</a>
+<span>
+1. check : negated conditional &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>    if (check.test(value))</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_40'/>
+40
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_40'>1</a>
+<span>
+1. check : replaced return value with null for com/github/dakusui/jcunitx/exceptions/FrameworkException::check &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class='survived'>      return value;</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_41'/>
+41
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_41'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    throw new FrameworkException(messageSupplier.get());</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_42'/>
+42
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_42'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_43'/>
+43
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_43'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_44'/>
+44
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_44'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static void checkCondition(boolean b, Function&#60;String, ? extends FrameworkException&#62; exceptionFactory) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_45'/>
+45
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_45'>2</a>
+<span>
+1. checkCondition : removed call to com/github/dakusui/jcunitx/exceptions/FrameworkException::checkCondition &rarr; SURVIVED<br/>
+2. lambda$checkCondition$0 : replaced return value with &#34;&#34; for com/github/dakusui/jcunitx/exceptions/FrameworkException::lambda$checkCondition$0 &rarr; NO_COVERAGE<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    checkCondition(b, exceptionFactory, () -&#62; &#34;Unexpected by design&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_46'/>
+46
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_46'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_47'/>
+47
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_47'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_48'/>
+48
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_48'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static void checkCondition(boolean b) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_49'/>
+49
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_49'>1</a>
+<span>
+1. checkCondition : removed call to com/github/dakusui/jcunitx/exceptions/FrameworkException::checkCondition &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    checkCondition(b, FrameworkException::unexpectedByDesign);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_50'/>
+50
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_50'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_51'/>
+51
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_51'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_52'/>
+52
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_52'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static FrameworkException unexpectedByDesign() {</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_53'/>
+53
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_53'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    throw new FrameworkException(&#34;Unexpected by design&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_54'/>
+54
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_54'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_55'/>
+55
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_55'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_56'/>
+56
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_56'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static FrameworkException unexpectedByDesign(Throwable t) {</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_57'/>
+57
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_57'>1</a>
+<span>
+1. unexpectedByDesign : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>    if (t instanceof Error)</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_58'/>
+58
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_58'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>      throw (Error) t;</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_59'/>
+59
+</td>
+<td class='survived'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_59'>1</a>
+<span>
+1. unexpectedByDesign : negated conditional &rarr; SURVIVED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='survived'>    if (t instanceof RuntimeException)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_60'/>
+60
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_60'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>      throw (RuntimeException) t;</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_61'/>
+61
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_61'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    throw new FrameworkException(String.format(&#34;Unexpected by design:%s&#34;, t.getMessage()), t);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_62'/>
+62
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_62'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_63'/>
+63
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_63'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_64'/>
+64
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_64'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  public static FrameworkException unexpectedByDesign(String message) {</span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_65'/>
+65
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_65'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>    throw new FrameworkException(String.format(&#34;Unexpected by design:%s&#34;, message));</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_66'/>
+66
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_66'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>  }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@ac11347_67'/>
+67
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_67'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_28'>28</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_28'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>checkCondition<br/><b>Killed by : </b>com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples.given3FactorsWithStrength2$whenAllPossibleTuples$thenAllCovered(com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples)</span></span> negated conditional &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_33'>33</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_33'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>check<br/><b>Killed by : </b>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest.givenOneFactorWithNoConstraint$whenEngine$thenTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest)</span></span> negated conditional &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_34'>34</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_34'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>check<br/><b>Killed by : </b>none</span></span> replaced return value with null for com/github/dakusui/jcunitx/exceptions/FrameworkException::check &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_39'>39</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_39'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>check<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; NO_COVERAGE</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_40'>40</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_40'/> 
+
+<p class='NO_COVERAGE'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>check<br/><b>Killed by : </b>none</span></span> replaced return value with null for com/github/dakusui/jcunitx/exceptions/FrameworkException::check &rarr; NO_COVERAGE</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_45'>45</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_45'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>checkCondition<br/><b>Killed by : </b>none</span></span> removed call to com/github/dakusui/jcunitx/exceptions/FrameworkException::checkCondition &rarr; SURVIVED</p> <p class='NO_COVERAGE'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>lambda$checkCondition$0<br/><b>Killed by : </b>none</span></span> replaced return value with &#34;&#34; for com/github/dakusui/jcunitx/exceptions/FrameworkException::lambda$checkCondition$0 &rarr; NO_COVERAGE</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_49'>49</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_49'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>checkCondition<br/><b>Killed by : </b>none</span></span> removed call to com/github/dakusui/jcunitx/exceptions/FrameworkException::checkCondition &rarr; SURVIVED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_57'>57</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_57'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>unexpectedByDesign<br/><b>Killed by : </b>com.github.dakusui.jcunitx.tests.errorhandling.ErrorHandlingTest.failOnParameterFactoryCreation(com.github.dakusui.jcunitx.tests.errorhandling.ErrorHandlingTest)</span></span> negated conditional &rarr; KILLED</p> 
+</td>
+</tr>
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@ac11347_59'>59</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@ac11347_59'/> 
+
+<p class='SURVIVED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>unexpectedByDesign<br/><b>Killed by : </b>none</span></span> negated conditional &rarr; SURVIVED</p> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+<li class='mutator'>EMPTY_RETURNS</li>
+<li class='mutator'>FALSE_RETURNS</li>
+<li class='mutator'>INCREMENTS</li>
+<li class='mutator'>INVERT_NEGS</li>
+<li class='mutator'>MATH</li>
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+<li class='mutator'>NULL_RETURNS</li>
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+<li class='mutator'>TRUE_RETURNS</li>
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest.given3FactorsWithNoConstraint$whenEngine$thenTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest) (3 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest.whenPreprocessWithConstraints$thenNonSimpleParameterInvolvedInConstraintWillBeRemoved(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest) (18718 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct2.testLHSd2RHSd2(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct2) (1 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct.testLHSd1RHSd1(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct) (12 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[27](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (25 ms)</li><li>com.github.dakusui.jcunitx.tests.validation.ValidationTest.typeCompatibilityTest3(com.github.dakusui.jcunitx.tests.validation.ValidationTest) (15 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[13](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (118 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest.whenPreprocess$thenNonSimpleParameterInvolvedInConstraintWillBeSimplified(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.components.utils.JUnit4RunnerTest (663 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest.givenOneCustomParameter$whenGenerateWithIpoG$thenTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest) (3 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$Standadrd.testLHSd2RHSd2(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$Standadrd) (3 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.beforeAfterTest(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (102 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct2.testLHSd3RHSd3(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct2) (1 ms)</li><li>com.github.dakusui.jcunitx.sandbox.JCUnit8Test.givenTestClass$whenBuildTestSuite$thenConsumersRunBeforeTestOracleBuilt(com.github.dakusui.jcunitx.sandbox.JCUnit8Test) (459 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.constraints.ImpossibleConstraintTest.test(com.github.dakusui.jcunitx.tests.features.pipeline.constraints.ImpossibleConstraintTest) (3 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.PreprocessTest.givenSingleCustomParameterUnderOneConstraint$whenPreprocess$thenConvertedToSimpleParameter(com.github.dakusui.jcunitx.tests.features.pipeline.stages.PreprocessTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EncodeTest.givenOneFactorWithImpossibleConstraint$whenEncode$thenFactorSpaceIsGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EncodeTest) (7 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[9](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (9 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.PreprocessTest.givenTwoCustomParametersUnderOneConstraintInvolvingBoth$whenPreprocess$thenBothConvertedIntoSimpleParameters(com.github.dakusui.jcunitx.tests.features.pipeline.stages.PreprocessTest) (3 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.quadraticEquationSolverWithSeeds(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (242 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct.testLHSd3RHSd3(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct) (1 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[20](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (24 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[1](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (146 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest.givenOneFactorWithConstraint$whenEngine$thenTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest) (2 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[17](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (48 ms)</li><li>com.github.dakusui.jcunitx.tests.errorhandling.ErrorHandlingTest.failOnParameterFactoryCreation(com.github.dakusui.jcunitx.tests.errorhandling.ErrorHandlingTest) (16 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[5](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (2 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[24](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (33 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$Standadrd.testLHSd1RHSd1(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$Standadrd) (49 ms)</li><li>com.github.dakusui.jcunitx.tests.validation.ValidationTest.typeMismatchInSeed(com.github.dakusui.jcunitx.tests.validation.ValidationTest) (5 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[28](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (10 ms)</li><li>com.github.dakusui.jcunitx.tests.features.seed.SeedTest.runT04(com.github.dakusui.jcunitx.tests.features.seed.SeedTest) (13 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[12](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (40 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.bankAccount(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (580 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.SimpleParameterTest.whenBuildTestSuite3(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.SimpleParameterTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.parameterizedConstraint(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (34 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest.givenCustomParameter$whenEngine$thenSchemafulTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest) (2 ms)</li><li>com.github.dakusui.jcunitx.tests.bugs.Bug140Test.reproduceBug410(com.github.dakusui.jcunitx.tests.bugs.Bug140Test) (64 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest.givenRegex$whenBuildTestSuite$thenNonEmptyTestSuiteBuilt(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest) (17604 ms)</li><li>com.github.dakusui.jcunitx.sandbox.JCUnit8Test.givenTestClass$whenBuildTestSuite$thenTestCasesBuilt(com.github.dakusui.jcunitx.sandbox.JCUnit8Test) (24 ms)</li><li>com.github.dakusui.jcunitx.tests.features.seed.SeedTest.runT02(com.github.dakusui.jcunitx.tests.features.seed.SeedTest) (5 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[6](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (2 ms)</li><li>com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples.given3FactorsAndStrength3$whenAllPossibleTuples$thenAllCovered(com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples) (8 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[30](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (71 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.PreprocessTest.givenTwoCustomParameterUnderOneConstraintInvolvingOneParameter$whenPreprocess$thenInvolvedOneConvertedInToSimpleWhileTheOtherKept(com.github.dakusui.jcunitx.tests.features.pipeline.stages.PreprocessTest) (7 ms)</li><li>com.github.dakusui.jcunitx.tests.usecases.UseCasesTest.separatedParameterSpace(com.github.dakusui.jcunitx.tests.usecases.UseCasesTest) (10 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.unusedParameterTest(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (28 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[16](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (26 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[2](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.features.seed.SeedTest.runT00(com.github.dakusui.jcunitx.tests.features.seed.SeedTest) (27 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct2.testLHSd1RHSd1(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct2) (9 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EncodeTest.givenOneFactorWithNormalConstraint$whenEncode$thenFactorSpaceIsGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EncodeTest) (1 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[23](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (8 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[29](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (9 ms)</li><li>com.github.dakusui.jcunitx.tests.usecases.lifecycle.BeforeAfterTest.testBeforeAfter(com.github.dakusui.jcunitx.tests.usecases.lifecycle.BeforeAfterTest) (23 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[11](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (21 ms)</li><li>com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest.given4ParametersWith1ConstraintStrength2$whenBuildTestSuite$thenValidTestSuiteBuilt(com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest) (7 ms)</li><li>com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples.given3FactorsWithStrength1$whenAllPossibleTuples$thenAllCovered(com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples) (1 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.SimpleParameterTest.test(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.SimpleParameterTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.constraints.ImpossibleConstraintTest.whenGenerateSchemafulTupleSet(com.github.dakusui.jcunitx.tests.features.pipeline.constraints.ImpossibleConstraintTest) (1 ms)</li><li>com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest.given3ParametersWith2ConstraintThatMake1LevelInvalidStrength2$whenBuildTestSuite$thenValidTestSuiteBuilt(com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest) (11 ms)</li><li>com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples.given3FactorsWithStrength2$whenAllPossibleTuples$thenAllCovered(com.github.dakusui.jcunitx.tests.features.generators.IpoGplusTest$AllPossibleTuples) (0 ms)</li><li>com.github.dakusui.jcunitx.tests.validation.ValidationTest.typeCompatibilityTest4(com.github.dakusui.jcunitx.tests.validation.ValidationTest) (5 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[7](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (5 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EncodeTest.givenOneFactorWithConstantConstraint$whenEncode$thenFactorSpaceIsGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EncodeTest) (8 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest.givenTwoFactorsWithNoConstraint$whenEngine$thenTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest) (1 ms)</li><li>com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest.given4ParametersWithNoConstraintStrength3$whenBuildTestSuite$thenValidTestSuiteBuilt(com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest) (3 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[31](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (809 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest.given1Simple1CustomParameters$whenEngine$thenSchemafulTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest) (22 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest.givenRegex$whenGenerateWithIpoG$thenNonEmptyTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest) (16704 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[3](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (24 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.config(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (51 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[15](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (264 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[19](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (6 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[22](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (10 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest.givenOneCustomParameter$whenBuildTestSuite$thenBuilt(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest) (2 ms)</li><li>com.github.dakusui.jcunitx.tests.features.seed.SeedTest.runT05(com.github.dakusui.jcunitx.tests.features.seed.SeedTest) (7 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[10](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (70 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[26](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (267 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[14](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (32 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest.whenEngine$thenSchemafulTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest) (17236 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest.whenEncode$thenFactorSpaceCreated(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.RegexParameterTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.validation.ValidationTest.typeCompatibilityTest1(com.github.dakusui.jcunitx.tests.validation.ValidationTest) (8 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest.givenOneSimpleAndOneCustomParameters$whenBuildTestSuite$thenBuilt(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest) (14 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.quadraticEquationSolver(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (120 ms)</li><li>com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest.given3ParametersWith1ConstraintStrength2$whenBuildTestSuite$thenValidTestSuiteBuilt(com.github.dakusui.jcunitx.testutils.testsuitequality.CombinatorialCoverageTest) (40 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.constraints.ImpossibleConstraintTest.givenImpossibleConstraint$whenGenerateWithIpoGplus$thenEmptyTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.constraints.ImpossibleConstraintTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.features.seed.SeedTest.runT03(com.github.dakusui.jcunitx.tests.features.seed.SeedTest) (13 ms)</li><li>com.github.dakusui.jcunitx.tests.validation.ValidationTest.typeCompatibilityTest2(com.github.dakusui.jcunitx.tests.validation.ValidationTest) (11 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[8](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (11 ms)</li><li>com.github.dakusui.jcunitx.tests.examples.ExamplesTest.bankAccountWithSeeds(com.github.dakusui.jcunitx.tests.examples.ExamplesTest) (458 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$Standadrd.testLHSd3RHSd3(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$Standadrd) (5 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest.givenOneCustomParameterWithConstraints$whenPreprocess$thenNonSimpleParameterInvolvedInConstraintWillBeRemoved(com.github.dakusui.jcunitx.tests.features.pipeline.parameters.CustomParameterTest) (7 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.negative.NegativeGenerationTest.test(com.github.dakusui.jcunitx.tests.features.pipeline.negative.NegativeGenerationTest) (9 ms)</li><li>com.github.dakusui.jcunitx.tests.features.seed.SeedTest.runT01(com.github.dakusui.jcunitx.tests.features.seed.SeedTest) (6 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[0](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (328 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct.testLHSd2RHSd2(com.github.dakusui.jcunitx.tests.features.pipeline.stages.JoinerTest$WeakenProduct) (1 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[4](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (4 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[18](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (23 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[25](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (122 ms)</li><li>com.github.dakusui.jcunitx.tests.components.regex.ParserTest.printGeneratedList[21](com.github.dakusui.jcunitx.tests.components.regex.ParserTest) (3 ms)</li><li>com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest.givenOneFactorWithNoConstraint$whenEngine$thenTupleSetGenerated(com.github.dakusui.jcunitx.tests.features.pipeline.stages.EngineTest) (0 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='http://pitest.org'>PIT</a> 1.7.3
+
+</body>
+</html>
