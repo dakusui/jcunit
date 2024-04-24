@@ -1,0 +1,135 @@
+include::attributes.adoc[]
+
+= Quick Start
+
+This is a quick start template file<<Example>>.
+Please describe your stuff.
+
+This file is symbolic linked from the `REAME.md`.
+
+
+== Build Instructions
+
+=== Build Dependencies
+
+This project requires Java SE 8 to build.
+Please don't forget installing and using it for building.
+This is intentional decision to make the testing compatible for as many product as possible.
+
+- https://docs.oracle.com/javase/8/[Java Platform, Standard Edition (Java SE) 8]
+- https://adoptopenjdk.net/?variant=openjdk8&jvmVariant=hotspot[AdoptOpenJDK]
+
+Also, you need to install `mvn` and `graphviz`.
+To install them, please refer to the following URLs.
+
+- https://maven.apache.org/install.html[Installing Apache Maven]
+- https://graphviz.org/download/[Download - graphviz]
+
+Or you can perhaps just do `{brew,sudo apt,sudo yum} install {maven,graphviz}`.
+
+=== Build Steps
+
+.Build
+[source, bash]
+----
+$ mvn clean compile
+----
+
+This just compiles your production codes.
+
+.Conduct Unit Test
+[source, bash]
+----
+$ mvn clean compile test
+----
+
+This compiles your production and test codes and then executes the tests.
+
+.Generating Site
+[source, bash]
+----
+$ mvn clean package site
+----
+
+Generates the site under `target/site` in the following structure.
+
+----
+target/
+  site/
+    index.html   - The top page.
+    apidocs/     - JavaDoc
+    jacoco/      - JaCoCo report (code coverage)
+    pit-reports/ - PIT report (mutation coverage)
+----
+
+Note that `.adoc` files under the `src/site/asciidoc` are rendered into `.html` files and placed in this directory.
+
+The mutation testing is configured to cover only small amount of classes to save build time.
+To configure the coverage, refer to <<mutationTesting>>.
+
+.Deploying (publishing) the Site
+[source, bash]
+----
+$ mvn clean package site-deply
+----
+
+This generates the documentation and reports and push them to `gh-pages` branch of your repository.
+The documentation will be available as the repository's "gh-pages" site.
+
+
+=== Tips
+
+.Conduct Mutation Test
+----
+$ mvn clean compile test org.pitest:pitest-maven:mutationCoverage
+----
+[[mutationTesting]]
+
+By default, the `pom.xml` is configured to exercise the mutation testing over small number of classes so that you customize the intended coverage.
+
+Under the plugin configuration for `org.pitest:pitest-maven`, you can find a following element.
+
+.`pom.xml` configuration for `org.pitest:pitest-maven` plugin
+[source,xml]
+----
+    <targetClasses>
+        <param>com.github.dakusui.java8.template.*</param>
+    </targetClasses>
+----
+[[pitest-maven-config]]
+
+To limit the classes to be executed, you can modify it like following.
+
+.`pom.xml` configuration for `org.pitest:pitest-maven` plugin
+[source, xml]
+----
+    <targetClasses>
+        <param>com.github.dakusui.java8.template.selected_package.*</param>
+    </targetClasses>
+----
+
+After a successful execution, it generates a pitest report under a directory `target/pit-reports/\{yyyyMMddHHmmss\}`.
+
+.Build Javadoc
+[source, bash]
+----
+$ mvn clean javadoc:javadoc
+----
+This generates JavaDoc under `target/site/apidocs`.
+Useful for writing/improving your JavaDoc.
+
+== Copyright and license
+
+Copyright 2022 Hiroshi Ukai.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this work except in compliance with the License.
+You may obtain a copy of the License in the LICENSE file, or at:
+
+- http://www.apache.org/licenses/LICENSE-2.0[http://www.apache.org/licenses/LICENSE-2.0]
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and limitations under the License.
+
+== References
+
+- [[Example]] Wikipedia article on "Hello, World", https://en.wikipedia.org/wiki/Hello_World

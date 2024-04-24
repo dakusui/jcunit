@@ -1,0 +1,15 @@
+target/
+src/site/wiki
+.asciidoctor/
+.generated/
+.idea/
+.jcunit
+.settings
+.project
+.classpath
+.djunitplugin
+jcoverage.ser
+acts*.jar
+*.iml
+.DS_Store
+*~

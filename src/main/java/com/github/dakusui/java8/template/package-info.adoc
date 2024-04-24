@@ -1,0 +1,19 @@
+== An example package
+
+You can describe a package's design that disciples classes under it here.
+
+[ditaa]
+.Ditaa diagram
+----
++---+   +---+   +----+   +--------+
+|You+-->|can+-->|draw+-->|diagrams|
++---+   +---+   +----+   +--------+
+----
+
+[plantuml]
+.PlantUML diagram
+----
+class Java8App {
++main(String... args): String
+}
+----
