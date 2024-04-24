@@ -1,0 +1,102 @@
+Eingangskanal: EVA_Anlageberatung, EVA_Order, EVA_Sonderweg, EVA_Sparplan, EVA_Neuemission, EVA_Direkteinstieg, HOST_T19000, HOST_T19001, HOST_T19901, HOST_T19750, HOST_T28900, Onlinebanking_PC, Onlinebanking_MSB, Onlinebanking_Neuemission_PC, Onlinebanking_Neuemission_MSB, Onlinebanking_Tablet_PC, Infobroker, commerzbank_de_pib
+Finanzinstrument: Aktie, Unstrukturierte_Anleihe, strukturierte_Anleihe, Inv.Fonds, OIF, Zertifikat, Optionsschein, Xetra_Gold_ETC, EMISID
+Produktzyklus: Neuemission_Information, Neuemission_offen, Neuemission_geschlossen, Neuemission_abgerechnet, Sekundaermarkt, n/a
+Dienstleistungsart: Anlageberatung, beratungsfreies_Geschaeft, n/a
+Orderart: Kauf(Beratungsdatum_gueltig), Kauf_(ohne_Beratungsdatum), Verkauf, aenderung, Streichung, Storno, Berichtigungsauftrag, n/a
+Initiator: Kunde, Bank, n/a
+Auftragserteilung: telefonisch, persoenlich, schriftlich, Haustuergeschaeft, n/a
+Bereitstellungsdokumente: Beratungsprotokoll_Kunde, Beratungsprotokoll_Interessent, Beratungsprotokoll_Potenzial, Nachtraeglicher_KID-Versand, n/a
+UDAL-Status: Normalbetrieb, Back_up-Betrieb, PRIIP,ohne_KID, WKN_nicht_vorhanden, WKN_inaktiv/geloescht, defektes_Dokument, Virus, non-PRIIP_auf_Blackliste, PRIIP_auf_Blackliste, UDAL_nicht_verfuegbar, n/a
+Abruf_Infoblaetter: WA_von_FWW, PIB_von_DOTi, PIB_von_C&M-FIC, PIB_von_PC_PM, KID_von_PC_PM, KID_von_DOTi, KID_von_externem_Hersteller
+
+//1
+IF [Eingangskanal] = "HOST_T19901"
+THEN [Orderart] <> "Kauf_(Beratungsdatum_gueltig)"
+AND [Produktzyklus] <> "Neuemission_offen"
+AND [Produktzyklus] <> "n/a"
+AND [Dienstleistungsart] <> "n/a"
+AND [Orderart] <> "n/a"
+AND [Initiator] = "n/a"
+AND [Auftragserteilung] = "n/a"
+AND [Bereitstellungsdokumente]= "n/a"
+AND [UDAL-Status] = "n/a";
+
+//2
+IF [Eingangskanal] in {"HOST_T19000", "HOST_T19001", "HOST_T19750", "HOST_T28900"}
+THEN [Produktzyklus] <> "Neuemission_Information"
+AND [Produktzyklus] <> "Neuemission_offen"
+AND [Produktzyklus] <> "n/a"
+AND [Dienstleistungsart] <> "n/a"
+AND [Orderart] <> "n/a"
+AND [Initiator] = "n/a"
+AND [Auftragserteilung] = "n/a"
+AND [Bereitstellungsdokumente]= "n/a"
+AND [UDAL-Status] = "n/a";
+
+//3
+IF [Eingangskanal] like "EVA_*"
+THEN [Initiator] <> "n/a"
+AND [Produktzyklus] <> "n/a"
+AND [Dienstleistungsart] <> "n/a"
+AND [Orderart] <> "n/a"
+AND [Auftragserteilung] <> "n/a"
+AND [Bereitstellungsdokumente] <> "n/a"
+AND [UDAL-Status] <> "n/a";
+
+//4
+IF [Eingangskanal] IN {"Onlinebanking_PC", "Onlinebanking_MSB", "Onlinebanking_Tablet_PC"}
+THEN [Produktzyklus] <> "Neuemission_Information"
+AND [Produktzyklus] <> "Neuemission_offen"
+AND [Produktzyklus] <> "n/a"
+AND [Dienstleistungsart] <> "n/a"
+AND [Orderart] <> "n/a";
+
+//5
+IF [Eingangskanal] like "Onlinebanking*"
+THEN [Dienstleistungsart]="beratungsfreies_Geschaeft"
+AND [Produktzyklus] <> "n/a"
+AND [Dienstleistungsart] <> "n/a"
+AND [Orderart] <> "Storno"
+AND [Orderart] <> "Berichtigungsauftrag"
+AND [Orderart] <> "Kauf_(Beratungsdatum_gueltig)"
+AND [Orderart] <> "n/a"
+AND [Initiator] = "n/a"
+AND [Auftragserteilung] = "n/a"
+AND [Bereitstellungsdokumente] = "n/a"
+AND [UDAL-Status] <>"Back_up-Betrieb";
+
+//6
+IF [Eingangskanal] IN {"EVA_Sonderweg", "EVA_Sparplan", "EVA_Direkteinstieg", "EVA Order"}
+THEN [Produktzyklus] <>"Neuemission_Information"
+AND [Produktzyklus] <>"Neuemission_offen"
+AND [Produktzyklus] <>"n/a"
+AND [Dienstleistungsart] <>"n/a"
+AND [Orderart] <>"n/a";
+
+//7
+IF [Eingangskanal] IN {"EVA_Sonderweg", "EVA_Sparplan", "EVA_Direkteinstieg"}
+THEN [Orderart] <>"Storno"
+AND [Orderart] <>"Berichtigungsauftrag"
+AND [Orderart] <>"Kauf_(Beratungsdatum_gueltig)"
+AND [Produktzyklus] <>"n/a"
+AND [Dienstleistungsart] <>"n/a"
+AND [Orderart] <>"n/a";
+
+//8
+IF [Eingangskanal] in {"EVA_Anlageberatung", "EVA_Neuemission", "EVA_Order"}
+THEN [Orderart] <>"Storno"
+AND [Orderart] <>"Berichtigungsauftrag"
+AND [Produktzyklus] <>"n/a"
+AND [Dienstleistungsart] <>"n/a"
+AND [Orderart] <>"n/a";
+
+//9
+IF [Eingangskanal] IN {"Infobroker", "commerzbank_de_pib"}
+THEN [Finanzinstrument] <> "EMISID"
+AND [Produktzyklus] = "n/a"
+AND [Dienstleistungsart] = "n/a"
+AND [Orderart] = "n/a"
+AND [Initiator] = "n/a"
+AND [Auftragserteilung] = "n/a"
+AND [Bereitstellungsdokumente]= "n/a"
+AND [UDAL-Status] <> "Back_up-Betrieb";
