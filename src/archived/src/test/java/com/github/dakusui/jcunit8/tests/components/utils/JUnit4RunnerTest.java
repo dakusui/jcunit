@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit8.tests.components.utils;
 
 import com.github.dakusui.jcunit8.examples.quadraticequation.QuadraticEquationExample;
-import com.github.dakusui.jcunit8.runners.junit4.JUnit4Runner;
 import com.github.dakusui.jcunit8.testutils.UTUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;

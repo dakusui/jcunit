@@ -98,12 +98,17 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>${junit-jupiter-api.version}</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.dakusui</groupId>
             <artifactId>valid8j</artifactId>
             <version>${valid8j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>combinatoradix</artifactId>
+            <version>0.9.2</version>
         </dependency>
     </dependencies>
 

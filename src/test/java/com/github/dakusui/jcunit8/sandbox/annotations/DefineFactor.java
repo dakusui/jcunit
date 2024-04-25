@@ -10,6 +10,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface DefineFactor {
   String name();
-  Class<? extends FactorFactory> value() default FactorFactory.class;
-  String[] args() default {};
+  String[] with() default {};
+  Class<? extends FactorFactory> as() default FactorFactory.class;
 }

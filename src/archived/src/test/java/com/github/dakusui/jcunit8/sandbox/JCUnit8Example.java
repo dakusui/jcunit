@@ -1,7 +1,6 @@
 package com.github.dakusui.jcunit8.sandbox;
 
 import com.github.dakusui.jcunit8.examples.executionsequence.ExampleParameterSpace;
-import com.github.dakusui.jcunit8.runners.junit4.JCUnit8;
 import com.github.dakusui.jcunit8.runners.junit4.annotations.*;
 import com.github.dakusui.jcunit8.testsuite.TestSuite;
 import org.junit.*;

@@ -3,6 +3,10 @@ package com.github.dakusui.jcunit8.sandbox.core;
 import java.util.Optional;
 
 public interface Factor<T> {
+  static <T> Factor<T> create(Object[] array) {
+    return new Factor.Impl<>(array);
+  }
+  
   int numLevels();
 
   Optional<T> level(int i);
@@ -50,5 +54,20 @@ public interface Factor<T> {
     LEVEL_1,
     LEVEL_2,
 
+  }
+  
+  class Impl<T> implements Factor<T> {
+    public Impl(Object[] array) {
+    }
+    
+    @Override
+    public int numLevels() {
+      return 0;
+    }
+    
+    @Override
+    public Optional<T> level(int i) {
+      return Optional.empty();
+    }
   }
 }

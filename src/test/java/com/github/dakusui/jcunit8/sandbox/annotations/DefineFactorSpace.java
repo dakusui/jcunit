@@ -10,5 +10,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(TYPE)
 public @interface DefineFactorSpace {
   DefineFactor[] factors() default {};
-
+  String[] constraints() default {};
 }

@@ -4,13 +4,18 @@ package com.github.dakusui.jcunit8.sandbox.example;
 import com.github.dakusui.jcunit8.sandbox.annotations.DefineFactor;
 import com.github.dakusui.jcunit8.sandbox.annotations.DefineFactorSpace;
 import com.github.dakusui.jcunit8.sandbox.annotations.From;
+import com.github.dakusui.jcunit8.sandbox.core.FactorFactory.StringLevels;
+import com.github.dakusui.jcunit8.sandbox.core.FactorFactory.MethodNames;
 
 @DefineFactorSpace(
     factors = {
-        @DefineFactor(name = "givenName", args = {"Yoshihiko", "Risa", "Hiroshi"}),
-        @DefineFactor(name = "familyName", args = {"Naito", "Kitajima", "Ukai"}),
-        @DefineFactor(name = "title", args = {"Mr.", "Ms.", "Dr."}),
-        @DefineFactor(name= "fullName", args = {"familyNameFirst", "givenNameFirst", "withTitle"})
+        @DefineFactor(name = "givenName", with = {"Yoshihiko", "Risa", "Hiroshi"}, as = StringLevels.class),
+        @DefineFactor(name = "familyName", with = {"Naito", "Kitajima", "Ukai"}),
+        @DefineFactor(name = "title", with = {"Mr.", "Ms.", "Dr."}),
+        @DefineFactor(name= "fullName", with = {"familyNameFirst", "givenNameFirst", "withTitle"}, as = MethodNames.class)
+    },
+    constraints = {
+    
     }
 )
 public abstract class ExampleFactorSpace {
@@ -24,6 +29,10 @@ public abstract class ExampleFactorSpace {
 
   public static String withTitle(@From("givenName") String given, @From("familyName") String family, @From("title") String title) {
     return String.format("%s %s %s", title, given, family);
+  }
+  
+  public static boolean test() {
+    return false;
   }
 
   /*
