@@ -1,38 +1,59 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
 
-import com.github.dakusui.jcunit8.sandbox.annotations.DefineFactor;
-import com.github.dakusui.jcunit8.sandbox.annotations.DefineFactorSpace;
-import com.github.dakusui.jcunit8.sandbox.annotations.From;
-import com.github.dakusui.jcunit8.sandbox.core.FactorFactory.StringLevels;
-import com.github.dakusui.jcunit8.sandbox.core.FactorFactory.MethodNames;
+import com.github.jcunit.annotations.DefineParameter;
+import com.github.jcunit.annotations.DefineParameterSpace;
+import com.github.jcunit.annotations.From;
+import com.github.jcunit.annotations.MethodName;
+import com.github.jcunit.core.model.FactorFactory.ValueResolvingMethodNames;
+import org.junit.jupiter.api.Test;
 
-@DefineFactorSpace(
+@DefineParameterSpace(
     factors = {
-        @DefineFactor(name = "givenName", with = {"Yoshihiko", "Risa", "Hiroshi"}, as = StringLevels.class),
-        @DefineFactor(name = "familyName", with = {"Naito", "Kitajima", "Ukai"}),
-        @DefineFactor(name = "title", with = {"Mr.", "Ms.", "Dr."}),
-        @DefineFactor(name= "fullName", with = {"familyNameFirst", "givenNameFirst", "withTitle"}, as = MethodNames.class)
+        @DefineParameter(name = "givenName", with = {"Yoshihiko", "Risa", "Hiroshi"}),
+        @DefineParameter(name = "familyName", with = {"Naito", "Kitajima", "Ukai"}),
+        @DefineParameter(name = "title", with = {"Mr.", "Ms.", "Dr."}),
+        @DefineParameter(name = "fullName", with = {"familyNameFirst", "givenNameFirst", "withTitle"}, as = ValueResolvingMethodNames.class)
     },
     constraints = {
-    
+        "!isMister&&givenNameLooksFemale"
     }
 )
 public abstract class ExampleFactorSpace {
+  @MethodName
   public static String familyNameFirst(@From("givenName") String given, @From("familyName") String family) {
     return String.format("%s, %s", family, given);
   }
-
+  
+  @MethodName
   public static String givenNameFirst(@From("givenName") String given, @From("familyName") String family) {
     return String.format("%s %s", given, family);
   }
-
+  
+  @MethodName
   public static String withTitle(@From("givenName") String given, @From("familyName") String family, @From("title") String title) {
     return String.format("%s %s %s", title, given, family);
   }
   
-  public static boolean test() {
+  @MethodName
+  public static boolean isMister(@From("title") String title) {
     return false;
+  }
+  
+  @MethodName
+  public static boolean givenNameLooksFemale(@From("givenName") String givenName) {
+    return false;
+  }
+  
+  
+  public String greeting(String name) {
+    return "Hello, " + name + "!";
+  }
+  
+
+  @MethodName
+  public void whenNameLooksFemale_thenTitleInGreetingIsNotMr(@From("fullName") String fullName) {
+    System.out.println(greeting(fullName));
   }
 
   /*

@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.sandbox.core;
+package com.github.jcunit.core.model;
 
 import java.util.List;
 import java.util.function.Predicate;

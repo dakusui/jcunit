@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.sandbox.annotations;
+package com.github.jcunit.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

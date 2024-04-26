@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.sandbox.core;
+package com.github.jcunit.core.model;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ public interface FactorFactory<T> {
     }
   }
   
-  class MethodNames implements FactorFactory<Object> {
+  class ValueResolvingMethodNames implements FactorFactory<Object> {
     @Override
     public Factor<Object> create(Class<?> testClass, Object... args) {
       return null;
