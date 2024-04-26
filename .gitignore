@@ -2,7 +2,6 @@ target/
 src/site/wiki
 .asciidoctor/
 .generated/
-.idea/
 .jcunit
 .settings
 .project
