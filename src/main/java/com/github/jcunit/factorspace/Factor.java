@@ -5,6 +5,13 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 public interface Factor {
+  Object VOID     = new Object() {
+    @Override
+    public final String toString() {
+      return "(VOID)";
+    }
+  };
+  
   static Factor create(final String name, final Object[] args) {
     return new Factor() {
       private final List<Object> levels = asList(args);

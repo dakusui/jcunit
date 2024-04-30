@@ -39,4 +39,8 @@ public class TestDefinitionException extends BaseException {
   public static  TestDefinitionException noParameterFound() {
     throw new TestDefinitionException("No parameter is found.");
   }
+  
+  public static TestDefinitionException test() {
+    throw new RuntimeException("");
+  }
 }

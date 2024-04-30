@@ -4,6 +4,11 @@ import java.lang.annotation.Retention;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * // @formatter:off 
+ * // @formatter:on 
+ */
 @Retention(RUNTIME)
-public @interface MethodName {
+public @interface UsingParameterSpace {
+  Class<?> value() default Object.class;
 }

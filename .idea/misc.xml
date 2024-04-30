@@ -3,7 +3,7 @@
   <component name="EntryPointsManager">
     <list size="2">
       <item index="0" class="java.lang.String" itemvalue="com.github.jcunit.annotations.JCUnitTest" />
-      <item index="1" class="java.lang.String" itemvalue="com.github.jcunit.annotations.ValueSource" />
+      <item index="1" class="java.lang.String" itemvalue="com.github.jcunit.annotations.Named" />
     </list>
   </component>
   <component name="ExternalStorageConfigurationManager" enabled="true" />
@@ -14,5 +14,5 @@
       </list>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="21" project-jdk-type="JavaSDK" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
 </project>

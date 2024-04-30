@@ -8,7 +8,6 @@ import com.github.jcunit.regex.Value;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
-import com.github.jcunit.pipeline.stages.Generator;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -36,7 +35,7 @@ public class RegexDecomposer extends RegexTranslator {
       List<Object> b = new LinkedList<>();
       if (!isTopLevel(eachKey)) {
         if (isReferencedByAltDirectlyOrIndirectly(eachKey) || isAlt(eachKey)) {
-          b.add(Generator.VOID);
+          b.add(Factor.VOID);
         }
       }
       if (isAlt(eachKey)) {
@@ -78,11 +77,11 @@ public class RegexDecomposer extends RegexTranslator {
         public boolean test(Tuple in) {
           for (String eachReferrer : referrers) {
             Object referrerValue = in.get(eachReferrer);
-            if (!Generator.VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {
-              return !Generator.VOID.equals(in.get(referee));
+            if (!Factor.VOID.equals(referrerValue) && isReferencedBy(referrerValue)) {
+              return !Factor.VOID.equals(in.get(referee));
             }
           }
-          return Generator.VOID.equals(in.get(referee));
+          return Factor.VOID.equals(in.get(referee));
         }
 
         @Override

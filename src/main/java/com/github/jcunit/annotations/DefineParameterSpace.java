@@ -9,6 +9,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface DefineParameterSpace {
-  DefineParameter[] factors() default {};
-  String[] constraints() default {};
+  DefineParameter[] parameters() default {};
+  DefineConstraint[] constraints() default {};
 }

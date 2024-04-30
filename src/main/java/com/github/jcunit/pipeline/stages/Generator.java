@@ -19,13 +19,7 @@ public interface Generator {
       return "D/C";
     }
   };
-  Object VOID     = new Object() {
-    @Override
-    public final String toString() {
-      return "(VOID)";
-    }
-  };
-
+  
   List<Tuple> generate();
 
   abstract class Base implements Generator {

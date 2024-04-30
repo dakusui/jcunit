@@ -1,8 +1,8 @@
 package com.github.jcunit.regex;
 
 import com.github.jcunit.core.tuples.Tuple;
+import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.utils.Checks;
-import com.github.jcunit.pipeline.stages.Generator;
 
 import java.util.*;
 
@@ -90,7 +90,7 @@ public class RegexComposer {
     public void visit(Expr.Alt expr) {
       //noinspection ConstantConditions
       Object values = tuple.get(composeKey(expr));
-      if (Generator.VOID.equals(values))
+      if (Factor.VOID.equals(values))
         return;
       for (Object each : (List) values) {
         if (each instanceof Reference) {
