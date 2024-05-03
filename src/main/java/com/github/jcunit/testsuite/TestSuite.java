@@ -51,8 +51,8 @@ public interface TestSuite extends List<TestCase> {
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, Tuple testCaseTuple) {
-      Tuple tuple = TupleUtils.copy(testCaseTuple);
+    private TestCase toTestCase(TestCase.Category category, Tuple testDataTuple) {
+      Tuple tuple = TupleUtils.copy(testDataTuple);
       return category.createTestCase(
           tuple,
           this.parameterSpace.getConstraints().stream()
@@ -70,7 +70,7 @@ public interface TestSuite extends List<TestCase> {
             Builder.this.testCases.stream(
             ).filter(
                 testCase -> stream().noneMatch(
-                    registered -> registered.getTestInput().equals(testCase.getTestInput())
+                    registered -> registered.getTestData().equals(testCase.getTestData())
                 )
             ).forEach(
                 this::add

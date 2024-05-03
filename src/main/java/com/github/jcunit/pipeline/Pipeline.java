@@ -28,32 +28,32 @@ import static java.util.stream.Collectors.toList;
  */
 public interface Pipeline {
   TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenarioFactory);
-
+  
   class Standard implements Pipeline {
     @Override
     public TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
       return generateTestSuite(config, preprocess(config, parameterSpace), testScenario);
     }
-
+    
     public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace, TestScenario testScenario) {
       validateSeeds(config.getRequirement().seeds(), parameterSpace);
       TestSuite.Builder<?> builder = new TestSuite.Builder<>(parameterSpace, testScenario);
       builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
-      List<Tuple> regularTestTuples = engine(config, parameterSpace);
-      builder = builder.addAllToRegularTuples(regularTestTuples);
+      List<Tuple> regularTestDataTuples = engine(config, parameterSpace);
+      builder = builder.addAllToRegularTuples(regularTestDataTuples);
       if (config.getRequirement().generateNegativeTests())
         builder = builder.addAllToNegativeTuples(
             negativeTestGenerator(
                 config.getRequirement().generateNegativeTests(),
                 toFactorSpaceForNegativeTestGeneration(parameterSpace),
-                regularTestTuples,
+                regularTestDataTuples,
                 config.getRequirement().seeds(),
                 config.getRequirement()
             ).generate()
         );
       return builder.build();
     }
-
+    
     private void validateSeeds(List<Tuple> seeds, ParameterSpace parameterSpace) {
       List<Function<Tuple, String>> checks = asList(
           (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
@@ -89,7 +89,7 @@ public interface Pipeline {
                 errors
             ));
     }
-
+    
     public ParameterSpace preprocess(Config config, ParameterSpace parameterSpace) {
       return new ParameterSpace.Builder()
           .addAllParameters(
@@ -103,34 +103,31 @@ public interface Pipeline {
           .addAllConstraints(parameterSpace.getConstraints())
           .build();
     }
-
+    
     public SchemafulTupleSet engine(Config config, ParameterSpace parameterSpace) {
-      return config.partitioner().apply(
-          config.encoder().apply(
-              parameterSpace
-          )
-      ).stream()
+      return config.partitioner().apply(config.encoder().apply(parameterSpace))
+          .stream()
           .map(config.optimizer())
           .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
           .map(config.generator(parameterSpace, config.getRequirement()))
           .reduce(config.joiner())
           .map(
-              (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames()).addAll(
-                  tuples.stream()
-                      .map((Tuple tuple) -> {
-                        Tuple.Builder builder = new Tuple.Builder();
-                        for (String parameterName : parameterSpace.getParameterNames()) {
-                          builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));
-                        }
-                        return builder.build();
-                      })
-                      .collect(toList())
-              ).build()
-          )
+              (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames())
+                  .addAll(
+                      tuples.stream()
+                          .map((Tuple tuple) -> {
+                            Tuple.Builder builder = new Tuple.Builder();
+                            for (String parameterName : parameterSpace.getParameterNames()) {
+                              builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));
+                            }
+                            return builder.build();
+                          })
+                          .collect(toList()))
+                  .build())
           .orElseThrow(TestDefinitionException::noParameterFound);
     }
-
-
+    
+    
     /**
      * This method should be used for a parameter space that does not contain a
      * constraint involving a non-simple parameter.
@@ -150,31 +147,27 @@ public interface Pipeline {
           new ArrayList<>(parameterSpace.getConstraints())
       );
     }
-
+    
     private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, List<Tuple> encodedSeeds, Requirement requirement) {
       return generateNegativeTests ?
           new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, requirement) :
           new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
-
+    
     private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         List<Object> values = Stream
             .concat(
                 parameter.getKnownValues().stream(),
-                engine(
-                    config, new ParameterSpace.Builder().addParameter(parameter).build())
-                    .stream().map(tuple -> tuple.get(parameter.getName())
-                ) // Extraction
+                engine(config, new ParameterSpace.Builder().addParameter(parameter).build())
+                    .stream()
+                    .map(tuple -> tuple.get(parameter.getName())) // Extraction
             ).collect(toList());
-        return Parameter.Simple.Factory.of(
-            InternalUtils.unique(
-                values
-            ))
-            .create(parameter.getName());
+        return Parameter.Simple.Factory.of(InternalUtils.unique(values)).create(parameter.getName());
       }
       return parameter;
     }
+    
     /**
      * Checks is a parameter is referenced by any constraint in a given list, or it
      * has any known actual values.
@@ -193,11 +186,11 @@ public interface Pipeline {
     private boolean isInvolvedByAnyConstraint(Parameter<?> parameter, List<Constraint> constraints) {
       return isReferencedBy(parameter, constraints) || !parameter.getKnownValues().isEmpty();
     }
-
+    
     private boolean isReferencedBy(Parameter<?> parameter, List<Constraint> constraints) {
       return constraints.stream().anyMatch(each -> each.involvedKeys().contains(parameter.getName()));
     }
-
+    
     public static Pipeline create() {
       return new Standard();
     }

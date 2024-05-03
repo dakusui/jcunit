@@ -1,7 +1,7 @@
 package com.github.jcunit.runners.junit5;
 
 import com.github.jcunit.annotations.*;
-import com.github.jcunit.core.model.ParameterFactory;
+import com.github.jcunit.core.model.ParameterResolver;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -89,7 +89,7 @@ public enum JCUnitTestExtensionUtils {
   }
   
   static Set<String> dependenciesOfParameterDefinition(Class<?> parameterSpaceDefinitionClass, DefineParameter parameterDefinition) {
-    if (parameterDefinition.as().equals(ParameterFactory.ValueResolvingMethodNames.class)) {
+    if (parameterDefinition.as().equals(ParameterResolver.ValueResolvingMethodNames.class)) {
       return Arrays.stream(parameterSpaceDefinitionClass.getMethods())
           .filter(m -> nameOf(m).equals(parameterDefinition.name()))
           .map(JCUnitTestExtensionUtils::dependenciesOf)
