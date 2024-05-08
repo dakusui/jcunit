@@ -32,7 +32,7 @@ public class ExampleTest {
                     @DefineParameter(name = "givenName", with = {"Yoshihiko", "Risa", "Hiroshi"}),
                     @DefineParameter(name = "familyName", with = {"Naito", "Kitajima", "Ukai"}),
                     @DefineParameter(name = "title", with = {"Mr.", "Ms.", "Dr."}),
-                    @DefineParameter(name = "fullName", with = {"familyNameFirst", "givenNameFirst", "withTitle"}, as = Object.class)
+                    @DefineParameter(name = "fullName", with = {"familyNameFirst", "givenNameFirst", "withTitle"})
             },
             constraints = {
                     @DefineConstraint("!isMister&&givenNameLooksFemale")

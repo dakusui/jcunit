@@ -37,17 +37,23 @@ public interface TestSuite extends List<TestCase> {
     }
 
     public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.SEED, each)).forEach(testCases::add);
+      collection.stream()
+                .map(each -> toTestCase(TestCase.Category.SEED, each))
+                .forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToRegularTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.REGULAR, each)).forEach(testCases::add);
+      collection.stream()
+                .map(each -> toTestCase(TestCase.Category.REGULAR, each))
+                .forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToNegativeTuples(Collection<? extends Tuple> collection) {
-      collection.stream().map(each -> toTestCase(TestCase.Category.NEGATIVE, each)).forEach(testCases::add);
+      collection.stream()
+                .map(each -> toTestCase(TestCase.Category.NEGATIVE, each))
+                .forEach(testCases::add);
       return this;
     }
 
@@ -55,26 +61,22 @@ public interface TestSuite extends List<TestCase> {
       Tuple tuple = TupleUtils.copy(testDataTuple);
       return category.createTestCase(
           tuple,
-          this.parameterSpace.getConstraints().stream()
-              .filter((Constraint constraint) -> !constraint.test(tuple))
-              .collect(Collectors.toList()));
+          this.parameterSpace.getConstraints()
+                             .stream()
+                             .filter((Constraint constraint) -> !constraint.test(tuple))
+                             .collect(Collectors.toList()));
     }
 
     public TestSuite build() {
       class Impl extends AbstractList<TestCase> implements TestSuite {
         private final List<TestCase> testCases;
 
-        private Impl(
-        ) {
+        private Impl() {
           this.testCases = new ArrayList<TestCase>(Builder.this.testCases.size()) {{
-            Builder.this.testCases.stream(
-            ).filter(
-                testCase -> stream().noneMatch(
-                    registered -> registered.getTestData().equals(testCase.getTestData())
-                )
-            ).forEach(
-                this::add
-            );
+            Builder.this.testCases.stream()
+                                  .filter(testCase -> this.stream()
+                                                          .noneMatch(registered -> registered.getTestData().equals(testCase.getTestData())))
+                                  .forEach(this::add);
           }};
         }
 

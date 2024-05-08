@@ -89,7 +89,7 @@ public enum JCUnitTestExtensionUtils {
   }
   
   static Set<String> dependenciesOfParameterDefinition(Class<?> parameterSpaceDefinitionClass, DefineParameter parameterDefinition) {
-    if (parameterDefinition.as().equals(ParameterResolver.ValueResolvingMethodNames.class)) {
+    if (parameterDefinition.as().equals(ParameterResolver.class)) {
       return Arrays.stream(parameterSpaceDefinitionClass.getMethods())
           .filter(m -> nameOf(m).equals(parameterDefinition.name()))
           .map(JCUnitTestExtensionUtils::dependenciesOf)

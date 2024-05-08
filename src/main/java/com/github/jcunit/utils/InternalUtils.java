@@ -7,6 +7,9 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 public enum InternalUtils {
   ;
@@ -81,5 +84,24 @@ public enum InternalUtils {
   public static <T, R> Function<T, R> memoize(Function<T, R> function) {
     Map<T, R> memo = new ConcurrentHashMap<>();
     return t -> memo.computeIfAbsent(t, function);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T> List<T> concat(List<T> var, List<T> vars) {
+    return Stream.concat(var.stream(), vars.stream()).collect(toList());
+  }
+
+  public static <E> Collection<E> intersection(Collection<E> a, Collection<E> b) {
+    if (b.size() < a.size()) {
+      Collection<E> x = b;
+      b = a;
+      a = x;
+    }
+    Collection<E> ret = new HashSet<>(a);
+    for (E each : a) {
+      if (b.contains(a))
+        ret.add(each);
+    }
+    return ret;
   }
 }
