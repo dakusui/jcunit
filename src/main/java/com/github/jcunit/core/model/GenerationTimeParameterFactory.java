@@ -19,8 +19,7 @@ interface GenerationTimeParameterFactory<P extends Parameter<T>, T> {
   P createParameter(String... args);
 
   /**
-   * @param args Values specified by {@link DefineParameter#with()}.
    * @return Constraints required by the parameter created by {@link GenerationTimeParameterFactory#createParameter(String...)} method.
    */
-  List<Constraint> createConstraints(String... args);
+  List<Constraint> createConstraints();
 }

@@ -27,23 +27,43 @@ class Reference<T, R> implements ParameterSpec<Parameter<T>, T, R> {
   private final boolean isSeed;
 
   /**
-   * @param name           A name of the parameter which is defined by this object.
-   * @param parser         A function that parses strings given to {@link DefineParameter#with()} value into generation time parameter value.
-   * @param resolver       A function that converts a generation time parameter value into a corresponding execution time parameter value.
-   * @param parameterNames All the parameter names in the parameter space this object belongs to.
-   * @param references     A function that resolves references between parameters.
-   * @param possibleValues A function that resolves all possible valid values of each parameter.
+   * @param name               A name of the parameter which is defined by this object.
+   * @param parser             A function that parses strings given to {@link DefineParameter#with()} value into generation time parameter value.
+   * @param resolver           A function that converts a generation time parameter value into a corresponding execution time parameter value.
+   * @param isSeed
+   * @param parameterSpaceSpec
    */
   public Reference(String name,
-                   List<String> parameterNames,
                    Function<String, T> parser,
                    Function<T, Function<Tuple, R>> resolver,
-                   Function<String, Function<Object, Set<String>>> references,
-                   Function<String, List<Object>> possibleValues) {
+                   boolean isSeed,
+                   ParameterSpaceSpec parameterSpaceSpec) {
     this.resolver = resolver;
     this.name = name;
     this.parser = parser;
-    this.parameterSpaceSpec = new ParameterSpaceSpec() {
+    this.parameterSpaceSpec = parameterSpaceSpec;
+    this.isSeed = isSeed;
+  }
+
+  public static <T, R> Reference<T, R> create(String name,
+                                              List<String> parameterNames,
+                                              Function<String, T> parser,
+                                              Function<T, Function<Tuple, R>> resolver,
+                                              Function<String, Function<Object, Set<String>>> references,
+                                              Function<String, List<Object>> possibleValues) {
+    return createReference(name, parser, resolver, createParameterSpaceSpec(parameterNames, references, possibleValues));
+  }
+
+  private static <T, R> Reference<T, R> createReference(String name, Function<String, T> parser, Function<T, Function<Tuple, R>> resolver, ParameterSpaceSpec parameterSpaceSpec1) {
+    return new Reference<>(name,
+                           parser,
+                           resolver,
+                           isSeed(parameterSpaceSpec1, name, parameterSpaceSpec1.parameterNames().toArray(new String[0])),
+                           parameterSpaceSpec1);
+  }
+
+  private static ParameterSpaceSpec createParameterSpaceSpec(List<String> parameterNames, Function<String, Function<Object, Set<String>>> references, Function<String, List<Object>> possibleValues) {
+    return new ParameterSpaceSpec() {
       @Override
       public List<String> parameterNames() {
         return parameterNames;
@@ -60,51 +80,57 @@ class Reference<T, R> implements ParameterSpec<Parameter<T>, T, R> {
         return (List<TT>) possibleValues.apply(parameterName);
       }
     };
-    this.isSeed = isSeed(this.name, parameterNames.toArray(new String[0]));
   }
 
   @Override
   public GenerationTimeParameterFactory<Parameter<T>, T> parameterFactory() {
+    return createGenerationTimeParameterFactory(name, parser, isSeed, this.parameterSpaceSpec);
+  }
+
+  private static <T> GenerationTimeParameterFactory<Parameter<T>, T> createGenerationTimeParameterFactory(final String name, final Function<String, T> parser, final boolean isSeed, final ParameterSpaceSpec parameterSpaceSpec) {
     return new GenerationTimeParameterFactory<Parameter<T>, T>() {
       @Override
       public Parameter<T> createParameter(String... args) {
-        return new Parameter.Simple.Impl<>(!isSeed,
-                                           name(),
-                                           Arrays.stream(args)
-                                                 .map(parser)
-                                                 .collect(toList()));
+        return Reference.createParameter(isSeed, name, parser, args);
       }
 
       /**
-       * @param possibleReferences Values specified by {@link DefineParameter#with()}.
-       *                           Possible values for the parameter specified by {@code name} should be given.
        * @return Created constraints
        */
       @Override
-      public List<Constraint> createConstraints(String... possibleReferences) {
-        return nonSeedAttributeMustBeReferencedAtLeastOnce(name,
-                                                           parameterSpaceSpec.parameterNames()
-                                                                             .toArray(new String[0]))
-            .map(Collections::singletonList)
-            .orElse(emptyList());
+      public List<Constraint> createConstraints() {
+        return Reference.createConstraints(isSeed, parameterSpaceSpec, name);
       }
     };
   }
 
-  private boolean isSeed(String attribute, String[] attributeNames) {
+  private static List<Constraint> createConstraints(boolean isSeed, ParameterSpaceSpec parameterSpaceSpec, String parameterName) {
+    return isSeed ? emptyList()
+                  : Reference.nonSeedAttributeMustBeReferencedAtLeastOnce(parameterSpaceSpec, parameterName)
+                             .map(Collections::singletonList)
+                             .orElse(emptyList());
+  }
+
+  private static <T> Parameter<T> createParameter(boolean isSeed, String parameterName, Function<String, T> parser, String[] args) {
+    return new Parameter.Simple.Impl<>(!isSeed, parameterName, Arrays.stream(args)
+                                                            .map(parser)
+                                                            .collect(toList()));
+  }
+
+  private static boolean isSeed(ParameterSpaceSpec parameterSpaceSpec, String attribute, String[] attributeNames) {
     Set<String> referencingAttributes = new HashSet<>();
     for (String each : attributeNames) {
       if (Objects.equals(each, attribute))
         continue;
-      if (areAllPossibleValuesReferencing(attribute, each))
+      if (areAllPossibleValuesReferencing(parameterSpaceSpec, attribute, each))
         return true;
-      if (anyPossibleValueReferencing(attribute, each))
+      if (anyPossibleValueReferencing(parameterSpaceSpec, attribute, each))
         referencingAttributes.add(each);
     }
     return referencingAttributes.isEmpty();
   }
 
-  boolean areAllPossibleValuesReferencing(String referencingAttribute, String referencedAttribute) {
+  private static boolean areAllPossibleValuesReferencing(ParameterSpaceSpec parameterSpaceSpec, String referencingAttribute, String referencedAttribute) {
     return parameterSpaceSpec.possibleValidValuesFor(referencingAttribute)
                              .stream()
                              .allMatch(eachPossibleValue -> parameterSpaceSpec.referencesFor(referencingAttribute)
@@ -112,7 +138,7 @@ class Reference<T, R> implements ParameterSpec<Parameter<T>, T, R> {
                                                                               .contains(referencedAttribute));
   }
 
-  boolean anyPossibleValueReferencing(String referencingAttribute, String referencedAttribute) {
+  private static boolean anyPossibleValueReferencing(ParameterSpaceSpec parameterSpaceSpec, String referencingAttribute, String referencedAttribute) {
     return parameterSpaceSpec.possibleValidValuesFor(referencingAttribute)
                              .stream()
                              .anyMatch(eachPossibleValue -> parameterSpaceSpec.referencesFor(referencingAttribute)
@@ -120,33 +146,32 @@ class Reference<T, R> implements ParameterSpec<Parameter<T>, T, R> {
                                                                               .contains(referencedAttribute));
   }
 
-  Optional<Constraint> nonSeedAttributeMustBeReferencedAtLeastOnce(String referencedAttribute, String... attributes) {
-    if (isSeed)
-      return Optional.empty();
-    if (attributes.length == 0) {
+  private static Optional<Constraint> nonSeedAttributeMustBeReferencedAtLeastOnce(ParameterSpaceSpec parameterSpaceSpec, String referencedAttribute) {
+    if (parameterSpaceSpec.parameterNames().isEmpty()) {
       return Optional.empty();
     }
-    String[] referencingAttributes = Arrays.stream(attributes)
-                                           .filter(each -> !Objects.equals(referencedAttribute, each))
-                                           .filter(each -> anyPossibleValueReferencing(each, referencedAttribute))
-                                           .toArray(String[]::new);
+    String[] conditionallyReferencingAttributes = parameterSpaceSpec.parameterNames()
+                                                                    .stream()
+                                                                    .filter(each -> !Objects.equals(referencedAttribute, each))
+                                                                    .filter(each -> anyPossibleValueReferencing(parameterSpaceSpec, each, referencedAttribute))
+                                                                    .toArray(String[]::new);
     return Optional.of(
-        Constraint.create(name,
+        Constraint.create("nonSeedAttributeMustBeReferencedAtLeastOnce:" + referencedAttribute,
                           tuple -> tuple.get(referencedAttribute).equals(VOID) != referencedByAnyAttribute(tuple,
                                                                                                            referencedAttribute,
-                                                                                                           referencingAttributes),
+                                                                                                           conditionallyReferencingAttributes,
+                                                                                                           parameterSpaceSpec),
                           Stream.concat(
                                     Stream.of(referencedAttribute),
-                                    Arrays.stream(referencingAttributes))
+                                    Arrays.stream(conditionallyReferencingAttributes))
                                 .toArray(String[]::new)));
   }
 
-
-  private boolean referencedByAnyAttribute(Tuple tuple, String referencedAttribute, String[] conditionallyReferencingAttributes) {
+  private static boolean referencedByAnyAttribute(Tuple tuple, String referencedAttribute, String[] conditionallyReferencingAttributes, ParameterSpaceSpec parameterSpaceSpec) {
     for (String eachReferencingAttribute : conditionallyReferencingAttributes) {
-      if (this.parameterSpaceSpec.referencesFor(eachReferencingAttribute)
-                                 .apply(tuple.get(eachReferencingAttribute))
-                                 .contains(referencedAttribute))
+      if (parameterSpaceSpec.referencesFor(eachReferencingAttribute)
+                            .apply(tuple.get(eachReferencingAttribute))
+                            .contains(referencedAttribute))
         return true;
     }
     return false;

@@ -32,7 +32,7 @@ class Regex<T> implements ParameterSpec<Parameter<List<String>>, List<String>, L
       }
 
       @Override
-      public List<Constraint> createConstraints(String... args) {
+      public List<Constraint> createConstraints() {
         return emptyList();
       }
     };

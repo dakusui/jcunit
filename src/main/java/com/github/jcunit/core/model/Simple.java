@@ -33,7 +33,7 @@ class Simple<T> implements ParameterSpec<Parameter<T>, T, T> {
       }
 
       @Override
-      public List<Constraint> createConstraints(String... args) {
+      public List<Constraint> createConstraints() {
         return emptyList();
       }
     };
