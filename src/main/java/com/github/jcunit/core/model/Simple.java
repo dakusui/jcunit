@@ -15,7 +15,7 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:on
  */
 public
-class Simple<T> implements ParameterSpec<Parameter<T>, T, T> {
+class Simple<T> implements ParameterFactory<Parameter<T>, T, T> {
   private final Function<String, T> function;
   private final String name;
 
@@ -25,18 +25,13 @@ class Simple<T> implements ParameterSpec<Parameter<T>, T, T> {
   }
 
   @Override
-  public GenerationTimeParameterFactory<Parameter<T>, T> parameterFactory() {
-    return new GenerationTimeParameterFactory<Parameter<T>, T>() {
-      @Override
-      public Parameter<T> createParameter(String... args) {
-        return Parameter.Simple.Factory.of(Arrays.stream(args).map(function).collect(toList())).create(name());
-      }
+  public Parameter<T> createParameter(String[] args) {
+    return Parameter.Simple.Factory.of(Arrays.stream(args).map(function).collect(toList())).create(name());
+  }
 
-      @Override
-      public List<Constraint> createConstraints() {
-        return emptyList();
-      }
-    };
+  @Override
+  public List<Constraint> createConstraint() {
+    return emptyList();
   }
 
   @Override

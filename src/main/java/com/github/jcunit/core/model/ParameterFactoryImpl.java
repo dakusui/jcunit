@@ -15,29 +15,31 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * // @formatter:off
+ * @param <G> Generation-time parameter type
+ * @param <E> Execution-time parameter type
  * // @formatter:on
  */
-public
-class Reference<T, R> implements ParameterSpec<Parameter<T>, T, R> {
-
+class ParameterFactoryImpl<G , E> implements ParameterFactory<Parameter<G>, G, E> {
   private final String name;
-  private final Function<String, T> parser;
-  private final Function<T, Function<Tuple, R>> resolver;
+  private final Function<String, G> parser;
+  private final Function<G, Function<Tuple, E>> resolver;
   private final ParameterSpaceSpec parameterSpaceSpec;
   private final boolean isSeed;
 
   /**
    * @param name               A name of the parameter which is defined by this object.
-   * @param parser             A function that parses strings given to {@link DefineParameter#with()} value into generation time parameter value.
-   * @param resolver           A function that converts a generation time parameter value into a corresponding execution time parameter value.
-   * @param isSeed
-   * @param parameterSpaceSpec
+   * @param parser             A function that parses strings given to {@link DefineParameter#with()} value into generation
+   *                           time parameter value.
+   * @param resolver           A function that converts a generation time parameter value into a corresponding execution
+   *                           time parameter value.
+   * @param isSeed             A `boolean` value which tells if the instance is a "seed" or not.
+   * @param parameterSpaceSpec An instance that defines the parameter space to which the new instance belongs.
    */
-  public Reference(String name,
-                   Function<String, T> parser,
-                   Function<T, Function<Tuple, R>> resolver,
-                   boolean isSeed,
-                   ParameterSpaceSpec parameterSpaceSpec) {
+  public ParameterFactoryImpl(String name,
+                              Function<String, G> parser,
+                              Function<G, Function<Tuple, E>> resolver,
+                              boolean isSeed,
+                              ParameterSpaceSpec parameterSpaceSpec) {
     this.resolver = resolver;
     this.name = name;
     this.parser = parser;
@@ -45,79 +47,59 @@ class Reference<T, R> implements ParameterSpec<Parameter<T>, T, R> {
     this.isSeed = isSeed;
   }
 
-  public static <T, R> Reference<T, R> create(String name,
-                                              List<String> parameterNames,
-                                              Function<String, T> parser,
-                                              Function<T, Function<Tuple, R>> resolver,
-                                              Function<String, Function<Object, Set<String>>> references,
-                                              Function<String, List<Object>> possibleValues) {
-    return createReference(name, parser, resolver, createParameterSpaceSpec(parameterNames, references, possibleValues));
-  }
-
-  private static <T, R> Reference<T, R> createReference(String name, Function<String, T> parser, Function<T, Function<Tuple, R>> resolver, ParameterSpaceSpec parameterSpaceSpec1) {
-    return new Reference<>(name,
-                           parser,
-                           resolver,
-                           isSeed(parameterSpaceSpec1, name, parameterSpaceSpec1.parameterNames().toArray(new String[0])),
-                           parameterSpaceSpec1);
-  }
-
-  private static ParameterSpaceSpec createParameterSpaceSpec(List<String> parameterNames, Function<String, Function<Object, Set<String>>> references, Function<String, List<Object>> possibleValues) {
-    return new ParameterSpaceSpec() {
-      @Override
-      public List<String> parameterNames() {
-        return parameterNames;
-      }
-
-      @Override
-      public Function<Object, Set<String>> referencesFor(String parameterName) {
-        return references.apply(parameterName);
-      }
-
-      @SuppressWarnings("unchecked")
-      @Override
-      public <TT> List<TT> possibleValidValuesFor(String parameterName) {
-        return (List<TT>) possibleValues.apply(parameterName);
-      }
-    };
+  @Override
+  public Parameter<G> createParameter(String[] args) {
+    return new Parameter.Simple.Impl<>(!this.isSeed, this.name, Arrays.stream(args)
+                                                                      .map(this.parser)
+                                                                      .collect(toList()));
   }
 
   @Override
-  public GenerationTimeParameterFactory<Parameter<T>, T> parameterFactory() {
-    return createGenerationTimeParameterFactory(name, parser, isSeed, this.parameterSpaceSpec);
+  public List<Constraint> createConstraint() {
+    return ParameterFactoryImpl.createConstraints(this.isSeed, this.parameterSpaceSpec, this.name);
   }
 
-  private static <T> GenerationTimeParameterFactory<Parameter<T>, T> createGenerationTimeParameterFactory(final String name, final Function<String, T> parser, final boolean isSeed, final ParameterSpaceSpec parameterSpaceSpec) {
-    return new GenerationTimeParameterFactory<Parameter<T>, T>() {
-      @Override
-      public Parameter<T> createParameter(String... args) {
-        return Reference.createParameter(isSeed, name, parser, args);
-      }
+  @Override
+  public ExecutionTimeValueResolver<G, E> valueResolver() {
+    return (generationTimeValue, testData) -> resolver.apply(generationTimeValue).apply(testData);
+  }
 
-      /**
-       * @return Created constraints
-       */
-      @Override
-      public List<Constraint> createConstraints() {
-        return Reference.createConstraints(isSeed, parameterSpaceSpec, name);
-      }
-    };
+  @Override
+  public String name() {
+    return name;
+  }
+
+  public static <T, R> ParameterFactory<Parameter<T>, T, R> create(String name,
+                                                                   List<String> parameterNames,
+                                                                   Function<String, T> parser,
+                                                                   Function<T, Function<Tuple, R>> resolver,
+                                                                   Function<String, Function<Object, Set<String>>> references,
+                                                                   Function<String, List<Object>> possibleValues) {
+    return create(name, parser, resolver, ParameterSpaceSpec.createParameterSpaceSpec(parameterNames, references, possibleValues));
+  }
+
+  public static <T, R> ParameterFactory<Parameter<T>, T, R> create(String name, Function<String, T> parser, Function<T, Function<Tuple, R>> resolver, ParameterSpaceSpec parameterSpaceSpec) {
+    return createReference(name, parser, resolver, parameterSpaceSpec);
+  }
+
+  public static <T, R> ParameterFactory<Parameter<T>, T, R> createReference(String name, Function<String, T> parser, Function<T, Function<Tuple, R>> resolver, ParameterSpaceSpec parameterSpaceSpec) {
+    return new ParameterFactoryImpl<>(name,
+                                      parser,
+                                      resolver,
+                                      isSeed(parameterSpaceSpec,
+                                  name,
+                                  parameterSpaceSpec.parameterNames()),
+                                      parameterSpaceSpec);
   }
 
   private static List<Constraint> createConstraints(boolean isSeed, ParameterSpaceSpec parameterSpaceSpec, String parameterName) {
     return isSeed ? emptyList()
-                  : Reference.nonSeedAttributeMustBeReferencedAtLeastOnce(parameterSpaceSpec, parameterName)
-                             .map(Collections::singletonList)
-                             .orElse(emptyList());
+                  : ParameterFactoryImpl.nonSeedAttributeMustBeReferencedAtLeastOnce(parameterSpaceSpec, parameterName)
+                                        .map(Collections::singletonList)
+                                        .orElse(emptyList());
   }
 
-  private static <T> Parameter<T> createParameter(boolean isSeed, String parameterName, Function<String, T> parser, String[] args) {
-    return new Parameter.Simple.Impl<>(!isSeed, parameterName, Arrays.stream(args)
-                                                            .map(parser)
-                                                            .collect(toList()));
-  }
-
-  private static boolean isSeed(ParameterSpaceSpec parameterSpaceSpec, String attribute, String[] attributeNames) {
+  private static boolean isSeed(ParameterSpaceSpec parameterSpaceSpec, String attribute, List<String> attributeNames) {
     Set<String> referencingAttributes = new HashSet<>();
     for (String each : attributeNames) {
       if (Objects.equals(each, attribute))
@@ -175,15 +157,5 @@ class Reference<T, R> implements ParameterSpec<Parameter<T>, T, R> {
         return true;
     }
     return false;
-  }
-
-  @Override
-  public ExecutionTimeValueResolver<T, R> valueResolver() {
-    return (generationTimeValue, testData) -> resolver.apply(generationTimeValue).apply(testData);
-  }
-
-  @Override
-  public String name() {
-    return name;
   }
 }

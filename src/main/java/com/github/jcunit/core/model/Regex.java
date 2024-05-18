@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:on
  */
 public
-class Regex<T> implements ParameterSpec<Parameter<List<String>>, List<String>, List<T>> {
+class Regex<T> implements ParameterFactory<Parameter<List<String>>, List<String>, List<T>> {
   private final Function<String, T> function;
   private final String name;
 
@@ -24,18 +24,13 @@ class Regex<T> implements ParameterSpec<Parameter<List<String>>, List<String>, L
   }
 
   @Override
-  public GenerationTimeParameterFactory<Parameter<List<String>>, List<String>> parameterFactory() {
-    return new GenerationTimeParameterFactory<Parameter<List<String>>, List<String>>() {
-      @Override
-      public Parameter<List<String>> createParameter(String... args) {
-        return Parameter.Regex.Factory.of(args[0]).create(name);
-      }
+  public Parameter<List<String>> createParameter(String[] args) {
+    return Parameter.Regex.Factory.of(args[0]).create(name);
+  }
 
-      @Override
-      public List<Constraint> createConstraints() {
-        return emptyList();
-      }
-    };
+  @Override
+  public List<Constraint> createConstraint() {
+    return emptyList();
   }
 
   @Override

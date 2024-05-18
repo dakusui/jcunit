@@ -16,14 +16,14 @@ public class Java8AppTest extends TestBase {
   @Test
   public void givenAppObject_whenProcessHello_thenProcessedHello_step1() {
     String s = "hello";
-    // Remember, `TestAssertions` is the class you start with to write your test using `thincrest-pcond`.
+    // Remember, `Expectations` is the class you start with to write your test using `valid8j`.
     // `assertStatement(Statement)` is the most basic way to begin with.
     assertStatement(
         // Since it accepts `Statement`, you try `Statement` class.
         // Since you are testing your class, not String, short, int, long., you are choosing `objectValue` method and give your object `new Java8App()`.
         that(new Java8App())
             // Invoke your method `process`, which takes a string parameter.
-            // thincrest-pcond chooses appropriate method automatically (narrowest possible one.)
+            // valid8j chooses appropriate method automatically (narrowest possible one.)
             .invoke("process", s)
             // Optional: Let the compiler know it returns string.
             .asString()

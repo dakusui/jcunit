@@ -17,6 +17,5 @@ interface ExecutionTimeValueResolver<T, E> {
   E resolve(T generationTimeValue, Tuple testData);
 
   interface Factory<P extends Parameter<T>, T, E> {
-    ExecutionTimeValueResolver<T, E> create();
   }
 }
