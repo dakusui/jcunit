@@ -26,7 +26,4 @@ import static java.util.stream.Collectors.toList;
  * @param <E> Execution-time parameter type.
  */
 public interface ParameterResolver<P extends Parameter<G>, G, E> {
-  interface ValueResolver<E> extends Function<SchemafulTupleSet, E> {
-  
-  }
 }
