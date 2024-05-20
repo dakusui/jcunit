@@ -7,6 +7,7 @@ import com.github.jcunit.regex.Parser;
 import com.github.jcunit.regex.RegexComposer;
 import com.github.jcunit.utils.InternalUtils;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -71,8 +72,6 @@ public interface Parameter<T> {
   }
 
   interface Factory<T> {
-    <F extends Factory<T>> F addActualValue(T actualValue);
-
     <F extends Factory<T>> F addActualValues(List<T> actualValues);
 
     Parameter<T> create(String name);
@@ -82,7 +81,6 @@ public interface Parameter<T> {
       protected final List<T> knownValues = new LinkedList<>();
 
       @SuppressWarnings("unchecked")
-      @Override
       public <F extends Factory<T>> F addActualValue(T actualValue) {
         knownValues.add(actualValue);
         return (F) this;
@@ -99,17 +97,24 @@ public interface Parameter<T> {
 
   interface Simple<T> extends Parameter<T> {
     class Impl<T> extends Base<T> implements Simple<T> {
-      final Factor factor;
+      private final Factor factor;
+      private final List<Constraint> constraints;
 
       public Impl(String name, List<T> allLevels) {
         this(false, name, allLevels);
       }
 
       public Impl(boolean withVoid, String name, List<T> allLevels) {
+        this(withVoid, name, allLevels, Collections.emptyList());
+      }
+
+      public Impl(boolean withVoid, String name, List<T> allLevels, List<Constraint> constraints) {
         super(name, allLevels);
         this.factor = Factor.create(name,
-                                    Stream.concat(allLevels.stream(), withVoid ? Stream.of(VOID)
-                                                                               : Stream.empty()).toArray(Object[]::new));
+                                    Stream.concat(allLevels.stream(),
+                                                  withVoid ? Stream.of(VOID)
+                                                           : Stream.empty()).toArray());
+        this.constraints = requireNonNull(constraints);
       }
 
       @Override
@@ -119,7 +124,7 @@ public interface Parameter<T> {
 
       @Override
       protected List<Constraint> generateConstraints() {
-        return emptyList();
+        return this.constraints;
       }
 
       @SuppressWarnings("unchecked")
