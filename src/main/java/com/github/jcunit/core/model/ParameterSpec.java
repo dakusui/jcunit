@@ -3,14 +3,15 @@ package com.github.jcunit.core.model;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Parameter;
-import com.github.valid8j.pcond.forms.Printables;
 
 import java.util.*;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.factorspace.Factor.VOID;
+import static com.github.valid8j.fluent.Expectations.require;
+import static com.github.valid8j.fluent.Expectations.value;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -48,23 +49,30 @@ public interface ParameterSpec<E> {
    */
   List<ValueResolver<E>> valueResolvers();
 
-  default Parameter<ValueResolver<E>> create(ParameterSpaceSpec parameterSpaceSpec) {
-    return this.create(parameterSpaceSpec, ParameterSpec::createSimpleParameter);
+  default Parameter<ValueResolver<E>> toParameter(ParameterSpaceSpec parameterSpaceSpec) {
+    return this.toParameter(parameterSpaceSpec, Utils::createSimpleParameter);
   }
 
-  default Parameter<ValueResolver<E>> create(ParameterSpaceSpec parameterSpaceSpec,
-                                             BiFunction<ParameterSpec<E>, ParameterSpaceSpec, Parameter<ValueResolver<E>>> factory) {
+  default Parameter<ValueResolver<E>> toParameter(ParameterSpaceSpec parameterSpaceSpec,
+                                                  BiFunction<ParameterSpec<E>, ParameterSpaceSpec, Parameter<ValueResolver<E>>> factory) {
     return factory.apply(this, parameterSpaceSpec);
   }
 
-  static <E> Parameter.Simple.Impl<ValueResolver<E>> createSimpleParameter(ParameterSpec<E> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
-    boolean isSeed = Utils.isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
-    return new Parameter.Simple.Impl<>(isSeed,
-                                       parameterSpec.name(),
-                                       parameterSpec.valueResolvers(),
-                                       Utils.createConstraints(isSeed,
-                                                               parameterSpaceSpec,
-                                                               parameterSpec.name()));
+  @SafeVarargs
+  static <E> ParameterSpec<E> create(String name, ValueResolver<E>... valueResolvers) {
+    require(value(name).satisfies().notNull());
+    return new ParameterSpec<E>() {
+
+      @Override
+      public String name() {
+        return name;
+      }
+
+      @Override
+      public List<ValueResolver<E>> valueResolvers() {
+        return asList(valueResolvers);
+      }
+    };
   }
 
   enum Utils {
@@ -141,31 +149,17 @@ public interface ParameterSpec<E> {
       }
       return false;
     }
-  }
 
-  interface ValueResolver<V> {
-    V resolve(Tuple testData);
-
-    List<String> dependencies();
-
-    static <V> ValueResolver<V> simple(V value) {
-      return create(Printables.function("value[" + value + "]", x -> value), emptyList());
-    }
-
-    static <V> ValueResolver<V> create(Function<Tuple, V> resolver,
-                                       List<String> dependencies) {
-      return new ValueResolver<V>() {
-        @Override
-        public V resolve(Tuple testData) {
-          return resolver.apply(testData);
-        }
-
-        @Override
-        public List<String> dependencies() {
-          return dependencies;
-        }
-      };
+    public static <E> Parameter<ValueResolver<E>> createSimpleParameter(ParameterSpec<E> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
+      boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
+      return new Parameter.Simple.Impl<>(isSeed,
+                                         parameterSpec.name(),
+                                         parameterSpec.valueResolvers(),
+                                         createConstraints(isSeed,
+                                                           parameterSpaceSpec,
+                                                           parameterSpec.name()));
     }
   }
+
 }
 
