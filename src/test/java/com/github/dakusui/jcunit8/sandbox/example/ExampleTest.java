@@ -55,6 +55,14 @@ public class ExampleTest {
     }
   }
 
+  public static class ParameterSpace {
+    @Named
+    public static String withTitle(@From("givenName") String given, @From("familyName") String family, @From("title") String title) {
+      return String.format("%s %s %s", title, given, family);
+    }
+
+  }
+
   static class ClassUnderTestTransformer extends Expectations.CustomTransformer<ClassUnderTestTransformer, ClassUnderTest> {
     /**
      * Creates an instance of this class.

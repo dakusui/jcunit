@@ -6,13 +6,11 @@ import com.github.valid8j.pcond.forms.Printables;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.github.valid8j.fluent.Expectations.require;
+import static com.github.valid8j.fluent.Expectations.precondition;
 import static com.github.valid8j.fluent.Expectations.value;
 import static com.github.valid8j.pcond.forms.Functions.parameter;
 import static java.util.Objects.requireNonNull;
@@ -23,35 +21,44 @@ import static java.util.Objects.requireNonNull;
  */
 public
 interface ValueResolver<V> {
-  static <T> ForMethod<T> fromStaticMethod(Method method) {
-    require(value(method)
-                .satisfies(o -> o.invoke("getModifiers")
-                                 .invokeStatic(Method.class, "isStatic", parameter())
-                                 .asBoolean()
-                                 .toBe()
-                                 .trueValue())
-                .satisfies()
-                .notNull());
-    List<String> arguments = Arrays.stream(method.getParameters())
-                                   .filter(each -> each.isAnnotationPresent(From.class))
-                                   .map(each -> each.getAnnotation(From.class))
-                                   .map(From::value)
-                                   .collect(Collectors.toList());
-    return new ForMethod<T>() {
+  static <V> ValueResolver<V> fromStaticMethod(Method method) {
+    assert precondition(value(method).satisfies(o -> o.invoke("getModifiers")
+                                                      .invokeStatic(Method.class, "isStatic", parameter())
+                                                      .asBoolean()
+                                                      .toBe()
+                                                      .trueValue())
+                                     .satisfies()
+                                     .notNull());
+    return valueResolverFromMethod(null, method);
+  }
+
+    static <V> ValueResolver<V> valueResolverFromMethod(Object instance, Method method) {
+    List<String> parameterNames = Arrays.stream(method.getParameters())
+                                        .filter(each -> each.isAnnotationPresent(From.class))
+                                        .map(each -> each.getAnnotation(From.class))
+                                        .map(From::value)
+                                        .collect(Collectors.toList());
+    return new ValueResolver<V>() {
       @Override
       public List<String> dependencies() {
-        return arguments;
+        return parameterNames;
       }
 
-      @Override
       public Object[] tupleToArguments(Tuple tuple) {
-        return new Object[0];
+        return parameterNames.stream()
+                             .map(tuple::get)
+                             .toArray(Object[]::new);
       }
 
       @Override
-      public T invoke(Object... args) {
+      public V resolve(Tuple tuple) {
+        return invoke(tupleToArguments(tuple));
+      }
+
+      @SuppressWarnings("unchecked")
+      public V invoke(Object... args) {
         try {
-          return (T) method.invoke(null, args);
+          return (V) method.invoke(instance, args);
         } catch (IllegalAccessException | InvocationTargetException e) {
           throw new RuntimeException(e);
         }
@@ -104,21 +111,5 @@ interface ValueResolver<V> {
         b = this.addDependency(each);
       return b.build();
     }
-  }
-
-  /**
-   * // @formatter:off
-   * // @formatter:on
-   */
-  interface ForMethod<T> extends ValueResolver<T> {
-    @Override
-    default T resolve(Tuple tuple) {
-      return invoke(tupleToArguments(tuple));
-    }
-
-    Object[] tupleToArguments(Tuple tuple);
-
-    T invoke(Object... args);
-
   }
 }

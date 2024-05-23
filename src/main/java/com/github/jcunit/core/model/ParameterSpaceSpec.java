@@ -3,6 +3,7 @@ package com.github.jcunit.core.model;
 import java.util.*;
 import java.util.function.Function;
 
+import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -10,7 +11,11 @@ import static java.util.stream.Collectors.toMap;
  * // @formatter:on 
  */
 public interface ParameterSpaceSpec {
-  static ParameterSpaceSpec createParameterSpaceSpec(List<ParameterSpec<?>> parameterSpecs) {
+  static ParameterSpaceSpec create(ParameterSpec<?>... parameterSpecs) {
+    return create(asList(parameterSpecs));
+  }
+
+  static ParameterSpaceSpec create(List<ParameterSpec<?>> parameterSpecs) {
     Map<String, ParameterSpec<?>> parameterSpecMap = parameterSpecs.stream()
                                                                    .collect(toMap(ParameterSpec::name,
                                                                                   Function.identity()));

@@ -1,23 +1,21 @@
 package com.github.dakusui.jcunit8.examples.bankaccount;
 
-import com.github.dakusui.jcunit8.factorspace.Parameter.Regex;
-import com.github.dakusui.jcunit8.factorspace.Parameter.Simple;
-import com.github.dakusui.jcunit8.runners.junit4.JUnit4_13Workaround;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Condition;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.From;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.Given;
-import com.github.dakusui.jcunit8.runners.junit4.annotations.ParameterSource;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+
+import com.github.jcunit.annotations.From;
+import com.github.jcunit.factorspace.Parameter.Regex;
+import com.github.jcunit.factorspace.Parameter.Simple;
+import com.github.jcunit.runners.junit4.annotations.Condition;
+import com.github.jcunit.runners.junit4.annotations.Given;
+import com.github.jcunit.runners.junit4.annotations.ParameterSource;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // This is an example supposed to be executed by another class during the "test" lifecycle of maven.
 @SuppressWarnings("NewClassNamingConvention")
-@RunWith(JCUnit8.class)
+//@RunWith(JCUnit8.class)
 public class BankAccountExample extends JUnit4_13Workaround {
 
   private BankAccount myAccount;
@@ -27,7 +25,6 @@ public class BankAccountExample extends JUnit4_13Workaround {
   public Regex.Factory<String> scenario() {
     return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
   }
-
   @ParameterSource
   public Simple.Factory<Integer> depositAmount() {
     return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
@@ -93,9 +90,9 @@ public class BankAccountExample extends JUnit4_13Workaround {
   }
 
   private static int calculateBalance(List<String> scenario,
-      int amountOfDeposit,
-      int amountOfWithdraw,
-      int amountOfTransfer) {
+                                      int amountOfDeposit,
+                                      int amountOfWithdraw,
+                                      int amountOfTransfer) {
     int balance = 0;
     for (String op : scenario) {
       if ("deposit".equals(op)) {
@@ -112,7 +109,7 @@ public class BankAccountExample extends JUnit4_13Workaround {
     return balance;
   }
 
-  @Test
+  // @Test
   @Given("overdraftNotHappens")
   public void whenPerformScenario$thenBalanceIsCorrect(
       @From("scenario") List<String> scenario,
@@ -127,7 +124,7 @@ public class BankAccountExample extends JUnit4_13Workaround {
     assertEquals(calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer), balance);
   }
 
-  @Test
+  // @Test
   @Given("overdraftNotHappens")
   public void printScenario(
       @From("scenario") List<String> scenario,
@@ -146,23 +143,23 @@ public class BankAccountExample extends JUnit4_13Workaround {
   ) {
     int ret = -1;
     switch (operation) {
-    case "open":
-      myAccount = BankAccount.open();
-      break;
-    case "deposit":
-      myAccount.deposit(amountOfDeposit);
-      break;
-    case "withdraw":
-      myAccount.withdraw(amountOfWithdraw);
-      break;
-    case "transfer":
-      myAccount.transferTo(anotherAccount, amountOfTransfer);
-      break;
-    case "getBalance":
-      ret = myAccount.getBalance();
-      break;
-    default:
-      throw new AssertionError();
+      case "open":
+        myAccount = BankAccount.open();
+        break;
+      case "deposit":
+        myAccount.deposit(amountOfDeposit);
+        break;
+      case "withdraw":
+        myAccount.withdraw(amountOfWithdraw);
+        break;
+      case "transfer":
+        myAccount.transferTo(anotherAccount, amountOfTransfer);
+        break;
+      case "getBalance":
+        ret = myAccount.getBalance();
+        break;
+      default:
+        throw new AssertionError();
     }
     return ret;
   }

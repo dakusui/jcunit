@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.sandbox.example;
+package com.github.jcunit.annotations;
 
 public @interface JCUnitParameterValue {
   /**
