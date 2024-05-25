@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 /**
  * // @formatter:off 
@@ -40,13 +41,15 @@ public class TestExample2 {
 
   public static ParameterSpaceSpec parameterSpaceSpec() {
     return ParameterSpaceSpec.create(
-        ParameterSpec.create("",
-                             ValueResolver.fromValue("hello").$(),
-                             ValueResolver.fromValue("world").$(),
-                             ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
-                             ValueResolver.fromStaticMethod(findMethod(MethodQuery.classMethod(TestExample2.class, "param1Value1", "String")))),
-        ParameterSpec.create("")
-    );
+        asList(
+            ParameterSpec.create("",
+                                 ValueResolver.fromValue("hello").$(),
+                                 ValueResolver.fromValue("world").$(),
+                                 ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
+                                 ValueResolver.fromStaticMethod(findMethod(MethodQuery.classMethod(TestExample2.class, "param1Value1", "String")))),
+            ParameterSpec.create("")
+        ),
+        emptyList());
   }
 
 

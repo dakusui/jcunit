@@ -27,7 +27,7 @@ import static java.util.stream.Collectors.toList;
  * A pipeline object.
  */
 public interface Pipeline {
-  TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenarioFactory);
+  TestSuite execute(Config config, ParameterSpace parameterSpace, TestScenario testScenario);
   
   class Standard implements Pipeline {
     @Override

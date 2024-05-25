@@ -31,38 +31,26 @@ public class Negative extends Generator.Base {
   private static List<Tuple> generateNegativeTests(List<Tuple> tuples, FactorSpace factorSpace, List<Tuple> seeds) {
     return new LinkedList<Tuple>() {{
       //noinspection SimplifiableConditionalExpression
-      factorSpace.getConstraints(
-      ).stream(
-      ).filter(
-          (Constraint each) -> seeds.stream(
-          ).filter(
-              ////
-              //   If there exists any seed which violates one and only one constraint,
-              // a (negative) test case to violate the constraint doesn't need to be generated.
-              //   Such a constraint is filtered out here.
-              (Tuple seed) -> factorSpace.getConstraints(
-              ).stream(
-              ).allMatch(
-                  (Constraint constraint) ->
-                      each == constraint ?
-                          !constraint.test(seed) : // Violates each constraint
-                          constraint.test(seed)    // But not violate any others
-              )
-          ).collect(toList()).size() != 1
-      ).forEach(
-          (Constraint each) ->
-              createNegativeTestForConstraint(
-                  each,
-                  exclude(
-                      each,
-                      factorSpace.getConstraints()
-                  ),
-                  composeFactorMap(factorSpace),
-                  tuples
-              ).ifPresent(
-                  this::add
-              )
-      );
+      factorSpace.getConstraints()
+                 .stream()
+                 .filter((Constraint each) -> seeds.stream()
+                                                   ////
+                                                   //   If there exists any seed which violates one and only one constraint,
+                                                   // a (negative) test case to violate the constraint doesn't need to be generated.
+                                                   //   Such a constraint is filtered out here.
+                                                   .filter((Tuple seed) -> factorSpace.getConstraints()
+                                                                                      .stream()
+                                                                                      // Violates each constraint
+                                                                                      // But not violate any others
+                                                                                      .allMatch((Constraint constraint) ->
+                                                                                                    each == constraint
+                                                                                                    ? !constraint.test(seed)
+                                                                                                    : constraint.test(seed)))
+                                                   .count() != 1)
+                 .forEach((Constraint each) -> createNegativeTestForConstraint(each,
+                                                                               exclude(each, factorSpace.getConstraints()),
+                                                                               composeFactorMap(factorSpace),
+                                                                               tuples).ifPresent(this::add));
     }};
   }
 
@@ -74,7 +62,8 @@ public class Negative extends Generator.Base {
 
   private static Map<String, List<Object>> composeFactorMap(FactorSpace factorSpace) {
     return new LinkedHashMap<String, List<Object>>() {{
-      factorSpace.getFactors().forEach((Factor each) -> put(each.getName(), each.getLevels()));
+      factorSpace.getFactors()
+                 .forEach((Factor each) -> put(each.getName(), each.getLevels()));
     }};
   }
 
@@ -122,5 +111,4 @@ public class Negative extends Generator.Base {
     return new Cartesianator<Object>(target.involvedKeys().stream().map(parameters::get).collect(toList())) {
     };
   }
-
 }
