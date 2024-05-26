@@ -7,5 +7,5 @@ public @interface JCUnitParameterValue {
    *
    * @return A tag for the method to be annotated by this interface.
    */
-  String value();
+  String value() default "";
 }

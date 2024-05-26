@@ -1,9 +1,10 @@
 package com.github.jcunit.runners.junit5;
 
-import com.github.jcunit.annotations.*;
+import com.github.jcunit.annotations.From;
+import com.github.jcunit.annotations.JCUnitTest;
+import com.github.jcunit.annotations.UsingParameterSpace;
+import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.tuples.Tuple;
-import com.github.jcunit.factorspace.Constraint;
-import com.github.jcunit.factorspace.Parameter;
 import com.github.jcunit.factorspace.ParameterSpace;
 import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
@@ -11,7 +12,6 @@ import com.github.jcunit.pipeline.Requirement;
 import com.github.jcunit.testsuite.TestCase;
 import org.junit.jupiter.api.extension.*;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +19,8 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.validateParameterSpaceDefinitionClass;
-import static com.github.valid8j.classic.Validates.validate;
 import static com.github.valid8j.fluent.Expectations.require;
 import static com.github.valid8j.fluent.Expectations.value;
-import static com.github.valid8j.pcond.forms.Predicates.isNotNull;
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
@@ -46,15 +43,16 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
     context.getStore(namespace)
            .put("testDataSet",
                 generateTestDataSet(configure(),
-                                    buildParameterSpace(resolveParameterSpaceDefinition(context))));
+                                    buildParameterSpace(resolveParameterSpaceDefinition(context.getTestClass().orElseThrow(AssertionError::new)))));
   }
 
   private static Config configure() {
     return new Config.Builder(requirement()).build();
   }
 
-  private static ParameterSpace buildParameterSpace(DefineParameterSpace parameterSpaceDefinition) {
+  private static ParameterSpace buildParameterSpace(ParameterSpaceSpec parameterSpaceSpec) {
     ParameterSpace.Builder builder = new ParameterSpace.Builder();
+    /*
     List<Constraint> dependencyConstraints = new LinkedList<>();
     Arrays.stream(parameterSpaceDefinition.parameters())
           .map((DefineParameter parameterDefinition) -> createParameter(parameterDefinition, dependencyConstraints))
@@ -63,7 +61,13 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
                   Arrays.stream(parameterSpaceDefinition.constraints())
                         .map(JCUnitTestExtension::createConstraint))
           .forEach(builder::addConstraint);
+
+     */
     return builder.build();
+  }
+
+  private static ParameterSpaceSpec resolveParameterSpaceDefinition(Class<?> testClass) {
+    return null;
   }
 
   private static List<Tuple> generateTestDataSet(Config config, ParameterSpace parameterSpace) {
@@ -77,40 +81,11 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
     return new Requirement.Builder().build();
   }
 
-
-  private static Parameter<?> createParameter(DefineParameter parameterDefinition, List<Constraint> dependencyConstraints) {
-    throw new RuntimeException("Not implemented yet");
-  }
-
-  private static DefineParameterSpace resolveParameterSpaceDefinition(ExtensionContext context) {
-    return context.getTestClass()
-                  .map(JCUnitTestExtension::resolveParameterSpaceClass)
-                  .map(JCUnitTestExtension::parameterSpaceDefinitionOf)
-                  .orElseThrow(AssertionError::new);
-  }
-
-
-  private static DefineParameterSpace parameterSpaceDefinitionOf(Class<?> c) {
-    return validate(c.getAnnotation(DefineParameterSpace.class), isNotNull(), parameterSpaceDefinitionWasNotPresent(c));
-  }
-
-  private static Function<String, RuntimeException> parameterSpaceDefinitionWasNotPresent(Class<?> c) {
-    return detailMessage -> parameterSpaceDefinitionWasNotPresent(c, detailMessage);
-  }
-
-  private static RuntimeException parameterSpaceDefinitionWasNotPresent(Class<?> c, String msg) {
-    return new RuntimeException(format("@%s annotation was not present at %s%n%s", DefineParameterSpace.class.getSimpleName(), c.getCanonicalName(), msg));
-  }
-
   private static Class<?> resolveParameterSpaceClass(Class<?> c) {
     Class<?> ret = c.getAnnotation(UsingParameterSpace.class).value();
     return Object.class.equals(ret) ? c : ret;
   }
 
-  private static Constraint createConstraint(DefineConstraint defineConstraint) {
-    // TODO
-    return Constraint.create("name", x -> true, "");
-  }
 
 
   @Override
