@@ -1,8 +1,8 @@
-[source, java]
-[%nowrap, java]
+[source,java]
+[%nowrap,java]
 ----
-import com.github.jcunit.annotations.JCUnitParameterValue;import com.github.jcunit.annotations.JCUnitTest;import com.github.jcunit.annotations.Named;
-import com.github.jcunit.core.model.ParameterSpec;import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.annotations.JCUnitParameterValue;import com.github.jcunit.annotations.Named;
+import com.github.jcunit.core.model.ValueResolver;import com.github.jcunit.core.model.ValueResolvers;
 
 @JCUnit(parameterSpace = Example.ParameterSpace.class)
 public class ExampleParameterSpaceSpec {
@@ -27,10 +27,10 @@ public class ExampleParameterSpaceSpec {
 
   @JCUnitParameter
   public static List<ValueResolver<Action>> rootAction() {
-    return List.of(ValueResolver.fromValue(leaf(System.out::println)),
-                                    ValueResolver.fromStaticMethod(classMethod(Example.class, "sequential2"),
-                                    ValueResolver.fromStaticMethod(classMethod(Example.class, "sequential1"),
-                                    ValueResolver.fromStaticMethod(classMethod(Example.class, "parallel")))));
+    return List.of(ValueResolver.from(leaf(System.out::println)),
+                                    ValueResolvers.fromStaticMethod(classMethod(Example.class, "sequential2"),
+                                    ValueResolvers.fromStaticMethod(classMethod(Example.class, "sequential1"),
+                                    ValueResolvers.fromStaticMethod(classMethod(Example.class, "parallel")))));
   }
 
   @JCUnitParameter
@@ -83,7 +83,7 @@ public class ExampleParameterSpaceSpec {
 }
 ----
 
-[source, java]
+[source,java]
 ----
 public class Example {
 

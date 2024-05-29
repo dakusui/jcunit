@@ -4,6 +4,7 @@ import com.github.jcunit.annotations.*;
 import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.core.model.ValueResolvers;
 import com.github.jcunit.runners.junit5.JCUnitTestExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -22,10 +23,10 @@ import static java.util.Collections.singletonList;
 public class TestExample2 {
   @JCUnitParameter
   public static List<ValueResolver<String>> param1() {
-    return asList(ValueResolver.fromValue("hello").$(),
-                  ValueResolver.fromValue("world").$(),
+    return asList(ValueResolver.from("hello").$(),
+                  ValueResolver.from("world").$(),
                   ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
-                  ValueResolver.from(TestExample2.class).classMethodNamed("param1Value1")
+                  ValueResolvers.from(TestExample2.class).classMethodNamed("param1Value1")
     );
   }
 
@@ -35,6 +36,7 @@ public class TestExample2 {
     return "Hello, " + param3;
   }
 
+  @Named
   public static ParameterSpaceSpec parameterSpaceSpec() {
     return ParameterSpaceSpec.create(
         singletonList(
@@ -42,10 +44,9 @@ public class TestExample2 {
                                  ValueResolver.of("hello"),
                                  ValueResolver.of("world"),
                                  ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
-                                 ValueResolver.from(TestExample2.class).classMethod(m -> m.getName().equals("param1Value1")))),
+                                 ValueResolvers.from(TestExample2.class).classMethod(m -> m.getName().equals("param1Value1")))),
         emptyList());
   }
-
 
   @JCUnitTest
   public void test(@From("param1") String param1, @From("param2") Map<String, List<String>> param2) {
