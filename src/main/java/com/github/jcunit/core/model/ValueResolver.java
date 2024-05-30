@@ -11,6 +11,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static com.github.valid8j.fluent.Expectations.requireArguments;
+import static com.github.valid8j.fluent.Expectations.value;
 import static com.github.valid8j.pcond.forms.Predicates.isEmptyString;
 import static com.github.valid8j.pcond.forms.Predicates.isEqualTo;
 import static java.util.Objects.requireNonNull;
@@ -31,7 +33,20 @@ interface ValueResolver<V> {
   }
 
   static <V> ValueResolver<V> create(Function<Tuple, V> resolver, List<String> dependencies) {
-    return with(resolver).$(dependencies.toArray(new String[0]));
+    requireArguments(value(resolver).toBe().notNull(),
+                     value(dependencies).toBe().notNull());
+    return new ValueResolver<V>() {
+
+      @Override
+      public V resolve(Tuple testData) {
+        return resolver.apply(testData);
+      }
+
+      @Override
+      public List<String> dependencies() {
+        return new ArrayList<>(dependencies);
+      }
+    };
   }
 
   static <V> Builder<V> from(V value) {
