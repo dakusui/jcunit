@@ -1,8 +1,9 @@
 [source,java]
 [%nowrap,java]
 ----
-import com.github.jcunit.annotations.JCUnitParameterValue;import com.github.jcunit.annotations.Named;
-import com.github.jcunit.core.model.ValueResolver;import com.github.jcunit.core.model.ValueResolvers;
+import com.github.jcunit.annotations.JCUnitParameterValue;
+import com.github.jcunit.annotations.Named;
+import com.github.jcunit.core.model.ValueResolver;
 
 @JCUnit(parameterSpace = Example.ParameterSpace.class)
 public class ExampleParameterSpaceSpec {
@@ -28,9 +29,9 @@ public class ExampleParameterSpaceSpec {
   @JCUnitParameter
   public static List<ValueResolver<Action>> rootAction() {
     return List.of(ValueResolver.from(leaf(System.out::println)),
-                                    ValueResolvers.fromStaticMethod(classMethod(Example.class, "sequential2"),
-                                    ValueResolvers.fromStaticMethod(classMethod(Example.class, "sequential1"),
-                                    ValueResolvers.fromStaticMethod(classMethod(Example.class, "parallel")))));
+                   ValueResolver.from(Example.class).classMethod("sequential2"),
+                   ValueResolver.from(Example.class).classMethod("sequential1"),
+                   ValueResolver.from(Example.class).classMethod("parallel"));
   }
 
   @JCUnitParameter
@@ -65,14 +66,14 @@ public class ExampleParameterSpaceSpec {
 
   @Named
   public static List<ValueResolver<Action>> child1() {
-    return asList(ValueResolver.simple(ActionSupport.nop()),
-                  ValueResolver.simple(leaf(System.out::println)));
+    return asList(ValueResolver.of(ActionSupport.nop()),
+                  ValueResolver.of(leaf(System.out::println)));
   }
 
   @Named
   public static List<ValueResolver<Action>> child2() {
-    return asList(ValueResolver.simple(ActionSupport.nop()),
-                  ValueResolver.simple(leaf(System.out::println)));
+    return asList(ValueResolver.of(ActionSupport.nop()),
+                  ValueResolver.of(leaf(System.out::println)));
   }
 
   @JCUnitCondition

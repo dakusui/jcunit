@@ -20,9 +20,6 @@ import static com.github.valid8j.pcond.forms.Functions.parameter;
  * // @formatter:on 
  */
 public class ValueResolvers {
-  public static ValueResolver.FromClass from(Class<?> klass) {
-    return new ValueResolver.FromClass(klass);
-  }
 
   public static <V> ValueResolver<V> fromStaticMethod(Method method) {
     assert precondition(value(method).satisfies(o -> o.invoke("getModifiers")
@@ -46,13 +43,13 @@ public class ValueResolvers {
                                 parameterNames);
   }
 
-  public static Object[] tupleToArguments(Tuple tuple, List<String> parameterNames1) {
+  private static Object[] tupleToArguments(Tuple tuple, List<String> parameterNames1) {
     return parameterNames1.stream()
                           .map(tuple::get)
                           .toArray(Object[]::new);
   }
 
-  public static <V> ValueResolver.Builder<V> _from(V value) {
+  static <V> ValueResolver.Builder<V> _from(V value) {
     return ValueResolver.with(Printables.function("value[" + value + "]", x -> value));
   }
 

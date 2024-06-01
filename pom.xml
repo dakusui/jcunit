@@ -286,7 +286,7 @@
                         <jvmArg>-Dunderpitest=yes</jvmArg>
                     </jvmArgs>
                     <targetClasses>
-                        <param>com.github.dakusui.java8.template.*</param>
+                        <param>com.github.jcunit.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>*Test</param>

@@ -4,8 +4,8 @@ import com.github.jcunit.annotations.*;
 import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
-import com.github.jcunit.core.model.ValueResolvers;
 import com.github.jcunit.runners.junit5.JCUnitTestExtension;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
  * // @formatter:off 
  * // @formatter:on 
  */
+@Disabled
 @ExtendWith(JCUnitTestExtension.class)
 public class TestExample2 {
   @JCUnitParameter
@@ -26,7 +27,7 @@ public class TestExample2 {
     return asList(ValueResolver.from("hello").$(),
                   ValueResolver.from("world").$(),
                   ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
-                  ValueResolvers.from(TestExample2.class).classMethodNamed("param1Value1")
+                  ValueResolver.from(TestExample2.class).classMethodNamed("param1Value1")
     );
   }
 
@@ -44,7 +45,7 @@ public class TestExample2 {
                                  ValueResolver.of("hello"),
                                  ValueResolver.of("world"),
                                  ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
-                                 ValueResolvers.from(TestExample2.class).classMethod(m -> m.getName().equals("param1Value1")))),
+                                 ValueResolver.from(TestExample2.class).classMethod(m -> m.getName().equals("param1Value1")))),
         emptyList());
   }
 

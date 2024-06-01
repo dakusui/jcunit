@@ -9,13 +9,13 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static com.github.valid8j.fluent.Expectations.requireArguments;
 import static com.github.valid8j.fluent.Expectations.value;
 import static com.github.valid8j.pcond.forms.Predicates.isEmptyString;
 import static com.github.valid8j.pcond.forms.Predicates.isEqualTo;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.joining;
 
 /**
  * // @formatter:off
@@ -27,10 +27,6 @@ interface ValueResolver<V> {
   V resolve(Tuple testData);
 
   List<String> dependencies();
-
-  static <V> ValueResolver<V> simple(V value) {
-    return ValueResolver.from(value).$();
-  }
 
   static <V> ValueResolver<V> create(Function<Tuple, V> resolver, List<String> dependencies) {
     requireArguments(value(resolver).toBe().notNull(),
@@ -46,11 +42,20 @@ interface ValueResolver<V> {
       public List<String> dependencies() {
         return new ArrayList<>(dependencies);
       }
+
+      @Override
+      public String toString() {
+        return String.format("%s%s", resolver, dependencies);
+      }
     };
   }
 
   static <V> Builder<V> from(V value) {
     return ValueResolvers._from(value);
+  }
+
+  static FromClass from(Class<?> klass) {
+    return new FromClass(klass);
   }
 
   static <V> ValueResolver<V> of(V value) {
@@ -117,6 +122,10 @@ interface ValueResolver<V> {
       return (ValueResolver) ValueResolvers._from(this.klass).$(additionalDependencies);
     }
 
+    public ValueResolver<Class<?>> $(String... additionalDependencies) {
+      return this.build(additionalDependencies);
+    }
+
     public static Predicate<Method> named(String name) {
       return hasAnnotation().and(Transform.$(annotatedName())
                                           .check(isEqualTo(name))
@@ -148,7 +157,7 @@ interface ValueResolver<V> {
                                                                                klass.getCanonicalName(),
                                                                                Arrays.stream(klass.getMethods())
                                                                                      .map(Objects::toString)
-                                                                                     .collect(Collectors.joining(String.format("%n- "), "[", "]")))));
+                                                                                     .collect(joining(String.format("%n- "), "[", "]")))));
     }
   }
 }

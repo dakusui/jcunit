@@ -1,6 +1,9 @@
 package com.github.jcunitx.parameterspace;
 
+import com.github.dakusui.jcunit8.testutils.TestBase;
 import com.github.jcunit.core.model.ParameterSpaceSpec;
+import com.github.jcunit.factorspace.ParameterSpace;
+import com.github.jcunit.testsuite.TestSuite;
 import org.junit.jupiter.api.Test;
 
 import static com.github.valid8j.fluent.Expectations.assertStatement;
@@ -10,7 +13,7 @@ import static com.github.valid8j.fluent.Expectations.value;
  * // @formatter:off 
  * // @formatter:on 
  */
-public class ParameterSpaceSpecTest {
+public class ParameterSpaceSpecTest extends TestBase {
   @Test
   public void testParameterSpaceSpec() {
     ParameterSpaceSpec spaceSpec = SpecTestUtils.createTestParameterSpaceSpec();
@@ -39,4 +42,19 @@ public class ParameterSpaceSpecTest {
                                                            .toBe()
                                                            .equalTo(2)));
   }
+
+  @Test
+  public void testToParameterSpace() {
+    ParameterSpace parameterSpace = SpecTestUtils.createTestParameterSpaceSpec().toParameterSpace();
+    assertStatement(value(parameterSpace).invoke("getParameterNames")
+                                         .asListOf(String.class)
+                                         .elementAt(0).toBe().equalTo("p1"));
+  }
+
+  @Test
+  public void testToTestSuite() {
+    TestSuite testSuite = SpecTestUtils.createTestParameterSpaceSpec().toTestSuite();
+    testSuite.stream().forEach(System.out::println);
+  }
+
 }
