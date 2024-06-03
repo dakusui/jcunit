@@ -5,10 +5,10 @@ import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
 import com.github.jcunit.runners.junit5.JCUnitTestExtension;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +32,13 @@ public class TestExample2 {
                   ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
                   ValueResolver.from(TestExample2.class).classMethodNamed("param1Value1")
     );
+  }
+
+  @Named
+  @JCUnitParameter
+  public static List<ValueResolver<Map<String, List<String>>>> param2() {
+    return asList(ValueResolver.from(Collections.singletonMap("K2", singletonList("V2"))).$(),
+                  ValueResolver.from(Collections.singletonMap("K1", singletonList("V1"))).$());
   }
 
   @Named("param1Value1")
