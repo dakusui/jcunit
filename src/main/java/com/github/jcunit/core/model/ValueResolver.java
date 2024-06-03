@@ -139,7 +139,7 @@ interface ValueResolver<V> {
       return Printables.function("methodName", Method::getName);
     }
 
-    private static Function<Method, String> annotatedName() {
+    static Function<Method, String> annotatedName() {
       return Printables.function("annotatedName", (Method m) -> m.getAnnotation(Named.class).value());
     }
 

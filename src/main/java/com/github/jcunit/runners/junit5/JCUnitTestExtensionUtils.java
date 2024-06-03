@@ -24,7 +24,7 @@ public enum JCUnitTestExtensionUtils {
   ;
 
   static void validateParameterSpaceDefinitionClass(List<String> errors, Class<?> parameterSpaceSpecClass) {
-    ParameterSpaceSpec parameterSpaceSpec = parameterSpaceDefinitionFromClass(parameterSpaceSpecClass).orElseThrow(RuntimeException::new);
+    ParameterSpaceSpec parameterSpaceSpec = JCUnitTestExtension.Utils.createParameterSpaceSpec(parameterSpaceSpecClass);
     Map<String, List<Object>> knownNamesInParameterSpace = definedNamesInParameterSpace(parameterSpaceSpec);
     validateNameDefinitionsInParameterSpace(errors, knownNamesInParameterSpace);
     validateParameterSpaceDefinition(errors, parameterSpaceSpec, parameterSpaceSpecClass, knownNamesInParameterSpace.keySet());

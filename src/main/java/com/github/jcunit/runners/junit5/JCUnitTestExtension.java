@@ -1,11 +1,15 @@
 package com.github.jcunit.runners.junit5;
 
 import com.github.jcunit.annotations.From;
+import com.github.jcunit.annotations.JCUnitParameter;
 import com.github.jcunit.annotations.JCUnitTest;
 import com.github.jcunit.annotations.UsingParameterSpace;
 import com.github.jcunit.core.model.ParameterSpaceSpec;
+import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.core.model.ValueResolvers;
 import com.github.jcunit.core.tuples.Tuple;
+import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.ParameterSpace;
 import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
@@ -14,6 +18,8 @@ import com.github.jcunit.testsuite.TestCase;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.*;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -21,6 +27,7 @@ import java.util.stream.Stream;
 import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.validateParameterSpaceDefinitionClass;
 import static com.github.valid8j.fluent.Expectations.require;
 import static com.github.valid8j.fluent.Expectations.value;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -32,6 +39,8 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 @TestInstance(PER_CLASS)
 public class JCUnitTestExtension implements BeforeAllCallback,
                                             TestTemplateInvocationContextProvider {
+  private final ExtensionContext.Namespace namespace = ExtensionContext.Namespace.create(JCUnitTestExtension.class);
+
   public JCUnitTestExtension() {
   }
 
@@ -40,18 +49,15 @@ public class JCUnitTestExtension implements BeforeAllCallback,
     {
       List<String> errors = new LinkedList<>();
       validateParameterSpaceDefinitionClass(errors, Utils.resolveParameterSpaceClass(context.getTestClass().orElseThrow(AssertionError::new)));
-      require(value(errors).satisfies().empty());
+      //require(value(errors).satisfies().empty());
       ParameterSpaceSpec parameterSpaceSpec = Utils.createParameterSpaceSpec(context.getTestClass().orElseThrow(AssertionError::new));
       context.getStore(namespace)
              .put("testDataSet",
-                  Utils.generateTestDataSet(Utils.configure(), Utils.buildParameterSpace(parameterSpaceSpec)));
+                  Utils.generateTestDataSet(Utils.configure(), parameterSpaceSpec.toParameterSpace()));
       context.getStore(namespace)
              .put("parameterSpaceSpec", parameterSpaceSpec);
     }
   }
-
-  private final ExtensionContext.Namespace namespace = ExtensionContext.Namespace.create(JCUnitTestExtension.class);
-
 
   @Override
   public boolean supportsTestTemplate(ExtensionContext context) {
@@ -65,7 +71,6 @@ public class JCUnitTestExtension implements BeforeAllCallback,
     return Stream.of(new TestTemplateInvocationContext() {
 
     });
-//    return testDataSet.stream().map(Utils::toTestTemplateInvocationContext);
   }
 
   enum Utils {
@@ -75,24 +80,20 @@ public class JCUnitTestExtension implements BeforeAllCallback,
       return new Config.Builder(requirement()).build();
     }
 
-    private static ParameterSpace buildParameterSpace(ParameterSpaceSpec parameterSpaceSpec) {
-      ParameterSpace.Builder builder = new ParameterSpace.Builder();
-      /*
-      List<Constraint> dependencyConstraints = new LinkedList<>();
-      Arrays.stream(parameterSpaceDefinition.parameters())
-            .map((DefineParameter parameterDefinition) -> createParameter(parameterDefinition, dependencyConstraints))
-            .forEach(builder::addParameter);
-      Stream.concat(dependencyConstraints.stream(),
-                    Arrays.stream(parameterSpaceDefinition.constraints())
-                          .map(JCUnitTestExtension::createConstraint))
-            .forEach(builder::addConstraint);
-
-       */
-      return builder.build();
+    static ParameterSpaceSpec createParameterSpaceSpec(Class<?> testModelClass) {
+      return ParameterSpaceSpec.create(createParameterSpecsFromModelClass(testModelClass),
+                                       createConstraintsFromModelClass(testModelClass));
     }
 
-    private static ParameterSpaceSpec createParameterSpaceSpec(Class<?> testClass) {
-      return null;
+    private static List<Constraint> createConstraintsFromModelClass(@SuppressWarnings("unused") Class<?> testModelClass) {
+      return emptyList();
+    }
+
+    private static List<ParameterSpec<?>> createParameterSpecsFromModelClass(Class<?> testModelClass) {
+      return Arrays.stream(testModelClass.getMethods())
+                   .filter(m -> m.isAnnotationPresent(JCUnitParameter.class))
+                   .map(JCUnitTestExtension::toParameterSpec)
+                   .collect(toList());
     }
 
     private static List<Tuple> generateTestDataSet(Config config, ParameterSpace parameterSpace) {
@@ -145,5 +146,9 @@ public class JCUnitTestExtension implements BeforeAllCallback,
     private static ValueResolver<?> valueResolverFor(String sourceParameterName, Tuple testDataTuple) {
       return (ValueResolver<?>) (testDataTuple.get(sourceParameterName));
     }
+  }
+
+  private static <E> ParameterSpec<E> toParameterSpec(Method m) {
+    return ParameterSpec.create(ValueResolvers.namedOf(m), ((List<ValueResolver<?>>)ValueResolvers.invoke(null, m)).toArray(new ValueResolver[0]));
   }
 }

@@ -1,6 +1,7 @@
 package com.github.jcunit.core.model;
 
 import com.github.jcunit.annotations.From;
+import com.github.jcunit.annotations.Named;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.valid8j.pcond.forms.Printables;
 
@@ -37,8 +38,7 @@ public class ValueResolvers {
                                         .map(each -> each.getAnnotation(From.class))
                                         .map(From::value)
                                         .collect(Collectors.toList());
-    return ValueResolver.create((Tuple tuple) -> invoke(method,
-                                                        instance,
+    return ValueResolver.create((Tuple tuple) -> invoke(instance, method,
                                                         tupleToArguments(tuple, parameterNames)),
                                 parameterNames);
   }
@@ -54,11 +54,17 @@ public class ValueResolvers {
   }
 
   @SuppressWarnings("unchecked")
-  public static <V> V invoke(Method method, Object instance, Object... args) {
+  public static <V> V invoke(Object instance, Method method, Object... args) {
     try {
       return (V) method.invoke(instance, args);
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static String namedOf(Method m) {
+    assert m.isAnnotationPresent(Named.class);
+    return ValueResolver.FromClass.annotatedName().apply(m).equals(Named.DEFAULT) ? m.getName()
+                                                                                  : ValueResolver.FromClass.annotatedName().apply(m);
   }
 }

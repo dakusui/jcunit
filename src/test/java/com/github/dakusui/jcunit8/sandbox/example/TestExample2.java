@@ -21,8 +21,10 @@ import static java.util.Collections.singletonList;
  * // @formatter:on 
  */
 @Disabled
+@UsingParameterSpace(TestExample2.class)
 @ExtendWith(JCUnitTestExtension.class)
 public class TestExample2 {
+  @Named
   @JCUnitParameter
   public static List<ValueResolver<String>> param1() {
     return asList(ValueResolver.from("hello").$(),

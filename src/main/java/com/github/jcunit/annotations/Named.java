@@ -6,5 +6,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
 public @interface Named {
-  String value() default "";
+  String DEFAULT = "";
+  String value() default DEFAULT;
 }
