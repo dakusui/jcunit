@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.validateParameterSpaceDefinitionClass;
-import static com.github.valid8j.fluent.Expectations.require;
-import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -51,11 +49,11 @@ public class JCUnitTestExtension implements BeforeAllCallback,
       validateParameterSpaceDefinitionClass(errors, Utils.resolveParameterSpaceClass(context.getTestClass().orElseThrow(AssertionError::new)));
       //require(value(errors).satisfies().empty());
       ParameterSpaceSpec parameterSpaceSpec = Utils.createParameterSpaceSpec(context.getTestClass().orElseThrow(AssertionError::new));
-      context.getStore(namespace)
-             .put("testDataSet",
-                  Utils.generateTestDataSet(Utils.configure(), parameterSpaceSpec.toParameterSpace()));
-      context.getStore(namespace)
-             .put("parameterSpaceSpec", parameterSpaceSpec);
+      List<Tuple> value = Utils.generateTestDataSet(Utils.configure(),
+                                                    parameterSpaceSpec.toParameterSpace());
+      value.forEach(System.err::println);
+      context.getStore(namespace).put("testDataSet", value);
+      context.getStore(namespace).put("parameterSpaceSpec", parameterSpaceSpec);
     }
   }
 
@@ -66,11 +64,9 @@ public class JCUnitTestExtension implements BeforeAllCallback,
 
   @Override
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
-    @SuppressWarnings("unchecked") List<Tuple> testDataSet = context.getStore(namespace).get("testDataset", List.class);
-    System.out.println(context.getTestMethod());
-    return Stream.of(new TestTemplateInvocationContext() {
-
-    });
+    @SuppressWarnings("unchecked") List<Tuple> testDataSet = context.getStore(namespace).get("testDataSet", List.class);
+    testDataSet.forEach(System.err::println);
+    return testDataSet.stream().map(Utils::toTestTemplateInvocationContext);
   }
 
   enum Utils {
@@ -144,11 +140,13 @@ public class JCUnitTestExtension implements BeforeAllCallback,
     }
 
     private static ValueResolver<?> valueResolverFor(String sourceParameterName, Tuple testDataTuple) {
+      if (!testDataTuple.containsKey(sourceParameterName))
+        throw new ParameterResolutionException(String.format("Parameter '%s' not found. Available parameters are: %s", sourceParameterName, testDataTuple.keySet().stream().sorted().collect(toList())));
       return (ValueResolver<?>) (testDataTuple.get(sourceParameterName));
     }
   }
 
   private static <E> ParameterSpec<E> toParameterSpec(Method m) {
-    return ParameterSpec.create(ValueResolvers.namedOf(m), ((List<ValueResolver<?>>)ValueResolvers.invoke(null, m)).toArray(new ValueResolver[0]));
+    return ParameterSpec.create(ValueResolvers.namedOf(m), ((List<ValueResolver<?>>) ValueResolvers.invoke(null, m)).toArray(new ValueResolver[0]));
   }
 }
