@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -34,38 +33,14 @@ public class TestExample2 {
   public static List<ValueResolver<String>> param1() {
     return asList(ValueResolver.from("hello").$(),
                   ValueResolver.from("world").$(),
-                  referenceTo("param3"),
+                  fromInvokable(Invokable.referenceTo("param3")),
                   fromInvokable(Invokable.fromClassMethodNamed(TestExample2.class, "param1Value1"))
     );
   }
 
-  private static <T> ValueResolver<T> referenceTo(String parameterName) {
-    new ValueResolver<T>() {
-
-      @SuppressWarnings("unchecked")
-      @Override
-      public T resolve(Tuple testData) {
-        return ((ValueResolver<T>) testData.get(parameterName)).resolve(testData);
-      }
-
-      @Override
-      public List<String> dependencies() {
-        return singletonList(parameterName);
-      }
-
-      @Override
-      public String toString() {
-        return "reference[" + parameterName + "]";
-      }
-    };
-  }
-
   private static <T> ValueResolver<T> fromInvokable(Invokable<T> invokable) {
     return new ValueResolver<T>() {
-      final List<String> dependencies = invokable.parameters()
-                                                 .stream()
-                                                 .map(p -> p.getAnnotation(From.class).value())
-                                                 .collect(toList());
+      final List<String> dependencies = invokable.parameterNames();
 
       @SuppressWarnings("unchecked")
       @Override
@@ -84,7 +59,7 @@ public class TestExample2 {
 
       @Override
       public String toString() {
-        return invokable.name() + dependencies;
+        return invokable.toString();
       }
     };
   }
@@ -92,14 +67,31 @@ public class TestExample2 {
   interface Invokable<T> {
     T invoke(Object... args);
 
-    List<Parameter> parameters();
-
-    String name();
+    List<String> parameterNames();
 
     static <T> Invokable<T> fromClassMethodNamed(Class<?> klass, String methodName) {
       return from(null, findMethod(klass, classMethodNamed(methodName)));
     }
 
+    static <T> Invokable<T> referenceTo(String parameterName) {
+      return new Invokable<T>() {
+
+        @Override
+        public T invoke(Object... args) {
+          return (T) args[0];
+        }
+
+        @Override
+        public List<String> parameterNames() {
+          return singletonList(parameterName);
+        }
+
+        @Override
+        public String toString() {
+          return "referenceTo[" + parameterName + "]";
+        }
+      };
+    }
     static <T> Invokable<T> from(Object object, Method method) {
       return new Invokable<T>() {
         @SuppressWarnings("unchecked")
@@ -113,23 +105,18 @@ public class TestExample2 {
         }
 
         @Override
-        public List<Parameter> parameters() {
+        public List<String> parameterNames() {
           return Arrays.stream(method.getParameters())
+                       .map(p -> p.getAnnotation(From.class))
+                       .map(From::value)
                        .collect(toList());
         }
 
         @Override
-        public String name() {
+        public String toString() {
           return (object == null ? ""
                                  : object.getClass().getSimpleName() + ".")
-                 + method.getName();
-        }
-
-        @Override
-        public String toString() {
-          return name() + parameters().stream()
-                                      .map(m -> m.getType().getSimpleName())
-                                      .collect(toList());
+                 + method.getName() + parameterNames();
         }
       };
     }
