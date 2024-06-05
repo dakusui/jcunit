@@ -76,8 +76,10 @@ public class TestExample2 {
     static <T> Invokable<T> referenceTo(String parameterName) {
       return new Invokable<T>() {
 
+        @SuppressWarnings("unchecked")
         @Override
         public T invoke(Object... args) {
+          assert args.length == 1;
           return (T) args[0];
         }
 
