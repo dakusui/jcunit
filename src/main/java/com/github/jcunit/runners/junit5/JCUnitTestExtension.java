@@ -147,6 +147,7 @@ public class JCUnitTestExtension implements BeforeAllCallback,
   }
 
   private static <E> ParameterSpec<E> toParameterSpec(Method m) {
-    return ParameterSpec.create(ValueResolvers.namedOf(m), ((List<ValueResolver<?>>) ValueResolvers.invoke(null, m)).toArray(new ValueResolver[0]));
+    return ParameterSpec.create(ValueResolvers.namedOf(m),
+                                ((List<ValueResolver<?>>) ValueResolvers.invoke(null, m)).toArray(new ValueResolver[0]));
   }
 }

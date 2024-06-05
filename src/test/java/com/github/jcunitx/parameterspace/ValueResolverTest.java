@@ -44,7 +44,7 @@ public class ValueResolverTest extends TestBase {
 
   @Test
   public void fromStaticMethod() {
-    ValueResolver<String> resolver = ValueResolver.from(ValueResolverTest.class).classMethodNamed("resolveValue");
+    ValueResolver<String> resolver = ValueResolver.from(ValueResolverTest.class).__classMethodNamed__("resolveValue");
 
     Object value = resolver.resolve(Tuple.builder().put("p1", "Scott Tiger").build());
 
@@ -75,7 +75,7 @@ public class ValueResolverTest extends TestBase {
   }
 
   private static Function<ValueResolver.FromClass, ValueResolver<Object>> classMethodNamed(String classMethodName) {
-    return Printables.function("classMethodNamed[" + classMethodName + "]", x -> x.classMethodNamed(classMethodName));
+    return Printables.function("classMethodNamed[" + classMethodName + "]", x -> x.__classMethodNamed__(classMethodName));
   }
 
   @Named

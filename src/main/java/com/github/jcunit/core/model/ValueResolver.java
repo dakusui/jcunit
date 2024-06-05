@@ -6,6 +6,7 @@ import com.github.jcunit.utils.Transform;
 import com.github.valid8j.pcond.forms.Printables;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -109,7 +110,7 @@ interface ValueResolver<V> {
       this.klass = klass;
     }
 
-    public <V> ValueResolver<V> classMethodNamed(String name) {
+    public <V> ValueResolver<V> __classMethodNamed__(String name) {
       return this.classMethod(named(name));
     }
 
@@ -135,6 +136,14 @@ interface ValueResolver<V> {
                                                                      .check(isEqualTo(name)))));
     }
 
+    public static Predicate<Method> isStatic() {
+      return Printables.predicate("isStatic", m -> Modifier.isStatic(m.getModifiers()));
+    }
+
+    public static Predicate<Method> classMethodNamed(String name) {
+      return isStatic().and(named(name));
+    }
+
     private static Function<Method, String> methodName() {
       return Printables.function("methodName", Method::getName);
     }
@@ -148,7 +157,7 @@ interface ValueResolver<V> {
                                   (Method m) -> m.isAnnotationPresent(Named.class));
     }
 
-    private static Method findMethod(Class<?> klass, Predicate<Method> query) {
+    public static Method findMethod(Class<?> klass, Predicate<Method> query) {
       return Arrays.stream(klass.getMethods())
                    .filter(query)
                    .findFirst()
