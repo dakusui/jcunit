@@ -48,15 +48,10 @@ public class TestExample2 {
   }
 
   @Named
-  public static ParameterSpaceSpec parameterSpaceSpec() {
-    return ParameterSpaceSpec.create(
-        singletonList(
-            ParameterSpec.create("param1",
-                                 ValueResolver.of("hello"),
-                                 ValueResolver.of("world"),
-                                 ValueResolver.with(t -> (String) t.get("param3")).$("param3"),
-                                 ValueResolver.from(TestExample2.class).classMethod(m -> m.getName().equals("param1Value1")))),
-        emptyList());
+  public static List<ValueResolver<String>> _param3() {
+    return asList(
+        ValueResolver.of("Scott"),
+        ValueResolver.of("John"));
   }
 
   @JCUnitTest

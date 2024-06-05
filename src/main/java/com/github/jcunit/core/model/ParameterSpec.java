@@ -152,7 +152,7 @@ public interface ParameterSpec<E> {
 
     public static <E> Parameter<ValueResolver<E>> createSimpleParameter(ParameterSpec<E> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
       boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
-      return new Parameter.Simple.Impl<>(isSeed,
+      return new Parameter.Simple.Impl<>(!isSeed,
                                          parameterSpec.name(),
                                          parameterSpec.valueResolvers(),
                                          createConstraints(isSeed,
