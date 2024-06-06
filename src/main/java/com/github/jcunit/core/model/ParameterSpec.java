@@ -1,5 +1,6 @@
 package com.github.jcunit.core.model;
 
+import com.github.jcunit.annotations.JCUnitParameter;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Parameter;
@@ -50,7 +51,7 @@ public interface ParameterSpec<E> {
   List<ValueResolver<E>> valueResolvers();
 
   default Parameter<ValueResolver<E>> toParameter(ParameterSpaceSpec parameterSpaceSpec) {
-    return this.toParameter(parameterSpaceSpec, Utils::createSimpleParameter);
+    return JCUnitParameter.Type.SIMPLE.create(this, parameterSpaceSpec);
   }
 
   default Parameter<ValueResolver<E>> toParameter(ParameterSpaceSpec parameterSpaceSpec,
@@ -78,7 +79,7 @@ public interface ParameterSpec<E> {
   enum Utils {
     ;
 
-    private static boolean isSeed(ParameterSpaceSpec parameterSpaceSpec, String attribute, List<String> attributeNames) {
+    public static boolean isSeed(ParameterSpaceSpec parameterSpaceSpec, String attribute, List<String> attributeNames) {
       Set<String> referencingAttributes = new HashSet<>();
       for (String each : attributeNames) {
         if (Objects.equals(each, attribute)) continue;
@@ -108,9 +109,9 @@ public interface ParameterSpec<E> {
                                                                                 .contains(referencedAttribute));
     }
 
-    private static List<Constraint> createConstraints(boolean isSeed,
-                                                      ParameterSpaceSpec parameterSpaceSpec,
-                                                      String parameterName) {
+    public static List<Constraint> createConstraints(boolean isSeed,
+                                                     ParameterSpaceSpec parameterSpaceSpec,
+                                                     String parameterName) {
       return isSeed ? emptyList()
                     : nonSeedAttributeMustBeReferencedAtLeastOnce(parameterSpaceSpec,
                                                                   parameterName).map(Collections::singletonList)
@@ -149,17 +150,6 @@ public interface ParameterSpec<E> {
       }
       return false;
     }
-
-    public static <E> Parameter<ValueResolver<E>> createSimpleParameter(ParameterSpec<E> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
-      boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
-      return new Parameter.Simple.Impl<>(!isSeed,
-                                         parameterSpec.name(),
-                                         parameterSpec.valueResolvers(),
-                                         createConstraints(isSeed,
-                                                           parameterSpaceSpec,
-                                                           parameterSpec.name()));
-    }
   }
-
 }
 

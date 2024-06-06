@@ -5,7 +5,7 @@ import com.github.jcunit.annotations.From;
 import com.github.jcunit.factorspace.Parameter.Regex;
 import com.github.jcunit.factorspace.Parameter.Simple;
 import com.github.jcunit.runners.junit4.annotations.Condition;
-import com.github.jcunit.runners.junit4.annotations.Given;
+import com.github.jcunit.annotations.Given;
 import com.github.jcunit.runners.junit4.annotations.ParameterSource;
 
 import java.util.List;

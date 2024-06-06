@@ -9,7 +9,7 @@
       <item index="4" class="java.lang.String" itemvalue="com.github.jcunit.annotations.JCUnitTest" />
       <item index="5" class="java.lang.String" itemvalue="com.github.jcunit.annotations.Named" />
       <item index="6" class="java.lang.String" itemvalue="com.github.jcunit.runners.junit4.annotations.Condition" />
-      <item index="7" class="java.lang.String" itemvalue="com.github.jcunit.runners.junit4.annotations.Given" />
+      <item index="7" class="java.lang.String" itemvalue="com.github.jcunit.annotations.Given" />
       <item index="8" class="java.lang.String" itemvalue="com.github.jcunit.runners.junit4.annotations.ParameterSource" />
     </list>
   </component>

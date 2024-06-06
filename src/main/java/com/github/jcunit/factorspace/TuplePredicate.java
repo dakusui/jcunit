@@ -36,6 +36,11 @@ public interface TuplePredicate extends Predicate<Tuple> {
       public List<String> involvedKeys() {
         return involvedKeys;
       }
+
+      @Override
+      public String toString() {
+        return name + involvedKeys();
+      }
     };
   }
 }

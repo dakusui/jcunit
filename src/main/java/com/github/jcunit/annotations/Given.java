@@ -1,4 +1,4 @@
-package com.github.jcunit.runners.junit4.annotations;
+package com.github.jcunit.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

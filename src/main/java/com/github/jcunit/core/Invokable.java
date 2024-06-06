@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.sandbox.example;
+package com.github.jcunit.core;
 
 import com.github.jcunit.annotations.From;
 
@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:off
  * // @formatter:on
  */
-interface Invokable<T> {
+public interface Invokable<T> {
   T invoke(Object... args);
 
   List<String> parameterNames();

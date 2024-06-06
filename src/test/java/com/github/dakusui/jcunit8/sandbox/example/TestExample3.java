@@ -1,7 +1,7 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.JCUnitTest;
-import com.github.jcunit.runners.junit4.annotations.Given;
+import com.github.jcunit.annotations.Given;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;

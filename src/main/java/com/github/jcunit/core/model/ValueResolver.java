@@ -1,6 +1,7 @@
 package com.github.jcunit.core.model;
 
 import com.github.jcunit.annotations.Named;
+import com.github.jcunit.core.Invokable;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.utils.Transform;
 import com.github.valid8j.pcond.forms.Printables;
@@ -24,6 +25,32 @@ import static java.util.stream.Collectors.joining;
  */
 public
 interface ValueResolver<V> {
+
+  static <T> ValueResolver<T> fromInvokable(Invokable<T> invokable) {
+    return new ValueResolver<T>() {
+      final List<String> dependencies = invokable.parameterNames();
+
+      @SuppressWarnings("unchecked")
+      @Override
+      public T resolve(Tuple testData) {
+        return invokable.invoke(dependencies.stream()
+                                            .map(testData::get)
+                                            .map(o -> (ValueResolver<T>) o)
+                                            .map(r -> r.resolve(testData))
+                                            .toArray());
+      }
+
+      @Override
+      public List<String> dependencies() {
+        return dependencies;
+      }
+
+      @Override
+      public String toString() {
+        return invokable.toString();
+      }
+    };
+  }
 
   V resolve(Tuple testData);
 
