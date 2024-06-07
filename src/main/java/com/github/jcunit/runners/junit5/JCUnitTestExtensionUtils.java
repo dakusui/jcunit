@@ -100,7 +100,7 @@ public enum JCUnitTestExtensionUtils {
     return new HashSet<>(constraint.involvedKeys());
   }
 
-  static String nameOf(Method method) {
+  public static String nameOf(Method method) {
     assert method.isAnnotationPresent(Named.class);
     if ("".equals(method.getAnnotation(Named.class).value()))
       return method.getName();

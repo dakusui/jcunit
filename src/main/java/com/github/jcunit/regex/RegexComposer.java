@@ -41,7 +41,7 @@ public class RegexComposer {
   }
 
   private Map<String, Expr> createMap(Expr top) {
-    final Map<String, Expr> ret = new HashMap<String, Expr>();
+    final Map<String, Expr> ret = new HashMap<>();
     top.accept(new Expr.Visitor() {
       @Override
       public void visit(Expr.Alt exp) {

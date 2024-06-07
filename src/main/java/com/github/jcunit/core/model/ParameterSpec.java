@@ -51,12 +51,7 @@ public interface ParameterSpec<E> {
   List<ValueResolver<E>> valueResolvers();
 
   default Parameter<ValueResolver<E>> toParameter(ParameterSpaceSpec parameterSpaceSpec) {
-    return JCUnitParameter.Type.SIMPLE.create(this, parameterSpaceSpec);
-  }
-
-  default Parameter<ValueResolver<E>> toParameter(ParameterSpaceSpec parameterSpaceSpec,
-                                                  BiFunction<ParameterSpec<E>, ParameterSpaceSpec, Parameter<ValueResolver<E>>> factory) {
-    return factory.apply(this, parameterSpaceSpec);
+    return JCUnitParameter.Type.createSimple(this, parameterSpaceSpec);
   }
 
   @SafeVarargs
