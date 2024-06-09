@@ -33,24 +33,13 @@ public class ValueResolverTest extends TestBase {
 
   @Test
   public void resolveWithDependencyTest() {
-    ValueResolver<Object> resolver = ValueResolver.create(tuple -> tuple.get("p1"), singletonList("p1"));
+    ValueResolver<Object> resolver = ValueResolver.create("", tuple -> tuple.get("p1"), singletonList("p1"));
 
     Object value = resolver.resolve(Tuple.builder().put("p1", "hello").build());
 
     assertStatement(value(value).toBe()
                                 .instanceOf(String.class)
                                 .equalTo("hello"));
-  }
-
-  @Test
-  public void fromStaticMethod() {
-    ValueResolver<String> resolver = ValueResolver.from(ValueResolverTest.class).__classMethodNamed__("resolveValue");
-
-    Object value = resolver.resolve(Tuple.builder().put("p1", "Scott Tiger").build());
-
-    assertStatement(value(value).toBe()
-                                .instanceOf(String.class)
-                                .equalTo("Hello, <Scott Tiger>"));
   }
 
   @Test
@@ -62,20 +51,6 @@ public class ValueResolverTest extends TestBase {
               value(resolver).invoke("dependencies").asListOf(String.class)
                              .satisfies(x -> x.size().toBe().equalTo(1))
                              .satisfies(x -> x.elementAt(0).toBe().equalTo("p1")));
-  }
-
-  @Test
-  public void fromFunctionNotFound() {
-    Expectations.assertStatement(value(ValueResolver.from(ValueResolverTest.class))
-                                     .expectException(NoSuchElementException.class, classMethodNamed("notExisting"))
-                                     .getMessage()
-                                     .satisfies()
-                                     .containing("No matching method for")
-                                     .containing("notExisting"));
-  }
-
-  private static Function<ValueResolver.FromClass, ValueResolver<Object>> classMethodNamed(String classMethodName) {
-    return Printables.function("classMethodNamed[" + classMethodName + "]", x -> x.__classMethodNamed__(classMethodName));
   }
 
   @Named

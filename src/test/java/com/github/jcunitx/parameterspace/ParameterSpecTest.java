@@ -6,6 +6,8 @@ import com.github.jcunit.core.model.ValueResolver;
 import com.github.jcunit.factorspace.Parameter;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
 
@@ -33,7 +35,7 @@ public class ParameterSpecTest {
   public void testParameterSpecToParameter() {
     ParameterSpec<String> testParameterSpecP1 = SpecTestUtils.createTestParameterSpecP1();
     ParameterSpaceSpec parameterSpaceSpec = SpecTestUtils.createParameterSpaceSpec(testParameterSpecP1, SpecTestUtils.createTestParameterSpecP2());
-    Parameter<ValueResolver<String>> parameter = testParameterSpecP1.toParameter(parameterSpaceSpec);
+    Parameter<List<ValueResolver<String>>> parameter = testParameterSpecP1.toParameter(parameterSpaceSpec);
 
     assertStatement(
         value(parameter).satisfies(p -> p.invoke("getName").asString().satisfies().equalTo("p1"))

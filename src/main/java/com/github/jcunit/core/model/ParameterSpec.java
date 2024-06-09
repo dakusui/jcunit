@@ -6,7 +6,6 @@ import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Parameter;
 
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.factorspace.Factor.VOID;
@@ -24,6 +23,14 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:on
  */
 public interface ParameterSpec<E> {
+  default JCUnitParameter.Type type() {
+    return JCUnitParameter.Type.SIMPLE;
+  }
+
+  default List<String> additionalArguments() {
+    return emptyList();
+  }
+
   /**
    * A name of the parameter specified by this interface instance.
    *
@@ -50,8 +57,16 @@ public interface ParameterSpec<E> {
    */
   List<ValueResolver<E>> valueResolvers();
 
-  default Parameter<ValueResolver<E>> toParameter(ParameterSpaceSpec parameterSpaceSpec) {
-    return JCUnitParameter.Type.createSimple(this, parameterSpaceSpec);
+  default Parameter<List<ValueResolver<E>>> toParameter(ParameterSpaceSpec parameterSpaceSpec) {
+    switch (type()) {
+      case SIMPLE:
+        return JCUnitParameter.Type.createListSimple(this, parameterSpaceSpec);
+      case REGEX:
+        boolean isSeed = Utils.isSeed(parameterSpaceSpec, this.name(), parameterSpaceSpec.parameterNames());
+        return JCUnitParameter.Type.createRegex(this.additionalArguments().toArray(new String[0]), isSeed, this.name(), (Class<E>) Object.class, Object.class);
+      default:
+        throw new UnsupportedOperationException("Unsupported type: " + type());
+    }
   }
 
   @SafeVarargs

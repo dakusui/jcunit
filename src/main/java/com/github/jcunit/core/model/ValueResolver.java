@@ -4,8 +4,10 @@ import com.github.jcunit.annotations.Named;
 import com.github.jcunit.core.Invokable;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.utils.Transform;
+import com.github.valid8j.pcond.core.printable.PrintableFunction;
 import com.github.valid8j.pcond.forms.Printables;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -25,41 +27,29 @@ import static java.util.stream.Collectors.joining;
  */
 public
 interface ValueResolver<V> {
-
-  static <T> ValueResolver<T> fromInvokable(Invokable<T> invokable) {
-    return new ValueResolver<T>() {
-      final List<String> dependencies = invokable.parameterNames();
-
-      @SuppressWarnings("unchecked")
-      @Override
-      public T resolve(Tuple testData) {
-        return invokable.invoke(dependencies.stream()
-                                            .map(testData::get)
-                                            .map(o -> (ValueResolver<T>) o)
-                                            .map(r -> r.resolve(testData))
-                                            .toArray());
-      }
-
-      @Override
-      public List<String> dependencies() {
-        return dependencies;
-      }
-
-      @Override
-      public String toString() {
-        return invokable.toString();
-      }
-    };
+  static String nameOf(Method m) {
+    assert m != null;
+    assert m.isAnnotationPresent(Named.class);
+    String value = m.getAnnotation(Named.class).value();
+    return Objects.equals(Named.DEFAULT, value) ? m.getName()
+                                                : value;
   }
+
+  Optional<String> name();
 
   V resolve(Tuple testData);
 
   List<String> dependencies();
 
-  static <V> ValueResolver<V> create(Function<Tuple, V> resolver, List<String> dependencies) {
+  static <V> ValueResolver<V> create(String name, Function<Tuple, V> resolver, List<String> dependencies) {
     requireArguments(value(resolver).toBe().notNull(),
                      value(dependencies).toBe().notNull());
     return new ValueResolver<V>() {
+
+      @Override
+      public Optional<String> name() {
+        return Optional.of(name);
+      }
 
       @Override
       public V resolve(Tuple testData) {
@@ -78,14 +68,6 @@ interface ValueResolver<V> {
     };
   }
 
-  static <V> Builder<V> from(V value) {
-    return ValueResolvers._from(value);
-  }
-
-  static FromClass from(Class<?> klass) {
-    return new FromClass(klass);
-  }
-
   static <V> ValueResolver<V> of(V value) {
     return from(value).$();
   }
@@ -94,23 +76,79 @@ interface ValueResolver<V> {
     return new Builder<>(requireNonNull(function));
   }
 
+  static <V> Builder<V> from(V value) {
+    return Builder.create(value);
+  }
+
+  static FromClass from(Class<?> klass) {
+    return new FromClass(klass);
+  }
+
+  static <T> ValueResolver<T> fromInvokable(Invokable<T> invokable) {
+    return new ValueResolver<T>() {
+      final List<String> dependencies = invokable.parameterNames();
+
+      @Override
+      public Optional<String> name() {
+        return Optional.of(invokable.name());
+      }
+
+      @Override
+      public T resolve(Tuple testData) {
+        return invokable.invoke(dependencies.stream()
+                                            .map(testData::get)
+                                            .map(o -> (List<ValueResolver<?>>) o)
+                                            .map(l -> l.get(0))
+                                            .map(v -> (ValueResolver<?>) v)
+                                            .map(r -> r.resolve(testData))
+                                            .toArray());
+      }
+
+      @Override
+      public List<String> dependencies() {
+        return dependencies;
+      }
+
+      @Override
+      public String toString() {
+        return invokable.toString();
+      }
+    };
+  }
 
   class Builder<V> {
     private final List<String> dependencies;
     private Function<Tuple, V> function;
+    private String name;
+
+    public Builder(String name, Function<Tuple, V> function) {
+      this.dependencies = new LinkedList<>();
+      this.function = requireNonNull(function);
+      this.name = name != null ? name
+                               : function instanceof PrintableFunction ? function.toString()
+                                                                       : null;
+    }
 
     public Builder(Function<Tuple, V> function) {
-      this();
-      this.function(function);
+      this(null, function);
     }
 
     public Builder() {
       this.dependencies = new LinkedList<>();
     }
 
+    public Builder<V> name(String name) {
+      this.name = requireNonNull(name);
+      return this;
+    }
+
     public Builder<V> function(Function<Tuple, V> function) {
       this.function = requireNonNull(function);
       return this;
+    }
+
+    public Builder<V> function(String name, Function<Tuple, V> function) {
+      return this.name(name).function(function);
     }
 
     public Builder<V> addDependency(String dependencyParameterName) {
@@ -119,7 +157,7 @@ interface ValueResolver<V> {
     }
 
     public ValueResolver<V> build() {
-      return create(this.function, this.dependencies);
+      return ValueResolver.create(this.name, this.function, this.dependencies);
     }
 
     public ValueResolver<V> $(String... dependencies) {
@@ -127,6 +165,10 @@ interface ValueResolver<V> {
       for (String each : dependencies)
         b = this.addDependency(each);
       return b.build();
+    }
+
+    public static <V> Builder<V> create(V value) {
+      return with(Printables.function("value[" + value + "]", x -> value));
     }
   }
 
@@ -137,51 +179,42 @@ interface ValueResolver<V> {
       this.klass = klass;
     }
 
-    public <V> ValueResolver<V> __classMethodNamed__(String name) {
-      return this.classMethod(named(name));
-    }
-
-    public <V> ValueResolver<V> classMethod(Predicate<Method> query) {
-      return ValueResolvers.fromStaticMethod(findMethod(this.klass, query));
-    }
-
     @SuppressWarnings({"unchecked", "rawtypes"})
     public ValueResolver<Class<?>> build(String... additionalDependencies) {
-      return (ValueResolver) ValueResolvers._from(this.klass).$(additionalDependencies);
+      return (ValueResolver) Builder.create(this.klass).$(additionalDependencies);
     }
 
     public ValueResolver<Class<?>> $(String... additionalDependencies) {
       return this.build(additionalDependencies);
     }
 
-    public static Predicate<Method> named(String name) {
-      return hasAnnotation().and(Transform.$(annotatedName())
-                                          .check(isEqualTo(name))
-                                          .or(Transform.$(annotatedName())
-                                                       .check(isEmptyString())
-                                                       .and(Transform.$(methodName())
-                                                                     .check(isEqualTo(name)))));
+    public static Predicate<Method> methodNameIs(String name) {
+      return methodHasAnnotation(Named.class).and(Transform.$(methodGetNamedAnnotationValue()).check(isEqualTo(name))
+                                                           .or(Transform.$(methodGetNamedAnnotationValue())
+                                                                        .check(isEmptyString())
+                                                                        .and(Transform.$(methodGetName())
+                                                                                      .check(isEqualTo(name)))));
     }
 
     public static Predicate<Method> isStatic() {
       return Printables.predicate("isStatic", m -> Modifier.isStatic(m.getModifiers()));
     }
 
-    public static Predicate<Method> classMethodNamed(String name) {
-      return isStatic().and(named(name));
+    public static Predicate<Method> classMethodNameIs(String name) {
+      return isStatic().and(methodNameIs(name));
     }
 
-    private static Function<Method, String> methodName() {
+    public static Function<Method, String> methodGetName() {
       return Printables.function("methodName", Method::getName);
     }
 
-    static Function<Method, String> annotatedName() {
+    public static Function<Method, String> methodGetNamedAnnotationValue() {
       return Printables.function("annotatedName", (Method m) -> m.getAnnotation(Named.class).value());
     }
 
-    private static Predicate<Method> hasAnnotation() {
-      return Printables.predicate("hasAnnotation[" + Named.class.getSimpleName() + "]",
-                                  (Method m) -> m.isAnnotationPresent(Named.class));
+    private static Predicate<Method> methodHasAnnotation(Class<? extends Annotation> annotationClass) {
+      return Printables.predicate("hasAnnotation[" + annotationClass.getSimpleName() + "]",
+                                  (Method m) -> m.isAnnotationPresent(annotationClass));
     }
 
     public static Method findMethod(Class<?> klass, Predicate<Method> query) {

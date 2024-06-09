@@ -12,20 +12,38 @@ import com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.github.jcunit.core.model.ParameterSpec.Utils.createConstraints;
 import static com.github.jcunit.core.model.ParameterSpec.Utils.isSeed;
 import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.nameOf;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JCUnitParameter {
-  String value() default "";
+  Type type() default Type.SIMPLE;
+
+  String[] args() default {};
 
   enum Type {
-    ;
+    SIMPLE {
+    },
+    REGEX {
+    };
+
+
+    public static <T> Parameter<List<ValueResolver<T>>> createListSimple(ParameterSpec<T> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
+      boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
+      return new Parameter.Simple.Impl<>(!isSeed,
+                                         parameterSpec.name(),
+                                         parameterSpec.valueResolvers().stream().map(each -> singletonList(each)).collect(toList()),
+                                         createConstraints(isSeed,
+                                                           parameterSpaceSpec,
+                                                           parameterSpec.name()));
+    }
+
 
     public static <T> Parameter<ValueResolver<T>> createSimple(ParameterSpec<T> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
       boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
@@ -38,15 +56,19 @@ public @interface JCUnitParameter {
     }
 
 
-    public static <T> Parameter<List<ValueResolver<T>>> createRegex(String regex,
+    public static <T> Parameter<List<ValueResolver<T>>> createRegex(String[] regexes,
                                                                     boolean isSeed,
-                                                                    Class<T> valueResolverType,
-                                                                    Class<?> parameterSpaceClass, String parameterName) {
+                                                                    String parameterName,
+                                                                    Class<T> valueType,
+                                                                    Class<?> parameterSpaceClass) {
       // List<String> tokens = tokensInRegex(regex); // This is only necessary for validation
-      return createRegex(regex,
-                         isSeed,
-                         parameterName,
-                         valueResolvers(valueResolverType, parameterSpaceClass)::get);
+      return new Parameter.Regex.Impl<>(!isSeed,
+                                        parameterName,
+                                        regexes,
+                                        emptyList(),
+                                        valueResolvers(valueType, parameterSpaceClass)::get
+
+      );
     }
 
     public static <T> Map<String, ValueResolver<T>> valueResolvers(Class<T> valueResolverType, Class<?> parameterSpaceClass) {
@@ -89,17 +111,7 @@ public @interface JCUnitParameter {
       });
       return tokens.stream()
                    .sorted()
-                   .collect(Collectors.toList());
-    }
-
-    public static <T> Parameter<List<ValueResolver<T>>> createRegex(String regex, boolean isSeed1, String name, Function<String, ValueResolver<T>> stringValueResolverFunction1) {
-      boolean isSeed = isSeed1;
-      return new Parameter.Regex.Impl<>(name,
-                                        regex,
-                                        Collections.emptyList(),
-                                        stringValueResolverFunction1
-
-      );
+                   .collect(toList());
     }
   }
 }

@@ -1,15 +1,18 @@
 package com.github.jcunit.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 
 public enum ReflectionUtils {
   ;
-  public static Method getMethod(Class<?> clazz, String methodName, Class<?>... params) {
+
+  @SuppressWarnings("unchecked")
+  public static <V> V invoke(Object instance, Method method, Object... args) {
     try {
-      return Checks.checknotnull(clazz).getMethod(Checks.checknotnull(methodName), params);
-    } catch (NoSuchMethodException e) {
-      throw Checks.wrap(e);
+      return (V) method.invoke(instance, args);
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new RuntimeException(e);
     }
   }
 }

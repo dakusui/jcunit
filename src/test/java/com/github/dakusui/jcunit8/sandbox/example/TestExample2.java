@@ -3,17 +3,20 @@ package com.github.dakusui.jcunit8.sandbox.example;
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.core.Invokable;
 import com.github.jcunit.core.model.ValueResolver;
-import com.github.jcunit.annotations.Given;
 import com.github.jcunit.runners.junit5.JCUnitTestExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.jcunit.core.Invokable.fromClassMethodNamed;
+import static com.github.jcunit.core.Invokable.referenceTo;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 
 /**
  * // @formatter:off 
@@ -29,16 +32,16 @@ public class TestExample2 {
     public static List<ValueResolver<String>> param1() {
       return asList(ValueResolver.from("hello").$(),
                     ValueResolver.from("world").$(),
-                    ValueResolver.fromInvokable(Invokable.referenceTo("param3")),
-                    ValueResolver.fromInvokable(Invokable.fromClassMethodNamed(ParameterSpace.class, "param1Value1"))
+                    ValueResolver.fromInvokable(referenceTo("param3")),
+                    ValueResolver.fromInvokable(fromClassMethodNamed(ParameterSpace.class, "param1Value1"))
       );
     }
 
     @Named
     @JCUnitParameter
     public static List<ValueResolver<Map<String, List<String>>>> param2() {
-      return asList(ValueResolver.from(Collections.singletonMap("K2", singletonList("V2"))).$(),
-                    ValueResolver.from(Collections.singletonMap("K1", singletonList("V1"))).$());
+      return asList(ValueResolver.from(singletonMap("K2", singletonList("V2"))).$(),
+                    ValueResolver.from(singletonMap("K1", singletonList("V1"))).$());
     }
 
     @Named("param1Value1")

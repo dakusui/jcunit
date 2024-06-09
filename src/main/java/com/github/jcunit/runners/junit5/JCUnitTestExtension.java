@@ -5,7 +5,6 @@ import com.github.jcunit.core.Invokable;
 import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
-import com.github.jcunit.core.model.ValueResolvers;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.ParameterSpace;
@@ -14,8 +13,8 @@ import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.Requirement;
 import com.github.jcunit.runners.core.NodeUtils;
-import com.github.jcunit.annotations.Given;
 import com.github.jcunit.testsuite.TestCase;
+import com.github.jcunit.utils.ReflectionUtils;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.*;
 
@@ -50,9 +49,9 @@ public class JCUnitTestExtension implements BeforeAllCallback,
       // TODO: require(value(errors).satisfies().empty());
       ParameterSpaceSpec parameterSpaceSpec = Utils.createParameterSpaceSpec(getParameterSpaceSpecClass(context));
       SortedMap<String, TuplePredicate> definedPredicates = Utils.definedPredicatesFrom(getParameterSpaceSpecClass(context));
-      List<Tuple> value = Utils.generateTestDataSet(Utils.configure(),
-                                                    parameterSpaceSpec.toParameterSpace());
-      context.getStore(namespace).put("testDataSet", value);
+      List<Tuple> testDataSet = Utils.generateTestDataSet(Utils.configure(),
+                                                          parameterSpaceSpec.toParameterSpace());
+      context.getStore(namespace).put("testDataSet", testDataSet);
       context.getStore(namespace).put("parameterSpaceSpec", parameterSpaceSpec);
       context.getStore(namespace).put("definedPredicates", definedPredicates);
     }
@@ -123,6 +122,8 @@ public class JCUnitTestExtension implements BeforeAllCallback,
           tuple -> invokable.invoke(invokable.parameterNames()
                                              .stream()
                                              .map(tuple::get)
+                                             .map(o -> (List<ValueResolver<?>>) o)
+                                             .map(l -> l.get(0))
                                              .map(v -> (ValueResolver<?>) v)
                                              .map(r -> r.resolve(tuple))
                                              .toArray())
@@ -176,7 +177,7 @@ public class JCUnitTestExtension implements BeforeAllCallback,
 
         @Override
         public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-          return resolveValueOf(parameterName(parameterContext), testDataTuple);
+          return resolveValueOf(parameterName(parameterContext), testDataTuple).get(0);
         }
       };
     }
@@ -185,20 +186,20 @@ public class JCUnitTestExtension implements BeforeAllCallback,
       return parameterContext.getParameter().getAnnotation(From.class).value();
     }
 
-    private static Object resolveValueOf(String sourceParameterName, Tuple testDataTuple) {
-      return valueResolverFor(sourceParameterName, testDataTuple).resolve(testDataTuple);
+    private static List<Object> resolveValueOf(String sourceParameterName, Tuple testDataTuple) {
+      return valueResolversFor(sourceParameterName, testDataTuple).stream().map(r -> r.resolve(testDataTuple)).collect(toList());
     }
 
-    private static ValueResolver<?> valueResolverFor(String sourceParameterName, Tuple testDataTuple) {
+    private static List<ValueResolver<?>> valueResolversFor(String sourceParameterName, Tuple testDataTuple) {
       if (!testDataTuple.containsKey(sourceParameterName))
         throw new ParameterResolutionException(String.format("Parameter '%s' not found. Available parameters are: %s", sourceParameterName, testDataTuple.keySet().stream().sorted().collect(toList())));
-      return (ValueResolver<?>) (testDataTuple.get(sourceParameterName));
+      return (List<ValueResolver<?>>) (testDataTuple.get(sourceParameterName));
     }
 
   }
 
   private static <E> ParameterSpec<E> toParameterSpec(Method m) {
-    return ParameterSpec.create(ValueResolvers.namedOf(m),
-                                ((List<ValueResolver<?>>) ValueResolvers.invoke(null, m)).toArray(new ValueResolver[0]));
+    return ParameterSpec.create(ValueResolver.nameOf(m),
+                                ((List<ValueResolver<?>>) ReflectionUtils.invoke(null, m)).toArray(new ValueResolver[0]));
   }
 }

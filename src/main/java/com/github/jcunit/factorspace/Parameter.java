@@ -7,16 +7,15 @@ import com.github.jcunit.regex.Parser;
 import com.github.jcunit.regex.RegexComposer;
 import com.github.jcunit.utils.InternalUtils;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.factorspace.Factor.VOID;
-import static java.util.Collections.*;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
@@ -170,7 +169,11 @@ public interface Parameter<T> {
       private final RegexComposer regexComposer;
       private final Function<String, U> func;
 
-      public Impl(String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
+      public Impl(boolean withVoid, String name, String[] regexes, List<List<U>> knownValues, Function<String, U> func) {
+        this(withVoid, name, String.join(" ", regexes), knownValues, func);
+      }
+
+      public Impl(boolean withVoid, String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
         super(name, knownValues);
         Expr expr = new Parser().parse(regex);
         RegexDecomposer translator = new RegexDecomposer(name, expr);
@@ -231,7 +234,7 @@ public interface Parameter<T> {
       }
 
       private static <U> Regex<U> create(String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
-        return new Impl<>(name, regex, knownValues, func);
+        return new Impl<>(false, name, regex, knownValues, func);
       }
     }
   }

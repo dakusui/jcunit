@@ -7,8 +7,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.jcunit.core.model.ValueResolver.FromClass.classMethodNamed;
+import static com.github.jcunit.core.model.ValueResolver.FromClass.classMethodNameIs;
 import static com.github.jcunit.core.model.ValueResolver.FromClass.findMethod;
+import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.nameOf;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
@@ -17,16 +18,23 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:on
  */
 public interface Invokable<T> {
+  String name();
+
   T invoke(Object... args);
 
   List<String> parameterNames();
 
   static <T> Invokable<T> fromClassMethodNamed(Class<?> klass, String methodName) {
-    return from(null, findMethod(klass, classMethodNamed(methodName)));
+    return from(null, findMethod(klass, classMethodNameIs(methodName)));
   }
 
   static <T> Invokable<T> referenceTo(String parameterName) {
     return new Invokable<T>() {
+
+      @Override
+      public String name() {
+        return parameterName;
+      }
 
       @SuppressWarnings("unchecked")
       @Override
@@ -49,6 +57,13 @@ public interface Invokable<T> {
 
   static <T> Invokable<T> from(Object object, Method method) {
     return new Invokable<T>() {
+      private final String name = nameOf(method);
+
+      @Override
+      public String name() {
+        return name;
+      }
+
       @SuppressWarnings("unchecked")
       @Override
       public T invoke(Object... args) {
