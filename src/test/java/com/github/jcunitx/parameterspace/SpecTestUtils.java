@@ -1,5 +1,6 @@
 package com.github.jcunitx.parameterspace;
 
+import com.github.jcunit.annotations.JCUnitParameter;
 import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
@@ -25,10 +26,10 @@ public enum SpecTestUtils {
   }
 
   static ParameterSpec<String> createTestParameterSpecP1() {
-    return ParameterSpec.create("p1", ValueResolver.from("p1v1").$(), ValueResolver.from("p1v2").$());
+    return ParameterSpec.create("p1", JCUnitParameter.Type.SIMPLE, new String[0], ValueResolver.from("p1v1").$(), ValueResolver.from("p1v2").$());
   }
 
   static ParameterSpec<String> createTestParameterSpecP2() {
-    return ParameterSpec.create("p2", ValueResolver.from("p2v1").$(), ValueResolver.from("p2v2").$());
+    return ParameterSpec.create("p2", JCUnitParameter.Type.SIMPLE, new String[0], ValueResolver.from("p2v1").$(), ValueResolver.from("p2v2").$());
   }
 }

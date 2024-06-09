@@ -44,18 +44,6 @@ public @interface JCUnitParameter {
                                                            parameterSpec.name()));
     }
 
-
-    public static <T> Parameter<ValueResolver<T>> createSimple(ParameterSpec<T> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
-      boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
-      return new Parameter.Simple.Impl<>(!isSeed,
-                                         parameterSpec.name(),
-                                         parameterSpec.valueResolvers(),
-                                         createConstraints(isSeed,
-                                                           parameterSpaceSpec,
-                                                           parameterSpec.name()));
-    }
-
-
     public static <T> Parameter<List<ValueResolver<T>>> createRegex(String[] regexes,
                                                                     boolean isSeed,
                                                                     String parameterName,

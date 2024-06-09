@@ -1,6 +1,6 @@
 package com.github.jcunit.core.model;
 
-import com.github.jcunit.annotations.JCUnitParameter;
+import com.github.jcunit.annotations.JCUnitParameter.Type;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Parameter;
@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.factorspace.Factor.VOID;
-import static com.github.valid8j.fluent.Expectations.require;
+import static com.github.valid8j.fluent.Expectations.requireArguments;
 import static com.github.valid8j.fluent.Expectations.value;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -23,13 +23,9 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:on
  */
 public interface ParameterSpec<E> {
-  default JCUnitParameter.Type type() {
-    return JCUnitParameter.Type.SIMPLE;
-  }
+  Type type();
 
-  default List<String> additionalArguments() {
-    return emptyList();
-  }
+  List<String> additionalArguments();
 
   /**
    * A name of the parameter specified by this interface instance.
@@ -60,19 +56,28 @@ public interface ParameterSpec<E> {
   default Parameter<List<ValueResolver<E>>> toParameter(ParameterSpaceSpec parameterSpaceSpec) {
     switch (type()) {
       case SIMPLE:
-        return JCUnitParameter.Type.createListSimple(this, parameterSpaceSpec);
+        return Type.createListSimple(this, parameterSpaceSpec);
       case REGEX:
         boolean isSeed = Utils.isSeed(parameterSpaceSpec, this.name(), parameterSpaceSpec.parameterNames());
-        return JCUnitParameter.Type.createRegex(this.additionalArguments().toArray(new String[0]), isSeed, this.name(), (Class<E>) Object.class, Object.class);
+        return Type.createRegex(this.additionalArguments().toArray(new String[0]), isSeed, this.name(), (Class<E>) Object.class, Object.class);
       default:
         throw new UnsupportedOperationException("Unsupported type: " + type());
     }
   }
 
-  @SafeVarargs
-  static <E> ParameterSpec<E> create(String name, ValueResolver<E>... valueResolvers) {
-    require(value(name).satisfies().notNull());
+  static <E> ParameterSpec<E> create(String name, Type type, String[] additionalArguments, ValueResolver<E>... valueResolvers) {
+    requireArguments(value(name).satisfies().notNull(),
+                     value(type).satisfies().notNull());
     return new ParameterSpec<E>() {
+      @Override
+      public Type type() {
+        return type;
+      }
+
+      @Override
+      public List<String> additionalArguments() {
+        return asList(additionalArguments);
+      }
 
       @Override
       public String name() {

@@ -200,6 +200,8 @@ public class JCUnitTestExtension implements BeforeAllCallback,
 
   private static <E> ParameterSpec<E> toParameterSpec(Method m) {
     return ParameterSpec.create(ValueResolver.nameOf(m),
+                                m.getAnnotation(JCUnitParameter.class).type(),
+                                m.getAnnotation(JCUnitParameter.class).args(),
                                 ((List<ValueResolver<?>>) ReflectionUtils.invoke(null, m)).toArray(new ValueResolver[0]));
   }
 }

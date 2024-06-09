@@ -41,6 +41,25 @@ interface ValueResolver<V> {
 
   List<String> dependencies();
 
+  default ValueResolver<V> name(String name) {
+    return new ValueResolver<V>() {
+      @Override
+      public Optional<String> name() {
+        return Optional.of(name);
+      }
+
+      @Override
+      public V resolve(Tuple testData) {
+        return ValueResolver.this.resolve(testData);
+      }
+
+      @Override
+      public List<String> dependencies() {
+        return ValueResolver.this.dependencies();
+      }
+    };
+  }
+
   static <V> ValueResolver<V> create(String name, Function<Tuple, V> resolver, List<String> dependencies) {
     requireArguments(value(resolver).toBe().notNull(),
                      value(dependencies).toBe().notNull());

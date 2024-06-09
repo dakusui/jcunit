@@ -1,14 +1,11 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.*;
-import com.github.jcunit.core.Invokable;
 import com.github.jcunit.core.model.ValueResolver;
 import com.github.jcunit.runners.junit5.JCUnitTestExtension;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
