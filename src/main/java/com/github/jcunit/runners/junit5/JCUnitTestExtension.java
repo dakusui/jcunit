@@ -187,7 +187,9 @@ public class JCUnitTestExtension implements BeforeAllCallback,
     }
 
     private static List<Object> resolveValueOf(String sourceParameterName, Tuple testDataTuple) {
-      return valueResolversFor(sourceParameterName, testDataTuple).stream().map(r -> r.resolve(testDataTuple)).collect(toList());
+      return valueResolversFor(sourceParameterName, testDataTuple).stream()
+                                                                  .map(r -> r.resolve(testDataTuple))
+                                                                  .collect(toList());
     }
 
     private static List<ValueResolver<?>> valueResolversFor(String sourceParameterName, Tuple testDataTuple) {

@@ -1,10 +1,5 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
-/**
- * // @formatter:off 
- * // @formatter:on 
- */
-
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.annotations.JCUnitParameter.Type;
 import com.github.jcunit.core.model.ValueResolver;
@@ -13,23 +8,31 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
+import static com.github.jcunit.core.Invokable.referenceTo;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 /**
- * // @formatter:off
- * // @formatter:on
+ * // @formatter:off 
+ * // @formatter:on 
  */
 @ExtendWith(JCUnitTestExtension.class)
 @UsingParameterSpace(TestRegexWithReference.ParameterSpace.class)
-public class TestRegex {
+public class TestRegexWithReference {
   public static class ParameterSpace {
     @Named
     @JCUnitParameter(type = Type.REGEX, args = "(scott|john)")
     public static List<ValueResolver<String>> param1() {
       return asList(
           ValueResolver.of("John").name("john"),
-          ValueResolver.of("Scott").name("scott"));
+          ValueResolver.<String>fromInvokable(referenceTo("param3")).name("scott"));
     }
+  }
+
+  @Named
+  @JCUnitParameter
+  public static List<ValueResolver<String>> param3() {
+    return singletonList(ValueResolver.of("Scott"));
   }
 
   @JCUnitTest
