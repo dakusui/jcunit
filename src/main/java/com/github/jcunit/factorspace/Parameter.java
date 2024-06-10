@@ -193,7 +193,9 @@ public interface Parameter<T> {
 
       @Override
       public List<U> composeValue(Tuple tuple) {
-        return composeStringValueFrom(tuple).stream().map(func).collect(toList());
+        return composeStringValueFrom(tuple).stream()
+                                            .map(func)
+                                            .collect(toList());
       }
 
       @Override

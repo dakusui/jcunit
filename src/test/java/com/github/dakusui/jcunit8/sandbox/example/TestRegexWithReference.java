@@ -27,13 +27,14 @@ public class TestRegexWithReference {
           ValueResolver.of("John").name("john"),
           ValueResolver.<String>fromInvokable(referenceTo("param3")).name("scott"));
     }
+
+    @Named
+    @JCUnitParameter
+    public static List<ValueResolver<String>> param3() {
+      return singletonList(ValueResolver.of("Scott"));
+    }
   }
 
-  @Named
-  @JCUnitParameter
-  public static List<ValueResolver<String>> param3() {
-    return singletonList(ValueResolver.of("Scott"));
-  }
 
   @JCUnitTest
   public void testMethod(@From("param1") String param1) {

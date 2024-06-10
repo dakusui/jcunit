@@ -1,25 +1,22 @@
 package com.github.jcunit.annotations;
 
-import com.github.jcunit.core.Invokable;
 import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
 import com.github.jcunit.factorspace.Parameter;
 import com.github.jcunit.regex.Expr;
 import com.github.jcunit.regex.Parser;
-import com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static com.github.jcunit.core.model.ParameterSpec.Utils.createConstraints;
 import static com.github.jcunit.core.model.ParameterSpec.Utils.isSeed;
-import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.nameOf;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface JCUnitParameter {
@@ -38,35 +35,38 @@ public @interface JCUnitParameter {
       boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
       return new Parameter.Simple.Impl<>(!isSeed,
                                          parameterSpec.name(),
-                                         parameterSpec.valueResolvers().stream().map(each -> singletonList(each)).collect(toList()),
+                                         parameterSpec.valueResolvers()
+                                                      .stream()
+                                                      .map(Collections::singletonList)
+                                                      .collect(toList()),
                                          createConstraints(isSeed,
                                                            parameterSpaceSpec,
                                                            parameterSpec.name()));
     }
 
-    public static <T> Parameter<List<ValueResolver<T>>> createRegex(String[] regexes,
-                                                                    boolean isSeed,
-                                                                    String parameterName,
-                                                                    Class<T> valueType,
-                                                                    Class<?> parameterSpaceClass) {
+    @SuppressWarnings("unchecked")
+    public static <T> Parameter.Regex<ValueResolver<T>> createRegex(boolean isSeed,
+                                                                    ParameterSpec<T> parameterSpec) {
       // List<String> tokens = tokensInRegex(regex); // This is only necessary for validation
       return new Parameter.Regex.Impl<>(!isSeed,
-                                        parameterName,
-                                        regexes,
+                                        parameterSpec.name(),
+                                        parameterSpec.additionalArguments().toArray(new String[0]),
                                         emptyList(),
-                                        valueResolvers(valueType, parameterSpaceClass)::get
-
-      );
+                                        name -> parameterSpec.valueResolvers()
+                                                             .stream()
+                                                             .filter(r -> r.name().isPresent() && Objects.equals(name, r.name().get()))
+                                                             .map(r -> (ValueResolver<T>) r)
+                                                             .findFirst()
+                                                             .orElseThrow(noMatchingResolver(parameterSpec, name)));
     }
 
-    public static <T> Map<String, ValueResolver<T>> valueResolvers(Class<T> valueResolverType, Class<?> parameterSpaceClass) {
-      return Arrays.stream(parameterSpaceClass.getMethods())
-                   .filter(m -> m.isAnnotationPresent(JCUnitParameterValue.class))
-                   .filter(m -> valueResolverType.isAssignableFrom(m.getReturnType()))
-                   .collect(toMap(
-                       JCUnitTestExtensionUtils::nameOf,
-                       m -> ValueResolver.fromInvokable(Invokable.fromClassMethodNamed(parameterSpaceClass,
-                                                                                       nameOf(m)))));
+    private static <T> Supplier<NoSuchElementException> noMatchingResolver(ParameterSpec<T> parameterSpec, String name) {
+      return () -> new NoSuchElementException("No matching value resolver is available for parameter: <" + name +
+                                              ">, known value resolvers are defined for: " + parameterSpec.valueResolvers()
+                                                                                                          .stream()
+                                                                                                          .filter(r -> r.name().isPresent())
+                                                                                                          .map(r -> r.name().orElseThrow(AssertionError::new))
+                                                                                                          .collect(toList()));
     }
 
     // Only used for validation

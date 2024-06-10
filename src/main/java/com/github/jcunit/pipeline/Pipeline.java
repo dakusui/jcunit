@@ -118,7 +118,8 @@ public interface Pipeline {
                           .map((Tuple tuple) -> {
                             Tuple.Builder builder = new Tuple.Builder();
                             for (String parameterName : parameterSpace.getParameterNames()) {
-                              builder.put(parameterName, parameterSpace.getParameter(parameterName).composeValue(tuple));
+                              builder.put(parameterName, parameterSpace.getParameter(parameterName)
+                                                                       .composeValue(tuple));
                             }
                             return builder.build();
                           })

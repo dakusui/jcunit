@@ -1,10 +1,5 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
-/**
- * // @formatter:off 
- * // @formatter:on 
- */
-
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.annotations.JCUnitParameter.Type;
 import com.github.jcunit.core.model.ValueResolver;
@@ -20,15 +15,15 @@ import static java.util.Arrays.asList;
  * // @formatter:on
  */
 @ExtendWith(JCUnitTestExtension.class)
-@UsingParameterSpace(TestRegexWithReference.ParameterSpace.class)
+@UsingParameterSpace(TestRegex.ParameterSpace.class)
 public class TestRegex {
   public static class ParameterSpace {
     @Named
     @JCUnitParameter(type = Type.REGEX, args = "(scott|john)")
     public static List<ValueResolver<String>> param1() {
       return asList(
-          ValueResolver.of("John").name("john"),
-          ValueResolver.of("Scott").name("scott"));
+          ValueResolver.of("Hello, John").name("john"),
+          ValueResolver.of("Howdy, Scott").name("scott"));
     }
   }
 

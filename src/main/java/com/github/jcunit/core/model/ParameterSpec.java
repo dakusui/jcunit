@@ -59,12 +59,13 @@ public interface ParameterSpec<E> {
         return Type.createListSimple(this, parameterSpaceSpec);
       case REGEX:
         boolean isSeed = Utils.isSeed(parameterSpaceSpec, this.name(), parameterSpaceSpec.parameterNames());
-        return Type.createRegex(this.additionalArguments().toArray(new String[0]), isSeed, this.name(), (Class<E>) Object.class, Object.class);
+        return Type.createRegex(isSeed, this);
       default:
         throw new UnsupportedOperationException("Unsupported type: " + type());
     }
   }
 
+  @SuppressWarnings("unchecked")
   static <E> ParameterSpec<E> create(String name, Type type, String[] additionalArguments, ValueResolver<E>... valueResolvers) {
     requireArguments(value(name).satisfies().notNull(),
                      value(type).satisfies().notNull());
