@@ -25,7 +25,7 @@ public class TestRegexWithReference {
     public static List<ValueResolver<String>> param1() {
       return asList(
           ValueResolver.of("John").name("john"),
-          ValueResolver.<String>fromInvokable(referenceTo("param3")).name("scott"));
+          ValueResolver.<String>fromInvokable(referenceTo("param3", 0)).name("scott"));
     }
 
     @Named

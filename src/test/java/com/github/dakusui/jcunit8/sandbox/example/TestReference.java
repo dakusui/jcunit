@@ -26,7 +26,7 @@ public class TestReference {
     public static List<ValueResolver<String>> param1() {
       return asList(
           ValueResolver.of("John"),
-          ValueResolver.fromInvokable(referenceTo("param3")));
+          ValueResolver.fromInvokable(referenceTo("param3", 0)));
     }
 
     @Named

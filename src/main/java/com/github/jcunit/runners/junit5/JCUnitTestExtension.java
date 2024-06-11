@@ -34,8 +34,7 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
  * // @formatter:on 
  */
 @TestInstance(PER_CLASS)
-public class JCUnitTestExtension implements BeforeAllCallback,
-                                            TestTemplateInvocationContextProvider {
+public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvocationContextProvider {
   private final ExtensionContext.Namespace namespace = ExtensionContext.Namespace.create(JCUnitTestExtension.class);
 
   public JCUnitTestExtension() {
@@ -49,8 +48,7 @@ public class JCUnitTestExtension implements BeforeAllCallback,
       // TODO: require(value(errors).satisfies().empty());
       ParameterSpaceSpec parameterSpaceSpec = Utils.createParameterSpaceSpec(getParameterSpaceSpecClass(context));
       SortedMap<String, TuplePredicate> definedPredicates = Utils.definedPredicatesFrom(getParameterSpaceSpecClass(context));
-      List<Tuple> testDataSet = Utils.generateTestDataSet(Utils.configure(),
-                                                          parameterSpaceSpec.toParameterSpace());
+      List<Tuple> testDataSet = Utils.generateTestDataSet(Utils.configure(), parameterSpaceSpec.toParameterSpace());
       context.getStore(namespace).put("testDataSet", testDataSet);
       context.getStore(namespace).put("parameterSpaceSpec", parameterSpaceSpec);
       context.getStore(namespace).put("definedPredicates", definedPredicates);
@@ -66,25 +64,28 @@ public class JCUnitTestExtension implements BeforeAllCallback,
 
   @Override
   public boolean supportsTestTemplate(ExtensionContext context) {
-    return context.getTestMethod().filter(m -> m.isAnnotationPresent(JCUnitTest.class)).isPresent();
+    return context.getTestMethod()
+                  .filter(m -> m.isAnnotationPresent(JCUnitTest.class))
+                  .isPresent();
   }
 
   @Override
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
-    @SuppressWarnings("unchecked") List<Tuple> testDataSet = context.getStore(namespace)
-                                                                    .get("testDataSet", List.class);
-    @SuppressWarnings("unchecked") SortedMap<String, TuplePredicate> definedPredicates = context.getStore(namespace)
-                                                                                                .get("definedPredicates",
-                                                                                                     SortedMap.class);
+    @SuppressWarnings("unchecked") List<Tuple> testDataSet = context.getStore(namespace).get("testDataSet", List.class);
+    @SuppressWarnings("unchecked") SortedMap<String, TuplePredicate> definedPredicates = context.getStore(namespace).get("definedPredicates", SortedMap.class);
     return testDataSet.stream()
-                      .filter((Tuple each) -> satisfiesPrecondition(context.getTestMethod().orElseThrow(NoSuchElementException::new), each, definedPredicates))
+                      .filter((Tuple each) -> satisfiesPrecondition(context.getTestMethod()
+                                                                           .orElseThrow(NoSuchElementException::new),
+                                                                    each,
+                                                                    definedPredicates))
                       .map(Utils::toTestTemplateInvocationContext);
   }
 
   private static boolean satisfiesPrecondition(Method method, Tuple testDataTuple, SortedMap<String, TuplePredicate> definedPredicates) {
-    if (!method.isAnnotationPresent(Given.class))
-      return true;
-    return NodeUtils.buildPredicate(method.getAnnotation(Given.class).value(), definedPredicates).test(testDataTuple);
+    if (!method.isAnnotationPresent(Given.class)) return true;
+    return NodeUtils.buildPredicate(method.getAnnotation(Given.class).value(),
+                                    definedPredicates)
+                    .test(testDataTuple);
   }
 
   enum Utils {
@@ -114,31 +115,30 @@ public class JCUnitTestExtension implements BeforeAllCallback,
      * @param method A method from which a `TuplePredicate` will be created.
      * @return A tuple predicate.
      */
+    @SuppressWarnings("unchecked")
     private static TuplePredicate toTuplePredicate(Method method) {
       Invokable<Boolean> invokable = Invokable.from(null, method);
-      return TuplePredicate.of(
-          nameOf(method),
-          invokable.parameterNames(),
-          tuple -> invokable.invoke(invokable.parameterNames()
-                                             .stream()
-                                             .map(tuple::get)
-                                             .map(o -> (List<ValueResolver<?>>) o)
-                                             .map(l -> l.get(0))
-                                             .map(v -> (ValueResolver<?>) v)
-                                             .map(r -> r.resolve(tuple))
-                                             .toArray())
-      );
+      return TuplePredicate.of(nameOf(method),
+                               invokable.parameterNames(),
+                               tuple -> invokable.invoke(invokable.parameterNames()
+                                                                  .stream()
+                                                                  .map(tuple::get)
+                                                                  .map(o -> (List<ValueResolver<?>>) o)
+                                                                  .map(l -> l.get(0))
+                                                                  .map(v -> (ValueResolver<?>) v)
+                                                                  .map(r -> r.resolve(tuple)).toArray()));
     }
 
 
     private static List<Constraint> createConstraintsFromModelClass(@SuppressWarnings("unused") Class<?> testModelClass) {
+      // TODO
       return emptyList();
     }
 
     private static List<ParameterSpec<?>> createParameterSpecsFromModelClass(Class<?> testModelClass) {
       return Arrays.stream(testModelClass.getMethods())
                    .filter(m -> m.isAnnotationPresent(JCUnitParameter.class))
-                   .map(JCUnitTestExtension::toParameterSpec)
+                   .map(Utils::toParameterSpec)
                    .collect(toList());
     }
 
@@ -152,11 +152,6 @@ public class JCUnitTestExtension implements BeforeAllCallback,
     private static Requirement requirement() {
       // TODO
       return new Requirement.Builder().build();
-    }
-
-    private static Class<?> resolveParameterSpaceClass(Class<?> c) {
-      Class<?> ret = c.getAnnotation(UsingParameterSpace.class).value();
-      return Object.class.equals(ret) ? c : ret;
     }
 
     private static TestTemplateInvocationContext toTestTemplateInvocationContext(Tuple testDataTuple) {
@@ -177,7 +172,12 @@ public class JCUnitTestExtension implements BeforeAllCallback,
 
         @Override
         public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-          return resolveValueOf(parameterName(parameterContext), testDataTuple).get(0);
+          int index = 0;
+          if (parameterContext.getParameter().isAnnotationPresent(From.class))
+            index = parameterContext.getParameter().getAnnotation(From.class).index();
+          List<Object> arguments = resolveValueOf(parameterName(parameterContext), testDataTuple);
+          if (index >= 0) return arguments.get(index);
+          else return arguments;
         }
       };
     }
@@ -192,18 +192,29 @@ public class JCUnitTestExtension implements BeforeAllCallback,
                                                                   .collect(toList());
     }
 
+    @SuppressWarnings("unchecked")
     private static List<ValueResolver<?>> valueResolversFor(String sourceParameterName, Tuple testDataTuple) {
       if (!testDataTuple.containsKey(sourceParameterName))
-        throw new ParameterResolutionException(String.format("Parameter '%s' not found. Available parameters are: %s", sourceParameterName, testDataTuple.keySet().stream().sorted().collect(toList())));
+        throw new ParameterResolutionException(composeParameterResolutionErrorMessage(sourceParameterName,
+                                                                                      testDataTuple));
       return (List<ValueResolver<?>>) (testDataTuple.get(sourceParameterName));
     }
 
-  }
+    @SuppressWarnings("unchecked")
+    private static <E> ParameterSpec<E> toParameterSpec(Method m) {
+      return ParameterSpec.create(ValueResolver.nameOf(m),
+                                  m.getAnnotation(JCUnitParameter.class).type(),
+                                  m.getAnnotation(JCUnitParameter.class).args(),
+                                  ((List<ValueResolver<?>>) ReflectionUtils.invoke(null, m)).toArray(new ValueResolver[0]));
+    }
 
-  private static <E> ParameterSpec<E> toParameterSpec(Method m) {
-    return ParameterSpec.create(ValueResolver.nameOf(m),
-                                m.getAnnotation(JCUnitParameter.class).type(),
-                                m.getAnnotation(JCUnitParameter.class).args(),
-                                ((List<ValueResolver<?>>) ReflectionUtils.invoke(null, m)).toArray(new ValueResolver[0]));
+    private static String composeParameterResolutionErrorMessage(String sourceParameterName, Tuple testDataTuple) {
+      return String.format("Parameter '%s' not found. Available parameters are: %s",
+                           sourceParameterName,
+                           testDataTuple.keySet()
+                                        .stream()
+                                        .sorted()
+                                        .collect(toList()));
+    }
   }
 }

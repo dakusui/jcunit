@@ -10,7 +10,6 @@ import com.github.jcunit.regex.Parser;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.github.jcunit.core.model.ParameterSpec.Utils.createConstraints;
@@ -44,7 +43,6 @@ public @interface JCUnitParameter {
                                                            parameterSpec.name()));
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> Parameter.Regex<ValueResolver<T>> createRegex(boolean isSeed,
                                                                     ParameterSpec<T> parameterSpec) {
       // List<String> tokens = tokensInRegex(regex); // This is only necessary for validation
@@ -55,7 +53,6 @@ public @interface JCUnitParameter {
                                         name -> parameterSpec.valueResolvers()
                                                              .stream()
                                                              .filter(r -> r.name().isPresent() && Objects.equals(name, r.name().get()))
-                                                             .map(r -> (ValueResolver<T>) r)
                                                              .findFirst()
                                                              .orElseThrow(noMatchingResolver(parameterSpec, name)));
     }

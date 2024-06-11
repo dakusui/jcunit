@@ -109,9 +109,10 @@ interface ValueResolver<V> {
 
       @Override
       public Optional<String> name() {
-        return Optional.of(invokable.name());
+        return invokable.name();
       }
 
+      @SuppressWarnings("unchecked")
       @Override
       public T resolve(Tuple testData) {
         return invokable.invoke(dependencies.stream()

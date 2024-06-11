@@ -29,7 +29,7 @@ public class TestExample2 {
     public static List<ValueResolver<String>> param1() {
       return asList(ValueResolver.from("hello").$(),
                     ValueResolver.from("world").$(),
-                    ValueResolver.fromInvokable(referenceTo("param3")),
+                    ValueResolver.fromInvokable(referenceTo("param3", 0)),
                     ValueResolver.fromInvokable(fromClassMethodNamed(ParameterSpace.class, "param1Value1"))
       );
     }
