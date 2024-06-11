@@ -33,6 +33,14 @@ public interface Invokable<T> {
       return index >= 0 ? String.format("%s[%s]", name, index)
                         : name;
     }
+
+    public String name() {
+      return this.name;
+    }
+
+    public int index() {
+      return this.index;
+    }
   }
 
   default Optional<String> name() {

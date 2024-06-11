@@ -14,12 +14,12 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.valid8j.fluent.Expectations.requireArguments;
-import static com.github.valid8j.fluent.Expectations.value;
+import static com.github.valid8j.fluent.Expectations.*;
 import static com.github.valid8j.pcond.forms.Predicates.isEmptyString;
 import static com.github.valid8j.pcond.forms.Predicates.isEqualTo;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toList;
 
 /**
  * // @formatter:off
@@ -105,28 +105,27 @@ interface ValueResolver<V> {
 
   static <T> ValueResolver<T> fromInvokable(Invokable<T> invokable) {
     return new ValueResolver<T>() {
-      final List<String> dependencies = invokable.parameterNames();
+      final List<Invokable.Parameter> dependencies = invokable.parameters();
 
       @Override
       public Optional<String> name() {
         return invokable.name();
       }
 
-      @SuppressWarnings("unchecked")
       @Override
       public T resolve(Tuple testData) {
         return invokable.invoke(dependencies.stream()
-                                            .map(testData::get)
-                                            .map(o -> (List<ValueResolver<?>>) o)
-                                            .map(l -> l.get(0))
-                                            .map(v -> (ValueResolver<?>) v)
-                                            .map(r -> r.resolve(testData))
+                                            .map(p -> p.index() >= 0 ? resolveParameter(testData, p).get(p.index())
+                                                                     : resolveParameter(testData, p))
                                             .toArray());
       }
 
+
       @Override
       public List<String> dependencies() {
-        return dependencies;
+        return dependencies.stream()
+                           .map(Invokable.Parameter::name)
+                           .collect(toList());
       }
 
       @Override
@@ -134,6 +133,14 @@ interface ValueResolver<V> {
         return invokable.toString();
       }
     };
+  }
+
+  @SuppressWarnings("unchecked")
+  static List<?> resolveParameter(Tuple testData, Invokable.Parameter p) {
+    return ((List<ValueResolver<?>>) testData.get(p.name())).stream()
+                                                            .map(v -> (ValueResolver<?>) v)
+                                                            .map(r -> r.resolve(testData))
+                                                            .collect(toList());
   }
 
   class Builder<V> {

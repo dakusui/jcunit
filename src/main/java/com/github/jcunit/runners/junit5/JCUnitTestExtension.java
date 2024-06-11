@@ -115,18 +115,21 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
      * @param method A method from which a `TuplePredicate` will be created.
      * @return A tuple predicate.
      */
-    @SuppressWarnings("unchecked")
     private static TuplePredicate toTuplePredicate(Method method) {
       Invokable<Boolean> invokable = Invokable.from(null, method);
       return TuplePredicate.of(nameOf(method),
                                invokable.parameterNames(),
-                               tuple -> invokable.invoke(invokable.parameterNames()
+                               tuple -> invokable.invoke(invokable.parameters()
                                                                   .stream()
-                                                                  .map(tuple::get)
-                                                                  .map(o -> (List<ValueResolver<?>>) o)
-                                                                  .map(l -> l.get(0))
+                                                                  .map(p -> valueFromTupleForParameter(tuple, p))
                                                                   .map(v -> (ValueResolver<?>) v)
                                                                   .map(r -> r.resolve(tuple)).toArray()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object valueFromTupleForParameter(Tuple tuple, Invokable.Parameter p) {
+      return p.index() >= 0 ? ((List<ValueResolver<?>>) tuple.get(p.name())).get(p.index())
+                            : tuple.get(p.name());
     }
 
 
