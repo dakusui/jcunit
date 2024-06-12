@@ -170,7 +170,7 @@ public interface Parameter<T> {
       private final Function<String, U> func;
 
       public Impl(boolean withVoid, String name, String[] regexes, List<List<U>> knownValues, Function<String, U> func) {
-        this(withVoid, name, String.join(" ", regexes), knownValues, func);
+        this(withVoid, name, String.join("", regexes), knownValues, func);
       }
 
       public Impl(boolean withVoid, String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
