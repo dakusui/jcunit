@@ -1,4 +1,4 @@
-package com.github.jcunit.runners.core;
+package com.github.jcunit.core.dnftree;
 
 import java.util.ArrayList;
 import java.util.Collections;

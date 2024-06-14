@@ -1,6 +1,6 @@
-package com.github.jcunit.regex;
+package com.github.jcunit.core.regex;
 
-import com.github.jcunit.utils.StringUtils;
+import com.github.jcunit.utils.InternalUtils;
 import com.github.jcunit.exceptions.InvalidTestException;
 
 import java.util.Iterator;
@@ -10,10 +10,10 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.github.jcunit.utils.Checks.checkcond;
-import static com.github.jcunit.utils.Checks.checknotnull;
-import static com.github.jcunit.regex.Parser.Type.ALT;
-import static com.github.jcunit.regex.Parser.Type.CAT;
+import static com.github.jcunit.exceptions.Checks.checkcond;
+import static com.github.jcunit.exceptions.Checks.checknotnull;
+import static com.github.jcunit.core.regex.Parser.Type.ALT;
+import static com.github.jcunit.core.regex.Parser.Type.CAT;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
@@ -213,7 +213,7 @@ public class Parser {
         format(
             "token '%s' should not come after: '%s'",
             token,
-            StringUtils.join("", work.subList(0, Math.max(0, work.size() - 1))))
+            InternalUtils.join("", work.subList(0, Math.max(0, work.size() - 1))))
     );
   }
 

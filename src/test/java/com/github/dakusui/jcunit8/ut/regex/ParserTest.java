@@ -3,11 +3,11 @@ package com.github.dakusui.jcunit8.ut.regex;
 
 import com.github.dakusui.jcunit8.ututiles.PipelineTestBase;
 import com.github.jcunit.factorspace.Parameter;
-import com.github.jcunit.regex.Expr;
-import com.github.jcunit.regex.Parser;
+import com.github.jcunit.core.regex.Expr;
+import com.github.jcunit.core.regex.Parser;
 import com.github.jcunit.testsuite.TestCase;
 import com.github.jcunit.testsuite.TestSuite;
-import com.github.jcunit.utils.StringUtils;
+import com.github.jcunit.utils.InternalUtils;
 import com.github.valid8j.pcond.forms.Predicates;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -98,7 +98,7 @@ public class ParserTest extends PipelineTestBase {
     Set<String> generatedStringsFromRegex = new HashSet<>();
     for (TestCase each : builtTestSuite) {
       generatedStringsFromRegex.add(
-          StringUtils.join(
+          InternalUtils.join(
               "",
               (List<String>) each.getTestData().get("input")
           ));
@@ -112,7 +112,7 @@ public class ParserTest extends PipelineTestBase {
   @MethodSource("data")
   public void testInterpret(String _input) {
     assertEquals(expectationForTokenizedStrings(_input),
-                 StringUtils.join("", Parser.preprocess(this.input(_input))));
+                 InternalUtils.join("", Parser.preprocess(this.input(_input))));
   }
 
   /*

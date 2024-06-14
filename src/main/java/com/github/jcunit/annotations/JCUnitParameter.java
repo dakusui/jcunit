@@ -4,8 +4,6 @@ import com.github.jcunit.core.model.ParameterSpaceSpec;
 import com.github.jcunit.core.model.ParameterSpec;
 import com.github.jcunit.core.model.ValueResolver;
 import com.github.jcunit.factorspace.Parameter;
-import com.github.jcunit.regex.Expr;
-import com.github.jcunit.regex.Parser;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -66,37 +64,5 @@ public @interface JCUnitParameter {
                                                                                                           .collect(toList()));
     }
 
-    // Only used for validation
-    private static List<String> tokensInRegex(String regex) {
-      Set<String> tokens = new HashSet<>();
-      Expr expr = new Parser().parse(regex);
-      expr.accept(new Expr.Visitor() {
-        @Override
-        public void visit(Expr.Alt exp) {
-          for (Expr each : exp.getChildren()) {
-            each.accept(this);
-          }
-        }
-
-        @Override
-        public void visit(Expr.Cat exp) {
-          for (Expr each : exp.getChildren()) {
-            each.accept(this);
-          }
-        }
-
-        @Override
-        public void visit(Expr.Leaf exp) {
-          tokens.add(exp.toString());
-        }
-
-        @Override
-        public void visit(Expr.Empty exp) {
-        }
-      });
-      return tokens.stream()
-                   .sorted()
-                   .collect(toList());
-    }
   }
 }

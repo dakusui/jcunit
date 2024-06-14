@@ -1,4 +1,4 @@
-package com.github.jcunit.testsuite;
+package com.github.jcunit.pipeline;
 
 import com.github.jcunit.core.tuples.Tuple;
 

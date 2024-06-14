@@ -9,7 +9,6 @@ import com.github.jcunit.pipeline.stages.Encoder;
 import com.github.jcunit.pipeline.stages.Generator;
 import com.github.jcunit.pipeline.stages.Joiner;
 import com.github.jcunit.pipeline.stages.Partitioner;
-import com.github.jcunit.testsuite.SchemafulTupleSet;
 
 import java.util.List;
 import java.util.function.BinaryOperator;

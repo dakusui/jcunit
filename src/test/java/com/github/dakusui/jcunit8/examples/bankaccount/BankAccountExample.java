@@ -2,11 +2,9 @@ package com.github.dakusui.jcunit8.examples.bankaccount;
 
 
 import com.github.jcunit.annotations.From;
+import com.github.jcunit.annotations.Given;
 import com.github.jcunit.factorspace.Parameter.Regex;
 import com.github.jcunit.factorspace.Parameter.Simple;
-import com.github.jcunit.runners.junit4.annotations.Condition;
-import com.github.jcunit.annotations.Given;
-import com.github.jcunit.runners.junit4.annotations.ParameterSource;
 
 import java.util.List;
 
@@ -14,33 +12,33 @@ import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // This is an example supposed to be executed by another class during the "test" lifecycle of maven.
-@SuppressWarnings("NewClassNamingConvention")
 //@RunWith(JCUnit8.class)
 public class BankAccountExample extends JUnit4_13Workaround {
 
   private BankAccount myAccount;
-  private BankAccount anotherAccount = BankAccount.open();
+  private final BankAccount anotherAccount = BankAccount.open();
 
-  @ParameterSource
+  // @ParameterSource
   public Regex.Factory<String> scenario() {
     return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
   }
-  @ParameterSource
+
+  // @ParameterSource
   public Simple.Factory<Integer> depositAmount() {
     return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
-  @ParameterSource
+  // @ParameterSource
   public Simple.Factory<Integer> withdrawAmount() {
     return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
-  @ParameterSource
+  // @ParameterSource
   public Simple.Factory<Integer> transferAmount() {
     return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
   }
 
-  @Condition(constraint = true)
+  // @Condition(constraint = true)
   public boolean depositUsed(
       @From("scenario") List<String> scenario,
       @From("depositAmount") int amount
@@ -53,7 +51,7 @@ public class BankAccountExample extends JUnit4_13Workaround {
     }
   }
 
-  @Condition(constraint = true)
+  // @Condition(constraint = true)
   public boolean withdrawUsed(
       @From("scenario") List<String> scenario,
       @From("withdrawAmount") int amount
@@ -66,7 +64,7 @@ public class BankAccountExample extends JUnit4_13Workaround {
     }
   }
 
-  @Condition(constraint = true)
+  // @Condition(constraint = true)
   public boolean transferUsed(
       @From("scenario") List<String> scenario,
       @From("transferAmount") int amount
@@ -79,7 +77,7 @@ public class BankAccountExample extends JUnit4_13Workaround {
     }
   }
 
-  @Condition(constraint = true)
+  // @Condition(constraint = true)
   public boolean overdraftNotHappens(
       @From("scenario") List<String> scenario,
       @From("depositAmount") int amountOfDeposit,

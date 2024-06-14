@@ -4,10 +4,10 @@ import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
-import com.github.jcunit.regex.Expr;
-import com.github.jcunit.regex.Reference;
-import com.github.jcunit.regex.RegexTranslator;
-import com.github.jcunit.regex.Value;
+import com.github.jcunit.core.regex.Expr;
+import com.github.jcunit.core.regex.Reference;
+import com.github.jcunit.core.regex.RegexTranslator;
+import com.github.jcunit.core.regex.Value;
 
 import java.util.LinkedList;
 import java.util.List;

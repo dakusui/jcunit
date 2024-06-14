@@ -1,6 +1,6 @@
-package com.github.jcunit.regex;
+package com.github.jcunit.core.regex;
 
-import static com.github.jcunit.utils.Checks.checknotnull;
+import static com.github.jcunit.exceptions.Checks.checknotnull;
 import static java.lang.String.format;
 
 public class Reference implements Value {

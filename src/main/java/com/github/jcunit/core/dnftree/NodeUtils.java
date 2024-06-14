@@ -1,5 +1,7 @@
-package com.github.jcunit.runners.core;
+package com.github.jcunit.core.dnftree;
 
+import com.github.jcunit.core.regex.Expr;
+import com.github.jcunit.core.regex.Parser;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.exceptions.FrameworkException;
 import com.github.jcunit.factorspace.TuplePredicate;
@@ -103,5 +105,38 @@ public enum NodeUtils {
             )
             .collect(toList())
     );
+  }
+
+  // Only used for validation
+  public static List<String> tokensInRegex(String regex) {
+    Set<String> tokens = new HashSet<>();
+    Expr expr = new Parser().parse(regex);
+    expr.accept(new Expr.Visitor() {
+      @Override
+      public void visit(Expr.Alt exp) {
+        for (Expr each : exp.getChildren()) {
+          each.accept(this);
+        }
+      }
+
+      @Override
+      public void visit(Expr.Cat exp) {
+        for (Expr each : exp.getChildren()) {
+          each.accept(this);
+        }
+      }
+
+      @Override
+      public void visit(Expr.Leaf exp) {
+        tokens.add(exp.toString());
+      }
+
+      @Override
+      public void visit(Expr.Empty exp) {
+      }
+    });
+    return tokens.stream()
+                 .sorted()
+                 .collect(toList());
   }
 }

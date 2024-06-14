@@ -7,9 +7,8 @@ import com.github.jcunit.factorspace.*;
 import com.github.jcunit.pipeline.stages.Generator;
 import com.github.jcunit.pipeline.stages.generators.Negative;
 import com.github.jcunit.pipeline.stages.generators.Passthrough;
-import com.github.jcunit.testsuite.SchemafulTupleSet;
 import com.github.jcunit.testsuite.TestSuite;
-import com.github.jcunit.utils.Checks;
+import com.github.jcunit.exceptions.Checks;
 import com.github.jcunit.utils.InternalUtils;
 
 import java.util.ArrayList;
@@ -75,13 +74,11 @@ public interface Pipeline {
                            ) :
                            null
       );
-      List<String> errors = seeds.stream(
-      ).flatMap(
-          seed -> checks.stream(
-          ).map(each -> each.apply(seed))
-      ).filter(
-          Objects::nonNull
-      ).collect(toList());
+      List<String> errors = seeds.stream()
+                                 .flatMap(seed -> checks.stream()
+                                                        .map(each -> each.apply(seed)))
+                                 .filter(Objects::nonNull)
+                                 .collect(toList());
       if (!errors.isEmpty())
         throw new InvalidTestException(
             String.format(
@@ -157,13 +154,12 @@ public interface Pipeline {
 
     private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
-        List<Object> values = Stream
-            .concat(
-                parameter.getKnownValues().stream(),
-                engine(config, new ParameterSpace.Builder().addParameter(parameter).build())
-                    .stream()
-                    .map(tuple -> tuple.get(parameter.getName())) // Extraction
-            ).collect(toList());
+        List<Object> values = Stream.concat(parameter.getKnownValues().stream(),
+                                            engine(config, new ParameterSpace.Builder().addParameter(parameter)
+                                                                                       .build())
+                                                .stream()
+                                                .map(tuple -> tuple.get(parameter.getName()))) // Extraction
+                                    .collect(toList());
         return Parameter.Simple.Factory.of(InternalUtils.unique(values)).create(parameter.getName());
       }
       return parameter;

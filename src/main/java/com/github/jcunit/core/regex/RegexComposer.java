@@ -1,8 +1,8 @@
-package com.github.jcunit.regex;
+package com.github.jcunit.core.regex;
 
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Factor;
-import com.github.jcunit.utils.Checks;
+import com.github.jcunit.exceptions.Checks;
 
 import java.util.*;
 

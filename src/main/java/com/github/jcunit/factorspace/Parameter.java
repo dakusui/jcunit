@@ -2,15 +2,14 @@ package com.github.jcunit.factorspace;
 
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.regex.RegexDecomposer;
-import com.github.jcunit.regex.Expr;
-import com.github.jcunit.regex.Parser;
-import com.github.jcunit.regex.RegexComposer;
+import com.github.jcunit.core.regex.Expr;
+import com.github.jcunit.core.regex.Parser;
+import com.github.jcunit.core.regex.RegexComposer;
 import com.github.jcunit.utils.InternalUtils;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.factorspace.Factor.VOID;

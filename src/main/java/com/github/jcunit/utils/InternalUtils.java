@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -109,5 +110,9 @@ public enum InternalUtils {
     List<T> ret = new LinkedList<>(a);
     ret.addAll(Arrays.asList(b));
     return ret;
+  }
+
+  public static String join(String sep, List<?> elems) {
+    return elems.stream().map(Objects::toString).collect(joining(sep));
   }
 }

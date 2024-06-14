@@ -1,4 +1,4 @@
-package com.github.jcunit.regex;
+package com.github.jcunit.core.regex;
 
 import java.util.LinkedList;
 import java.util.List;

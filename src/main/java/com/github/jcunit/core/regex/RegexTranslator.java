@@ -1,4 +1,4 @@
-package com.github.jcunit.regex;
+package com.github.jcunit.core.regex;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;

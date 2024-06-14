@@ -7,7 +7,7 @@ import com.github.jcunit.factorspace.*;
 import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.testsuite.SchemafulTupleSet;
+import com.github.jcunit.pipeline.SchemafulTupleSet;
 import com.github.jcunit.testsuite.TestSuite;
 
 import java.util.Collections;

@@ -13,7 +13,7 @@ import com.github.jcunit.factorspace.FactorSpace;
 import com.github.jcunit.factorspace.FactorUtils;
 import com.github.jcunit.pipeline.Requirement;
 import com.github.jcunit.pipeline.stages.Generator;
-import com.github.jcunit.testsuite.TupleSet;
+import com.github.jcunit.pipeline.TupleSet;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

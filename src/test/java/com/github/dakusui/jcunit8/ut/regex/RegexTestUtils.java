@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.ut.regex;
 
-import com.github.jcunit.regex.Expr;
+import com.github.jcunit.core.regex.Expr;
 
 enum RegexTestUtils {
   ;

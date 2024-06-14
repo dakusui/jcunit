@@ -1,4 +1,4 @@
-package com.github.jcunit.testsuite;
+package com.github.jcunit.pipeline;
 
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.core.tuples.TupleUtils;
@@ -6,7 +6,7 @@ import com.github.jcunit.exceptions.FrameworkException;
 
 import java.util.*;
 
-import static com.github.jcunit.utils.Checks.checkIfStrengthIsInRange;
+import static com.github.jcunit.exceptions.Checks.checkIfStrengthIsInRange;
 
 /**
  * A list of tuples all of whose entries have the same attribute names. An implementation
@@ -33,9 +33,7 @@ public interface SchemafulTupleSet extends List<Tuple> {
     private final List<Tuple>           tuples;
 
     public Builder(List<String> attributeNames) {
-      this.attributeNames = new LinkedHashSet<String>() {{
-        addAll(attributeNames);
-      }};
+      this.attributeNames = new LinkedHashSet<>(attributeNames);
       this.tuples = new LinkedList<>();
     }
 

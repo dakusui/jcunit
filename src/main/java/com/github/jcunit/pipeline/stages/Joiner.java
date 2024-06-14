@@ -4,8 +4,8 @@ import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.core.StreamableCombinator;
 import com.github.jcunit.exceptions.FrameworkException;
 import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.testsuite.SchemafulTupleSet;
-import com.github.jcunit.testsuite.TupleSet;
+import com.github.jcunit.pipeline.SchemafulTupleSet;
+import com.github.jcunit.pipeline.TupleSet;
 import com.github.jcunit.utils.InternalUtils;
 
 import java.util.*;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.core.tuples.TupleUtils.*;
-import static com.github.jcunit.utils.Checks.checkcond;
+import static com.github.jcunit.exceptions.Checks.checkcond;
 import static com.github.jcunit.pipeline.stages.Joiner.JoinerUtils.connect;
 import static java.lang.Math.max;
 import static java.lang.Math.min;

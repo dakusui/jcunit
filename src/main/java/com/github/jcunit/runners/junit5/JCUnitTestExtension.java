@@ -12,7 +12,7 @@ import com.github.jcunit.factorspace.TuplePredicate;
 import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.runners.core.NodeUtils;
+import com.github.jcunit.core.dnftree.NodeUtils;
 import com.github.jcunit.testsuite.TestCase;
 import com.github.jcunit.utils.ReflectionUtils;
 import org.junit.jupiter.api.TestInstance;

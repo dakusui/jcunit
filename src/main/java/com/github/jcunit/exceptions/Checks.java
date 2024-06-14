@@ -1,8 +1,5 @@
-package com.github.jcunit.utils;
+package com.github.jcunit.exceptions;
 
-import com.github.jcunit.exceptions.FrameworkException;
-import com.github.jcunit.exceptions.InvalidTestException;
-import com.github.jcunit.exceptions.PipelineException;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Parameter;
 import com.github.jcunit.factorspace.ParameterSpace;
