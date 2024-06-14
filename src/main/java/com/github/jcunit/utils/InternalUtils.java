@@ -86,22 +86,7 @@ public enum InternalUtils {
     return t -> memo.computeIfAbsent(t, function);
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> List<T> concat(List<T> var, List<T> vars) {
     return Stream.concat(var.stream(), vars.stream()).collect(toList());
-  }
-
-  public static <E> Collection<E> intersection(Collection<E> a, Collection<E> b) {
-    if (b.size() < a.size()) {
-      Collection<E> x = b;
-      b = a;
-      a = x;
-    }
-    Collection<E> ret = new HashSet<>(a);
-    for (E each : a) {
-      if (b.contains(a))
-        ret.add(each);
-    }
-    return ret;
   }
 }

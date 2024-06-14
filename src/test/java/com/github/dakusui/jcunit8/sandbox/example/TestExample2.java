@@ -19,7 +19,6 @@ import static java.util.Collections.singletonMap;
  * // @formatter:off 
  * // @formatter:on 
  */
-@Disabled
 @ExtendWith(JCUnitTestExtension.class)
 @UsingParameterSpace(TestExample2.ParameterSpace.class)
 public class TestExample2 {

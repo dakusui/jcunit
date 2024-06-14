@@ -5,15 +5,12 @@ import com.github.jcunit.factorspace.ParameterSpace;
 import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.testsuite.TestOracle;
 import com.github.jcunit.testsuite.TestScenario;
 import com.github.jcunit.testsuite.TestSuite;
-import com.github.jcunit.testsuite.TupleConsumer;
 
 import java.util.*;
 import java.util.function.Function;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -67,7 +64,7 @@ public interface ParameterSpaceSpec {
   <E> ParameterSpec<E> parameterSpecFor(String parameterName);
 
   default ParameterSpace toParameterSpace() {
-    ParameterSpace.Builder b =  new ParameterSpace.Builder();
+    ParameterSpace.Builder b = new ParameterSpace.Builder();
     this.parameterNames()
         .stream()
         .map(this::parameterSpecFor)
@@ -85,40 +82,6 @@ public interface ParameterSpaceSpec {
 
   default TestScenario testScenarioFactory() {
     return new TestScenario() {
-      @Override
-      public List<TupleConsumer> preSuiteProcedures() {
-        return emptyList();
-      }
-
-      @Override
-      public List<TupleConsumer> preTestInputProcedures() {
-        return emptyList();
-      }
-
-      @Override
-      public List<TupleConsumer> preOracleProcedures() {
-        return emptyList();
-      }
-
-      @Override
-      public List<TestOracle> oracles() {
-        return emptyList();
-      }
-
-      @Override
-      public List<TupleConsumer> postOracleProcedures() {
-        return emptyList();
-      }
-
-      @Override
-      public List<TupleConsumer> postTestInputProcedures() {
-        return emptyList();
-      }
-
-      @Override
-      public List<TupleConsumer> postSuiteProcedures() {
-        return emptyList();
-      }
     };
   }
 

@@ -2,75 +2,22 @@ package com.github.jcunit.runners.core;
 
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.exceptions.FrameworkException;
-import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.TuplePredicate;
-import com.github.jcunit.runners.junit4.annotations.Condition;
-import com.github.jcunit.runners.junit4.annotations.ConfigureWith;
-import com.github.jcunit.runners.junit4.annotations.From;
 
-import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.jcunit.exceptions.FrameworkException.unexpectedByDesign;
 import static java.util.stream.Collectors.toList;
 
 public enum NodeUtils {
   ;
-  static class TestClass {
-    private final Class<?> testClass;
-    
-    TestClass(Class<?> testClass) {
-      this.testClass = testClass;
-    }
-    
-    Class<?> getJavaClass() {
-      return this.testClass;
-    }
-    
-    public List<FrameworkMethod> getAnnotatedMethods(Class<Condition> conditionClass) {
-      return null;
-    }
-    
-    public Object createInstanceOf(TestClass wrapper) {
-      return null;
-    }
-  }
-  static class FrameworkMethod {
-    private final Method method;
-    
-    FrameworkMethod(Method method) {
-      this.method = method;
-    }
-    
-    Method getMethod() {
-      return this.method;
-    }
-    
-    public Object invokeExplosively(Object testObject, Object... array) {
-      return null;
-    }
-    
-    public <T> T getAnnotation(Class<T> conditionClass) {
-      return null;
-    }
-    
-    public String getName() {
-      return null;
-    }
-  }
-  
   public static TuplePredicate buildPredicate(String[] values, SortedMap<String, TuplePredicate> predicates_) {
     class Builder implements Node.Visitor {
       private final SortedMap<String, TuplePredicate> predicates = predicates_;
       private Predicate<Tuple> result;
       private final SortedSet<String> involvedKeys = new TreeSet<>();
       
-      @SuppressWarnings("unchecked")
       @Override
       public void visitLeaf(Node.Leaf leaf) {
         TuplePredicate predicate = lookupTestPredicate(leaf.id()).orElseThrow(FrameworkException::unexpectedByDesign);
@@ -139,137 +86,6 @@ public enum NodeUtils {
         new ArrayList<>(builder.involvedKeys),
         builder.result
     );
-  }
-  
-  public static List<String> allLeaves(String[] values) {
-    return new LinkedList<String>() {
-      {
-        parse(values).accept(
-            new Node.Visitor.Base() {
-              @Override
-              public void visitLeaf(Node.Leaf leaf) {
-                add(leaf.id());
-              }
-            });
-      }
-    };
-  }
-  
-  public static SortedMap<String, TuplePredicate> allTestPredicates(Class<?> testClass) {
-    ////
-    // TestClass <>--------------> parameterSpace class
-    //                               constraints
-    //   non-constraint-condition    non-constraint-condition?
-    // TestClass
-    //   constraints
-    //   non-constraint-condition
-    return new TreeMap<>((Objects.equals(testClass, getParameterSpaceDefinitionClass(testClass)) ?
-        streamTestPredicatesIn(testClass) :
-        Stream.concat(
-            streamTestPredicatesIn(getParameterSpaceDefinitionClass(testClass)),
-            streamTestPredicatesIn(testClass).filter(
-                each -> !(each instanceof Constraint)
-            )
-        )
-    ).collect(Collectors.toMap(
-        TuplePredicate::getName,
-        each -> each
-    )));
-  }
-  
-  private static Class getParameterSpaceDefinitionClass(Class<?> testClass) {
-    ConfigureWith configureWith = testClass.getAnnotation(ConfigureWith.class);
-    configureWith = configureWith == null ?
-        ConfigureWith.DEFAULT_INSTANCE :
-        configureWith;
-    return Objects.equals(configureWith.parameterSpace(), Object.class) ?
-        testClass :
-        configureWith.parameterSpace();
-  }
-  
-  private static Stream<TuplePredicate> streamTestPredicatesIn(Class<?> parameterSpaceDefinitionClass) {
-    TestClass wrapper = new TestClass(parameterSpaceDefinitionClass);
-    Object testObject = wrapper.createInstanceOf(wrapper);
-    return wrapper.getAnnotatedMethods(Condition.class)
-        .stream()
-        .map(frameworkMethod -> createTestPredicate(testObject, frameworkMethod));
-  }
-  
-  public static TuplePredicate createTestPredicate(Object testObject, FrameworkMethod frameworkMethod) {
-    Method method = frameworkMethod.getMethod();
-    //noinspection RedundantTypeArguments (to suppress a compilation error)
-    List<String> involvedKeys = Stream.of(method.getParameterAnnotations())
-        .map(annotations -> Stream.of(annotations)
-            .filter(annotation -> annotation instanceof From)
-            .map(From.class::cast)
-            .map(From::value)
-            .findFirst()
-            .<FrameworkException>orElseThrow(FrameworkException::unexpectedByDesign))
-        .collect(toList());
-    int varargsIndex = method.isVarArgs() ?
-        frameworkMethod.getMethod().getParameterCount() - 1 :
-        -1;
-    Predicate<Tuple> predicate = (Tuple tuple) -> {
-      try {
-        return (boolean) frameworkMethod.invokeExplosively(
-            testObject,
-            involvedKeys.stream()
-                .map(new Function<String, Object>() {
-                  AtomicInteger cur = new AtomicInteger(0);
-                  
-                  @Override
-                  public Object apply(String key) {
-                    if (key.equals("@arg"))
-                      return isVarArgs(cur.get()) ?
-                          getVarArgs() :
-                          getArg();
-                    return tuple.get(key);
-                  }
-                  
-                  private Object getArg() {
-                    return tuple.get(key(cur.getAndIncrement()));
-                  }
-                  
-                  @SuppressWarnings("unchecked")
-                  private Object getVarArgs() {
-                    List work = new LinkedList();
-                    while (tuple.containsKey(key(cur.get()))) {
-                      work.add(getArg());
-                    }
-                    return work.toArray(new String[work.size()]);
-                  }
-                  
-                  private boolean isVarArgs(int argIndex) {
-                    return argIndex == varargsIndex;
-                  }
-                  
-                  private String key(int i) {
-                    return String.format("@arg[%d]", i);
-                  }
-                })
-                .toArray());
-      } catch (Throwable e) {
-        throw FrameworkException.unexpectedByDesign(e);
-      }
-    };
-    return frameworkMethod.getAnnotation(Condition.class).constraint() ?
-        Constraint.create(frameworkMethod.getName(), predicate, involvedKeys) :
-        new TuplePredicate() {
-          @Override
-          public String getName() {
-            return frameworkMethod.getName();
-          }
-          
-          @Override
-          public boolean test(Tuple tuple) {
-            return predicate.test(tuple);
-          }
-          
-          @Override
-          public List<String> involvedKeys() {
-            return involvedKeys;
-          }
-        };
   }
   
   public static Node parse(String[] values) {
