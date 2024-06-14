@@ -14,7 +14,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.valid8j.fluent.Expectations.*;
+import static com.github.valid8j.fluent.Expectations.requireArguments;
+import static com.github.valid8j.fluent.Expectations.value;
 import static com.github.valid8j.pcond.forms.Predicates.isEmptyString;
 import static com.github.valid8j.pcond.forms.Predicates.isEqualTo;
 import static java.util.Objects.requireNonNull;
@@ -57,6 +58,11 @@ interface ValueResolver<V> {
       public List<String> dependencies() {
         return ValueResolver.this.dependencies();
       }
+
+      @Override
+      public String toString() {
+        return ValueResolver.this.toString();
+      }
     };
   }
 
@@ -82,7 +88,7 @@ interface ValueResolver<V> {
 
       @Override
       public String toString() {
-        return String.format("%s%s", resolver, dependencies);
+        return String.format("%s%s", resolver, dependencies.isEmpty() ? "" : dependencies);
       }
     };
   }
@@ -195,7 +201,7 @@ interface ValueResolver<V> {
     }
 
     public static <V> Builder<V> create(V value) {
-      return with(Printables.function("value[" + value + "]", x -> value));
+      return with(Printables.function("[" + value + "]", x -> value));
     }
   }
 

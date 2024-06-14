@@ -30,8 +30,7 @@ public class TestExample2 {
       return asList(ValueResolver.from("hello").$(),
                     ValueResolver.from("world").$(),
                     ValueResolver.fromInvokable(referenceTo("param3", 0)),
-                    ValueResolver.fromInvokable(fromClassMethodNamed(ParameterSpace.class, "param1Value1"))
-      );
+                    ValueResolver.fromInvokable(fromClassMethodNamed(ParameterSpace.class, "param1Value1")));
     }
 
     @Named

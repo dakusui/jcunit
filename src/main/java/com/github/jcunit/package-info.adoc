@@ -1,14 +1,14 @@
-== An example package
-
 You can describe a package's design that disciples classes under it here.
 
 [ditaa]
-.Ditaa diagram
+.Ditaa
 ----
-+---+   +---+   +----+   +--------+
-|You+-->|can+-->|draw+-->|diagrams|
-+---+   +---+   +----+   +--------+
++---+   +---+
+|ABC+-->|XYZ|
++---+   +---+
+
 ----
+
 
 [plantuml]
 .PlantUML diagram

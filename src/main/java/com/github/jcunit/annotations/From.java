@@ -9,6 +9,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(PARAMETER)
 public @interface From {
+  int ALL = -1;
+
   String value() default "";
   int index() default 0;
 }

@@ -19,19 +19,24 @@ import static java.util.Arrays.asList;
 public class TestRegexSequence {
   public static class ParameterSpace {
     @Named
-    @JCUnitParameter(type = Type.REGEX, args = {"(scott|john)", "(tiger|doe)"})
+    @JCUnitParameter(type = Type.REGEX, args = {"(scott|john|jane)", "(tiger|(doe{1,2})){1,2}"})
     public static List<ValueResolver<String>> param1() {
       return asList(
           ValueResolver.of("Hello, John").name("john"),
           ValueResolver.of("Howdy, Scott").name("scott"),
           ValueResolver.of("Hello, Mr. Tiger").name("tiger"),
-          ValueResolver.of("Howdy, Mr. Doe").name("doe")
-          );
+          ValueResolver.of("Howdy, Mr. Doe").name("doe"),
+          ValueResolver.of("Hi, Ms. Doe").name("jane"));
     }
   }
 
   @JCUnitTest
   public void testMethod(@From(value = "param1", index = 0) String param1, @From(value = "param1", index = 1) String param2) {
     System.out.println("param1:" + param1 + ";param2:" + param2);
+  }
+
+  @JCUnitTest
+  public void testMethod2(@From(value = "param1", index = From.ALL) List<String> param1) {
+    System.out.println("param1:" + String.join("-", param1));
   }
 }

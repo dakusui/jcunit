@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.*;
 
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.nameOf;
@@ -160,6 +161,15 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
     private static TestTemplateInvocationContext toTestTemplateInvocationContext(Tuple testDataTuple) {
       return new TestTemplateInvocationContext() {
         @Override
+        public String getDisplayName(int invocationIndex) {
+          return testDataTuple.keySet()
+                              .stream()
+                              .sorted()
+                              .map(k -> String.format("%s:%s", k, testDataTuple.get(k)))
+                              .collect(Collectors.joining(","));
+        }
+
+        @Override
         public List<Extension> getAdditionalExtensions() {
           return singletonList(toParameterResolver(testDataTuple));
         }
@@ -170,7 +180,8 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
       return new ParameterResolver() {
         @Override
         public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-          return parameterContext.getParameter().isAnnotationPresent(From.class);
+          return parameterContext.getParameter()
+                                 .isAnnotationPresent(From.class);
         }
 
         @Override

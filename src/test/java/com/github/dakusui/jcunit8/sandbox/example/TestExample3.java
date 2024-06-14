@@ -2,15 +2,17 @@ package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.JCUnitTest;
 import com.github.jcunit.annotations.Given;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+import com.github.jcunit.annotations.Named;
+import com.github.jcunit.runners.junit5.JCUnitTestExtension;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * // @formatter:off 
  * // @formatter:on 
  */
+@Disabled
+@ExtendWith(JCUnitTestExtension.class)
 public class TestExample3 {
   @BeforeAll
   public static void beforeAll() {
@@ -22,7 +24,11 @@ public class TestExample3 {
     System.out.println("beforeEach");
   }
 
-  @Given("")
+  @Named
+  public static boolean precondition() {
+    return true;
+  }
+  @Given("precondition")
   @JCUnitTest
   public void testMethod() {
     System.out.println("testMethod");
