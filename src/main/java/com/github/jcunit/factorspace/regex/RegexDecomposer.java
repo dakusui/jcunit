@@ -13,7 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.github.jcunit.utils.Utils.concatenate;
+import static com.github.jcunit.utils.InternalUtils.concatenate;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 

@@ -6,7 +6,7 @@ import com.github.jcunit.exceptions.FrameworkException;
 
 import java.util.*;
 
-import static com.github.jcunit.pipeline.PipelineException.checkIfStrengthIsInRange;
+import static com.github.jcunit.utils.Checks.checkIfStrengthIsInRange;
 
 /**
  * A list of tuples all of whose entries have the same attribute names. An implementation
@@ -23,14 +23,6 @@ public interface SchemafulTupleSet extends List<Tuple> {
    * @return A set of sub-tuples of this.
    */
   TupleSet subtuplesOf(int strength);
-
-  static SchemafulTupleSet fromTuples(List<Tuple> tuples_) {
-    Objects.requireNonNull(tuples_);
-    FrameworkException.check(tuples_, tuples -> !tuples.isEmpty());
-    return new Builder(new ArrayList<>(tuples_.get(0).keySet()))
-        .addAll(tuples_)
-        .build();
-  }
 
   static SchemafulTupleSet empty(List<String> attributeNames) {
     return new Builder(attributeNames).build();

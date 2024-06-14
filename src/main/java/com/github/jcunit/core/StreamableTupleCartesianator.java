@@ -23,20 +23,6 @@ public class StreamableTupleCartesianator extends CartesianEnumeratorAdaptor<Tup
     return StreamSupport.stream(this.spliterator(), false);
   }
 
-  public List<Tuple> asList() {
-    return new AbstractList<Tuple>() {
-      @Override
-      public Tuple get(int index) {
-        return StreamableTupleCartesianator.this.get(index);
-      }
-
-      @Override
-      public int size() {
-        return (int) StreamableTupleCartesianator.this.size();
-      }
-    };
-  }
-
   @Override
   protected Tuple createMap() {
     return new Tuple.Builder().build();

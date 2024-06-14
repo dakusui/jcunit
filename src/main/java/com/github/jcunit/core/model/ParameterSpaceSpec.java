@@ -5,7 +5,6 @@ import com.github.jcunit.factorspace.ParameterSpace;
 import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.testsuite.TestScenario;
 import com.github.jcunit.testsuite.TestSuite;
 
 import java.util.*;
@@ -76,13 +75,8 @@ public interface ParameterSpaceSpec {
   }
 
   default TestSuite toTestSuite() {
-    return Pipeline.Standard.create().execute(config(), toParameterSpace(), testScenarioFactory());
+    return Pipeline.Standard.create().execute(config(), toParameterSpace());
 
-  }
-
-  default TestScenario testScenarioFactory() {
-    return new TestScenario() {
-    };
   }
 
   default Config config() {

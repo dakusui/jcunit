@@ -11,6 +11,20 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * // @formatter:off
+ *
+ * A utility class of JCUnit.
+ *
+ * In case there is a good library and I want to use the functionality of it in JCUnit, I
+ * usually mimic it here (except {@code Preconditions} of Guava, it's in {@code Checks})
+ * instead of adding dependency on it.
+ *
+ * This is because JCUnit's nature which should be able to be used for any other software
+ * (at least as much as possible, I want to make it so).
+ *
+ * // @formatter:on
+ * */
 public enum InternalUtils {
   ;
   
@@ -88,5 +102,12 @@ public enum InternalUtils {
 
   public static <T> List<T> concat(List<T> var, List<T> vars) {
     return Stream.concat(var.stream(), vars.stream()).collect(toList());
+  }
+
+  @SafeVarargs
+  public static <T> List<T> concatenate(List<T> a, T... b) {
+    List<T> ret = new LinkedList<>(a);
+    ret.addAll(Arrays.asList(b));
+    return ret;
   }
 }

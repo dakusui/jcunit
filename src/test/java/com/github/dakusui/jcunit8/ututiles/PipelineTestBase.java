@@ -21,11 +21,11 @@ public abstract class PipelineTestBase extends TestBase {
     ParameterSpace parameterSpace = new ParameterSpace.Builder()
         .addAllParameters(asList(parameters))
         .build();
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace, null);
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), parameterSpace);
   }
 
   protected TestSuite generateTestSuite(List<Parameter<?>> parameters, List<Constraint> constraints) {
-    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints), null);
+    return new Pipeline.Standard().generateTestSuite(buildConfig(), preprocess(parameters, constraints));
   }
 
   protected ParameterSpace preprocess(Parameter<?>... parameters) {

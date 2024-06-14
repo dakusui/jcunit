@@ -147,7 +147,7 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
     }
 
     private static List<Tuple> generateTestDataSet(Config config, ParameterSpace parameterSpace) {
-      return new Pipeline.Standard().generateTestSuite(config, parameterSpace, null)
+      return new Pipeline.Standard().generateTestSuite(config, parameterSpace)
                                     .stream()
                                     .map(TestCase::getTestData)
                                     .collect(toList());

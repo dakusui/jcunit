@@ -1,11 +1,21 @@
 package com.github.jcunit.utils;
 
+import com.github.jcunit.exceptions.FrameworkException;
 import com.github.jcunit.exceptions.InvalidTestException;
+import com.github.jcunit.exceptions.PipelineException;
+import com.github.jcunit.factorspace.Constraint;
+import com.github.jcunit.factorspace.Parameter;
+import com.github.jcunit.factorspace.ParameterSpace;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.util.Collections.disjoint;
 import static java.util.stream.Collectors.joining;
 
 /**
@@ -105,5 +115,27 @@ public enum Checks {
     if (msgOrFmt != null)
       return format(msgOrFmt, args);
     return format("Message:'%s'", Arrays.stream(args).map(Objects::toString).collect(joining(",")));
+  }
+
+  public static void checkIfNoNonSimpleParameterIsInvolvedByAnyConstraint(ParameterSpace parameterSpace) {
+    Set<String> nonSimpleParameters = parameterSpace.getParameterNames().stream()
+                                                    .filter(s -> !(parameterSpace.getParameter(s) instanceof Parameter.Simple))
+                                                    .collect(Collectors.toSet());
+    Predicate<Constraint> checkNoNonSimpleParameterInvolved =
+        (Constraint constraint) -> disjoint(nonSimpleParameters, constraint.involvedKeys());
+    FrameworkException.checkCondition(
+        parameterSpace.getConstraints().stream().allMatch(checkNoNonSimpleParameterInvolved),
+        PipelineException::new,
+        () -> format("A constraint that involves non-simple parameter was found:%s",
+            parameterSpace.getConstraints().stream().filter(checkNoNonSimpleParameterInvolved)
+        ));
+  }
+
+  public static void checkIfStrengthIsInRange(int strength, List<String> attributeNames) {
+    FrameworkException.checkCondition(
+        0 < strength && strength <= attributeNames.size(),
+        PipelineException::new,
+        () -> format("Given strength '%s' is not in appropriate range (0, %d]", strength, attributeNames.size())
+    );
   }
 }
