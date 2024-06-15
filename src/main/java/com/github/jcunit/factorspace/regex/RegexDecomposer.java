@@ -69,6 +69,11 @@ public class RegexDecomposer extends RegexTranslator {
       ret.add(new Constraint() {
 
         @Override
+        public boolean isExplicit() {
+          return false;
+        }
+
+        @Override
         public String getName() {
           return toString();
         }

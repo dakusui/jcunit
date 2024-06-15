@@ -1,13 +1,8 @@
 package com.github.dakusui.jcunit8.examples.seed;
 
-import com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample;
-import com.github.jcunit.core.tuples.Tuple;
-import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.pipeline.stages.ConfigFactory;
-import com.github.jcunit.annotations.ConfigureWith;
-
-@ConfigureWith(BankAccountExampleWithSeeds.Config.class)
-public class BankAccountExampleWithSeeds extends BankAccountExample {
+//@ConfigureWith(BankAccountExampleWithSeeds.Config.class)
+public class BankAccountExampleWithSeeds {
+  /*
   public static class Config extends ConfigFactory.Base {
     @Override
     protected Requirement defineRequirement(Requirement.Builder defaultValues) {
@@ -21,4 +16,6 @@ public class BankAccountExampleWithSeeds extends BankAccountExample {
                           .build();
     }
   }
+
+   */
 }

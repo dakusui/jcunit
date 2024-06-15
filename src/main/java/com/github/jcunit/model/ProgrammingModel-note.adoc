@@ -3,7 +3,7 @@
 ----
 import com.github.jcunit.annotations.JCUnitParameterValue;
 import com.github.jcunit.annotations.Named;
-import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.model.ValueResolver;
 
 @JCUnit(parameterSpace = Example.ParameterSpace.class)
 public class ExampleParameterSpaceSpec {

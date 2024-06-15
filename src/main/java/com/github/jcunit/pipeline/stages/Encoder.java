@@ -19,31 +19,33 @@ public interface Encoder extends Function<ParameterSpace, FactorSpace> {
      */
     @Override
     public FactorSpace apply(ParameterSpace parameterSpace) {
-      streamParameters(parameterSpace).forEach(
-          parameter -> FrameworkException.check(parameter, eachParameter -> eachParameter instanceof Parameter.Simple ||
-              parameterSpace.getConstraints().stream()
-                  .noneMatch(constraint -> constraint.involvedKeys().contains(eachParameter.getName())))
-      );
-      List<FactorSpace> factorSpaces = streamParameters(parameterSpace)
-          .map(Parameter::toFactorSpace)
-          .collect(toList());
+      streamParameters(parameterSpace).forEach(parameter ->
+                                                   FrameworkException.check(parameter,
+                                                                            eachParameter -> eachParameter instanceof Parameter.Simple ||
+                                                                                             parameterSpace.getConstraints()
+                                                                                                           .stream()
+                                                                                                           .noneMatch(constraint -> constraint.involvedKeys()
+                                                                                                                                              .contains(eachParameter.getName()))));
+      List<FactorSpace> factorSpaces = streamParameters(parameterSpace).map(Parameter::toFactorSpace)
+                                                                       .collect(toList());
       List<Factor> factors = factorSpaces.stream()
-          .flatMap(factorSpace -> factorSpace.getFactors().stream())
-          .collect(toList());
-      List<Constraint> constraints = Stream.concat(
-          parameterSpace.getConstraints().stream(),
-          factorSpaces.stream()
-              .flatMap(factorSpace -> factorSpace.getConstraints().stream())
-      ).collect(toList());
+                                         .flatMap(factorSpace -> factorSpace.getFactors().stream())
+                                         .collect(toList());
+      List<Constraint> constraints = Stream.concat(parameterSpace.getConstraints().stream(),
+                                                   factorSpaces.stream()
+                                                               .flatMap(factorSpace -> factorSpace.getConstraints()
+                                                                                                  .stream()))
+                                           .collect(toList());
       return FactorSpace.create(
           factors,
           constraints
       );
     }
 
-    private Stream<Parameter> streamParameters(ParameterSpace parameterSpace) {
-      return parameterSpace.getParameterNames().stream()
-          .map(parameterSpace::getParameter);
+    private static Stream<Parameter<?>> streamParameters(ParameterSpace parameterSpace) {
+      return parameterSpace.getParameterNames()
+                           .stream()
+                           .map(parameterSpace::getParameter);
     }
   }
 }

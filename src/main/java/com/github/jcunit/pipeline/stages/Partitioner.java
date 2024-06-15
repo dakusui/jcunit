@@ -1,16 +1,12 @@
 package com.github.jcunit.pipeline.stages;
 
-import com.github.jcunit.utils.InternalUtils;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
 import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.utils.InternalUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -45,27 +41,30 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
       List<FactorSpace> ret = new LinkedList<>();
       List<Factor> factors = new ArrayList<>(factorSpace.getFactors());
       for (List<Constraint> eachConstraintGroup : groupedConstraints) {
-        List<String> involvedKeys = InternalUtils.unique(eachConstraintGroup.stream().flatMap(constraint -> constraint.involvedKeys().stream()).collect(toList()));
-        List<Factor> involvedFactors = factors.stream().filter(factor -> involvedKeys.contains(factor.getName())).collect(toList());
+        List<String> involvedKeys = InternalUtils.unique(eachConstraintGroup.stream()
+                                                                            .flatMap(constraint -> constraint.involvedKeys()
+                                                                                                             .stream())
+                                                                            .collect(toList()));
+        List<Factor> involvedFactors = factors.stream()
+                                              .filter(factor -> involvedKeys.contains(factor.getName()))
+                                              .collect(toList());
         if (involvedFactors.isEmpty())
           continue;
-        ret.add(FactorSpace.create(
-            involvedFactors,
-            eachConstraintGroup
-        ));
+        ret.add(FactorSpace.create(involvedFactors,
+                                   eachConstraintGroup));
         factors.removeAll(involvedFactors);
       }
 
       ret.add(FactorSpace.create(
           factors,
-          factorSpace.getConstraints().stream()
-              .filter(constraint -> !Collections.disjoint(
-                  constraint.involvedKeys(),
-                  factors.stream()
-                      .map(Factor::getName)
-                      .collect(toList())
-              ))
-              .collect(toList())
+          factorSpace.getConstraints()
+                     .stream()
+                     .filter(constraint -> !Collections.disjoint(
+                         constraint.involvedKeys(),
+                         factors.stream()
+                                .map(Factor::getName)
+                                .collect(toList())))
+                     .collect(toList())
       ));
       return pack(requirement.strength(), ret);
     }

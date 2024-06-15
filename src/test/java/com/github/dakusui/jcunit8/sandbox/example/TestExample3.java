@@ -3,7 +3,7 @@ package com.github.dakusui.jcunit8.sandbox.example;
 import com.github.jcunit.annotations.JCUnitTest;
 import com.github.jcunit.annotations.Given;
 import com.github.jcunit.annotations.Named;
-import com.github.jcunit.runners.junit5.JCUnitTestExtension;
+import com.github.jcunit.runners.junit5.JCUnitTestEngine;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
  * // @formatter:on 
  */
 @Disabled
-@ExtendWith(JCUnitTestExtension.class)
+@ExtendWith(JCUnitTestEngine.class)
 public class TestExample3 {
   @BeforeAll
   public static void beforeAll() {

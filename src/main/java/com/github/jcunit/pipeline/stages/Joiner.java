@@ -1,7 +1,7 @@
 package com.github.jcunit.pipeline.stages;
 
-import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.core.StreamableCombinator;
+import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.exceptions.FrameworkException;
 import com.github.jcunit.pipeline.Requirement;
 import com.github.jcunit.pipeline.SchemafulTupleSet;
@@ -62,10 +62,10 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     @Override
     protected SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs) {
       class Session {
-        final private Function<Tuple, List<Tuple>>                                    coveredByLhs          = InternalUtils.memoize(
+        final private Function<Tuple, List<Tuple>> coveredByLhs = InternalUtils.memoize(
             tuple -> findCoveringTuplesIn(project(tuple, lhs.getAttributeNames()), lhs)
         );
-        final private Function<Tuple, List<Tuple>>                                    coveredByRhs          = InternalUtils.memoize(
+        final private Function<Tuple, List<Tuple>> coveredByRhs = InternalUtils.memoize(
             tuple -> findCoveringTuplesIn(project(tuple, rhs.getAttributeNames()), rhs)
         );
         final private Function<Integer, Function<Tuple, Function<Tuple, Set<Tuple>>>> connectingSubtuplesOf =
@@ -95,8 +95,8 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
             }
           }
           return most == 0 ?
-              Optional.empty() :
-              Optional.of(connect(bestLhs, bestRhs));
+                 Optional.empty() :
+                 Optional.of(connect(bestLhs, bestRhs));
         }
 
         private Optional<Tuple> findBestRhsFor(Tuple lhsTuple, List<Tuple> rhs, List<Tuple> alreadyUsed, TupleSet remainingTuplesToBeCovered) {
@@ -105,18 +105,15 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
           for (Tuple rhsTuple : rhs) {
             if (alreadyUsed.contains(connect(lhsTuple, rhsTuple)))
               continue;
-            int numCovered = InternalUtils.sizeOfIntersection(
-                this.connectingSubtuplesOf.apply(requirement().strength()).apply(lhsTuple).apply(rhsTuple),
-                remainingTuplesToBeCovered
-            );
+            int numCovered = InternalUtils.sizeOfIntersection(this.connectingSubtuplesOf.apply(requirement().strength()).apply(lhsTuple).apply(rhsTuple), remainingTuplesToBeCovered);
             if (numCovered > most) {
               most = numCovered;
               bestRhs = rhsTuple;
             }
           }
           return most == 0 ?
-              Optional.empty() :
-              Optional.of(bestRhs);
+                 Optional.empty() :
+                 Optional.of(bestRhs);
         }
       }
 
@@ -126,7 +123,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       List<Tuple> work = new LinkedList<>();
       ////
       // If there are tuples in lhs not used in work, they should be added to the
-      // list. Otherwise t-way tuples covered by them will not be covered by the
+      // list. Otherwise, t-way tuples covered by them will not be covered by the
       // final result. Same thing can be said in rhs.
       //
       // Modified HG (horizontal growth) procedure
@@ -134,10 +131,10 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       for (int i = 0; i < lhs.size(); i++) {
         Tuple lhsTuple = lhs.get(i);
         Tuple rhsTuple = i < rhs.size() ?
-            rhs.get(i) :
-            session.findBestRhsFor(lhsTuple, rhs, work, remainingTuplesToBeCovered).orElse(
-                rhs.get(i % rhs.size())
-            );
+                         rhs.get(i) :
+                         session.findBestRhsFor(lhsTuple, rhs, work, remainingTuplesToBeCovered).orElse(
+                             rhs.get(i % rhs.size())
+                         );
         Tuple tuple = connect(lhsTuple, rhsTuple);
         work.add(tuple);
         remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(lhsTuple, rhsTuple, this.requirement().strength()));
@@ -145,16 +142,12 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       ////
       // Modified VG (vertical growth) procedure
       while (!remainingTuplesToBeCovered.isEmpty()) {
-        Tuple bestTuple = session.findBestCombinationFor(
-            remainingTuplesToBeCovered.stream().findFirst().orElseThrow(
-                IllegalStateException::new
-            ),
-            work,
-            remainingTuplesToBeCovered
-        ).orElseThrow(
-            IllegalStateException::new
-        );
-
+        Tuple bestTuple = session.findBestCombinationFor(remainingTuplesToBeCovered.stream()
+                                                                                   .findFirst()
+                                                                                   .orElseThrow(IllegalStateException::new),
+                                                         work,
+                                                         remainingTuplesToBeCovered)
+                                 .orElseThrow(IllegalStateException::new);
         work.add(bestTuple);
         remainingTuplesToBeCovered.removeAll(connectingSubtuplesOf(
             project(bestTuple, lhs.getAttributeNames()),
@@ -163,22 +156,17 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
         ));
       }
       return new SchemafulTupleSet.Builder(
-          Stream.concat(
-              lhs.getAttributeNames().stream(),
-              rhs.getAttributeNames().stream()
-          ).collect(toList()))
+          Stream.concat(lhs.getAttributeNames().stream(), rhs.getAttributeNames().stream())
+                .collect(toList()))
           .addAll(work)
           .build();
     }
 
     private List<Tuple> findCoveringTuplesIn(Tuple aTuple, SchemafulTupleSet tuples) {
       Tuple inConcern = project(aTuple, tuples.getAttributeNames());
-      return tuples.stream(
-      ).filter(
-          inConcern::isSubtupleOf
-      ).collect(
-          toList()
-      );
+      return tuples.stream()
+                   .filter(inConcern::isSubtupleOf)
+                   .collect(toList());
     }
 
     private static TupleSet computeTuplesToBeCovered(SchemafulTupleSet lhs, SchemafulTupleSet rhs, int strength) {
@@ -227,8 +215,8 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }
 
       ensureLeftoversArePresent(work,
-          leftoverWorkForLhs, leftoverWorkForRhs,
-          lhs.get(0), rhs.get(0));
+                                leftoverWorkForLhs, leftoverWorkForRhs,
+                                lhs.get(0), rhs.get(0));
       b.addAll(new ArrayList<>(work));
       return b.build();
     }
@@ -279,7 +267,7 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     }
   }
 
-  public static class WeakenProduct2 extends WeakenProduct {
+  class WeakenProduct2 extends WeakenProduct {
     private final Function<Integer, Function<List<String>, Function<List<String>, Set<List<String>>>>> composeColumnSelections;
     Set<Tuple> coveredCrossingTuplets = new HashSet<>();
 
@@ -317,14 +305,14 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
 
         int finalI = i;
         lhs.stream()
-            .flatMap((Function<List<String>, Stream<List<String>>>) fromLhs ->
-                new StreamableCombinator<>(rhsColumns, finalI)
-                    .stream()
-                    .map(fromRhs -> new LinkedList<String>() {{
-                      addAll(fromLhs);
-                      addAll(fromRhs);
-                    }}))
-            .forEach(columnSelections::add);
+           .flatMap((Function<List<String>, Stream<List<String>>>) fromLhs ->
+               new StreamableCombinator<>(rhsColumns, finalI)
+                   .stream()
+                   .map(fromRhs -> new LinkedList<String>() {{
+                     addAll(fromLhs);
+                     addAll(fromRhs);
+                   }}))
+           .forEach(columnSelections::add);
       }
       return columnSelections;
     }
@@ -359,9 +347,9 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
 
     private static List<Tuple> cartesianProduct(List<Tuple> lhs, List<Tuple> rhs) {
       return lhs.stream()
-          .flatMap((Function<Tuple, Stream<Tuple>>) l -> rhs.stream()
-              .map(r -> connect(l, r)))
-          .collect(toList());
+                .flatMap((Function<Tuple, Stream<Tuple>>) l -> rhs.stream()
+                                                                  .map(r -> connect(l, r)))
+                .collect(toList());
     }
   }
 }

@@ -1,4 +1,4 @@
-package com.github.jcunit.core.model;
+package com.github.jcunit.model;
 
 import com.github.jcunit.annotations.JCUnitParameter.Type;
 import com.github.jcunit.core.tuples.Tuple;
@@ -58,7 +58,7 @@ public interface ParameterSpec<E> {
       case SIMPLE:
         return Type.createListSimple(this, parameterSpaceSpec);
       case REGEX:
-        boolean isSeed = Utils.isSeed(parameterSpaceSpec, this.name(), parameterSpaceSpec.parameterNames());
+        boolean isSeed = Utils.isRequired(parameterSpaceSpec, this.name(), parameterSpaceSpec.parameterNames());
         return Type.createRegex(isSeed, this);
       default:
         throw new UnsupportedOperationException("Unsupported type: " + type());
@@ -95,7 +95,7 @@ public interface ParameterSpec<E> {
   enum Utils {
     ;
 
-    public static boolean isSeed(ParameterSpaceSpec parameterSpaceSpec, String attribute, List<String> attributeNames) {
+    public static boolean isRequired(ParameterSpaceSpec parameterSpaceSpec, String attribute, List<String> attributeNames) {
       Set<String> referencingAttributes = new HashSet<>();
       for (String each : attributeNames) {
         if (Objects.equals(each, attribute)) continue;

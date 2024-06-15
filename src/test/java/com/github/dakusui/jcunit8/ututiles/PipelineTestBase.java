@@ -80,6 +80,7 @@ public abstract class PipelineTestBase extends TestBase {
 
   protected Requirement requirement() {
     return new Requirement.Builder()
+        .withStrength(2)
         .withNegativeTestGeneration(false)
         .build();
   }

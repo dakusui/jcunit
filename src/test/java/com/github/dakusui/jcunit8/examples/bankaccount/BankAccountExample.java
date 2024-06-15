@@ -1,164 +1,235 @@
 package com.github.dakusui.jcunit8.examples.bankaccount;
 
+import com.github.jcunit.annotations.*;
+import com.github.jcunit.model.ValueResolver;
+import com.github.jcunit.runners.junit5.JCUnitTestEngine;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import com.github.jcunit.annotations.From;
-import com.github.jcunit.annotations.Given;
-import com.github.jcunit.factorspace.Parameter.Regex;
-import com.github.jcunit.factorspace.Parameter.Simple;
-
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import static com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample.JournalEntry.Type.*;
+import static com.github.jcunit.annotations.From.ALL;
+import static com.github.jcunit.annotations.JCUnitParameter.Type.REGEX;
 import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
-// This is an example supposed to be executed by another class during the "test" lifecycle of maven.
-//@RunWith(JCUnit8.class)
-public class BankAccountExample extends JUnit4_13Workaround {
+@SuppressWarnings("NewClassNamingConvention")
+@ExtendWith(JCUnitTestEngine.class)
+@ConfigureWith(parameterSpace = BankAccountExample.ParameterSpace.class)
+public class BankAccountExample {
+  public static class ParameterSpace {
+    @Named
+    @JCUnitParameter(type = REGEX, args = {"open", " ", "deposit", "(deposit|withdraw|transfer){0,2}", "getBalance"})
+    public static List<ValueResolver<Action>> scenario() {
+      return asList(
+          ValueResolver.<Action>fromClassMethodNamed("open", ParameterSpace.class).name("open"),
+          ValueResolver.<Action>fromClassMethodNamed("deposit", ParameterSpace.class).name("deposit"),
+          ValueResolver.<Action>fromClassMethodNamed("withdraw", ParameterSpace.class).name("withdraw"),
+          ValueResolver.<Action>fromClassMethodNamed("transfer", ParameterSpace.class).name("transfer"),
+          ValueResolver.<Action>fromClassMethodNamed("getBalance", ParameterSpace.class).name("getBalance")
+      );
+    }
 
-  private BankAccount myAccount;
-  private final BankAccount anotherAccount = BankAccount.open();
+    @Named
+    @JCUnitParameterValue
+    public static Action open() {
+      return new Action("open") {
+        @Override
+        public void accept(Context context) {
+          BankAccount bankAccount = null;
 
-  // @ParameterSource
-  public Regex.Factory<String> scenario() {
-    return Regex.Factory.of("open deposit(deposit|withdraw|transfer){0,2}getBalance");
-  }
+          try {
+            bankAccount = BankAccount.open();
 
-  // @ParameterSource
-  public Simple.Factory<Integer> depositAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-  }
+          } finally {
+            context.assignTo("account", bankAccount);
+          }
+        }
+      };
+    }
 
-  // @ParameterSource
-  public Simple.Factory<Integer> withdrawAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-  }
+    @Named
+    @JCUnitParameterValue
+    public static Action deposit(@From("depositAmount") int depositAmount) {
+      return new Action("deposit[" + depositAmount + "]") {
+        @Override
+        public void accept(Context context) {
+          BankAccount account = context.valueFor("account");
+          boolean succeeded = false;
 
-  // @ParameterSource
-  public Simple.Factory<Integer> transferAmount() {
-    return Simple.Factory.of(asList(100, 200, 300, 400, 500, 600, -1));
-  }
+          try {
+            account.deposit(depositAmount);
 
-  // @Condition(constraint = true)
-  public boolean depositUsed(
-      @From("scenario") List<String> scenario,
-      @From("depositAmount") int amount
-  ) {
-    //noinspection SimplifiableIfStatement
-    if (!scenario.contains("deposit")) {
-      return amount == -1;
-    } else {
-      return amount != -1;
+            succeeded = true;
+          } finally {
+            context.journal()
+                   .add(new JournalEntry(JournalEntry.Type.DEPOSIT, depositAmount, succeeded));
+          }
+        }
+      };
+    }
+
+    @Named
+    @JCUnitParameterValue
+    public static Action withdraw(@From("withdrawAmount") int withdrawAmount) {
+      return new Action("withdraw[" + withdrawAmount + "]") {
+        @Override
+        public void accept(Context context) {
+          BankAccount account = context.valueFor("account");
+          boolean succeeded = false;
+
+          try {
+            account.withdraw(withdrawAmount);
+
+            succeeded = true;
+          } finally {
+            context.journal()
+                   .add(new JournalEntry(WITHDRAW, withdrawAmount, succeeded));
+          }
+        }
+      };
+    }
+
+    @Named
+    @JCUnitParameterValue
+    public static Action transfer(@From("transferAmount") int transferAmount) {
+      return new Action("transfer[" + transferAmount + "]") {
+        @Override
+        public void accept(Context context) {
+          BankAccount destination = BankAccount.open();
+          BankAccount account = context.valueFor("account");
+          boolean succeeded = false;
+
+          try {
+            account.transferTo(destination, transferAmount);
+
+            succeeded = true;
+          } finally {
+            context.journal()
+                   .add(new JournalEntry(TRANSFER, transferAmount, succeeded));
+          }
+        }
+      };
+    }
+
+    @Named
+    @JCUnitParameterValue
+    public static Action getBalance() {
+      return new Action("getBalance") {
+        @Override
+        public void accept(Context context) {
+          BankAccount account = context.valueFor("account");
+          boolean succeeded = false;
+          int balance = 0;
+          try {
+            balance = account.getBalance();
+            succeeded = true;
+          } finally {
+            context.journal()
+                   .add(new JournalEntry(GET_BALANCE, balance, succeeded));
+          }
+        }
+      };
+    }
+
+    @Named
+    @JCUnitParameter
+    public static List<ValueResolver<Integer>> depositAmount() {
+      return asList(ValueResolver.of(1),
+                    ValueResolver.of(1_000),
+                    ValueResolver.of(2_000),
+                    ValueResolver.of(1_000_000));
+    }
+
+    @Named
+    @JCUnitParameter
+    public static List<ValueResolver<Integer>> withdrawAmount() {
+      return asList(ValueResolver.of(1),
+                    ValueResolver.of(1_000),
+                    ValueResolver.of(2_000),
+                    ValueResolver.of(1_000_000));
+    }
+
+    @Named
+    @JCUnitParameter
+    public static List<ValueResolver<Integer>> transferAmount() {
+      return asList(ValueResolver.of(1),
+                    ValueResolver.of(500),
+                    ValueResolver.of(1000),
+                    ValueResolver.of(1_000_000));
     }
   }
 
-  // @Condition(constraint = true)
-  public boolean withdrawUsed(
-      @From("scenario") List<String> scenario,
-      @From("withdrawAmount") int amount
-  ) {
-    //noinspection SimplifiableIfStatement
-    if (!scenario.contains("withdraw")) {
-      return amount == -1;
-    } else {
-      return amount != -1;
+  public static abstract class Action implements Consumer<Context> {
+    private final String name;
+
+    Action(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return name;
     }
   }
 
-  // @Condition(constraint = true)
-  public boolean transferUsed(
-      @From("scenario") List<String> scenario,
-      @From("transferAmount") int amount
-  ) {
-    //noinspection SimplifiableIfStatement
-    if (!scenario.contains("transfer")) {
-      return amount == -1;
-    } else {
-      return amount != -1;
+  static class Context {
+    final Map<String, Object> data = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
+    public <T> T valueFor(String key) {
+      return (T) data.get(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T valueFor(String key, Function<String, T> function) {
+      return (T) data.computeIfAbsent(key, function);
+    }
+
+    public <T> void assignTo(String key, T value) {
+      this.data.put(key, value);
+    }
+
+    public List<JournalEntry> journal() {
+      return this.<List<JournalEntry>>valueFor("journal", k -> new ArrayList<>());
     }
   }
 
-  // @Condition(constraint = true)
-  public boolean overdraftNotHappens(
-      @From("scenario") List<String> scenario,
-      @From("depositAmount") int amountOfDeposit,
-      @From("withdrawAmount") int amountOfWithdraw,
-      @From("transferAmount") int amountOfTransfer
-  ) {
-    return calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer) >= 0;
-  }
-
-  private static int calculateBalance(List<String> scenario,
-                                      int amountOfDeposit,
-                                      int amountOfWithdraw,
-                                      int amountOfTransfer) {
-    int balance = 0;
-    for (String op : scenario) {
-      if ("deposit".equals(op)) {
-        balance += amountOfDeposit;
-      } else if ("withdraw".equals(op)) {
-        balance -= amountOfWithdraw;
-      } else if ("transfer".equals(op)) {
-        balance -= amountOfTransfer;
-      }
-      if (balance < 0) {
-        return balance;
-      }
+  static class JournalEntry {
+    enum Type {
+      WITHDRAW,
+      DEPOSIT,
+      TRANSFER,
+      GET_BALANCE
     }
-    return balance;
-  }
 
-  // @Test
-  @Given("overdraftNotHappens")
-  public void whenPerformScenario$thenBalanceIsCorrect(
-      @From("scenario") List<String> scenario,
-      @From("depositAmount") int amountOfDeposit,
-      @From("withdrawAmount") int amountOfWithdraw,
-      @From("transferAmount") int amountOfTransfer
-  ) {
-    int balance = -1;
-    for (String operation : scenario) {
-      balance = perform(operation, amountOfDeposit, amountOfWithdraw, amountOfTransfer);
+    final Type type;
+    final int amount;
+    final boolean succeeded;
+
+    JournalEntry(Type type, int amount, boolean succeeded) {
+      this.type = type;
+      this.amount = amount;
+      this.succeeded = succeeded;
     }
-    assertEquals(calculateBalance(scenario, amountOfDeposit, amountOfWithdraw, amountOfTransfer), balance);
-  }
 
-  // @Test
-  @Given("overdraftNotHappens")
-  public void printScenario(
-      @From("scenario") List<String> scenario,
-      @From("depositAmount") int amountOfDeposit,
-      @From("withdrawAmount") int amountOfWithdraw,
-      @From("transferAmount") int amountOfTransfer
-  ) {
-    System.out.println(scenario + ":" + amountOfDeposit + ":" + amountOfWithdraw + ":" + amountOfTransfer);
-  }
-
-  private int perform(
-      String operation,
-      int amountOfDeposit,
-      int amountOfWithdraw,
-      int amountOfTransfer
-  ) {
-    int ret = -1;
-    switch (operation) {
-      case "open":
-        myAccount = BankAccount.open();
-        break;
-      case "deposit":
-        myAccount.deposit(amountOfDeposit);
-        break;
-      case "withdraw":
-        myAccount.withdraw(amountOfWithdraw);
-        break;
-      case "transfer":
-        myAccount.transferTo(anotherAccount, amountOfTransfer);
-        break;
-      case "getBalance":
-        ret = myAccount.getBalance();
-        break;
-      default:
-        throw new AssertionError();
+    @Override
+    public String toString() {
+      return this.type + ":" + this.amount;
     }
-    return ret;
+  }
+
+  @JCUnitTest
+  public void examineJournalAndBalance(@From(value = "scenario", index = ALL) List<Action> scenario) {
+    System.out.println("scenario:" + scenario);
+    Context context = new Context();
+    for (Action action : scenario) {
+      action.accept(context);
+    }
+    System.out.println("journal:" + context.valueFor("journal"));
   }
 }

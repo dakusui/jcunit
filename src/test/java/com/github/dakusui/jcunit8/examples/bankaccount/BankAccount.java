@@ -9,14 +9,14 @@ class BankAccount {
 
   void deposit(int amount) {
     if (amount <= 0) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Invalid amount (non-positive): " + amount);
     }
     balance += amount;
   }
 
   void withdraw(int amount) {
     if (amount <= 0) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Invalid amount (non-positive): " + amount);
     }
     if (amount > balance)
       throw new InsufficientBalance();
@@ -25,7 +25,7 @@ class BankAccount {
 
   void transferTo(BankAccount another, int amount) {
     if (amount <= 0) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Invalid amount (non-positive): " + amount);
     }
     withdraw(amount);
     another.deposit(amount);

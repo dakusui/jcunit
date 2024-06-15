@@ -1,9 +1,7 @@
 package com.github.jcunit.annotations;
 
 import com.github.jcunit.factorspace.ParameterSpace;
-import com.github.jcunit.pipeline.stages.ConfigFactory;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 
@@ -12,8 +10,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Inherited
 public @interface ConfigureWith {
-  Class<? extends ConfigFactory> value() default ConfigFactory.Default.class;
-
   /**
    * Specifies a class to define a parameter space, which has parameters, constraints
    * and non-constraint conditions. If this value is not used, (or {@code Object.class}

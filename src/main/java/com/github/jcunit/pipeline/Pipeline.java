@@ -1,6 +1,7 @@
 package com.github.jcunit.pipeline;
 
 import com.github.jcunit.core.tuples.Tuple;
+import com.github.jcunit.exceptions.Checks;
 import com.github.jcunit.exceptions.InvalidTestException;
 import com.github.jcunit.exceptions.TestDefinitionException;
 import com.github.jcunit.factorspace.*;
@@ -8,7 +9,6 @@ import com.github.jcunit.pipeline.stages.Generator;
 import com.github.jcunit.pipeline.stages.generators.Negative;
 import com.github.jcunit.pipeline.stages.generators.Passthrough;
 import com.github.jcunit.testsuite.TestSuite;
-import com.github.jcunit.exceptions.Checks;
 import com.github.jcunit.utils.InternalUtils;
 
 import java.util.ArrayList;
@@ -41,28 +41,26 @@ public interface Pipeline {
       List<Tuple> regularTestDataTuples = engine(config, parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestDataTuples);
       if (config.getRequirement().generateNegativeTests())
-        builder = builder.addAllToNegativeTuples(
-            negativeTestGenerator(
-                config.getRequirement().generateNegativeTests(),
-                toFactorSpaceForNegativeTestGeneration(parameterSpace),
-                regularTestDataTuples,
-                config.getRequirement().seeds(),
-                config.getRequirement()
-            ).generate()
-        );
+        builder = builder.addAllToNegativeTuples(negativeTestGenerator(config.getRequirement()
+                                                                             .generateNegativeTests(),
+                                                                       toFactorSpaceForNegativeTestGeneration(parameterSpace),
+                                                                       regularTestDataTuples,
+                                                                       config.getRequirement()
+                                                                             .seeds(),
+                                                                       config.getRequirement())
+                                                     .generate());
       return builder.build();
     }
 
     private void validateSeeds(List<Tuple> seeds, ParameterSpace parameterSpace) {
       List<Function<Tuple, String>> checks = asList(
-          (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet()) ?
-                           String.format("Unknown parameter(s) were found: %s in tuple: %s",
-                                         new LinkedList<String>() {{
-                                           addAll(tuple.keySet());
-                                           removeAll(parameterSpace.getParameterNames());
-                                         }},
-                                         tuple
-                           ) :
+          (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet())
+                           ? String.format("Unknown parameter(s) were found: %s in tuple: %s",
+                                           new LinkedList<String>() {{
+                                             addAll(tuple.keySet());
+                                             removeAll(parameterSpace.getParameterNames());
+                                           }},
+                                           tuple) :
                            null,
           (Tuple tuple) -> !tuple.keySet().containsAll(parameterSpace.getParameterNames()) ?
                            String.format("Parameter(s) were not found: %s in tuple: %s",
@@ -70,10 +68,8 @@ public interface Pipeline {
                                            addAll(parameterSpace.getParameterNames());
                                            removeAll(tuple.keySet());
                                          }},
-                                         tuple
-                           ) :
-                           null
-      );
+                                         tuple) :
+                           null);
       List<String> errors = seeds.stream()
                                  .flatMap(seed -> checks.stream()
                                                         .map(each -> each.apply(seed)))

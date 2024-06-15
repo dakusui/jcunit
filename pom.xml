@@ -90,6 +90,7 @@
         </build-helper-maven-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <!-- BEGIN: build dependencies -->
+        <actionunit.version>6.0.1</actionunit.version>
     </properties>
 
     <dependencies>
@@ -126,6 +127,11 @@
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit-jupiter-params.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>actionunit</artifactId>
+            <version>${actionunit.version}</version>
         </dependency>
     </dependencies>
 

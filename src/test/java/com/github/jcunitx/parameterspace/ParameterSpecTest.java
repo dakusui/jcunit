@@ -1,8 +1,8 @@
 package com.github.jcunitx.parameterspace;
 
-import com.github.jcunit.core.model.ParameterSpaceSpec;
-import com.github.jcunit.core.model.ParameterSpec;
-import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.model.ParameterSpaceSpec;
+import com.github.jcunit.model.ParameterSpec;
+import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.factorspace.Parameter;
 import org.junit.jupiter.api.Test;
 

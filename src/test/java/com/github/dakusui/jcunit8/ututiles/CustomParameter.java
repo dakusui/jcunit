@@ -54,6 +54,11 @@ public class CustomParameter extends Parameter.Base<CustomParameter.ValuePair> {
   protected List<Constraint> generateConstraints() {
     return singletonList(new Constraint() {
       @Override
+      public boolean isExplicit() {
+        return false;
+      }
+
+      @Override
       public String getName() {
         return CustomParameter.this.toString();
       }

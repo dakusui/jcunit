@@ -2,9 +2,10 @@ package com.github.jcunit.runners.junit5;
 
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.core.Invokable;
-import com.github.jcunit.core.model.ParameterSpaceSpec;
-import com.github.jcunit.core.model.ParameterSpec;
-import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.core.dnftree.NodeUtils;
+import com.github.jcunit.model.ParameterSpaceSpec;
+import com.github.jcunit.model.ParameterSpec;
+import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.ParameterSpace;
@@ -12,7 +13,6 @@ import com.github.jcunit.factorspace.TuplePredicate;
 import com.github.jcunit.pipeline.Config;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.core.dnftree.NodeUtils;
 import com.github.jcunit.testsuite.TestCase;
 import com.github.jcunit.utils.ReflectionUtils;
 import org.junit.jupiter.api.TestInstance;
@@ -35,10 +35,10 @@ import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
  * // @formatter:on 
  */
 @TestInstance(PER_CLASS)
-public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvocationContextProvider {
-  private final ExtensionContext.Namespace namespace = ExtensionContext.Namespace.create(JCUnitTestExtension.class);
+public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocationContextProvider {
+  private final ExtensionContext.Namespace namespace = ExtensionContext.Namespace.create(JCUnitTestEngine.class);
 
-  public JCUnitTestExtension() {
+  public JCUnitTestEngine() {
   }
 
   @Override
@@ -46,7 +46,7 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
     {
       List<String> errors = new LinkedList<>();
       validateParameterSpaceDefinitionClass(errors, getParameterSpaceSpecClass(context));
-      // TODO: require(value(errors).satisfies().empty());
+      // require(value(errors).satisfies().empty());
       ParameterSpaceSpec parameterSpaceSpec = Utils.createParameterSpaceSpec(getParameterSpaceSpecClass(context));
       SortedMap<String, TuplePredicate> definedPredicates = Utils.definedPredicatesFrom(getParameterSpaceSpecClass(context));
       List<Tuple> testDataSet = Utils.generateTestDataSet(Utils.configure(), parameterSpaceSpec.toParameterSpace());
@@ -58,8 +58,8 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
 
   private static Class<?> getParameterSpaceSpecClass(ExtensionContext context) {
     Class<?> testClass = context.getTestClass().orElseThrow(AssertionError::new);
-    return testClass.isAnnotationPresent(UsingParameterSpace.class)
-           ? testClass.getAnnotation(UsingParameterSpace.class).value()
+    return testClass.isAnnotationPresent(ConfigureWith.class)
+           ? testClass.getAnnotation(ConfigureWith.class).parameterSpace()
            : testClass;
   }
 
@@ -74,12 +74,17 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
   public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(ExtensionContext context) {
     @SuppressWarnings("unchecked") List<Tuple> testDataSet = context.getStore(namespace).get("testDataSet", List.class);
     @SuppressWarnings("unchecked") SortedMap<String, TuplePredicate> definedPredicates = context.getStore(namespace).get("definedPredicates", SortedMap.class);
+    List<String> referencedParameterNames = context.getTestMethod().map(m -> Arrays.stream(m.getParameters())
+                                                                                   .filter(p -> p.isAnnotationPresent(From.class))
+                                                                                   .map(a -> a.getAnnotation(From.class).value())
+                                                                                   .collect(toList()))
+                                                   .orElse(emptyList());
     return testDataSet.stream()
                       .filter((Tuple each) -> satisfiesPrecondition(context.getTestMethod()
                                                                            .orElseThrow(NoSuchElementException::new),
                                                                     each,
                                                                     definedPredicates))
-                      .map(Utils::toTestTemplateInvocationContext);
+                      .map(testDataTuple -> Utils.toTestTemplateInvocationContext(testDataTuple, referencedParameterNames));
   }
 
   private static boolean satisfiesPrecondition(Method method, Tuple testDataTuple, SortedMap<String, TuplePredicate> definedPredicates) {
@@ -97,7 +102,8 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
     }
 
     static ParameterSpaceSpec createParameterSpaceSpec(Class<?> testModelClass) {
-      return ParameterSpaceSpec.create(createParameterSpecsFromModelClass(testModelClass),
+      return ParameterSpaceSpec.create(new Requirement.Builder().build(),
+                                       createParameterSpecsFromModelClass(testModelClass),
                                        createConstraintsFromModelClass(testModelClass));
     }
 
@@ -158,15 +164,14 @@ public class JCUnitTestExtension implements BeforeAllCallback, TestTemplateInvoc
       return new Requirement.Builder().build();
     }
 
-    private static TestTemplateInvocationContext toTestTemplateInvocationContext(Tuple testDataTuple) {
+    private static TestTemplateInvocationContext toTestTemplateInvocationContext(Tuple testDataTuple, List<String> referencedParameterNames) {
       return new TestTemplateInvocationContext() {
         @Override
         public String getDisplayName(int invocationIndex) {
-          return testDataTuple.keySet()
-                              .stream()
-                              .sorted()
-                              .map(k -> String.format("%s:%s", k, testDataTuple.get(k)))
-                              .collect(Collectors.joining(","));
+          return referencedParameterNames.stream()
+                                         .sorted()
+                                         .map(k -> String.format("%s:%s", k, testDataTuple.get(k)))
+                                         .collect(Collectors.joining(","));
         }
 
         @Override

@@ -2,9 +2,9 @@ package com.github.jcunit.runners.junit5;
 
 import com.github.jcunit.annotations.From;
 import com.github.jcunit.annotations.Named;
-import com.github.jcunit.core.model.ParameterSpaceSpec;
-import com.github.jcunit.core.model.ParameterSpec;
-import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.model.ParameterSpaceSpec;
+import com.github.jcunit.model.ParameterSpec;
+import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.factorspace.Constraint;
 
 import java.lang.annotation.Annotation;
@@ -24,7 +24,7 @@ public enum JCUnitTestExtensionUtils {
   ;
 
   static void validateParameterSpaceDefinitionClass(List<String> errors, Class<?> parameterSpaceSpecClass) {
-    ParameterSpaceSpec parameterSpaceSpec = JCUnitTestExtension.Utils.createParameterSpaceSpec(parameterSpaceSpecClass);
+    ParameterSpaceSpec parameterSpaceSpec = JCUnitTestEngine.Utils.createParameterSpaceSpec(parameterSpaceSpecClass);
     Map<String, List<Object>> knownNamesInParameterSpace = definedNamesInParameterSpace(parameterSpaceSpec);
     validateNameDefinitionsInParameterSpace(errors, knownNamesInParameterSpace);
     validateParameterSpaceDefinition(errors, parameterSpaceSpec, parameterSpaceSpecClass, knownNamesInParameterSpace.keySet());

@@ -10,8 +10,18 @@ import static com.github.jcunit.utils.InternalUtils.project;
 import static java.util.Arrays.asList;
 
 public interface Constraint extends TuplePredicate {
+  boolean isExplicit();
   static Constraint create(String name, Predicate<Tuple> predicate, List<String> args) {
+    return create(name, false, predicate, args);
+  }
+
+  static Constraint create(String name, final boolean explicit, Predicate<Tuple> predicate, List<String> args) {
     return new Constraint() {
+      @Override
+      public boolean isExplicit() {
+        return explicit;
+      }
+
       @Override
       public String getName() {
         return name;

@@ -37,10 +37,10 @@ public interface Config {
   Function<? super FactorSpace, ? extends FactorSpace> optimizer();
 
   class Builder {
-    private final Requirement       requirement;
-    private       Generator.Factory generatorFactory;
-    private       Joiner            joiner;
-    private       Partitioner       partitioner;
+    private final Requirement requirement;
+    private Generator.Factory generatorFactory;
+    private Joiner joiner;
+    private Partitioner partitioner;
 
     public static Builder forTuple(Requirement requirement) {
       return new Builder(requirement);
@@ -75,10 +75,10 @@ public interface Config {
 
   class Impl implements Config {
     private final Generator.Factory generatorFactory;
-    private final Joiner            joiner;
-    private final Partitioner       partitioner;
-    private final Requirement       requirement;
-    private final Encoder           encoder;
+    private final Joiner joiner;
+    private final Partitioner partitioner;
+    private final Requirement requirement;
+    private final Encoder encoder;
 
     public Impl(Requirement requirement, Generator.Factory generatorFactory, Joiner joiner, Partitioner partitioner) {
       this.generatorFactory = requireNonNull(generatorFactory);
@@ -100,20 +100,16 @@ public interface Config {
 
     @Override
     public Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement) {
-      return (FactorSpace factorSpace) -> new SchemafulTupleSet.Builder(
-          factorSpace.getFactors().stream(
-          ).map(
-              Factor::getName
-          ).collect(
-              toList()
-          )
-      ).addAll(
-          generatorFactory.create(
-              factorSpace,
-              requirement,
-              ParameterSpace.encodeSeedTuples(parameterSpace, requirement.seeds())
-          ).generate()
-      ).build();
+      return (FactorSpace factorSpace) -> new SchemafulTupleSet.Builder(factorSpace.getFactors()
+                                                                                   .stream()
+                                                                                   .map(Factor::getName)
+                                                                                   .collect(toList()))
+          .addAll(generatorFactory.create(factorSpace,
+                                          requirement,
+                                          ParameterSpace.encodeSeedTuples(parameterSpace,
+                                                                          requirement.seeds()))
+                                  .generate())
+          .build();
     }
 
     @Override
@@ -132,27 +128,25 @@ public interface Config {
      */
     @Override
     public Function<? super FactorSpace, ? extends FactorSpace> optimizer() {
-      return (FactorSpace factorSpace) -> FactorSpace.create(
-          factorSpace.getFactors().stream()
-              .map(
-                  (Factor factor) -> Factor.create(
-                      factor.getName(),
-                      factor.getLevels()
-                          .stream()
-                          .filter(
-                              (Object o) -> factorSpace.getConstraints()
-                                  .stream()
-                                  .filter((Constraint constraint) -> singletonList(factor.getName()).equals(constraint.involvedKeys()))
-                                  .allMatch((Constraint constraint) -> constraint.test(new Tuple.Builder().put(factor.getName(), o).build()))
-                          )
-                          .collect(toList()).toArray()
-                  ))
-              .collect(toList()),
-          factorSpace.getConstraints().stream()
-              .filter(
-                  (Constraint constraint) -> constraint.involvedKeys().size() > 1
-              )
-              .collect(toList())
+      return (FactorSpace factorSpace)
+          -> FactorSpace.create(factorSpace.getFactors()
+                                           .stream()
+                                           .map((Factor factor) -> Factor.create(
+                                               factor.getName(),
+                                               factor.getLevels()
+                                                     .stream()
+                                                     .filter((Object o) -> factorSpace.getConstraints()
+                                                                                      .stream()
+                                                                                      .filter((Constraint constraint) -> singletonList(factor.getName()).equals(constraint.involvedKeys()))
+                                                                                      .allMatch((Constraint constraint) -> constraint.test(new Tuple.Builder().put(factor.getName(), o)
+                                                                                                                                                              .build())))
+                                                     .collect(toList())
+                                                     .toArray()))
+                                           .collect(toList()),
+                                factorSpace.getConstraints()
+                                           .stream()
+                                           .filter((Constraint constraint) -> constraint.involvedKeys().size() > 1)
+                                           .collect(toList())
       );
     }
   }

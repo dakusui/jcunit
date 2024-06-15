@@ -1,4 +1,4 @@
-package com.github.jcunit.core.model;
+package com.github.jcunit.model;
 
 import com.github.jcunit.annotations.Named;
 import com.github.jcunit.core.Invokable;
@@ -34,6 +34,10 @@ interface ValueResolver<V> {
     String value = m.getAnnotation(Named.class).value();
     return Objects.equals(Named.DEFAULT, value) ? m.getName()
                                                 : value;
+  }
+
+  static <T> ValueResolver<T> fromClassMethodNamed(String open, Class<?> klass) {
+    return ValueResolver.fromInvokable(Invokable.fromClassMethodNamed(klass, open));
   }
 
   Optional<String> name();
