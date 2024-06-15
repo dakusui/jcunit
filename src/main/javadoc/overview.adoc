@@ -1,0 +1,128 @@
+= The design of the `java8-template` project
+
+This is an example of `package-info.adoc`, where you can describe the design of a package, not a single class.
+It is recommended to write one sentence per one line in asciidoc's style.
+
+== Checking `graphviz`
+
+You need to have a "graphviz" tool on your system to render diagrams in your documentation.
+<<CheckingPlantUML>> shows if it is installed on your system or not.
+If it doesn't say "OK", please install it.
+E.g, by `brew install graphviz`, if you are using macOS.
+
+[[CheckingPlantUML]]
+[plantuml]
+.Checking Graphviz
+----
+testdot
+----
+
+
+== Drawing a diagram
+
+You can draw a diagram using "PlantUML"<<plantuml>>.
+The Figure <<java8Template>> shows how each synthesized object is structured.
+
+[plantuml]
+[[java8Template]]
+.Java8 Template Library
+----
+hide empty members
+top to bottom direction
+
+class ObjectSynthesizer {
+}
+package "synthesized object" <<Rectangle>> {
+    interface InvocationHandler {
+    }
+    interface "BiFunction<SynthesizedObject,Object[],Object>" as bf1 {
+    }
+    class "Class<?>" as cl1 {
+    }
+    interface "SynthesizedObject" as so1 {
+      {abstract} +List<Class<?>> interfaces()
+      {abstract} +MethodHandler methodHandlerFor(MethodSignature)
+      {abstract} +Object fallbackObject()
+    }
+    interface "MethodHandler" as mh1 extends bf1 {
+    }
+    class "MethodSignature" as ms1 {
+    }
+}
+package "inside a synthesized object" as inside <<Rectangle>> {
+    interface "SynthesizedObject" as so2 {
+    }
+    class "Class<?>" as cl2 {
+    }
+    interface "MethodHandler" as mh2
+    class "MethodSignature" as ms2
+    package "interfaces" as intpkg <<Rectangle>> {
+        class "InterfaceA" as int1 <<example>> {
+        }
+        class "InterfaceB" as int2 <<example>> {
+        }
+    }
+    class "java.lang.reflect.Proxy" as proxy {
+    }
+    object actualObject
+}
+package "another fallback object" <<Rectangle>> {
+    class "Object" as obj3 {
+    }
+}
+ObjectSynthesizer ..right..> so1
+ObjectSynthesizer ..right..> InvocationHandler
+so1 "1" -right-> "*" mh1
+so1 .right.> ms1
+so1 "1" -left-> "*" cl1: interfaces
+so1 "1" -down-> "1" so2: fallbackObject
+so1 "1" *-up-> "1" InvocationHandler
+InvocationHandler "1" -down-> "1" so1
+
+so2 "1" .right..> "*" ms2
+so2 "1" -right-> "*" mh2
+so2 "1" -left-> "*" cl2: interfaces
+actualObject .up.> so2
+actualObject -up-> proxy
+actualObject .up.> int1
+actualObject .up.> int2
+so2 "1" --down--> "1" obj3: fallbackObject
+
+note as N1
+A fallback object can be a SynthesizedObject or
+a normal object
+end note
+N1 .up. inside
+N1 .right. obj3
+note as N2
+An actual object extends/implements Proxy,
+SynthesizedObject, and interfaces held by
+SynthesizedObject
+end note
+N2 .up. actualObject
+----
+
+This is an example for drawin a diagram using "ditaa".
+
+[ditaa]
+.ditaa diagram example
+----
+*--------+   +-------+    +-------+
+|        +---+ ditaa +--> |       |
+|  Text  |   +-------+    |diagram|
+|Document|   |!magic!|    |       |
+|     {d}|   |       |    |       |
++---+----+   +-------+    +-------+
+    :                         ^
+    |       Lots of work      |
+    +-------------------------+
+----
+
+== Notes
+
+Unfortunately, AsciiDoclet is not supporting JDK 17 onward, right now.
+
+[bibliography]
+== References
+
+- [[[plantuml, 1]]] "Drawing UML with PlantUML" https://plantuml.com/guide[plantuml]

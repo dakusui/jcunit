@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="${project.name}">
+    <body>
+        <menu name="Documents">
+            <item name="Quick Start" href="asciidoc/quickstart.html"/>
+            <item name="Design" href="asciidoc/design.html"/>
+        </menu>
+        <menu ref="reports" inherit="top"/>
+        <menu ref="modules"/>
+    </body>
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.7</version>
+    </skin>
+</project>

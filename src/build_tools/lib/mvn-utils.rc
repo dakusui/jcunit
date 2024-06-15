@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+unset -f MVN_UTILS_TMP_DIR
+readonly MVN_UTILS_TMP_DIR="${TMPDIR:-/tmp}/.mvn-utils"
+
+function mvn_init() {
+  if [[ ! -d "${MVN_UTILS_TMP_DIR}" ]]; then
+    mkdir -p "${MVN_UTILS_TMP_DIR}"
+  fi
+}
+
+function project_name() {
+  xmllint --xpath '/project/name/text()' <(sed -E 's/xmlns=[^ ]+//g' pom.xml)
+}
+
+function _compose_mvn_command_line() {
+  local _artifact="${1}" _basedir="${2}"
+  echo mvn -B -Dstyle.color=never dependency:unpack -Dartifact="${_artifact}" \
+    -Dproject.basedir="${_basedir}" \
+    -DoutputDirectory="${_basedir}/out"
+}
+
+function _exec_mvn() {
+  local _artifact="${1}" _basedir="${2}" _stdout="${3}"
+  local _mvn_commandline
+  _mvn_commandline="$(_compose_mvn_command_line "${_artifact}" "${_basedir}")"
+  bash -c "${_mvn_commandline}" >"${_stdout}" || {
+    local _exit_code="$?"
+    tail --lines=20 "${_stdout}"
+    echo
+    echo "ERROR: Find more detail in '${_stdout}'." >&2
+    return ${_exit_code}
+  }
+}
+
+function mvn-find() {
+  local _artifact="${1}"
+  shift
+  local _basedir _outdir _stdout _mvn_commandline _pwd _exit_code=0
+
+  mvn_init
+  _basedir="./target"
+  _stdout="${_basedir}/stdout"
+  _outdir="${_basedir}/out"
+  _exec_mvn "${_artifact}" "${_basedir}" "${_stdout}" || {
+    local _exit_code="${?}"
+    return "${_exit_code}"
+  }
+  _pwd="$(pwd)"
+  cd "${_outdir}" || return 1
+  find . "${@}" || {
+    echo "ERROR: command line: find . $*" >&2
+    _exit_code="${?}"
+  }
+  cd "${_pwd}" || return 1
+  return "${_exit_code}"
+}
+
+function mvn-unpack() {
+  local _artifact="${1}"
+  local _dir="${2}"
+  shift
+  local _basedir _outdir _stdout _mvn_commandline _pwd _exit_code=0
+
+  mvn_init
+  _basedir="./target"
+  _stdout="${_basedir}/stdout"
+  _exec_mvn "${_artifact}" "${_basedir}" "${_stdout}" || {
+    local _exit_code="${?}"
+    return "${_exit_code}"
+  }
+  _pwd="$(pwd)"
+  cp -r "${_basedir}/out/"* "${_dir}/"
+}

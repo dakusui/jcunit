@@ -1,0 +1,1 @@
+Automatic-Module-Name: com.github.dakusui.java8.template

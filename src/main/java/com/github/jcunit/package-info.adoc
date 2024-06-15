@@ -1,0 +1,19 @@
+You can describe a package's design that disciples classes under it here.
+
+[ditaa]
+.Ditaa
+----
++---+   +---+
+|ABC+-->|XYZ|
++---+   +---+
+
+----
+
+
+[plantuml]
+.PlantUML diagram
+----
+class Java8App {
++main(String... args): String
+}
+----

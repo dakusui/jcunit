@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EntryPointsManager">
+    <list size="9">
+      <item index="0" class="java.lang.String" itemvalue="ConfigureWith" />
+      <item index="1" class="java.lang.String" itemvalue="Test" />
+      <item index="2" class="java.lang.String" itemvalue="com.github.jcunit.annotations.JCUnitParameter" />
+      <item index="3" class="java.lang.String" itemvalue="com.github.jcunit.annotations.JCUnitParameterValue" />
+      <item index="4" class="java.lang.String" itemvalue="com.github.jcunit.annotations.JCUnitTest" />
+      <item index="5" class="java.lang.String" itemvalue="com.github.jcunit.annotations.Named" />
+      <item index="6" class="java.lang.String" itemvalue="com.github.jcunit.runners.junit4.annotations.Condition" />
+      <item index="7" class="java.lang.String" itemvalue="com.github.jcunit.annotations.Given" />
+      <item index="8" class="java.lang.String" itemvalue="com.github.jcunit.runners.junit4.annotations.ParameterSource" />
+    </list>
+  </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK" />
+</project>

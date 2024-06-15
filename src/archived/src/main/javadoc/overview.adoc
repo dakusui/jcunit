@@ -1,0 +1,6 @@
+= The JCUnit: Test Design as Code
+
+image:../resources/JCunit-logo-compact.png[The JCUnit] is the key-product to implement the concept of "Test Design as Code", where automated tests are implemented and executed under the same practice as the product code side.
+The "same practice" means removing extra efforts which are required only fo the testing code when you write automated test using JUnict.
+For instance, you always keep repeating a similar method multiple times in order just to cover combinations of values, but D-R-Y (Don't repeat yourself) is a basic principle of writing a product code.
+JCUnit allows you to write it once, and it automatically comes up with a set of small combinations of test input parameter values to ensure good coverage over the system under test (SUT).
