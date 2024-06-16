@@ -3,7 +3,7 @@ package com.github.jcunit.pipeline.stages;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
-import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.utils.InternalUtils;
 
 import java.util.*;
@@ -15,14 +15,14 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * The size of any element in the list this stage produces must not be less than
- * the strength returned by {@link Requirement#strength()}.
+ * the strength returned by {@link PipelineConfig#strength()}.
  */
 public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
   class Standard implements Partitioner {
-    private final Requirement requirement;
+    private final PipelineConfig pipelineConfig;
 
-    public Standard(Requirement requirement) {
-      this.requirement = requireNonNull(requirement);
+    public Standard(PipelineConfig pipelineConfig) {
+      this.pipelineConfig = requireNonNull(pipelineConfig);
     }
 
     @Override
@@ -66,7 +66,7 @@ public interface Partitioner extends Function<FactorSpace, List<FactorSpace>> {
                                 .collect(toList())))
                      .collect(toList())
       ));
-      return pack(requirement.strength(), ret);
+      return pack(pipelineConfig.strength(), ret);
     }
 
     private static List<FactorSpace> pack(int requiredStrength, List<FactorSpace> factorSpaces) {

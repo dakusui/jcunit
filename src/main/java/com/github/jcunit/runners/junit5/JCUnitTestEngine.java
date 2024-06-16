@@ -11,7 +11,7 @@ import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.pipeline.Pipeline;
-import com.github.jcunit.pipeline.PipelineConfig;
+import com.github.jcunit.pipeline.PipelineSpec;
 import com.github.jcunit.testsuite.TestData;
 import com.github.jcunit.utils.ReflectionUtils;
 import org.junit.jupiter.api.TestInstance;
@@ -23,10 +23,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.jcunit.annotations.ConfigureWith.Utils.configurationOf;
-import static com.github.jcunit.annotations.ConfigureWith.Utils.createPipelineConfigFrom;
+import static com.github.jcunit.annotations.ConfigurePipelineWith.Utils.configurationOf;
+import static com.github.jcunit.annotations.ConfigurePipelineWith.Utils.createPipelineSpecFrom;
 import static com.github.jcunit.annotations.JCUnitCondition.Type.CONSTRAINT;
 import static com.github.jcunit.runners.junit5.JCUnitTestEngine.Utils.createParameterSpaceSpec;
+import static com.github.jcunit.runners.junit5.JCUnitTestEngine.Utils.definedPredicatesFrom;
 import static com.github.jcunit.runners.junit5.JCUnitTestEngineUtils.*;
 import static com.github.valid8j.fluent.Expectations.require;
 import static com.github.valid8j.fluent.Expectations.value;
@@ -52,8 +53,10 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
       List<String> errors = new LinkedList<>();
       Class<?> testClass = context.getTestClass()
                                   .orElseThrow(AssertionError::new);
-      ConfigureWith configAnnotation = configurationOf(testClass);
-      PipelineConfig pipelineConfig = createPipelineConfigFrom(configAnnotation);
+      ConfigurePipelineWith configAnnotation = configurationOf(testClass);
+      PipelineSpec pipelineSpec = createPipelineSpecFrom(configAnnotation,
+                                                         getArguments(configAnnotation),
+                                                         getSeedGenerators(configAnnotation.parameterSpaceSpecClass()));
       Class<?> parameterSpaceSpecClass = getParameterSpaceSpecClass(testClass, configAnnotation);
 
       Map<String, List<Object>> namedEntitiesInParameterSpaceSpec = definedNamesInParameterSpace(parameterSpaceSpecClass);
@@ -62,7 +65,7 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
       namedMethodsFromParameterSpaceClass(parameterSpaceSpecClass).forEach(eachNamedMethod -> validateNamedMethod(errors,
                                                                                                                   eachNamedMethod));
 
-      SortedMap<String, TuplePredicate> definedPredicates = Utils.definedPredicatesFrom(parameterSpaceSpecClass);
+      SortedMap<String, TuplePredicate> definedPredicates = definedPredicatesFrom(parameterSpaceSpecClass);
       ParameterSpaceSpec parameterSpaceSpec = createParameterSpaceSpec(
           Utils.createParameterSpecsFromModelClass(parameterSpaceSpecClass),
           definedPredicates.values()
@@ -76,16 +79,16 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
       validateReferencesOfConstraints(errors, parameterSpaceSpec, knownNames);
       require(value(errors).satisfies().empty());
 
-      List<TestData> testDataSet = Utils.generateTestDataSet(pipelineConfig, parameterSpaceSpec.toParameterSpace());
+      List<TestData> testDataSet = Utils.generateTestDataSet(pipelineSpec, parameterSpaceSpec.toParameterSpace());
       context.getStore(namespace).put("testDataSet", testDataSet);
       context.getStore(namespace).put("parameterSpaceSpec", parameterSpaceSpec);
       context.getStore(namespace).put("definedPredicates", definedPredicates);
     }
   }
 
-  private static Class<?> getParameterSpaceSpecClass(Class<?> testClass, ConfigureWith configure) {
-    return (!configure.parameterSpace().equals(Object.class)) ? configure.parameterSpace()
-                                                              : testClass;
+  private static Class<?> getParameterSpaceSpecClass(Class<?> testClass, ConfigurePipelineWith configure) {
+    return (!configure.parameterSpaceSpecClass().equals(Object.class)) ? configure.parameterSpaceSpecClass()
+                                                                       : testClass;
   }
 
   @Override
@@ -114,7 +117,8 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
   }
 
   private static boolean satisfiesPrecondition(Method method, TestData testData, SortedMap<String, TuplePredicate> definedPredicates) {
-    if (!method.isAnnotationPresent(Given.class)) return testData.getCategory() == TestData.Category.REGULAR;
+    if (!method.isAnnotationPresent(Given.class)) return testData.getCategory() == TestData.Category.REGULAR
+                                                         || testData.getCategory() == TestData.Category.SEED;
     return NodeUtils.buildPredicate(method.getAnnotation(Given.class).value(),
                                     definedPredicates)
                     .test(testData.getTestDataTuple());
@@ -172,7 +176,7 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
                    .collect(toList());
     }
 
-    private static List<TestData> generateTestDataSet(PipelineConfig config, ParameterSpace parameterSpace) {
+    private static List<TestData> generateTestDataSet(PipelineSpec config, ParameterSpace parameterSpace) {
       return new ArrayList<>(new Pipeline.Standard(config).generateTestSuite(parameterSpace));
     }
 

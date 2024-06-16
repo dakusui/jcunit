@@ -19,7 +19,7 @@ import static java.util.Collections.singletonMap;
  * // @formatter:on 
  */
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = TestExample2.ParameterSpace.class)
+@ConfigurePipelineWith(parameterSpaceSpecClass = TestExample2.ParameterSpace.class)
 public class TestExample2 {
   public static class ParameterSpace {
     @Named

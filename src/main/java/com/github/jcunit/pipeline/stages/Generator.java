@@ -3,7 +3,7 @@ package com.github.jcunit.pipeline.stages;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.utils.InternalUtils;
 import com.github.jcunit.factorspace.FactorSpace;
-import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.stages.generators.Cartesian;
 import com.github.jcunit.pipeline.stages.generators.IpoGplus;
 
@@ -26,11 +26,11 @@ public interface Generator {
 
   abstract class Base implements Generator {
     protected final FactorSpace factorSpace;
-    protected final Requirement requirement;
+    protected final PipelineConfig pipelineConfig;
 
-    protected Base(FactorSpace factorSpace, Requirement requirement) {
+    protected Base(FactorSpace factorSpace, PipelineConfig pipelineConfig) {
       this.factorSpace = factorSpace;
-      this.requirement = requirement;
+      this.pipelineConfig = pipelineConfig;
     }
 
     public final List<Tuple> generate() {
@@ -50,18 +50,18 @@ public interface Generator {
     Generator create(FactorSpace factorSpace, List<Tuple> encodedSeeds);
 
     class Standard implements Factory {
-      private final Requirement requirement;
+      private final PipelineConfig pipelineConfig;
 
-      public Standard(Requirement requirement) {
-        this.requirement = requireNonNull(requirement);
+      public Standard(PipelineConfig pipelineConfig) {
+        this.pipelineConfig = requireNonNull(pipelineConfig);
       }
 
       @Override
       public Generator create(FactorSpace factorSpace, List<Tuple> encodedSeeds) {
-        if (requirement.strength() < factorSpace.getFactors().size()) {
-          return new IpoGplus(factorSpace, this.requirement, encodedSeeds);
+        if (pipelineConfig.strength() < factorSpace.getFactors().size()) {
+          return new IpoGplus(factorSpace, this.pipelineConfig, encodedSeeds);
         }
-        return new Cartesian(factorSpace, this.requirement);
+        return new Cartesian(factorSpace, this.pipelineConfig);
       }
     }
   }

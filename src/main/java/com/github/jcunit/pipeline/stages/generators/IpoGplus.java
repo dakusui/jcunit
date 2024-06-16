@@ -10,7 +10,7 @@ import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
 import com.github.jcunit.factorspace.FactorUtils;
-import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.TupleSet;
 import com.github.jcunit.pipeline.stages.Generator;
 import com.github.jcunit.utils.InternalUtils;
@@ -47,8 +47,8 @@ public class IpoGplus extends Generator.Base {
 
   private final TupleSet precovered;
 
-  public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
-    super(factorSpace, requirement);
+  public IpoGplus(FactorSpace factorSpace, PipelineConfig pipelineConfig, List<Tuple> seeds) {
+    super(factorSpace, pipelineConfig);
     this.session = new Session();
     this.precovered = new TupleSet.Builder().addAll(seeds.stream()
                                                          .filter(tuple -> tuple.keySet().containsAll(factorSpace.getFactorNames()))
@@ -60,7 +60,7 @@ public class IpoGplus extends Generator.Base {
                                                                                  .allMatch(
                                                                                      constraint -> constraint.test(tuple)))
                                                          .map(tuple -> TupleUtils.project(tuple, factorSpace.getFactorNames()))
-                                                         .flatMap(tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength())
+                                                         .flatMap(tuple -> TupleUtils.subtuplesOf(tuple, pipelineConfig.strength())
                                                                                      .stream())
                                                          .collect(toList()))
                                             .build();
@@ -109,8 +109,8 @@ public class IpoGplus extends Generator.Base {
    */
   @Override
   public List<Tuple> generateCore() {
-    if (this.factorSpace.getFactors().size() == this.requirement.strength()) {
-      return streamAllPossibleTuples(this.factorSpace.getFactors(), this.requirement.strength())
+    if (this.factorSpace.getFactors().size() == this.pipelineConfig.strength()) {
+      return streamAllPossibleTuples(this.factorSpace.getFactors(), this.pipelineConfig.strength())
           .filter(satisfiesAllOf(this.factorSpace.getConstraints())) // OVERRIDING
           .collect(toList());
     }
@@ -123,7 +123,7 @@ public class IpoGplus extends Generator.Base {
      *     3.  add into test set ts a test for each combination of values of the first
      *         t parameters (*1)
      */
-    int t = this.requirement.strength();
+    int t = this.pipelineConfig.strength();
     List<Factor> allFactors = this.factorSpace.getFactors().stream()
                                               .sorted(comparingInt(o -> -o.getLevels().size()))
                                               .collect(toList());
@@ -214,11 +214,11 @@ public class IpoGplus extends Generator.Base {
   @SuppressWarnings("WeakerAccess")
   protected void validate() {
     FrameworkException.checkCondition(
-        this.factorSpace.getFactors().size() >= requirement.strength(),
+        this.factorSpace.getFactors().size() >= pipelineConfig.strength(),
         FrameworkException::unexpectedByDesign,
         () -> String.format(
             "Required strength (%d) > Only %d factors are given: %s",
-            this.requirement.strength(),
+            this.pipelineConfig.strength(),
             this.factorSpace.getFactors().size(),
             this.factorSpace.getFactorNames()
         )

@@ -19,7 +19,7 @@ import static java.util.Arrays.asList;
 
 @SuppressWarnings("NewClassNamingConvention")
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = BankAccountExample.ParameterSpace.class)
+@ConfigurePipelineWith(parameterSpaceSpecClass = BankAccountExample.ParameterSpace.class)
 public class BankAccountExample {
   public static class ParameterSpace {
     @Named
@@ -55,43 +55,13 @@ public class BankAccountExample {
     @Named
     @JCUnitParameterValue
     public static Action deposit(@From("depositAmount") int depositAmount) {
-      return new Action("deposit[" + depositAmount + "]") {
-        @Override
-        public void accept(Context context) {
-          BankAccount account = context.valueFor("account");
-          boolean succeeded = false;
-
-          try {
-            account.deposit(depositAmount);
-
-            succeeded = true;
-          } finally {
-            context.journal()
-                   .add(new JournalEntry(JournalEntry.Type.DEPOSIT, depositAmount, succeeded));
-          }
-        }
-      };
+      return newAction("deposit", depositAmount, account1 -> account1.deposit(depositAmount), succeeded1 -> new JournalEntry(JournalEntry.Type.DEPOSIT, depositAmount, succeeded1));
     }
 
     @Named
     @JCUnitParameterValue
     public static Action withdraw(@From("withdrawAmount") int withdrawAmount) {
-      return new Action("withdraw[" + withdrawAmount + "]") {
-        @Override
-        public void accept(Context context) {
-          BankAccount account = context.valueFor("account");
-          boolean succeeded = false;
-
-          try {
-            account.withdraw(withdrawAmount);
-
-            succeeded = true;
-          } finally {
-            context.journal()
-                   .add(new JournalEntry(WITHDRAW, withdrawAmount, succeeded));
-          }
-        }
-      };
+      return newAction("withdraw", withdrawAmount, acccount -> acccount.withdraw(withdrawAmount), succeeded -> new JournalEntry(WITHDRAW, withdrawAmount, succeeded));
     }
 
     @Named
@@ -100,11 +70,11 @@ public class BankAccountExample {
       return new Action("transfer[" + transferAmount + "]") {
         @Override
         public void accept(Context context) {
-          BankAccount destination = BankAccount.open();
           BankAccount account = context.valueFor("account");
           boolean succeeded = false;
 
           try {
+            BankAccount destination = BankAccount.open();
             account.transferTo(destination, transferAmount);
 
             succeeded = true;
@@ -161,6 +131,24 @@ public class BankAccountExample {
                     ValueResolver.of(500),
                     ValueResolver.of(1000),
                     ValueResolver.of(1_000_000));
+    }
+
+    private static Action newAction(final String actionName, int amount, final Consumer<BankAccount> bankAccountConsumer, final Function<Boolean, JournalEntry> function) {
+      return new Action(actionName + "[" + amount + "]") {
+        @Override
+        public void accept(Context context) {
+          BankAccount account = context.valueFor("account");
+          boolean succeeded = false;
+
+          try {
+            bankAccountConsumer.accept(account);
+            succeeded = true;
+          } finally {
+            context.journal()
+                   .add(function.apply(succeeded));
+          }
+        }
+      };
     }
   }
 

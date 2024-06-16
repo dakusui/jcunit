@@ -391,7 +391,7 @@ Please refer to https://github.com/dakusui/jcunit/issues/125[Issue-125].
 === TODOs
 
 * Validations
-* Default value of '@ConfigureWith' annotation: If the test class is implementing `Config.Factory` interface, it might be good idea to use it as a value for `@ConfigureWith` annotation when it is absent.
+* Default value of '@ConfigureWith' annotation: If the test class is implementing `Config.Factory` interface, it might be good idea to use it as a value for `@ConfigurePipelineWith` annotation when it is absent.
 * IPO-G+ performance improvements.
 * FSM feature has already been implemented, but not yet tested in 0.8.x line.
 * Make the pipeline execute its internal processes where possible.

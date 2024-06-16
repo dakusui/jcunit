@@ -5,21 +5,20 @@ import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
-import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.stages.Generator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 
 public class Negative extends Generator.Base {
   private final List<Tuple> regularTestCases;
   private final List<Tuple> seeds;
 
-  public Negative(List<Tuple> regularTestCases, List<Tuple> seeds, FactorSpace factorSpace, Requirement requirement) {
-    super(factorSpace, requirement);
+  public Negative(List<Tuple> regularTestCases, List<Tuple> seeds, FactorSpace factorSpace, PipelineConfig pipelineConfig) {
+    super(factorSpace, pipelineConfig);
     this.regularTestCases = regularTestCases;
     this.seeds = seeds;
   }

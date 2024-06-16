@@ -18,7 +18,7 @@ import static java.util.Collections.singletonList;
  */
 @Disabled
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = TestReference.ParameterSpace.class)
+@ConfigurePipelineWith(parameterSpaceSpecClass = TestReference.ParameterSpace.class)
 public class TestReference {
   public static class ParameterSpace {
     @Named
