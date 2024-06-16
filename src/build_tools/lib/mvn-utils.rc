@@ -9,7 +9,7 @@ function mvn_init() {
 }
 
 function project_name() {
-  xmllint --xpath '/project/name/text()' <(sed -E 's/xmlns=[^ ]+//g' pom.xml)
+  xmllint --xpath '/project/name/text()' <(sed -E 's/xmlns=[^\s]+//g' pom.xml)
 }
 
 function _compose_mvn_command_line() {

@@ -7,6 +7,6 @@ import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Retention(RUNTIME)
-public @interface ParseConfigWith {
+public @interface ParseConfigArgumentsWith {
   Class<? extends ConfigurePipelineWith.PipelineConfigArgumentsParser> value();
 }

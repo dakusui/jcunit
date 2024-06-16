@@ -1,19 +1,7 @@
 You can describe a package's design that disciples classes under it here.
 
-[ditaa]
-.Ditaa
-----
-+---+   +---+
-|ABC+-->|XYZ|
-+---+   +---+
 
-----
+// Due to AsciiDoclet's behavior, texts placed in this package-info.adoc will not be treated as asciidoc texts, but as plain texts.
+// In case you want to place a rich documents generated from asciidoc at the top level of JavaDoc, do it in the `overview.adoc`.
+// You can use asciidoc feature in the other files.
 
-
-[plantuml]
-.PlantUML diagram
-----
-class Java8App {
-+main(String... args): String
-}
-----

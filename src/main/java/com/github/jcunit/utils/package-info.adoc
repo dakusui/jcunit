@@ -1,0 +1,18 @@
+[source, java]
+.`Example` of `refl` package
+----
+public class Example {
+  public void example() {
+      requireArgument("hello", Predicates.callp("startsWith", "H"));
+  }
+}
+----
+
+[ditaa]
+.Ditaa
+----
++---+   +---+
+|ABC+-->|XYZ|
++---+   +---+
+
+----
