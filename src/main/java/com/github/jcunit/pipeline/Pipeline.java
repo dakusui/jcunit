@@ -19,6 +19,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
@@ -26,33 +27,39 @@ import static java.util.stream.Collectors.toList;
  * A pipeline object.
  */
 public interface Pipeline {
-  TestSuite execute(Config config, ParameterSpace parameterSpace);
+  TestSuite execute(ParameterSpace parameterSpace);
 
   class Standard implements Pipeline {
-    @Override
-    public TestSuite execute(Config config, ParameterSpace parameterSpace) {
-      return generateTestSuite(config, preprocess(config, parameterSpace));
+    private final PipelineConfig config;
+
+    public Standard(PipelineConfig config) {
+      this.config = requireNonNull(config);
     }
 
-    public TestSuite generateTestSuite(Config config, ParameterSpace parameterSpace) {
-      validateSeeds(config.getRequirement().seeds(), parameterSpace);
+    @Override
+    public TestSuite execute(ParameterSpace parameterSpace) {
+      return generateTestSuite(preprocess(parameterSpace));
+    }
+
+    public TestSuite generateTestSuite(ParameterSpace parameterSpace) {
+      Requirement requirement = config.getRequirement();
+      validateSeedTuplesHaveAllParametersAndTheyDontHaveUnknownParameters(requirement.seeds(), parameterSpace);
       TestSuite.Builder<?> builder = new TestSuite.Builder<>(parameterSpace);
-      builder = builder.addAllToSeedTuples(config.getRequirement().seeds());
-      List<Tuple> regularTestDataTuples = engine(config, parameterSpace);
+      builder = builder.addAllToSeedTuples(requirement.seeds());
+      List<Tuple> regularTestDataTuples = engine(parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestDataTuples);
-      if (config.getRequirement().generateNegativeTests())
-        builder = builder.addAllToNegativeTuples(negativeTestGenerator(config.getRequirement()
-                                                                             .generateNegativeTests(),
+      if (requirement.generateNegativeTests())
+        builder = builder.addAllToNegativeTuples(negativeTestGenerator(requirement.generateNegativeTests(),
                                                                        toFactorSpaceForNegativeTestGeneration(parameterSpace),
                                                                        regularTestDataTuples,
-                                                                       config.getRequirement()
-                                                                             .seeds(),
-                                                                       config.getRequirement())
+                                                                       requirement.seeds(),
+                                                                       requirement)
                                                      .generate());
       return builder.build();
     }
 
-    private void validateSeeds(List<Tuple> seeds, ParameterSpace parameterSpace) {
+    private static void validateSeedTuplesHaveAllParametersAndTheyDontHaveUnknownParameters(List<Tuple> seeds,
+                                                                                            ParameterSpace parameterSpace) {
       List<Function<Tuple, String>> checks = asList(
           (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet())
                            ? String.format("Unknown parameter(s) were found: %s in tuple: %s",
@@ -83,7 +90,7 @@ public interface Pipeline {
             ));
     }
 
-    public ParameterSpace preprocess(Config config, ParameterSpace parameterSpace) {
+    public ParameterSpace preprocess(ParameterSpace parameterSpace) {
       return new ParameterSpace.Builder()
           .addAllParameters(
               parameterSpace.getParameterNames().stream()
@@ -97,7 +104,7 @@ public interface Pipeline {
           .build();
     }
 
-    public SchemafulTupleSet engine(Config config, ParameterSpace parameterSpace) {
+    public SchemafulTupleSet engine(ParameterSpace parameterSpace) {
       return config.partitioner().apply(config.encoder().apply(parameterSpace))
                    .stream()
                    .map(config.optimizer())
@@ -106,17 +113,16 @@ public interface Pipeline {
                    .reduce(config.joiner())
                    .map(
                        (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames())
-                           .addAll(
-                               tuples.stream()
-                                     .map((Tuple tuple) -> {
-                                       Tuple.Builder builder = new Tuple.Builder();
-                                       for (String parameterName : parameterSpace.getParameterNames()) {
-                                         builder.put(parameterName, parameterSpace.getParameter(parameterName)
-                                                                                  .composeValue(tuple));
-                                       }
-                                       return builder.build();
-                                     })
-                                     .collect(toList()))
+                           .addAll(tuples.stream()
+                                         .map((Tuple tuple) -> {
+                                           Tuple.Builder builder = new Tuple.Builder();
+                                           for (String parameterName : parameterSpace.getParameterNames()) {
+                                             builder.put(parameterName, parameterSpace.getParameter(parameterName)
+                                                                                      .composeValue(tuple));
+                                           }
+                                           return builder.build();
+                                         })
+                                         .collect(toList()))
                            .build())
                    .orElseThrow(TestDefinitionException::noParameterFound);
     }
@@ -126,7 +132,7 @@ public interface Pipeline {
      * This method should be used for a parameter space that does not contain a
      * constraint involving a non-simple parameter.
      */
-    private FactorSpace toFactorSpaceForNegativeTestGeneration(ParameterSpace parameterSpace) {
+    private static FactorSpace toFactorSpaceForNegativeTestGeneration(ParameterSpace parameterSpace) {
       Checks.checkIfNoNonSimpleParameterIsInvolvedByAnyConstraint(parameterSpace);
       return FactorSpace.create(
           parameterSpace.getParameterNames().stream()
@@ -148,11 +154,11 @@ public interface Pipeline {
              new Passthrough(tuplesForRegularTests, factorSpace, requirement);
     }
 
-    private Parameter<?> toSimpleParameterIfNecessary(Config config, Parameter<?> parameter, List<Constraint> constraints) {
+    private Parameter<?> toSimpleParameterIfNecessary(PipelineConfig config, Parameter<?> parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         List<Object> values = Stream.concat(parameter.getKnownValues().stream(),
-                                            engine(config, new ParameterSpace.Builder().addParameter(parameter)
-                                                                                       .build())
+                                            engine(new ParameterSpace.Builder().addParameter(parameter)
+                                                                               .build())
                                                 .stream()
                                                 .map(tuple -> tuple.get(parameter.getName()))) // Extraction
                                     .collect(toList());
@@ -184,8 +190,8 @@ public interface Pipeline {
       return constraints.stream().anyMatch(each -> each.involvedKeys().contains(parameter.getName()));
     }
 
-    public static Pipeline create() {
-      return new Standard();
+    public static Pipeline create(PipelineConfig config) {
+      return new Standard(config);
     }
   }
 }

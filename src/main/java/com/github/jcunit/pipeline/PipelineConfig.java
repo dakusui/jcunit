@@ -18,7 +18,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
-public interface Config {
+public interface PipelineConfig {
   Requirement getRequirement();
 
   /**
@@ -68,12 +68,12 @@ public interface Config {
       return this;
     }
 
-    public Config build() {
+    public PipelineConfig build() {
       return new Impl(requirement, generatorFactory, joiner, partitioner);
     }
   }
 
-  class Impl implements Config {
+  class Impl implements PipelineConfig {
     private final Generator.Factory generatorFactory;
     private final Joiner joiner;
     private final Partitioner partitioner;

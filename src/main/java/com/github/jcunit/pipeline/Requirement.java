@@ -20,6 +20,9 @@ public interface Requirement {
     private boolean negativeTestGeneration;
     private final List<Tuple> seeds = new LinkedList<>();
 
+    public Builder() {
+    }
+
     public Builder withStrength(int strength) {
       this.strength = strength;
       return this;

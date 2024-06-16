@@ -2,7 +2,7 @@ package com.github.jcunit.model;
 
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.ParameterSpace;
-import com.github.jcunit.pipeline.Config;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.Requirement;
 import com.github.jcunit.testsuite.TestSuite;
@@ -52,8 +52,8 @@ public interface ParameterSpaceSpec {
       }
 
       @Override
-      public Config config() {
-        return new Config.Builder(requirement).build();
+      public PipelineConfig config() {
+        return new PipelineConfig.Builder(requirement).build();
       }
     };
   }
@@ -81,10 +81,10 @@ public interface ParameterSpaceSpec {
   }
 
   default TestSuite toTestSuite() {
-    return Pipeline.Standard.create().execute(config(), toParameterSpace());
+    return Pipeline.Standard.create(config()).execute(toParameterSpace());
   }
 
-  Config config();
+  PipelineConfig config();
 
 
   class Builder {

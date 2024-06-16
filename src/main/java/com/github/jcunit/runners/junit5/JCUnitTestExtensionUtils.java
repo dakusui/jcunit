@@ -2,10 +2,11 @@ package com.github.jcunit.runners.junit5;
 
 import com.github.jcunit.annotations.From;
 import com.github.jcunit.annotations.Named;
+import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
-import com.github.jcunit.factorspace.Constraint;
+import com.github.jcunit.pipeline.Requirement;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -23,14 +24,20 @@ import static java.util.stream.Collectors.toSet;
 public enum JCUnitTestExtensionUtils {
   ;
 
-  static void validateParameterSpaceDefinitionClass(List<String> errors, Class<?> parameterSpaceSpecClass) {
-    ParameterSpaceSpec parameterSpaceSpec = JCUnitTestEngine.Utils.createParameterSpaceSpec(parameterSpaceSpecClass);
+  static ParameterSpaceSpec validateParameterSpaceDefinitionClass(List<String> errors,
+                                                                  Class<?> parameterSpaceSpecClass,
+                                                                  Requirement requirement) {
+    ParameterSpaceSpec parameterSpaceSpec = JCUnitTestEngine.Utils.createParameterSpaceSpec(parameterSpaceSpecClass,
+                                                                                            requirement);
     Map<String, List<Object>> knownNamesInParameterSpace = definedNamesInParameterSpace(parameterSpaceSpec);
     validateNameDefinitionsInParameterSpace(errors, knownNamesInParameterSpace);
-    validateParameterSpaceDefinition(errors, parameterSpaceSpec, parameterSpaceSpecClass, knownNamesInParameterSpace.keySet());
-    namedMethodsFromParameterSpaceClass(parameterSpaceSpecClass).forEach(
-        eachNamedMethod -> validateNamedMethod(errors, eachNamedMethod)
-    );
+    namedMethodsFromParameterSpaceClass(parameterSpaceSpecClass).forEach(eachNamedMethod -> validateNamedMethod(errors,
+                                                                                                                eachNamedMethod));
+    validateParameterSpaceSpec(errors,
+                               parameterSpaceSpec,
+                               parameterSpaceSpecClass,
+                               knownNamesInParameterSpace.keySet());
+    return parameterSpaceSpec;
   }
 
   private static void validateNameDefinitionsInParameterSpace(List<String> errors, Map<String, List<Object>> nameDefinitionsMap) {
@@ -43,7 +50,7 @@ public enum JCUnitTestExtensionUtils {
                       .forEach(k -> errors.add(format("Name:'%s' has duplicated definitions: [%s]", k, nameDefinitionsMap.get(k))));
   }
 
-  private static void validateParameterSpaceDefinition(List<String> errors, ParameterSpaceSpec parameterSpaceSpec, Class<?> parameterSpaceDefinitionClass, Set<String> knownNames) {
+  private static void validateParameterSpaceSpec(List<String> errors, ParameterSpaceSpec parameterSpaceSpec, Class<?> parameterSpaceDefinitionClass, Set<String> knownNames) {
     parameterSpaceSpec.parameterNames()
                       .stream()
                       .map(parameterSpaceSpec::parameterSpecFor)
@@ -60,7 +67,7 @@ public enum JCUnitTestExtensionUtils {
   }
 
   private static void validateConstraintDefinition(List<String> errors, Constraint constraintDefinition, Class<?> parameterSpaceDefinitionClass, Set<String> knownNames) {
-    dependenciesOfConstraintDefinition( constraintDefinition)
+    dependenciesOfConstraintDefinition(constraintDefinition)
         .stream()
         .filter(each -> !knownNames.contains(each))
         .forEach(each -> errors.add(String.format("Constraint:'%s' depends on unknown name:'%s'", constraintDefinition.getName(), each)));
