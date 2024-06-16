@@ -12,10 +12,10 @@ import static java.util.Arrays.asList;
 public interface Constraint extends TuplePredicate {
   boolean isExplicit();
   static Constraint create(String name, Predicate<Tuple> predicate, List<String> args) {
-    return create(name, false, predicate, args);
+    return create(name, false, args, predicate);
   }
 
-  static Constraint create(String name, final boolean explicit, Predicate<Tuple> predicate, List<String> args) {
+  static Constraint create(String name, final boolean explicit, List<String> args, Predicate<Tuple> predicate) {
     return new Constraint() {
       @Override
       public boolean isExplicit() {

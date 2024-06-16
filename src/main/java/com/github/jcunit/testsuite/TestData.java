@@ -5,17 +5,17 @@ import com.github.jcunit.factorspace.Constraint;
 
 import java.util.List;
 
-public interface TestCase {
+public interface TestData {
   enum Category {
     SEED,
     REGULAR,
     NEGATIVE;
 
-    TestCase createTestCase(Tuple testData, List<Constraint> violatedConstraints) {
-      return new TestCase() {
+    TestData createTestCase(Tuple testDataTuple, List<Constraint> violatedConstraints) {
+      return new TestData() {
         @Override
-        public Tuple getTestData() {
-          return testData;
+        public Tuple getTestDataTuple() {
+          return testDataTuple;
         }
 
         @Override
@@ -24,22 +24,22 @@ public interface TestCase {
         }
 
         @Override
-        public List<Constraint> violatedConstraints() {
+        public List<Constraint> violatingConstraints() {
           return violatedConstraints;
         }
 
         @Override
         public String toString() {
-          return String.format("%s:%s:%s", this.getCategory(), this.getTestData(), violatedConstraints);
+          return String.format("%s:%s:%s", this.getCategory(), this.getTestDataTuple(), violatedConstraints);
         }
       };
     }
 
   }
 
-  Tuple getTestData();
+  Tuple getTestDataTuple();
 
   Category getCategory();
 
-  List<Constraint> violatedConstraints();
+  List<Constraint> violatingConstraints();
 }

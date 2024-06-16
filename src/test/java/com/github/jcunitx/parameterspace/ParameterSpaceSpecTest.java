@@ -1,8 +1,11 @@
 package com.github.jcunitx.parameterspace;
 
 import com.github.dakusui.jcunit8.testutils.TestBase;
-import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.factorspace.ParameterSpace;
+import com.github.jcunit.model.ParameterSpaceSpec;
+import com.github.jcunit.pipeline.Pipeline;
+import com.github.jcunit.pipeline.PipelineConfig;
+import com.github.jcunit.pipeline.Requirement;
 import com.github.jcunit.testsuite.TestSuite;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +56,10 @@ public class ParameterSpaceSpecTest extends TestBase {
 
   @Test
   public void testToTestSuite() {
-    TestSuite testSuite = SpecTestUtils.createTestParameterSpaceSpec().toTestSuite();
+    TestSuite testSuite = Pipeline.Standard.create(new PipelineConfig.Builder(new Requirement.Builder()
+                                                                                  .build())
+                                                       .build())
+                                           .execute(SpecTestUtils.createTestParameterSpaceSpec().toParameterSpace());
     testSuite.forEach(System.out::println);
   }
 }
