@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
  * <p>
  * This class eliminates those tuples on its construction.
  */
-public interface TestSuite extends List<TestCase> {
+public interface TestSuite extends List<TestData> {
   /**
    * Returns a parameter space from which this instance is created.
    *
@@ -26,7 +26,7 @@ public interface TestSuite extends List<TestCase> {
 
   class Builder<T> {
     private final ParameterSpace parameterSpace;
-    private final List<TestCase> testCases = new LinkedList<>();
+    private final List<TestData> testCases = new LinkedList<>();
 
     public Builder(ParameterSpace parameterSpace) {
       this.parameterSpace = requireNonNull(parameterSpace);
@@ -34,26 +34,26 @@ public interface TestSuite extends List<TestCase> {
 
     public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
       collection.stream()
-                .map(each -> toTestCase(TestCase.Category.SEED, each))
+                .map(each -> toTestCase(TestData.Category.SEED, each))
                 .forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToRegularTuples(Collection<? extends Tuple> collection) {
       collection.stream()
-                .map(each -> toTestCase(TestCase.Category.REGULAR, each))
+                .map(each -> toTestCase(TestData.Category.REGULAR, each))
                 .forEach(testCases::add);
       return this;
     }
 
     public Builder<T> addAllToNegativeTuples(Collection<? extends Tuple> collection) {
       collection.stream()
-                .map(each -> toTestCase(TestCase.Category.NEGATIVE, each))
+                .map(each -> toTestCase(TestData.Category.NEGATIVE, each))
                 .forEach(testCases::add);
       return this;
     }
 
-    private TestCase toTestCase(TestCase.Category category, Tuple testDataTuple) {
+    private TestData toTestCase(TestData.Category category, Tuple testDataTuple) {
       Tuple tuple = TupleUtils.copy(testDataTuple);
       return category.createTestCase(
           tuple,
@@ -64,20 +64,20 @@ public interface TestSuite extends List<TestCase> {
     }
 
     public TestSuite build() {
-      class Impl extends AbstractList<TestCase> implements TestSuite {
-        private final List<TestCase> testCases;
+      class Impl extends AbstractList<TestData> implements TestSuite {
+        private final List<TestData> testCases;
 
         private Impl() {
-          this.testCases = new ArrayList<TestCase>(Builder.this.testCases.size()) {{
+          this.testCases = new ArrayList<TestData>(Builder.this.testCases.size()) {{
             Builder.this.testCases.stream()
                                   .filter(testCase -> this.stream()
-                                                          .noneMatch(registered -> registered.getTestData().equals(testCase.getTestData())))
+                                                          .noneMatch(registered -> registered.getTestDataTuple().equals(testCase.getTestDataTuple())))
                                   .forEach(this::add);
           }};
         }
 
         @Override
-        public TestCase get(int index) {
+        public TestData get(int index) {
           return this.testCases.get(index);
         }
 

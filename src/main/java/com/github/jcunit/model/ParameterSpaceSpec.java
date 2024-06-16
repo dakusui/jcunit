@@ -2,15 +2,10 @@ package com.github.jcunit.model;
 
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.ParameterSpace;
-import com.github.jcunit.pipeline.Config;
-import com.github.jcunit.pipeline.Pipeline;
-import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.testsuite.TestSuite;
 
 import java.util.*;
 import java.util.function.Function;
 
-import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -18,7 +13,8 @@ import static java.util.stream.Collectors.toMap;
  * // @formatter:on 
  */
 public interface ParameterSpaceSpec {
-  static ParameterSpaceSpec create(Requirement requirement, List<ParameterSpec<?>> parameterSpecs, List<Constraint> constraintList) {
+  static ParameterSpaceSpec create(List<ParameterSpec<?>> parameterSpecs,
+                                   List<Constraint> constraintList) {
     Map<String, ParameterSpec<?>> parameterSpecMap = parameterSpecs.stream()
                                                                    .collect(toMap(ParameterSpec::name,
                                                                                   Function.identity()));
@@ -50,11 +46,6 @@ public interface ParameterSpaceSpec {
       public <E> ParameterSpec<E> parameterSpecFor(String parameterName) {
         return (ParameterSpec<E>) parameterSpecMap.get(parameterName);
       }
-
-      @Override
-      public Config config() {
-        return new Config.Builder(requirement).build();
-      }
     };
   }
 
@@ -78,41 +69,5 @@ public interface ParameterSpaceSpec {
     this.constraints()
         .forEach(b::addConstraint);
     return b.build();
-  }
-
-  default TestSuite toTestSuite() {
-    return Pipeline.Standard.create().execute(config(), toParameterSpace());
-  }
-
-  Config config();
-
-
-  class Builder {
-    private final List<ParameterSpec<?>> parameterSpecs = new LinkedList<>();
-    private final List<Constraint> constraints = new LinkedList<>();
-    private Requirement requirement;
-
-    public Builder() {
-      this.requirement(new Requirement.Builder().build());
-    }
-
-    public Builder requirement(Requirement requirement) {
-      this.requirement = requireNonNull(requirement);
-      return this;
-    }
-
-    public Builder addParameterSpec(ParameterSpec<?> parameterSpec) {
-      this.parameterSpecs.add(parameterSpec);
-      return this;
-    }
-
-    public Builder addConstraint(Constraint constraint) {
-      this.constraints.add(constraint);
-      return this;
-    }
-
-    public ParameterSpaceSpec build() {
-      return create(requirement, parameterSpecs, constraints);
-    }
   }
 }

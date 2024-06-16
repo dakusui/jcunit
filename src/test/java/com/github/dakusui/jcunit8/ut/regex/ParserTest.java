@@ -5,7 +5,7 @@ import com.github.dakusui.jcunit8.ututiles.PipelineTestBase;
 import com.github.jcunit.factorspace.Parameter;
 import com.github.jcunit.core.regex.Expr;
 import com.github.jcunit.core.regex.Parser;
-import com.github.jcunit.testsuite.TestCase;
+import com.github.jcunit.testsuite.TestData;
 import com.github.jcunit.testsuite.TestSuite;
 import com.github.jcunit.utils.InternalUtils;
 import com.github.valid8j.pcond.forms.Predicates;
@@ -96,11 +96,11 @@ public class ParserTest extends PipelineTestBase {
 
     TestSuite builtTestSuite = generateTestSuite(parameter);
     Set<String> generatedStringsFromRegex = new HashSet<>();
-    for (TestCase each : builtTestSuite) {
+    for (TestData each : builtTestSuite) {
       generatedStringsFromRegex.add(
           InternalUtils.join(
               "",
-              (List<String>) each.getTestData().get("input")
+              (List<String>) each.getTestDataTuple().get("input")
           ));
     }
     assertThat(generatedStringsFromRegex, generatedStringsMatcher(_input));

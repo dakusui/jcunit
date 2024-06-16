@@ -10,7 +10,7 @@ import java.util.Optional;
 
 import static com.github.jcunit.model.ValueResolver.FromClass.classMethodNameIs;
 import static com.github.jcunit.model.ValueResolver.FromClass.findMethod;
-import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.nameOf;
+import static com.github.jcunit.runners.junit5.JCUnitTestEngineUtils.nameOf;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 

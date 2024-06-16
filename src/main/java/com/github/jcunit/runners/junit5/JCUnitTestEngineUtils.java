@@ -2,10 +2,10 @@ package com.github.jcunit.runners.junit5;
 
 import com.github.jcunit.annotations.From;
 import com.github.jcunit.annotations.Named;
+import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
-import com.github.jcunit.factorspace.Constraint;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -20,20 +20,10 @@ import static java.util.stream.Collectors.toSet;
  * // @formatter:off
  * // @formatter:on
  */
-public enum JCUnitTestExtensionUtils {
+public enum JCUnitTestEngineUtils {
   ;
 
-  static void validateParameterSpaceDefinitionClass(List<String> errors, Class<?> parameterSpaceSpecClass) {
-    ParameterSpaceSpec parameterSpaceSpec = JCUnitTestEngine.Utils.createParameterSpaceSpec(parameterSpaceSpecClass);
-    Map<String, List<Object>> knownNamesInParameterSpace = definedNamesInParameterSpace(parameterSpaceSpec);
-    validateNameDefinitionsInParameterSpace(errors, knownNamesInParameterSpace);
-    validateParameterSpaceDefinition(errors, parameterSpaceSpec, parameterSpaceSpecClass, knownNamesInParameterSpace.keySet());
-    namedMethodsFromParameterSpaceClass(parameterSpaceSpecClass).forEach(
-        eachNamedMethod -> validateNamedMethod(errors, eachNamedMethod)
-    );
-  }
-
-  private static void validateNameDefinitionsInParameterSpace(List<String> errors, Map<String, List<Object>> nameDefinitionsMap) {
+  static void validateNoNameDuplications(List<String> errors, Map<String, List<Object>> nameDefinitionsMap) {
     nameDefinitionsMap.keySet()
                       .stream()
                       .filter(k -> nameDefinitionsMap.get(k).size() != 1)
@@ -43,13 +33,16 @@ public enum JCUnitTestExtensionUtils {
                       .forEach(k -> errors.add(format("Name:'%s' has duplicated definitions: [%s]", k, nameDefinitionsMap.get(k))));
   }
 
-  private static void validateParameterSpaceDefinition(List<String> errors, ParameterSpaceSpec parameterSpaceSpec, Class<?> parameterSpaceDefinitionClass, Set<String> knownNames) {
+  static void validateReferencesOfConstraints(List<String> errors, ParameterSpaceSpec parameterSpaceSpec, Set<String> knownNames) {
+    parameterSpaceSpec.constraints()
+                      .forEach(c -> validateConstraintDefinition(errors, c, knownNames));
+  }
+
+  static void validateReferencesOfParameters(List<String> errors, ParameterSpaceSpec parameterSpaceSpec, Set<String> knownNames) {
     parameterSpaceSpec.parameterNames()
                       .stream()
                       .map(parameterSpaceSpec::parameterSpecFor)
                       .forEach(p -> validateParameterDefinition(errors, p, parameterSpaceSpec, knownNames));
-    parameterSpaceSpec.constraints()
-                      .forEach(c -> validateConstraintDefinition(errors, c, parameterSpaceDefinitionClass, knownNames));
   }
 
   private static void validateParameterDefinition(List<String> errors, ParameterSpec<?> parameterSpec, ParameterSpaceSpec parameterSpaceDefinitionClass, Set<String> knownNames) {
@@ -59,18 +52,18 @@ public enum JCUnitTestExtensionUtils {
         .forEach(each -> errors.add(format("Parameter:'%s' depends on unknown name:'%s'", parameterSpec.name(), each)));
   }
 
-  private static void validateConstraintDefinition(List<String> errors, Constraint constraintDefinition, Class<?> parameterSpaceDefinitionClass, Set<String> knownNames) {
-    dependenciesOfConstraintDefinition( constraintDefinition)
+  private static void validateConstraintDefinition(List<String> errors, Constraint constraintDefinition, Set<String> knownNames) {
+    dependenciesOfConstraintDefinition(constraintDefinition)
         .stream()
         .filter(each -> !knownNames.contains(each))
         .forEach(each -> errors.add(String.format("Constraint:'%s' depends on unknown name:'%s'", constraintDefinition.getName(), each)));
   }
 
-  private static void validateNamedMethod(List<String> errors, Method method) {
+  static void validateNamedMethod(List<String> errors, Method method) {
     if (!Modifier.isStatic(method.getModifiers()))
-      errors.add("");
+      errors.add("Method is not static: " + method);
     if (!Modifier.isPublic(method.getModifiers()))
-      errors.add("");
+      errors.add("Method is not public: " + method);
     for (int i = 0; i < method.getParameterCount(); i++) {
       Optional<From> from = Optional.empty();
       for (Annotation eachAnnotation : method.getParameterAnnotations()[i]) {
@@ -81,11 +74,6 @@ public enum JCUnitTestExtensionUtils {
       if (!from.isPresent())
         errors.add(format("@From annotation is not present for parameters[%s] of method:'%s'", i, method));
     }
-  }
-
-  static Optional<ParameterSpaceSpec> parameterSpaceDefinitionFromClass(Class<?> parameterSpaceDefinitionClass) {
-    //  TODO //
-    return Optional.empty();
   }
 
   static Set<String> dependenciesOfParameterSpec(ParameterSpec<?> parameterSpec) {
@@ -107,22 +95,15 @@ public enum JCUnitTestExtensionUtils {
     return method.getAnnotation(Named.class).value();
   }
 
-  static Map<String, List<Object>> definedNamesInParameterSpace(ParameterSpaceSpec parameterSpaceSpec) {
+  static Map<String, List<Object>> definedNamesInParameterSpace(Class<?> testModelClass) {
     Map<String, List<Object>> ret = new HashMap<>();
-    parameterSpaceSpec.parameterNames().forEach(parameterName -> {
-      ret.computeIfAbsent(parameterName, k -> new LinkedList<>());
-      ret.get(parameterName).add(parameterName);
-    });
-    parameterSpaceSpec.parameterNames().forEach(n -> {
-      ret.computeIfAbsent(n, k -> new LinkedList<>());
-      ret.get(n).add(parameterSpaceSpec.parameterSpecFor(n));
-    });
-    parameterSpaceSpec.constraints().forEach(c -> {
-      if (!"".equals(c.getName())) {
-        ret.computeIfAbsent(c.getName(), k -> new LinkedList<>());
-        ret.get(c.getName()).add(c);
-      }
-    });
+    Arrays.stream(testModelClass.getMethods())
+        .filter(m -> m.isAnnotationPresent(Named.class))
+          .forEach(m -> {
+            String name = nameOf(m);
+            ret.putIfAbsent(name, new ArrayList<>());
+            ret.get(name).add(m);
+          });
     return ret;
   }
 
