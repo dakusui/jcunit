@@ -2,7 +2,7 @@ package com.github.jcunit.annotations;
 
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.ParameterSpace;
-import com.github.jcunit.pipeline.ParseConfigWith;
+import com.github.jcunit.pipeline.ParseConfigArgumentsWith;
 import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.PipelineSpec;
@@ -122,7 +122,7 @@ public @interface ConfigurePipelineWith {
     private static PipelineConfigArgumentsParser getArgumentsParser(ConfigurePipelineWith configuration) {
       try {
         return configuration.value()
-                            .getAnnotation(ParseConfigWith.class)
+                            .getAnnotation(ParseConfigArgumentsWith.class)
                             .value()
                             .getConstructor()
                             .newInstance();

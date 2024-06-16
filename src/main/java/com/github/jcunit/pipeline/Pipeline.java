@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.jcunit.pipeline.Pipeline.Standard.ConfigArgumentsParser.Keyword.*;
 import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
@@ -30,7 +31,7 @@ public interface Pipeline {
 
   TestSuite execute(ParameterSpace parameterSpace);
 
-  @ParseConfigWith(Standard.ConfigArgumentsParser.class)
+  @ParseConfigArgumentsWith(Standard.ConfigArgumentsParser.class)
   class Standard implements Pipeline {
     public static class ConfigArgumentsParser implements ConfigurePipelineWith.PipelineConfigArgumentsParser {
       enum Keyword {
@@ -56,16 +57,16 @@ public interface Pipeline {
          */
 
         validateConfigEntries(configEntries);
-        int strength = findConfigEntryValueByName("strength", configEntries)
+        int strength = findConfigEntryValueByName(STRENGTH.keyword, configEntries)
             .map((String[] v) -> v[0])
             .map(Integer::parseInt)
             .orElseThrow(AssertionError::new);
-        boolean negativeTestsEnabled = findConfigEntryValueByName("negativeTestGeneration", configEntries)
+        boolean negativeTestsEnabled = findConfigEntryValueByName(NEGATIVE_TEST_GENERATION.keyword, configEntries)
             .map((String[] v) -> v[0])
             .map(Boolean::parseBoolean)
             .orElseThrow(AssertionError::new);
         List<Tuple> seeds = Arrays.stream(configEntries)
-                                  .filter(e -> Objects.equals(e.name(), Keyword.SEED_GENERATOR_METHOD.keyword))
+                                  .filter(e -> Objects.equals(e.name(), SEED_GENERATOR_METHOD.keyword))
                                   .flatMap(e -> Arrays.stream(e.value())
                                                       .peek(System.out::println)
                                                       .flatMap(g -> seedGenerators.get(g)
