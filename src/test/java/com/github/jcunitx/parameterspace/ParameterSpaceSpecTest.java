@@ -56,5 +56,4 @@ public class ParameterSpaceSpecTest extends TestBase {
     TestSuite testSuite = SpecTestUtils.createTestParameterSpaceSpec().toTestSuite();
     testSuite.forEach(System.out::println);
   }
-
 }

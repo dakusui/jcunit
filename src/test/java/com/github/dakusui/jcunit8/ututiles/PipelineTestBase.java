@@ -17,6 +17,10 @@ import static java.util.Arrays.asList;
 
 public abstract class PipelineTestBase extends TestBase {
 
+  public static PipelineConfig.Builder pipelineConfigBuilderForTuple(Requirement requirement) {
+    return new PipelineConfig.Builder(requirement);
+  }
+
   protected TestSuite generateTestSuite(Parameter<?>... parameters) {
     ParameterSpace parameterSpace = new ParameterSpace.Builder()
         .addAllParameters(asList(parameters))
@@ -72,7 +76,7 @@ public abstract class PipelineTestBase extends TestBase {
   }
 
   private PipelineConfig buildConfig() {
-    return PipelineConfig.Builder.forTuple(requirement())
+    return pipelineConfigBuilderForTuple(requirement())
                                  .build();
   }
 

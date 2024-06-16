@@ -6,6 +6,7 @@ import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.Requirement;
 
 import java.lang.annotation.Annotation;
@@ -26,9 +27,9 @@ public enum JCUnitTestExtensionUtils {
 
   static ParameterSpaceSpec validateParameterSpaceDefinitionClass(List<String> errors,
                                                                   Class<?> parameterSpaceSpecClass,
-                                                                  Requirement requirement) {
+                                                                  PipelineConfig pipelineConfig) {
     ParameterSpaceSpec parameterSpaceSpec = JCUnitTestEngine.Utils.createParameterSpaceSpec(parameterSpaceSpecClass,
-                                                                                            requirement);
+                                                                                            pipelineConfig);
     Map<String, List<Object>> knownNamesInParameterSpace = definedNamesInParameterSpace(parameterSpaceSpec);
     validateNameDefinitionsInParameterSpace(errors, knownNamesInParameterSpace);
     namedMethodsFromParameterSpaceClass(parameterSpaceSpecClass).forEach(eachNamedMethod -> validateNamedMethod(errors,

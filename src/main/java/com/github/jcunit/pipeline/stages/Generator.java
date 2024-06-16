@@ -10,6 +10,8 @@ import com.github.jcunit.pipeline.stages.generators.IpoGplus;
 import java.util.Collections;
 import java.util.List;
 
+import static com.github.valid8j.classic.Requires.requireNonNull;
+
 /**
  */
 public interface Generator {
@@ -45,15 +47,21 @@ public interface Generator {
   }
 
   interface Factory {
-    Generator create(FactorSpace factorSpace, Requirement requirement, List<Tuple> encodedSeeds);
+    Generator create(FactorSpace factorSpace, List<Tuple> encodedSeeds);
 
     class Standard implements Factory {
+      private final Requirement requirement;
+
+      public Standard(Requirement requirement) {
+        this.requirement = requireNonNull(requirement);
+      }
+
       @Override
-      public Generator create(FactorSpace factorSpace, Requirement requirement, List<Tuple> encodedSeeds) {
+      public Generator create(FactorSpace factorSpace, List<Tuple> encodedSeeds) {
         if (requirement.strength() < factorSpace.getFactors().size()) {
-          return new IpoGplus(factorSpace, requirement, encodedSeeds);
+          return new IpoGplus(factorSpace, this.requirement, encodedSeeds);
         }
-        return new Cartesian(factorSpace, requirement);
+        return new Cartesian(factorSpace, this.requirement);
       }
     }
   }

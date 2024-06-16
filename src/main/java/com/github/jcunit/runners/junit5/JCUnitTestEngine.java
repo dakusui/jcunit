@@ -10,9 +10,8 @@ import com.github.jcunit.factorspace.TuplePredicate;
 import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
-import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.Pipeline;
-import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.testsuite.TestCase;
 import com.github.jcunit.utils.ReflectionUtils;
 import org.junit.jupiter.api.TestInstance;
@@ -23,7 +22,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.jcunit.runners.junit5.JCUnitTestEngine.Utils.requirement;
+import static com.github.jcunit.annotations.ConfigureWith.Utils.configurationOf;
+import static com.github.jcunit.annotations.ConfigureWith.Utils.createPipelineConfigFrom;
 import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.nameOf;
 import static com.github.jcunit.runners.junit5.JCUnitTestExtensionUtils.validateParameterSpaceDefinitionClass;
 import static java.util.Collections.emptyList;
@@ -48,23 +48,24 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
       List<String> errors = new LinkedList<>();
       Class<?> testClass = context.getTestClass()
                                   .orElseThrow(AssertionError::new);
-      Class<?> parameterSpaceSpecClass = getParameterSpaceSpecClass(testClass);
+      ConfigureWith configAnnotation = configurationOf(testClass);
+      Class<?> parameterSpaceSpecClass = getParameterSpaceSpecClass(testClass, configAnnotation);
+      PipelineConfig pipelineConfig = createPipelineConfigFrom(configAnnotation);
       ParameterSpaceSpec parameterSpaceSpec = validateParameterSpaceDefinitionClass(errors,
                                                                                     parameterSpaceSpecClass,
-                                                                                    requirement(testClass));
+                                                                                    pipelineConfig);
       // require(value(errors).satisfies().empty());
       SortedMap<String, TuplePredicate> definedPredicates = Utils.definedPredicatesFrom(parameterSpaceSpecClass);
-      List<Tuple> testDataSet = Utils.generateTestDataSet(Utils.configure(testClass), parameterSpaceSpec.toParameterSpace());
+      List<Tuple> testDataSet = Utils.generateTestDataSet(pipelineConfig, parameterSpaceSpec.toParameterSpace());
       context.getStore(namespace).put("testDataSet", testDataSet);
       context.getStore(namespace).put("parameterSpaceSpec", parameterSpaceSpec);
       context.getStore(namespace).put("definedPredicates", definedPredicates);
     }
   }
 
-  private static Class<?> getParameterSpaceSpecClass(Class<?> testClass) {
-    return testClass.isAnnotationPresent(ConfigureWith.class)
-           ? testClass.getAnnotation(ConfigureWith.class).parameterSpace()
-           : testClass;
+  private static Class<?> getParameterSpaceSpecClass(Class<?> testClass, ConfigureWith configure) {
+    return (!configure.parameterSpace().equals(Object.class)) ? configure.parameterSpace()
+                                                              : testClass;
   }
 
   @Override
@@ -101,12 +102,8 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
   enum Utils {
     ;
 
-    private static PipelineConfig configure(Class<?> testClass) {
-      return new PipelineConfig.Builder(requirement(testClass)).build();
-    }
-
-    static ParameterSpaceSpec createParameterSpaceSpec(Class<?> testModelClass, Requirement requirement) {
-      return ParameterSpaceSpec.create(requirement,
+    static ParameterSpaceSpec createParameterSpaceSpec(Class<?> testModelClass, PipelineConfig pipelineConfig) {
+      return ParameterSpaceSpec.create(pipelineConfig,
                                        createParameterSpecsFromModelClass(testModelClass),
                                        createConstraintsFromModelClass(testModelClass));
     }
@@ -161,11 +158,6 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
                                           .stream()
                                           .map(TestCase::getTestData)
                                           .collect(toList());
-    }
-
-    static Requirement requirement(Class<?> testClass) {
-      // TODO
-      return new Requirement.Builder().build();
     }
 
     private static TestTemplateInvocationContext toTestTemplateInvocationContext(Tuple testDataTuple, List<String> referencedParameterNames) {

@@ -1,16 +1,16 @@
 package com.github.jcunit.model;
 
+import com.github.jcunit.annotations.ConfigureWith;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.factorspace.ParameterSpace;
-import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.Pipeline;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.Requirement;
 import com.github.jcunit.testsuite.TestSuite;
 
 import java.util.*;
 import java.util.function.Function;
 
-import static com.github.valid8j.classic.Requires.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -18,7 +18,9 @@ import static java.util.stream.Collectors.toMap;
  * // @formatter:on 
  */
 public interface ParameterSpaceSpec {
-  static ParameterSpaceSpec create(Requirement requirement, List<ParameterSpec<?>> parameterSpecs, List<Constraint> constraintList) {
+  static ParameterSpaceSpec create(PipelineConfig pipelineConfig,
+                                   List<ParameterSpec<?>> parameterSpecs,
+                                   List<Constraint> constraintList) {
     Map<String, ParameterSpec<?>> parameterSpecMap = parameterSpecs.stream()
                                                                    .collect(toMap(ParameterSpec::name,
                                                                                   Function.identity()));
@@ -52,8 +54,8 @@ public interface ParameterSpaceSpec {
       }
 
       @Override
-      public PipelineConfig config() {
-        return new PipelineConfig.Builder(requirement).build();
+      public PipelineConfig pipelineConfig() {
+        return pipelineConfig;
       }
     };
   }
@@ -81,38 +83,8 @@ public interface ParameterSpaceSpec {
   }
 
   default TestSuite toTestSuite() {
-    return Pipeline.Standard.create(config()).execute(toParameterSpace());
+    return Pipeline.Standard.create(pipelineConfig()).execute(toParameterSpace());
   }
 
-  PipelineConfig config();
-
-
-  class Builder {
-    private final List<ParameterSpec<?>> parameterSpecs = new LinkedList<>();
-    private final List<Constraint> constraints = new LinkedList<>();
-    private Requirement requirement;
-
-    public Builder() {
-      this.requirement(new Requirement.Builder().build());
-    }
-
-    public Builder requirement(Requirement requirement) {
-      this.requirement = requireNonNull(requirement);
-      return this;
-    }
-
-    public Builder addParameterSpec(ParameterSpec<?> parameterSpec) {
-      this.parameterSpecs.add(parameterSpec);
-      return this;
-    }
-
-    public Builder addConstraint(Constraint constraint) {
-      this.constraints.add(constraint);
-      return this;
-    }
-
-    public ParameterSpaceSpec build() {
-      return create(requirement, parameterSpecs, constraints);
-    }
-  }
+  PipelineConfig pipelineConfig();
 }

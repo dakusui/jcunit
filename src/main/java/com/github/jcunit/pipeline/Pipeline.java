@@ -1,5 +1,6 @@
 package com.github.jcunit.pipeline;
 
+import com.github.jcunit.annotations.ConfigureWith;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.exceptions.Checks;
 import com.github.jcunit.exceptions.InvalidTestException;
@@ -11,10 +12,7 @@ import com.github.jcunit.pipeline.stages.generators.Passthrough;
 import com.github.jcunit.testsuite.TestSuite;
 import com.github.jcunit.utils.InternalUtils;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -27,9 +25,55 @@ import static java.util.stream.Collectors.toList;
  * A pipeline object.
  */
 public interface Pipeline {
+
   TestSuite execute(ParameterSpace parameterSpace);
 
+  @ParseRequirementWith(Standard.ReqParser.class)
   class Standard implements Pipeline {
+    public static class ReqParser implements ConfigureWith.RequirementParser {
+      @Override
+      public Requirement parseRequirement(ConfigureWith.Entry[] requirement) {
+        /*
+          Entry[] pipelineArguments() default {
+            @Entry(name = "strength", value = "2"),
+            @Entry(name = "negativeTestGeneration", value = "true"),
+            @Entry(name = "seedGeneratorMethod", value = "seeds")
+          };
+         */
+        int strength = findRequirementEntryValueByName("strength", requirement)
+            .map((String[] v) -> v[0])
+            .map(Integer::parseInt)
+            .orElseThrow(AssertionError::new);
+        boolean negativeTestsEnabled = findRequirementEntryValueByName("negativeTestGeneration", requirement)
+            .map((String[] v) -> v[0])
+            .map(Boolean::parseBoolean)
+            .orElseThrow(AssertionError::new);
+        return new Requirement() {
+          @Override
+          public int strength() {
+            return strength;
+          }
+
+          @Override
+          public boolean generateNegativeTests() {
+            return negativeTestsEnabled;
+          }
+
+          @Override
+          public List<Tuple> seeds() {
+            return Collections.emptyList();
+          }
+        };
+      }
+
+      private static Optional<String[]> findRequirementEntryValueByName(String name, ConfigureWith.Entry[] requirement) {
+        return Arrays.stream(requirement)
+                     .filter((ConfigureWith.Entry e) -> Objects.equals(e.name(), name))
+                     .findFirst()
+                     .map(ConfigureWith.Entry::value);
+      }
+    }
+
     private final PipelineConfig config;
 
     public Standard(PipelineConfig config) {
@@ -109,7 +153,7 @@ public interface Pipeline {
                    .stream()
                    .map(config.optimizer())
                    .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
-                   .map(config.generator(parameterSpace, config.getRequirement()))
+                   .map(config.generator(parameterSpace))
                    .reduce(config.joiner())
                    .map(
                        (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames())

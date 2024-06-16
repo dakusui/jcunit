@@ -30,7 +30,7 @@ public interface PipelineConfig {
 
   Function<FactorSpace, List<FactorSpace>> partitioner();
 
-  Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement);
+  Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace);
 
   BinaryOperator<SchemafulTupleSet> joiner();
 
@@ -42,15 +42,11 @@ public interface PipelineConfig {
     private Joiner joiner;
     private Partitioner partitioner;
 
-    public static Builder forTuple(Requirement requirement) {
-      return new Builder(requirement);
-    }
-
     public Builder(Requirement requirement) {
       this.requirement = requirement;
       this.withJoiner(new Joiner.Standard(requirement))
           .withPartitioner(new Partitioner.Standard(requirement))
-          .withGeneratorFactory(new Generator.Factory.Standard());
+          .withGeneratorFactory(new Generator.Factory.Standard(requirement));
     }
 
     public Builder withGeneratorFactory(Generator.Factory generatorFactory) {
@@ -99,15 +95,14 @@ public interface PipelineConfig {
     }
 
     @Override
-    public Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace, Requirement requirement) {
+    public Function<FactorSpace, SchemafulTupleSet> generator(ParameterSpace parameterSpace) {
       return (FactorSpace factorSpace) -> new SchemafulTupleSet.Builder(factorSpace.getFactors()
                                                                                    .stream()
                                                                                    .map(Factor::getName)
                                                                                    .collect(toList()))
           .addAll(generatorFactory.create(factorSpace,
-                                          requirement,
                                           ParameterSpace.encodeSeedTuples(parameterSpace,
-                                                                          requirement.seeds()))
+                                                                          this.getRequirement().seeds()))
                                   .generate())
           .build();
     }

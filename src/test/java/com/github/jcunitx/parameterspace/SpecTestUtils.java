@@ -4,6 +4,7 @@ import com.github.jcunit.annotations.JCUnitParameter;
 import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.Requirement;
 
 import static java.util.Arrays.asList;
@@ -22,7 +23,7 @@ public enum SpecTestUtils {
 
   static ParameterSpaceSpec createParameterSpaceSpec(ParameterSpec<String> p1, ParameterSpec<String> p2) {
     return ParameterSpaceSpec.create(
-        new Requirement.Builder().build(),
+        new PipelineConfig.Builder(new Requirement.Builder().build()).build(),
         asList(p1, p2),
         emptyList());
   }
