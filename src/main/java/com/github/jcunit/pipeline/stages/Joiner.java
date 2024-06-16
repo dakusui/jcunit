@@ -3,7 +3,7 @@ package com.github.jcunit.pipeline.stages;
 import com.github.jcunit.core.StreamableCombinator;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.exceptions.FrameworkException;
-import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.pipeline.PipelineConfig;
 import com.github.jcunit.pipeline.SchemafulTupleSet;
 import com.github.jcunit.pipeline.TupleSet;
 import com.github.jcunit.utils.InternalUtils;
@@ -23,10 +23,10 @@ import static java.util.stream.Collectors.toList;
 
 public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
   abstract class Base implements Joiner {
-    private final Requirement requirement;
+    private final PipelineConfig pipelineConfig;
 
-    protected Base(Requirement requirement) {
-      this.requirement = requirement;
+    protected Base(PipelineConfig pipelineConfig) {
+      this.pipelineConfig = pipelineConfig;
     }
 
     @Override
@@ -46,8 +46,8 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
       }});
     }
 
-    protected Requirement requirement() {
-      return this.requirement;
+    protected PipelineConfig requirement() {
+      return this.pipelineConfig;
     }
 
     protected abstract SchemafulTupleSet doJoin(SchemafulTupleSet lhs, SchemafulTupleSet rhs);
@@ -55,8 +55,8 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
 
   class Standard extends Base {
 
-    public Standard(Requirement requirement) {
-      super(requirement);
+    public Standard(PipelineConfig pipelineConfig) {
+      super(pipelineConfig);
     }
 
     @Override
@@ -182,8 +182,8 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
 
   class WeakenProduct extends Base {
 
-    public WeakenProduct(Requirement requirement) {
-      super(requirement);
+    public WeakenProduct(PipelineConfig pipelineConfig) {
+      super(pipelineConfig);
     }
 
     @Override
@@ -271,8 +271,8 @@ public interface Joiner extends BinaryOperator<SchemafulTupleSet> {
     private final Function<Integer, Function<List<String>, Function<List<String>, Set<List<String>>>>> composeColumnSelections;
     Set<Tuple> coveredCrossingTuplets = new HashSet<>();
 
-    public WeakenProduct2(Requirement requirement) {
-      super(requirement);
+    public WeakenProduct2(PipelineConfig pipelineConfig) {
+      super(pipelineConfig);
       this.composeColumnSelections = InternalUtils.memoize((Integer i) -> InternalUtils.memoize((List<String> l) -> InternalUtils.memoize((List<String> r) -> composeColumnSelections(i, l, r))));
     }
 

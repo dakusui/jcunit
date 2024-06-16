@@ -2,24 +2,25 @@ package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.annotations.ConfigurePipelineWith.Entry;
+import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.runners.junit5.JCUnitTestEngine;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
-import static com.github.jcunit.annotations.JCUnitCondition.Type.CONSTRAINT;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 @ExtendWith(JCUnitTestEngine.class)
 @ConfigurePipelineWith(
-    parameterSpaceSpecClass = TestExample5.ParameterSpace.class,
+    parameterSpaceSpecClass = TestExample6.ParameterSpace.class,
     arguments = {
         @Entry(name = "strength", value = "2"),
-        @Entry(name = "negativeTestGeneration", value = "true"),
-        @Entry(name = "seedGeneratorMethod", value = {})
+        @Entry(name = "negativeTestGeneration", value = "false"),
+        @Entry(name = "seedGeneratorMethod", value = {"seed", "seeds"})
     })
-public class TestExample5 {
+public class TestExample6 {
   public static class ParameterSpace {
     @Named
     @JCUnitParameter
@@ -36,19 +37,27 @@ public class TestExample5 {
     }
 
     @Named
-    @JCUnitCondition(CONSTRAINT)
-    public static boolean aConstraint(@From("param1") String param1, @From("param2") String param2) {
-      return !param1.equals("X1") || param2.equals("Y1");
+    @JCUnitSeedGenerator
+    public static Tuple seed() {
+      return Tuple.builder()
+                  .put("param1", singletonList(ValueResolver.of("Xa")))
+                  .put("param2", singletonList(ValueResolver.of("Ya")))
+                  .build();
+    }
+
+    @Named
+    @JCUnitSeedGenerator
+    public static Tuple[] seeds() {
+      return new Tuple[]{
+          Tuple.builder()
+               .put("param1", singletonList(ValueResolver.of("Xb")))
+               .put("param2", singletonList(ValueResolver.of("Yb")))
+              .build()
+      };
     }
   }
 
   @JCUnitTest
-  public void testMethod(@From("param1") String param1, @From("param2") String param2) {
-    System.out.println("param1:" + param1 + ",param2:" + param2);
-  }
-
-  @JCUnitTest
-  @Given("!aConstraint")
   public void testMethodNegative(@From("param1") String param1, @From("param2") String param2) {
     System.out.println("param1:" + param1 + ",param2:" + param2);
   }

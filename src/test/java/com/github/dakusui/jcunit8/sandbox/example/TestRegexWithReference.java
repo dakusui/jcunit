@@ -17,7 +17,7 @@ import static java.util.Collections.singletonList;
  * // @formatter:on 
  */
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = TestRegexWithReference.ParameterSpace.class)
+@ConfigurePipelineWith(parameterSpaceSpecClass = TestRegexWithReference.ParameterSpace.class)
 public class TestRegexWithReference {
   public static class ParameterSpace {
     @Named

@@ -1,6 +1,6 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
-import com.github.jcunit.annotations.ConfigureWith;
+import com.github.jcunit.annotations.ConfigurePipelineWith;
 import com.github.jcunit.annotations.From;
 import com.github.jcunit.annotations.Given;
 import com.github.jcunit.annotations.JCUnitTest;
@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Map;
 
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = TestExample2.ParameterSpace.class,
-    pipelineArguments = {
-        @ConfigureWith.Entry(name = "strength", value = "2"),
-        @ConfigureWith.Entry(name = "negativeTestGeneration", value = "true"),
-        @ConfigureWith.Entry(name = "seedGeneratorMethod", value = "seeds")
+@ConfigurePipelineWith(
+    parameterSpaceSpecClass = TestExample2.ParameterSpace.class,
+    arguments = {
+        @ConfigurePipelineWith.Entry(name = "strength", value = "2"),
+        @ConfigurePipelineWith.Entry(name = "negativeTestGeneration", value = "true")
     })
 public class TestExample2N {
   @JCUnitTest

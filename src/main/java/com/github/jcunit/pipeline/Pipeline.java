@@ -1,6 +1,6 @@
 package com.github.jcunit.pipeline;
 
-import com.github.jcunit.annotations.ConfigureWith;
+import com.github.jcunit.annotations.ConfigurePipelineWith;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.exceptions.Checks;
 import com.github.jcunit.exceptions.InvalidTestException;
@@ -15,6 +15,8 @@ import com.github.jcunit.utils.InternalUtils;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.github.valid8j.classic.Requires.requireNonNull;
@@ -28,27 +30,49 @@ public interface Pipeline {
 
   TestSuite execute(ParameterSpace parameterSpace);
 
-  @ParseRequirementWith(Standard.ReqParser.class)
+  @ParseConfigWith(Standard.ConfigArgumentsParser.class)
   class Standard implements Pipeline {
-    public static class ReqParser implements ConfigureWith.RequirementParser {
+    public static class ConfigArgumentsParser implements ConfigurePipelineWith.PipelineConfigArgumentsParser {
+      enum Keyword {
+        STRENGTH("strength"),
+        NEGATIVE_TEST_GENERATION("negativeTestGeneration"),
+        SEED_GENERATOR_METHOD("seedGeneratorMethod");
+
+        private final String keyword;
+
+        Keyword(String keyword) {
+          this.keyword = keyword;
+        }
+      }
+
       @Override
-      public Requirement parseRequirement(ConfigureWith.Entry[] requirement) {
+      public PipelineConfig parseConfig(ConfigurePipelineWith.Entry[] configEntries, Map<String, Supplier<List<Tuple>>> seedGenerators) {
         /*
           Entry[] pipelineArguments() default {
             @Entry(name = "strength", value = "2"),
             @Entry(name = "negativeTestGeneration", value = "true"),
-            @Entry(name = "seedGeneratorMethod", value = "seeds")
+            @Entry(name = "seedGeneratorMethod", value = {})
           };
          */
-        int strength = findRequirementEntryValueByName("strength", requirement)
+
+        validateConfigEntries(configEntries);
+        int strength = findConfigEntryValueByName("strength", configEntries)
             .map((String[] v) -> v[0])
             .map(Integer::parseInt)
             .orElseThrow(AssertionError::new);
-        boolean negativeTestsEnabled = findRequirementEntryValueByName("negativeTestGeneration", requirement)
+        boolean negativeTestsEnabled = findConfigEntryValueByName("negativeTestGeneration", configEntries)
             .map((String[] v) -> v[0])
             .map(Boolean::parseBoolean)
             .orElseThrow(AssertionError::new);
-        return new Requirement() {
+        List<Tuple> seeds = Arrays.stream(configEntries)
+                                  .filter(e -> Objects.equals(e.name(), Keyword.SEED_GENERATOR_METHOD.keyword))
+                                  .flatMap(e -> Arrays.stream(e.value())
+                                                      .peek(System.out::println)
+                                                      .flatMap(g -> seedGenerators.get(g)
+                                                                                  .get()
+                                                                                  .stream()))
+                                  .collect(toList());
+        return new PipelineConfig() {
           @Override
           public int strength() {
             return strength;
@@ -61,22 +85,41 @@ public interface Pipeline {
 
           @Override
           public List<Tuple> seeds() {
-            return Collections.emptyList();
+            return seeds;
           }
         };
       }
 
-      private static Optional<String[]> findRequirementEntryValueByName(String name, ConfigureWith.Entry[] requirement) {
+      void validateConfigEntries(ConfigurePipelineWith.Entry[] configEntries) {
+        Set<String> knownParameterNames = knownParameterNames();
+        Set<String> unknowns = new LinkedHashSet<>();
+        for (ConfigurePipelineWith.Entry v : configEntries) {
+          if (!knownParameterNames.contains(v.name()))
+            unknowns.add(v.name());
+        }
+        if (!unknowns.isEmpty())
+          throw new RuntimeException(String.format("Unknown parameter names are found in @%s. Check the inheritance hierarchy, too: %s",
+                                                   unknowns,
+                                                   ConfigurePipelineWith.class.getSimpleName()));
+      }
+
+      Set<String> knownParameterNames() {
+        return Arrays.stream(Keyword.values())
+                     .map(k -> k.keyword)
+                     .collect(Collectors.toSet());
+      }
+
+      private static Optional<String[]> findConfigEntryValueByName(String name, ConfigurePipelineWith.Entry[] requirement) {
         return Arrays.stream(requirement)
-                     .filter((ConfigureWith.Entry e) -> Objects.equals(e.name(), name))
+                     .filter((ConfigurePipelineWith.Entry e) -> Objects.equals(e.name(), name))
                      .findFirst()
-                     .map(ConfigureWith.Entry::value);
+                     .map(ConfigurePipelineWith.Entry::value);
       }
     }
 
-    private final PipelineConfig config;
+    private final PipelineSpec config;
 
-    public Standard(PipelineConfig config) {
+    public Standard(PipelineSpec config) {
       this.config = requireNonNull(config);
     }
 
@@ -86,18 +129,18 @@ public interface Pipeline {
     }
 
     public TestSuite generateTestSuite(ParameterSpace parameterSpace) {
-      Requirement requirement = config.getRequirement();
-      validateSeedTuplesHaveAllParametersAndTheyDontHaveUnknownParameters(requirement.seeds(), parameterSpace);
+      PipelineConfig pipelineConfig = config.getConfig();
+      validateSeedTuplesHaveAllParametersAndTheyDontHaveUnknownParameters(pipelineConfig.seeds(), parameterSpace);
       TestSuite.Builder<?> builder = new TestSuite.Builder<>(parameterSpace);
-      builder = builder.addAllToSeedTuples(requirement.seeds());
+      builder = builder.addAllToSeedTuples(pipelineConfig.seeds());
       List<Tuple> regularTestDataTuples = engine(parameterSpace);
       builder = builder.addAllToRegularTuples(regularTestDataTuples);
-      if (requirement.generateNegativeTests())
-        builder = builder.addAllToNegativeTuples(negativeTestGenerator(requirement.generateNegativeTests(),
+      if (pipelineConfig.generateNegativeTests())
+        builder = builder.addAllToNegativeTuples(negativeTestGenerator(pipelineConfig.generateNegativeTests(),
                                                                        toFactorSpaceForNegativeTestGeneration(parameterSpace),
                                                                        regularTestDataTuples,
-                                                                       requirement.seeds(),
-                                                                       requirement)
+                                                                       pipelineConfig.seeds(),
+                                                                       pipelineConfig)
                                                      .generate());
       return builder.build();
     }
@@ -105,7 +148,7 @@ public interface Pipeline {
     private static void validateSeedTuplesHaveAllParametersAndTheyDontHaveUnknownParameters(List<Tuple> seeds,
                                                                                             ParameterSpace parameterSpace) {
       List<Function<Tuple, String>> checks = asList(
-          (Tuple tuple) -> !parameterSpace.getParameterNames().containsAll(tuple.keySet())
+          (Tuple tuple) -> !new HashSet<>(parameterSpace.getParameterNames()).containsAll(tuple.keySet())
                            ? String.format("Unknown parameter(s) were found: %s in tuple: %s",
                                            new LinkedList<String>() {{
                                              addAll(tuple.keySet());
@@ -192,13 +235,13 @@ public interface Pipeline {
       );
     }
 
-    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, List<Tuple> encodedSeeds, Requirement requirement) {
+    private Generator negativeTestGenerator(boolean generateNegativeTests, FactorSpace factorSpace, List<Tuple> tuplesForRegularTests, List<Tuple> encodedSeeds, PipelineConfig pipelineConfig) {
       return generateNegativeTests ?
-             new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, requirement) :
-             new Passthrough(tuplesForRegularTests, factorSpace, requirement);
+             new Negative(tuplesForRegularTests, encodedSeeds, factorSpace, pipelineConfig) :
+             new Passthrough(tuplesForRegularTests, factorSpace, pipelineConfig);
     }
 
-    private Parameter<?> toSimpleParameterIfNecessary(PipelineConfig config, Parameter<?> parameter, List<Constraint> constraints) {
+    private Parameter<?> toSimpleParameterIfNecessary(PipelineSpec config, Parameter<?> parameter, List<Constraint> constraints) {
       if (!(parameter instanceof Parameter.Simple) && isInvolvedByAnyConstraint(parameter, constraints)) {
         List<Object> values = Stream.concat(parameter.getKnownValues().stream(),
                                             engine(new ParameterSpace.Builder().addParameter(parameter)
@@ -234,7 +277,7 @@ public interface Pipeline {
       return constraints.stream().anyMatch(each -> each.involvedKeys().contains(parameter.getName()));
     }
 
-    public static Pipeline create(PipelineConfig config) {
+    public static Pipeline create(PipelineSpec config) {
       return new Standard(config);
     }
   }

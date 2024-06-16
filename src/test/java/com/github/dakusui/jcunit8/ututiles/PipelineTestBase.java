@@ -4,10 +4,7 @@ package com.github.dakusui.jcunit8.ututiles;
 import com.github.dakusui.jcunit8.testutils.TestBase;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.*;
-import com.github.jcunit.pipeline.PipelineConfig;
-import com.github.jcunit.pipeline.Pipeline;
-import com.github.jcunit.pipeline.Requirement;
-import com.github.jcunit.pipeline.SchemafulTupleSet;
+import com.github.jcunit.pipeline.*;
 import com.github.jcunit.testsuite.TestSuite;
 
 import java.util.Collections;
@@ -17,8 +14,8 @@ import static java.util.Arrays.asList;
 
 public abstract class PipelineTestBase extends TestBase {
 
-  public static PipelineConfig.Builder pipelineConfigBuilderForTuple(Requirement requirement) {
-    return new PipelineConfig.Builder(requirement);
+  public static PipelineSpec.Builder pipelineConfigBuilderForTuple(PipelineConfig pipelineConfig) {
+    return new PipelineSpec.Builder(pipelineConfig);
   }
 
   protected TestSuite generateTestSuite(Parameter<?>... parameters) {
@@ -75,14 +72,14 @@ public abstract class PipelineTestBase extends TestBase {
     return simpleParameterFactory("default", "values");
   }
 
-  private PipelineConfig buildConfig() {
+  private PipelineSpec buildConfig() {
     return pipelineConfigBuilderForTuple(requirement())
                                  .build();
   }
 
 
-  protected Requirement requirement() {
-    return new Requirement.Builder()
+  protected PipelineConfig requirement() {
+    return new PipelineConfigBuilder()
         .withStrength(2)
         .withNegativeTestGeneration(false)
         .build();

@@ -15,7 +15,7 @@ import static java.util.Arrays.asList;
  * // @formatter:on
  */
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = TestRegex.ParameterSpace.class)
+@ConfigurePipelineWith(parameterSpaceSpecClass = TestRegex.ParameterSpace.class)
 public class TestRegex {
   public static class ParameterSpace {
     @Named

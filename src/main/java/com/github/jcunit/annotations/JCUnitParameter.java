@@ -5,17 +5,21 @@ import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.factorspace.Parameter;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.*;
 import java.util.function.Supplier;
 
 import static com.github.jcunit.model.ParameterSpec.Utils.createConstraints;
 import static com.github.jcunit.model.ParameterSpec.Utils.isRequired;
+import static java.lang.annotation.ElementType.METHOD;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
 @Retention(RetentionPolicy.RUNTIME)
+@Target(METHOD)
 public @interface JCUnitParameter {
   Type type() default Type.SIMPLE;
 

@@ -11,7 +11,7 @@ import static com.github.jcunit.core.Invokable.referenceTo;
 import static java.util.Arrays.asList;
 
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = TestExample4.ParameterSpace.class)
+@ConfigurePipelineWith(parameterSpaceSpecClass = TestExample4.ParameterSpace.class)
 public class TestExample4 {
   public static class ParameterSpace {
     @Named

@@ -1,18 +1,25 @@
 package com.github.jcunit.runners.junit5;
 
+import com.github.jcunit.annotations.ConfigurePipelineWith;
 import com.github.jcunit.annotations.From;
+import com.github.jcunit.annotations.JCUnitSeedGenerator;
 import com.github.jcunit.annotations.Named;
+import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.Constraint;
 import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.model.ParameterSpec;
 import com.github.jcunit.model.ValueResolver;
+import com.github.jcunit.utils.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -98,7 +105,7 @@ public enum JCUnitTestEngineUtils {
   static Map<String, List<Object>> definedNamesInParameterSpace(Class<?> testModelClass) {
     Map<String, List<Object>> ret = new HashMap<>();
     Arrays.stream(testModelClass.getMethods())
-        .filter(m -> m.isAnnotationPresent(Named.class))
+          .filter(m -> m.isAnnotationPresent(Named.class))
           .forEach(m -> {
             String name = nameOf(m);
             ret.putIfAbsent(name, new ArrayList<>());
@@ -111,5 +118,27 @@ public enum JCUnitTestEngineUtils {
     return Arrays.stream(parameterSpaceDefinitionClass.getDeclaredMethods())
                  .filter(eachMethod -> eachMethod.isAnnotationPresent(Named.class))
                  .collect(toList());
+  }
+
+  public static ConfigurePipelineWith.Entry[] getArguments(ConfigurePipelineWith configuration) {
+    return configuration.arguments();
+  }
+
+  public static Map<String, Supplier<List<Tuple>>> getSeedGenerators(Class<?> parameterSpaceSpecClass) {
+    Map<String, Supplier<List<Tuple>>> ret = new HashMap<>();
+    namedMethodsFromParameterSpaceClass(parameterSpaceSpecClass).stream()
+                                                                .filter(m -> m.isAnnotationPresent(Named.class))
+                                                                .filter(m -> m.isAnnotationPresent(JCUnitSeedGenerator.class))
+                                                                .forEach(m -> ret.put(nameOf(m), toSeedGenerator(m)));
+    return ret;
+  }
+
+  private static Supplier<List<Tuple>> toSeedGenerator(Method method) {
+    if (Tuple.class.isAssignableFrom(method.getReturnType())) {
+      return () -> singletonList((Tuple) ReflectionUtils.invoke(null, method));
+    } else if (Tuple[].class.isAssignableFrom(method.getReturnType())) {
+      return () -> asList((Tuple[]) ReflectionUtils.invoke(null, method));
+    }
+    throw new AssertionError("Unsupported return type: " + method.getReturnType() + " from: " + method);
   }
 }
