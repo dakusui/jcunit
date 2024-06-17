@@ -23,11 +23,21 @@ public enum SpecTestUtils {
     return ParameterSpaceSpec.create(asList(p1, p2), emptyList());
   }
 
+  @SuppressWarnings("unchecked")
   static ParameterSpec<String> createTestParameterSpecP1() {
-    return ParameterSpec.create("p1", JCUnitParameter.Type.SIMPLE, new String[0], ValueResolver.from("p1v1").$(), ValueResolver.from("p1v2").$());
+    return ParameterSpec.create("p1",
+                                JCUnitParameter.Type.SIMPLE,
+                                new String[0],
+                                ValueResolver.from("p1v1").$(),
+                                ValueResolver.from("p1v2").$());
   }
 
+  @SuppressWarnings("unchecked")
   static ParameterSpec<String> createTestParameterSpecP2() {
-    return ParameterSpec.create("p2", JCUnitParameter.Type.SIMPLE, new String[0], ValueResolver.from("p2v1").$(), ValueResolver.from("p2v2").$());
+    return ParameterSpec.create("p2",
+                                JCUnitParameter.Type.SIMPLE,
+                                new String[0],
+                                ValueResolver.from("p2v1").$(),
+                                ValueResolver.from("p2v2").$());
   }
 }

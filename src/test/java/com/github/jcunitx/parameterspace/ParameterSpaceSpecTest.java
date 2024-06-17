@@ -1,10 +1,10 @@
 package com.github.jcunitx.parameterspace;
 
 import com.github.dakusui.jcunit8.testutils.TestBase;
+import com.github.dakusui.jcunit8.ututiles.PipelineConfigBuilder;
 import com.github.jcunit.factorspace.ParameterSpace;
 import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.pipeline.Pipeline;
-import com.github.dakusui.jcunit8.ututiles.PipelineConfigBuilder;
 import com.github.jcunit.pipeline.PipelineSpec;
 import com.github.jcunit.testsuite.TestSuite;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,8 @@ public class ParameterSpaceSpecTest extends TestBase {
 
   @Test
   public void testToParameterSpace() {
-    ParameterSpace parameterSpace = SpecTestUtils.createTestParameterSpaceSpec().toParameterSpace();
+    ParameterSpaceSpec testParameterSpaceSpec = SpecTestUtils.createTestParameterSpaceSpec();
+    ParameterSpace parameterSpace = testParameterSpaceSpec.toParameterSpace(testParameterSpaceSpec.parameterNames());
     assertStatement(value(parameterSpace).invoke("getParameterNames")
                                          .asListOf(String.class)
                                          .elementAt(0).toBe().equalTo("p1"));
@@ -56,10 +57,10 @@ public class ParameterSpaceSpecTest extends TestBase {
 
   @Test
   public void testToTestSuite() {
-    TestSuite testSuite = Pipeline.Standard.create(new PipelineSpec.Builder(new PipelineConfigBuilder()
-                                                                                  .build())
+    ParameterSpaceSpec testParameterSpaceSpec = SpecTestUtils.createTestParameterSpaceSpec();
+    TestSuite testSuite = Pipeline.Standard.create(new PipelineSpec.Builder(new PipelineConfigBuilder().build())
                                                        .build())
-                                           .execute(SpecTestUtils.createTestParameterSpaceSpec().toParameterSpace());
+                                           .execute(testParameterSpaceSpec.toParameterSpace(testParameterSpaceSpec.parameterNames()));
     testSuite.forEach(System.out::println);
   }
 }

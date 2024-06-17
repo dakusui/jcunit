@@ -35,7 +35,7 @@ public class ParameterSpecTest {
   public void testParameterSpecToParameter() {
     ParameterSpec<String> testParameterSpecP1 = SpecTestUtils.createTestParameterSpecP1();
     ParameterSpaceSpec parameterSpaceSpec = SpecTestUtils.createParameterSpaceSpec(testParameterSpecP1, SpecTestUtils.createTestParameterSpecP2());
-    Parameter<List<ValueResolver<String>>> parameter = testParameterSpecP1.toParameter(parameterSpaceSpec);
+    Parameter<List<ValueResolver<String>>> parameter = testParameterSpecP1.toParameter(parameterSpaceSpec, false);
 
     assertStatement(
         value(parameter).satisfies(p -> p.invoke("getName").asString().satisfies().equalTo("p1"))

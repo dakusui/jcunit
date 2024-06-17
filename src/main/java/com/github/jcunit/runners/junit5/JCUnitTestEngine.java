@@ -79,7 +79,7 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
       validateReferencesOfConstraints(errors, parameterSpaceSpec, knownNames);
       require(value(errors).satisfies().empty());
 
-      List<TestData> testDataSet = Utils.generateTestDataSet(pipelineSpec, parameterSpaceSpec.toParameterSpace());
+      List<TestData> testDataSet = Utils.generateTestDataSet(pipelineSpec, parameterSpaceSpec.toParameterSpace(emptyList()));
       context.getStore(namespace).put("testDataSet", testDataSet);
       context.getStore(namespace).put("parameterSpaceSpec", parameterSpaceSpec);
       context.getStore(namespace).put("definedPredicates", definedPredicates);
