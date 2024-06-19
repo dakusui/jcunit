@@ -3,6 +3,7 @@ package com.github.dakusui.jcunit8.sandbox.example;
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.annotations.ConfigurePipelineWith.Entry;
 import com.github.jcunit.model.ValueResolver;
+import com.github.jcunit.pipeline.Pipeline;
 import com.github.jcunit.runners.junit5.JCUnitTestEngine;
 import org.junit.jupiter.api.extension.ExtendWith;
 
