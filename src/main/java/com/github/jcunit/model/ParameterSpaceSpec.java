@@ -61,7 +61,11 @@ public interface ParameterSpaceSpec {
   <E> ParameterSpec<E> parameterSpecFor(String parameterName);
 
   default ParameterSpace toParameterSpace(List<String> seedParameterNames) {
-    Set<String> optionals = Utils.optionalParameterNamesIn(this.parameterNames().stream().map(this::parameterSpecFor).collect(toSet()), seedParameterNames);
+    Set<String> optionals = Utils.optionalParameterNamesIn(this.parameterNames()
+                                                               .stream()
+                                                               .map(this::parameterSpecFor)
+                                                               .collect(toSet()),
+                                                           seedParameterNames);
     ParameterSpace.Builder b = new ParameterSpace.Builder();
     this.parameterNames()
         .stream()
