@@ -24,16 +24,12 @@ public interface TestSuite extends List<TestCase> {
    */
   ParameterSpace getParameterSpace();
 
-  TestScenario getScenario();
-
   class Builder<T> {
     private final ParameterSpace parameterSpace;
     private final List<TestCase> testCases = new LinkedList<>();
-    private final TestScenario testScenario;
 
-    public Builder(ParameterSpace parameterSpace, TestScenario testScenario) {
+    public Builder(ParameterSpace parameterSpace) {
       this.parameterSpace = requireNonNull(parameterSpace);
-      this.testScenario = testScenario;
     }
 
     public Builder<T> addAllToSeedTuples(Collection<? extends Tuple> collection) {
@@ -95,10 +91,6 @@ public interface TestSuite extends List<TestCase> {
           return parameterSpace;
         }
 
-        @Override
-        public TestScenario getScenario() {
-          return testScenario;
-        }
       }
       return new Impl();
     }

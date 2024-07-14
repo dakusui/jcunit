@@ -1,7 +1,7 @@
 package com.github.jcunit.core.tuples;
 
 import com.github.dakusui.combinatoradix.Combinator;
-import com.github.jcunit.utils.Checks;
+import com.github.jcunit.exceptions.Checks;
 
 import java.util.*;
 

@@ -1,9 +1,10 @@
 package com.github.jcunitx.parameterspace;
 
 import com.github.jcunit.annotations.JCUnitParameter;
-import com.github.jcunit.core.model.ParameterSpaceSpec;
-import com.github.jcunit.core.model.ParameterSpec;
-import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.model.ParameterSpaceSpec;
+import com.github.jcunit.model.ParameterSpec;
+import com.github.jcunit.model.ValueResolver;
+import com.github.jcunit.pipeline.Requirement;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -21,6 +22,7 @@ public enum SpecTestUtils {
 
   static ParameterSpaceSpec createParameterSpaceSpec(ParameterSpec<String> p1, ParameterSpec<String> p2) {
     return ParameterSpaceSpec.create(
+        new Requirement.Builder().build(),
         asList(p1, p2),
         emptyList());
   }

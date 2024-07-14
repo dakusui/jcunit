@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.factorspace.Range;
-import com.github.jcunit.core.model.ValueResolver;
-import com.github.jcunit.runners.junit5.JCUnitTestExtension;
+import com.github.jcunit.model.ValueResolver;
+import com.github.jcunit.runners.junit5.JCUnitTestEngine;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -21,7 +21,7 @@ import static java.util.Collections.singletonMap;
  * // @formatter:on 
  */
 @Disabled
-@ExtendWith(JCUnitTestExtension.class)
+@ExtendWith(JCUnitTestEngine.class)
 @UsingParameterSpace(TestExample2.ParameterSpace.class)
 public class TestExample2 {
   public static class ParameterSpace {

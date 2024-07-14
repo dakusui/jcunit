@@ -1,19 +1,17 @@
 package com.github.jcunit.annotations;
 
-import com.github.jcunit.core.model.ParameterSpaceSpec;
-import com.github.jcunit.core.model.ParameterSpec;
-import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.model.ParameterSpaceSpec;
+import com.github.jcunit.model.ParameterSpec;
+import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.factorspace.Parameter;
-import com.github.jcunit.regex.Expr;
-import com.github.jcunit.regex.Parser;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static com.github.jcunit.core.model.ParameterSpec.Utils.createConstraints;
-import static com.github.jcunit.core.model.ParameterSpec.Utils.isSeed;
+import static com.github.jcunit.model.ParameterSpec.Utils.createConstraints;
+import static com.github.jcunit.model.ParameterSpec.Utils.isRequired;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 
@@ -31,7 +29,7 @@ public @interface JCUnitParameter {
 
 
     public static <T> Parameter<List<ValueResolver<T>>> createListSimple(ParameterSpec<T> parameterSpec, ParameterSpaceSpec parameterSpaceSpec) {
-      boolean isSeed = isSeed(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
+      boolean isSeed = isRequired(parameterSpaceSpec, parameterSpec.name(), parameterSpaceSpec.parameterNames());
       return new Parameter.Simple.Impl<>(!isSeed,
                                          parameterSpec.name(),
                                          parameterSpec.valueResolvers()
@@ -66,37 +64,5 @@ public @interface JCUnitParameter {
                                                                                                           .collect(toList()));
     }
 
-    // Only used for validation
-    private static List<String> tokensInRegex(String regex) {
-      Set<String> tokens = new HashSet<>();
-      Expr expr = new Parser().parse(regex);
-      expr.accept(new Expr.Visitor() {
-        @Override
-        public void visit(Expr.Alt exp) {
-          for (Expr each : exp.getChildren()) {
-            each.accept(this);
-          }
-        }
-
-        @Override
-        public void visit(Expr.Cat exp) {
-          for (Expr each : exp.getChildren()) {
-            each.accept(this);
-          }
-        }
-
-        @Override
-        public void visit(Expr.Leaf exp) {
-          tokens.add(exp.toString());
-        }
-
-        @Override
-        public void visit(Expr.Empty exp) {
-        }
-      });
-      return tokens.stream()
-                   .sorted()
-                   .collect(toList());
-    }
   }
 }

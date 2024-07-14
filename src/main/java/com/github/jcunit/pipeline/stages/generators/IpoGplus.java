@@ -1,10 +1,9 @@
 package com.github.jcunit.pipeline.stages.generators;
 
-import com.github.jcunit.core.tuples.Tuple;
-import com.github.jcunit.core.tuples.TupleUtils;
 import com.github.jcunit.core.StreamableCombinator;
 import com.github.jcunit.core.StreamableTupleCartesianator;
-import com.github.jcunit.utils.InternalUtils;
+import com.github.jcunit.core.tuples.Tuple;
+import com.github.jcunit.core.tuples.TupleUtils;
 import com.github.jcunit.exceptions.FrameworkException;
 import com.github.jcunit.exceptions.TestDefinitionException;
 import com.github.jcunit.factorspace.Constraint;
@@ -12,8 +11,9 @@ import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
 import com.github.jcunit.factorspace.FactorUtils;
 import com.github.jcunit.pipeline.Requirement;
+import com.github.jcunit.pipeline.TupleSet;
 import com.github.jcunit.pipeline.stages.Generator;
-import com.github.jcunit.testsuite.TupleSet;
+import com.github.jcunit.utils.InternalUtils;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,12 +29,12 @@ import static java.util.stream.Collectors.toList;
 @SuppressWarnings("NonAsciiCharacters")
 public class IpoGplus extends Generator.Base {
   public static class Session {
-    private final AtomicInteger optimizer                      = new AtomicInteger(0);
+    private final AtomicInteger optimizer = new AtomicInteger(0);
     /**
      * A curried function to find first tuple under constraints, which is memoized.
      */
     private final Function<List<Constraint>, Function<List<Factor>, Optional<Tuple>>>
-                                findFirstTupleUnderConstraints = InternalUtils.memoize(functionToFindFirstTupleUnderConstraints());
+        findFirstTupleUnderConstraints = InternalUtils.memoize(functionToFindFirstTupleUnderConstraints());
 
     private Map<String, Object> chooseAssignmentsFor(List<Factor> dontCareFactors) {
       return new HashMap<String, Object>() {{
@@ -50,26 +50,20 @@ public class IpoGplus extends Generator.Base {
   public IpoGplus(FactorSpace factorSpace, Requirement requirement, List<Tuple> seeds) {
     super(factorSpace, requirement);
     this.session = new Session();
-    this.precovered = new TupleSet.Builder().addAll(
-        seeds.stream(
-        ).filter(
-            tuple -> tuple.keySet().containsAll(factorSpace.getFactorNames())
-        ).filter(
-            ////
-            // tuples covered by negative tests should not be considered
-            // covered.
-            tuple -> factorSpace.getConstraints().stream()
-                .allMatch(
-                    constraint -> constraint.test(tuple)
-                )
-        ).map(
-            tuple -> TupleUtils.project(tuple, factorSpace.getFactorNames())
-        ).flatMap(
-            tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength()).stream()
-        ).collect(
-            toList()
-        )
-    ).build();
+    this.precovered = new TupleSet.Builder().addAll(seeds.stream()
+                                                         .filter(tuple -> tuple.keySet().containsAll(factorSpace.getFactorNames()))
+                                                         .filter(
+                                                             ////
+                                                             // tuples covered by negative tests should not be considered
+                                                             // covered.
+                                                             tuple -> factorSpace.getConstraints().stream()
+                                                                                 .allMatch(
+                                                                                     constraint -> constraint.test(tuple)))
+                                                         .map(tuple -> TupleUtils.project(tuple, factorSpace.getFactorNames()))
+                                                         .flatMap(tuple -> TupleUtils.subtuplesOf(tuple, requirement.strength())
+                                                                                     .stream())
+                                                         .collect(toList()))
+                                            .build();
   }
 
   /**
@@ -131,8 +125,8 @@ public class IpoGplus extends Generator.Base {
      */
     int t = this.requirement.strength();
     List<Factor> allFactors = this.factorSpace.getFactors().stream()
-        .sorted(comparingInt(o -> -o.getLevels().size()))
-        .collect(toList());
+                                              .sorted(comparingInt(o -> -o.getLevels().size()))
+                                              .collect(toList());
     List<Constraint> allConstraints = this.factorSpace.getConstraints();
     List<Tuple> ts = streamAllPossibleTuples(allFactors.subList(0, t), t)
         .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*1)
@@ -163,16 +157,14 @@ public class IpoGplus extends Generator.Base {
          *                ..., vi-1 , vi ) so that τ’ covers the most number of
          *                combinations of values in π (*3)
          */
-        Object vi = chooseLevelThatCoversMostTuples(
-            τ, Pi, π, t,
-            allFactors,
-            allConstraints,
-            session
-        ).orElseThrow(
-            ////
-            // (*3) This cannot happen
-            () -> TestDefinitionException.failedToCover(Pi.getName(), Pi.getLevels(), τ)
-        );
+        Object vi = chooseLevelThatCoversMostTuples(τ, Pi, π, t,
+                                                    allFactors,
+                                                    allConstraints,
+                                                    session)
+            .orElseThrow(
+                ////
+                // (*3) This cannot happen
+                () -> TestDefinitionException.failedToCover(Pi.getName(), Pi.getLevels(), τ));
         τ.put(Pi.getName(), vi);
         /*  9.         remove from π the combinations of values covered by τ’
          */
@@ -194,19 +186,9 @@ public class IpoGplus extends Generator.Base {
         if (ts.stream().anyMatch(σ::isSubtupleOf)) {
           π.remove(σ);
         } else {
-          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(
-              ts, σ
-          ).filter(
-              (Tuple tuple) -> isAllowedTuple(allFactors, allConstraints, this.session).test(
-                  Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()
-              ) // (*4)
-          ).findFirst(
-          ).orElseGet(
-              () -> createTupleFrom(
-                  FactorUtils.toFactorNames(processedFactors),
-                  σ
-              )
-          );
+          Tuple chosenTest = streamIncompleteTestsToCoverGivenTuple(ts, σ).filter((Tuple tuple) -> isAllowedTuple(allFactors, allConstraints, this.session)
+                                                                              .test(Tuple.builder().putAll(removeDontCares(tuple)).putAll(σ).build()) /* (*4) */)
+                                                                          .findFirst().orElseGet(() -> createTupleFrom(FactorUtils.toFactorNames(processedFactors), σ));
           /*
            * <pre>
            * 16. change an existing test, if possible, or otherwise add a new test
@@ -220,13 +202,11 @@ public class IpoGplus extends Generator.Base {
         }
       }
       ts = ts.stream()
-          .map(
-              replaceDontCareValuesWithActualLevels(
-                  allFactors,
-                  allConstraints,
-                  session
-              )
-          ).collect(toList());
+             .map(replaceDontCareValuesWithActualLevels(
+                 allFactors,
+                 allConstraints,
+                 session))
+             .collect(toList());
     }
     return ts;
   }
@@ -250,16 +230,14 @@ public class IpoGplus extends Generator.Base {
      *            Pi and t -1 parameters among the first i – 1 parameters (*2)
      *
      */
-    return new TupleSet.Builder().addAll(
-        new StreamableCombinator<>(
-            alreadyProcessedFactors,
-            strength
-        ).stream()
-            .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
-            .filter((Tuple tuple) -> !precovered.contains(tuple))
-            .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*2)
-            .collect(toList()))
-        .build();
+    return new TupleSet.Builder().addAll(new StreamableCombinator<>(
+                                     alreadyProcessedFactors,
+                                     strength).stream()
+                                              .flatMap((List<Factor> factors) -> new StreamableTupleCartesianator(factors).stream())
+                                              .filter((Tuple tuple) -> !precovered.contains(tuple))
+                                              .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*2)
+                                              .collect(toList()))
+                                 .build();
   }
 
   /*
@@ -269,13 +247,11 @@ public class IpoGplus extends Generator.Base {
    */
   private static Optional<Object> chooseLevelThatCoversMostTuples(Tuple τ, Factor fi, TupleSet π, int t, List<Factor> allFactors, List<Constraint> allConstraints, Session session) {
     return fi.getLevels().stream()
-        .map((Object eachLevel) -> modifyTupleWith(τ, fi.getName(), eachLevel))
-        .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*3)
-        .max(
-            (Tuple t1, Tuple t2) ->
-                (int) (countCoveredTuplesBy(t1, π, t) - countCoveredTuplesBy(t2, π, t))
-        )
-        .map((Tuple tuple) -> tuple.get(fi.getName()));
+             .map((Object eachLevel) -> modifyTupleWith(τ, fi.getName(), eachLevel))
+             .filter(isAllowedTuple(allFactors, allConstraints, session)) // (*3)
+             .max((Tuple t1, Tuple t2) ->
+                      (int) (countCoveredTuplesBy(t1, π, t) - countCoveredTuplesBy(t2, π, t)))
+             .map((Tuple tuple) -> tuple.get(fi.getName()));
   }
 
   private static Tuple modifyTupleWith(Tuple τ, String factorName, Object o1) {
@@ -291,8 +267,8 @@ public class IpoGplus extends Generator.Base {
    */
   private static long countCoveredTuplesBy(Tuple τ$, final TupleSet π, int t) {
     return TupleUtils.subtuplesOf(τ$, t).stream()
-        .filter(π::contains)
-        .count();
+                     .filter(π::contains)
+                     .count();
   }
 
   /**
@@ -314,9 +290,9 @@ public class IpoGplus extends Generator.Base {
     return new Function<Tuple, Tuple>() {
       int i = 0;
       int maxReadAheadSize = allFactors.stream()
-          .map(factor -> factor.getLevels().size())
-          .max(comparingInt(o -> o))
-          .orElseThrow(FrameworkException::unexpectedByDesign);
+                                       .map(factor -> factor.getLevels().size())
+                                       .max(comparingInt(o -> o))
+                                       .orElseThrow(FrameworkException::unexpectedByDesign);
 
       @Override
       public Tuple apply(Tuple in) {
@@ -326,24 +302,21 @@ public class IpoGplus extends Generator.Base {
         i = i % maxReadAheadSize;
         return new Tuple.Builder()
             .putAll(in)
-            .putAll(
-                chooseAssignment(
-                    streamAssignmentsForDontCaresUnderConstraints(
-                        in,
-                        allFactors,
-                        allConstraints,
-                        session
-                    ), // (*a)
-                    i++
-                ).orElseThrow(() -> TestDefinitionException.impossibleConstraint(allConstraints))
-            ).build();
+            .putAll(chooseAssignment(
+                streamAssignmentsForDontCaresUnderConstraints(
+                    in,
+                    allFactors,
+                    allConstraints,
+                    session), // (*a)
+                i++).orElseThrow(() -> TestDefinitionException.impossibleConstraint(allConstraints)))
+            .build();
       }
 
       private Optional<Tuple> chooseAssignment(Stream<Tuple> tupleStream, int index) {
         List<Tuple> work = tupleStream.limit(index + 1).collect(toList());
         return work.isEmpty() ?
-            Optional.empty() :
-            Optional.of(work.get(index % work.size()));
+               Optional.empty() :
+               Optional.of(work.get(index % work.size()));
       }
 
     };
@@ -351,39 +324,31 @@ public class IpoGplus extends Generator.Base {
 
   private static List<Factor> dontCareFactors(Tuple tuple, List<Factor> factors) {
     return factors.stream()
-        .filter(
-            (Factor eachFactor) ->
-                tuple.containsKey(eachFactor.getName()) && tuple.get(eachFactor.getName()) == DontCare
-        )
-        .collect(toList());
+                  .filter((Factor eachFactor) -> tuple.containsKey(eachFactor.getName()) && tuple.get(eachFactor.getName()) == DontCare)
+                  .collect(toList());
   }
 
   private static Tuple removeDontCares(Tuple in) {
     Tuple.Builder builder = new Tuple.Builder();
     in.keySet().stream()
-        .filter(s -> !DontCare.equals(in.get(s)))
-        .forEach(s -> builder.put(s, in.get(s)));
+      .filter(s -> !DontCare.equals(in.get(s)))
+      .forEach(s -> builder.put(s, in.get(s)));
     return builder.build();
   }
 
   public static Stream<Tuple> streamAllPossibleTuples(List<Factor> factors, int strength) throws FrameworkException {
-    FrameworkException.checkCondition(
-        factors.size() >= strength
-    );
+    FrameworkException.checkCondition(factors.size() >= strength);
     Map<String, Factor> factorValues = new HashMap<String, Factor>() {{
       factors.forEach(factor -> put(factor.getName(), factor));
     }};
     //noinspection RedundantTypeArguments
-    return new StreamableCombinator<>(
-        FactorUtils.toFactorNames(factors),
-        strength
-    ).stream()
-        .flatMap((List<String> chosenFactorNames) -> new StreamableTupleCartesianator(
-                chosenFactorNames.stream()
-                    .map(factorValues::get)
-                    .collect(toList())
-            ).stream()
-        );
+    return new StreamableCombinator<>(FactorUtils.toFactorNames(factors), strength)
+        .stream()
+        .flatMap((List<String> chosenFactorNames) ->
+                     new StreamableTupleCartesianator(chosenFactorNames.stream()
+                                                                       .map(factorValues::get)
+                                                                       .collect(toList()))
+                         .stream());
   }
 
   /**
@@ -405,13 +370,13 @@ public class IpoGplus extends Generator.Base {
   @SuppressWarnings("NonAsciiCharacters")
   public static Stream<Tuple> streamIncompleteTestsToCoverGivenTuple(List<Tuple> ts, final Tuple σ) {
     return ts.stream()
-        .filter((Tuple each) -> σ.keySet().stream()
-            .allMatch(eachFactorNameIn_σ -> {
-              if (!each.containsKey(eachFactorNameIn_σ))
-                return true;
-              Object eachLevel = each.get(eachFactorNameIn_σ);
-              return Objects.equals(eachLevel, DontCare) || Objects.equals(eachLevel, σ.get(eachFactorNameIn_σ));
-            }));
+             .filter((Tuple each) -> σ.keySet().stream()
+                                      .allMatch(eachFactorNameIn_σ -> {
+                                        if (!each.containsKey(eachFactorNameIn_σ))
+                                          return true;
+                                        Object eachLevel = each.get(eachFactorNameIn_σ);
+                                        return Objects.equals(eachLevel, DontCare) || Objects.equals(eachLevel, σ.get(eachFactorNameIn_σ));
+                                      }));
   }
 
   public static Stream<Tuple> streamAssignmentsForDontCaresUnderConstraints(
@@ -424,12 +389,12 @@ public class IpoGplus extends Generator.Base {
     if (allConstraints.isEmpty())
       return Stream.of(new Tuple.Builder().putAll(removeDontCares(in)).putAll(session.chooseAssignmentsFor(dontCareFactors)).build());
     return new StreamableTupleCartesianator(dontCareFactors).stream()
-        .flatMap(tuple -> streamAssignmentsAllowedByConstraints(
-            new Tuple.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
-            allFactors,
-            allConstraints,
-            session
-        ));
+                                                            .flatMap(tuple -> streamAssignmentsAllowedByConstraints(
+                                                                new Tuple.Builder().putAll(removeDontCares(in)).putAll(tuple).build(),
+                                                                allFactors,
+                                                                allConstraints,
+                                                                session
+                                                            ));
   }
 
   public static Stream<Tuple> streamAssignmentsAllowedByConstraints(
@@ -441,8 +406,8 @@ public class IpoGplus extends Generator.Base {
     List<Factor> factorsUnderConstraintsInRequest = factorsUnderConstrains(allFactors, allConstraints).stream(
     ).map(
         factor -> (!request.containsKey(factor.getName()) || request.get(factor.getName()) == DontCare) ?
-            factor :
-            Factor.create(factor.getName(), new Object[] { request.get(factor.getName()) })
+                  factor :
+                  Factor.create(factor.getName(), new Object[]{request.get(factor.getName())})
     ).collect(toList());
 
     return _streamAssignmentsAllowedByConstraints(request, allConstraints, factorsUnderConstraintsInRequest, session);
@@ -459,22 +424,22 @@ public class IpoGplus extends Generator.Base {
 
   public static Predicate<Tuple> satisfiesAllOf(List<Constraint> predicates) {
     return predicates.stream()
-        .map((Function<Constraint, Predicate<Tuple>>) constraint -> constraint)
-        .reduce(Predicate::and)
-        .orElse(tuple -> true);
+                     .map((Function<Constraint, Predicate<Tuple>>) constraint -> constraint)
+                     .reduce(Predicate::and)
+                     .orElse(tuple -> true);
   }
 
   public static List<Constraint> getFullyInvolvedConstraints(Collection<String> assignedFactorNames, List<Constraint> allConstraints) {
     return allConstraints.stream()
-        .filter((Constraint eachConstraint) -> assignedFactorNames.containsAll(eachConstraint.involvedKeys()))
-        .collect(toList());
+                         .filter((Constraint eachConstraint) -> assignedFactorNames.containsAll(eachConstraint.involvedKeys()))
+                         .collect(toList());
   }
 
   public static List<Constraint> getPartiallyInvolvedConstraints(Collection<String> assignedFactorNames, List<Constraint> allConstraints) {
     return allConstraints.stream()
-        .filter((Constraint eachConstraint) -> !assignedFactorNames.containsAll(eachConstraint.involvedKeys()))
-        .filter((Constraint eachConstraint) -> !disjoint(eachConstraint.involvedKeys(), assignedFactorNames))
-        .collect(toList());
+                         .filter((Constraint eachConstraint) -> !assignedFactorNames.containsAll(eachConstraint.involvedKeys()))
+                         .filter((Constraint eachConstraint) -> !disjoint(eachConstraint.involvedKeys(), assignedFactorNames))
+                         .collect(toList());
 
   }
 
@@ -491,12 +456,11 @@ public class IpoGplus extends Generator.Base {
       );
       return cartesianator
           .cursor(firstTuple.get())
-          .stream(
-          ).filter(
-              satisfiesAllOf(allConstraints)
-          ).map(
-              tuple -> Tuple.builder().putAll(request).putAll(tuple).build()
-          );
+          .stream()
+          .filter(satisfiesAllOf(allConstraints)).map(tuple -> Tuple.builder()
+                                                                    .putAll(request)
+                                                                    .putAll(tuple)
+                                                                    .build());
     }
     return Stream.empty();
   }
@@ -515,20 +479,19 @@ public class IpoGplus extends Generator.Base {
   }
 
   private static List<Factor> factorsUnderConstrains(List<Factor> allFactors, List<Constraint> allConstraints) {
-    return allFactors.stream(
-    ).filter(
-        factor -> allConstraints.stream().anyMatch(constraint -> constraint.involvedKeys().contains(factor.getName()))
-    ).collect(
-        toList()
-    );
+    return allFactors.stream()
+                     .filter(factor -> allConstraints.stream()
+                                                     .anyMatch(constraint -> constraint.involvedKeys()
+                                                                                       .contains(factor.getName())))
+                     .collect(toList());
   }
 
   private static Predicate<Tuple> isAllowedTuple(List<Factor> allFactors, List<Constraint> allConstraints, Session session) {
-    return (Tuple tuple) -> streamAssignmentsAllowedByConstraints(
-        tuple,
-        allFactors,
-        allConstraints,
-        session
-    ).findFirst().isPresent();
+    return (Tuple tuple) -> streamAssignmentsAllowedByConstraints(tuple,
+                                                                  allFactors,
+                                                                  allConstraints,
+                                                                  session)
+        .findFirst()
+        .isPresent();
   }
 }

@@ -1,6 +1,6 @@
 package com.github.jcunit.core.tuples;
 
-import com.github.jcunit.utils.Checks;
+import com.github.jcunit.exceptions.Checks;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;

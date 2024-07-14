@@ -3,14 +3,9 @@ package com.github.jcunitx.parameterspace;
 import com.github.dakusui.jcunit8.testutils.TestBase;
 import com.github.jcunit.annotations.From;
 import com.github.jcunit.annotations.Named;
-import com.github.jcunit.core.model.ValueResolver;
+import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.core.tuples.Tuple;
-import com.github.valid8j.fluent.Expectations;
-import com.github.valid8j.pcond.forms.Printables;
 import org.junit.jupiter.api.Test;
-
-import java.util.NoSuchElementException;
-import java.util.function.Function;
 
 import static com.github.valid8j.fluent.Expectations.*;
 import static java.util.Collections.singletonList;

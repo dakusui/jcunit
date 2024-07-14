@@ -9,8 +9,23 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
+/**
+ * // @formatter:off
+ *
+ * A utility class of JCUnit.
+ *
+ * In case there is a good library and I want to use the functionality of it in JCUnit, I
+ * usually mimic it here (except {@code Preconditions} of Guava, it's in {@code Checks})
+ * instead of adding dependency on it.
+ *
+ * This is because JCUnit's nature which should be able to be used for any other software
+ * (at least as much as possible, I want to make it so).
+ *
+ * // @formatter:on
+ * */
 public enum InternalUtils {
   ;
   
@@ -86,22 +101,18 @@ public enum InternalUtils {
     return t -> memo.computeIfAbsent(t, function);
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> List<T> concat(List<T> var, List<T> vars) {
     return Stream.concat(var.stream(), vars.stream()).collect(toList());
   }
 
-  public static <E> Collection<E> intersection(Collection<E> a, Collection<E> b) {
-    if (b.size() < a.size()) {
-      Collection<E> x = b;
-      b = a;
-      a = x;
-    }
-    Collection<E> ret = new HashSet<>(a);
-    for (E each : a) {
-      if (b.contains(a))
-        ret.add(each);
-    }
+  @SafeVarargs
+  public static <T> List<T> concatenate(List<T> a, T... b) {
+    List<T> ret = new LinkedList<>(a);
+    ret.addAll(Arrays.asList(b));
     return ret;
+  }
+
+  public static String join(String sep, List<?> elems) {
+    return elems.stream().map(Objects::toString).collect(joining(sep));
   }
 }

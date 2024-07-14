@@ -1,7 +1,7 @@
 package com.github.jcunitx.parameterspace;
 
 import com.github.dakusui.jcunit8.testutils.TestBase;
-import com.github.jcunit.core.model.ParameterSpaceSpec;
+import com.github.jcunit.model.ParameterSpaceSpec;
 import com.github.jcunit.factorspace.ParameterSpace;
 import com.github.jcunit.testsuite.TestSuite;
 import org.junit.jupiter.api.Test;

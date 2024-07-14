@@ -12,10 +12,6 @@ public class FrameworkException extends BaseException {
     super(format);
   }
 
-  protected FrameworkException(String format, Throwable t) {
-    super(format, t);
-  }
-
   @SuppressWarnings("WeakerAccess")
   public static void checkCondition(boolean b, Function<String, ? extends FrameworkException> exceptionFactory, Supplier<String> messageSupplier) {
     if (!b)
@@ -44,14 +40,6 @@ public class FrameworkException extends BaseException {
 
   public static FrameworkException unexpectedByDesign() {
     throw new FrameworkException("Unexpected by design");
-  }
-
-  public static FrameworkException unexpectedByDesign(Throwable t) {
-    if (t instanceof Error)
-      throw (Error) t;
-    if (t instanceof RuntimeException)
-      throw (RuntimeException) t;
-    throw new FrameworkException(String.format("Unexpected by design:%s", t.getMessage()), t);
   }
 
   public static FrameworkException unexpectedByDesign(String message) {
