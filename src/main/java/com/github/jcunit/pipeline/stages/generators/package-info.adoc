@@ -1,0 +1,1 @@
+A package for holding classes that implements a "generator" stage in the **JCUnitX**'s pipeline.

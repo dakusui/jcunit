@@ -14,7 +14,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.github.valid8j.fluent.Expectations.*;
+import static com.github.valid8j.fluent.Expectations.requireArguments;
+import static com.github.valid8j.fluent.Expectations.value;
 import static com.github.valid8j.pcond.forms.Predicates.isEmptyString;
 import static com.github.valid8j.pcond.forms.Predicates.isEqualTo;
 import static java.util.Objects.requireNonNull;
@@ -115,8 +116,7 @@ interface ValueResolver<V> {
       @Override
       public T resolve(Tuple testData) {
         return invokable.invoke(dependencies.stream()
-                                            .map(p -> p.index() >= 0 ? resolveParameter(testData, p).get(p.index())
-                                                                     : resolveParameter(testData, p))
+                                            .map(p -> p.range().slice(resolveParameter(testData, p)))
                                             .toArray());
       }
 

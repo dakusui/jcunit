@@ -1,0 +1,11 @@
+A package for method parameters in **JCUnitX**.
+
+A parameter in a test method is automatically assigned by the framework of `JCUnitTestExtension` base of the `@From` annotation' value attached to the parameter itself.
+
+However, type of the parameter can be either a list (collection) or a non-collection simple type.
+On the other hand, the value in a testing parameter model is always a list to make its internal design uniform, and it can handle both a simple value and a sequence of values.
+
+Thus, the framework needs to determine whether it is going to assign one of the value in the list to the method parameter, or to assign the entire list (or sublist) to it.
+
+The approach author of *JCUnitX** chose is as follows.:
+

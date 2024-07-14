@@ -177,6 +177,7 @@
                             --attribute "imagesdir=.generated/asciidoctor/diagram"
                             --attribute "dot=/usr/bin/dot"
                             --require asciidoctor-diagram
+                            --require tilt/haml
                             --gem-path ${env.GEM_PATH}
                             --attribute data-uri
                         </additionalparam>

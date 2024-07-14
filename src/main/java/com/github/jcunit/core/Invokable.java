@@ -1,6 +1,7 @@
 package com.github.jcunit.core;
 
 import com.github.jcunit.annotations.From;
+import com.github.jcunit.factorspace.Range;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -20,26 +21,25 @@ import static java.util.stream.Collectors.toList;
  */
 public interface Invokable<T> {
   class Parameter {
-    final String name;
-    final int index;
+    private final String name;
+    private final Range range;
 
-    Parameter(String name, int index) {
+    Parameter(String name, Range range) {
       this.name = name;
-      this.index = index;
+      this.range = range;
     }
 
     @Override
     public String toString() {
-      return index >= 0 ? String.format("%s[%s]", name, index)
-                        : name;
+      return String.format("%s[%s]", name, range);
     }
 
     public String name() {
       return this.name;
     }
 
-    public int index() {
-      return this.index;
+    public Range range() {
+      return this.range;
     }
   }
 
@@ -57,9 +57,9 @@ public interface Invokable<T> {
     return from(null, findMethod(klass, classMethodNameIs(methodName)));
   }
 
-  static <T> Invokable<T> referenceTo(String parameterName, int index) {
+  static <T> Invokable<T> referenceTo(String parameterName, Range range) {
     return new Invokable<T>() {
-      private final Parameter parameter = new Parameter(parameterName, index);
+      private final Parameter parameter = new Parameter(parameterName, range);
 
       @SuppressWarnings("unchecked")
       @Override
@@ -88,8 +88,8 @@ public interface Invokable<T> {
   static <T> Invokable<T> from(Object object, Method method) {
     return new Invokable<T>() {
       private final List<Parameter> parameters = Arrays.stream(method.getParameters())
-                                                       .map(p -> new Parameter(p.getAnnotation(From.class).value(),
-                                                                               p.getAnnotation(From.class).index()))
+                                                       .map(p -> new Parameter(p.getAnnotation(From.class).value(), Range.of("0")
+                                                           /*p.getAnnotation(From.class).range()*/))
                                                        .collect(toList());
       private final String name = nameOf(method);
 

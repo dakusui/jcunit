@@ -1,0 +1,1 @@
+A package for classes to model stages in the packages of the **JCUnitX**.

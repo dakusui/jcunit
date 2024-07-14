@@ -7,9 +7,14 @@ import java.util.List;
 
 import static java.lang.String.format;
 
+
 /**
+ * //@formatter:off
+ *
  * Indicates user's artifact (Typically test classes, annotated with
- * {@literal @}{@code RunWith(JCUnit.class)}), is invalid.
+ * `@RunWith(JCUnit.class)`, is invalid.
+ *
+ * //@formatter:on
  */
 public class TestDefinitionException extends BaseException {
   private TestDefinitionException(String message) {

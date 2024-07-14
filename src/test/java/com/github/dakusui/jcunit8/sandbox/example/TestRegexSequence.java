@@ -31,7 +31,7 @@ public class TestRegexSequence {
   }
 
   @JCUnitTest
-  public void testMethod(@From(value = "param1", index = 0) String param1, @From(value = "param1", index = 1) String param2) {
+  public void testMethod(@From(value = "param1", range = "0") String param1, @From(value = "param1", range = "1") String param2) {
     System.out.println("param1:" + param1 + ";param2:" + param2);
   }
 }

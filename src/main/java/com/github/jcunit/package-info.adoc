@@ -1,19 +1,19 @@
-== An example package
+The **JCUnitX** is the tenth generation of the JCUnit.
 
-You can describe a package's design that disciples classes under it here.
+It is designed under the following philosophy.
 
-[ditaa]
-.Ditaa diagram
-----
-+---+   +---+   +----+   +--------+
-|You+-->|can+-->|draw+-->|diagrams|
-+---+   +---+   +----+   +--------+
-----
+1. Let the programmers (SET, SDET, SWET) model their test suite, not the SUT, using a general purpose programming language.
+Remember, a general purpose programming language has always more powerful modeling capability than any GUI-based modeling tools out of the box.
+What we need is :
+* Provide a programming model on which the programmers can build their own test models as code, which represent
+  ** Their understanding about the SUT.
+  ** How the test suite should be generated from the model such as in what strength (combinatorial coverage) it should be, or each choice coverage is sufficient, etc.
+*  Try to hide implementation details from the user programmers.
 
-[plantuml]
-.PlantUML diagram
-----
-class Java8App {
-+main(String... args): String
-}
-----
+
+2. Employ the techniques developed under "combinatorial interaction testings" to generate test input data.
+This allows us to prevent test suites from becoming too big to manage.
+That's why we have *C* in *JCUnitX*!
+
+3. The programming model must allow programmers to define the model over SUT without any repetitions.
+That is, the programmers can do "D-R-Y" (don't repeat yourself), and their artifacts for tests can be written as clean as the product code.

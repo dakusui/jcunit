@@ -1,0 +1,1 @@
+A package to hold classes to provide **regex** (a sequence of values, modeled by regular expressions) functionality.

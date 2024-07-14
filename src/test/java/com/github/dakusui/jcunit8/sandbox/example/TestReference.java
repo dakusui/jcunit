@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.*;
+import com.github.jcunit.factorspace.Range;
 import com.github.jcunit.core.model.ValueResolver;
 import com.github.jcunit.runners.junit5.JCUnitTestExtension;
 import org.junit.jupiter.api.Disabled;
@@ -26,7 +27,7 @@ public class TestReference {
     public static List<ValueResolver<String>> param1() {
       return asList(
           ValueResolver.of("John"),
-          ValueResolver.fromInvokable(referenceTo("param3", 0)));
+          ValueResolver.fromInvokable(referenceTo("param3", Range.of("0"))));
     }
 
     @Named
