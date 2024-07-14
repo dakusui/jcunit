@@ -1,0 +1,3 @@
+A package that holds classes to model test suites which has test cases under it by connecting functionalities of **JCUnit** and hiding the details of its implementation.
+
+

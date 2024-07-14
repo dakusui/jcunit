@@ -125,8 +125,7 @@ interface ValueResolver<V> {
       @Override
       public T resolve(Tuple testData) {
         return invokable.invoke(dependencies.stream()
-                                            .map(p -> p.index() >= 0 ? resolveParameter(testData, p).get(p.index())
-                                                                     : resolveParameter(testData, p))
+                                            .map(p -> p.range().slice(resolveParameter(testData, p)))
                                             .toArray());
       }
 

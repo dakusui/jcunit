@@ -1,6 +1,7 @@
 package com.github.jcunit.runners.junit5;
 
 import com.github.jcunit.annotations.*;
+import com.github.jcunit.factorspace.Range;
 import com.github.jcunit.core.Invokable;
 import com.github.jcunit.core.dnftree.NodeUtils;
 import com.github.jcunit.model.ParameterSpaceSpec;
@@ -135,8 +136,7 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
 
     @SuppressWarnings("unchecked")
     private static Object valueFromTupleForParameter(Tuple tuple, Invokable.Parameter p) {
-      return p.index() >= 0 ? ((List<ValueResolver<?>>) tuple.get(p.name())).get(p.index())
-                            : tuple.get(p.name());
+      return p.range().slice((List<?>) tuple.get(p.name()));
     }
 
 
@@ -189,14 +189,40 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
                                  .isAnnotationPresent(From.class);
         }
 
+        /**
+         * Resolves an appropriate parameter value for the parameter context.
+         *
+         * This implementation takes the `@From` annotation and determines the range to assign to the test method parameter which the `parameterContext` refers to.
+         * To be noted here is that:
+         *
+         * 1. A test parameter and a method parameter are different concepts.
+         * 2. A test parameter value is always a list, a part of or the all of whose values should be assigned to the method parameter.
+         * 3. When a method parameter is not a list, we need to choose which element in the list should be assigned to it.
+         * 4. When a method parameter is a list, we need to determine which part of elements in the list, or all, should be assigned to it.
+         *
+         * Also, in the points above, "a list" can be a collection or an array depending on the design the way the users can specify the source value of a method parameter from the test parameter space.
+         * It is a minor design detail.
+         *
+         * In the current design of **JCUnit**, the resolution step is done in the following order:
+         *
+         * 1. Find the list of values to be assigned to the parameter.
+         *
+         * In case the range {@link From#range()} becomes the single value, we will have a design choice to determine where we try to assign a single value list or t assign the value to the parameter directly.
+         *
+         *
+         * @param parameterContext the context for the parameter for which an argument should
+         * be resolved; never {@code null}
+         * @param extensionContext the extension context for the {@code Executable}
+         * about to be invoked; never {@code null}
+         * @return A value to be assigned to the parameter the `parameterContext` represents.
+         * @throws ParameterResolutionException Failed to resolve the parameter value.
+         *
+         * @see From
+         */
         @Override
         public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-          int index = 0;
-          if (parameterContext.getParameter().isAnnotationPresent(From.class))
-            index = parameterContext.getParameter().getAnnotation(From.class).index();
-          List<Object> arguments = resolveValueOf(parameterName(parameterContext), testDataTuple);
-          if (index >= 0) return arguments.get(index);
-          else return arguments;
+          return Range.of(parameterContext.getParameter().getAnnotation(From.class).range())
+                      .slice(resolveValueOf(parameterName(parameterContext), testDataTuple));
         }
       };
     }

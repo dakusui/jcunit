@@ -1,0 +1,1 @@
+A package that holds exceptions used in **JCUnitX**.

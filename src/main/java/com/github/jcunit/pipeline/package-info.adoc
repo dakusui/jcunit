@@ -1,0 +1,1 @@
+A package that holds classes to provide the "pipeline" mechanism of **JCUnitX**.

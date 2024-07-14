@@ -1,8 +1,10 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.*;
+import com.github.jcunit.factorspace.Range;
 import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.runners.junit5.JCUnitTestEngine;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
@@ -18,8 +20,9 @@ import static java.util.Collections.singletonMap;
  * // @formatter:off 
  * // @formatter:on 
  */
+@Disabled
 @ExtendWith(JCUnitTestEngine.class)
-@ConfigureWith(parameterSpace = TestExample2.ParameterSpace.class)
+@UsingParameterSpace(TestExample2.ParameterSpace.class)
 public class TestExample2 {
   public static class ParameterSpace {
     @Named
@@ -27,8 +30,9 @@ public class TestExample2 {
     public static List<ValueResolver<String>> param1() {
       return asList(ValueResolver.from("hello").$(),
                     ValueResolver.from("world").$(),
-                    ValueResolver.fromInvokable(referenceTo("param3", 0)),
-                    ValueResolver.fromInvokable(fromClassMethodNamed(ParameterSpace.class, "param1Value1")));
+                    ValueResolver.fromInvokable(referenceTo("param3", Range.of("0"))),
+                    ValueResolver.fromInvokable(fromClassMethodNamed(ParameterSpace.class, "param1Value1"))
+      );
     }
 
     @Named

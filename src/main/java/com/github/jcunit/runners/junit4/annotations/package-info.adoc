@@ -1,0 +1,2 @@
+A package to hold annotations for **JUnit4**.
+This package will be removed soon.

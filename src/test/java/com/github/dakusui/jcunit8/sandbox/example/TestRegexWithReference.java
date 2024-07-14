@@ -1,6 +1,7 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.jcunit.annotations.*;
+import com.github.jcunit.factorspace.Range;
 import com.github.jcunit.annotations.JCUnitParameter.Type;
 import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.runners.junit5.JCUnitTestEngine;
@@ -25,7 +26,7 @@ public class TestRegexWithReference {
     public static List<ValueResolver<String>> param1() {
       return asList(
           ValueResolver.of("John").name("john"),
-          ValueResolver.<String>fromInvokable(referenceTo("param3", 0)).name("scott"));
+          ValueResolver.<String>fromInvokable(referenceTo("param3", Range.of("0"))).name("scott"));
     }
 
     @Named
@@ -37,7 +38,8 @@ public class TestRegexWithReference {
 
 
   @JCUnitTest
-  public void testMethod(@From("param1") String param1) {
+  public void testMethod(@From("param1") String
+ param1) {
     System.out.println("param1:" + param1);
   }
 }

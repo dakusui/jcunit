@@ -50,7 +50,7 @@ public class ExampleParameterSpaceSpec {
   }
 
   /**
-   * By annotating `@Named`, you can specify a string by which you can select the method through `ValueResolver.fromStaticMethod`.
+   * By annotating `@Named`, you can specify a string by which you select the method through `ValueResolver.fromStaticMethod`.
    * If `value` is not given, the name of the method is used the string as default.
    * If this selection become ambiguous, for instance, there are overloaded method that have `@Named` annotations, but their values are default,
    * an exception will be thrown.

@@ -1,0 +1,1 @@
+A package for providing "metamodel" feature of **JCUnitX** and builtin metamodels.
