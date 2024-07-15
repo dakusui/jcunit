@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
+import com.github.dakusui.jcunit8.testutils.TestBase;
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.annotations.JCUnitParameter.Type;
 import com.github.jcunit.model.ValueResolver;
@@ -16,7 +17,7 @@ import static java.util.Arrays.asList;
  */
 @ExtendWith(JCUnitTestEngine.class)
 @ConfigureWith(parameterSpace = TestRegexSequence.ParameterSpace.class)
-public class TestRegexSequence {
+public class TestRegexSequence extends TestBase {
   public static class ParameterSpace {
     @Named
     @JCUnitParameter(type = Type.REGEX, args = {"(scott|john|jane)", "(tiger|(doe{1,2})){1,2}"})
@@ -36,7 +37,7 @@ public class TestRegexSequence {
   }
 
   @JCUnitTest
-  public void testMethod2(@From(value = "param1", index = From.ALL) List<String> param1) {
+  public void testMethod2(@From(value = "param1", range = ":") List<String> param1) {
     System.out.println("param1:" + String.join("-", param1));
   }
 }

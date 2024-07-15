@@ -1,1 +1,1 @@
-A package that holds annotations to control **JCUnitX**'s behavior.
+A package that holds annotations to control the behaviors of *JCUnitX*.

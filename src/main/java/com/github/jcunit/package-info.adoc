@@ -1,4 +1,4 @@
-The **JCUnitX** is the tenth generation of the JCUnit.
+The *JCUnitX* is the tenth generation of the JCUnit.
 
 It is designed under the following philosophy.
 

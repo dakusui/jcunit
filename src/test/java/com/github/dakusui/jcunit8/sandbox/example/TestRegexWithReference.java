@@ -1,5 +1,6 @@
 package com.github.dakusui.jcunit8.sandbox.example;
 
+import com.github.dakusui.jcunit8.testutils.TestBase;
 import com.github.jcunit.annotations.*;
 import com.github.jcunit.factorspace.Range;
 import com.github.jcunit.annotations.JCUnitParameter.Type;
@@ -19,7 +20,7 @@ import static java.util.Collections.singletonList;
  */
 @ExtendWith(JCUnitTestEngine.class)
 @ConfigureWith(parameterSpace = TestRegexWithReference.ParameterSpace.class)
-public class TestRegexWithReference {
+public class TestRegexWithReference extends TestBase /* Extending TestBase just to suppress writes to stdout/err during CI */ {
   public static class ParameterSpace {
     @Named
     @JCUnitParameter(type = Type.REGEX, args = "(scott|john)")
