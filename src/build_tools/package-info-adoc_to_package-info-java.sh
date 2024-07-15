@@ -6,16 +6,16 @@ function convert_package_info_adoc_to_package_info_java() {
   local _rel_dir=$2
   local _i
   local _out="${_base_dir}/${_rel_dir}/package-info.java"
-  rm -f ${_out}
-  touch ${_out}
-  echo "/**" >> ${_out}
-  while IFS= read -r _i
-  do
-    echo " * ${_i}" >> ${_out}
-  done < "${_base_dir}/${_rel_dir}/package-info.adoc"
-
-  echo " */" >> ${_out}
-  echo "package ${_rel_dir//\//.};" >> ${_out}
+  rm -f "${_out}"
+  touch "${_out}"
+  {
+    echo "/**"
+    # Avoid compatibility issue caused by process substitution
+    # shellcheck disable=SC2002
+    cat "${_base_dir}/${_rel_dir}/package-info.adoc" | sed -E 's/^/ * /g'
+    echo " */"
+  } >> "${_out}"
+  echo "package ${_rel_dir//\//.};" >> "${_out}"
 }
 
 # find src/main/java -name 'package-info.adoc' -exec echo convert_package_info_adoc_to_package_info_java src/main/java

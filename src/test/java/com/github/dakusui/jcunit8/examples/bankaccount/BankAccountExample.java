@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.github.dakusui.jcunit8.examples.bankaccount.BankAccountExample.JournalEntry.Type.*;
-import static com.github.jcunit.annotations.From.ALL;
 import static com.github.jcunit.annotations.JCUnitParameter.Type.REGEX;
 import static java.util.Arrays.asList;
 
@@ -224,7 +223,7 @@ public class BankAccountExample {
   }
 
   @JCUnitTest
-  public void examineJournalAndBalance(@From(value = "scenario", index = ALL) List<Action> scenario) {
+  public void examineJournalAndBalance(@From(value = "scenario", range = ":") List<Action> scenario) {
     System.out.println("scenario:" + scenario);
     Context context = new Context();
     for (Action action : scenario) {
