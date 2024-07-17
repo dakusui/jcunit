@@ -1,4 +1,4 @@
-package com.github.dakusui.jcunit8.ututiles;
+package com.github.dakusui.jcunit8.ututils;
 
 
 import com.github.dakusui.jcunit8.testutils.TestBase;

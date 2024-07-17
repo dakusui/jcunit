@@ -1,7 +1,7 @@
 package com.github.jcunit.core.dnftree;
 
 import com.github.jcunit.core.regex.Expr;
-import com.github.jcunit.core.regex.Parser;
+import com.github.jcunit.core.regex.RegexParser;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.exceptions.FrameworkException;
 import com.github.jcunit.factorspace.TuplePredicate;
@@ -110,7 +110,7 @@ public enum NodeUtils {
   // Only used for validation
   public static List<String> tokensInRegex(String regex) {
     Set<String> tokens = new HashSet<>();
-    Expr expr = new Parser().parse(regex);
+    Expr expr = new RegexParser().parse(regex);
     expr.accept(new Expr.Visitor() {
       @Override
       public void visit(Expr.Alt exp) {

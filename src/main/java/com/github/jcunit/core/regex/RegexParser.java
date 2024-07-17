@@ -12,26 +12,37 @@ import java.util.regex.Pattern;
 
 import static com.github.jcunit.exceptions.Checks.checkcond;
 import static com.github.jcunit.exceptions.Checks.checknotnull;
-import static com.github.jcunit.core.regex.Parser.Type.ALT;
-import static com.github.jcunit.core.regex.Parser.Type.CAT;
+import static com.github.jcunit.core.regex.RegexParser.Type.ALT;
+import static com.github.jcunit.core.regex.RegexParser.Type.CAT;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
-public class Parser {
+/**
+ * A class to parse a "regular expression" of **JCUnitX**.
+ *
+ * Note that the regular expression is designed for **JCUnitX**, not a general purpose one.
+ *
+ */
+public class RegexParser {
+  /**
+   * A pattern to match a quantifier in a regular expression, which looks like: `{0,1}`, `{1,23}`, and as such.
+   */
   private static final Pattern QUANTIFIER_PATTERN = Pattern.compile("^\\{([0-9]+),([0-9]+)}");
   /*
    * We can implement the same mechanism by considering a white space a 'concatenation operator',
-   * but it increases number of factors and constraints generated. And it results
-   * in poorer performance.
+   * but it increases a number of factors and constraints generated.
+   * This will result in poorer performance.
    * Instead, treat white spaces within a word just as part of the word, and after reverse
    * regex generation finishes, JCUnit will split into pieces.
    *
    * See RegexComposer, too.
+   *
+   * Limitation:: This pattern allows the second and the following leaves to start with numerics, which will not be valid as names in Java.
    */
-  private static final Pattern LEAF_PATTERN       = Pattern.compile("^[A-Za-z_]([A-Za-z_0-9 ]*[A-Za-z_0-9])?");
+  private static final Pattern LEAVES_PATTERN = Pattern.compile("^[A-Za-z_]([A-Za-z_0-9 ]*[A-Za-z_0-9])?");
   private final Expr.Factory exprFactory;
 
-  public Parser() {
+  public RegexParser() {
     this.exprFactory = new Expr.Factory();
   }
 
@@ -39,8 +50,27 @@ public class Parser {
     return parse(preprocess(regex));
   }
 
+  /**
+   * Preprocesses an input string.
+   *
+   * @param input A string to be preprocessed.
+   * @return A list of tokens after preprocessing
+   */
+  public static List<String> preprocess(String input) {
+    List<String> ret = new LinkedList<>();
+    List<String> read = new LinkedList<>();
+    preprocess(read, ret, tokenizer(input), true);
+    return ret;
+  }
+
   enum Type {
+    /**
+     * Concatenation
+     */
     CAT("*"),
+    /**
+     * Alternative
+     */
     ALT("+"),;
 
     final String value;
@@ -56,13 +86,6 @@ public class Parser {
     public String toString() {
       return asString();
     }
-  }
-
-  public static List<String> preprocess(String input) {
-    List<String> ret = new LinkedList<String>();
-    List<String> read = new LinkedList<String>();
-    preprocess(read, ret, tokenizer(input), true);
-    return ret;
   }
 
   private enum SymbolType {
@@ -91,9 +114,16 @@ public class Parser {
     T
   }
 
+  /**
+   *
+   * @param read
+   * @param output The output list to which the current call writes its result.
+   * @param input An iterator that holds the current input.
+   * @param topLevel Tells this method if this call is the top level or not.
+   */
   private static void preprocess(List<String> read, List<String> output, Iterator<String> input, boolean topLevel) {
     Type type = null;
-    List<String> work = new LinkedList<String>();
+    List<String> work = new LinkedList<>();
     try {
       PreprocessingState state = PreprocessingState.I;
       while (input.hasNext() && state != PreprocessingState.T) {
@@ -213,7 +243,7 @@ public class Parser {
         format(
             "token '%s' should not come after: '%s'",
             token,
-            InternalUtils.join("", work.subList(0, Math.max(0, work.size() - 1))))
+            InternalUtils.joinBy("", work.subList(0, Math.max(0, work.size() - 1))))
     );
   }
 
@@ -221,6 +251,12 @@ public class Parser {
     throw new InvalidTestException(format("Input should not end here: '%s'", state));
   }
 
+  /**
+   * Returns an iterator to read the input tokenizing it.
+   *
+   * @param input An input string.
+   * @return An iterator that reads the tokenized input.
+   */
   private static Iterator<String> tokenizer(final String input) {
     return new Iterator<String>() {
       String[] nextToken = nextToken(input);
@@ -248,6 +284,17 @@ public class Parser {
     };
   }
 
+  /**
+   * The `input` cannot be `null`, otherwise the behavior of this function is not defined.
+   * If the `input` is empty (a string whose length is 0), this function returns `null`.
+   * If it starts with one of `(`, `)`, or `|`, it will return an array whose first element is the starting character
+   * and the second is the rest of the string.
+   * If it matches with `LEAVES_PATTERN`, an array whose first element is the longest possible matching part, and the second is the rest, will be returned.
+   * If it matches with `QUANTIFIER_PATTERN` (`^\\{([0-9]+),([0-9]+)}`),
+   *
+   * @param input An input string to extract the next token.
+   * @return
+   */
   private static String[] nextToken(String input) {
     if (input.isEmpty())
       return null;
@@ -256,16 +303,8 @@ public class Parser {
       return new String[] { input.substring(0, 1), input.substring(1) };
     }
     {
-      Matcher m = LEAF_PATTERN.matcher(input);
+      Matcher m = LEAVES_PATTERN.matcher(input);
       if (m.find()) {
-        /*
-        String matchedPart = m.group(0);
-        String work = matchedPart.contains(" ") ?
-            matchedPart.substring(0, matchedPart.indexOf(" ")) :
-            matchedPart;
-        return new String[] { work, input.substring(work.length()).trim() };
-        */
-        //return new String[] { m.group(0), input.substring(m.group(0).length()).trim() };
         return new String[] { m.group(0), input.substring(m.group(0).length()) };
       }
     }
@@ -276,7 +315,7 @@ public class Parser {
       }
     }
 
-    throw new InvalidTestException(format("Syntax error: Unparsable: '%s' did neither match '%s' nor '%s'", input, LEAF_PATTERN, QUANTIFIER_PATTERN));
+    throw new InvalidTestException(format("Syntax error: Unparsable: '%s' did neither match '%s' nor '%s'", input, LEAVES_PATTERN, QUANTIFIER_PATTERN));
   }
 
   private Expr parse(List<String> tokens) {
