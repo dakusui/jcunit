@@ -3,7 +3,7 @@ package com.github.jcunit.factorspace;
 import com.github.jcunit.core.tuples.Tuple;
 import com.github.jcunit.factorspace.regex.RegexDecomposer;
 import com.github.jcunit.core.regex.Expr;
-import com.github.jcunit.core.regex.Parser;
+import com.github.jcunit.core.regex.RegexParser;
 import com.github.jcunit.core.regex.RegexComposer;
 import com.github.jcunit.utils.InternalUtils;
 
@@ -174,7 +174,7 @@ public interface Parameter<T> {
 
       public Impl(boolean withVoid, String name, String regex, List<List<U>> knownValues, Function<String, U> func) {
         super(name, knownValues);
-        Expr expr = new Parser().parse(regex);
+        Expr expr = new RegexParser().parse(regex);
         RegexDecomposer translator = new RegexDecomposer(name, expr);
         this.func = func;
         this.regexComposer = new RegexComposer(name, expr);

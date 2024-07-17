@@ -112,7 +112,7 @@ public enum InternalUtils {
     return ret;
   }
 
-  public static String join(String sep, List<?> elems) {
+  public static String joinBy(String sep, List<?> elems) {
     return elems.stream().map(Objects::toString).collect(joining(sep));
   }
 }
