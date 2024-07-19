@@ -46,6 +46,14 @@ public class RegexParser {
     this.exprFactory = new Expr.Factory();
   }
 
+  /**
+   * Returns a `regex` string and returns a tree structure modeled by `Expr` objects.
+   *
+   * @param regex A regular expression string.
+   * @return An `Expr` object that models `regex`.
+   *
+   * @see Expr
+   */
   public Expr parse(String regex) {
     return parse(preprocess(regex));
   }
@@ -116,7 +124,7 @@ public class RegexParser {
 
   /**
    *
-   * @param read
+   * @param read Mainly used for error message composing.
    * @param output The output list to which the current call writes its result.
    * @param input An iterator that holds the current input.
    * @param topLevel Tells this method if this call is the top level or not.
@@ -259,7 +267,7 @@ public class RegexParser {
    */
   private static Iterator<String> tokenizer(final String input) {
     return new Iterator<String>() {
-      String[] nextToken = nextToken(input);
+      String[] nextToken = nextTokens(input);
 
       @Override
       public boolean hasNext() {
@@ -273,7 +281,7 @@ public class RegexParser {
         try {
           return nextToken[0];
         } finally {
-          nextToken = nextToken(nextToken[1]);
+          nextToken = nextTokens(nextToken[1]);
         }
       }
 
@@ -293,9 +301,9 @@ public class RegexParser {
    * If it matches with `QUANTIFIER_PATTERN` (`^\\{([0-9]+),([0-9]+)}`),
    *
    * @param input An input string to extract the next token.
-   * @return
+   * @return An array that contains next tokens after the current one.
    */
-  private static String[] nextToken(String input) {
+  private static String[] nextTokens(String input) {
     if (input.isEmpty())
       return null;
     char first = input.charAt(0);
