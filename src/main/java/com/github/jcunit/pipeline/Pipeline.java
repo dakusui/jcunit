@@ -98,27 +98,31 @@ public interface Pipeline {
     }
 
     public SchemafulTupleSet engine(Config config, ParameterSpace parameterSpace) {
-      return config.partitioner().apply(config.encoder().apply(parameterSpace))
+      return config.partitioner()
+                   .apply(config.encoder().apply(parameterSpace))
                    .stream()
                    .map(config.optimizer())
                    .filter((Predicate<FactorSpace>) factorSpace -> !factorSpace.getFactors().isEmpty())
                    .map(config.generator(parameterSpace, config.getRequirement()))
                    .reduce(config.joiner())
-                   .map(
-                       (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames())
-                           .addAll(
-                               tuples.stream()
-                                     .map((Tuple tuple) -> {
-                                       Tuple.Builder builder = new Tuple.Builder();
-                                       for (String parameterName : parameterSpace.getParameterNames()) {
-                                         builder.put(parameterName, parameterSpace.getParameter(parameterName)
-                                                                                  .composeValue(tuple));
-                                       }
-                                       return builder.build();
-                                     })
-                                     .collect(toList()))
-                           .build())
-                   .orElseThrow(TestDefinitionException::noParameterFound);
+                   .map(decodingFunctionFor(parameterSpace))
+                   .orElseThrow(() -> TestDefinitionException.noParameterFound("" + parameterSpace));
+    }
+
+    private static Function<SchemafulTupleSet, SchemafulTupleSet> decodingFunctionFor(ParameterSpace parameterSpace) {
+      return (SchemafulTupleSet tuples) -> new SchemafulTupleSet.Builder(parameterSpace.getParameterNames())
+          .addAll(
+              tuples.stream()
+                    .map((Tuple tuple) -> {
+                      Tuple.Builder builder = new Tuple.Builder();
+                      for (String parameterName : parameterSpace.getParameterNames()) {
+                        builder.put(parameterName, parameterSpace.getParameter(parameterName)
+                                                                 .composeValue(tuple));
+                      }
+                      return builder.build();
+                    })
+                    .collect(toList()))
+          .build();
     }
 
 

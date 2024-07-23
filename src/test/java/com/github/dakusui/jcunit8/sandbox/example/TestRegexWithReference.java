@@ -2,8 +2,8 @@ package com.github.dakusui.jcunit8.sandbox.example;
 
 import com.github.dakusui.jcunit8.testutils.TestBase;
 import com.github.jcunit.annotations.*;
-import com.github.jcunit.factorspace.Range;
 import com.github.jcunit.annotations.JCUnitParameter.Type;
+import com.github.jcunit.factorspace.Range;
 import com.github.jcunit.model.ValueResolver;
 import com.github.jcunit.runners.junit5.JCUnitTestEngine;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,8 +39,7 @@ public class TestRegexWithReference extends TestBase /* Extending TestBase just 
 
 
   @JCUnitTest
-  public void testMethod(@From("param1") String
- param1) {
+  public void testMethod(@From("param1") String param1) {
     System.out.println("param1:" + param1);
   }
 }

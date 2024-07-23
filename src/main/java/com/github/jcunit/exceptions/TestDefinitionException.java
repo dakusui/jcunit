@@ -41,8 +41,8 @@ public class TestDefinitionException extends BaseException {
     throw new TestDefinitionException(String.format("Method parameter not annotated with @From is found at '%s'", methodName));
   }
 
-  public static  TestDefinitionException noParameterFound() {
-    throw new TestDefinitionException("No parameter is found.");
+  public static  TestDefinitionException noParameterFound(String detail) {
+    throw new TestDefinitionException("No parameter is found.: [" + detail + "]");
   }
   
   public static TestDefinitionException test() {
