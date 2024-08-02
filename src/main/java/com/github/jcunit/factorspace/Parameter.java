@@ -20,12 +20,20 @@ import static java.util.stream.Collectors.toList;
 
 /**
  * A user level factor.
+ * This interface models a "parameter" that users (testers, programmers, or users of the SUT) recognize.
  *
  * @param <T> Type of values held by this class.
  */
 public interface Parameter<T> {
   String getName();
 
+  /**
+   * Converts ths parameter into `FactorSpace`.
+   *
+   * @return a `FactorSpace` to which this `Parameter` is encoded.
+   *
+   * @see FactorSpace
+   */
   FactorSpace toFactorSpace();
 
   T composeValue(Tuple tuple);
@@ -38,6 +46,14 @@ public interface Parameter<T> {
     protected final String name;
     private final List<T> knownValues;
 
+    /**
+     *
+     * You can specify known values of this object through `knownValues` parameter.
+     * Thia can be used to model "seed" values or "negative" values.
+     *
+     * @param name A name of a factor created by this `Parameter`.
+     * @param knownValues Known values of this parameter.
+     */
     protected Base(String name, List<T> knownValues) {
       this.name = requireNonNull(name);
       this.knownValues = unmodifiableList(requireNonNull(knownValues));
