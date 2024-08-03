@@ -47,7 +47,6 @@ public interface Parameter<T> {
     private final List<T> knownValues;
 
     /**
-     *
      * You can specify known values of this object through `knownValues` parameter.
      * Thia can be used to model "seed" values or "negative" values.
      *
@@ -66,7 +65,7 @@ public interface Parameter<T> {
 
     @Override
     public FactorSpace toFactorSpace() {
-      return FactorSpace.create(decompose(), generateConstraints());
+      return FactorSpace.create(decompose(),generateConstraints());
     }
 
     @Override

@@ -6,7 +6,6 @@ import com.github.jcunit.factorspace.Factor;
 import com.github.jcunit.factorspace.FactorSpace;
 import com.github.jcunit.factorspace.Parameter;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -68,6 +67,10 @@ public class OptionalParameter<T> extends Parameter.Base<T> implements Parameter
 
   private static <T> Constraint createConstraint(final Parameter<T> parameter, FactorSpace factorSpace) {
     return new Constraint() {
+      private final List<String> involvedKeys = Stream.concat(Stream.of(presentKey(parameter)),
+                                                              factorSpace.getFactorNames().stream())
+                                                      .collect(toList());
+
       @Override
       public boolean isExplicit() {
         return false;
@@ -91,7 +94,7 @@ public class OptionalParameter<T> extends Parameter.Base<T> implements Parameter
 
       @Override
       public List<String> involvedKeys() {
-        return Collections.emptyList();
+        return involvedKeys;
       }
     };
   }
