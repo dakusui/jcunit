@@ -45,7 +45,7 @@ public interface Parameter<T> {
    * Composes an original value of this parameter from  a given value.
    *
    * @param tuple A tuple which contains values to be decoded
-   * @return A value composed from the given `tuple`.
+   * @return A value create from the given `tuple`.
    */
   T composeValue(Tuple tuple);
 
