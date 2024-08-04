@@ -25,6 +25,11 @@ import static java.util.stream.Collectors.toList;
  * @param <T> Type of values held by this class.
  */
 public interface Parameter<T> {
+  /**
+   * Returns a name of this `Parameter` instance.
+   *
+   * @return A name of this `Parameter`.
+   */
   String getName();
 
   /**
@@ -36,10 +41,33 @@ public interface Parameter<T> {
    */
   FactorSpace toFactorSpace();
 
+  /**
+   * Composes an original value of this parameter from  a given value.
+   *
+   * @param tuple A tuple which contains values to be decoded
+   * @return A value composed from the given `tuple`.
+   */
   T composeValue(Tuple tuple);
 
+  /**
+   * This method is called to encode an actual possible value of this parameter into an internal representation by a `Tuple`.
+   * The tuple is an instance of a `FactorSpace` returned by `toFactorSpace` or an entry of a list returned by `getKnownValues`.
+   * A `value` is typically chosen from an entry in a returned value of `getKnownValues()`.
+   *
+   * The returned tuple will be used as a seef of the internal factor space, which may reduce the final test data size.
+   * In case a `value` cannot be coded into an internal factor space, an implementation of this method can return an `Optional.empty()`.
+   *
+   * @param value A value to be encoded.
+   * @return An optional that holds a tuple, which represents a `value` in the internal factor space.
+   */
   Optional<Tuple> decomposeValue(T value);
 
+  /**
+   * Returns known values of this parameter.
+   * This method is intended to use for implementing "seed" test cases and manually crafted "negative" test cases.
+   *
+   * @return A list of manually crafted values of this parameter.
+   */
   List<T> getKnownValues();
 
   abstract class Base<T> implements Parameter<T> {

@@ -7,6 +7,7 @@ import com.github.jcunit.factorspace.Parameter;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -20,14 +21,44 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:on 
  */
 public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Parameter<List<T>> {
+
+  /**
+   * An interface that defines a factor to generate a sequence of `T`.
+   *
+   * @param <T>
+   */
   public interface SequenceGenerator<T> extends Predicate<Integer> {
     Supplier<T> generator();
   }
 
+  private final SequenceGenerator<T> emptySequenceGenerator = new SequenceGenerator<T>() {
+    @Override
+    public boolean test(Integer integer) {
+      return Objects.equals(integer, 0);
+    }
+
+    @Override
+    public Supplier<T> generator() {
+      return () -> {
+        throw new NoSuchElementException();
+      };
+    }
+  };
+
+
   private final List<SequenceGenerator<T>> generators;
   private final List<T> symbols;
   private final List<Integer> numRepetitions;
+  private final Function<List<T>, SequenceGenerator<T>> primeSequenceGeneratorFunction;
 
+  /**
+   * You can specify known values of this object through `knownValues` parameter.
+   * Thia can be used to model "seed" values or "negative" values.
+   *
+   * @param generators  A list of `SequenceGenerator` object.
+   * @param name        A name of a factor created by this `Parameter`.
+   * @param knownValues Known values of this parameter.
+   */
   public SequenceParameter(String name,
                            List<List<T>> knownValues,
                            List<T> symbols,
@@ -37,17 +68,7 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
     this.symbols = symbols;
     this.generators = generators;
     this.numRepetitions = numRepetitions;
-  }
-
-  /**
-   * You can specify known values of this object through `knownValues` parameter.
-   * Thia can be used to model "seed" values or "negative" values.
-   *
-   * @param name        A name of a factor created by this `Parameter`.
-   * @param knownValues Known values of this parameter.
-   */
-  public SequenceParameter(String name, List<List<T>> knownValues, List<T> symbols, List<Integer> numRepetitions) {
-    this(name, knownValues, symbols, Collections.emptyList(), numRepetitions);
+    this.primeSequenceGeneratorFunction = SequenceParameter::sequenceGeneratorFor;
   }
 
   @Override
@@ -76,11 +97,26 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
   }
 
   @Override
-  public Optional<Tuple> decomposeValue(List<T> value) {
+  public Optional<Tuple> decomposeValue(List<T> sequence) {
+    if (!new HashSet<>(this.symbols).containsAll(sequence))
+      return Optional.empty();
+    if (!this.numRepetitions.contains(sequence.size()))
+      return Optional.empty();
     Tuple.Builder b = new Tuple.Builder();
-    b.put(factorNameForNumRepetitions(this), value.size());
-    b.put(factorNameForGenerator(this), sequenceGeneratorFor(value));
-    return Optional.of(b.build());
+    for (SequenceGenerator<T> generator : generators) {
+      if (!generator.test(sequence.size()))
+        continue;
+      List<T> workSequence = new ArrayList<>(sequence.size());
+      for (int i = 0; i < sequence.size(); i++) {
+        workSequence.add(generator.generator().get());
+      }
+      if (workSequence.equals(sequence)) {
+        b.put(factorNameForNumRepetitions(this), sequence.size());
+        b.put(factorNameForGenerator(this), primeSequenceGeneratorFunction.apply(sequence));
+        return Optional.of(b.build());
+      }
+    }
+    return Optional.empty();
   }
 
   private static <T> String factorNameForGenerator(Parameter<T> parameter) {
@@ -95,7 +131,7 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
     return new Constraint() {
       @Override
       public String getName() {
-        return "generator#test(numRepetitions)";
+        return "generator#test(numRepetitions)->true";
       }
 
       @Override
