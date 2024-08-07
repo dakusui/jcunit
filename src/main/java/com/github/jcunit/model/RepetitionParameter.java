@@ -20,18 +20,18 @@ import static java.util.stream.Collectors.toList;
  * // @formatter:off 
  * // @formatter:on 
  */
-public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Parameter<List<T>> {
+public class RepetitionParameter<T> extends Parameter.Base<List<T>> implements Parameter<List<T>> {
 
   /**
    * An interface that defines a factor to generate a sequence of `T`.
    *
    * @param <T>
    */
-  public interface SequenceGenerator<T> extends Predicate<Integer> {
+  public interface RepetitionGenerator<T> extends Predicate<Integer> {
     Supplier<T> generator();
   }
 
-  private final SequenceGenerator<T> emptySequenceGenerator = new SequenceGenerator<T>() {
+  private final RepetitionGenerator<T> emptyRepetitionGenerator = new RepetitionGenerator<T>() {
     @Override
     public boolean test(Integer integer) {
       return Objects.equals(integer, 0);
@@ -46,10 +46,10 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
   };
 
 
-  private final List<SequenceGenerator<T>> generators;
+  private final List<RepetitionGenerator<T>> generators;
   private final List<T> symbols;
   private final List<Integer> numRepetitions;
-  private final Function<List<T>, SequenceGenerator<T>> primeSequenceGeneratorFunction;
+  private final Function<List<T>, RepetitionGenerator<T>> primeSequenceGeneratorFunction;
 
   /**
    * You can specify known values of this object through `knownValues` parameter.
@@ -59,16 +59,16 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
    * @param name        A name of a factor created by this `Parameter`.
    * @param knownValues Known values of this parameter.
    */
-  public SequenceParameter(String name,
-                           List<List<T>> knownValues,
-                           List<T> symbols,
-                           List<SequenceGenerator<T>> generators,
-                           List<Integer> numRepetitions) {
+  public RepetitionParameter(String name,
+                             List<List<T>> knownValues,
+                             List<T> symbols,
+                             List<RepetitionGenerator<T>> generators,
+                             List<Integer> numRepetitions) {
     super(name, knownValues);
     this.symbols = symbols;
     this.generators = generators;
     this.numRepetitions = numRepetitions;
-    this.primeSequenceGeneratorFunction = SequenceParameter::sequenceGeneratorFor;
+    this.primeSequenceGeneratorFunction = RepetitionParameter::sequenceGeneratorFor;
   }
 
   @Override
@@ -103,7 +103,7 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
     if (!this.numRepetitions.contains(sequence.size()))
       return Optional.empty();
     Tuple.Builder b = new Tuple.Builder();
-    for (SequenceGenerator<T> generator : generators) {
+    for (RepetitionGenerator<T> generator : generators) {
       if (!generator.test(sequence.size()))
         continue;
       List<T> workSequence = new ArrayList<>(sequence.size());
@@ -137,7 +137,7 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
       @Override
       public boolean test(Tuple tuple) {
         Integer numRepetitions = (Integer) tuple.get(factorNameForNumRepetitions(paramter));
-        @SuppressWarnings("unchecked") SequenceGenerator<T> generator = (SequenceGenerator<T>) tuple.get(factorNameForGenerator(paramter));
+        @SuppressWarnings("unchecked") RepetitionGenerator<T> generator = (RepetitionGenerator<T>) tuple.get(factorNameForGenerator(paramter));
         return generator.test(numRepetitions);
       }
 
@@ -154,8 +154,8 @@ public class SequenceParameter<T> extends Parameter.Base<List<T>> implements Par
     };
   }
 
-  private static <T> SequenceGenerator<T> sequenceGeneratorFor(List<T> value) {
-    return new SequenceGenerator<T>() {
+  private static <T> RepetitionGenerator<T> sequenceGeneratorFor(List<T> value) {
+    return new RepetitionGenerator<T>() {
       @Override
       public boolean test(Integer integer) {
         return Objects.equals(value.size(), integer);

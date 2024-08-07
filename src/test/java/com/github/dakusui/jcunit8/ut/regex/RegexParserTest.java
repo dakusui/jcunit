@@ -150,6 +150,7 @@ public class RegexParserTest extends PipelineTestBase {
   public void whenPreprocessed_thenResultMatchesExpectation(String _input) {
     List<String> preprocessedTokens = RegexParser.preprocess(this.input(_input));
 
+    System.out.printf("%-30s %-4s%n", joinBy("").apply(preprocessedTokens), joinBy(" ").apply(preprocessedTokens));
     assertStatement(value(preprocessedTokens).function(joinBy(""))
                                              .toBe()
                                              .equalTo(expectedInternalExpressionByPreprocessing(_input)));
