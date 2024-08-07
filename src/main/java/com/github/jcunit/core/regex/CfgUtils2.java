@@ -146,7 +146,7 @@ public class CfgUtils2 {
                                                                              alt(empty(),
                                                                                  seq($("("),
                                                                                      $("Statement"),
-                                                                                     $("("))))
+                                                                                     $(")"))))
                                                              .build();
     System.out.println(cfg);
   }
