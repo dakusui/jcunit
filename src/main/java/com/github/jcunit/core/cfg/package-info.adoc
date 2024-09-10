@@ -1,0 +1,23 @@
+
+=== Context Free Grammar
+
+1. Find all the cyclic paths in the grammar.
+They will be grouped by starting alterations.
+For each of them, a constraint that prohibits test cases resulting in infinite loop will be generated.
+2. Compose a set of factors and constraints for each alteration.
+Given alteration **A**:
+  - Factor **A-choices**, which lists all the possible choices defined for it in the grammar.
+  - Factor **A-cyclo**, which lists all the cyclic paths identified in Step-1, which start with **A**.
+    It also contains a level **VOID**.
+  - Factor **A-repetitions**, which represents how many times **A-cyclo** should be repeated.
+  - A constraint that makes **A-cyclic** **VOID**, when **A-repetitions** factor becomes zero, otherwise non-**VOID**.
+NOTE:: In our implementation, the prefix part of a factor will be named following a convention below: `{NON_TERMINAL_SYMBOL_NAME}-{SERIAL_NUMBER_IN_THETERMINAL_SYMBOL}`
+3. Factors generated from alterations not always referenced will be made "optional".
+This will be done in the following steps.
+  - Ensure **VOID** level is present.
+  - Generate a constraint which makes the **VOID** level selected, when it is not referenced by any, otherwise non-**VOID**.
+
+=== Optional Factor
+
+It is frequently observed that a factor becomes invalid.
+
