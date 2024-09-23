@@ -2,6 +2,8 @@ package com.github.jcunit.core.cfg;
 
 import com.github.jcunit.factorspace.FactorSpace;
 
+import static java.util.Arrays.asList;
+
 /**
  * // @formatter:off 
  * // @formatter:on 
@@ -10,6 +12,14 @@ public interface Cfg {
   void startSymbol();
 
   FactorSpace toFactorSpace();
+
+  static Alternation alteration(Element... elements) {
+    return () -> asList(elements);
+  }
+
+  static Concatenation concatenation(Element... elements) {
+    return () -> asList(elements);
+  }
 
   class Impl implements Cfg {
 
@@ -25,7 +35,7 @@ public interface Cfg {
   }
 
   class Builder {
-    public Builder add(String head, Element expansion, boolean exit) {
+    public Builder add(String head, Element expansion) {
       return this;
     }
 

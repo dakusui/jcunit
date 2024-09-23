@@ -1,3 +1,4 @@
+:stem: latexmath
 
 === Context Free Grammar
 
@@ -7,11 +8,13 @@ For each of them, a constraint that prohibits test cases resulting in infinite l
 2. Compose a set of factors and constraints for each alteration.
 Given alteration **A**:
   - Factor **A-choices**, which lists all the possible choices defined for it in the grammar.
-  - Factor **A-cyclo**, which lists all the cyclic paths identified in Step-1, which start with **A**.
+  - Factor **A-cyclo**, which lists all the cyclic paths identified in Step-1.
+    These paths start with **A**.
     It also contains a level **VOID**.
   - Factor **A-repetitions**, which represents how many times **A-cyclo** should be repeated.
   - A constraint that makes **A-cyclic** **VOID**, when **A-repetitions** factor becomes zero, otherwise non-**VOID**.
-NOTE:: In our implementation, the prefix part of a factor will be named following a convention below: `{NON_TERMINAL_SYMBOL_NAME}-{SERIAL_NUMBER_IN_THETERMINAL_SYMBOL}`
+NOTE:: In our implementation, the prefix part of a factor will be named following a convention:
+`<NON_TERMINAL_SYMBOL_NAME>-<SERIAL_NUMBER_IN_THETERMINAL_SYMBOL>`
 3. Factors generated from alterations not always referenced will be made "optional".
 This will be done in the following steps.
   - Ensure **VOID** level is present.
@@ -19,5 +22,94 @@ This will be done in the following steps.
 
 === Optional Factor
 
-It is frequently observed that a factor becomes invalid.
+It is frequently observed that a factor becomes invalid on a certain condition.
+Given, such a condition stem:[P], a constraint that models this will be expressed:
 
+[stem]
+++++
+  P \to F \neq VOID and\\
+  !P \to F = VOID
+++++
+
+=== Reference Mechanism
+
+When a reference appears in a factor as one of its levels, the referenced factor will be optional,
+which can be valid when it is referenced.
+Note that if there are more than one references that reference a certain factor,
+the referenced factor will be void only if no factor is referencing it.
+
+[stem]
+++++
+\begin{align}
+\exists F_i \in \{F, G\ |\  level(F) = referenceTo(G) \},
+where\ &F\ and\ G\ are\ factors, \\
+
+       &referenceTo is a function, which returns a
+
+
+
+\end{align}
+++++
+
+levels:
+
+[latex]
+++++
+A \textbf{factor} \( F_i \) is defined as a set of
+\begin{align}
+\[
+F_i = \{ l_{i1}, l_{i2}, \dots, l_{iN_i} \}
+\]
+
+\end{align}
+++++
+
+Where:
+
++ latexmath:[( F_i ) is the \( i \)-th factor].
+\item \( l_{i1}, l_{i2}, \dots, l_{iN_i} \) are the levels (or possible values) for factor \( F_i \).
+\item \( N_i \) is the number of levels for factor \( F_i \).
+
+
+=== Alteration and Concatenation
+
+In the context-free grammar concept, an alteration is an essential element.
+
+----
+NT ::= hello (world|guys), everyone.
+----
+
+For this non-terminal symbol's definition, the framework will produce factors:
+
+[stem]
+++++
+NT_{alt} ::= {world, guys}
+++++
+
+Alterations can be nested:
+
+----
+NT ::= hello (world|(guys|gents)), everyone.
+----
+
+[stem]
+++++
+NT_{"alt"}            := {"world", ref(NT_{"alt-2"})}
+
+NT_{"alt-2"}          := {"guys", "gents", VOID}
+
+NT_{"alt-constraint"} := NT_{"alt"} = ref
+
+(NT_{"alt-2"} = ref (NT_{"alt-2"}) -> NT_{"alt-2"} != VOID) and (NT_{"alt"} != ref (NT_{"alt-2"}) -> NT_{"alt-2"} = VOID)
+
+(NT_{"alt-2"} != ref (NT_{"alt-2"}) <=> NT_{"alt-2"} = VOID)
+++++
+
+
+=== Empty
+
+t.b.d.
+
+=== Recursions
+
+t.b.d.
