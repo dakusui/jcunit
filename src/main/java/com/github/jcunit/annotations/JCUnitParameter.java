@@ -25,6 +25,8 @@ public @interface JCUnitParameter {
     SIMPLE {
     },
     REGEX {
+    },
+    CFG {
     };
 
 

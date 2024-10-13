@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import static com.github.valid8j.fluent.Expectations.*;
 import static java.util.Arrays.asList;
 
-public class RegexParserTest extends PipelineTestBase {
+public class RegexProcessorTest extends PipelineTestBase {
   private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter NAME_FORMATTER = Expr.Composite::name;
   private static final RegexTestUtils.ExprTreePrinter.InternalNodeFormatter ID_FORMATTER = Expr.Base::id;
 
@@ -75,7 +75,7 @@ public class RegexParserTest extends PipelineTestBase {
     });
   }
 
-  public RegexParserTest() {
+  public RegexProcessorTest() {
   }
 
   /**
@@ -86,7 +86,7 @@ public class RegexParserTest extends PipelineTestBase {
    * The expectation is extracted from the `_input`, which is given by the `RegexParserTest#data()`.
    *
    * @param _input the input data
-   * @see RegexParserTest#data()
+   * @see RegexProcessorTest#data()
    */
   @ParameterizedTest
   @MethodSource("data")
@@ -105,7 +105,7 @@ public class RegexParserTest extends PipelineTestBase {
    * The expectation is extracted from the `_input`, which is given by the `RegexParserTest#data()`.
    *
    * @param _input the input data
-   * @see RegexParserTest#data()
+   * @see RegexProcessorTest#data()
    */
   @ParameterizedTest
   @MethodSource("data")
@@ -120,7 +120,7 @@ public class RegexParserTest extends PipelineTestBase {
    * The expectation is extracted from the `_input`, which is given by the `RegexParserTest#data()`.
    *
    * @param _input An input string
-   * @see RegexParserTest#data()
+   * @see RegexProcessorTest#data()
    */
   @SuppressWarnings("unchecked")
   @ParameterizedTest
@@ -143,7 +143,7 @@ public class RegexParserTest extends PipelineTestBase {
    * The expectation is extracted from the `_input`, which is given by the `RegexParserTest#data()`.
    *
    * @param _input An input string
-   * @see RegexParserTest#data()
+   * @see RegexProcessorTest#data()
    */
   @ParameterizedTest
   @MethodSource("data")

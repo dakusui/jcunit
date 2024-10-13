@@ -74,19 +74,33 @@ public enum InternalUtils {
     keys.forEach((String key) -> builder.put(key, from.get(key)));
     return builder.build();
   }
-  
-  
-  public static String className(Class klass) {
+
+  public static String simpleClassName(Class<?> klass) {
+    return simpleClassName(klass, "");
+  }
+
+  private static String simpleClassName(Class<?> klass, String work) {
+    String simpleName = klass.getSimpleName();
+    if (isEmptyOrNull(simpleName))
+      return simpleName;
+    return simpleClassName(klass.getEnclosingClass(), work + "$");
+  }
+
+  public static boolean isEmptyOrNull(String string) {
+    return string == null || string.isEmpty();
+  }
+
+  public static String className(Class<?> klass) {
     return className(klass, "");
   }
-  
-  private static String className(Class klass, String work) {
+
+  private static String className(Class<?> klass, String work) {
     String canonicalName = klass.getCanonicalName();
     if (canonicalName != null)
       return canonicalName;
     return className(klass.getEnclosingClass(), work + "$");
   }
-  
+
   
   public static <T extends Predicate<E>, E> Predicate<E> conjunct(Iterable<T> predicates) {
     Predicate<E> ret = tuple -> true;
