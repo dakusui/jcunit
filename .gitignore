@@ -2,6 +2,7 @@ target/
 src/site/wiki
 .asciidoctor/
 .generated/
+.dependencies/
 .jcunit
 .settings
 .project
