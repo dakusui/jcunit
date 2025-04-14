@@ -31,6 +31,7 @@ import static com.github.jcunit.runners.junit5.JCUnitTestEngine.Utils.definedPre
 import static com.github.jcunit.runners.junit5.JCUnitTestEngineUtils.*;
 import static com.github.valid8j.fluent.Expectations.require;
 import static com.github.valid8j.fluent.Expectations.value;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -79,7 +80,7 @@ public class JCUnitTestEngine implements BeforeAllCallback, TestTemplateInvocati
       validateReferencesOfConstraints(errors, parameterSpaceSpec, knownNames);
       require(value(errors).satisfies().empty());
 
-      List<TestData> testDataSet = Utils.generateTestDataSet(pipelineSpec, parameterSpaceSpec.toParameterSpace());
+      List<TestData> testDataSet = Utils.generateTestDataSet(pipelineSpec, parameterSpaceSpec.toParameterSpace(asList("param2", "param2")));
       context.getStore(namespace).put("testDataSet", testDataSet);
       context.getStore(namespace).put("parameterSpaceSpec", parameterSpaceSpec);
       context.getStore(namespace).put("definedPredicates", definedPredicates);

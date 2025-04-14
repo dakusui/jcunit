@@ -60,7 +60,7 @@ public class TestExample2 {
   }
 
   @JCUnitTest
-  @Given("startingWithSalute")
+  //@Given("startingWithSalute")
   public void testMethod(@From("param1") String param1, @From("param2") Map<String, List<String>> param2) {
     System.out.println("param1:" + param1 + ", param2:" + param2);
   }

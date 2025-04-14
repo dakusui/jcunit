@@ -53,10 +53,10 @@ public interface ParameterSpec<E> {
    */
   List<ValueResolver<E>> valueResolvers();
 
-  default Parameter<List<ValueResolver<E>>> toParameter(ParameterSpaceSpec parameterSpaceSpec) {
+  default Parameter<List<ValueResolver<E>>> toParameter(ParameterSpaceSpec parameterSpaceSpec, boolean optional) {
     switch (type()) {
       case SIMPLE:
-        return Type.createListSimple(this, parameterSpaceSpec);
+        return Type.createListSimple(this, parameterSpaceSpec, optional);
       case REGEX:
         boolean isSeed = Utils.isRequired(parameterSpaceSpec, this.name(), parameterSpaceSpec.parameterNames());
         return Type.createRegex(isSeed, this);

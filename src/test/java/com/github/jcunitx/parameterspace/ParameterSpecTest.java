@@ -10,6 +10,8 @@ import java.util.List;
 
 import static com.github.valid8j.fluent.Expectations.assertStatement;
 import static com.github.valid8j.fluent.Expectations.value;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 /**
  * // @formatter:off 
@@ -34,8 +36,9 @@ public class ParameterSpecTest {
   @Test
   public void testParameterSpecToParameter() {
     ParameterSpec<String> testParameterSpecP1 = SpecTestUtils.createTestParameterSpecP1();
-    ParameterSpaceSpec parameterSpaceSpec = SpecTestUtils.createParameterSpaceSpec(testParameterSpecP1, SpecTestUtils.createTestParameterSpecP2());
-    Parameter<List<ValueResolver<String>>> parameter = testParameterSpecP1.toParameter(parameterSpaceSpec);
+    List<ParameterSpec<?>> parameterSpecs = asList(testParameterSpecP1, SpecTestUtils.createTestParameterSpecP2());
+    ParameterSpaceSpec parameterSpaceSpec = ParameterSpaceSpec.create(parameterSpecs, emptyList());
+    Parameter<List<ValueResolver<String>>> parameter = testParameterSpecP1.toParameter(parameterSpaceSpec, false);
 
     assertStatement(
         value(parameter).satisfies(p -> p.invoke("getName").asString().satisfies().equalTo("p1"))

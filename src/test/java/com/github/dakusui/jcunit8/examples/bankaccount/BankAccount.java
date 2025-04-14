@@ -19,7 +19,7 @@ class BankAccount {
       throw new IllegalArgumentException("Invalid amount (non-positive): " + amount);
     }
     if (amount > balance)
-      throw new InsufficientBalance();
+      throw new InsufficientBalance("Tried to: " + balance + "-" + amount);
     balance -= amount;
   }
 
@@ -36,5 +36,8 @@ class BankAccount {
   }
 
   static class InsufficientBalance extends RuntimeException {
+    public InsufficientBalance(String message) {
+      super(message);
+    }
   }
 }

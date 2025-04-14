@@ -34,7 +34,7 @@ public interface Pipeline {
   @ParseConfigArgumentsWith(Standard.ConfigArgumentsParser.class)
   class Standard implements Pipeline {
     public static class ConfigArgumentsParser implements ConfigurePipelineWith.PipelineConfigArgumentsParser {
-      enum Keyword {
+      public enum Keyword {
         STRENGTH("strength"),
         NEGATIVE_TEST_GENERATION("negativeTestGeneration"),
         SEED_GENERATOR_METHOD("seedGeneratorMethod");
