@@ -1,0 +1,24 @@
+<project>
+    <body>
+        <menu name="Documents">
+            <!-- Abstract -->
+            <item href="valid8j-1-introduction.html" name="Introduction"/>
+            <item href="valid8j-2-getting-started.html" name="Getting Started"/>
+            <item href="valid8j-3-architecture.html" name="Architecture, Design Principles, and Techniques"/>
+            <item href="valid8j-4-guides-and-tutorials.html" name="Guides and Tutorials"/>
+            <item href="valid8j-5-advanced-topics.html" name="Advanced Topics"/>
+            <item href="apidocs/index.html" name="JavaDoc:valid8j"/>
+            <item href="valid8j-6-limitations-and-future-works.html" name="Limitations and Future Works"/>
+            <item href="valid8j-7-faq.html" name="FAQs"/>
+            <item href="valid8j-8-development.html" name="Development"/>
+            <item href="valid8j-9-support.html" name="Contact and Support"/>
+        </menu>
+        <menu ref="reports" inherit="top"/>
+        <menu ref="modules"/>
+    </body>
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>1.7</version>
+    </skin>
+</project>
