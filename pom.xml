@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.dakusui</groupId>
-    <artifactId>valid8j</artifactId>
+    <artifactId>jcunit</artifactId>
     <packaging>jar</packaging>
-    <version>2.1.8-SNAPSHOT</version>
-    <description>Java Library Providing Uniformed Programming Experiences across DbC, Value Checking, and Test Assertions</description>
-    <name>valid8j</name>
-    <url>https://github.com/valid8j/valid8j</url>
+    <version>0.10.0-SNAPSHOT</version>
+    <description>The most advanced test execution engine powered by combinatorial testing</description>
+    <name>jcunit</name>
+    <url>https://github.com/dakusui/jcunit</url>
 
     <licenses>
         <license>
@@ -17,11 +17,11 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com/valid8j/${project.name}.git
+        <connection>scm:git:git@github.com/dakusui/${project.name}.git
         </connection>
-        <developerConnection>scm:git:git@github.com:valid8j/${project.name}.git
+        <developerConnection>scm:git:git@github.com:dakusui/${project.name}.git
         </developerConnection>
-        <url>https://github.com/valid8j/${project.name}</url>
+        <url>https://github.com/dakusui/${project.name}</url>
         <tag>${project.artifactId}-${project.version}</tag>
     </scm>
 
@@ -80,6 +80,11 @@
             <groupId>org.opentest4j</groupId>
             <artifactId>opentest4j</artifactId>
             <version>${opentest4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dakusui</groupId>
+            <artifactId>valid8j</artifactId>
+            <version>2.1.7</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -377,7 +382,7 @@
                             <jvmArg>-Dunderpitest=yes</jvmArg>
                         </jvmArgs>
                         <targetClasses>
-                            <param>com.github.valid8j.*</param>
+                            <param>com.github.dakusui.jcunit.*</param>
                         </targetClasses>
                         <targetTests>
                             <param>*Test</param>
@@ -391,7 +396,7 @@
                     <configuration>
                         <instrumentation>
                             <includes>
-                                <include>com/github/valid8j/**/*.class</include>
+                                <include>com/github/dakusui/jcunit/**/*.class</include>
                             </includes>
                         </instrumentation>
                         <formats>
@@ -407,7 +412,7 @@
                     <version>${jacoco-maven-plugin.version}</version>
                     <configuration>
                         <excludes>
-                            <exclude>com/github/valid8j/**/*.class</exclude>
+                            <exclude>com/github/dakusui/jcunit/**/*.class</exclude>
                         </excludes>
                     </configuration>
                     <executions>
@@ -484,18 +489,6 @@
                                     ${basedir}/src/build_tools/remove-adoc-diags.sh
                                 </argument>
                             </arguments>
-                        </configuration>
-                    </execution>
-                    <execution><!-- Run our version calculation script -->
-                        <id>Mangle pcond source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>
-                                ${basedir}/src/build_tools/import-pcond.sh
-                            </executable>
                         </configuration>
                     </execution>
                     <execution><!-- Run our version calculation script -->

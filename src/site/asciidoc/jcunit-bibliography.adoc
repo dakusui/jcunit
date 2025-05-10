@@ -1,0 +1,12 @@
+[bibliography]
+== References
+
+- [[[DbC, 1]]] Wikipedia article on Design by Contract, https://en.wikipedia.org/wiki/Design_by_contract[Design by contract]
+- [[[valid4j, 2]]] valid4j https://www.valid4j.org/[valid4j.org]
+- [[[pcond, 3]]] pcond https://dakusui.github.io/pcond/[dakusui.github.io/pcond]
+- [[[v4j, 4]]] Valid4j, http://www.valid4j.org[valid4j.org]
+- [[[GuavaPreconditions, 5]]] PreconditionsExplained, https://github.com/google/guava/wiki/PreconditionsExplained[PreconditionsExplained]
+- [[[hamcrest, 6]]] Hamcrest https://hamcrest.org/[hamcrest.org]
+- [[[assertions, 7]]] Programming With Assertions https://docs.oracle.com/javase/8/docs/technotes/guides/language/assert.html[Programming With Assertions]
+- [[[Preconditions-guava, 8]]] Preconditions, Google Guava https://guava.dev/releases/19.0/api/docs/com/google/common/base/Preconditions.html[Preconditions class]
+- [[[Validates-apache-commons, 9]]] Validates, Apache Commons https://commons.apache.org/proper/commons-lang/apidocs/org/apache/commons/lang3/Validate.html[Validate class]

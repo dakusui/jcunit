@@ -1,0 +1,1 @@
+A package that holds utility classes of **JCUnitX** used by multiple packages.
